@@ -40,55 +40,6 @@ Acknowledgments
 SourceFiles
     eigenSolver.C
 
-Example
-    #include "fvCFD.H"
-    #include "scalarMatrices.H"
-    #include "eigenSolver.H"
-
-    int main(int argc, char *argv[])
-    {
-
-        scalarSquareMatrix A(3, 3, scalar(0));
-
-        A[0][0] = 3.0;
-        A[1][1] = 3.0;
-        A[2][2] = 4.0;
-        A[0][2] = 2.0;
-        A[1][2] = 1.0;
-        A[2][0] = 2.0;
-        A[2][1] = 1.0;
-
-        // Since the matrix is not symmtric, there are two possible ways of
-        // constructing the eigenSolver:
-        //
-        // a) Using the general constructor, with symmetry check
-        
-        eigenSolver eig(A);
-
-        // b) Skypping the symmetry check by specifying the matrix is not
-        //    symmetric
-        //
-        // eigenSolver eig(A, false);
-
-        // Extracting the real part of the eigenvalues
-        // In this case eigenvalues are all real
-        scalarDiagonalMatrix eigenRe(eig.eigenvaluesRe());
-
-        // The imaginary part of eigenvalues can be retrieved with
-        //
-        // scalarDiagonalMatrix eigenIm(eig.eigenvaluesIm());
-        //
-        // while eigenvectors are retrived with
-        //
-        // scalarSquareMatrix eigenvec(eig.eigenvectors());
-
-        // Printing the real part of eigenvalues
-        for(int i = 0; i < 3; i++)
-        {
-            Info << endl << eigenRe[i] << endl;
-        }
-    }
-
 \*---------------------------------------------------------------------------*/
 
 #ifndef eigenSolver_H
