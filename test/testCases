@@ -15,8 +15,8 @@
 
  List of verification test cases
 
- Name 			Description
+ Name 			        Description
  
- eigenSolver    Simple demonstration of the eigenSolver class.
- 
+ eigenSolver            Simple demonstration of the eigenSolver class.
+ univariateMomentSet    Example of use of the univariateMomentSet class.
   
