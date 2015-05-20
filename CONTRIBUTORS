@@ -8,7 +8,8 @@
                     | |                                          
                     |_|                                          
 
-  OpenQBMM - The next generation of multiphase solvers for polydisperse flows.
+  OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
+  
   Copyright (C) 2014-2015 OpenQBMM developers.
   
 \*---------------------------------------------------------------------------*/
