@@ -1,0 +1,194 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2012-2015 Alberto Passalacqua
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is derivative work of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Class
+    Foam::eigenSolver
+
+Description
+    Eigenvalues and eigenvectors of a square real matrix
+   
+Acknowledgments
+    This implementation derives almost completely from TNT/JAMA, a public-domain
+    library developed at NIST, available at http://math.nist.gov/tnt/index.html
+    Their implementation was based upon EISPACK.
+
+    The tridiagonaliseSymmMatrix, symmTridiagQL, Hessemberg and realSchir
+    methods are based on the Algol procedures tred2 by Bowdler, Martin, Reinsch,
+    and Wilkinson, Handbook for Auto. Comp., Vol. II-Linear Algebra, and the
+    corresponding FORTRAN subroutine in EISPACK.
+
+SourceFiles
+    eigenSolver.C
+
+Example
+    #include "fvCFD.H"
+    #include "scalarMatrices.H"
+    #include "eigenSolver.H"
+
+    int main(int argc, char *argv[])
+    {
+
+        scalarSquareMatrix A(3, 3, scalar(0));
+
+        A[0][0] = 3.0;
+        A[1][1] = 3.0;
+        A[2][2] = 4.0;
+        A[0][2] = 2.0;
+        A[1][2] = 1.0;
+        A[2][0] = 2.0;
+        A[2][1] = 1.0;
+
+        // Since the matrix is not symmtric, there are two possible ways of
+        // constructing the eigenSolver:
+        //
+        // a) Using the general constructor, with symmetry check
+        
+        eigenSolver eig(A);
+
+        // b) Skypping the symmetry check by specifying the matrix is not
+        //    symmetric
+        //
+        // eigenSolver eig(A, false);
+
+        // Extracting the real part of the eigenvalues
+        // In this case eigenvalues are all real
+        scalarDiagonalMatrix eigenRe(eig.eigenvaluesRe());
+
+        // The imaginary part of eigenvalues can be retrieved with
+        //
+        // scalarDiagonalMatrix eigenIm(eig.eigenvaluesIm());
+        //
+        // while eigenvectors are retrived with
+        //
+        // scalarSquareMatrix eigenvec(eig.eigenvectors());
+
+        // Printing the real part of eigenvalues
+        for(int i = 0; i < 3; i++)
+        {
+            Info << endl << eigenRe[i] << endl;
+        }
+    }
+
+\*---------------------------------------------------------------------------*/
+
+#ifndef eigenSolver_H
+#define eigenSolver_H
+
+#include "scalar.H"
+#include "scalarMatrices.H"
+#include "complex.H"
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+/*---------------------------------------------------------------------------*\
+            Class eigenSolver Declaration
+\*---------------------------------------------------------------------------*/
+
+class eigenSolver
+{
+private:
+
+    // Private data
+
+    //- Real part of eigenvalues
+    scalarDiagonalMatrix eigenvaluesRe_;
+
+    //- Imaginary part of eigenvalues
+    scalarDiagonalMatrix eigenvaluesIm_;
+
+    //- Eigenvectors matrix
+    scalarSquareMatrix eigenvectors_;
+
+    //- Matrix with the same size of original matrix
+    scalarSquareMatrix H_;
+
+    //- Number of rows and columns
+    label n_;
+
+    //- Private member functions
+
+    //- Disallow default bitwise copy construct
+    eigenSolver(const eigenSolver&);
+
+    //- Disallow default bitwise assignment
+    void operator=(const eigenSolver&);
+
+    //- Checks matrix for symmetry
+    bool isSymmetric(const scalarSquareMatrix& A);
+
+    //- Householder transform of a symmetric matrix to tri-diagonal form
+    void tridiagonaliseSymmMatrix();
+
+    //- Symmetric tri-diagonal QL algorithm
+    void symmTridiagQL();
+
+    //- Reduction of non-symmetric matrix to Hessemberg form
+    void Hessenberg();
+
+    //- Reduction from Hessenberg to real Schur form
+    void realSchur();
+
+public:
+
+    // Constructors
+
+    //- Construct from a scalarSquareMatrix
+    eigenSolver(const scalarSquareMatrix& A);
+
+    //- Construct from a scalarSquareMatrix and symmetry information
+    //  Does not perform symmetric check
+    eigenSolver(const scalarSquareMatrix& A, bool symmetric);
+
+    // Access Functions
+
+    //- Return real part of the eigenvalues
+    const scalarDiagonalMatrix& eigenvaluesRe() const
+    {
+        return eigenvaluesRe_;
+    }
+
+    const scalarDiagonalMatrix& eigenvaluesIm() const
+    {
+        return eigenvaluesIm_;
+    }
+
+    //- Return eigenvectors
+    const scalarSquareMatrix& eigenvectors() const
+    {
+        return eigenvectors_;
+    }
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// ************************************************************************* //
