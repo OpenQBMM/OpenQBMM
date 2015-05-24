@@ -186,21 +186,25 @@ public:
 
     // Member Functions
 
+        //- Return number of moments
         inline label nMoments()
         {
             return nMoments_;
         }
 
+        //- Return number of primary quadrature nodes
         inline label nPrimaryNodes()
         {
             return nPrimaryNodes_;
         }
 
+        //- Return number of secondary quadrature nodes
         inline label nSecondaryNodes()
         {
             return nSecondaryNodes_;
         }
 
+        //- Return the value of the sigma parameter
         inline scalar sigma() const
         {
             return sigma_;
@@ -266,6 +270,9 @@ public:
         ) = 0;
 
         //- Compute maximum value of sigma to ensure realizability
+        //  The value is exact for the two-node case. For cases with a larger
+        //  number of nodes, this provides an over-estimation of the maximum
+        //  value of the sigma parameter which ensures moment realizability.
         virtual scalar sigmaMax() = 0;
 
         //- Compute secondary weigths and abscissae
