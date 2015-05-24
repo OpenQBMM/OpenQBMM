@@ -357,28 +357,14 @@ void Foam::extendedMomentInversion::secondaryQuadrature()
             // Compute Gaussian quadrature used to find secondary quadrature
             eigenSolver JEig(J, true);
 
-            scalar sumSecondaryWeights = 0.0;
+            const scalarDiagonalMatrix& JEigenvaluesRe(JEig.eigenvaluesRe());
 
             // Compute secondary weights before normalization and calculate sum
             for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
             {
                 secondaryWeights_[pNodeI][sNodeI] 
                     = sqr(JEig.eigenvectors()[0][sNodeI]);
-                
-                sumSecondaryWeights += secondaryWeights_[pNodeI][sNodeI];
-            }
 
-            const scalarDiagonalMatrix& JEigenvaluesRe(JEig.eigenvaluesRe());
-
-            // Compute secondary weights and abscissae
-            for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
-            {
-                // Normalizing secondary weights so that they sum up to the
-                // primary weight. This simplifies calculations of source terms.
-                secondaryWeights_[pNodeI][sNodeI] 
-                    *= primaryWeights_[pNodeI]/sumSecondaryWeights;
-
-                // Computing secondary abscissae from kernel function
                 secondaryAbscissae_[pNodeI][sNodeI] = 
                     secondaryAbscissa(primaryAbscissae_[pNodeI], 
                         JEigenvaluesRe[sNodeI], sigma_);
@@ -392,6 +378,12 @@ void Foam::extendedMomentInversion::secondaryQuadrature()
         {
             secondaryWeights_[pNodeI][0] = primaryWeights_[pNodeI];
             secondaryAbscissae_[pNodeI][0] = primaryAbscissae_[pNodeI];
+
+            for (label sNodeI = 1; sNodeI < nSecondaryNodes_; sNodeI++)
+            {
+                secondaryWeights_[pNodeI][sNodeI] = 0.0;
+                secondaryAbscissae_[pNodeI][sNodeI] = 0.0;
+            }
         }
     }
 }
