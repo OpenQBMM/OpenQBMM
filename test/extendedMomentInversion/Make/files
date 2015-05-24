@@ -1,0 +1,3 @@
+Test-ExtendedMomentInversion.C
+
+EXE = $(FOAM_USER_APPBIN)/Test-ExtendedMomentInversion
