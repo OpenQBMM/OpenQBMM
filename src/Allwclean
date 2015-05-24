@@ -4,5 +4,6 @@ set -x
 
 wclean libso eigenSolver
 wclean libso quadratureMethods/univariateMomentSet
+wclean libso quadratureMethods/extentedMomentInversion
 
 # ----------------------------------------------------------------- end-of-file

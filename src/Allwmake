@@ -4,5 +4,7 @@ set -x
 
 wmake libso eigenSolver
 wmake libso quadratureMethods/univariateMomentSet
+wmake libso quadratureMethods/extentedMomentInversion
+wmake libso quadratureMethods/quadratureApproximation
 
 # ----------------------------------------------------------------- end-of-file
