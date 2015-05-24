@@ -51,7 +51,6 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
         IOobject
         (
             IOobject::groupName(name_, "primaryWeight"),
-            //"primaryWeight_" + name_,
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -65,7 +64,6 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
         IOobject
         (
             IOobject::groupName(name_, "primaryAbscissa"),
-            //"primaryAbscissa_" + name_,
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -105,7 +103,6 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
                         name_,
                         "secondaryWeight." + name(nodeI)
                     ),
-                    //"secondaryWeight" + name_ + name(nodeI),
                     mesh.time().timeName(),
                     mesh,
                     IOobject::NO_READ,
