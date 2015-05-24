@@ -162,6 +162,7 @@ public:
             //- Return the name of the node
             inline const word& name() const;
             
+            //- Returns the number of secondary nodes
             inline label nSecondaryNodes();
 
             //- Const access to the primary weight of the node
