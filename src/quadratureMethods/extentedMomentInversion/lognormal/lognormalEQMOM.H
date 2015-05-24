@@ -40,7 +40,7 @@ Description
     \verbatim
         "The theory of canonical moments with applications in Statistics, 
         Probability and Analysis"
-        H Dette, W. J. Studden 
+        H Dette, W J Studden 
         Wiley & Sons, 1997
     \endverbatim
 
@@ -96,15 +96,15 @@ public:
         scalar sigma
     );
 
-	//- Compute moments from starred moments
-	virtual void momentsStarToMoments
-	(
-	    scalar sigma,
-	    univariateMomentSet& moments
-	);
+    //- Compute moments from starred moments
+    virtual void momentsStarToMoments
+    (
+        scalar sigma,
+        univariateMomentSet& moments
+    );
 
-	//- Compute the starred moments
-	virtual void momentsToMomentsStar(scalar sigma);
+    //- Compute the starred moments
+    virtual void momentsToMomentsStar(scalar sigma);
 
     //- Recurrence relation for polynomials orthogonal to kernel function
     virtual void recurrenceRelation
@@ -114,8 +114,8 @@ public:
         scalar primaryAbscissa
     );
     
-	//- Compute maximum value of sigma to ensure realizability
-	virtual scalar sigmaMax();
+    //- Compute maximum value of sigma to ensure realizability
+    virtual scalar sigmaMax();
 };
 
 
