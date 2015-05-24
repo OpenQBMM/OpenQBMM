@@ -161,9 +161,11 @@ public:
 
             //- Return the name of the node
             inline const word& name() const;
-            
+
+            inline bool extended() const;
+
             //- Returns the number of secondary nodes
-            inline label nSecondaryNodes();
+            inline label nSecondaryNodes() const;
 
             //- Const access to the primary weight of the node
             inline const weightType& primaryWeight() const;

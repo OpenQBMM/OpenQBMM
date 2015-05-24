@@ -36,8 +36,15 @@ const Foam::word& Foam::quadratureNode<weightType, abscissaType>::name() const
     return name_;
 }
 
+template <class weightType, class abscissaType>
+inline bool Foam::quadratureNode<weightType, abscissaType>::extended() const
+{
+    return extended_;
+}
+
 template <class weightType, class abscissaType> 
-Foam::label Foam::quadratureNode<weightType, abscissaType>::nSecondaryNodes() 
+Foam::label 
+Foam::quadratureNode<weightType, abscissaType>::nSecondaryNodes() const
 {
     return nSecondaryNodes_;
 }

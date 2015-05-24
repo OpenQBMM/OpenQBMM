@@ -50,18 +50,18 @@ int main(int argc, char *argv[])
     univariateMomentSet moments(nMoments, 0.0);
 
 //  Valid moment set
-   moments[0] = 1.0;
-   moments[1] = 2.708217669;
-   moments[2] = 8.951330468;
-   moments[3] = 35.95258119;
-   moments[4] = 174.4370267;
+//    moments[0] = 1.0;
+//    moments[1] = 2.708217669;
+//    moments[2] = 8.951330468;
+//    moments[3] = 35.95258119;
+//    moments[4] = 174.4370267;
     
 //  Unrealizable moment star
-//     moments[0] = 0.567128698550116;
-//     moments[1] = 0.659798044636756;
-//     moments[2] = 0.796168501018439;
-//     moments[3] = 1.0;
-//     moments[4] = 1.3103698092;
+    moments[0] = 0.567128698550116;
+    moments[1] = 0.659798044636756;
+    moments[2] = 0.796168501018439;
+    moments[3] = 1.0;
+    moments[4] = 1.3103698092;
 
 //  Set of moment with sigma = 0 as root
 //     moments[0] = 1.0;
@@ -102,11 +102,11 @@ int main(int argc, char *argv[])
 
     Info << "\nRecovering secondary weights and abscissae." << endl;
 
-    scalarDiagonalMatrix pWeights(EQMOM->primaryWeights());
-    scalarDiagonalMatrix pAbscissae(EQMOM->primaryAbscissae());
+    const scalarDiagonalMatrix& pWeights(EQMOM->primaryWeights());
+    const scalarDiagonalMatrix& pAbscissae(EQMOM->primaryAbscissae());
 
-    scalarRectangularMatrix sWeights(EQMOM->secondaryWeights());
-    scalarRectangularMatrix sAbscissae(EQMOM->secondaryAbscissae());
+    const scalarRectangularMatrix& sWeights(EQMOM->secondaryWeights());
+    const scalarRectangularMatrix& sAbscissae(EQMOM->secondaryAbscissae());
 
     Info << "\nStoring quadrature." << endl;
     
