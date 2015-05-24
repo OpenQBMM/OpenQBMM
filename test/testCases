@@ -17,6 +17,7 @@
 
  Name 			        Description
  
- eigenSolver            Simple demonstration of the eigenSolver class.
- univariateMomentSet    Example of use of the univariateMomentSet class.
+ eigenSolver              Simple demonstration of the eigenSolver class.
+ univariateMomentSet      Example of use of the univariateMomentSet class.
+ extendedMomentInversion  Example of use of the extendedMomentInversion class.
   
