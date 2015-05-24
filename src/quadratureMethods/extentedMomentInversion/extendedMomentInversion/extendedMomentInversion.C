@@ -376,8 +376,8 @@ void Foam::extendedMomentInversion::secondaryQuadrature()
         // Manage case with null sigma to avoid redefining source terms
         forAll(primaryWeights_, pNodeI)
         {
-            secondaryWeights_[pNodeI][0] = primaryWeights_[pNodeI];
-            secondaryAbscissae_[pNodeI][0] = primaryAbscissae_[pNodeI];
+            secondaryWeights_[pNodeI][0] = 1.0;
+            secondaryAbscissae_[pNodeI][0] = 1.0;
 
             for (label sNodeI = 1; sNodeI < nSecondaryNodes_; sNodeI++)
             {
