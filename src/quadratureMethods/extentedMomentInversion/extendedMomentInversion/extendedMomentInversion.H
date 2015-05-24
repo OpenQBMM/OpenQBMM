@@ -43,7 +43,13 @@ Description
         H Dette, W. J. Studden 
         Wiley & Sons, 1997
     \endverbatim
-
+    
+    \verbatim
+        "Orthogonal Polynomials: Computation and Approximation" 
+        W Gautschi 
+        Oxford University Press, 2004
+    \endverbatim
+    
 SourceFiles
     extendedMomentInversion.C
     newExtendedMomentInversion.C
