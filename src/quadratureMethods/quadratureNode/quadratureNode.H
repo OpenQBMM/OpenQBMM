@@ -183,10 +183,10 @@ public:
             //- Non-const access to the secondary weight of the node
             inline PtrList<weightType>& secondaryWeights();
 
-            //- Const access to the secondary abscissa of the node
+            //- Const access to the list of secondary abscissae of the node
             inline const PtrList<abscissaType>& secondaryAbscissae() const;
 
-            //- Non-const access to the secondary abscissa of the node
+            //- Non-const access to the list of secondary abscissae of the node
             inline PtrList<abscissaType>& secondaryAbscissae();
 
             //- Const access to sigma
