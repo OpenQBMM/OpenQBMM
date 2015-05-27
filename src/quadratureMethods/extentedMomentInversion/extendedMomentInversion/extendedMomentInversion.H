@@ -119,10 +119,10 @@ protected:
     //- Parameter sigma of the kernel density function
     scalar sigma_;
 
-    //- Primary quadrature weights
+    //- Secondary quadrature weights
     scalarRectangularMatrix secondaryWeights_;
         
-    //- Primary quadrature abscissae
+    //- Secondary quadrature abscissae
     scalarRectangularMatrix secondaryAbscissae_;
 
     //- Maximum number of iterations allowed to find sigma_
