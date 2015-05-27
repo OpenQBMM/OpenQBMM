@@ -40,7 +40,7 @@ Description
     \verbatim
         "The theory of canonical moments with applications in Statistics, 
         Probability and Analysis"
-        H Dette, W. J. Studden 
+        H Dette, W J Studden 
         Wiley & Sons, 1997
     \endverbatim
     
@@ -89,59 +89,59 @@ protected:
 
     // Protected data
 
-	//- Moments to invert
-	const univariateMomentSet& moments_;
+    //- Moments to invert
+    const univariateMomentSet& moments_;
 
-	//- Number of moments
-	label nMoments_;
+    //- Number of moments
+    label nMoments_;
 
-	//- Position of the last moment used to compute the target function
-	label lastMomentI_;
+    //- Position of the last moment used to compute the target function
+    label lastMomentI_;
 
-	//- Number of primary quadrature nodes
-	label nPrimaryNodes_;
+    //- Number of primary quadrature nodes
+    label nPrimaryNodes_;
 
     //- Number of secondary quadrature nodes
     label nSecondaryNodes_;
 
-	//- Approximated moments
-	univariateMomentSet approximatedMoments_;
+    //- Approximated moments
+    univariateMomentSet approximatedMoments_;
 
-	//- Starred moments
-	univariateMomentSet momentsStar_;
-
-	//- Primary quadrature weights
-	scalarDiagonalMatrix primaryWeights_;
-	
-	//- Primary quadrature abscissae
-	scalarDiagonalMatrix primaryAbscissae_;
-	
-	//- Parameter sigma of the kernel density function
-	scalar sigma_;
+    //- Starred moments
+    univariateMomentSet momentsStar_;
 
     //- Primary quadrature weights
+    scalarDiagonalMatrix primaryWeights_;
+    
+    //- Primary quadrature abscissae
+    scalarDiagonalMatrix primaryAbscissae_;
+    
+    //- Parameter sigma of the kernel density function
+    scalar sigma_;
+
+    //- Secondary quadrature weights
     scalarRectangularMatrix secondaryWeights_;
         
-    //- Primary quadrature abscissae
+    //- Secondary quadrature abscissae
     scalarRectangularMatrix secondaryAbscissae_;
 
-	//- Maximum number of iterations allowed to find sigma_
-	label maxSigmaIter_;
+    //- Maximum number of iterations allowed to find sigma_
+    label maxSigmaIter_;
 
-	//- Tolerance on moment conservation
-	scalar momentsTol_;
+    //- Tolerance on moment conservation
+    scalar momentsTol_;
 
-	//- Tolerance for the change in the sigma parameter
-	scalar sigmaTol_;
+    //- Tolerance for the change in the sigma parameter
+    scalar sigmaTol_;
 
-	//- Tolerance for the target function
-	scalar fTol_;
-	
-	//- Bool to track values of sigma_ that lead to unrealizable moments
-	bool foundUnrealizableSigma_;
-	
-	//- Bool to track if sigma = 0 is root
-	bool nullSigma_;
+    //- Tolerance for the target function
+    scalar fTol_;
+    
+    //- Bool to track values of sigma_ that lead to unrealizable moments
+    bool foundUnrealizableSigma_;
+    
+    //- Bool to track if sigma = 0 is root
+    bool nullSigma_;
         
     //- Bool to check if sigma is bracketed
     bool sigmaBracketed_;
