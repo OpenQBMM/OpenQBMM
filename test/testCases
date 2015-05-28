@@ -8,16 +8,23 @@
                     | |                                          
                     |_|                                          
 
-  OpenQBMM - The next generation of multiphase solvers for polydisperse flows.
+  OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
+  
   Copyright (C) 2014-2015 OpenQBMM developers.
   
 \*---------------------------------------------------------------------------*/
 
  List of verification test cases
 
- Name 			        Description
+* eigenSolver                        
+        Simple demonstration of the eigenSolver class.
  
- eigenSolver              Simple demonstration of the eigenSolver class.
- univariateMomentSet      Example of use of the univariateMomentSet class.
- extendedMomentInversion  Example of use of the extendedMomentInversion class.
+* extendedMomentInversion
+        Example of use of the extendedMomentInversion class.
+ 
+* univariateMomentSet
+        Example of use of the univariateMomentSet class.
+ 
+* univariateQuadratureApproximation  
+        Example of use of the univariateQuadratureApproximation class.
   
