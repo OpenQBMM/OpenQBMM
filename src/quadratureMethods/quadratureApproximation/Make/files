@@ -1,0 +1,3 @@
+univariateQuadratureApproximation/univariateQuadratureApproximation.C
+
+LIB = $(FOAM_USER_LIBBIN)/libquadratureApproximation

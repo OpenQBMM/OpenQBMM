@@ -1,0 +1,13 @@
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I../univariateMomentSet/lnInclude \
+    -I../extentedMomentInversion/lnInclude \
+    -I../quadratureNode \
+    -I../moments 
+    
+LIB_LIBS = \
+    -lfiniteVolume \
+    -L$(FOAM_USER_LIBBIN) \
+    -lmomentSet \
+    -lextendedMomentInversion
+    
