@@ -1,0 +1,5 @@
+extendedMomentInversion/extendedMomentInversion.C
+extendedMomentInversion/newExtendedMomentInversion.C
+lognormal/lognormalEQMOM.C
+
+LIB = $(FOAM_USER_LIBBIN)/libextendedMomentInversion
