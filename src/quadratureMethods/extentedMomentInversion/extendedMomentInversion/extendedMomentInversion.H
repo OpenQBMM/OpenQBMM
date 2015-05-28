@@ -240,6 +240,9 @@ public:
             return secondaryAbscissae_;
         }
 
+        //- Invert moments and updates secondary quadrature
+        void correct();
+
         //- Attempts to find a min or max of the target function on an interval
         scalar findExtremumTargetFunction(scalar sigmaLow, scalar sigmaHigh);
         

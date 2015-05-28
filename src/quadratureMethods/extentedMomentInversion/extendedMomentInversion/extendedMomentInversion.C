@@ -71,6 +71,11 @@ Foam::extendedMomentInversion::~extendedMomentInversion()
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+void Foam::extendedMomentInversion::correct()
+{
+    invert();
+    secondaryQuadrature();
+}
 
 void Foam::extendedMomentInversion::invert()
 {
