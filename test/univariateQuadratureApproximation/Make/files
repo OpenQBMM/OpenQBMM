@@ -1,3 +1,3 @@
-Test-QuadratureApproximation.C
+Test-UnivariateQuadratureApproximation.C
 
-EXE = $(FOAM_USER_APPBIN)/Test-QuadratureApproximation
+EXE = $(FOAM_USER_APPBIN)/Test-UnivariateQuadratureApproximation
