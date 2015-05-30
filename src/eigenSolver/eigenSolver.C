@@ -95,11 +95,11 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
 {
     for (label j = 0; j < n_; j++)
     {
-        eigenvaluesRe_[j] = eigenvectors_[n_-1][j];
+        eigenvaluesRe_[j] = eigenvectors_[n_ - 1][j];
     }
 
     // Householder reduction to tridiagonal form
-    for (label i = n_-1; i > 0; i--)
+    for (label i = n_ - 1; i > 0; i--)
     {
         // Scale to avoid under/overflow.
         scalar scale = scalar(0);
@@ -112,11 +112,11 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
 
         if (scale == 0.0)
         {
-            eigenvaluesIm_[i] = eigenvaluesRe_[i-1];
+            eigenvaluesIm_[i] = eigenvaluesRe_[i - 1];
 
             for (label j = 0; j < i; j++)
             {
-                eigenvaluesRe_[j] = eigenvectors_[i-1][j];
+                eigenvaluesRe_[j] = eigenvectors_[i - 1][j];
                 eigenvectors_[i][j] = scalar(0);
                 eigenvectors_[j][i] = scalar(0);
             }
@@ -130,7 +130,7 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
                 h += eigenvaluesRe_[k]*eigenvaluesRe_[k];
             }
 
-            scalar f = eigenvaluesRe_[i-1];
+            scalar f = eigenvaluesRe_[i - 1];
             scalar g = sqrt(h);
 
             if (f > 0)
@@ -140,7 +140,7 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
 
             eigenvaluesIm_[i] = scale*g;
             h -= f*g;
-            eigenvaluesRe_[i-1] = f - g;
+            eigenvaluesRe_[i - 1] = f - g;
 
             for (label j = 0; j < i; j++)
             {
@@ -154,7 +154,7 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
                 eigenvectors_[j][i] = f;
                 g = eigenvaluesIm_[j] + eigenvectors_[j][j]*f;
 
-                for (label k = j+1; k <= i-1; k++)
+                for (label k = j + 1; k <= i - 1; k++)
                 {
                     g += eigenvectors_[k][j]*eigenvaluesRe_[k];
                     eigenvaluesIm_[k] += eigenvectors_[k][j]*f;
@@ -183,13 +183,13 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
                 f = eigenvaluesRe_[j];
                 g = eigenvaluesIm_[j];
 
-                for (label k = j; k <= i-1; k++)
+                for (label k = j; k <= i - 1; k++)
                 {
                     eigenvectors_[k][j] -=
                             (f*eigenvaluesIm_[k] + g*eigenvaluesRe_[k]);
                 }
 
-                eigenvaluesRe_[j] = eigenvectors_[i-1][j];
+                eigenvaluesRe_[j] = eigenvectors_[i - 1][j];
                 eigenvectors_[i][j] = scalar(0);
             }
         }
@@ -198,17 +198,17 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
     }
 
     // Accumulate transformations
-    for (label i = 0; i < n_-1; i++)
+    for (label i = 0; i < n_ - 1; i++)
     {
-        eigenvectors_[n_-1][i] = eigenvectors_[i][i];
+        eigenvectors_[n_ - 1][i] = eigenvectors_[i][i];
         eigenvectors_[i][i] = scalar(1);
-        scalar h = eigenvaluesRe_[i+1];
+        scalar h = eigenvaluesRe_[i + 1];
 
         if (h != 0.0)
         {
             for (label k = 0; k <= i; k++)
             {
-                eigenvaluesRe_[k] = eigenvectors_[k][i+1]/h;
+                eigenvaluesRe_[k] = eigenvectors_[k][i + 1]/h;
             }
 
             for (label j = 0; j <= i; j++)
@@ -217,7 +217,7 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
 
                 for (label k = 0; k <= i; k++)
                 {
-                    g += eigenvectors_[k][i+1]*eigenvectors_[k][j];
+                    g += eigenvectors_[k][i + 1]*eigenvectors_[k][j];
                 }
 
                 for (label k = 0; k <= i; k++)
@@ -229,17 +229,17 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
 
         for (label k = 0; k <= i; k++)
         {
-            eigenvectors_[k][i+1] = scalar(0);
+            eigenvectors_[k][i + 1] = scalar(0);
         }
     }
 
     for (label j = 0; j < n_; j++)
     {
-        eigenvaluesRe_[j] = eigenvectors_[n_-1][j];
-        eigenvectors_[n_-1][j] = scalar(0);
+        eigenvaluesRe_[j] = eigenvectors_[n_ - 1][j];
+        eigenvectors_[n_ - 1][j] = scalar(0);
     }
 
-    eigenvectors_[n_-1][n_-1] = scalar(1);
+    eigenvectors_[n_ - 1][n_ - 1] = scalar(1);
     eigenvaluesIm_[0] = scalar(0);
 }
 
@@ -247,7 +247,7 @@ void Foam::eigenSolver::symmTridiagQL()
 {
     for (label i = 1; i < n_; i++)
     {
-        eigenvaluesIm_[i-1] = eigenvaluesIm_[i];
+        eigenvaluesIm_[i - 1] = eigenvaluesIm_[i];
     }
 
     eigenvaluesIm_[n_-1] = scalar(0);
@@ -284,7 +284,7 @@ void Foam::eigenSolver::symmTridiagQL()
 
                 // Compute implicit shift
                 scalar g = eigenvaluesRe_[l];
-                scalar p = (eigenvaluesRe_[l+1] - g)/(2.0*eigenvaluesIm_[l]);
+                scalar p = (eigenvaluesRe_[l + 1] - g)/(2.0*eigenvaluesIm_[l]);
                 scalar r = hypot(p, 1.0);
 
                 if (p < 0)
@@ -293,11 +293,11 @@ void Foam::eigenSolver::symmTridiagQL()
                 }
 
                 eigenvaluesRe_[l] = eigenvaluesIm_[l]/(p + r);
-                eigenvaluesRe_[l+1] = eigenvaluesIm_[l]*(p + r);
-                scalar dl1 = eigenvaluesRe_[l+1];
+                eigenvaluesRe_[l + 1] = eigenvaluesIm_[l]*(p + r);
+                scalar dl1 = eigenvaluesRe_[l + 1];
                 scalar h = g - eigenvaluesRe_[l];
 
-                for (label i = l+2; i < n_; i++)
+                for (label i = l + 2; i < n_; i++)
                 {
                     eigenvaluesRe_[i] -= h;
                 }
@@ -309,29 +309,29 @@ void Foam::eigenSolver::symmTridiagQL()
                 scalar c = scalar(1);
                 scalar c2 = c;
                 scalar c3 = c;
-                scalar el1 = eigenvaluesIm_[l+1];
+                scalar el1 = eigenvaluesIm_[l + 1];
                 scalar s = scalar(0);
                 scalar s2 = scalar(0);
 
-                for (label i = m-1; i >= l; i--)
+                for (label i = m - 1; i >= l; i--)
                 {
                     c3 = c2;
                     c2 = c;
                     s2 = s;
                     g = c*eigenvaluesIm_[i];
                     h = c*p;
-                    r = hypot(p,eigenvaluesIm_[i]);
-                    eigenvaluesIm_[i+1] = s*r;
+                    r = hypot(p, eigenvaluesIm_[i]);
+                    eigenvaluesIm_[i + 1] = s*r;
                     s = eigenvaluesIm_[i]/r;
                     c = p/r;
                     p = c*eigenvaluesRe_[i] - s*g;
-                    eigenvaluesRe_[i+1] = h + s*(c*g + s*eigenvaluesRe_[i]);
+                    eigenvaluesRe_[i + 1] = h + s*(c*g + s*eigenvaluesRe_[i]);
 
                     // Accumulate transformation
                     for (label k = 0; k < n_; k++)
                     {
-                        h = eigenvectors_[k][i+1];
-                        eigenvectors_[k][i+1] = s*eigenvectors_[k][i] + c*h;
+                        h = eigenvectors_[k][i + 1];
+                        eigenvectors_[k][i + 1] = s*eigenvectors_[k][i] + c*h;
                         eigenvectors_[k][i] = c*eigenvectors_[k][i] - s*h;
                     }
                 }
@@ -348,12 +348,12 @@ void Foam::eigenSolver::symmTridiagQL()
     }
 
     // Sorting eigenvalues and corresponding vectors
-    for (label i = 0; i < n_-1; i++)
+    for (label i = 0; i < n_ - 1; i++)
     {
         label k = i;
         scalar p = eigenvaluesRe_[i];
 
-        for (label j = i+1; j < n_; j++)
+        for (label j = i + 1; j < n_; j++)
         {
             if (eigenvaluesRe_[j] < p)
             {
@@ -382,16 +382,16 @@ void Foam::eigenSolver::Hessenberg()
     scalarDiagonalMatrix orth_(n_);
 
     label low = 0;
-    label high = n_-1;
+    label high = n_ - 1;
 
-    for (label m = low+1; m <= high-1; m++)
+    for (label m = low + 1; m <= high - 1; m++)
     {
         // Scale column
         scalar scale = scalar(0);
 
         for (label i = m; i <= high; i++)
         {
-            scale = scale + mag(H_[i][m-1]);
+            scale = scale + mag(H_[i][m - 1]);
         }
 
         if (scale != 0.0)
@@ -401,7 +401,7 @@ void Foam::eigenSolver::Hessenberg()
 
             for (label i = high; i >= m; i--)
             {
-                orth_[i] = H_[i][m-1]/scale;
+                orth_[i] = H_[i][m - 1]/scale;
                 h += orth_[i]*orth_[i];
             }
 
@@ -416,7 +416,7 @@ void Foam::eigenSolver::Hessenberg()
             orth_[m] -= g;
 
             // Apply Householder similarity transformation
-            // H = (I-u*u'/h)*H*(I-u*u')/h)
+            // H = (I - u*u'/h)*H*(I - u*u')/h)
             for (label j = m; j < n_; j++)
             {
                 scalar f = scalar(0);
@@ -465,13 +465,13 @@ void Foam::eigenSolver::Hessenberg()
         }
     }
 
-    for (label m = high-1; m >= low+1; m--)
+    for (label m = high - 1; m >= low + 1; m--)
     {
-        if (H_[m][m-1] != 0.0)
+        if (H_[m][m - 1] != 0.0)
         {
-            for (label i = m+1; i <= high; i++)
+            for (label i = m + 1; i <= high; i++)
             {
-                orth_[i] = H_[i][m-1];
+                orth_[i] = H_[i][m - 1];
             }
 
             for (label j = m; j <= high; j++)
@@ -484,7 +484,7 @@ void Foam::eigenSolver::Hessenberg()
                 }
 
                 // Double division avoids possible underflow
-                g = (g/orth_[m])/H_[m][m-1];
+                g = (g/orth_[m])/H_[m][m - 1];
 
                 for (label i = m; i <= high; i++)
                 {
@@ -499,12 +499,12 @@ void Foam::eigenSolver::realSchur()
 {
     // Initialize
     label nn = n_;
-    label n = nn-1;
+    label n = nn - 1;
     label low = 0;
-    label high = nn-1;
+    label high = nn - 1;
     scalar eps = pow(2.0, -52.0);
     scalar exshift = scalar(0);
-    scalar p=0, q=0, r=0, s=0, z=0, t, w, x, y;
+    scalar p = 0, q = 0, r = 0, s = 0, z = 0, t, w, x, y;
 
     // Store roots isolated by balance and compute matrix norm
     scalar norm = scalar(0);
@@ -517,7 +517,7 @@ void Foam::eigenSolver::realSchur()
             eigenvaluesIm_[i] = scalar(0);
         }
 
-        for (label j = max(i-1, 0); j < nn; j++)
+        for (label j = max(i - 1, 0); j < nn; j++)
         {
             norm += mag(H_[i][j]);
         }
@@ -532,14 +532,14 @@ void Foam::eigenSolver::realSchur()
 
         while (l > low)
         {
-            s = mag(H_[l-1][l-1]) + mag(H_[l][l]);
+            s = mag(H_[l - 1][l - 1]) + mag(H_[l][l]);
 
             if (s == 0.0)
             {
                 s = norm;
             }
 
-            if (mag(H_[l][l-1]) < eps*s)
+            if (mag(H_[l][l - 1]) < eps*s)
             {
                 break;
             }
@@ -556,14 +556,14 @@ void Foam::eigenSolver::realSchur()
             n--;
             iter = 0;
         } 
-        else if (l == n-1)  // Two roots found
+        else if (l == n - 1)  // Two roots found
         {
-            w = H_[n][n-1]*H_[n-1][n];
-            p = (H_[n-1][n-1] - H_[n][n])/2.0;
+            w = H_[n][n - 1]*H_[n - 1][n];
+            p = (H_[n - 1][n - 1] - H_[n][n])/2.0;
             q = p*p + w;
             z = sqrt(mag(q));
             H_[n][n] += exshift;
-            H_[n-1][n-1] += exshift;
+            H_[n - 1][n - 1] += exshift;
             x = H_[n][n];
 
             // Scalar pair
@@ -578,53 +578,53 @@ void Foam::eigenSolver::realSchur()
                     z = p - z;
                 }
 
-                eigenvaluesRe_[n-1] = x + z;
-                eigenvaluesRe_[n] = eigenvaluesRe_[n-1];
+                eigenvaluesRe_[n - 1] = x + z;
+                eigenvaluesRe_[n] = eigenvaluesRe_[n - 1];
 
                 if (z != 0.0)
                 {
                     eigenvaluesRe_[n] = x - w/z;
                 }
 
-                eigenvaluesIm_[n-1] = scalar(0);
+                eigenvaluesIm_[n - 1] = scalar(0);
                 eigenvaluesIm_[n] = scalar(0);
-                x = H_[n][n-1];
+                x = H_[n][n - 1];
                 s = mag(x) + mag(z);
                 p = x/s;
                 q = z/s;
                 r = sqrt(p*p + q*q);
-                p /= r;        //p = p/r;
-                q /= r;        //q = q/r;
+                p /= r;
+                q /= r;
 
                 // Row modification
-                for (label j = n-1; j < nn; j++)
+                for (label j = n - 1; j < nn; j++)
                 {
-                    z = H_[n-1][j];
-                    H_[n-1][j] = q*z + p*H_[n][j];
+                    z = H_[n - 1][j];
+                    H_[n - 1][j] = q*z + p*H_[n][j];
                     H_[n][j] = q*H_[n][j] - p*z;
                 }
 
                 // Column modification
                 for (label i = 0; i <= n; i++)
                 {
-                    z = H_[i][n-1];
-                    H_[i][n-1] = q*z + p*H_[i][n];
+                    z = H_[i][n - 1];
+                    H_[i][n - 1] = q*z + p*H_[i][n];
                     H_[i][n] = q*H_[i][n] - p*z;
                 }
 
                 // Accumulate transformations
                 for (label i = low; i <= high; i++)
                 {
-                    z = eigenvectors_[i][n-1];
-                    eigenvectors_[i][n-1] = q*z + p*eigenvectors_[i][n];
+                    z = eigenvectors_[i][n - 1];
+                    eigenvectors_[i][n - 1] = q*z + p*eigenvectors_[i][n];
                     eigenvectors_[i][n] = q*eigenvectors_[i][n] - p*z;
                 }
             }
             else         // Complex pair of roots
             {
-                eigenvaluesRe_[n-1] = x + p;
+                eigenvaluesRe_[n - 1] = x + p;
                 eigenvaluesRe_[n] = x + p;
-                eigenvaluesIm_[n-1] = z;
+                eigenvaluesIm_[n - 1] = z;
                 eigenvaluesIm_[n] = -z;
             }
 
@@ -640,8 +640,8 @@ void Foam::eigenSolver::realSchur()
 
             if (l < n)
             {
-                y = H_[n-1][n-1];
-                w = H_[n][n-1]*H_[n-1][n];
+                y = H_[n - 1][n - 1];
+                w = H_[n][n - 1]*H_[n - 1][n];
             }
 
             // Wilkinson's original ad-hoc shift
@@ -653,7 +653,7 @@ void Foam::eigenSolver::realSchur()
                     H_[i][i] -= x;
                 }
 
-                s = mag(H_[n][n-1]) + mag(H_[n-1][n-2]);
+                s = mag(H_[n][n - 1]) + mag(H_[n - 1][n - 2]);
                 x = 0.75*s;
                 y = 0.75*s;
                 w = -0.4375*s*s;
@@ -698,9 +698,9 @@ void Foam::eigenSolver::realSchur()
                 z = H_[m][m];
                 r = x - z;
                 s = y - z;
-                p = (r*s - w)/H_[m+1][m] + H_[m][m+1];
-                q = H_[m+1][m+1] - z - r - s;
-                r = H_[m+2][m+1];
+                p = (r*s - w)/H_[m + 1][m] + H_[m][m + 1];
+                q = H_[m + 1][m + 1] - z - r - s;
+                r = H_[m + 2][m + 1];
                 s = mag(p) + mag(q) + mag(r);
                 p /= s;
                 q /= s;
@@ -713,9 +713,9 @@ void Foam::eigenSolver::realSchur()
 
                 if
                 (
-                    mag(H_[m][m-1])*(mag(q) + mag(r)) 
-                            < eps*(mag(p)*(mag(H_[m-1][m-1]) 
-                                    + mag(z) + mag(H_[m+1][m+1])))
+                    mag(H_[m][m - 1])*(mag(q) + mag(r)) 
+                            < eps*(mag(p)*(mag(H_[m - 1][m - 1]) 
+                                    + mag(z) + mag(H_[m + 1][m + 1])))
                 )
                 {
                     break;
@@ -724,26 +724,26 @@ void Foam::eigenSolver::realSchur()
                 m--;
             }
 
-            for (label i = m+2; i <= n; i++)
+            for (label i = m + 2; i <= n; i++)
             {
-                H_[i][i-2] = scalar(0);
+                H_[i][i - 2] = scalar(0);
 
-                if (i > m+2)
+                if (i > m + 2)
                 {
-                    H_[i][i-3] = scalar(0);
+                    H_[i][i - 3] = scalar(0);
                 }
             }
 
             // Double QR step involving rows l:n and columns m:n
-            for (label k = m; k <= n-1; k++)
+            for (label k = m; k <= n - 1; k++)
             {
-                label notlast = (k != n-1);
+                label notlast = (k != n - 1);
 
                 if (k != m)
                 {
-                    p = H_[k][k-1];
-                    q = H_[k+1][k-1];
-                    r = (notlast ? H_[k+2][k-1] : 0.0);
+                    p = H_[k][k - 1];
+                    q = H_[k + 1][k - 1];
+                    r = (notlast ? H_[k + 2][k - 1] : 0.0);
                     x = mag(p) + mag(q) + mag(r);
                 
                     if (x != 0.0)
@@ -770,11 +770,11 @@ void Foam::eigenSolver::realSchur()
                 {
                     if (k != m)
                     {
-                        H_[k][k-1] = -s*x;
+                        H_[k][k - 1] = -s*x;
                     }
                     else if (l != m)
                     {
-                        H_[k][k-1] = -H_[k][k-1];
+                        H_[k][k - 1] = -H_[k][k - 1];
                     }
 
                     p = p + s;
@@ -787,46 +787,46 @@ void Foam::eigenSolver::realSchur()
                     // Row modification
                     for (label j = k; j < nn; j++)
                     {
-                        p = H_[k][j] + q*H_[k+1][j];
+                        p = H_[k][j] + q*H_[k + 1][j];
 
                         if (notlast)
                         {
-                            p += r*H_[k+2][j];
-                            H_[k+2][j] -= p*z;
+                            p += r*H_[k + 2][j];
+                            H_[k + 2][j] -= p*z;
                         }
 
                         H_[k][j] -= p*x;
-                        H_[k+1][j] -= p*y;
+                        H_[k + 1][j] -= p*y;
                     }
 
                     // Column modification
-                    for (label i = 0; i <= min(n,k+3); i++)
+                    for (label i = 0; i <= min(n, k + 3); i++)
                     {
-                        p = x*H_[i][k] + y*H_[i][k+1];
+                        p = x*H_[i][k] + y*H_[i][k + 1];
 
                         if (notlast)
                         {
-                            p += z*H_[i][k+2];
-                            H_[i][k+2] -= p*r;
+                            p += z*H_[i][k + 2];
+                            H_[i][k + 2] -= p*r;
                         }
 
                         H_[i][k] -= p;
-                        H_[i][k+1] -= p*q;
+                        H_[i][k + 1] -= p*q;
                     }
 
                     // Accumulate transformations
                     for (label i = low; i <= high; i++)
                     {
-                        p = x*eigenvectors_[i][k] + y*eigenvectors_[i][k+1];
+                        p = x*eigenvectors_[i][k] + y*eigenvectors_[i][k + 1];
 
                         if (notlast)
                         {
-                            p += z*eigenvectors_[i][k+2];
-                            eigenvectors_[i][k+2] -= p*r;
+                            p += z*eigenvectors_[i][k + 2];
+                            eigenvectors_[i][k + 2] -= p*r;
                         }
 
                         eigenvectors_[i][k] -= p;
-                        eigenvectors_[i][k+1] -= p*q;
+                        eigenvectors_[i][k + 1] -= p*q;
                     }
                 }
             }
@@ -882,8 +882,8 @@ void Foam::eigenSolver::realSchur()
                     }
                     else // Solve real equations
                     {
-                        x = H_[i][i+1];
-                        y = H_[i+1][i];
+                        x = H_[i][i + 1];
+                        y = H_[i + 1][i];
                         q = (eigenvaluesRe_[i] - p)*(eigenvaluesRe_[i] - p)
                                 + eigenvaluesIm_[i]*eigenvaluesIm_[i];
 
@@ -892,11 +892,11 @@ void Foam::eigenSolver::realSchur()
 
                         if (mag(x) > mag(z))
                         {
-                            H_[i+1][n] = (-r - w*t)/x;
+                            H_[i + 1][n] = (-r - w*t)/x;
                         }
                         else
                         {
-                            H_[i+1][n] = (-s - y*t)/z;
+                            H_[i + 1][n] = (-s - y*t)/z;
                         }
                     }
 
@@ -918,24 +918,24 @@ void Foam::eigenSolver::realSchur()
             label l = n - 1;
 
             // Last vector component imaginary so matrix is triangular
-            if (mag(H_[n][n-1]) > mag(H_[n-1][n]))
+            if (mag(H_[n][n - 1]) > mag(H_[n - 1][n]))
             {
-                H_[n-1][n-1] = q/H_[n][n-1];
-                H_[n-1][n] = -(H_[n][n] - p)/H_[n][n-1];
+                H_[n - 1][n - 1] = q/H_[n][n - 1];
+                H_[n - 1][n] = -(H_[n][n] - p)/H_[n][n - 1];
             }
             else
             {
-                complex cDiv = complex(0.0, -H_[n-1][n])
-                        /complex(H_[n-1][n-1]-p, q);
+                complex cDiv = complex(0.0, -H_[n - 1][n])
+                        /complex(H_[n - 1][n-1]-p, q);
 
-                H_[n-1][n-1] = cDiv.Re();
-                H_[n-1][n] = cDiv.Im();
+                H_[n - 1][n - 1] = cDiv.Re();
+                H_[n - 1][n] = cDiv.Im();
             }
 
-            H_[n][n-1] = scalar(0);
+            H_[n][n - 1] = scalar(0);
             H_[n][n] = scalar(1);
 
-            for (label i = n-2; i >= 0; i--)
+            for (label i = n - 2; i >= 0; i--)
             {
                 scalar ra,sa,vr,vi;
                 ra = scalar(0);
@@ -962,14 +962,14 @@ void Foam::eigenSolver::realSchur()
                     if (eigenvaluesIm_[i] == 0)
                     {
                         complex cDiv = complex(-ra, -sa)/complex(w, q);
-                        H_[i][n-1] = cDiv.Re();
+                        H_[i][n - 1] = cDiv.Re();
                         H_[i][n] = cDiv.Im();
                     }
                     else
                     {
                         // Solve complex equations
-                        x = H_[i][i+1];
-                        y = H_[i+1][i];
+                        x = H_[i][i + 1];
+                        y = H_[i + 1][i];
                         vr = (eigenvaluesRe_[i] - p)*(eigenvaluesRe_[i] - p) 
                                 + eigenvaluesIm_[i]*eigenvaluesIm_[i] - q*q;
 
@@ -981,36 +981,39 @@ void Foam::eigenSolver::realSchur()
                                     + mag(z));
                         }
 
-                        complex cDiv = complex(x*r-z*ra+q*sa, x*s-z*sa-q*ra)
-                                /complex(vr, vi);
+                        complex cDiv = 
+                                complex(x*r - z*ra + q*sa, x*s - z*sa - q*ra)
+                                    /complex(vr, vi);
 
-                        H_[i][n-1] = cDiv.Re();
+                        H_[i][n - 1] = cDiv.Re();
                         H_[i][n] = cDiv.Im();
 
                         if (mag(x) > (mag(z) + mag(q)))
                         {
-                            H_[i+1][n-1] = (-ra - w*H_[i][n-1] + q*H_[i][n])/x;
-                            H_[i+1][n] = (-sa - w*H_[i][n] - q*H_[i][n-1])/x;
+                            H_[i + 1][n - 1] = (-ra - w*H_[i][n - 1] 
+                                    + q*H_[i][n])/x;
+                            
+                            H_[i + 1][n] = (-sa - w*H_[i][n] 
+                                    - q*H_[i][n - 1])/x;
                         }
                         else
                         {
-                            complex cDiv = 
-                                    complex(-r-y*H_[i][n-1], -s-y*H_[i][n])
-                                            /complex(z, q);
+                            complex cDiv = complex(-r - y*H_[i][n - 1], -s 
+                                    - y*H_[i][n])/complex(z, q);
 
-                            H_[i+1][n-1] = cDiv.Re();
-                            H_[i+1][n] = cDiv.Im();
+                            H_[i + 1][n - 1] = cDiv.Re();
+                            H_[i + 1][n] = cDiv.Im();
                         }
                     }
 
                     // Overflow control
-                    t = max(mag(H_[i][n-1]),mag(H_[i][n]));
+                    t = max(mag(H_[i][n - 1]), mag(H_[i][n]));
 
                     if ((eps*t)*t > 1)
                     {
                         for (label j = i; j <= n; j++)
                         {
-                            H_[j][n-1] /= t;
+                            H_[j][n - 1] /= t;
                             H_[j][n] /= t;
                         }
                     }
@@ -1032,13 +1035,13 @@ void Foam::eigenSolver::realSchur()
     }
 
     // Back transformation to get eigenvectors of original matrix
-    for (label j = nn-1; j >= low; j--)
+    for (label j = nn - 1; j >= low; j--)
     {
         for (label i = low; i <= high; i++)
         {
             z = scalar(0);
 
-            for (label k = low; k <= min(j,high); k++)
+            for (label k = low; k <= min(j, high); k++)
             {
                 z = z + eigenvectors_[i][k]*H_[k][j];
             }
