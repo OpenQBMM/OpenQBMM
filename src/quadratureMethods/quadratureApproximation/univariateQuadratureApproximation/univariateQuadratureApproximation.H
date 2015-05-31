@@ -39,10 +39,12 @@ SourceFiles
 #ifndef univariateQuadratureApproximation_H
 #define univariateQuadratureApproximation_H
 
+#include "fvCFD.H"
 #include "IOdictionary.H"
 #include "PtrList.H"
 #include "fvMesh.H"
 #include "volFields.H"
+#include "surfaceFields.H"
 #include "univariateMomentSet.H"
 #include "extendedMomentInversion.H"
 #include "quadratureNodes.H"
@@ -72,12 +74,18 @@ class univariateQuadratureApproximation
 
         //- List of moments
         momentFieldSet<volUnivariateMoment, volScalarNode> moments_;
-
+        
         //- Number of primary quadrature nodes
         label nPrimaryNodes_;
 
         //- Number of secondary quadrature nodes
         label nSecondaryNodes_;
+        
+        //- List of interpolated nodes (neighbour)
+        PtrList<surfaceScalarNode> nodesNei_;
+        
+        //- List of interpolated nodes (owner)
+        PtrList<surfaceScalarNode> nodesOwn_;
 
         //- Dimensionality of the distribution function
         const label nDimensions_;
@@ -133,6 +141,9 @@ public:
 
         // Edit
 
+            //- Interpolate nodes
+            void interpolateNodes();
+            
             //- Recalculate the quadrature nodes from the moments
             void updateQuadrature();
 

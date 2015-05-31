@@ -60,6 +60,8 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
     moments_(*this, nodes()),
     nPrimaryNodes_(nodes_.size()),
     nSecondaryNodes_(nodes_[0].nSecondaryNodes()),
+    nodesNei_(nSecondaryNodes_),
+    nodesOwn_(nSecondaryNodes_),
     nDimensions_(1),                 
     nMoments_(2*nPrimaryNodes_ + 1),  
     momentsToInvert_(nMoments_, 0.0),
@@ -85,20 +87,43 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
             << abort(FatalError);
     }
     
-    // Resetting units of quadrature nodes to make them consistent with
-    // moments. Ideally this should be done at construction, but it is
-    // not possible because the moment construction depends on the nodes, 
-    // and nodes are not read from file
+    // Resetting units of nodes and populating interpolated nodes.
     forAll(nodes_, pNodeI)
     {
         volScalarNode& node(nodes_[pNodeI]);
         
         node.primaryWeight().dimensions().reset(moments_[0].dimensions());
-        node.primaryWeight().dimensions().reset
+        node.primaryAbscissa().dimensions().reset
         (
             moments_[1].dimensions()/moments_[0].dimensions()
         );
-
+        
+        nodesNei_.set
+        (
+            pNodeI,
+            new surfaceScalarNode
+            (
+                node.name() + "Nei",
+                nSecondaryNodes_,
+                mesh_,
+                moments_[0].dimensions(),
+                moments_[1].dimensions()/moments_[0].dimensions()
+            )
+        );
+        
+        nodesOwn_.set
+        (
+            pNodeI,
+            new surfaceScalarNode
+            (
+                node.name() + "Own",
+                nSecondaryNodes_,
+                mesh_,
+                moments_[0].dimensions(),
+                moments_[1].dimensions()/moments_[0].dimensions()
+            )
+        );
+              
         for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
         {
         
@@ -127,11 +152,129 @@ Foam::univariateQuadratureApproximation::~univariateQuadratureApproximation()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+void Foam::univariateQuadratureApproximation::interpolateNodes()
+{    
+    surfaceScalarField own
+    (
+        IOobject
+        (
+            "own",
+            mesh_.time().timeName(),
+            mesh_
+        ),
+        mesh_,
+        dimensionedScalar("own", dimless, 1.0)
+    );
+
+    surfaceScalarField nei
+    (
+        IOobject
+        (
+            "nei",
+            mesh_.time().timeName(),
+            mesh_
+        ),
+        mesh_,
+        dimensionedScalar("nei", dimless, -1.0)
+    );
+    
+    forAll(nodes_, pNodeI)
+    {
+        volScalarNode& node(nodes_[pNodeI]);
+               
+        nodesOwn_[pNodeI].primaryWeight() = 
+            fvc::interpolate(node.primaryWeight(), own, "reconstruct(weight)");
+        
+        nodesOwn_[pNodeI].primaryAbscissa() = 
+            fvc::interpolate
+            (
+                node.primaryAbscissa(), 
+                own, 
+                "reconstruct(abscissa)"
+            );
+        
+        nodesOwn_[pNodeI].sigma() = 
+            fvc::interpolate
+            (
+                node.sigma(), 
+                own, 
+                "reconstruct(sigma)"
+            );
+            
+        nodesNei_[pNodeI].primaryWeight() = 
+            fvc::interpolate(node.primaryWeight(), nei, "reconstruct(weight)");
+        
+        nodesNei_[pNodeI].primaryAbscissa() = 
+            fvc::interpolate
+            (
+                node.primaryAbscissa(), 
+                nei, 
+                "reconstruct(abscissa)"
+            );
+            
+        nodesNei_[pNodeI].sigma() = 
+            fvc::interpolate
+            (
+                node.sigma(), 
+                nei, 
+                "reconstruct(sigma)"
+            );
+            
+        for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
+        {
+        
+            // Commented because units of the weight would be considered twice
+            // in calculations due to the product with the primary weight
+            //
+            //    node.secondaryWeights()[sNodeI].dimensions().reset
+            //    (
+            //        moments_[0].dimensions();
+            //    );
+
+            node.secondaryAbscissae()[sNodeI].dimensions().reset
+            (
+                moments_[1].dimensions()/moments_[0].dimensions()
+            );
+            
+            // Setting interpolated secondary nodes
+            nodesOwn_[pNodeI].secondaryWeights()[sNodeI] = 
+                fvc::interpolate
+                (
+                    node.secondaryWeights()[sNodeI], 
+                    own, 
+                    "reconstruct(weight)"
+                );
+            
+            nodesNei_[pNodeI].secondaryWeights()[sNodeI] =
+                fvc::interpolate
+                (
+                    node.secondaryWeights()[sNodeI], 
+                    nei, 
+                    "reconstruct(weight)"
+                );
+            
+            nodesOwn_[pNodeI].secondaryAbscissae()[sNodeI] =
+                fvc::interpolate
+                (
+                    node.secondaryAbscissae()[sNodeI], 
+                    own, 
+                    "reconstruct(abscissa)"
+                );
+            
+            nodesNei_[pNodeI].secondaryAbscissae()[sNodeI] =
+                fvc::interpolate
+                (
+                    node.secondaryAbscissae()[sNodeI], 
+                    nei, 
+                    "reconstruct(abscissa)"
+                );
+        }
+    }
+}
+
+
 void Foam::univariateQuadratureApproximation::updateQuadrature()
 {
-    //NOTE: Needs profiling. Allocating a lot of fields just to replace?
-    //      At the same time, it reduces the number of calls to access functions
-    //      significantly. Need profiling!
     const label nCells = moments_().size();
 
     // Matrix to store primary weights

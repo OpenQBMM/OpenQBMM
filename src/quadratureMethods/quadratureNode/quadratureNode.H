@@ -64,9 +64,6 @@ class quadratureNode
 
         //- Name of node
         word name_;
-        
-        //- Dictionary for any node specific settings
-        dictionary nodeDict_;
 
         //- Number of secondary nodes
         label nSecondaryNodes_;
@@ -100,6 +97,15 @@ public:
         (
             const word name,
             const dictionary nodeDict,
+            const fvMesh& mesh,
+            const dimensionSet& weightDimensions,
+            const dimensionSet& abscissaDimensions
+        );
+        
+        quadratureNode
+        (
+            const word name,
+            const label nSecondaryNodes,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const dimensionSet& abscissaDimensions
