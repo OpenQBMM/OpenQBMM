@@ -113,6 +113,17 @@ public:
             const PtrList<nodeType>& nodes
         );
 
+        //- Construct from size, quadrature nodes, dimensions and moment map
+        //  The list of moments is initialised but moment fields are not 
+        //  automatically allocated.
+        momentFieldSet
+        (
+            const label nMoments,
+            const PtrList<nodeType>& nodes,
+            const label nDimensions,
+            const Map<label>& momentMap
+        );
+  
 
     //- Destructor
     ~momentFieldSet();
@@ -151,6 +162,9 @@ public:
             //- Non-const access to the third order moment in dimension a+b+c
             inline momentType& operator()(label a, label b, label c);
 
+            //- Returns const access to the moment map
+            inline const Map<label>& momentMap() const;
+            
             //- Return the dimensionality of the distribution
             inline label nDimensions() const;
 

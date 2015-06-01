@@ -102,6 +102,7 @@ public:
             const dimensionSet& abscissaDimensions
         );
         
+        //- Construct from name, number of secondary nodes, mesh and dimensions
         quadratureNode
         (
             const word name,

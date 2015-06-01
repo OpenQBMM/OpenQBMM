@@ -97,7 +97,14 @@ public:
             const labelList& cmptOrders,
             const PtrList<nodeType>& nodes
         );
-
+        
+        //- Construct from name, orders, and quadrature nodes
+        moment
+        (
+            const labelList& cmptOrders,
+            const PtrList<nodeType>& nodes,
+            const fieldType& initMoment
+        );
 
         //- Return clone
         autoPtr<moment> clone() const;

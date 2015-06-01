@@ -134,6 +134,14 @@ const momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
     );
 }
 
+
+template <class momentType, class nodeType> 
+const Map<label>& Foam::momentFieldSet<momentType, nodeType>::momentMap() const
+{
+    return momentMap_;
+}
+
+
 template <class momentType, class nodeType> 
 Foam::label Foam::momentFieldSet<momentType, nodeType>::nDimensions() const
 {

@@ -63,7 +63,9 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
     nodesNei_(nSecondaryNodes_),
     nodesOwn_(nSecondaryNodes_),
     nDimensions_(1),                 
-    nMoments_(2*nPrimaryNodes_ + 1),  
+    nMoments_(2*nPrimaryNodes_ + 1),
+    momentsNei_(nMoments_, nodesNei_, nDimensions_, moments_.momentMap()),
+    momentsOwn_(nMoments_, nodesOwn_, nDimensions_, moments_.momentMap()),
     momentsToInvert_(nMoments_, 0.0),
     momentInverter_
     (
@@ -141,6 +143,32 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
             );
         }
     }
+    
+    // Setting face values of moments
+    forAll(momentsNei_, mI)
+    {
+        momentsNei_.set
+        (
+            mI,
+            new Foam::surfaceUnivariateMoment
+            (
+                moments_[mI].cmptOrders(),
+                nodesNei_,
+                fvc::interpolate(moments_[mI])
+            )
+        );
+        
+        momentsOwn_.set
+        (
+            mI,
+            new Foam::surfaceUnivariateMoment
+            (
+                moments_[mI].cmptOrders(),
+                nodesOwn_,
+                fvc::interpolate(moments_[mI])
+            )
+        );
+    }
 }
 
 
@@ -154,6 +182,18 @@ Foam::univariateQuadratureApproximation::~univariateQuadratureApproximation()
 
 void Foam::univariateQuadratureApproximation::interpolateNodes()
 {    
+    surfaceScalarField nei
+    (
+        IOobject
+        (
+            "nei",
+            mesh_.time().timeName(),
+            mesh_
+        ),
+        mesh_,
+        dimensionedScalar("nei", dimless, -1.0)
+    );
+
     surfaceScalarField own
     (
         IOobject
@@ -166,18 +206,6 @@ void Foam::univariateQuadratureApproximation::interpolateNodes()
         dimensionedScalar("own", dimless, 1.0)
     );
 
-    surfaceScalarField nei
-    (
-        IOobject
-        (
-            "nei",
-            mesh_.time().timeName(),
-            mesh_
-        ),
-        mesh_,
-        dimensionedScalar("nei", dimless, -1.0)
-    );
-    
     forAll(nodes_, pNodeI)
     {
         volScalarNode& node(nodes_[pNodeI]);

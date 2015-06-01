@@ -92,6 +92,22 @@ Foam::moment<fieldType, nodeType>::moment
     order_(sum(cmptOrders_))
 {}
 
+template <class fieldType, class nodeType> 
+Foam::moment<fieldType, nodeType>::moment
+(
+    const labelList& cmptOrders,
+    const PtrList<nodeType>& nodes,
+    const fieldType& initMoment
+)
+:
+    fieldType(initMoment),
+    nodes_(nodes),
+    cmptOrders_(cmptOrders),
+    name_(listToWord(cmptOrders_)),
+    nDimensions_(cmptOrders_.size()),
+    order_(sum(cmptOrders_))
+{}
+
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 

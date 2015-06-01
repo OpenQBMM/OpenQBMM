@@ -44,8 +44,8 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     ),
     nodes_(nodes),
     nDimensions_((*this)[0].nDimensions()), 
-    nMoments_((*this).size()), 
-    momentMap_(nMoments_)
+    nMoments_((*this).size())/*, 
+    momentMap_(nMoments_)*/
 {
     // Check on the number of moments and nodes may go here.
     // However, to keep the implementation generic, it is moved to a 
@@ -65,6 +65,22 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     }
 }
 
+
+template <class momentType, class nodeType> 
+Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
+(
+    const label nMoments,
+    const PtrList<nodeType>& nodes,
+    const label nDimensions,
+    const Map<label>& momentMap
+)
+:
+    PtrList<momentType>(nMoments),
+    nodes_(nodes),
+    nDimensions_(nDimensions), 
+    nMoments_(nMoments),
+    momentMap_(momentMap)
+{}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 

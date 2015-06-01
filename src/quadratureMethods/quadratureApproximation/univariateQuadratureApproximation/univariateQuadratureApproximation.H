@@ -86,12 +86,18 @@ class univariateQuadratureApproximation
         
         //- List of interpolated nodes (owner)
         PtrList<surfaceScalarNode> nodesOwn_;
-
+        
         //- Dimensionality of the distribution function
         const label nDimensions_;
 
         //- Number of moments
         const label nMoments_;
+        
+        //- List of interpolated moments (neighbour)
+        momentFieldSet<surfaceUnivariateMoment, surfaceScalarNode> momentsNei_;
+
+        //- List of interpolated moments (owner)
+        momentFieldSet<surfaceUnivariateMoment, surfaceScalarNode> momentsOwn_;
 
         //- Single set of moments to be inverted
         univariateMomentSet momentsToInvert_;
