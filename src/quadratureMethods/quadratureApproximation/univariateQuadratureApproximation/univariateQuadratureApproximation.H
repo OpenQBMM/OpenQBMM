@@ -137,6 +137,34 @@ public:
             //- Non-const access to the moments
             inline momentFieldSet<volUnivariateMoment, volScalarNode>& 
                 moments();
+                
+            //- Const access to the interpolated moments (neighbour)
+            inline const momentFieldSet
+            <
+                surfaceUnivariateMoment, 
+                surfaceScalarNode
+            >& momentsNei() const;
+
+            //- Non-const access to the interpolated moments (neighbour)
+            inline momentFieldSet
+            <
+                surfaceUnivariateMoment, 
+                surfaceScalarNode
+            >& momentsNei();
+                
+            //- Const access to the interpolated moments (owner)
+            inline const momentFieldSet
+            <
+                surfaceUnivariateMoment, 
+                surfaceScalarNode
+            >& momentsOwn() const;
+
+            //- Non-const access to the interpolated moments (owner)
+            inline momentFieldSet
+            <
+                surfaceUnivariateMoment, 
+                surfaceScalarNode
+            >& momentsOwn();
 
             //- Return the number of dimensions in the distribution
             inline label nDimensions() const;
@@ -149,6 +177,9 @@ public:
 
             //- Interpolate nodes
             void interpolateNodes();
+            
+            //- Update quadrature nodes on fixed-value boundaries
+            void updateBoundaryQuadrature();
             
             //- Recalculate the quadrature nodes from the moments
             void updateQuadrature();

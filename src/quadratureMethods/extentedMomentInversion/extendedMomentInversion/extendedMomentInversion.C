@@ -79,20 +79,27 @@ void Foam::extendedMomentInversion::correct()
 
 void Foam::extendedMomentInversion::invert()
 {
+    forAll(primaryWeights_, wI)
+    {
+        primaryWeights_[wI] = 0.0;
+        primaryAbscissae_[wI] = 0.0;
+    }
+    
     // Exclude cases where the zero-order moment is very small to avoid
     // problems in the inversion due to round-off error  
-    if (moments_[0] < SMALL)	
+    if (moments_[0] < SMALL)
     {
+        sigma_ = 0.0;
         return;
     }
 
     // Check if sigma = 0 is root
     scalar sigmaLow = 0.0;
     scalar fLow = targetFunction(sigmaLow);
-    
+    sigma_ = sigmaLow;
+        
     if (fLow < fTol_)
     {
-        sigma_ = sigmaLow;
         nullSigma_ = true;
 
         WarningIn
@@ -116,13 +123,13 @@ void Foam::extendedMomentInversion::invert()
 
     if (fLow*fHigh > 0)
     {
-        WarningIn
-        (
-            "Foam::extendedMomentInversion::invert\n"
-            "(\n"
-            "	const univariateMomentSet& moments\n"
-            ")"
-        )   << "Root not brackted. Attempting to bracket." << endl;
+//         WarningIn
+//         (
+//             "Foam::extendedMomentInversion::invert\n"
+//             "(\n"
+//             "	const univariateMomentSet& moments\n"
+//             ")"
+//         )   << "Root not brackted. Attempting to bracket." << endl;
 
         scalar sigmaExtremumTargetFunction 
                 = findExtremumTargetFunction(sigmaLow, sigmaHigh);
@@ -154,14 +161,14 @@ void Foam::extendedMomentInversion::invert()
                 
             return;
 
-//             FatalErrorIn
-//     	    (
-//                 "Foam::extendedMomentInversion::invert\n"
-//                 "(\n"
-//                 "	const univariateMomentSet& moments\n"
-//                 ")"
-//             )   << "Root not brackted. Attempt to bracket failed."
-//                 << abort(FatalError);
+//            FatalErrorIn
+//     	      (
+//              "Foam::extendedMomentInversion::invert\n"
+//              "(\n"
+//              "   const univariateMomentSet& moments\n"
+//              ")"
+//            ) << "Root not brackted. Attempt to bracket failed."
+//              << abort(FatalError);
         }
     }
 
@@ -186,8 +193,6 @@ void Foam::extendedMomentInversion::invert()
 
         sigma_ = sigmaMid + (sigmaHigh - sigmaLow)*sign(fLow - fHigh)*fMid/s;
         
-        //Info << "sigma_ = " << sigma_ << endl;
-
         momentsToMomentsStar(sigma_);
 
         if (!momentsStar_.isRealizable() && !foundUnrealizableSigma_)

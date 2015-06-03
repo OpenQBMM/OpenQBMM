@@ -76,6 +76,22 @@ int main(int argc, char *argv[])
     {
         quadrature.moments()[mI].write();
     }
+    
+    runTime++;
+    
+    for (label mI = 0; mI < quadrature.nMoments(); mI++)
+    {
+        quadrature.moments()[mI] *= 2.0;
+    }
+    
+    quadrature.updateQuadrature();
+    quadrature.interpolateNodes();
+    quadrature.updateMoments();
+    
+    for (label mI = 0; mI < quadrature.nMoments(); mI++)
+    {
+        quadrature.moments()[mI].write();
+    }
 
     Info<< "\nEnd\n" << endl;
 

@@ -60,8 +60,8 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
     moments_(*this, nodes()),
     nPrimaryNodes_(nodes_.size()),
     nSecondaryNodes_(nodes_[0].nSecondaryNodes()),
-    nodesNei_(nSecondaryNodes_),
-    nodesOwn_(nSecondaryNodes_),
+    nodesNei_(nPrimaryNodes_),
+    nodesOwn_(nPrimaryNodes_),
     nDimensions_(1),                 
     nMoments_(2*nPrimaryNodes_ + 1),
     momentsNei_(nMoments_, nodesNei_, nDimensions_, moments_.momentMap()),
@@ -99,7 +99,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
         (
             moments_[1].dimensions()/moments_[0].dimensions()
         );
-        
+               
         nodesNei_.set
         (
             pNodeI,
@@ -169,6 +169,12 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
             )
         );
     }
+    
+    updateQuadrature();
+    interpolateNodes();
+    updateBoundaryQuadrature();
+    momentsNei_.update();
+    momentsOwn_.update();
 }
 
 
@@ -249,35 +255,13 @@ void Foam::univariateQuadratureApproximation::interpolateNodes()
             );
             
         for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
-        {
-        
-            // Commented because units of the weight would be considered twice
-            // in calculations due to the product with the primary weight
-            //
-            //    node.secondaryWeights()[sNodeI].dimensions().reset
-            //    (
-            //        moments_[0].dimensions();
-            //    );
-
-            node.secondaryAbscissae()[sNodeI].dimensions().reset
-            (
-                moments_[1].dimensions()/moments_[0].dimensions()
-            );
-            
+        {           
             // Setting interpolated secondary nodes
             nodesOwn_[pNodeI].secondaryWeights()[sNodeI] = 
                 fvc::interpolate
                 (
                     node.secondaryWeights()[sNodeI], 
                     own, 
-                    "reconstruct(weight)"
-                );
-            
-            nodesNei_[pNodeI].secondaryWeights()[sNodeI] =
-                fvc::interpolate
-                (
-                    node.secondaryWeights()[sNodeI], 
-                    nei, 
                     "reconstruct(weight)"
                 );
             
@@ -289,6 +273,14 @@ void Foam::univariateQuadratureApproximation::interpolateNodes()
                     "reconstruct(abscissa)"
                 );
             
+            nodesNei_[pNodeI].secondaryWeights()[sNodeI] =
+                fvc::interpolate
+                (
+                    node.secondaryWeights()[sNodeI], 
+                    nei, 
+                    "reconstruct(weight)"
+                );
+            
             nodesNei_[pNodeI].secondaryAbscissae()[sNodeI] =
                 fvc::interpolate
                 (
@@ -296,10 +288,63 @@ void Foam::univariateQuadratureApproximation::interpolateNodes()
                     nei, 
                     "reconstruct(abscissa)"
                 );
+              
         }
     }
 }
 
+void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
+{
+    // Recover reference to boundaryField of zero-order moment.
+    // All moments will share the same BC types at a given boundary.
+    volScalarField::GeometricBoundaryField& bf = moments_().boundaryField();
+    
+    forAll(bf, patchI)
+    {
+        fvPatchScalarField& m0Patch = bf[patchI];
+        
+        if (m0Patch.fixesValue())
+        {
+            forAll(m0Patch, faceI)
+            {
+                // Copying moments from a face
+                forAll(momentsToInvert_, mI)
+                {
+                    momentsToInvert_[mI] 
+                        = moments_[mI].boundaryField()[patchI][faceI];
+                }
+                
+                // Inverting them
+                momentInverter_->correct();
+                
+                // Copying quadrature data to boundary face
+                for (label pNodeI = 0; pNodeI < nPrimaryNodes_; pNodeI++)
+                {
+                    volScalarNode& node = nodes_[pNodeI];
+                    
+                    node.primaryWeight().boundaryField()[patchI][faceI]
+                        = momentInverter_->primaryWeights()[pNodeI];
+            
+                    node.primaryAbscissa().boundaryField()[patchI][faceI] 
+                        = momentInverter_->primaryAbscissae()[pNodeI];
+                        
+                    node.sigma().boundaryField()[patchI][faceI]
+                        = momentInverter_->sigma();
+
+                    for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
+                    {
+                        node.secondaryWeights()[sNodeI].boundaryField()[patchI][faceI] 
+                            = momentInverter_->secondaryWeights()[pNodeI][sNodeI];
+            
+                        node.secondaryAbscissae()[sNodeI].boundaryField()[patchI][faceI]
+                            = momentInverter_->secondaryAbscissae()[pNodeI][sNodeI];
+                    }
+                }   
+                
+            }
+        }
+    }
+}
 
 void Foam::univariateQuadratureApproximation::updateQuadrature()
 {
@@ -341,7 +386,7 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
         {
             momentsToInvert_[mI] = moments_[mI][cellI];
         }
-
+       
         // Inverting moments and updating secondary quadrature
         momentInverter_->correct();
 
@@ -361,9 +406,7 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
                 secondaryAbscissae[pNodeI][sNodeI][cellI] 
                         = momentInverter_->secondaryAbscissae()[pNodeI][sNodeI];
             }
-        }
-    
-        sigma[cellI] = momentInverter_->sigma();
+        }        
     }
 
     forAll(nodes_, pNodeI)
@@ -409,6 +452,8 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
             nodes_[pNodeI].secondaryAbscissae()[sNodeI].correctBoundaryConditions();
         }
     }
+    
+    updateBoundaryQuadrature();
 }
 
 

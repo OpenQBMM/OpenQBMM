@@ -167,7 +167,7 @@ void Foam::moment<fieldType, nodeType>::update()
 
     // Extended quadrature case    
     forAll(nodes_, pNodeI)
-    {
+    {       
         const nodeType& node = nodes_[pNodeI];
 
         const fieldType& pW = node.primaryWeight();
@@ -192,7 +192,7 @@ void Foam::moment<fieldType, nodeType>::update()
 
             *this == *this + m;
         }
-    }
+    }    
 }
 
 
