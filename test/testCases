@@ -27,4 +27,7 @@
  
 * univariateQuadratureApproximation  
         Example of use of the univariateQuadratureApproximation class.
+        
+* populationBalanceModel
+        Example of use of populationBalanceModel class.
   
