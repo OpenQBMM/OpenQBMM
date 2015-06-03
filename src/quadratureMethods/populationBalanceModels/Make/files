@@ -1,0 +1,6 @@
+populationBalanceModel/populationBalanceModel.C
+populationBalanceModel/newPopulationBalanceModel.C
+
+univariatePopulationBalance/univariatePopulationBalance.C
+
+LIB = $(FOAM_USER_LIBBIN)/libpopulationBalance
