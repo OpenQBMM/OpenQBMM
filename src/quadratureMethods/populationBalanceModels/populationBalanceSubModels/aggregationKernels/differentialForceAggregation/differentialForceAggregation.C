@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "constantBreakupKernel.H"
+#include "differentialForceAggregation.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -32,14 +32,14 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace breakupKernels
+namespace aggregationKernels
 {
-    defineTypeNameAndDebug(constantBreakup, 0);
+    defineTypeNameAndDebug(differentialForceAggregation, 0);
 
     addToRunTimeSelectionTable
     (
-        breakupKernel,
-        constantBreakup,
+        aggregationKernel,
+        differentialForceAggregation,
         dictionary
     );
 }
@@ -49,41 +49,33 @@ namespace breakupKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::breakupKernels::constantBreakup
-::constantBreakup
+Foam::populationBalanceSubModels::aggregationKernels
+::differentialForceAggregation::differentialForceAggregation
 (
     const dictionary& dict
 )
 :
-    breakupKernel(dict),
-    minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0))
+    aggregationKernel(dict)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::breakupKernels::constantBreakup
-::~constantBreakup()
+Foam::populationBalanceSubModels::aggregationKernels
+::differentialForceAggregation::~differentialForceAggregation()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::breakupKernels::constantBreakup
-::breakupK
+Foam::tmp<Foam::volScalarField> Foam::populationBalanceSubModels
+::aggregationKernels::differentialForceAggregation::aggregationK
 (
-    const volScalarField& abscissa
+    const volScalarField& abscissa1,
+    const volScalarField& abscissa2
 ) const
 {   
-    dimensionedScalar minAbs
-    (
-        "minAbs", 
-        abscissa.dimensions(), 
-        minAbscissa_.value()
-    );
-
-    return Cb_*pos(abscissa - minAbs);
+    return Cagg_*sqr(abscissa1 + abscissa2)*mag(abscissa1 - abscissa2);
 }
 
 // ************************************************************************* //

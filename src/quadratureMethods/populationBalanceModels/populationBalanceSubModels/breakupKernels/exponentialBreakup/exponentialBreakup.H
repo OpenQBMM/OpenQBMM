@@ -25,7 +25,7 @@ Class
     Foam::populationBalanceModels::breakupKernels::exponentialBreakup
 
 Description
-    Constant breakup kernel. The value of the kernel is read from dictionary
+    Exponential breakup kernel. The value of the kernel is read from dictionary
     or assumed equal to 1. The minimum value of the abscissa after which the
     model is applied can be defined by the user or it is assumed to be 1.
 

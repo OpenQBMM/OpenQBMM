@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "constantAggregationKernel.H"
+#include "constantBreakup.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -32,14 +32,14 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace aggregationKernels
+namespace breakupKernels
 {
-    defineTypeNameAndDebug(constantAggregation, 0);
+    defineTypeNameAndDebug(constantBreakup, 0);
 
     addToRunTimeSelectionTable
     (
-        aggregationKernel,
-        constantAggregation,
+        breakupKernel,
+        constantBreakup,
         dictionary
     );
 }
@@ -49,53 +49,41 @@ namespace aggregationKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels::constantAggregation
-::constantAggregation
+Foam::populationBalanceSubModels::breakupKernels::constantBreakup
+::constantBreakup
 (
     const dictionary& dict
 )
 :
-    aggregationKernel(dict)
+    breakupKernel(dict),
+    minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels::constantAggregation
-::~constantAggregation()
+Foam::populationBalanceSubModels::breakupKernels::constantBreakup
+::~constantBreakup()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::aggregationKernels::constantAggregation
-::aggregationK
+Foam::populationBalanceSubModels::breakupKernels::constantBreakup
+::breakupK
 (
-    const volScalarField& abscissa1,
-    const volScalarField& abscissa2
+    const volScalarField& abscissa
 ) const
 {   
-    return
-        tmp<volScalarField>
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "constantAggregationK",
-                    abscissa1.mesh().time().timeName(),
-                    abscissa1.mesh()
-                ),
-                abscissa1.mesh(),
-                dimensionedScalar
-                (
-                    "constAggK", 
-                    pow(abscissa1.dimensions(), 3), 
-                    Cagg_.value()
-                )
-            )
-        );
+    dimensionedScalar minAbs
+    (
+        "minAbs", 
+        abscissa.dimensions(), 
+        minAbscissa_.value()
+    );
+
+    return Cb_*pos(abscissa - minAbs);
 }
 
 // ************************************************************************* //

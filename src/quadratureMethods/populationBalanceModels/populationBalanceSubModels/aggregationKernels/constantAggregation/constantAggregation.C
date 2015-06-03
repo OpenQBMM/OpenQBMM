@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "hydrodynamicAggregationKernel.H"
+#include "constantAggregation.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -34,12 +34,12 @@ namespace populationBalanceSubModels
 {
 namespace aggregationKernels
 {
-    defineTypeNameAndDebug(hydrodynamicAggregation, 0);
+    defineTypeNameAndDebug(constantAggregation, 0);
 
     addToRunTimeSelectionTable
     (
         aggregationKernel,
-        hydrodynamicAggregation,
+        constantAggregation,
         dictionary
     );
 }
@@ -49,8 +49,8 @@ namespace aggregationKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
-::hydrodynamicAggregation
+Foam::populationBalanceSubModels::aggregationKernels::constantAggregation
+::constantAggregation
 (
     const dictionary& dict
 )
@@ -61,22 +61,41 @@ Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
-::~hydrodynamicAggregation()
+Foam::populationBalanceSubModels::aggregationKernels::constantAggregation
+::~constantAggregation()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
+Foam::populationBalanceSubModels::aggregationKernels::constantAggregation
 ::aggregationK
 (
     const volScalarField& abscissa1,
     const volScalarField& abscissa2
 ) const
 {   
-    return Cagg_*pow(abscissa1 + abscissa2, 3.0);
+    return
+        tmp<volScalarField>
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "constantAggregationK",
+                    abscissa1.mesh().time().timeName(),
+                    abscissa1.mesh()
+                ),
+                abscissa1.mesh(),
+                dimensionedScalar
+                (
+                    "constAggK", 
+                    pow(abscissa1.dimensions(), 3), 
+                    Cagg_.value()
+                )
+            )
+        );
 }
 
 // ************************************************************************* //

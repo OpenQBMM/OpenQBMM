@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "differentialForceAggregationKernel.H"
+#include "hydrodynamicAggregation.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -34,12 +34,12 @@ namespace populationBalanceSubModels
 {
 namespace aggregationKernels
 {
-    defineTypeNameAndDebug(differentialForceAggregation, 0);
+    defineTypeNameAndDebug(hydrodynamicAggregation, 0);
 
     addToRunTimeSelectionTable
     (
         aggregationKernel,
-        differentialForceAggregation,
+        hydrodynamicAggregation,
         dictionary
     );
 }
@@ -49,8 +49,8 @@ namespace aggregationKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels
-::differentialForceAggregation::differentialForceAggregation
+Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
+::hydrodynamicAggregation
 (
     const dictionary& dict
 )
@@ -61,21 +61,22 @@ Foam::populationBalanceSubModels::aggregationKernels
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels
-::differentialForceAggregation::~differentialForceAggregation()
+Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
+::~hydrodynamicAggregation()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> Foam::populationBalanceSubModels
-::aggregationKernels::differentialForceAggregation::aggregationK
+Foam::tmp<Foam::volScalarField>
+Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
+::aggregationK
 (
     const volScalarField& abscissa1,
     const volScalarField& abscissa2
 ) const
 {   
-    return Cagg_*sqr(abscissa1 + abscissa2)*mag(abscissa1 - abscissa2);
+    return Cagg_*pow(abscissa1 + abscissa2, 3.0);
 }
 
 // ************************************************************************* //
