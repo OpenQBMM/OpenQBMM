@@ -203,9 +203,6 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
             
             tmp<volScalarField> weights1Prod = node1.primaryWeight()
                 *node1.secondaryWeights()[sNode1I];
-                
-            tmp<volScalarField> weightsAbs1Prod = node1.primaryWeight()
-                *node1.secondaryWeights()[sNode1I]*pow(sAbscissa1, order);
             
             forAll(quadrature_.nodes(), pNode2I)
             {
