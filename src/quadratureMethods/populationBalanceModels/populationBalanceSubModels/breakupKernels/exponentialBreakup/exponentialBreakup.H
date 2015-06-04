@@ -84,7 +84,7 @@ public:
 
     // Member Functions
 
-        //- Moments of the daughter distribution
+        //- Breakup kernel
         virtual tmp<volScalarField> breakupK
         (
             const volScalarField& abscissa

@@ -73,7 +73,7 @@ public:
 
     // Member Functions
 
-        //- Moments of the daughter distribution
+        //- Aggregation kernel
         virtual tmp<volScalarField> aggregationK
         (
             const volScalarField& abscissa1,

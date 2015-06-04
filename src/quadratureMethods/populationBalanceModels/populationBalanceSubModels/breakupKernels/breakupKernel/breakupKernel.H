@@ -25,7 +25,7 @@ Class
     Foam::populationBalanceSubModels::breakupKernel
 
 Description
-    Abstract class for aggregation kernels.
+    Abstract class for breakup kernels.
     
 SourceFiles
     breakupKernel.C
@@ -110,7 +110,7 @@ public:
 
     // Member Functions
 
-        //- Aggregation kernel
+        //- Breakup kernel
         virtual tmp<volScalarField> breakupK
         (
             const volScalarField& abscissa
