@@ -54,7 +54,30 @@ Foam::populationBalanceModels::univariatePopulationBalance
 )
 :
     populationBalanceModel(dict, U, phi),
-    quadrature_(U.mesh())
+    quadrature_(U.mesh()),
+    aggregation_(dict.lookup("aggregation")),
+    breakup_(dict.lookup("breakup")),
+    aggregationKernel_
+    (
+        Foam::populationBalanceSubModels::aggregationKernel::New
+        (
+            dict.subDict("aggregationKernel")
+        )
+    ),
+    breakupKernel_
+    (
+        Foam::populationBalanceSubModels::breakupKernel::New
+        (
+            dict.subDict("breakupKernel")
+        )
+    ),
+    daughterDistribution_
+    (
+        Foam::populationBalanceSubModels::daughterDistribution::New
+        (
+            dict.subDict("daughterDistribution")
+        )
+    )
 {}
 
 
@@ -141,6 +164,52 @@ void Foam::populationBalanceModels::univariatePopulationBalance::advectMoments()
     }
     
     quadrature_.updateQuadrature();
+}
+
+Foam::tmp<Foam::volScalarField>
+Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
+(
+    label order
+)
+{
+    
+}
+
+Foam::tmp<Foam::volScalarField> 
+Foam::populationBalanceModels::univariatePopulationBalance::calcBreakup
+(
+    label order
+)
+{
+    tmp<volScalarField> breakupSource;
+    breakupSource() == dimensionedScalar("zero", dimless, 0.0);
+       
+    forAll(quadrature_.nodes(), pNodeI)
+    {
+        const volScalarNode& node = quadrature_.nodes()[pNodeI];
+        
+        forAll(node.secondaryWeights(), sNodeI)
+        {
+            tmp<volScalarField> bSrc = node.primaryWeight()
+                *node.secondaryWeights()[sNodeI]*
+                breakupKernel_->breakupK
+                (
+                    node.secondaryAbscissae()[sNodeI]
+                )*
+                (   daughterDistribution_->mDaughterDist
+                    (
+                        order, 
+                        node.secondaryAbscissae()[sNodeI]
+                    ) +
+                    pow(node.secondaryAbscissae()[sNodeI], order)
+                );
+             
+            breakupSource().dimensions().reset(bSrc().dimensions());
+            breakupSource() == breakupSource() + bSrc;
+        }
+    }
+    
+    return breakupSource;
 }
 
 void Foam::populationBalanceModels::univariatePopulationBalance::solve()

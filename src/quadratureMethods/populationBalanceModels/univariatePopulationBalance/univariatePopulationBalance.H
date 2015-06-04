@@ -38,6 +38,9 @@ SourceFiles
 
 #include "populationBalanceModel.H"
 #include "univariateQuadratureApproximation.H"
+#include "aggregationKernel.H"
+#include "breakupKernel.H"
+#include "daughterDistribution.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -58,7 +61,30 @@ class univariatePopulationBalance
 
         //- Dictionary containing quadrature settings
         univariateQuadratureApproximation quadrature_;
-      
+        
+        //- Switch indicating the status of the aggregation model
+        Switch aggregation_;
+        
+        //- Switch indicating the status of the aggregation model
+        Switch breakup_;
+
+        //- Aggregation kernel model
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::aggregationKernel
+        > aggregationKernel_;
+        
+        //- Breakup kernel model
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::breakupKernel
+        > breakupKernel_;
+        
+        //- Daughter distribution function
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::daughterDistribution
+        > daughterDistribution_;
 
 public:
 
@@ -85,6 +111,12 @@ public:
 
         //- Advect moments
         void advectMoments();
+        
+        //- Calculate aggregation source terms
+        tmp<volScalarField> calcAggregation(label order);
+        
+        //- Calculate Breakup source term
+        tmp<volScalarField> calcBreakup(label order);
 
         //- Solve univariate population balance equation
         virtual void solve();
