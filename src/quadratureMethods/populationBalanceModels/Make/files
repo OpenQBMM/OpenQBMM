@@ -20,6 +20,10 @@ populationBalanceSubModels/breakupKernels/constantBreakup/constantBreakup.C
 populationBalanceSubModels/breakupKernels/exponentialBreakup/exponentialBreakup.C
 populationBalanceSubModels/breakupKernels/powerLawBreakup/powerLawBreakup.C
 
+populationBalanceSubModels/diffusionModels/diffusionModel/diffusionModel.C
+populationBalanceSubModels/diffusionModels/diffusionModel/newDiffusionModel.C
+populationBalanceSubModels/diffusionModels/turbulentDiffusion/turbulentDiffusion.C
+
 
 univariatePopulationBalance/univariatePopulationBalance.C
 
