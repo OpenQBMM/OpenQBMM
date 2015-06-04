@@ -172,8 +172,25 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
     label order
 )
 {
-    tmp<volScalarField> aggregationSource;
-    aggregationSource() == dimensionedScalar("zero", dimless, 0.0);
+    tmp<volScalarField> aSource
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "aSource",
+                U_.mesh().time().timeName(),
+                U_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            U_.mesh(),
+            dimensionedScalar("zero", dimless, 0.0)
+        )
+    );
+    
+    volScalarField& aggregationSource = aSource();
        
     forAll(quadrature_.nodes(), pNode1I)
     {
@@ -216,18 +233,18 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
                             )*aggregationKernel_->Ka(sAbscissa1, sAbscissa2)
                         );
                                                 
-                    aggregationSource().dimensions().reset
+                    aggregationSource.dimensions().reset
                     (
                         aggInnerSum().dimensions()
                     );
                     
-                    aggregationSource() == aggregationSource() + aggInnerSum();
+                    aggregationSource == aggregationSource + aggInnerSum();
                 }
             }
         }
     }
     
-    return aggregationSource;
+    return aSource;
 }
 
 Foam::tmp<Foam::volScalarField> 
@@ -236,8 +253,25 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcBreakup
     label order
 )
 {
-    tmp<volScalarField> breakupSource;
-    breakupSource() == dimensionedScalar("zero", dimless, 0.0);
+    tmp<volScalarField> bSource
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "bSource",
+                U_.mesh().time().timeName(),
+                U_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            U_.mesh(),
+            dimensionedScalar("zero", dimless, 0.0)
+        )
+    );
+        
+    volScalarField& breakupSource = bSource();  
        
     forAll(quadrature_.nodes(), pNodeI)
     {
@@ -249,7 +283,7 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcBreakup
                 *node.secondaryWeights()[sNodeI]
                 *breakupKernel_->Kb(node.secondaryAbscissae()[sNodeI])
                 *(   
-                    daughterDistribution_->mD    //Birth
+                    daughterDistribution_->mD                      //Birth
                     (
                         order, 
                         node.secondaryAbscissae()[sNodeI]
@@ -257,19 +291,44 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcBreakup
                   - pow(node.secondaryAbscissae()[sNodeI], order)   //Death
                  );
              
-            breakupSource().dimensions().reset(bSrc().dimensions());
-            breakupSource() == breakupSource() + bSrc;
+            breakupSource.dimensions().reset(bSrc().dimensions());
+            breakupSource == breakupSource + bSrc;
         }
     }
     
-    return breakupSource;
+    return bSource;
 }
 
 void Foam::populationBalanceModels::univariatePopulationBalance::solve()
 {
     Info<< "Solving population balance equation.\n" << endl;
 
+    // Advect moments with kinetic fluxes
     advectMoments();
+    
+    // Integrate source and diffusion terms
+    forAll(quadrature_.moments(), mI)
+    {
+        volUnivariateMoment& m = quadrature_.moments()[mI];
+        
+        fvScalarMatrix moment
+        (
+            fvm::ddt(m) - fvc::ddt(m) 
+        );
+        
+        if (aggregation_)
+        {
+            moment -= calcAggregation(m.order());
+        }
+        
+        if (breakup_)
+        {
+            moment -= calcBreakup(m.order());
+        }
+        
+        moment.relax();
+        moment.solve();
+    }
 }
 
 

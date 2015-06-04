@@ -19,6 +19,28 @@ populationBalanceModel univariatePopulationBalance;
 
 univariatePopulationBalanceCoeffs
 {
+    aggregation off;
+    
+    aggregationKernel
+    {
+        aggregationKernel constant;
+    }
+    
+    breakup on;
+    
+    breakupKernel
+    {
+        breakupKernel constant;
+    }
+    
+    daughterDistribution
+    {
+        daughterDistribution uniform;
+    }
 }
+
+
+
+
 
 // ************************************************************************* //
