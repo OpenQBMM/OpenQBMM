@@ -70,8 +70,7 @@ Foam::populationBalanceSubModels::breakupKernels::constantBreakup
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::breakupKernels::constantBreakup
-::breakupK
+Foam::populationBalanceSubModels::breakupKernels::constantBreakup::Kb
 (
     const volScalarField& abscissa
 ) const

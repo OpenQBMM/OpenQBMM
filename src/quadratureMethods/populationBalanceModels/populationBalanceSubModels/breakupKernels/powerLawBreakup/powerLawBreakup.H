@@ -85,7 +85,7 @@ public:
     // Member Functions
 
         //- Breakup kernel
-        virtual tmp<volScalarField> breakupK
+        virtual tmp<volScalarField> Kb
         (
             const volScalarField& abscissa
         ) const;

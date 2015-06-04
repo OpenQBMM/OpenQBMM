@@ -69,8 +69,7 @@ Foam::populationBalanceSubModels::aggregationKernels::sumAggregation
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::aggregationKernels::sumAggregation
-::aggregationK
+Foam::populationBalanceSubModels::aggregationKernels::sumAggregation::Ka
 (
     const volScalarField& abscissa1,
     const volScalarField& abscissa2

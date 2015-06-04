@@ -111,7 +111,7 @@ public:
     // Member Functions
 
         //- Aggregation kernel
-        virtual tmp<volScalarField> aggregationK
+        virtual tmp<volScalarField> Ka
         (
             const volScalarField& abscissa1,
             const volScalarField& abscissa2

@@ -70,7 +70,7 @@ Foam::populationBalanceSubModels::daughterDistributions::symmetricFragmentation
 
 Foam::tmp<Foam::volScalarField>
 Foam::populationBalanceSubModels::daughterDistributions::symmetricFragmentation
-::mDaughterDist
+::mD
 (
     const label order,
     const volScalarField& abscissa

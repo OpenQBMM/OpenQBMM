@@ -73,7 +73,7 @@ public:
     // Member Functions
 
         //- Moment of the daughter distribution function
-        virtual tmp<volScalarField> mDaughterDist
+        virtual tmp<volScalarField> mD
         (
             const label order,
             const volScalarField& abscissa

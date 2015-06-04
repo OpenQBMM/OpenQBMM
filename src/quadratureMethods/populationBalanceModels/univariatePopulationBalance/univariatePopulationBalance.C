@@ -172,7 +172,62 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
     label order
 )
 {
+    tmp<volScalarField> aggregationSource;
+    aggregationSource() == dimensionedScalar("zero", dimless, 0.0);
+       
+    forAll(quadrature_.nodes(), pNode1I)
+    {
+        const volScalarNode& node1 = quadrature_.nodes()[pNode1I];
+        
+        forAll(node1.secondaryWeights(), sNode1I)
+        {              
+            const volScalarField& sAbscissa1 
+                = node1.secondaryAbscissae()[sNode1I];
+            
+            tmp<volScalarField> weights1Prod = node1.primaryWeight()
+                *node1.secondaryWeights()[sNode1I];
+                
+            tmp<volScalarField> weightsAbs1Prod = node1.primaryWeight()
+                *node1.secondaryWeights()[sNode1I]*pow(sAbscissa1, order);
+            
+            forAll(quadrature_.nodes(), pNode2I)
+            {
+                const volScalarNode& node2 = quadrature_.nodes()[pNode2I];
+                
+                forAll(node2.secondaryWeights(), sNode2I)
+                {
+                    tmp<volScalarField> weights2Prod = node2.primaryWeight()
+                        *node2.secondaryWeights()[sNode2I];
+
+                    const volScalarField& sAbscissa2 
+                        = node2.secondaryAbscissae()[sNode2I];
+                    
+                    tmp<volScalarField> aggInnerSum =
+                        weights1Prod*
+                        (
+                            weights2Prod*
+                            (
+                                0.5*pow // Birth 
+                                (
+                                    pow(sAbscissa1, 3.0) + pow(sAbscissa2, 3.0), 
+                                    order/3.0
+                                )
+                              - pow(sAbscissa1, order)
+                            )*aggregationKernel_->Ka(sAbscissa1, sAbscissa2)
+                        );
+                                                
+                    aggregationSource().dimensions().reset
+                    (
+                        aggInnerSum().dimensions()
+                    );
+                    
+                    aggregationSource() == aggregationSource() + aggInnerSum();
+                }
+            }
+        }
+    }
     
+    return aggregationSource;
 }
 
 Foam::tmp<Foam::volScalarField> 
@@ -191,18 +246,16 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcBreakup
         forAll(node.secondaryWeights(), sNodeI)
         {
             tmp<volScalarField> bSrc = node.primaryWeight()
-                *node.secondaryWeights()[sNodeI]*
-                breakupKernel_->breakupK
-                (
-                    node.secondaryAbscissae()[sNodeI]
-                )*
-                (   daughterDistribution_->mDaughterDist
+                *node.secondaryWeights()[sNodeI]
+                *breakupKernel_->Kb(node.secondaryAbscissae()[sNodeI])
+                *(   
+                    daughterDistribution_->mD    //Birth
                     (
                         order, 
                         node.secondaryAbscissae()[sNodeI]
-                    ) +
-                    pow(node.secondaryAbscissae()[sNodeI], order)
-                );
+                    ) 
+                  - pow(node.secondaryAbscissae()[sNodeI], order)   //Death
+                 );
              
             breakupSource().dimensions().reset(bSrc().dimensions());
             breakupSource() == breakupSource() + bSrc;

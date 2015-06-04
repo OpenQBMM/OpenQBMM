@@ -69,8 +69,7 @@ Foam::populationBalanceSubModels::daughterDistributions::oneQuarterMassRatio
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::daughterDistributions::oneQuarterMassRatio
-::mDaughterDist
+Foam::populationBalanceSubModels::daughterDistributions::oneQuarterMassRatio::mD
 (
     const label order, 
     const volScalarField& abscissa

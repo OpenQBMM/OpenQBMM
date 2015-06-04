@@ -70,7 +70,7 @@ Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
 
 Foam::tmp<Foam::volScalarField>
 Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
-::aggregationK
+::Ka
 (
     const volScalarField& abscissa1,
     const volScalarField& abscissa2

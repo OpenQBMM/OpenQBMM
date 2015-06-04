@@ -69,8 +69,7 @@ Foam::populationBalanceSubModels::daughterDistributions::uniform
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::daughterDistributions::uniform
-::mDaughterDist
+Foam::populationBalanceSubModels::daughterDistributions::uniform::mD
 (
     const label order,
     const volScalarField& abscissa
