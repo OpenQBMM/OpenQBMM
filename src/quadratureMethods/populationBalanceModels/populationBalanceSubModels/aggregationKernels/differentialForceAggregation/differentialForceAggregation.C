@@ -75,7 +75,8 @@ Foam::tmp<Foam::volScalarField> Foam::populationBalanceSubModels
     const volScalarField& abscissa2
 ) const
 {   
-    return Cagg_*sqr(abscissa1 + abscissa2)*mag(abscissa1 - abscissa2);
+    return Cagg_*sqr(abscissa1 + abscissa2)
+        *mag(sqr(abscissa1) - sqr(abscissa2));
 }
 
 // ************************************************************************* //
