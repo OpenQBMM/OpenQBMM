@@ -5,7 +5,7 @@ set -x
 wclean libso eigenSolver
 wclean libso quadratureMethods/univariateMomentSet
 wclean libso quadratureMethods/extentedMomentInversion
-wclean libso quadratureMethods/univariateQuadratureApproximation
+wclean libso quadratureMethods/quadratureApproximation
 wclean libso quadratureMethods/populationBalanceModels
 
 # ----------------------------------------------------------------- end-of-file
