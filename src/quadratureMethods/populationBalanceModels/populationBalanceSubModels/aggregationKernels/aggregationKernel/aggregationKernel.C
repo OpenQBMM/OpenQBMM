@@ -46,7 +46,14 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationKernel
 )
 :
     dict_(dict),
-    Cagg_(dict.lookupOrDefault("Cagg", 1.0))
+    Ca_
+    (
+        dict.lookupOrDefault
+        (
+            "Cagg", 
+            dimensionedScalar("one", pow(dimTime, -1), 1.0)  
+        )
+    )
 {}
 
 

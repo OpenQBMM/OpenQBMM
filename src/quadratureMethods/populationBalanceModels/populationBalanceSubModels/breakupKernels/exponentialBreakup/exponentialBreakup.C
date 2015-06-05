@@ -57,7 +57,14 @@ Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup
 :
     breakupKernel(dict),
     minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0)),
-    expCoeff_(dict.lookup("expCoeff"))
+    expCoeff_
+    (
+        dict.lookupOrDefault
+        (
+            "expCoeff", 
+            dimensionedScalar("expC", pow(dimLength, -3), 0.1)
+        )
+    )
 {}
 
 
@@ -82,7 +89,7 @@ Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup::Kb
         abscissa.dimensions(), 
         minAbscissa_.value()
     );
-
+    
     return Cb_*pos(abscissa - minAbs)*exp(expCoeff_*pow(abscissa, 3.0));
 }
 

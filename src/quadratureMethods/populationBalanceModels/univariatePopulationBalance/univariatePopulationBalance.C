@@ -196,30 +196,34 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
     {
         const volScalarNode& node1 = quadrature_.nodes()[pNode1I];
         
+        const volScalarField& pWeight1 = node1.primaryWeight();
+        
         forAll(node1.secondaryWeights(), sNode1I)
         {              
+            
+            const volScalarField& sWeight1 = node1.secondaryWeights()[sNode1I];
+            
             const volScalarField& sAbscissa1 
                 = node1.secondaryAbscissae()[sNode1I];
-            
-            tmp<volScalarField> weights1Prod = node1.primaryWeight()
-                *node1.secondaryWeights()[sNode1I];
             
             forAll(quadrature_.nodes(), pNode2I)
             {
                 const volScalarNode& node2 = quadrature_.nodes()[pNode2I];
                 
+                const volScalarField& pWeight2 = node2.primaryWeight();
+                
                 forAll(node2.secondaryWeights(), sNode2I)
                 {
-                    tmp<volScalarField> weights2Prod = node2.primaryWeight()
-                        *node2.secondaryWeights()[sNode2I];
+                    const volScalarField& sWeight2 
+                        = node2.secondaryWeights()[sNode2I];
 
                     const volScalarField& sAbscissa2 
                         = node2.secondaryAbscissae()[sNode2I];
                     
                     tmp<volScalarField> aggInnerSum =
-                        weights1Prod*
+                        pWeight1*sWeight1*
                         (
-                            weights2Prod*
+                            pWeight2*sWeight2*
                             (
                                 0.5*pow // Birth 
                                 (

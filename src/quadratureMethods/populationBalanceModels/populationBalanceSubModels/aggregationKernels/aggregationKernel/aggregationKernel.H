@@ -69,7 +69,7 @@ protected:
         const dictionary& dict_;
 
         //- Coefficient of aggregation kernel
-        const dimensionedScalar Cagg_;
+        const dimensionedScalar Ca_;
 
 
 public:

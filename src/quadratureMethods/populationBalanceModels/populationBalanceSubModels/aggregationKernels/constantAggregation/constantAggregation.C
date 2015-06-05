@@ -90,8 +90,8 @@ Foam::populationBalanceSubModels::aggregationKernels::constantAggregation::Ka
                 dimensionedScalar
                 (
                     "constAggK", 
-                    pow(abscissa1.dimensions(), 3), 
-                    Cagg_.value()
+                    pow(abscissa1.dimensions(), 3)/dimTime, 
+                    Ca_.value()
                 )
             )
         );

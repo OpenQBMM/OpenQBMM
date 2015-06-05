@@ -75,7 +75,7 @@ Foam::populationBalanceSubModels::aggregationKernels::sumAggregation::Ka
     const volScalarField& abscissa2
 ) const
 {   
-    return Cagg_*(pow(abscissa1, 3.0) + pow(abscissa2, 3.0));
+    return Ca_*(pow(abscissa1, 3.0) + pow(abscissa2, 3.0));
 }
 
 // ************************************************************************* //
