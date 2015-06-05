@@ -23,10 +23,10 @@ univariatePopulationBalanceCoeffs
     
     aggregationKernel
     {
-        aggregationKernel constant;
+        aggregationKernel differentialForce;
     }
     
-    breakup off;
+    breakup on;
     
     breakupKernel
     {
