@@ -330,6 +330,8 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
         moment.relax();
         moment.solve();
     }
+    
+    quadrature_.updateQuadrature();
 }
 
 
