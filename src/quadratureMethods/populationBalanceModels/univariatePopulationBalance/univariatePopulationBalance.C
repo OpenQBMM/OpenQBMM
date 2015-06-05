@@ -227,7 +227,7 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
                             (
                                 0.5*pow // Birth 
                                 (
-                                    pow(sAbscissa1, 3.0) + pow(sAbscissa2, 3.0), 
+                                    pow3(sAbscissa1) + pow3(sAbscissa2), 
                                     order/3.0
                                 )
                               - pow(sAbscissa1, order)

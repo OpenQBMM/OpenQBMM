@@ -78,7 +78,7 @@ Foam::tmp<Foam::volScalarField> Foam::populationBalanceSubModels
     tmp<volScalarField> aggK 
         = Ca_*sqr(abscissa1 + abscissa2)*mag(sqr(abscissa1) - sqr(abscissa2));
 
-    aggK().dimensions().reset(pow(abscissa1.dimensions(), 3)/dimTime);
+    aggK().dimensions().reset(pow3(abscissa1.dimensions())/dimTime);
     
     return aggK;
 }

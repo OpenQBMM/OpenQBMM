@@ -51,7 +51,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupKernel
         dict.lookupOrDefault
         (
             "Cb", 
-            dimensionedScalar("one", pow(dimTime, -1), 1.0)  
+            dimensionedScalar("one", inv(dimTime), 1.0)  
         )
     )
 {}
