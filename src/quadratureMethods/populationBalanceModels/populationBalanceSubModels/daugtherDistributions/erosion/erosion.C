@@ -21,23 +21,12 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    Foam::populationBalanceModels::daughterDistribution::uniform
-
-Description
-    Daughter distribution of fragments with uniform fragmentation.
-
-SourceFiles
-    uniform.C
-
 \*---------------------------------------------------------------------------*/
 
-#ifndef uniform_H
-#define uniform_H
+#include "erosion.H"
+#include "addToRunTimeSelectionTable.H"
 
-#include "daughterDistribution.H"
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
@@ -45,51 +34,50 @@ namespace populationBalanceSubModels
 {
 namespace daughterDistributions
 {
+    defineTypeNameAndDebug(erosion, 0);
 
-/*---------------------------------------------------------------------------*\
-                    Class uniform Declaration
-\*---------------------------------------------------------------------------*/
+    addToRunTimeSelectionTable
+    (
+        daughterDistribution,
+        erosion,
+        dictionary
+    );
+}
+}
+}
 
-class uniform
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::populationBalanceSubModels::daughterDistributions::erosion
+::erosion
+(
+    const dictionary& dict
+)
 :
-    public daughterDistribution
-{
-public:
-
-        //- Runtime type information
-        TypeName("uniform");
+    daughterDistribution(dict),
+    primarySize_(dict.lookup("primarySize"))
+{}
 
 
-    // Constructors
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-        //- Construct from components
-        uniform(const dictionary& dict);
-
-
-    //- Destructor
-    virtual ~uniform();
+Foam::populationBalanceSubModels::daughterDistributions::erosion
+::~erosion()
+{}
 
 
-    // Member Functions
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-        //- Moment of the daughter distribution function
-        virtual tmp<volScalarField> mD
-        (
-            const label order,
-            const volScalarField& abscissa
-        ) const;
-
-};
-
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace daughterDistributions
-} // End namespace populationBalanceSubModels
-} // End namespace Foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#endif
+Foam::tmp<Foam::volScalarField>
+Foam::populationBalanceSubModels::daughterDistributions::erosion::mD
+(
+    const label order,
+    const volScalarField& abscissa
+) const
+{    
+    return pow(primarySize_, order) 
+        + pow(pow3(abscissa) - pow3(primarySize_) , order/3.0);
+}
 
 // ************************************************************************* //

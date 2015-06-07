@@ -22,19 +22,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::daughterDistribution::oneQuarterMassRatio
+    Foam::populationBalanceModels::daughterDistribution::erosion
 
 Description
-    Daughter distribution of fragments with one quarter mass ratio 
-    fragmentation.
+    Daughter distribution of fragments for erosion.
 
 SourceFiles
-    oneQuarterMassRatio.C
+    erosion.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef oneQuarterMassRatio_H
-#define oneQuarterMassRatio_H
+#ifndef erosion_H
+#define erosion_H
 
 #include "daughterDistribution.H"
 
@@ -48,27 +47,35 @@ namespace daughterDistributions
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class oneQuarterMassRatio Declaration
+                    Class erosion Declaration
 \*---------------------------------------------------------------------------*/
 
-class oneQuarterMassRatio
+class erosion
 :
     public daughterDistribution
 {
+private:
+    
+    // Private data
+
+        //- Primary particle size
+        dimensionedScalar primarySize_;
+
+
 public:
 
         //- Runtime type information
-        TypeName("oneQuarterMassRatio");
+        TypeName("erosion");
 
 
     // Constructors
 
         //- Construct from components
-        oneQuarterMassRatio(const dictionary& dict);
+        erosion(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~oneQuarterMassRatio();
+    virtual ~erosion();
 
 
     // Member Functions
