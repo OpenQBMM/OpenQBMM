@@ -57,11 +57,11 @@ int main(int argc, char *argv[])
 //    moments[4] = 174.4370267;
     
 //  Unrealizable moment star
-    moments[0] = 0.567128698550116;
-    moments[1] = 0.659798044636756;
-    moments[2] = 0.796168501018439;
-    moments[3] = 1.0;
-    moments[4] = 1.3103698092;
+//     moments[0] = 0.567128698550116;
+//     moments[1] = 0.659798044636756;
+//     moments[2] = 0.796168501018439;
+//     moments[3] = 1.0;
+//     moments[4] = 1.3103698092;
 
 //  Set of moment with sigma = 0 as root
 //     moments[0] = 1.0;
@@ -80,6 +80,14 @@ int main(int argc, char *argv[])
 //     moments[6] = 10.22526492;
 //     moments[7] = 27.0370458224;
 //     moments[8] = 86.9534420717;
+    
+// Moment set on edge of moment space
+    moments[0] = 3.125e12;
+    moments[1] = 6.25e6;
+    moments[2] = 12.5;
+    moments[3] = 2.5e-5;
+    moments[4] = 5.1e-11;
+   
     
     autoPtr<extendedMomentInversion> EQMOM
     (
