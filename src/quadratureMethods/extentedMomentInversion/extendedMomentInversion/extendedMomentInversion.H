@@ -162,9 +162,10 @@ public:
             dictionary,
             (
                 const dictionary& dict,
-                const univariateMomentSet& moments
+                const univariateMomentSet& moments,
+                const label nSecondaryNodes
             ),
-            (dict, moments)
+            (dict, moments, nSecondaryNodes)
         );
 
     // Constructors
@@ -173,7 +174,8 @@ public:
         extendedMomentInversion
         (
             const dictionary& dict,
-            const univariateMomentSet& moments
+            const univariateMomentSet& moments,
+            const label nSecondaryNodes
         );
 
 
@@ -186,7 +188,8 @@ public:
         static autoPtr<extendedMomentInversion> New
         (
             const dictionary& dict,
-            const univariateMomentSet& moments
+            const univariateMomentSet& moments,
+            const label nSecondaryNodes
         );
 
 

@@ -39,14 +39,15 @@ namespace Foam
 Foam::extendedMomentInversion::extendedMomentInversion
 (
     const dictionary& dict,
-    const univariateMomentSet& moments
+    const univariateMomentSet& moments,
+    const label nSecondaryNodes
 )
 :
     moments_(moments),
     nMoments_(moments.size()),
     lastMomentI_(nMoments_ - 1),
     nPrimaryNodes_((nMoments_ - 1)/2),
-    nSecondaryNodes_(dict.lookupOrDefault<label>("nSecondaryNodes", 20)),
+    nSecondaryNodes_(nSecondaryNodes),
     approximatedMoments_(nMoments_, 0.0),
     momentsStar_(nMoments_, 0.0),
     primaryWeights_(nPrimaryNodes_, 0.0),
@@ -79,6 +80,9 @@ void Foam::extendedMomentInversion::correct()
 
 void Foam::extendedMomentInversion::invert()
 {
+    //Info << "nPrimaryNodes = " << nPrimaryNodes_ << endl;
+    //Info << "nSecondaryNodes = " << nSecondaryNodes_ << endl;
+    
     forAll(primaryWeights_, wI)
     {
         primaryWeights_[wI] = 0.0;

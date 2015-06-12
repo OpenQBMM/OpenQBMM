@@ -48,10 +48,11 @@ namespace Foam
 Foam::lognormalEQMOM::lognormalEQMOM
 (
     const dictionary& dict,
-    const univariateMomentSet& moments
+    const univariateMomentSet& moments,
+    const label nSecondaryNodes
 )
 :
-    extendedMomentInversion(dict, moments)
+    extendedMomentInversion(dict, moments, nSecondaryNodes)
 {}
 
 

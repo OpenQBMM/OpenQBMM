@@ -30,7 +30,8 @@ License
 Foam::autoPtr<Foam::extendedMomentInversion> Foam::extendedMomentInversion::New
 (
     const dictionary& dict,
-    const univariateMomentSet& moments
+    const univariateMomentSet& moments,
+    const label nSecondaryNodes
 )
 {
     word extendedMomentInversionType(dict.lookup("extendedMomentInversion"));
@@ -51,7 +52,7 @@ Foam::autoPtr<Foam::extendedMomentInversion> Foam::extendedMomentInversion::New
             << exit(FatalError);
     }
 
-    return cstrIter()(dict, moments);
+    return cstrIter()(dict, moments, nSecondaryNodes);
 }
 
 

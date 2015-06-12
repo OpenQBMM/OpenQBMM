@@ -78,7 +78,8 @@ public:
         lognormalEQMOM
         (
             const dictionary& dict,
-            const univariateMomentSet& moments
+            const univariateMomentSet& moments,
+            const label nSecondaryNodes
         );
 
 

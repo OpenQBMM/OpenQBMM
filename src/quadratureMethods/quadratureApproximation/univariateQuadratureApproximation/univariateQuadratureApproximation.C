@@ -72,10 +72,11 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
         extendedMomentInversion::New
         (
             subDict("extendedMomentInversionCoeff"), 
-            momentsToInvert_
+            momentsToInvert_,
+            nSecondaryNodes_
         )
     )
-{
+{  
     if (moments_.size() != nMoments_)
     {
         FatalErrorIn

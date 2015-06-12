@@ -35,7 +35,7 @@ License
 template <class weightType, class abscissaType>
 Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 (
-    const word name,
+    const word& name,
     const label nSecondaryNodes,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
@@ -139,15 +139,16 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 template <class weightType, class abscissaType>
 Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 (
-    const word name,
-    const dictionary nodeDict,
+    const word& name,
+    const dictionary& nodeDict,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
     const dimensionSet& abscissaDimensions
 )
 :
     name_(name),
-    nSecondaryNodes_(nodeDict.lookupOrDefault<label>("nSecondaryNodes", 20)),
+    nodeDict_(nodeDict),
+    nSecondaryNodes_(nodeDict_.lookupOrDefault("nSecondaryNodes", 20)),
     primaryWeight_
     (
         IOobject
@@ -190,7 +191,7 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
         dimensionedScalar("zeroSigma", dimless, 0.0)
     ),
     extended_(true)
-{
+{   
     forAll(secondaryWeights_, nodeI)
     {
         secondaryWeights_.set

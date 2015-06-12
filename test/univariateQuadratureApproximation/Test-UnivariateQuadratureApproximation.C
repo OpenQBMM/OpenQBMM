@@ -49,11 +49,13 @@ int main(int argc, char *argv[])
 
     Info << "\nNumber of primary nodes: " << nPrimaryNodes << endl;
     
+    Info << "\nNumber of secondary nodes: " << nSecondaryNodes << endl;
+    
     Info << "\nInverting moments. " << endl;
     
     quadrature.updateQuadrature();
     
-    Info<< "\nStoring primary quadrature fields.\n" << endl;
+    Info<< "\nStoring quadrature fields.\n" << endl;
     
     for (label nodeI = 0; nodeI < nPrimaryNodes; nodeI++)
     {
