@@ -78,8 +78,20 @@ class extendedMomentInversion
 {
     // Private member functions
 
+        //- Attempt to find a min or max of the target function on an interval
+        scalar findExtremumTargetFunction(scalar sigmaLow, scalar sigmaHigh);
+        
+        //- Invert moments to find weight, abscissae and sigma
+        void invert();
+        
+        //- Compute secondary weigths and abscissae
+        void secondaryQuadrature();
+        
+        //- Compute target function whose root is sigma_
+        scalar targetFunction(scalar sigma);
+    
         //- Disallow default bitwise copy construct
-        extendedMomentInversion(const extendedMomentInversion&);
+        extendedMomentInversion(const extendedMomentInversion&);       
 
         //- Disallow default bitwise assignment
         void operator=(const extendedMomentInversion&);
@@ -89,62 +101,99 @@ protected:
 
     // Protected data
 
-    //- Moments to invert
-    const univariateMomentSet& moments_;
+        //- Moments to invert
+        const univariateMomentSet& moments_;
 
-    //- Number of moments
-    label nMoments_;
+        //- Number of moments
+        label nMoments_;
 
-    //- Position of the last moment used to compute the target function
-    label lastMomentI_;
+        //- Position of the last moment used to compute the target function
+        label lastMomentI_;
 
-    //- Number of primary quadrature nodes
-    label nPrimaryNodes_;
+        //- Number of primary quadrature nodes
+        label nPrimaryNodes_;
 
-    //- Number of secondary quadrature nodes
-    label nSecondaryNodes_;
+        //- Number of secondary quadrature nodes
+        label nSecondaryNodes_;
 
-    //- Approximated moments
-    univariateMomentSet approximatedMoments_;
+        //- Approximated moments
+        univariateMomentSet approximatedMoments_;
 
-    //- Starred moments
-    univariateMomentSet momentsStar_;
+        //- Starred moments
+        univariateMomentSet momentsStar_;
 
-    //- Primary quadrature weights
-    scalarDiagonalMatrix primaryWeights_;
-    
-    //- Primary quadrature abscissae
-    scalarDiagonalMatrix primaryAbscissae_;
-    
-    //- Parameter sigma of the kernel density function
-    scalar sigma_;
-
-    //- Secondary quadrature weights
-    scalarRectangularMatrix secondaryWeights_;
+        //- Primary quadrature weights
+        scalarDiagonalMatrix primaryWeights_;
         
-    //- Secondary quadrature abscissae
-    scalarRectangularMatrix secondaryAbscissae_;
-
-    //- Maximum number of iterations allowed to find sigma_
-    label maxSigmaIter_;
-
-    //- Tolerance on moment conservation
-    scalar momentsTol_;
-
-    //- Tolerance for the change in the sigma parameter
-    scalar sigmaTol_;
-
-    //- Tolerance for the target function
-    scalar fTol_;
-    
-    //- Bool to track values of sigma_ that lead to unrealizable moments
-    bool foundUnrealizableSigma_;
-    
-    //- Bool to track if sigma = 0 is root
-    bool nullSigma_;
+        //- Primary quadrature abscissae
+        scalarDiagonalMatrix primaryAbscissae_;
         
-    //- Bool to check if sigma is bracketed
-    bool sigmaBracketed_;
+        //- Parameter sigma of the kernel density function
+        scalar sigma_;
+
+        //- Secondary quadrature weights
+        scalarRectangularMatrix secondaryWeights_;
+            
+        //- Secondary quadrature abscissae
+        scalarRectangularMatrix secondaryAbscissae_;
+
+        //- Maximum number of iterations allowed to find sigma_
+        label maxSigmaIter_;
+
+        //- Tolerance on moment conservation
+        scalar momentsTol_;
+
+        //- Tolerance for the change in the sigma parameter
+        scalar sigmaTol_;
+
+        //- Tolerance for the target function
+        scalar fTol_;
+        
+        //- Bool to track values of sigma_ that lead to unrealizable moments
+        bool foundUnrealizableSigma_;
+        
+        //- Bool to track if sigma = 0 is root
+        bool nullSigma_;
+            
+        //- Bool to check if sigma is bracketed
+        bool sigmaBracketed_;
+
+    //- Protected member functions
+    
+        //- Computes kernel density function from abscissa and sigma
+        virtual scalar secondaryAbscissa
+        (
+            scalar primaryAbscissa,
+            scalar secondaryAbscissa,
+            scalar sigma
+        ) = 0;
+
+        //- Compute moments from starred moments
+        virtual void momentsStarToMoments
+        (
+            scalar sigma,
+            univariateMomentSet& moments
+        ) = 0;
+
+        //- Compute the starred moments from moments
+        virtual void momentsToMomentsStar(scalar sigma) = 0;
+
+        //- Compute the normalized moment error
+        scalar normalizedMomentError(scalar sigma);
+        
+        //- Recurrence relation for polynomials orthogonal to kernel function
+        virtual void recurrenceRelation
+        (
+            scalarDiagonalMatrix& a, 
+            scalarDiagonalMatrix& b,
+            scalar primaryAbscissa
+        ) = 0;
+        
+        //- Compute maximum value of sigma to ensure realizability
+        //  The value is exact for the two-node case. For cases with a larger
+        //  number of nodes, this provides an over-estimation of the maximum
+        //  value of the sigma parameter which ensures moment realizability.
+        virtual scalar sigmaMax() = 0;
 
 
 public:
@@ -245,53 +294,6 @@ public:
 
         //- Invert moments and updates secondary quadrature
         void correct();
-
-        //- Attempts to find a min or max of the target function on an interval
-        scalar findExtremumTargetFunction(scalar sigmaLow, scalar sigmaHigh);
-        
-        //- Invert moments to find weight, abscissae and sigma
-        virtual void invert();
-
-        //- Computes kernel density function from abscissa and sigma
-        virtual scalar secondaryAbscissa
-        (
-            scalar primaryAbscissa,
-            scalar secondaryAbscissa,
-            scalar sigma
-        ) = 0;
-
-        //- Compute moments from starred moments
-        virtual void momentsStarToMoments
-        (
-            scalar sigma,
-            univariateMomentSet& moments
-        ) = 0;
-
-        //- Compute the starred moments from moments
-        virtual void momentsToMomentsStar(scalar sigma) = 0;
-
-        //- Compute the normalized moment error
-        virtual scalar normalizedMomentError(scalar sigma);
-
-        //- Recurrence relation for polynomials orthogonal to kernel function
-        virtual void recurrenceRelation
-        (
-            scalarDiagonalMatrix& a, 
-            scalarDiagonalMatrix& b,
-            scalar primaryAbscissa
-        ) = 0;
-
-        //- Compute maximum value of sigma to ensure realizability
-        //  The value is exact for the two-node case. For cases with a larger
-        //  number of nodes, this provides an over-estimation of the maximum
-        //  value of the sigma parameter which ensures moment realizability.
-        virtual scalar sigmaMax() = 0;
-
-        //- Compute secondary weigths and abscissae
-        virtual void secondaryQuadrature();
-
-        //- Compute target function whose root is sigma_
-        virtual scalar targetFunction(scalar sigma);
 
 };
 

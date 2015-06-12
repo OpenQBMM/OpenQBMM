@@ -109,8 +109,7 @@ void Foam::extendedMomentInversion::invert()
             "(\n"
             "	const univariateMomentSet& moments\n"
             ")"
-        )   << "A null sigma value is root of the target function." << endl
-            << "Proceeding with Dirac delta kernel density functions." << endl;
+        )   << "A null sigma value is root of the target function." << endl;
 
         return;
     }
