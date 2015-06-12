@@ -1,8 +1,10 @@
 EXE_INC = \
     -I../../src/eigenSolver/lnInclude \
-    -I$(LIB_SRC)/finiteVolume/lnInclude 
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude 
 
 EXE_LIBS = \
     -lfiniteVolume \
+    -lmeshTools \
     -L$(FOAM_USER_LIBBIN) \
     -leigenSolver
