@@ -136,7 +136,7 @@ Foam::scalar Foam::lognormalEQMOM::sigmaMax()
         = sqrt(2.0*log(sqrt(moments_[0]*moments_[2]/(sqr(moments_[0])))));
     
     scalar sigmaZeta2 
-            = sqrt(2.0*log(sqrt(moments_[1]*moments_[3]/(sqr(moments_[2])))));
+        = sqrt(2.0*log(sqrt(moments_[1]*moments_[3]/(sqr(moments_[2])))));
 
     return min(sigmaZeta1, sigmaZeta2);
 }
