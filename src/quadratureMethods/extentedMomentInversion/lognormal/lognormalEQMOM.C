@@ -26,6 +26,7 @@ License
 #include "lognormalEQMOM.H"
 #include "scalar.H"
 #include "scalarMatrices.H"
+#include "constants.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -120,7 +121,7 @@ void Foam::lognormalEQMOM::recurrenceRelation
     {
         if (bI == 0)
         {
-            b[bI] = tgamma(0.5);
+            b[bI] = sqrt(Foam::constant::mathematical::pi); //tgamma(0.5);
         }
         else 
         {
