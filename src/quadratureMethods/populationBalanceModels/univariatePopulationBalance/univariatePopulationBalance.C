@@ -305,7 +305,7 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
     Info<< "Solving population balance equation.\n" << endl;
 
     // Advect moments with kinetic fluxes
-    advectMoments();
+    //advectMoments();
     
     // Integrate source and diffusion terms
     forAll(quadrature_.moments(), mI)
@@ -332,6 +332,7 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
     }
     
     quadrature_.updateQuadrature();
+    quadrature_.updateMoments();
 }
 
 
