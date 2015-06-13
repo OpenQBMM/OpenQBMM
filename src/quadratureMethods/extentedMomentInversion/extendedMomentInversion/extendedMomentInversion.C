@@ -119,13 +119,13 @@ void Foam::extendedMomentInversion::invert()
 
     if (fLow*fHigh > 0)
     {
-        WarningIn
-        (
-            "Foam::extendedMomentInversion::invert\n"
-            "(\n"
-            "	const univariateMomentSet& moments\n"
-            ")"
-        )   << "Root not brackted. Attempting to bracket." << endl;
+//         WarningIn
+//         (
+//             "Foam::extendedMomentInversion::invert\n"
+//             "(\n"
+//             "	const univariateMomentSet& moments\n"
+//             ")"
+//         )   << "Root not brackted. Attempting to bracket." << endl;
 
         scalar sigmaExtremumTargetFunction 
                 = findExtremumTargetFunction(sigmaLow, sigmaHigh);
@@ -142,7 +142,6 @@ void Foam::extendedMomentInversion::invert()
         {
             sigmaBracketed_ = false;
 
-            //Info << "Using minimum value!" << endl;
             sigma_ = sigmaExtremumTargetFunction;
 
             momentsToMomentsStar(sigma_);
@@ -151,20 +150,20 @@ void Foam::extendedMomentInversion::invert()
                 
             if (momentError > momentsTol_)
             {
-                Info << "The moment set is not preserved.\n" 
-                     << "Moment error = " << momentError << endl;
+                Info<< "The moment set is not preserved.\n" 
+                    << "Moment error = " << momentError << endl;
             }
+
+            FatalErrorIn
+            (
+                "Foam::extendedMomentInversion::invert\n"
+                "(\n"
+                "   const univariateMomentSet& moments\n"
+                ")"
+            ) << "Root not brackted. Attempt to bracket failed."
+                << abort(FatalError);
                 
             return;
-
-           FatalErrorIn
-    	   (
-             "Foam::extendedMomentInversion::invert\n"
-             "(\n"
-             "   const univariateMomentSet& moments\n"
-             ")"
-           ) << "Root not brackted. Attempt to bracket failed."
-             << abort(FatalError);
         }
     }
 
