@@ -150,7 +150,7 @@ protected:
         scalar sigmaTol_;
 
         //- Tolerance for the target function
-        scalar fTol_;
+        scalar targetFunctionTol_;
         
         //- Bool to track values of sigma_ that lead to unrealizable moments
         bool foundUnrealizableSigma_;

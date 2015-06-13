@@ -55,10 +55,10 @@ Foam::extendedMomentInversion::extendedMomentInversion
     sigma_(0.0),
     secondaryWeights_(nPrimaryNodes_, nSecondaryNodes_),
     secondaryAbscissae_(nPrimaryNodes_, nSecondaryNodes_),
-    maxSigmaIter_(dict.lookupOrDefault<label>("maxSigmaIter", 100)),
+    maxSigmaIter_(dict.lookupOrDefault<label>("maxSigmaIter", 1000)),
     momentsTol_(dict.lookupOrDefault("momentsTol", 1.0e-12)),
     sigmaTol_(dict.lookupOrDefault("sigmaTol", 1.0e-12)),
-    fTol_(dict.lookupOrDefault("fTol", 1.0e-12)),  
+    targetFunctionTol_(dict.lookupOrDefault("targetFunctionTol", 1.0e-12)),  
     foundUnrealizableSigma_(false),
     nullSigma_(false),
     sigmaBracketed_(true)
@@ -95,7 +95,7 @@ void Foam::extendedMomentInversion::invert()
     scalar fLow = targetFunction(sigmaLow);
     sigma_ = sigmaLow;
         
-    if (fLow < fTol_)
+    if (fLow < targetFunctionTol_)
     {
         nullSigma_ = true;
 
@@ -161,7 +161,7 @@ void Foam::extendedMomentInversion::invert()
                 "   const univariateMomentSet& moments\n"
                 ")"
             ) << "Root not brackted. Attempt to bracket failed."
-                << abort(FatalError);
+              << abort(FatalError);
                 
             return;
         }
@@ -199,7 +199,7 @@ void Foam::extendedMomentInversion::invert()
         scalar dSigma = (sigmaHigh - sigmaLow)/2.0;
 
         // Check for convergence
-        if (mag(fNew) <= fTol_ || mag(dSigma) <= sigmaTol_)
+        if (mag(fNew) <= targetFunctionTol_ || mag(dSigma) <= sigmaTol_)
         {
             scalar momentError = normalizedMomentError(sigma_);
 
