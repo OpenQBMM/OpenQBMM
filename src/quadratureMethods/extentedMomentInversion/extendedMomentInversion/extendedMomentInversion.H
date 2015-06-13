@@ -84,6 +84,9 @@ class extendedMomentInversion
         //- Invert moments to find weight, abscissae and sigma
         void invert();
         
+        //- Reset inverter
+        void reset();
+        
         //- Compute secondary weigths and abscissae
         void secondaryQuadrature();
         
@@ -154,7 +157,7 @@ protected:
         
         //- Bool to track if sigma = 0 is root
         bool nullSigma_;
-            
+        
         //- Bool to check if sigma is bracketed
         bool sigmaBracketed_;
 

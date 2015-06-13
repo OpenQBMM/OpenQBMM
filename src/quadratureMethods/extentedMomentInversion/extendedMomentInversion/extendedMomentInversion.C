@@ -80,15 +80,7 @@ void Foam::extendedMomentInversion::correct()
 
 void Foam::extendedMomentInversion::invert()
 {   
-    foundUnrealizableSigma_ = false;
-    nullSigma_ = false;
-    sigmaBracketed_ = true;
-    
-    forAll(primaryWeights_, wI)
-    {
-        primaryWeights_[wI] = 0.0;
-        primaryAbscissae_[wI] = 0.0;
-    }
+    reset();
     
     // Exclude cases where the zero-order moment is very small to avoid
     // problems in the inversion due to round-off error  
@@ -274,6 +266,19 @@ void Foam::extendedMomentInversion::invert()
         ")"
     )   << "Number of iterations exceeded."
         << abort(FatalError);
+}
+
+void Foam::extendedMomentInversion::reset()
+{
+    foundUnrealizableSigma_ = false;
+    nullSigma_ = false;
+    sigmaBracketed_ = true;
+    
+    forAll(primaryWeights_, wI)
+    {
+        primaryWeights_[wI] = 0.0;
+        primaryAbscissae_[wI] = 0.0;
+    }
 }
 
 Foam::scalar Foam::extendedMomentInversion::findExtremumTargetFunction
