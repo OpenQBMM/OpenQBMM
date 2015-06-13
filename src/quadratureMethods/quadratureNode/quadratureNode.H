@@ -97,12 +97,13 @@ public:
 
         //- Construct from name, dictionary, mesh and dimensions
         quadratureNode
-        (
+        (           
             const word& name,
             const dictionary& nodeDict,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
-            const dimensionSet& abscissaDimensions
+            const dimensionSet& abscissaDimensions,
+            const wordList& boundaryTypes
         );
         
         //- Construct from name, number of secondary nodes, mesh and dimensions
@@ -125,6 +126,7 @@ public:
             const fvMesh& mesh_;
             const dimensionSet& weightDimensions_;
             const dimensionSet& abscissaDimensions_;
+            const wordList& boundaryTypes_;
 
         public:
 
@@ -132,12 +134,14 @@ public:
             (
                 const fvMesh& mesh,
                 const dimensionSet& weightDimensions,
-                const dimensionSet& abscissaDimensions
+                const dimensionSet& abscissaDimensions,
+                const wordList& boundaryTypes
             )
             :
                 mesh_(mesh),
                 weightDimensions_(weightDimensions),
-                abscissaDimensions_(abscissaDimensions)
+                abscissaDimensions_(abscissaDimensions),
+                boundaryTypes_(boundaryTypes)
             {}
 
             autoPtr<quadratureNode<weightType, abscissaType> > operator()
@@ -154,7 +158,8 @@ public:
                         ent, 
                         mesh_,
                         weightDimensions_,
-                        abscissaDimensions_
+                        abscissaDimensions_,
+                        boundaryTypes_
                     )
                 );
             }

@@ -34,13 +34,14 @@ template <class momentType, class nodeType>
 Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
 (
     const dictionary& dict,
-    const PtrList<nodeType>& nodes
+    const fvMesh& mesh,
+    const autoPtr<PtrList<nodeType> >& nodes
 )
 :
     PtrList<momentType>
     (
         dict.lookup("moments"), 
-        typename momentType::iNew(nodes)
+        typename momentType::iNew(mesh, nodes)
     ),
     nodes_(nodes),
     nDimensions_((*this)[0].nDimensions()), 
@@ -51,6 +52,8 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     // However, to keep the implementation generic, it is moved to a 
     // higher-level class where the specific quadrature method is implemented.
 
+    Info << "Setting moments" << endl;
+    
     // Populate the moment set
     forAll(*this, mI)
     {
@@ -70,7 +73,7 @@ template <class momentType, class nodeType>
 Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
 (
     const label nMoments,
-    const PtrList<nodeType>& nodes,
+    const autoPtr<PtrList<nodeType> >& nodes,
     const label nDimensions,
     const Map<label>& momentMap
 )

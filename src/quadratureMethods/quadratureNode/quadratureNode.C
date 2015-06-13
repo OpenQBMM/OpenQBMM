@@ -143,7 +143,8 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
     const dictionary& nodeDict,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
-    const dimensionSet& abscissaDimensions
+    const dimensionSet& abscissaDimensions,
+    const wordList& boundaryTypes
 )
 :
     name_(name),
@@ -160,7 +161,8 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar("zeroWeight", weightDimensions, 0.0)
+        dimensionedScalar("zeroWeight", weightDimensions, 0.0),
+        boundaryTypes
     ),
     primaryAbscissa_
     (
@@ -173,7 +175,8 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar("zeroAbscissa", abscissaDimensions, 0.0)
+        dimensionedScalar("zeroAbscissa", abscissaDimensions, 0.0),
+        boundaryTypes
     ),
     secondaryWeights_(nSecondaryNodes_),
     secondaryAbscissae_(nSecondaryNodes_),
@@ -188,7 +191,8 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar("zeroSigma", dimless, 0.0)
+        dimensionedScalar("zeroSigma", dimless, 0.0),
+        boundaryTypes
     ),
     extended_(true)
 {   
@@ -212,7 +216,8 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
                     IOobject::NO_WRITE
                 ),
                 mesh,
-                dimensionedScalar("zeroWeight", dimless, 0.0)
+                dimensionedScalar("zeroWeight", dimless, 0.0),
+                boundaryTypes
             )
         );
 
@@ -234,7 +239,8 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
                     IOobject::NO_WRITE
                 ),
                 mesh,
-                dimensionedScalar("zeroAbscissa", abscissaDimensions, 0.0)            
+                dimensionedScalar("zeroAbscissa", abscissaDimensions, 0.0),
+                boundaryTypes
             )
         );
     }

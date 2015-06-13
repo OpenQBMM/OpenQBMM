@@ -12,6 +12,8 @@
                                 of files associated to moments.
 2015-05-24 Alberto Passalacqua: Generalized moment update function to deal with
                                 standard and extended nodes.
+2015-06-13 Alberto Passalacqua: Introduced autoPtr to the PtrList of nodes to
+                                improve initialization of nodes.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -64,7 +66,7 @@ class moment
     public fieldType
 {
     //- Reference to the quadrature nodes
-    const PtrList<nodeType>& nodes_;
+    const autoPtr<PtrList<nodeType> >& nodes_;
 
     //- The order of each dimension of the moment
     const labelList cmptOrders_;
@@ -95,14 +97,15 @@ public:
         moment
         (
             const labelList& cmptOrders,
-            const PtrList<nodeType>& nodes
+            const fvMesh& mesh,
+            const autoPtr<PtrList<nodeType> >& nodes
         );
         
         //- Construct from name, orders, and quadrature nodes
         moment
         (
             const labelList& cmptOrders,
-            const PtrList<nodeType>& nodes,
+            const autoPtr<PtrList<nodeType> >& nodes,
             const fieldType& initMoment
         );
 
@@ -114,12 +117,18 @@ public:
         //  from Istream
         class iNew
         {
-            const PtrList<nodeType>& nodes_;
+            const fvMesh& mesh_;
+            const autoPtr<PtrList<nodeType> >& nodes_;
 
         public:
 
-            iNew(const PtrList<nodeType>& nodes)
+            iNew
+            (
+                const fvMesh& mesh,
+                const autoPtr<PtrList<nodeType> >& nodes
+            )
             :
+                mesh_(mesh),
                 nodes_(nodes)
             {}
 
@@ -128,7 +137,7 @@ public:
                 labelList ent(is);
                 return autoPtr<moment<fieldType, nodeType> >
                 (
-                    new moment<fieldType, nodeType> (ent, nodes_)
+                    new moment<fieldType, nodeType> (ent, mesh_, nodes_)
                 );
             }
         };

@@ -69,8 +69,8 @@ class univariateQuadratureApproximation
         //- Reference to the mesh
         const fvMesh& mesh_;
 
-        //- List of quadrature nodes
-        PtrList<volScalarNode> nodes_;
+        //- AutoPtr to the PtrList of quadrature nodes
+        autoPtr<PtrList<volScalarNode> > nodes_;
 
         //- List of moments
         momentFieldSet<volUnivariateMoment, volScalarNode> moments_;
@@ -82,10 +82,10 @@ class univariateQuadratureApproximation
         label nSecondaryNodes_;
         
         //- List of interpolated nodes (neighbour)
-        PtrList<surfaceScalarNode> nodesNei_;
+        autoPtr<PtrList<surfaceScalarNode> > nodesNei_;
         
         //- List of interpolated nodes (owner)
-        PtrList<surfaceScalarNode> nodesOwn_;
+        autoPtr<PtrList<surfaceScalarNode> > nodesOwn_;
         
         //- Dimensionality of the distribution function
         const label nDimensions_;

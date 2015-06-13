@@ -28,7 +28,7 @@ License
 const Foam::PtrList<Foam::volScalarNode>&
 Foam::univariateQuadratureApproximation::nodes() const
 {
-    return nodes_;
+    return nodes_();
 }
 
 const Foam::momentFieldSet<Foam::volUnivariateMoment, Foam::volScalarNode>& 

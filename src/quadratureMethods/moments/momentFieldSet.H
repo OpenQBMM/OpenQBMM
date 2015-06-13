@@ -7,6 +7,8 @@
 -------------------------------------------------------------------------------
 2015-03-10 Alberto Passalacqua: Templated class on the type of moment and of
                                 quadrature node.
+2015-06-13 Alberto Passalacqua: Introduced autoPtr to the PtrList of nodes to
+                                improve initialization of nodes.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -72,8 +74,8 @@ class momentFieldSet
 {
     // Private data
 
-        //- List of quadrature nodes
-        const PtrList<nodeType>& nodes_;
+        //- Reference to the quadrature nodes
+        const autoPtr<PtrList<nodeType> >& nodes_;
 
         //- The number of dimensions of the distribution function
         const label nDimensions_;
@@ -110,7 +112,8 @@ public:
         momentFieldSet
         (
             const dictionary& dict,
-            const PtrList<nodeType>& nodes
+            const fvMesh& mesh,
+            const autoPtr<PtrList<nodeType> >& nodes
         );
 
         //- Construct from size, quadrature nodes, dimensions and moment map
@@ -119,7 +122,7 @@ public:
         momentFieldSet
         (
             const label nMoments,
-            const PtrList<nodeType>& nodes,
+            const autoPtr<PtrList<nodeType> >& nodes,
             const label nDimensions,
             const Map<label>& momentMap
         );

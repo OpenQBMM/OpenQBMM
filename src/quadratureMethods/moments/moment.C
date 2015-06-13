@@ -12,6 +12,8 @@
                                 of files associated to moments.
 2015-05-24 Alberto Passalacqua: Generalized moment update function to deal with
                                 standard and extended nodes.
+2015-06-13 Alberto Passalacqua: Introduced autoPtr to the PtrList of nodes to
+                                improve initialization of nodes.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -70,7 +72,8 @@ template <class fieldType, class nodeType>
 Foam::moment<fieldType, nodeType>::moment
 (
     const labelList& cmptOrders,
-    const PtrList<nodeType>& nodes
+    const fvMesh& mesh,
+    const autoPtr<PtrList<nodeType> >& nodes
 )
 :
     fieldType
@@ -78,12 +81,12 @@ Foam::moment<fieldType, nodeType>::moment
         IOobject
         (
             IOobject::groupName("moment", listToWord(cmptOrders)), 
-            nodes[0].primaryWeight().mesh().time().timeName(),
-            nodes[0].primaryWeight().mesh(),
+            mesh.time().timeName(),
+            mesh,
             IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
-        nodes[0].primaryWeight().mesh()
+        mesh
     ),
     nodes_(nodes),
     cmptOrders_(cmptOrders),
@@ -96,7 +99,7 @@ template <class fieldType, class nodeType>
 Foam::moment<fieldType, nodeType>::moment
 (
     const labelList& cmptOrders,
-    const PtrList<nodeType>& nodes,
+    const autoPtr<PtrList<nodeType> >& nodes,
     const fieldType& initMoment
 )
 :
@@ -132,6 +135,8 @@ void Foam::moment<fieldType, nodeType>::update()
     // Resetting the moment to zero
     *this == dimensionedScalar("moment", (*this).dimensions(), 0);
     
+    const PtrList<nodeType>& nodes = nodes_();
+    
 //    bool extendedNode = nodes_[0].extended();
     
 //     // If nodes do not have extended status, only use primary quadrature.
@@ -166,9 +171,9 @@ void Foam::moment<fieldType, nodeType>::update()
 //     }
 
     // Extended quadrature case    
-    forAll(nodes_, pNodeI)
+    forAll(nodes, pNodeI)
     {       
-        const nodeType& node = nodes_[pNodeI];
+        const nodeType& node = nodes[pNodeI];
 
         const fieldType& pW = node.primaryWeight();
 
