@@ -51,8 +51,6 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     // Check on the number of moments and nodes may go here.
     // However, to keep the implementation generic, it is moved to a 
     // higher-level class where the specific quadrature method is implemented.
-
-    Info << "Setting moments" << endl;
     
     // Populate the moment set
     forAll(*this, mI)
