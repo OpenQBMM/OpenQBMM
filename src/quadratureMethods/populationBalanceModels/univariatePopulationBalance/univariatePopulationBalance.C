@@ -302,11 +302,11 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcBreakup
 
 void Foam::populationBalanceModels::univariatePopulationBalance::solve()
 {
-    Info<< "Solving population balance equation.\n" << endl;
-
-    // Advect moments with kinetic fluxes
-    //advectMoments();
+    quadrature_.updateQuadrature();
     
+    // Advect moments with kinetic fluxes
+    advectMoments();
+       
     // Integrate source and diffusion terms
     forAll(quadrature_.moments(), mI)
     {
@@ -319,20 +319,19 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
         
         if (aggregation_)
         {
+            Info << "Agg. Source = " << max(calcAggregation(m.order())) << endl;
             moment -= calcAggregation(m.order());
         }
         
         if (breakup_)
         {
+            Info << "Brk. Source = " << max(calcBreakup(m.order())) << endl;
             moment -= calcBreakup(m.order());
         }
         
         moment.relax();
         moment.solve();
     }
-    
-    quadrature_.updateQuadrature();
-    quadrature_.updateMoments();
 }
 
 

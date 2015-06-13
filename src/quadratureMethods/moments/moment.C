@@ -182,7 +182,7 @@ void Foam::moment<fieldType, nodeType>::update()
 
                 tmp<fieldType> abscissaCmpt 
                         = node.secondaryAbscissae()[sNodeI].component(cmpt);
-
+               
                 tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
 
                 m.dimensions().reset(mPow().dimensions());

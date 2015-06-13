@@ -56,9 +56,9 @@ Foam::extendedMomentInversion::extendedMomentInversion
     secondaryWeights_(nPrimaryNodes_, nSecondaryNodes_),
     secondaryAbscissae_(nPrimaryNodes_, nSecondaryNodes_),
     maxSigmaIter_(dict.lookupOrDefault<label>("maxSigmaIter", 100)),
-    momentsTol_(dict.lookupOrDefault("momentsTol", 1.0e-8)),
-    sigmaTol_(dict.lookupOrDefault("sigmaTol", 1.0e-8)),
-    fTol_(dict.lookupOrDefault("fTol", 1.0e-8)),  
+    momentsTol_(dict.lookupOrDefault("momentsTol", 1.0e-12)),
+    sigmaTol_(dict.lookupOrDefault("sigmaTol", 1.0e-12)),
+    fTol_(dict.lookupOrDefault("fTol", 1.0e-12)),  
     foundUnrealizableSigma_(false),
     nullSigma_(false),
     sigmaBracketed_(true)
@@ -80,6 +80,10 @@ void Foam::extendedMomentInversion::correct()
 
 void Foam::extendedMomentInversion::invert()
 {   
+    foundUnrealizableSigma_ = false;
+    nullSigma_ = false;
+    sigmaBracketed_ = true;
+    
     forAll(primaryWeights_, wI)
     {
         primaryWeights_[wI] = 0.0;
@@ -226,7 +230,11 @@ void Foam::extendedMomentInversion::invert()
 
             if (momentError > momentsTol_)
             {
-                Info << "The moment set is not preserved." << endl;
+                Info<< "The moment set is not preserved." << endl;
+                Info<< "Moment error = " << momentError << endl;
+                Info<< "Sigma = " << sigma_ << endl;
+                Info<< "Target function = " << fNew << endl;
+                Info<< "Sigma change = " << dSigma << endl;
             }
 
             return;

@@ -17,10 +17,11 @@ FoamFile
 
 extendedMomentInversion	lognormal;
 
-maxSigmaIter    50;
+nSecondaryNodes 20;
+maxSigmaIter    100;
 momentsTol      1.0e-8;
-sigmaTol        1.0e-14;
-fTol            1.0e-14;
+sigmaTol        1.0e-10;
+fTol            1.0e-10;
 
 
 // ************************************************************************* //

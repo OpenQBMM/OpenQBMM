@@ -96,7 +96,6 @@ void Foam::momentFieldSet<momentType, nodeType>::update()
 {
     forAll(*this, mI)
     {
-        Info<< "Updating moment " << mI << endl;
         this->operator[](mI).update();
     }
 }

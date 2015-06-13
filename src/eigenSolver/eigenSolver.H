@@ -103,6 +103,7 @@ private:
     //- Reduction from Hessenberg to real Schur form
     void realSchur();
 
+
 public:
 
     // Constructors
