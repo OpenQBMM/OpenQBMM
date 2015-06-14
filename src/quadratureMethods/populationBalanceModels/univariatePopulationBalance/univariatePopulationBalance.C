@@ -328,7 +328,7 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
     {
         volUnivariateMoment& m = quadrature_.moments()[mI];
         
-        fvScalarMatrix moment
+        fvScalarMatrix momentEqn
         (
             fvm::ddt(m) - fvc::ddt(m) 
           ==
