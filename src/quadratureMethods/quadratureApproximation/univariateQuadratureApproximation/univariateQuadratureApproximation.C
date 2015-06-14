@@ -428,6 +428,8 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
         {
             primaryWeights[pNodeI][cellI] = pWeights[pNodeI];
             primaryAbscissae[pNodeI][cellI] = pAbscissae[pNodeI];
+            
+            sigma[cellI] = momentInverter_->sigma();
 
             const scalarRectangularMatrix& sWeights
             (
