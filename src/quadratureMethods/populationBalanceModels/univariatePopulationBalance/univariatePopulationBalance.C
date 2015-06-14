@@ -91,8 +91,6 @@ Foam::populationBalanceModels::univariatePopulationBalance
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 void Foam::populationBalanceModels::univariatePopulationBalance::advectMoments()
 {
-    Info<< "\nAdvecting moments." << endl;
-
     surfaceScalarField nei
     (
         IOobject
@@ -167,11 +165,11 @@ void Foam::populationBalanceModels::univariatePopulationBalance::advectMoments()
 }
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
+Foam::populationBalanceModels::univariatePopulationBalance::aggregationSource
 (
-    label order
+    volUnivariateMoment& moment
 )
-{
+{   
     tmp<volScalarField> aSource
     (
         new volScalarField
@@ -190,6 +188,15 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
         )
     );
     
+    if (!aggregation_)
+    {
+        aSource().dimensions().reset(moment.dimensions()/dimTime);
+        
+        return aSource;
+    }
+
+    label order = moment.order();
+   
     volScalarField& aggregationSource = aSource();
        
     forAll(quadrature_.nodes(), pNode1I)
@@ -249,9 +256,9 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcAggregation
 }
 
 Foam::tmp<Foam::volScalarField> 
-Foam::populationBalanceModels::univariatePopulationBalance::calcBreakup
+Foam::populationBalanceModels::univariatePopulationBalance::breakupSource
 (
-    label order
+    volUnivariateMoment& moment
 )
 {
     tmp<volScalarField> bSource
@@ -271,6 +278,15 @@ Foam::populationBalanceModels::univariatePopulationBalance::calcBreakup
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
+    
+    if (!breakup_)
+    {
+        bSource().dimensions().reset(moment.dimensions()/dimTime);
+        
+        return bSource;
+    }
+    
+    label order = moment.order();
         
     volScalarField& breakupSource = bSource();  
        
@@ -315,20 +331,11 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
         fvScalarMatrix moment
         (
             fvm::ddt(m) - fvc::ddt(m) 
+          ==
+            aggregationSource(m)
+          + breakupSource(m)
         );
-        
-        if (aggregation_)
-        {
-            Info << "Agg. Source = " << max(calcAggregation(m.order())) << endl;
-            moment -= calcAggregation(m.order());
-        }
-        
-        if (breakup_)
-        {
-            Info << "Brk. Source = " << max(calcBreakup(m.order())) << endl;
-            moment -= calcBreakup(m.order());
-        }
-        
+                
         moment.relax();
         moment.solve();
     }

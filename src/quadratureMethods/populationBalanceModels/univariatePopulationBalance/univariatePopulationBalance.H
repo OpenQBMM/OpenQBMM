@@ -85,6 +85,19 @@ class univariatePopulationBalance
         <
             Foam::populationBalanceSubModels::daughterDistribution
         > daughterDistribution_;
+      
+        
+    // Private member functions
+        
+        //- Advect moments
+        void advectMoments();
+        
+        //- Calculate aggregation source terms
+        tmp<volScalarField> aggregationSource(volUnivariateMoment& moment);
+        
+        //- Calculate Breakup source term
+        tmp<volScalarField> breakupSource(volUnivariateMoment& moment);
+
 
 public:
 
@@ -108,15 +121,6 @@ public:
 
 
     // Member Functions
-
-        //- Advect moments
-        void advectMoments();
-        
-        //- Calculate aggregation source terms
-        tmp<volScalarField> calcAggregation(label order);
-        
-        //- Calculate Breakup source term
-        tmp<volScalarField> calcBreakup(label order);
 
         //- Solve univariate population balance equation
         virtual void solve();
