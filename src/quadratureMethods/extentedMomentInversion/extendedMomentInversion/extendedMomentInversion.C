@@ -147,21 +147,24 @@ void Foam::extendedMomentInversion::invert()
             momentsToMomentsStar(sigma_);
             momentsStar_.invert(primaryWeights_, primaryAbscissae_);
             scalar momentError = normalizedMomentError(sigma_);
-                
+            
+            Info<< "Using sigma value from minimization of target function.\n"
+                << "sigma = " << sigma_ << endl;
+            
             if (momentError > momentsTol_)
             {
                 Info<< "The moment set is not preserved.\n" 
                     << "Moment error = " << momentError << endl;
             }
 
-            FatalErrorIn
-            (
-                "Foam::extendedMomentInversion::invert\n"
-                "(\n"
-                "   const univariateMomentSet& moments\n"
-                ")"
-            ) << "Root not brackted. Attempt to bracket failed."
-              << abort(FatalError);
+//             FatalErrorIn
+//             (
+//                 "Foam::extendedMomentInversion::invert\n"
+//                 "(\n"
+//                 "   const univariateMomentSet& moments\n"
+//                 ")"
+//             ) << "Root not brackted. Attempt to bracket failed."
+//               << abort(FatalError);
                 
             return;
         }
