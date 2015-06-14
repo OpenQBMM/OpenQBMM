@@ -375,39 +375,11 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
 
 void Foam::univariateQuadratureApproximation::updateQuadrature()
 {
-    const label nCells = moments_().size();
-    const volScalarField m0(moments_[0]);
+    const volScalarField& m0(moments_[0]);
+   
+    PtrList<volScalarNode>& nodes(nodes_());
 
-    // Matrix to store primary weights
-    DiagonalMatrix<scalarField> primaryWeights
-    (
-        nPrimaryNodes_, 
-        scalarField(nCells, 0)
-    );
-    
-    // Matrix to store primary abscissae
-    DiagonalMatrix<scalarField> primaryAbscissae
-    (
-        nPrimaryNodes_, 
-        scalarField(nCells, 0)
-    );
-
-    // Matrix to store secondary weights
-    RectangularMatrix<scalarField> secondaryWeights
-    (
-        nPrimaryNodes_, nSecondaryNodes_, scalarField(nCells, 0)
-    );
-    
-    // Matrix to store secondary abscissae
-    RectangularMatrix<scalarField> secondaryAbscissae
-    (
-        nPrimaryNodes_, nSecondaryNodes_, scalarField(nCells, 0)
-    );
-
-    // Field to store sigma
-    scalarField sigma(nCells, 0);
-
-    forAll(moments_[0], cellI)
+    forAll(m0, cellI)
     {
         // Copying moment set from a cell to univariateMomentSet
         forAll(momentsToInvert_, mI)
@@ -418,19 +390,27 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
         // Inverting moments and updating secondary quadrature
         momentInverter_->correct();
         
+        // Recovering primary weights and abscissae from moment inverter
         const scalarDiagonalMatrix& pWeights(momentInverter_->primaryWeights());
+
         const scalarDiagonalMatrix& pAbscissae
         (
             momentInverter_->primaryAbscissae()
         );
 
+        // Copying to fields
         for (label pNodeI = 0; pNodeI < nPrimaryNodes_; pNodeI++)
         {
-            primaryWeights[pNodeI][cellI] = pWeights[pNodeI];
-            primaryAbscissae[pNodeI][cellI] = pAbscissae[pNodeI];
+            volScalarNode& node(nodes[pNodeI]);
             
-            sigma[cellI] = momentInverter_->sigma();
-
+            // Copy primary node
+            node.primaryWeight()[cellI] = pWeights[pNodeI];
+            node.primaryAbscissa()[cellI] = pAbscissae[pNodeI];
+            
+            // Copy secondary nodes
+            PtrList<volScalarField>& sWeightFields(node.secondaryWeights());
+            PtrList<volScalarField>& sAbscissaFields(node.secondaryAbscissae());
+            
             const scalarRectangularMatrix& sWeights
             (
                 momentInverter_->secondaryWeights()
@@ -443,59 +423,27 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
             
             for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
             {
-                secondaryWeights[pNodeI][sNodeI][cellI] 
-                    = sWeights[pNodeI][sNodeI];
-            
-                secondaryAbscissae[pNodeI][sNodeI][cellI] 
-                        = sAbscissae[pNodeI][sNodeI];
+                sWeightFields[sNodeI][cellI] = sWeights[pNodeI][sNodeI];
+                sAbscissaFields[sNodeI][cellI] = sAbscissae[pNodeI][sNodeI];
             }
+            
+            // Copy sigma
+            node.sigma()[cellI] = momentInverter_->sigma();
         }        
     }
 
-    PtrList<volScalarNode>& nodes(nodes_());
-    
+    // Updating boundary conditions
     forAll(nodes, pNodeI)
     {
         volScalarNode& pNode(nodes[pNodeI]);
         
-        // Copying primary nodes
-        pNode.primaryWeight().internalField().replace
-        (
-            0,
-            primaryWeights[pNodeI]
-        );
-
         pNode.primaryWeight().correctBoundaryConditions();
-
-        pNode.primaryAbscissa().internalField().replace
-        (
-            0,
-            primaryAbscissae[pNodeI]
-        );
-
         pNode.primaryAbscissa().correctBoundaryConditions();
-
-        // Copying sigma
-        pNode.sigma().internalField().replace(0, sigma);
         pNode.sigma().correctBoundaryConditions();
 
-        // Copying secondary weights
         for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
         {
-            pNode.secondaryWeights()[sNodeI].internalField().replace
-            (
-                0,
-                secondaryWeights[pNodeI][sNodeI]
-            );
-
             pNode.secondaryWeights()[sNodeI].correctBoundaryConditions();
-
-            pNode.secondaryAbscissae()[sNodeI].internalField().replace
-            (
-                0,
-                secondaryAbscissae[pNodeI][sNodeI]
-            );
-
             pNode.secondaryAbscissae()[sNodeI].correctBoundaryConditions();
         }
     }
