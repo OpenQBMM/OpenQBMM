@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "turbulentDiffusion.H"
+#include "noDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
 #include "turbulentFluidThermoModel.H"
@@ -36,12 +36,12 @@ namespace populationBalanceSubModels
 {
 namespace diffusionModels
 {
-    defineTypeNameAndDebug(turbulentDiffusion, 0);
+    defineTypeNameAndDebug(noDiffusion, 0);
 
     addToRunTimeSelectionTable
     (
         diffusionModel,
-        turbulentDiffusion,
+        noDiffusion,
         dictionary
     );
 }
@@ -51,43 +51,51 @@ namespace diffusionModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
-::turbulentDiffusion
+Foam::populationBalanceSubModels::diffusionModels::noDiffusion
+::noDiffusion
 (
     const dictionary& dict
 )
 :
-    diffusionModel(dict),
-    gammaLam_(dict.lookup("gammaLam")),
-    Sc_(readScalar(dict.lookup("Sc")))
+    diffusionModel(dict)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
-::~turbulentDiffusion()
+Foam::populationBalanceSubModels::diffusionModels::noDiffusion
+::~noDiffusion()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::fvScalarMatrix>
-Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
+Foam::populationBalanceSubModels::diffusionModels::noDiffusion
 ::momentDiff
 (
     const volScalarField& moment
 ) const
 {   
-    const Foam::compressible::turbulenceModel& flTurb =
-        moment.mesh().lookupObject<compressible::turbulenceModel>
+    tmp<volScalarField> noDiff
+    (
+        new volScalarField
         (
-            turbulenceModel::propertiesName
-        );
-
-    volScalarField gamma = flTurb.mut()/Sc_ + gammaLam_;
+            IOobject
+            (
+                "noDiff",
+                moment.mesh().time().timeName(),
+                moment.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            moment.mesh(),
+            dimensionedScalar("zero", inv(dimTime), 0.0)
+        )
+    );    
     
-    return fvm::laplacian(gamma, moment);
+    return fvm::Sp(noDiff, moment);
 }
 
 // ************************************************************************* //

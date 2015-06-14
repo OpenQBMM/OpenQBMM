@@ -27,6 +27,7 @@ populationBalanceSubModels/breakupKernels/powerLawBreakup/powerLawBreakup.C
 
 populationBalanceSubModels/diffusionModels/diffusionModel/diffusionModel.C
 populationBalanceSubModels/diffusionModels/diffusionModel/newDiffusionModel.C
+populationBalanceSubModels/diffusionModels/noDiffusion/noDiffusion.C
 populationBalanceSubModels/diffusionModels/turbulentDiffusion/turbulentDiffusion.C
 
 

@@ -77,6 +77,13 @@ Foam::populationBalanceModels::univariatePopulationBalance
         (
             dict.subDict("daughterDistribution")
         )
+    ),
+    diffusionModel_
+    (
+        Foam::populationBalanceSubModels::diffusionModel::New
+        (
+            dict.subDict("diffusionModel")
+        )
     )
 {}
 
@@ -331,13 +338,14 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
         fvScalarMatrix momentEqn
         (
             fvm::ddt(m) - fvc::ddt(m) 
+          + diffusionModel_->momentDiff(m)
           ==
             aggregationSource(m)
           + breakupSource(m)
         );
                 
-        moment.relax();
-        moment.solve();
+        momentEqn.relax();
+        momentEqn.solve();
     }
 }
 

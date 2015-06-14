@@ -45,8 +45,7 @@ Foam::populationBalanceSubModels::diffusionModel::diffusionModel
     const dictionary& dict
 )
 :
-    dict_(dict),
-    Cb_(dict.lookupOrDefault("Cb", 1.0))
+    dict_(dict)
 {}
 
 

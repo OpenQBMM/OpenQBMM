@@ -41,6 +41,7 @@ SourceFiles
 #include "aggregationKernel.H"
 #include "breakupKernel.H"
 #include "daughterDistribution.H"
+#include  "diffusionModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -86,6 +87,11 @@ class univariatePopulationBalance
             Foam::populationBalanceSubModels::daughterDistribution
         > daughterDistribution_;
       
+        //- Diffusion model
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::diffusionModel
+        > diffusionModel_;
         
     // Private member functions
         

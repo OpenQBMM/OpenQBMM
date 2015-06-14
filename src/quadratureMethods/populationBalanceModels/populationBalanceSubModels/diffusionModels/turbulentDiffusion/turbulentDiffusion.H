@@ -55,6 +55,14 @@ class turbulentDiffusion
 :
     public diffusionModel
 {   
+    //- Private data
+    
+        //- Laminar diffusivity
+        dimensionedScalar gammaLam_;
+    
+        //- Turbulent Schmidt number
+        scalar Sc_;
+    
 public:
 
         //- Runtime type information
@@ -74,9 +82,8 @@ public:
     // Member Functions
 
         //- Moments of the daughter distribution
-        virtual tmp<fvScalarMatrix> divTurbDiff
+        virtual tmp<fvScalarMatrix> momentDiff
         (
-            const volScalarField& turbDiffusivity,
             const volScalarField& moment
         ) const;
 

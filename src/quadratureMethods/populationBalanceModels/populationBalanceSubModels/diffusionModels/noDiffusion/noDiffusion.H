@@ -22,102 +22,69 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::diffusionModel
+    Foam::populationBalanceModels::diffusionModels::noDiffusion
 
 Description
-    Abstract class for turbulent diffusion models.
-    
+    Standard turbulent diffusion model. This model should be default for
+    problems without size-dependent diffusion.
+
 SourceFiles
-    diffusionModel.C
+    noDiffusion.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef diffusionModel_H
-#define diffusionModel_H
+#ifndef noDiffusion_H
+#define noDiffusion_H
 
-#include "dictionary.H"
-#include "volFields.H"
-#include "fvMatrix.H"
-#include "dimensionedTypes.H"
-#include "runTimeSelectionTables.H"
-
+#include "diffusionModel.H"
+#include "fvm.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 namespace populationBalanceSubModels
 {
+namespace diffusionModels
+{
 
 /*---------------------------------------------------------------------------*\
-                    Class diffusionModel Declaration
+                    Class noDiffusion Declaration
 \*---------------------------------------------------------------------------*/
 
-class diffusionModel
-{   
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        diffusionModel(const diffusionModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const diffusionModel&);
-
-
-protected:
-
-    // Protected data
-
-        const dictionary& dict_;
-
-
+class noDiffusion
+:
+    public diffusionModel
+{      
 public:
 
-    //- Runtime type information
-    TypeName("diffusionModel");
-
-    // Declare runtime constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        diffusionModel,
-        dictionary,
-        (
-            const dictionary& dict
-        ),
-        (dict)
-    );
+        //- Runtime type information
+        TypeName("none");
 
 
     // Constructors
 
         //- Construct from components
-        diffusionModel(const dictionary& dict);
-
-
-    // Selectors
-
-        static autoPtr<diffusionModel> New
-        (
-            const dictionary& dict
-        );
+        noDiffusion(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~diffusionModel();
+    virtual ~noDiffusion();
 
 
     // Member Functions
 
-        //- Return the source term for diffusion term in the moment equation  
+        //- Moments of the daughter distribution
         virtual tmp<fvScalarMatrix> momentDiff
         (
             const volScalarField& moment
-        ) const = 0;
+        ) const;
+
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace diffusionModels
 } // End namespace populationBalanceSubModels
 } // End namespace Foam
 
