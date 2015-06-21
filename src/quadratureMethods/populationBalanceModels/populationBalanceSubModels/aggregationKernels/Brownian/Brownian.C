@@ -89,8 +89,6 @@ Foam::populationBalanceSubModels::aggregationKernels::Brownian::Ka
             ")"
         )   << "No valid thermophysical model found."
             << abort(FatalError);
-
-        return volScalarField::null();
     }
     
     const fluidThermo& flThermo =

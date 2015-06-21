@@ -89,8 +89,6 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
             ")"
         )   << "No valid thermophysical model found."
             << abort(FatalError);
-
-        return volScalarField::null();
     }
     
     const fluidThermo& flThermo =
@@ -116,8 +114,6 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
             ")"
         )   << "No valid compressible turbulence model found."
             << abort(FatalError);
-
-        return volScalarField::null();
     }
         
     const compressible::turbulenceModel& flTurb =
