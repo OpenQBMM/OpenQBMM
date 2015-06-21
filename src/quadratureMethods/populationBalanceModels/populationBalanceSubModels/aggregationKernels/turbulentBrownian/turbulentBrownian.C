@@ -95,6 +95,30 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
     
     const fluidThermo& flThermo =
         abscissa1.mesh().lookupObject<fluidThermo>("thermophysicalProperties");
+    
+    typedef compressible::turbulenceModel cmpTurbModel;
+    
+    if 
+    (
+        !abscissa1.mesh().foundObject<cmpTurbModel>
+        (
+            cmpTurbModel::propertiesName
+        )
+    )
+    {
+        FatalErrorIn
+        (
+            "Foam::populationBalanceSubModels::aggregationKernels::"
+            "turbulentBrownian::Ka\n"
+            "(\n"
+            "   const volScalarField& abscissa1,\n"
+            "   const volScalarField& abscissa2,\n"
+            ")"
+        )   << "No valid compressible turbulence model found."
+            << abort(FatalError);
+
+        return volScalarField::null();
+    }
         
     const compressible::turbulenceModel& flTurb =
         abscissa1.mesh().lookupObject<compressible::turbulenceModel>
