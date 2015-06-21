@@ -77,6 +77,22 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
     const volScalarField& abscissa2
 ) const
 {   
+    if (!abscissa1.mesh().foundObject<fluidThermo>("thermophysicalProperties"))
+    {
+        FatalErrorIn
+        (
+            "Foam::populationBalanceSubModels::aggregationKernels::"
+            "turbulentBrownian::Ka\n"
+            "(\n"
+            "   const volScalarField& abscissa1,\n"
+            "   const volScalarField& abscissa2,\n"
+            ")"
+        )   << "No valid thermophysical model found."
+            << abort(FatalError);
+
+        return volScalarField::null();
+    }
+    
     const fluidThermo& flThermo =
         abscissa1.mesh().lookupObject<fluidThermo>("thermophysicalProperties");
         

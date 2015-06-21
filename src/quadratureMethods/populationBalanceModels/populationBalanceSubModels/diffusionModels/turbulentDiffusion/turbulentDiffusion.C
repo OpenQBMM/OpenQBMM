@@ -26,6 +26,7 @@ License
 #include "turbulentDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
+#include "turbulentTransportModel.H"
 #include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -79,15 +80,51 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
     const volScalarField& moment
 ) const
 {   
-    const Foam::compressible::turbulenceModel& flTurb =
-        moment.mesh().lookupObject<compressible::turbulenceModel>
-        (
-            turbulenceModel::propertiesName
-        );
-
-    volScalarField gamma = flTurb.mut()/Sc_ + gammaLam_;
+    volScalarField gamma = turbViscosity(moment)/Sc_ + gammaLam_;
     
     return fvm::laplacian(gamma, moment);
+}
+
+Foam::tmp<Foam::volScalarField> Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion::
+turbViscosity(const volScalarField& moment) const
+{
+    typedef compressible::turbulenceModel cmpTurbModel;
+    typedef incompressible::turbulenceModel icoTurbModel;
+
+    if (moment.mesh().foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
+    {
+        const cmpTurbModel& turb =
+            moment.mesh().lookupObject<cmpTurbModel>
+            (
+                cmpTurbModel::propertiesName
+            );
+
+        return turb.mut();
+    }
+    else if 
+    (
+        moment.mesh().foundObject<icoTurbModel>(icoTurbModel::propertiesName)
+    )
+    {
+        const incompressible::turbulenceModel& turb =
+            moment.mesh().lookupObject<icoTurbModel>
+            (
+                icoTurbModel::propertiesName
+            );
+
+        return turb.nut();
+    }
+    else
+    {
+        FatalErrorIn
+        (
+            "turbulentDiffusion::turbViscosity()"
+        )
+            << "No valid turbulence model for turbulent diffusion calculation."
+            << exit(FatalError);
+
+        return volScalarField::null();
+    }
 }
 
 // ************************************************************************* //

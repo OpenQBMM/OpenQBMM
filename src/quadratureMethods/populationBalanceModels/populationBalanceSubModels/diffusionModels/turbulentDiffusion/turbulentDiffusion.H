@@ -55,6 +55,9 @@ class turbulentDiffusion
 :
     public diffusionModel
 {   
+    //- Private member functions
+        tmp<volScalarField> turbViscosity(const volScalarField& moment) const;
+    
     //- Private data
     
         //- Laminar diffusivity
