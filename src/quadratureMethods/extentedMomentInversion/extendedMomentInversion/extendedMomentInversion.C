@@ -148,8 +148,8 @@ void Foam::extendedMomentInversion::invert()
             momentsStar_.invert(primaryWeights_, primaryAbscissae_);
             scalar momentError = normalizedMomentError(sigma_);
             
-            Info<< "Using sigma value from minimization of target function.\n"
-                << "sigma = " << sigma_ << endl;
+//             Info<< "Using sigma value from minimization of target function.\n"
+//                 << "sigma = " << sigma_ << endl;
             
             if (momentError > momentsTol_)
             {

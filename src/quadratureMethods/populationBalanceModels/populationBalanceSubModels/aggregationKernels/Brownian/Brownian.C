@@ -94,7 +94,7 @@ Foam::populationBalanceSubModels::aggregationKernels::Brownian::Ka
     const fluidThermo& flThermo =
         abscissa1.mesh().lookupObject<fluidThermo>("thermophysicalProperties");
     
-    dimensionedScalar smallAbs("smallAbs", abscissa1.dimensions(), 0.0001);
+    dimensionedScalar smallAbs("smallAbs", sqr(abscissa1.dimensions()), 0.0001);
 
     return 
         2.0*Foam::constant::physicoChemical::k*flThermo.T()

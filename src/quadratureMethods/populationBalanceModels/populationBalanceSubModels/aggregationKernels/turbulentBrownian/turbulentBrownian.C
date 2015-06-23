@@ -122,7 +122,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
             turbulenceModel::propertiesName
         );
     
-    dimensionedScalar smallAbs("smallAbs", abscissa1.dimensions(), 0.0001);
+    dimensionedScalar smallAbs("smallAbs", sqr(abscissa1.dimensions()), 0.0001);
 
     return 
         2.0*Foam::constant::physicoChemical::k*flThermo.T()
