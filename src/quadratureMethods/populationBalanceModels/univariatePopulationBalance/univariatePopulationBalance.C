@@ -337,7 +337,7 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
         
         fvScalarMatrix momentEqn
         (
-            fvm::ddt(m) - fvc::ddt(m) 
+            fvm::ddt(m) - fvc::ddt(m)
           - diffusionModel_->momentDiff(m)
           ==
             aggregationSource(m)

@@ -99,13 +99,13 @@ void Foam::extendedMomentInversion::invert()
     {
         nullSigma_ = true;
 
-        WarningIn
-        (
-            "Foam::extendedMomentInversion::invert\n"
-            "(\n"
-            "	const univariateMomentSet& moments\n"
-            ")"
-        )   << "A null sigma value is root of the target function." << endl;
+//         WarningIn
+//         (
+//             "Foam::extendedMomentInversion::invert\n"
+//             "(\n"
+//             "	const univariateMomentSet& moments\n"
+//             ")"
+//         )   << "A null sigma value is root of the target function." << endl;
 
         return;
     }
@@ -401,8 +401,16 @@ void Foam::extendedMomentInversion::secondaryQuadrature()
         // Manage case with null sigma to avoid redefining source terms
         forAll(primaryWeights_, pNodeI)
         {
-            secondaryWeights_[pNodeI][0] = 1.0;
-            secondaryAbscissae_[pNodeI][0] = 1.0;
+            if (primaryWeights_[pNodeI] > 0)
+            {
+                secondaryWeights_[pNodeI][0] = 1.0;
+                secondaryAbscissae_[pNodeI][0] = primaryAbscissae_[pNodeI];
+            }
+            else
+            {
+                secondaryWeights_[pNodeI][0] = 0.0;
+                secondaryAbscissae_[pNodeI][0] = 0.0;
+            }
 
             for (label sNodeI = 1; sNodeI < nSecondaryNodes_; sNodeI++)
             {

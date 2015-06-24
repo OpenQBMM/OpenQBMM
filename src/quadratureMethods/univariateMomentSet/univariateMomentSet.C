@@ -76,14 +76,17 @@ void Foam::univariateMomentSet::invert
 
     if (nInvertibleMoments_ < 2)
     {
-    FatalErrorIn
+        //Info << "Moments: " << (*this) << endl;
+        
+        FatalErrorIn
         (
             "Foam::univariateMomentSet::invert\n"
             "(\n"
             "    const scalarDiagonalMatrix& weights,\n"
             "    const scalarDiagonalMatrix& abscissae\n"
             ")"
-        )   << "Insufficient number of moments to define quadrature."
+        )   << "Insufficient number (" << nInvertibleMoments_ 
+            << ") of moments to define quadrature."
             << abort(FatalError);
     }
 
