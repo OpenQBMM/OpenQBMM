@@ -77,7 +77,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
     const volScalarField& abscissa2
 ) const
 {   
-    if (!abscissa1.mesh().foundObject<fluidThermo>("thermophysicalProperties"))
+    if (!abscissa1.mesh().foundObject<fluidThermo>(basicThermo::dictName))
     {
         FatalErrorIn
         (
@@ -92,7 +92,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
     }
     
     const fluidThermo& flThermo =
-        abscissa1.mesh().lookupObject<fluidThermo>("thermophysicalProperties");
+        abscissa1.mesh().lookupObject<fluidThermo>(basicThermo::dictName);
     
     typedef compressible::turbulenceModel cmpTurbModel;
     
