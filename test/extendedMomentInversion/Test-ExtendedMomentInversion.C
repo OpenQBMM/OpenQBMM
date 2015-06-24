@@ -88,12 +88,11 @@ int main(int argc, char *argv[])
 //     moments[3] = 2.5e-5;
 //     moments[4] = 5.0e-11;
 
-    moments[0] = 1.0;
-    moments[1] = 2.0;
-    moments[2] = 4.0;
-    moments[3] = 8.0;
-    moments[4] = 16.0;    
-    
+//     moments[0] = 1.0;
+//     moments[1] = 2.0;
+//     moments[2] = 4.0;
+//     moments[3] = 8.0;
+//     moments[4] = 16.0;    
    
 //     moments[0] = 0.9996;
 //     moments[1] =  0.99970396842;
