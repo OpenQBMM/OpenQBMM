@@ -165,6 +165,8 @@ void Foam::populationBalanceModels::univariatePopulationBalance::advectMoments()
          fvc::surfaceIntegrate(psiIf, mFlux);
 
          // Updating moment - First-order time integration here 
+         // TODO: Generalize for high-order schemes, and replace with term
+         // in fvScalarMatrix to avoid time-split.
          psiIf = psi0 - psiIf*U_.time().deltaTValue();
     }
     
