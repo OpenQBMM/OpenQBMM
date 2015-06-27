@@ -25,7 +25,16 @@ Class
     Foam::populationBalanceModels::aggregationKernels::Brownian
 
 Description
-    Brownian aggregation kernel (Smoluchowski, 1917).
+    Brownian aggregation kernel.
+    
+    Reference
+    \verbatim
+        "Versuch Einer Mathematischen Theorie Der Koagulationskinetic Kolloider 
+        Losunger"
+        M X Smoluchowski
+        Zeitschrift fur Physikalische Chemie
+        Volume 92, Pages 129-142, 1917
+    \endverbatim    
 
 SourceFiles
     Brownian.C

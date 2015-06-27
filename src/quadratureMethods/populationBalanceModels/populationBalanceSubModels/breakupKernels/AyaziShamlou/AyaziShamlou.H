@@ -26,6 +26,15 @@ Class
 
 Description
     Breakup kernel for liquid-solid systems.
+    
+    Reference
+    \verbatim
+        "Growth-independent breakage frequency of protein precipitates in 
+        turbulently agitated bioreactors"
+        P Ayazi Shamlou, S Stravrinides, N Titchener-Hooker, M Hoare
+        Chemical Engineering Science
+        Volume 49, Pages 2647-2656, 1994
+    \endverbatim 
 
 SourceFiles
     AyaziShamlou.C

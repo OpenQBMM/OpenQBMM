@@ -26,7 +26,17 @@ Class
 
 Description
     Breakup kernel for liquid-solid systems.
+    
+    Reference
+    \verbatim
+        "Theoretical model for drop and bubble breakup in turbulent dispersion"
+        H Luo, H F Svendsen 
+        AIChE Journal
+        Volume 42, Pages 1225-1233, 1996
+    \endverbatim 
 
+    
+    
 SourceFiles
     LuoSvendsen.C
 
