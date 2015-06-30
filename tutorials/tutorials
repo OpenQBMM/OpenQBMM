@@ -24,5 +24,8 @@
 * pbeFoam        
     Tutorials for the single-cell solver pbeFoam to demonstrate kernel functions 
     and perform verification and validation studies.
+    
+* pbeTrasnportFoam        
+    Tutorials for the steady-state solver for population balance equations.
 
   
