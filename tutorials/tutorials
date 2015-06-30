@@ -16,9 +16,13 @@
 
  List of tutorials
 
- Name 			Description
- 
- pbeFoam        Tutorials for the single-cell solver pbeFoam to demonstrate
-                kernel functions and perform verification and validation 
-                studies.
+ Name 			
+
+* buoyantPbePimpleFoam
+    Tutorials for buoyant solver coupled to population balance solver.
+
+* pbeFoam        
+    Tutorials for the single-cell solver pbeFoam to demonstrate kernel functions 
+    and perform verification and validation studies.
+
   
