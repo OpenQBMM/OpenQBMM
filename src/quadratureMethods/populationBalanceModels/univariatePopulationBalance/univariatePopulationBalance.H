@@ -95,14 +95,29 @@ class univariatePopulationBalance
         
     // Private member functions
         
-        //- Advect moments
-        void advectMoments();
+        //- Update fields required to compute kinetic fluxes
+        void updateAdvection
+        (
+            surfaceScalarField& phiOwn, 
+            surfaceScalarField& phiNei
+        );
+        
+        //- Calculate explicit advection term 
+        tmp<volScalarField> advectMoment
+        (
+            const volUnivariateMoment& moment,
+            const surfaceScalarField& phiOwn,
+            const surfaceScalarField& phiNei
+        );
         
         //- Calculate aggregation source terms
-        tmp<volScalarField> aggregationSource(volUnivariateMoment& moment);
+        tmp<volScalarField> aggregationSource
+        (
+            const volUnivariateMoment& moment
+        );
         
         //- Calculate Breakup source term
-        tmp<volScalarField> breakupSource(volUnivariateMoment& moment);
+        tmp<volScalarField> breakupSource(const volUnivariateMoment& moment);
 
 
 public:

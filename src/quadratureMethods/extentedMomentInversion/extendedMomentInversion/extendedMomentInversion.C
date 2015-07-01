@@ -80,6 +80,19 @@ void Foam::extendedMomentInversion::correct()
 
 void Foam::extendedMomentInversion::invert()
 {   
+    // Terminate execution if negative number density is encountered
+    if (moments_[0] < 0.0)
+    {
+        FatalErrorIn
+        (
+            "Foam::extendedMomentInversion::invert\n"
+            "(\n"
+            "   const univariateMomentSet& moments\n"
+            ")"
+        )   << "The zero-order moment is negative."
+            << abort(FatalError);
+    }
+    
     reset();
     
     // Exclude cases where the zero-order moment is very small to avoid
@@ -98,20 +111,11 @@ void Foam::extendedMomentInversion::invert()
     if (fLow < targetFunctionTol_)
     {
         nullSigma_ = true;
-
-//         WarningIn
-//         (
-//             "Foam::extendedMomentInversion::invert\n"
-//             "(\n"
-//             "	const univariateMomentSet& moments\n"
-//             ")"
-//         )   << "A null sigma value is root of the target function." << endl;
-
         return;
     }
 
     // Find maximum value of sigma and check if it is root
-    scalar sigMax = sigmaMax();
+    scalar sigMax = sigmaMax();    
     scalar sigmaHigh = sigMax;
     scalar fHigh = targetFunction(sigmaHigh);
     
@@ -119,14 +123,7 @@ void Foam::extendedMomentInversion::invert()
 
     if (fLow*fHigh > 0)
     {
-//         WarningIn
-//         (
-//             "Foam::extendedMomentInversion::invert\n"
-//             "(\n"
-//             "	const univariateMomentSet& moments\n"
-//             ")"
-//         )   << "Root not brackted. Attempting to bracket." << endl;
-
+        // Attempting to bracket
         scalar sigmaExtremumTargetFunction 
                 = findExtremumTargetFunction(sigmaLow, sigmaHigh);
 
@@ -148,23 +145,14 @@ void Foam::extendedMomentInversion::invert()
             momentsStar_.invert(primaryWeights_, primaryAbscissae_);
             scalar momentError = normalizedMomentError(sigma_);
             
-//             Info<< "Using sigma value from minimization of target function.\n"
-//                 << "sigma = " << sigma_ << endl;
+            // Use sigma from minimization
             
             if (momentError > momentsTol_)
             {
                 Info<< "The moment set is not preserved.\n" 
+                    << "sigma = " << sigma_ << endl
                     << "Moment error = " << momentError << endl;
             }
-
-//             FatalErrorIn
-//             (
-//                 "Foam::extendedMomentInversion::invert\n"
-//                 "(\n"
-//                 "   const univariateMomentSet& moments\n"
-//                 ")"
-//             ) << "Root not brackted. Attempt to bracket failed."
-//               << abort(FatalError);
                 
             return;
         }

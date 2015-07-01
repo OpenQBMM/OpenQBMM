@@ -96,7 +96,11 @@ Foam::populationBalanceModels::univariatePopulationBalance
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-void Foam::populationBalanceModels::univariatePopulationBalance::advectMoments()
+void Foam::populationBalanceModels::univariatePopulationBalance::updateAdvection
+(
+    surfaceScalarField& phiOwn,
+    surfaceScalarField& phiNei
+)
 {
     surfaceScalarField nei
     (
@@ -122,17 +126,8 @@ void Foam::populationBalanceModels::univariatePopulationBalance::advectMoments()
         dimensionedScalar("own", dimless, 1.0)
     );
     
-    surfaceScalarField phiNei
-    (
-        "phiNei",
-        fvc::interpolate(U_, nei, "reconstruct(U)") & U_.mesh().Sf()
-    );
-    
-    surfaceScalarField phiOwn
-    (
-        "phiOwn",
-        fvc::interpolate(U_, own, "reconstruct(U)") & U_.mesh().Sf()
-    );
+    phiOwn = fvc::interpolate(U_, own, "reconstruct(U)") & U_.mesh().Sf();
+    phiNei = fvc::interpolate(U_, nei, "reconstruct(U)") & U_.mesh().Sf();
     
     // Update interpolated nodes
     quadrature_.interpolateNodes();
@@ -140,45 +135,56 @@ void Foam::populationBalanceModels::univariatePopulationBalance::advectMoments()
     // Updated reconstructed moments
     quadrature_.momentsNei().update();
     quadrature_.momentsOwn().update();
+}
 
-    forAll(quadrature_.moments(), mI)
-    {
-        volUnivariateMoment& m = quadrature_.moments()[mI];
-        
-        // Old moment value
-        const scalarField& psi0 = m.oldTime();
-
-        // New moment value
-        scalarField& psiIf = m;
-        
-        // Resetting moment
-        psiIf = scalar(0);
-        
-        dimensionedScalar zeroPhi("zero", phiNei.dimensions(), 0.0);
-         
-        surfaceScalarField mFlux
-        (
-            quadrature_.momentsNei()[mI]*min(phiNei, zeroPhi) 
-          + quadrature_.momentsOwn()[mI]*max(phiOwn, zeroPhi)
-        );
-         
-         fvc::surfaceIntegrate(psiIf, mFlux);
-
-         // Updating moment - First-order time integration here 
-         // TODO: Generalize for high-order schemes, and replace with term
-         // in fvScalarMatrix to avoid time-split.
-         psiIf = psi0 - psiIf*U_.time().deltaTValue();
-    }
+Foam::tmp<Foam::volScalarField>
+Foam::populationBalanceModels::univariatePopulationBalance::advectMoment
+(
+    const volUnivariateMoment& moment,
+    const surfaceScalarField& phiOwn,
+    const surfaceScalarField& phiNei
+)
+{
+    dimensionedScalar zeroPhi("zero", phiNei.dimensions(), 0.0);
     
-    quadrature_.updateQuadrature();
+    tmp<volScalarField> divMoment
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "mFlux",
+                U_.mesh().time().timeName(),
+                U_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            U_.mesh(),
+            dimensionedScalar("zero", dimless, 0.0)
+        )
+    );
+    
+    label order = moment.order();
+    
+    surfaceScalarField mFlux
+    (   
+        quadrature_.momentsNei()[order]*min(phiNei, zeroPhi) 
+      + quadrature_.momentsOwn()[order]*max(phiOwn, zeroPhi)
+    );
+         
+    fvc::surfaceIntegrate(divMoment(), mFlux);
+    divMoment().dimensions().reset(moment.dimensions()/dimTime);
+
+    return divMoment;
 }
 
 Foam::tmp<Foam::volScalarField>
 Foam::populationBalanceModels::univariatePopulationBalance::aggregationSource
 (
-    volUnivariateMoment& moment
+    const volUnivariateMoment& moment
 )
-{   
+{      
     tmp<volScalarField> aSource
     (
         new volScalarField
@@ -267,9 +273,9 @@ Foam::populationBalanceModels::univariatePopulationBalance::aggregationSource
 Foam::tmp<Foam::volScalarField> 
 Foam::populationBalanceModels::univariatePopulationBalance::breakupSource
 (
-    volUnivariateMoment& moment
+    const volUnivariateMoment& moment
 )
-{
+{    
     tmp<volScalarField> bSource
     (
         new volScalarField
@@ -328,9 +334,10 @@ Foam::populationBalanceModels::univariatePopulationBalance::breakupSource
 void Foam::populationBalanceModels::univariatePopulationBalance::solve()
 {
     quadrature_.updateQuadrature();
-    
-    // Advect moments with kinetic fluxes
-    advectMoments();
+       
+    surfaceScalarField phiOwn("phiOwn", fvc::interpolate(U_) & U_.mesh().Sf());
+    surfaceScalarField phiNei("phiNei", phiOwn);
+    updateAdvection(phiOwn, phiNei);
        
     // Integrate source and diffusion terms
     forAll(quadrature_.moments(), mI)
@@ -339,7 +346,8 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
         
         fvScalarMatrix momentEqn
         (
-            fvm::ddt(m) - fvc::ddt(m)
+            fvm::ddt(m)
+          + advectMoment(m, phiOwn, phiNei)  
           - diffusionModel_->momentDiff(m)
           ==
             aggregationSource(m)

@@ -171,7 +171,7 @@ bool Foam::univariateMomentSet::isRealizable()
 {
     if (realizabilityChecked_)
     {
-    return realizable_;
+        return realizable_;
     }
     
     label nN = nMoments_ - 1;

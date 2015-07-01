@@ -26,11 +26,11 @@ univariatePopulationBalanceCoeffs
         aggregationKernel turbulentBrownian;
     }
     
-    breakup off;
+    breakup on;
     
     breakupKernel
     {
-        breakupKernel constant;
+        breakupKernel LuoSvendsen;
         
         Cb        Cb        [ 0 0 0 0 0 0 0 ] 6.0e-4;
         epsilonExp          0.75;

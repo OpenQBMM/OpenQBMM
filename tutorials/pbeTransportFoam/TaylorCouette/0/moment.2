@@ -27,23 +27,19 @@ boundaryField
     }
     innerWall
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
     outerWall
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
     inlet
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
     outlet
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
 }
 

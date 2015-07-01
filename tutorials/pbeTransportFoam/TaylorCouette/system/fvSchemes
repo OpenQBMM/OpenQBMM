@@ -40,21 +40,29 @@ divSchemes
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
     div(((rho*(thermo:mu|thermo:rho))*dev2(T(grad(U))))) Gauss linear;
     div((rho*R))    Gauss linear;
+    "div\(phi,moment.*\)" Gauss upwind;
 }
 
 laplacianSchemes
 {
-    default         Gauss linear limited 0.66;
+    default         Gauss linear corrected;
 }
 
 interpolationSchemes
 {
     default         linear;
+    
+    "interpolate\(moment.*\)" upwind phi;
+    
+    reconstruct(U)          upwind;
+    reconstruct(weight)     upwind;
+    reconstruct(abscissa)   upwind;
+    reconstruct(sigma)      upwind;
 }
 
 snGradSchemes
 {
-    default         limited 0.66;
+    default         corrected;
 }
 
 fluxRequired

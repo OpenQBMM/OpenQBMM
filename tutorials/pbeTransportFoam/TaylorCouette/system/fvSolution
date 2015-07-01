@@ -43,7 +43,7 @@ solvers
     {
         solver          PCG;
         preconditioner  DIC;
-        tolerance       1.0e-8;
+        tolerance       1.0e-12;
         relTol          0;
     }
 }
@@ -80,6 +80,7 @@ relaxationFactors
         U               0.3;
         h               0.1;
         "(k|epsilon|omega|R.*)" 0.4;
+        "moment.*"      0.0001;
     }
 }
 

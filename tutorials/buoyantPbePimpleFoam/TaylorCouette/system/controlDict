@@ -25,15 +25,15 @@ stopAt          endTime;
 
 endTime         2000;
 
-deltaT          1;
+deltaT          0.01;
 
-writeControl    adjustableRunTime;
+writeControl    timeStep;
 
 writeInterval   1;
 
 purgeWrite      0;
 
-writeFormat     binary;
+writeFormat     ascii;
 
 writePrecision  6;
 
@@ -49,6 +49,6 @@ adjustTimeStep  yes;
 
 maxCo           0.5;
 
-maxDeltaT       1;
+maxDeltaT       0.1;
 
 // ************************************************************************* //
