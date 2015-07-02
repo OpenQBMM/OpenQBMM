@@ -49,6 +49,10 @@ runTimeModifiable yes;
 
 suppressSolverInfo yes;
 
+maxCo           0.5;
+
+maxDeltaT       0.1;
+
 functions
 {
     probes

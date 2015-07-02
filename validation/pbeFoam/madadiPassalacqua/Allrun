@@ -1,0 +1,14 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+validtionCases="case5 case6 case7 case8 case9"
+
+for caseName in $cavityCases
+do
+    ( cd $caseName && ./Allrun )
+done
+
+# ----------------------------------------------------------------- end-of-file
