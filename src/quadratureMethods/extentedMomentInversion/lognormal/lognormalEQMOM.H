@@ -78,7 +78,7 @@ public:
         lognormalEQMOM
         (
             const dictionary& dict,
-            const univariateMomentSet& moments,
+            const label nMoments,
             const label nSecondaryNodes
         );
 
@@ -105,7 +105,11 @@ public:
     );
 
     //- Compute the starred moments
-    virtual void momentsToMomentsStar(scalar sigma);
+    virtual void momentsToMomentsStar
+    (
+        scalar sigma,
+        const univariateMomentSet& moments
+    );
 
     //- Recurrence relation for polynomials orthogonal to kernel function
     virtual void recurrenceRelation

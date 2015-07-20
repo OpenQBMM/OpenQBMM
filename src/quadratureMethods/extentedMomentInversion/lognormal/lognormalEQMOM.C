@@ -49,11 +49,11 @@ namespace Foam
 Foam::lognormalEQMOM::lognormalEQMOM
 (
     const dictionary& dict,
-    const univariateMomentSet& moments,
+    const label nMoments,    
     const label nSecondaryNodes
 )
 :
-    extendedMomentInversion(dict, moments, nSecondaryNodes)
+    extendedMomentInversion(dict, nMoments, nSecondaryNodes)
 {}
 
 
@@ -88,13 +88,17 @@ void Foam::lognormalEQMOM::momentsStarToMoments
     }
 }
 
-void Foam::lognormalEQMOM::momentsToMomentsStar(scalar sigma)
+void Foam::lognormalEQMOM::momentsToMomentsStar
+(
+    scalar sigma,
+    const univariateMomentSet& moments
+)
 {
     scalar z = exp(-sqr(sigma)/2.0);
 
-    forAll(moments_, momentI)
+    forAll(moments, momentI)
     {
-        momentsStar_[momentI] = moments_[momentI]*pow(z, momentI*momentI);
+        momentsStar_[momentI] = moments[momentI]*pow(z, momentI*momentI);
     }
 }
 

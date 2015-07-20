@@ -29,6 +29,7 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
+#include "IOmanip.H"
 #include "scalarMatrices.H"
 #include "univariateMomentSet.H"
 
@@ -52,53 +53,55 @@ int main(int argc, char *argv[])
 		m[momentI] = Foam::exp(momentI*mu + Foam::sqr(momentI*sigma)/2.0);
 	}
 	
-	m[0] = 0.567128698550116;
-	m[1] = 0.655890848206384;
-	m[2] = 0.777476336281080;
-	m[3] = 0.947948891168452;
-	m[4] = 1.191578422484480;
-	
+// 	m[4] = -10.0;
+// 	m[5] = 0.000000001;
+// 	m[6] = 0.111111111;
+
+	Info << setprecision(16);
+    Info << "Input moments\n" << endl;
+
 	for (label momentI = 0; momentI < nMoments; momentI++)
 	{
 	    Info << "Moment " << momentI << " = " << m[momentI] << endl; 
 	}
 
 	univariateMomentSet moments(m);
+    moments.invert();
 	
 	if(moments.isRealizable())
 	{
-		Info << "\nMoments are realizable.\n" << endl ;
+		Info << "\nThe full set of moments is realizable.\n" << endl ;
 	}
 	else
 	{
-		Info << "Moments are not realizable.\n" << endl;
+		Info << "\nThe full set of moments is not realizable.\n" << endl
+             << "The number of realizable moments is "
+             << moments.nRealizableMoments() << "\n" << endl;
 	}
 
-	label nInvertibleMoments = moments.nInvertibleMoments();
-	
 	Info << "The number of invertible moments is " 
-		 << nInvertibleMoments << "\n" << endl;
-	
-	// Note that the number of nodes calculated here is the maximum number
-	// of nodes allowed. It is not the actual number of nodes that can be
-	// found from the nInvertibleMoments. This is done to keep the test
-	// general, since this condition may be encountered in practical cases,
-	// when a large moment set is not realizable, but one of its subsets is.
-	label nNodes = label(nMoments/2);
-	
-	scalarDiagonalMatrix w(nNodes);
-	scalarDiagonalMatrix abs(nNodes);
+		 << moments.nInvertibleMoments() << "\n" << endl;
 
-	moments.invert(w, abs);
+	scalarDiagonalMatrix weights(moments.weights());
+	scalarDiagonalMatrix abscissae(moments.abscissae());
 
 	Info << "Weights and abscissae:\n" << endl;
 	
-	for (label nodeI = 0; nodeI < nNodes; nodeI++)
+	for (label nodeI = 0; nodeI < moments.nNodes(); nodeI++)
 	{
 		Info << "Node " << nodeI 
-			 << " Weight: " << w[nodeI] 
-			 << " Abscissa: " << abs[nodeI] << endl;
+			 << " Weight: " << weights[nodeI] 
+			 << " Abscissa: " << abscissae[nodeI] << endl;
 	}
+	
+	moments.update();
+    
+    Info << "\nMoments computed from quadrature\n" << endl;
+    
+    for (label momentI = 0; momentI < nMoments; momentI++)
+    {
+        Info << "Moment " << momentI << " = " << moments[momentI] << endl; 
+    }
 	
     Info << "\nEnd\n" << endl;
 

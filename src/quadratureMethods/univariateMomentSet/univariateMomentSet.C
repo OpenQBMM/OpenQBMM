@@ -37,10 +37,14 @@ Foam::univariateMomentSet::univariateMomentSet
 :
     scalarDiagonalMatrix(nMoments, initValue),
     nMoments_(nMoments),
+    inverted_(false),
     realizable_(true),
     realizabilityChecked_(false),
     nInvertibleMoments_(nMoments_)
-{};
+{
+    isRealizable();
+    setupQuadrature();
+};
 
 Foam::univariateMomentSet::univariateMomentSet
 (
@@ -49,10 +53,14 @@ Foam::univariateMomentSet::univariateMomentSet
 :
     scalarDiagonalMatrix(m),
     nMoments_(m.size()),
+    inverted_(false),
     realizable_(true),
     realizabilityChecked_(false),
     nInvertibleMoments_(nMoments_)
-{}
+{
+    isRealizable();
+    setupQuadrature();
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -63,21 +71,21 @@ Foam::univariateMomentSet::~univariateMomentSet()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::univariateMomentSet::invert
-(
-    scalarDiagonalMatrix& weights,
-    scalarDiagonalMatrix& abscissae
-)
+void Foam::univariateMomentSet::invert()
 {
+    if (inverted_)
+    {
+        return;
+    }
+
     if (!realizabilityChecked_)
     {
         isRealizable();
+        setupQuadrature(true);
     }
 
     if (nInvertibleMoments_ < 2)
-    {
-        //Info << "Moments: " << (*this) << endl;
-        
+    {       
         FatalErrorIn
         (
             "Foam::univariateMomentSet::invert\n"
@@ -90,13 +98,10 @@ void Foam::univariateMomentSet::invert
             << abort(FatalError);
     }
 
-    // Number of quadrature nodes based on nInvertibleMoments_ (always even)
-    label nNodes = nInvertibleMoments_/2.0;
-
     // Storage for the recurrence relationship
-    scalarDiagonalMatrix a(nNodes, scalar(0));
-    scalarDiagonalMatrix b(nNodes, scalar(0));
-    scalarSquareMatrix sig(2*nNodes + 1, 2*nNodes + 1, scalar(0));
+    scalarDiagonalMatrix a(nNodes_, scalar(0));
+    scalarDiagonalMatrix b(nNodes_, scalar(0));
+    scalarSquareMatrix sig(2*nNodes_ + 1, 2*nNodes_ + 1, scalar(0));
 
     // Applying Wheeler's algorithm
     for (label i = 1; i < nInvertibleMoments_ + 1; i++)
@@ -107,7 +112,7 @@ void Foam::univariateMomentSet::invert
     a[0] = (*this)[1]/(*this)[0];
     b[0] = scalar(0);
 
-    for (label k = 2; k < nNodes + 1; k++)
+    for (label k = 2; k < nNodes_ + 1; k++)
     {
         for (label l = k; l < nInvertibleMoments_ - k + 3; l++)
         {
@@ -119,7 +124,7 @@ void Foam::univariateMomentSet::invert
     }
 
     // Checking moment realizability
-    for (label i = 0; i < nNodes; i++)
+    for (label i = 0; i < nNodes_; i++)
     {
         if (b[i] < scalar(0))
         {
@@ -135,43 +140,35 @@ void Foam::univariateMomentSet::invert
         }
     }
 
-    scalarSquareMatrix z(nNodes, nNodes, scalar(0));
+    scalarSquareMatrix z(nNodes_, nNodes_, scalar(0));
 
-    for (label i = 0; i < nNodes - 1; i++)
+    for (label i = 0; i < nNodes_ - 1; i++)
     {
         z[i][i] = a[i];
         z[i][i+1] = Foam::sqrt(b[i+1]);
         z[i+1][i] = z[i][i+1];
     }
 
-    z[nNodes - 1][nNodes - 1] = a[nNodes - 1];
+    z[nNodes_ - 1][nNodes_ - 1] = a[nNodes_ - 1];
 
     // Computing weights and abscissae
     eigenSolver zEig(z, true);
-
-    // Resetting previous weights and abscissae to zero. Needed due to 
-    // adaption performed through the realizability check
-    forAll (weights, nodeI)
+   
+    // Computing weights and abscissae
+    for (label i = 0; i < nNodes_; i++)
     {
-        weights[nodeI] = 0.0;
-        abscissae[nodeI] = 0.0;
+        weights_[i] = (*this)[0]*sqr(zEig.eigenvectors()[0][i]);
+        abscissae_[i] = zEig.eigenvaluesRe()[i];
     }
-
-    // Storing weight and abscissae in destination containers.
-    // Only computed values are copied. The remaining ones are left equal to
-    // zero.
-    for (label i = 0; i < nNodes; i++)
-    {
-        weights[i] = (*this)[0]*sqr(zEig.eigenvectors()[0][i]);
-        abscissae[i] = zEig.eigenvaluesRe()[i];
-    }
+    
+    inverted_ = true;
 }
 
-bool Foam::univariateMomentSet::isRealizable() 
+void Foam::univariateMomentSet::checkRealizability() 
 {
     if (realizabilityChecked_)
     {
-        return realizable_;
+        return;
     }
     
     label nN = nMoments_ - 1;
@@ -216,6 +213,7 @@ bool Foam::univariateMomentSet::isRealizable()
         if (zeta[0] <= 0)
         {
             negativeZeta_ = 1;
+            nRealizableMoments_ = 1;
             nInvertibleMoments_ = 0;
             realizable_ = false;
 
@@ -227,10 +225,11 @@ bool Foam::univariateMomentSet::isRealizable()
         }
 
         negativeZeta_ = 0;
+        nRealizableMoments_ = 2;
         nInvertibleMoments_ = 2;
         realizable_ = true;
 
-        return realizable_;
+        return;
     }
 
     // Fill the first row of the z matrix with the moments
@@ -252,10 +251,15 @@ bool Foam::univariateMomentSet::isRealizable()
     if (zeta[0] <= 0)
     {
         negativeZeta_ = 1;
-        nInvertibleMoments_ = 1;
+        nRealizableMoments_ = 1;
+        nInvertibleMoments_ = 0;
         realizable_ = false;
-
-        return realizable_;
+        
+        FatalErrorIn
+        (
+            "Foam::univariateMomentSet::isRealizable()\n"
+        )   << "Moment set with only one realizable moment."
+            << abort(FatalError);
     }
 
     for (label zetaI = 1; zetaI <= nD - 1; zetaI++)
@@ -266,10 +270,11 @@ bool Foam::univariateMomentSet::isRealizable()
         if (zeta[2*zetaI - 1] <= 0)
         {
             negativeZeta_ = 2*zetaI;
-            nInvertibleMoments_ = negativeZeta_;
+            nRealizableMoments_ = negativeZeta_;
+            nInvertibleMoments_ = nRealizableMoments_;
             realizable_ = false;
 
-            return realizable_;
+            return;
         }
 
         alpha[zetaI] = z[zetaI][zetaI + 1]/z[zetaI][zetaI] 
@@ -279,11 +284,12 @@ bool Foam::univariateMomentSet::isRealizable()
 
         if (zeta[2*zetaI] <= 0)
         {
-            negativeZeta_ = 2*zetaI + 1;  
-            nInvertibleMoments_ = negativeZeta_ - 1;
+            negativeZeta_ = 2*zetaI + 1;
+            nRealizableMoments_ = negativeZeta_;
+            nInvertibleMoments_ = nRealizableMoments_ - 1;
             realizable_ = false;
     
-            return realizable_;
+            return;
         }
 
         for (label columnI = zetaI + 1; columnI <= nN - zetaI - 1; columnI++)
@@ -300,10 +306,11 @@ bool Foam::univariateMomentSet::isRealizable()
     if (zeta[2*nD - 1] <= 0)
     {
         negativeZeta_ = 2*nD;
-        nInvertibleMoments_ = negativeZeta_;
+        nRealizableMoments_ = negativeZeta_;
+        nInvertibleMoments_ = nRealizableMoments_;
         realizable_ = false;
 
-        return realizable_;
+        return;
     }
 
     if (nR == 1)
@@ -314,10 +321,11 @@ bool Foam::univariateMomentSet::isRealizable()
         if (zeta[2*nD] <= 0)
         {
             negativeZeta_ = 2*nD + 1;
-            nInvertibleMoments_ = negativeZeta_ - 1;
+            nRealizableMoments_ = negativeZeta_;
+            nInvertibleMoments_ = nRealizableMoments_ - 1;
             realizable_ = false;
 
-            return realizable_;
+            return;
         }
     }
 
@@ -327,27 +335,39 @@ bool Foam::univariateMomentSet::isRealizable()
     {
         nInvertibleMoments_ = nMoments_ - 1;
     }
-
-    return realizable_;
 }
 
-void Foam::univariateMomentSet::update
-(
-    const scalarDiagonalMatrix& weights, 
-    const scalarDiagonalMatrix& abscissae
-)
+void Foam::univariateMomentSet::setupQuadrature(bool clear)
 {
+    nNodes_ = nInvertibleMoments_/2.0;
+
+    if (clear)
+    {
+        weights_.clear();
+        abscissae_.clear();
+    }
+
+    weights_.resize(nNodes_, 0.0);
+    abscissae_.resize(nNodes_, 0.0);
+}
+
+void Foam::univariateMomentSet::update()
+{
+    // NOTE Recomputing all the moments (even if they originally were 
+    //      not realizable) from quadrature. 
+    //      Should we limit to nRealizableMoments_?
     for (label momentI = 0; momentI < nMoments_; momentI++)
     {
-    (*this)[momentI] = 0.0;
+        (*this)[momentI] = 0.0;
 
-    for (label nodeI = 0; nodeI < weights.size(); nodeI++)
-    {
-        (*this)[momentI] += weights[nodeI]*pow(abscissae[nodeI], momentI);
-    }
+        for (label nodeI = 0; nodeI < nNodes_; nodeI++)
+        {
+            (*this)[momentI] += weights_[nodeI]*pow(abscissae_[nodeI], momentI);
+        }
     }
 
     realizabilityChecked_ = false;
+    inverted_ = false;
 }
 
 // ************************************************************************* //

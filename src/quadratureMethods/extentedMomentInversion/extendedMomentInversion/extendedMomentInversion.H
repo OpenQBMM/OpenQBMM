@@ -79,19 +79,28 @@ class extendedMomentInversion
     // Private member functions
 
         //- Attempt to find a min or max of the target function on an interval
-        scalar findExtremumTargetFunction(scalar sigmaLow, scalar sigmaHigh);
+        scalar findExtremumTargetFunction
+        (
+            scalar sigmaLow, 
+            scalar sigmaHigh,
+            const univariateMomentSet& moments
+        );
         
         //- Invert moments to find weight, abscissae and sigma
-        void invert();
+        void invert(const univariateMomentSet& moments);
         
         //- Reset inverter
         void reset();
         
         //- Compute secondary weigths and abscissae
-        void secondaryQuadrature();
+        void secondaryQuadrature(const univariateMomentSet& moments);
         
         //- Compute target function whose root is sigma_
-        scalar targetFunction(scalar sigma);
+        scalar targetFunction
+        (
+            scalar sigma, 
+            const univariateMomentSet& moments
+        );
     
         //- Disallow default bitwise copy construct
         extendedMomentInversion(const extendedMomentInversion&);       
@@ -103,9 +112,6 @@ class extendedMomentInversion
 protected:
 
     // Protected data
-
-        //- Moments to invert
-        const univariateMomentSet& moments_;
 
         //- Number of moments
         label nMoments_;
@@ -179,10 +185,18 @@ protected:
         ) = 0;
 
         //- Compute the starred moments from moments
-        virtual void momentsToMomentsStar(scalar sigma) = 0;
+        virtual void momentsToMomentsStar
+        (
+            scalar sigma,
+            const univariateMomentSet& moments
+        ) = 0;
 
         //- Compute the normalized moment error
-        scalar normalizedMomentError(scalar sigma);
+        scalar normalizedMomentError
+        (
+            scalar sigma,
+            const univariateMomentSet& moments
+        );
         
         //- Recurrence relation for polynomials orthogonal to kernel function
         virtual void recurrenceRelation
@@ -214,10 +228,10 @@ public:
             dictionary,
             (
                 const dictionary& dict,
-                const univariateMomentSet& moments,
+                const label nMoments,
                 const label nSecondaryNodes
             ),
-            (dict, moments, nSecondaryNodes)
+            (dict, nMoments, nSecondaryNodes)
         );
 
     // Constructors
@@ -226,7 +240,7 @@ public:
         extendedMomentInversion
         (
             const dictionary& dict,
-            const univariateMomentSet& moments,
+            const label nMoments,
             const label nSecondaryNodes
         );
 
@@ -240,7 +254,7 @@ public:
         static autoPtr<extendedMomentInversion> New
         (
             const dictionary& dict,
-            const univariateMomentSet& moments,
+            const label nMoments,
             const label nSecondaryNodes
         );
 
@@ -294,9 +308,6 @@ public:
         {
             return secondaryAbscissae_;
         }
-
-        //- Invert moments and updates secondary quadrature
-        void correct();
 
 };
 

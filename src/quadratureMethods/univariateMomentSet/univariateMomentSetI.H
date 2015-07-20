@@ -24,10 +24,39 @@ License
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-Foam::label Foam::univariateMomentSet::nInvertibleMoments() const
+bool Foam::univariateMomentSet::isInverted() const
 {
+    return inverted_;
+}
+
+bool Foam::univariateMomentSet::isRealizable()
+{
+    if (!realizabilityChecked_)
+    {
+        checkRealizability();
+    }
+    
+    return realizable_;
+}
+
+Foam::label Foam::univariateMomentSet::nInvertibleMoments() 
+{
+    if (!realizabilityChecked_)
+    {
+        checkRealizability();
+    }
+    
     return nInvertibleMoments_;
+}
+
+Foam::label Foam::univariateMomentSet::nRealizableMoments() 
+{
+    if (!realizabilityChecked_)
+    {
+        checkRealizability();
+    }
+    
+    return nRealizableMoments_;
 }
 
 Foam::label Foam::univariateMomentSet::nMoments() const
@@ -35,5 +64,21 @@ Foam::label Foam::univariateMomentSet::nMoments() const
     return nMoments_;
 }
 
+Foam::label Foam::univariateMomentSet::nNodes() const
+{
+    return nNodes_;
+}
+
+//- Return primary quadrature weights
+const Foam::scalarDiagonalMatrix& Foam::univariateMomentSet::weights() const
+{
+    return weights_;
+}
+
+//- Return primary quadrature abscissae
+const Foam::scalarDiagonalMatrix& Foam::univariateMomentSet::abscissae() const
+{
+    return abscissae_;
+}
 
 // ************************************************************************* //

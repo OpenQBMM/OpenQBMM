@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
     Info << "Testing extendedMomentInversion\n" << endl;
 
-    label nMoments = 5;
+    label nMoments = 7;
     univariateMomentSet moments(nMoments, 0.0);
 
 //  Valid moment set
@@ -100,6 +100,27 @@ int main(int argc, char *argv[])
 //     moments[3] = 1;
 //     moments[4] = 1.00020793684;
        
+//     moments[0] = 1.0; 
+//     moments[1] = 0.5; 
+//     moments[2] = 0.33333333333333333;
+//     moments[3] = 0.25;
+//     moments[4] = 0.2; 
+//     moments[5] = 0.16666666666666666; 
+//     moments[6] = 0.14285714285714285; 
+//     moments[7] = 0.125; 
+//     moments[8] = 0.11111111111111111;
+//     moments[9] = 0.1;
+//     moments[10] = 9.0909090909090912E-002;
+    
+    
+    moments[0] = 1.; 
+    moments[1] = 1.; 
+    moments[2] = 1.1; 
+    moments[3] = 1.41; 
+    moments[4] = 2.371; 
+    moments[5] = 5.4501; 
+    moments[6] = 15.75531;  
+    
     autoPtr<extendedMomentInversion> EQMOM
     (
         extendedMomentInversion::New
@@ -148,7 +169,7 @@ int main(int argc, char *argv[])
         }
 
         outputFile << "\n\n";
-    }
+    }   
 
     Info << "\nEnd\n" << endl;
 

@@ -74,20 +74,44 @@ class univariateMomentSet
 {
     // Private data
 
-    //- Number of moments
-    label nMoments_;
+        //- Number of moments
+        label nMoments_;
 
-    //- Position of fist negative zeta
-    label negativeZeta_;
+        //- Position of fist negative zeta
+        label negativeZeta_;
 
-    //- Bool to indicate moment realizability
-    bool realizable_;
+        //- Bool to indicate if moments were inverted
+        bool inverted_;
 
-    //- Bool to indicate moment realizability was checked
-    bool realizabilityChecked_;
+        //- Bool to indicate if the full moment set is realizable
+        //  It is set to false also if a subset of moments is realizable
+        bool realizable_;
 
-    //- Number of invertible moments
-    label nInvertibleMoments_;
+        //- Bool to indicate moment realizability was checked
+        bool realizabilityChecked_;
+
+        //- Number of invertible moments
+        label nInvertibleMoments_;
+        
+        //- Number of realizable moments
+        label nRealizableMoments_;
+        
+        //- Number of quadrature nodes
+        label nNodes_;
+        
+        //- Quadrature weights
+        scalarDiagonalMatrix weights_;
+        
+        //- Quadrature abscissae
+        scalarDiagonalMatrix abscissae_;
+        
+    // Private member functions
+        
+        //- Check moment realizability
+        void checkRealizability();
+        
+        //- Setup quadrature storage based on realizability
+        void setupQuadrature(bool clear = false);
 
 public:
 
@@ -112,28 +136,35 @@ public:
 
     // Member Functions
 
-    //- Invert the set of moments to compute weights and abscissae
-    void invert
-    (
-        scalarDiagonalMatrix& weights,
-        scalarDiagonalMatrix& abscissae
-    );
+        //- Return quadrature abscissae
+        inline const scalarDiagonalMatrix& abscissae() const;
+        
+        //- Invert the set of moments to compute weights and abscissae
+        void invert();
 
-    //- Update moments from weights and abscissae
-    void update
-    (
-        const scalarDiagonalMatrix& weights, 
-        const scalarDiagonalMatrix& abscissae
-    );
+        //- Update moments from weights and abscissae
+        void update();
 
-    //- Check if the moment set is realizable
-    virtual bool isRealizable();
+        //- Returns the status of inversion
+        inline bool isInverted() const;
+        
+        //- Return realizability status of the moment set
+        inline bool isRealizable();
 
-    //- Return the number of moments
-    inline label nMoments() const;
+        //- Return the number of invertible moments
+        inline label nInvertibleMoments();
 
-    //- Return the number of invertible moments
-    inline label nInvertibleMoments() const;
+        //- Return the number of realizable moments
+        inline label nRealizableMoments();
+
+        //- Return the number of moments
+        inline label nMoments() const;
+        
+        //- Return the number of nodes
+        inline label nNodes() const;
+        
+        //- Return quadrature weights
+        inline const scalarDiagonalMatrix& weights() const;
 };
 
 
