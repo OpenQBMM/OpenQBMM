@@ -57,7 +57,6 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
     nMoments_(moments_.size()),
     momentsNei_(nMoments_, nodesNei_, nDimensions_, moments_.momentMap()),
     momentsOwn_(nMoments_, nodesOwn_, nDimensions_, moments_.momentMap()),
-    momentsToInvert_(nMoments_, 0.0),
     momentInverter_()
 {  
     // Allocating nodes
@@ -186,7 +185,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
         Foam::extendedMomentInversion::New
         (
             subDict("extendedMomentInversionCoeff"), 
-            momentsToInvert_,
+            nMoments_,
             nSecondaryNodes_
         )
     );
@@ -334,15 +333,17 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
         {
             forAll(m0Patch, faceI)
             {
+                univariateMomentSet momentsToInvert(nMoments_, 0);
+
                 // Copying moments from a face
-                forAll(momentsToInvert_, mI)
+                forAll(momentsToInvert, mI)
                 {
-                    momentsToInvert_[mI] 
+                    momentsToInvert[mI] 
                         = moments_[mI].boundaryField()[patchI][faceI];
                 }
                 
                 // Inverting them
-                momentInverter_->correct();
+                momentInverter_->invert(momentsToInvert);
                 
                 // Copying quadrature data to boundary face
                 for (label pNodeI = 0; pNodeI < nPrimaryNodes_; pNodeI++)
@@ -381,14 +382,16 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
 
     forAll(m0, cellI)
     {
+        univariateMomentSet momentsToInvert(nMoments_, 0);
+
         // Copying moment set from a cell to univariateMomentSet
-        forAll(momentsToInvert_, mI)
+        forAll(momentsToInvert, mI)
         {
-            momentsToInvert_[mI] = moments_[mI][cellI];
+            momentsToInvert[mI] = moments_[mI][cellI];
         }
        
         // Inverting moments and updating secondary quadrature
-        momentInverter_->correct();
+        momentInverter_->invert(momentsToInvert);
         
         // Recovering primary weights and abscissae from moment inverter
         const scalarDiagonalMatrix& pWeights(momentInverter_->primaryWeights());

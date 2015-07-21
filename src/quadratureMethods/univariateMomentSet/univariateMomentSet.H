@@ -89,6 +89,9 @@ class univariateMomentSet
 
         //- Bool to indicate moment realizability was checked
         bool realizabilityChecked_;
+        
+        //- Bool to indicate quadrature setup was completed
+        bool quadratureSetUp_;
 
         //- Number of invertible moments
         label nInvertibleMoments_;

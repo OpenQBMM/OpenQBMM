@@ -19,7 +19,7 @@ extendedMomentInversion	lognormal;
 
 nSecondaryNodes    20;
 maxSigmaIter       100000;
-momentsTol         1.0e-17;
+momentsTol         1.0e-12;
 sigmaTol           1.0e-17;
 targetFunctionTol  1.0e-17;
 

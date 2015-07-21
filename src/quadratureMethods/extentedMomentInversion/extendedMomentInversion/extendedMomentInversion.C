@@ -76,6 +76,10 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 {   
     univariateMomentSet m(moments);
     
+    foundUnrealizableSigma_ = false;
+    nullSigma_ = false;
+    sigmaBracketed_ = true;
+    
     // Terminate execution if negative number density is encountered
     if (m[0] < 0.0)
     {
@@ -104,10 +108,13 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         // If the number of realizable moments is even, we apply the standard
         // QMOM directly to maximize the number of preserved moments.
 
+        Info << "Even number of realizable moments: using QMOM" << endl;
+        Info << "Moments: " << m << endl;
+        Info << "Invertible: " << m.nInvertibleMoments() << endl;
+        Info << "Realizable: " << m.nRealizableMoments() << endl;
         m.invert();
         nullSigma_ = true;
-        
-        // TODO Transfer w/a
+        secondaryQuadrature(m);
     }
     else
     {
@@ -123,7 +130,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 //         }
         
         // Find maximum value of sigma and check if it is root
-        scalar sigMax = sigmaMax();    
+        scalar sigMax = sigmaMax(m);    
         scalar sigmaHigh = sigMax;
         scalar fHigh = targetFunction(sigmaHigh, m);
         
@@ -161,7 +168,9 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                         << "sigma = " << sigma_ << endl
                         << "Moment error = " << momentError << endl;
                 }
-                    
+                
+                secondaryQuadrature(momentsStar_);
+
                 return;
             }
         }
@@ -255,11 +264,13 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     else
                     {
                         Info << "Here!" << endl;
+                        secondaryQuadrature(momentsStar_);
                         return;
                     }
                 }
                 else
                 {
+                    secondaryQuadrature(momentsStar_);
                     return;
                 }
             }
@@ -310,11 +321,11 @@ void Foam::extendedMomentInversion::reset()
     nullSigma_ = false;
     sigmaBracketed_ = true;
     
-    forAll(primaryWeights_, wI)
-    {
-        primaryWeights_[wI] = 0.0;
-        primaryAbscissae_[wI] = 0.0;
-    }
+//     forAll(primaryWeights_, wI)
+//     {
+//         primaryWeights_[wI] = 0.0;
+//         primaryAbscissae_[wI] = 0.0;
+//     }
 }
 
 Foam::scalar Foam::extendedMomentInversion::findExtremumTargetFunction
@@ -364,7 +375,7 @@ Foam::scalar Foam::extendedMomentInversion::findExtremumTargetFunction
             "       const scalar sigmaHigh\n"
             ")"
         )   << "Number of iterations exceeded."
-        << abort(FatalError);
+            << abort(FatalError);
     }
     
     return (a + b)/2.0;
@@ -398,6 +409,14 @@ void Foam::extendedMomentInversion::secondaryQuadrature
     const univariateMomentSet& moments
 )
 {
+    const scalarDiagonalMatrix& pWeights(moments.weights());
+    const scalarDiagonalMatrix& pAbscissae(moments.abscissae());
+        
+    forAll(pWeights, pNodeI)
+    {
+        primaryWeights_[pNodeI] = pWeights[pNodeI];
+        primaryAbscissae_[pNodeI] = pAbscissae[pNodeI];
+    }
     
     if (!nullSigma_)
     {
@@ -444,10 +463,10 @@ void Foam::extendedMomentInversion::secondaryQuadrature
         }
     }
     else
-    {
+    {       
         // Manage case with null sigma to avoid redefining source terms
         forAll(primaryWeights_, pNodeI)
-        {
+        {           
             if (primaryWeights_[pNodeI] > 0)
             {
                 secondaryWeights_[pNodeI][0] = 1.0;
@@ -481,8 +500,8 @@ Foam::scalar Foam::extendedMomentInversion::targetFunction
     // NOTE: make approximatedMoments local?
     momentsStarToMoments(sigma, approximatedMoments_);
 
-    return (moments_[lastMomentI_] - approximatedMoments_[lastMomentI_])
-          /moments_[lastMomentI_];
+    return (moments[lastMomentI_] - approximatedMoments_[lastMomentI_])
+          /moments[lastMomentI_];
 }
 
 // ************************************************************************* //

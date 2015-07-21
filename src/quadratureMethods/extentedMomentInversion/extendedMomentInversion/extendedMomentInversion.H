@@ -85,10 +85,7 @@ class extendedMomentInversion
             scalar sigmaHigh,
             const univariateMomentSet& moments
         );
-        
-        //- Invert moments to find weight, abscissae and sigma
-        void invert(const univariateMomentSet& moments);
-        
+
         //- Reset inverter
         void reset();
         
@@ -210,7 +207,7 @@ protected:
         //  The value is exact for the two-node case. For cases with a larger
         //  number of nodes, this provides an over-estimation of the maximum
         //  value of the sigma parameter which ensures moment realizability.
-        virtual scalar sigmaMax() = 0;
+        virtual scalar sigmaMax(const univariateMomentSet& moments) = 0;
 
 
 public:
@@ -261,6 +258,9 @@ public:
 
     // Member Functions
 
+        //- Invert moments to find weight, abscissae and sigma
+        void invert(const univariateMomentSet& moments);
+        
         //- Return number of moments
         inline label nMoments()
         {

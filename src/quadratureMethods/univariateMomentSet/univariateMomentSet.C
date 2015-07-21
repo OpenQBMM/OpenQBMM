@@ -40,11 +40,9 @@ Foam::univariateMomentSet::univariateMomentSet
     inverted_(false),
     realizable_(true),
     realizabilityChecked_(false),
+    quadratureSetUp_(false),
     nInvertibleMoments_(nMoments_)
-{
-    isRealizable();
-    setupQuadrature();
-};
+{}
 
 Foam::univariateMomentSet::univariateMomentSet
 (
@@ -56,11 +54,9 @@ Foam::univariateMomentSet::univariateMomentSet
     inverted_(false),
     realizable_(true),
     realizabilityChecked_(false),
+    quadratureSetUp_(false),
     nInvertibleMoments_(nMoments_)
-{
-    isRealizable();
-    setupQuadrature();
-}
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -81,6 +77,11 @@ void Foam::univariateMomentSet::invert()
     if (!realizabilityChecked_)
     {
         isRealizable();
+        setupQuadrature(true);
+    }
+    
+    if (!quadratureSetUp_)
+    {
         setupQuadrature(true);
     }
 
@@ -330,10 +331,15 @@ void Foam::univariateMomentSet::checkRealizability()
     }
 
     realizable_ = true;
+    nRealizableMoments_ = nMoments_;
 
     if (nMoments_ % 2 != 0)
     {
         nInvertibleMoments_ = nMoments_ - 1;
+    }
+    else
+    {
+        nInvertibleMoments_ = nMoments_;
     }
 }
 

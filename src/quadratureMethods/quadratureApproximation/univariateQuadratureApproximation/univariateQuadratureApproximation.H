@@ -99,9 +99,6 @@ class univariateQuadratureApproximation
         //- List of interpolated moments (owner)
         momentFieldSet<surfaceUnivariateMoment, surfaceScalarNode> momentsOwn_;
 
-        //- Single set of moments to be inverted
-        univariateMomentSet momentsToInvert_;
-
         //- Moment inversion method
         autoPtr<extendedMomentInversion> momentInverter_;
 

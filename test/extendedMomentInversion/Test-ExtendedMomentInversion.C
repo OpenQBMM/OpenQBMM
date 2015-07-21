@@ -30,6 +30,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "IOmanip.H"
 #include "IFstream.H"
 #include "OFstream.H"
 #include "scalarMatrices.H"
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
 
     Info << "Testing extendedMomentInversion\n" << endl;
 
-    label nMoments = 7;
+    label nMoments = 11;
     univariateMomentSet moments(nMoments, 0.0);
 
 //  Valid moment set
@@ -112,28 +113,41 @@ int main(int argc, char *argv[])
 //     moments[9] = 0.1;
 //     moments[10] = 9.0909090909090912E-002;
     
+       for (label mI = 1; mI < nMoments + 1; mI++)
+       {
+           moments[mI - 1] = 1.0/scalar(mI);
+       }
     
-    moments[0] = 1.; 
-    moments[1] = 1.; 
-    moments[2] = 1.1; 
-    moments[3] = 1.41; 
-    moments[4] = 2.371; 
-    moments[5] = 5.4501; 
-    moments[6] = 15.75531;  
+    
+//     moments[0] = 1.; 
+//     moments[1] = 1.; 
+//     moments[2] = 1.1; 
+//     moments[3] = 1.41; 
+//     moments[4] = 2.371; 
+//     moments[5] = 5.4501; 
+//     moments[6] = 15.75531;  
+    
+    Info << setprecision(16);
+    Info << "Input moments\n" << endl;
+
+    for (label momentI = 0; momentI < nMoments; momentI++)
+    {
+        Info << "Moment " << momentI << " = " << moments[momentI] << endl; 
+    }
     
     autoPtr<extendedMomentInversion> EQMOM
     (
         extendedMomentInversion::New
         (
             quadratureProperties, 
-            moments,
+            nMoments,
             readLabel(quadratureProperties.lookup("nSecondaryNodes"))
         )
     );
 
     Info << "\nInverting moments.\n" << endl;
 
-    EQMOM->correct();
+    EQMOM->invert(moments);
 
     Info << "Sigma = " << EQMOM->sigma() << endl;
 
