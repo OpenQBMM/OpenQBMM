@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
     Info << "Testing extendedMomentInversion\n" << endl;
 
-    label nMoments = 11;
+    label nMoments = 7;
     univariateMomentSet moments(nMoments, 0.0);
 
 //  Valid moment set
@@ -89,11 +89,11 @@ int main(int argc, char *argv[])
 //     moments[3] = 2.5e-5;
 //     moments[4] = 5.0e-11;
 
-//     moments[0] = 1.0;
-//     moments[1] = 2.0;
-//     moments[2] = 4.0;
-//     moments[3] = 8.0;
-//     moments[4] = 16.0;    
+//    moments[0] = 1.0;
+//    moments[1] = 2.0;
+//    moments[2] = 4.0;
+//    moments[3] = 8.0;
+//    moments[4] = 16.0;    
    
 //     moments[0] = 0.9996;
 //     moments[1] =  0.99970396842;
@@ -101,31 +101,26 @@ int main(int argc, char *argv[])
 //     moments[3] = 1;
 //     moments[4] = 1.00020793684;
        
-//     moments[0] = 1.0; 
-//     moments[1] = 0.5; 
-//     moments[2] = 0.33333333333333333;
-//     moments[3] = 0.25;
-//     moments[4] = 0.2; 
-//     moments[5] = 0.16666666666666666; 
-//     moments[6] = 0.14285714285714285; 
-//     moments[7] = 0.125; 
-//     moments[8] = 0.11111111111111111;
-//     moments[9] = 0.1;
-//     moments[10] = 9.0909090909090912E-002;
-    
-       for (label mI = 1; mI < nMoments + 1; mI++)
-       {
-           moments[mI - 1] = 1.0/scalar(mI);
-       }
-    
-    
-//     moments[0] = 1.; 
-//     moments[1] = 1.; 
-//     moments[2] = 1.1; 
-//     moments[3] = 1.41; 
-//     moments[4] = 2.371; 
-//     moments[5] = 5.4501; 
-//     moments[6] = 15.75531;  
+
+// Moment set provided by Frederique Laurent-Negre
+// M_k = 1/k; k = 1, 2*N + 1
+// Test with 11 moments - All should be reproduced
+//        for (label mI = 1; mI < nMoments + 1; mI++)
+//        {
+//            moments[mI - 1] = 1.0/scalar(mI);
+//        }
+
+       //moments[9] = 0;
+
+// Moment set provided by Frederique Laurent-Negre
+// Last moment not preserved
+   moments[0] = 1.0; 
+   moments[1] = 1.0; 
+   moments[2] = 1.1; 
+   moments[3] = 1.41; 
+   moments[4] = 2.371; 
+   moments[5] = 5.4501; 
+   moments[6] = 15.75531; 
     
     Info << setprecision(16);
     Info << "Input moments\n" << endl;
@@ -134,6 +129,8 @@ int main(int argc, char *argv[])
     {
         Info << "Moment " << momentI << " = " << moments[momentI] << endl; 
     }
+    
+    Info << endl;
     
     autoPtr<extendedMomentInversion> EQMOM
     (

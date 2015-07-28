@@ -101,15 +101,20 @@ public:
     virtual void momentsStarToMoments
     (
         scalar sigma,
-        univariateMomentSet& moments
+        univariateMomentSet& moments,
+        const univariateMomentSet& momentsStar
     );
 
     //- Compute the starred moments
     virtual void momentsToMomentsStar
     (
         scalar sigma,
-        const univariateMomentSet& moments
+        const univariateMomentSet& moments,
+        univariateMomentSet& momentsStar
     );
+    
+    //- Compute the last moment from starred moments
+    virtual scalar m2N(scalar sigma, univariateMomentSet momentsStar);
 
     //- Recurrence relation for polynomials orthogonal to kernel function
     virtual void recurrenceRelation

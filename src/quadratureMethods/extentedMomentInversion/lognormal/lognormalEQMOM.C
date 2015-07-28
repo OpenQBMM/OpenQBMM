@@ -77,29 +77,48 @@ Foam::scalar Foam::lognormalEQMOM::secondaryAbscissa
 void Foam::lognormalEQMOM::momentsStarToMoments
 (
     scalar sigma,
-    univariateMomentSet& moments
+    univariateMomentSet& moments,
+    const univariateMomentSet& momentsStar
 )
 {
     scalar z = exp(sqr(sigma)/2.0);
 
     forAll(moments, momentI)
     {
-        moments[momentI] = momentsStar_[momentI]*pow(z, momentI*momentI);
+        moments[momentI] = momentsStar[momentI]*pow(z, momentI*momentI);
     }
 }
 
 void Foam::lognormalEQMOM::momentsToMomentsStar
 (
     scalar sigma,
-    const univariateMomentSet& moments
+    const univariateMomentSet& moments,
+    univariateMomentSet& momentsStar
 )
 {
     scalar z = exp(-sqr(sigma)/2.0);
 
     forAll(moments, momentI)
     {
-        momentsStar_[momentI] = moments[momentI]*pow(z, momentI*momentI);
+        momentsStar[momentI] = moments[momentI]*pow(z, momentI*momentI);
     }
+}
+
+Foam::scalar Foam::lognormalEQMOM::m2N
+(
+    scalar sigma, 
+    univariateMomentSet momentsStar
+)
+{   
+    if (momentsStar.nRealizableMoments() >= momentsStar.size() - 1)
+    {
+        scalar z = exp(sqr(sigma)/2.0);
+        label nNod = momentsStar.size() - 1;
+        
+        return momentsStar.last()*pow(z, nNod*nNod);
+    }
+    
+    return GREAT;
 }
 
 void Foam::lognormalEQMOM::recurrenceRelation

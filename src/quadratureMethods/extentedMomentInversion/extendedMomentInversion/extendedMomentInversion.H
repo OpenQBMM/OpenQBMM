@@ -78,17 +78,30 @@ class extendedMomentInversion
 {
     // Private member functions
 
+        //- Bracket minimum of the target function
+        void bracketMinimumTargetFunction
+        (
+            scalar a, 
+            scalar b, 
+            scalar& newA,
+            scalar& newB,
+            scalar& newC,
+            const univariateMomentSet& moments,
+            univariateMomentSet& momentsStar
+        );
+
         //- Attempt to find a min or max of the target function on an interval
-        scalar findExtremumTargetFunction
+        scalar minimizeTargetFunction
         (
             scalar sigmaLow, 
             scalar sigmaHigh,
-            const univariateMomentSet& moments
+            const univariateMomentSet& moments,
+            univariateMomentSet& momentsStar
         );
 
         //- Reset inverter
         void reset();
-        
+
         //- Compute secondary weigths and abscissae
         void secondaryQuadrature(const univariateMomentSet& moments);
         
@@ -96,7 +109,8 @@ class extendedMomentInversion
         scalar targetFunction
         (
             scalar sigma, 
-            const univariateMomentSet& moments
+            const univariateMomentSet& moments,
+            univariateMomentSet& momentsStar
         );
     
         //- Disallow default bitwise copy construct
@@ -113,20 +127,11 @@ protected:
         //- Number of moments
         label nMoments_;
 
-        //- Position of the last moment used to compute the target function
-        label lastMomentI_;
-
         //- Number of primary quadrature nodes
         label nPrimaryNodes_;
 
         //- Number of secondary quadrature nodes
         label nSecondaryNodes_;
-
-        //- Approximated moments
-        univariateMomentSet approximatedMoments_;
-
-        //- Starred moments
-        univariateMomentSet momentsStar_;
 
         //- Primary quadrature weights
         scalarDiagonalMatrix primaryWeights_;
@@ -178,21 +183,27 @@ protected:
         virtual void momentsStarToMoments
         (
             scalar sigma,
-            univariateMomentSet& moments
+            univariateMomentSet& moments,
+            const univariateMomentSet& momentsStar
         ) = 0;
 
         //- Compute the starred moments from moments
         virtual void momentsToMomentsStar
         (
             scalar sigma,
-            const univariateMomentSet& moments
+            const univariateMomentSet& moments,
+            univariateMomentSet& momentsStar
         ) = 0;
 
+        //- Compute the last moment from starred moments
+        virtual scalar m2N(scalar sigma, univariateMomentSet momentsStar) = 0;
+        
         //- Compute the normalized moment error
         scalar normalizedMomentError
         (
             scalar sigma,
-            const univariateMomentSet& moments
+            const univariateMomentSet& moments,
+            univariateMomentSet& momentsStar
         );
         
         //- Recurrence relation for polynomials orthogonal to kernel function
