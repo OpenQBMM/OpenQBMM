@@ -133,15 +133,6 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 
         if (fLow*fHigh > 0)
         {
-//             FatalErrorIn
-//             (
-//                 "Foam::extendedMomentInversion::invert\n"
-//                 "(\n"
-//                 "   const univariateMomentSet& moments\n"
-//                 ")"
-//             )   << "Root not bracketed."
-//                 << abort(FatalError);
-
             // Root not found. Minimize target function in [0, sigma_]
             sigma_ = minimizeTargetFunction(0, sigmaHigh, m, mStar);
             targetFunction(sigma_, m, mStar);
