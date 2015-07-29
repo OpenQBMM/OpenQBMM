@@ -136,8 +136,6 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             // Root not found. Minimize target function in [0, sigma_]
             sigma_ = minimizeTargetFunction(0, sigmaHigh, m, mStar);
             targetFunction(sigma_, m, mStar);
-            
-            // TODO Check realizability here
 
             return;
         }
@@ -147,22 +145,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         {
             scalar fMid, sigmaMid;
 
-            label mStarRealizable;
-
-            do
-            {
-                sigmaMid = (sigmaLow + sigmaHigh)/2.0;
-                fMid = targetFunction(sigmaMid, m, mStar);
-
-                mStarRealizable = mStar.nRealizableMoments();
-
-                if (mStarRealizable < mStar.size() - 1)
-                {
-                    sigmaHigh = sigmaMid;
-                    fHigh = targetFunction(sigmaHigh, m, mStar);
-                }
-            }
-            while (mStarRealizable < mStar.size() - 1);
+            sigmaMid = (sigmaLow + sigmaHigh)/2.0;
+            fMid = targetFunction(sigmaMid, m, mStar);
 
             scalar s = sqrt(sqr(fMid) - fLow*fHigh);
 
