@@ -38,13 +38,11 @@ boundaryField
     }
     inlet
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+        type            slip;
     }
     outlet
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+        type            slip;
     }
 }
 
