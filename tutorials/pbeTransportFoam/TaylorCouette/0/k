@@ -37,8 +37,7 @@ boundaryField
     }
     inlet
     {
-        type            kqRWallFunction;
-        value           $internalField;
+        type            symmetry;
     }
     outlet
     {

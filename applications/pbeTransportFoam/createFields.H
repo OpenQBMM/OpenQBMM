@@ -18,7 +18,6 @@
     );
 
     volScalarField& p = thermo.p();
-    const volScalarField& psi = thermo.psi();
 
     Info<< "Reading field U\n" << endl;
     volVectorField U
@@ -77,7 +76,7 @@
     (
         p,
         p_rgh,
-        simple.dict(),
+        pimple.dict(),
         pRefCell,
         pRefValue
     );

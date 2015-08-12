@@ -37,7 +37,7 @@ Description
 #include "rhoThermo.H"
 #include "turbulentFluidThermoModel.H"
 #include "radiationModel.H"
-#include "simpleControl.H"
+#include "pimpleControl.H"
 #include "fixedFluxPressureFvPatchScalarField.H"
 #include "populationBalanceModel.H"
 
@@ -49,32 +49,40 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
 
-    simpleControl simple(mesh);
+    pimpleControl pimple(mesh);
 
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "createRadiationModel.H"
     #include "initContinuityErrs.H"
+    #include "createTimeControls.H"
+    #include "compressibleCourantNo.H"
+    #include "setInitialDeltaT.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
     
-    #include "CourantNo.H"
-
-    while (simple.loop())
+    while (runTime.run())
     {
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        #include "createTimeControls.H"
+        #include "compressibleCourantNo.H"
+        #include "setDeltaT.H"
 
-        populationBalance->solve();
+        runTime++;
+        
+        Info<< "Time = " << runTime.timeName() << nl << endl;
+        
+        while (pimple.loop())
+        {
+            populationBalance->solve();
+        }
 
         runTime.write();
-
+        
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
-
-        runTime.write();
     }
 
     Info<< "End\n" << endl;

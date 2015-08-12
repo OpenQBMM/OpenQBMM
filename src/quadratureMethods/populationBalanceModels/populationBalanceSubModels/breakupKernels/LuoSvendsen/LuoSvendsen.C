@@ -85,7 +85,7 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::Kb
         );
 
     return Cb_*pow(fluidTurb.epsilon(), epsilonExp_)
-        *pow(fluidTurb.mu()/fluidTurb.rho(), nuExp_)*pow(abscissa, sizeExp_);
+        *pow(fluidTurb.nu(), nuExp_)*pow(abscissa, sizeExp_);
 }
 
 // ************************************************************************* //

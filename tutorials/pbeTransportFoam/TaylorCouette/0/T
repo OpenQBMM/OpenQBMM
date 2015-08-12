@@ -34,7 +34,7 @@ boundaryField
     }
     inlet
     {
-        type            zeroGradient;
+        type            symmetry;
     }
     outlet
     {

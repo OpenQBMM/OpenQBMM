@@ -29,7 +29,7 @@ boundaryField
         type            rotatingWallVelocity;
         origin          (0 0 0);
         axis            (0 1 0);
-        omega           17.27876;
+        omega           17.278759575;  // 165 RPM
     }
     outerWall
     {
@@ -38,7 +38,7 @@ boundaryField
     }
     inlet
     {
-        type            slip;
+        type            symmetry;
     }
     outlet
     {

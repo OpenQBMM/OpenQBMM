@@ -17,7 +17,7 @@ FoamFile
 
 dimensions      [0 2 -3 0 0 0 0];
 
-internalField   uniform 0.035;
+internalField   uniform 0.070;
 
 boundaryField
 {   
@@ -37,8 +37,7 @@ boundaryField
     }
     inlet
     {
-        type            epsilonWallFunction;
-        value           $internalField;
+        type            symmetry;
     }
     outlet
     {

@@ -36,8 +36,7 @@ boundaryField
     }
     inlet
     {
-        type            fixedFluxPressure;
-        value           uniform 1e5;
+        type            symmetry;
     }
     outlet
     {

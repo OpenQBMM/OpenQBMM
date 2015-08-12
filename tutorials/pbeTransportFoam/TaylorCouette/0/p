@@ -36,8 +36,7 @@ boundaryField
     }
     inlet
     {
-        type            calculated;
-        value           $internalField;
+        type            symmetry;
     }
     outlet
     {
