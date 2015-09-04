@@ -16,8 +16,6 @@
 
  List of tutorials
 
- Name 			
-
 * buoyantPbePimpleFoam
     Tutorials for buoyant solver coupled to population balance solver.
 

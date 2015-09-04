@@ -18,6 +18,8 @@
 
  This list contains the names of external contributors to the OpenQBMM project.
 
- Name 				Affiliation		Contribution 
+ Frederique Laurent-Negre, Ecole Centrale Paris
+  - Algorithm to check the realizability of a set of moments
+  - Improved solution algorithm to find the sigma parameter in EQMOM
  
  
