@@ -6,6 +6,6 @@ set -x
 
 wmake -all applications
 
-curl -A "OpenQBMM" http://bit.ly/openqbmm-dev
+curl -A "OpenQBMM-dev" http://bit.ly/openqbmm-dev
 
 # ----------------------------------------------------------------- end-of-file
