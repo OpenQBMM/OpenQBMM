@@ -32,7 +32,7 @@ Description
         "An extended quadrature method of moments for population balance 
         equations"
         C Yuan, F Laurent, R O Fox
-        Aerosol Science
+        Journal of Aerosol Science
         Volume 51, Pages 1-23, 2012
     \endverbatim
     
