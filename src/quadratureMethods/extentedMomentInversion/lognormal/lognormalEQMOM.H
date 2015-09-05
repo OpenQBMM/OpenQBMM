@@ -121,7 +121,8 @@ public:
     (
         scalarDiagonalMatrix& a, 
         scalarDiagonalMatrix& b,
-        scalar primaryAbscissa
+        scalar primaryAbscissa,
+        scalar sigma
     );
     
     //- Compute maximum value of sigma to ensure realizability

@@ -89,7 +89,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         )   << "The zero-order moment is negative."
             << abort(FatalError);
     }
-    
+
     // Exclude cases where the zero-order moment is very small to avoid
     // problems in the inversion due to round-off error  
     if (m[0] < SMALL)
@@ -99,7 +99,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     }
     
     label nRealizableMoments = m.nRealizableMoments();
-    
+
     if (nRealizableMoments % 2 == 0)
     {
         // If the number of realizable moments is even, we apply the standard
@@ -136,13 +136,14 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             // Root not found. Minimize target function in [0, sigma_]
             sigma_ = minimizeTargetFunction(0, sigmaHigh, m, mStar);
             targetFunction(sigma_, m, mStar);
+            secondaryQuadrature(mStar);
 
             return;
         }
 
         // Apply Ridder's algorithm to find sigma
         for (label iter = 0; iter < maxSigmaIter_; iter++)
-        {
+        {           
             scalar fMid, sigmaMid;
 
             sigmaMid = (sigmaLow + sigmaHigh)/2.0;
@@ -360,7 +361,7 @@ void Foam::extendedMomentInversion::secondaryQuadrature
         forAll(pWeights, pNodeI)
         {
             // Compute coefficients of the recurrence relation
-            recurrenceRelation(a, b, primaryAbscissae_[pNodeI]);
+            recurrenceRelation(a, b, primaryAbscissae_[pNodeI], sigma_);
 
             // Define the Jacobi matrix
             scalarSquareMatrix J(nSecondaryNodes_, nSecondaryNodes_, 0.0);
