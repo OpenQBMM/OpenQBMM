@@ -211,7 +211,8 @@ protected:
         (
             scalarDiagonalMatrix& a, 
             scalarDiagonalMatrix& b,
-            scalar primaryAbscissa
+            scalar primaryAbscissa,
+            scalar sigma
         ) = 0;
         
         //- Compute maximum value of sigma to ensure realizability

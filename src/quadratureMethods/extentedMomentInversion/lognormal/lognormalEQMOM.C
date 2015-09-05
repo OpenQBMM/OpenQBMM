@@ -125,7 +125,8 @@ void Foam::lognormalEQMOM::recurrenceRelation
 (
     scalarDiagonalMatrix& a, 
     scalarDiagonalMatrix& b,
-    scalar primaryAbscissa
+    scalar primaryAbscissa,
+    scalar sigma
 )
 {
 //  Unnecessary re-initialization because we set a to be full of zeros and b is
