@@ -29,11 +29,11 @@ Description
 
     References
     \verbatim
-        "An extended quadrature-based moment method with log-normal kernel 
-        density functions"
-        E Madadi-Kandjani, A Passalacqua
-        Chemical Engineering Science
-        Volume 131, Pages 323-339, 2015
+        "An extended quadrature method of moments for population balance 
+        equations"
+        C Yuan, F Laurent, R O Fox
+        Aerosol Science
+        Volume 51, Pages 1-23, 2012
     \endverbatim
     
     \verbatim
