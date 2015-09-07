@@ -71,7 +71,7 @@ Foam::scalar Foam::gammaEQMOM::secondaryAbscissa
     scalar sigma
 )
 {
-    return sigma*primaryAbscissa;
+    return sigma*secondaryAbscissa;
 }
 
 void Foam::gammaEQMOM::momentsStarToMoments
@@ -82,8 +82,6 @@ void Foam::gammaEQMOM::momentsStarToMoments
 )
 {
     label nMom = moments.size();
-    
-    Info << "nMom = " << nMom << endl;
     
     if (nMom >= 8)
     {
@@ -114,9 +112,7 @@ void Foam::gammaEQMOM::momentsStarToMoments
     }
     
     if (nMom >= 7)
-    {
-        Info << "Here" << endl;
-        
+    {       
         moments[5] = momentsStar[5] + 10.0*sigma*momentsStar[4]
                 + 35.0*sqr(sigma)*momentsStar[3]
                 + 50.0*pow3(sigma)*momentsStar[2]
