@@ -165,25 +165,26 @@ void Foam::gammaEQMOM::momentsToMomentsStar
     
     momentsStar[0] = moments[0];
     momentsStar[1] = moments[1];
-    momentsStar[2] = momentsStar[2] - sigma*momentsStar[1];    
+    momentsStar[2] = moments[2] - sigma*moments[1];    
 
     if (nMom >= 5)
     {
-        momentsStar[3] = moments[3] - 2.0*sigma*moments[2];
+        momentsStar[3] = moments[3] - 3.0*sigma*moments[2] 
+                + sqr(sigma)*moments[1];
 
         momentsStar[4] = moments[4] - 6.0*sigma*moments[3]
-                + sqr(sigma)*moments[2] + 5.0*pow3(sigma)*moments[1];
+                + 7.0*sqr(sigma)*moments[2] - pow3(sigma)*moments[1];
     }
     
     if (nMom >= 7)
     {
         momentsStar[5] = moments[5] - 10.0*sigma*moments[4]
-                + 25.0*sqr(sigma)*moments[3] + 10.0*pow3(sigma)*moments[2]
-                - 24.0*pow4(sigma)*moments[1];
+                + 25.0*sqr(sigma)*moments[3] - 15.0*pow3(sigma)*moments[2]
+                + pow4(sigma)*moments[1];
                 
        momentsStar[6] = moments[6] - 15.0*sigma*moments[5]
                 + 65.0*sqr(sigma)*moments[4] - 90.0*pow3(sigma)*moments[3]
-                - 59.0*pow4(sigma)*moments[2] + 89.0*pow5(sigma)*moments[1];
+                + 31.0*pow4(sigma)*moments[2] - pow5(sigma)*moments[1];
     }
 }
 
