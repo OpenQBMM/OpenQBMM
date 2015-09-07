@@ -234,41 +234,41 @@ void Foam::gammaEQMOM::momentsToMomentsStar
     if (nMom >= 9)
     {
         momentsStar[7] = moments[7] - 21.0*sigma*moments[6]
-        		+ 140.0*sqr(sigma)*moments[5]
-        		- 350.0*pow3(sigma)*moments[4]
-        		+ 301.0*pow4(sigma)*moments[3]
-        		- 63.0*pow5(sigma)*moments[2]
-        		+ pow6(sigma)*moments[1];
+                + 140.0*sqr(sigma)*moments[5]
+                - 350.0*pow3(sigma)*moments[4]
+                + 301.0*pow4(sigma)*moments[3]
+                - 63.0*pow5(sigma)*moments[2]
+                + pow6(sigma)*moments[1];
                 
        	momentsStar[8] = moments[8] - 28.0*sigma*moments[7]
-       			+ 266.0*sqr(sigma)*moments[6]
-       			- 1050.0*pow3(sigma)*moments[5]
-       			+ 1701.0*pow4(sigma)*moments[4]
-       			- 966.0*pow5(sigma)*moments[3]
-       			+ 127.0*pow6(sigma)*moments[2]
-       			- pow6(sigma)*sigma*moments[1];
+                + 266.0*sqr(sigma)*moments[6]
+                - 1050.0*pow3(sigma)*moments[5]
+                + 1701.0*pow4(sigma)*moments[4]
+                - 966.0*pow5(sigma)*moments[3]
+                + 127.0*pow6(sigma)*moments[2]
+                - pow6(sigma)*sigma*moments[1];
     }
     
     if (nMom >= 11)
     {
         momentsStar[9] = moments[9] - 36.0*sigma*moments[8]
-        		+ 462.0*sqr(sigma)*moments[7]
-        		- 2646.0*pow3(sigma)*moments[6]
-        		+ 6951.0*pow4(sigma)*moments[5]
-        		- 7770.0*pow5(sigma)*moments[4]
-        		+ 3025.0*pow6(sigma)*moments[3]
-        		- 255.0*pow6(sigma)*sigma*moments[2]
-        		+ pow6(sigma)*sqr(sigma)*moments[1];
+                + 462.0*sqr(sigma)*moments[7]
+                - 2646.0*pow3(sigma)*moments[6]
+                + 6951.0*pow4(sigma)*moments[5]
+                - 7770.0*pow5(sigma)*moments[4]
+                + 3025.0*pow6(sigma)*moments[3]
+                - 255.0*pow6(sigma)*sigma*moments[2]
+                + pow6(sigma)*sqr(sigma)*moments[1];
                 
        momentsStar[10] = moments[10] - 45.0*sigma*moments[9]
-       			+ 750.0*sqr(sigma)*moments[8]
-       			- 5880.0*pow3(sigma)*moments[7]
-       			+ 22827.0*pow4(sigma)*moments[6]
-       			- 42525.0*pow5(sigma)*moments[5]
-       			+ 34105.0*pow6(sigma)*moments[4]
-       			- 9330.0*pow6(sigma)*sigma*moments[3]
-       			+ 511.0*pow6(sigma)*sqr(sigma)*moments[2]
-       			- pow6(sigma)*pow3(sigma)*moments[1];
+                + 750.0*sqr(sigma)*moments[8]
+                - 5880.0*pow3(sigma)*moments[7]
+                + 22827.0*pow4(sigma)*moments[6]
+                - 42525.0*pow5(sigma)*moments[5]
+                + 34105.0*pow6(sigma)*moments[4]
+                - 9330.0*pow6(sigma)*sigma*moments[3]
+                + 511.0*pow6(sigma)*sqr(sigma)*moments[2]
+                - pow6(sigma)*pow3(sigma)*moments[1];
     }
 }
 
