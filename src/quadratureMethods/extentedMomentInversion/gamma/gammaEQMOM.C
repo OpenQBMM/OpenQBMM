@@ -83,7 +83,7 @@ void Foam::gammaEQMOM::momentsStarToMoments
 {
     label nMom = moments.size();
     
-    if (nMom >= 8)
+    if (nMom >= 12)
     {
         FatalErrorIn
         (
@@ -155,20 +155,6 @@ void Foam::gammaEQMOM::momentsStarToMoments
                 + sigma*(1026576.0*momentsStar[2] 
                 + 362880.0*momentsStar[1]*sigma))))))));
     }
-    
-    if (nMom >= 12)
-    {
-        FatalErrorIn
-        (
-            "Foam::gammaEQMOM::momentsStarToMoments\n"
-            "(\n"
-            "   scalar sigma,\n"
-            "   univariateMomentSet& moments,\n"
-            "   const univariateMomentSet& momentsStar\n"
-            ")"
-        )   << "Moment transformation not implemented."
-            << abort(FatalError);
-    }
 }
 
 void Foam::gammaEQMOM::momentsToMomentsStar
@@ -180,7 +166,7 @@ void Foam::gammaEQMOM::momentsToMomentsStar
 {
     label nMom = moments.size();
 
-    if (nMom >= 8)
+    if (nMom >= 12)
     {
         FatalErrorIn
         (
