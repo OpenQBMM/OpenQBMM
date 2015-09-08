@@ -38,15 +38,7 @@ solvers
         tolerance       1e-9;
         relTol          0;
     }
-    
-    yPsi
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-9;
-        relTol          0;
-    }
-   
+
     "moment.*"
     {
         solver          PCG;
