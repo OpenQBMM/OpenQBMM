@@ -19,17 +19,16 @@ solvers
 {
     p_rgh
     {
-        solver          GAMG;
-        smoother        DIC;
-        nPreSweeps      0;
-        nPostSweeps     2;
-        nFinestSweeps   2;
+        solver           GAMG;
+        tolerance        1e-10;
+        relTol           0.01;
+
+        smoother         DICGaussSeidel;
+
         cacheAgglomeration true;
         nCellsInCoarsestLevel 100;
-        agglomerator    faceAreaPair;
-        mergeLevels     1;
-        tolerance       1e-10;
-        relTol          0;
+        agglomerator     faceAreaPair;
+        mergeLevels      1;
     }
       
     "(U|h|e|k|epsilon|omega|R)"
@@ -40,6 +39,14 @@ solvers
         relTol          0;
     }
     
+    yPsi
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-9;
+        relTol          0;
+    }
+   
     "moment.*"
     {
         solver          PCG;
@@ -68,7 +75,7 @@ SIMPLE
 
 PIMPLE
 {
-    nOuterCorrectors    10;
+    nOuterCorrectors    1;
     nNonOrthogonalCorrectors 0;
     nCorrectors         1;
     pRefCell            0;
@@ -94,9 +101,9 @@ relaxationFactors
     
     equations
     {
-        U               0.4;
+        U               0.3;
         "(h|e)"         0.7;
-        "(k|epsilon|omega|R.*)" 0.5;
+        "(k|epsilon|omega|R)" 0.3;
         "moment.*"      0.5;
     }
 }

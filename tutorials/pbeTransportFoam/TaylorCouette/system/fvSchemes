@@ -17,28 +17,26 @@ FoamFile
 ddtSchemes
 {
     default steadyState;
-    "moment.*" Euler;
+    "moment.*" backward;
 }
 
 gradSchemes
 {
     default         Gauss linear;
-    bounded         Gauss linear; 
 }
 
 divSchemes
 {
     default         none;
 
-    div(phi,U)      bounded Gauss linearUpwindV bounded;
-    div(phi,K)      bounded Gauss linearUpwind bounded;
-    div(phi,e)      bounded Gauss linearUpwind bounded;
-    div(phi,h)      bounded Gauss linearUpwind bounded;
-    div(phi,k)      bounded Gauss linearUpwind bounded;
-    div(phi,epsilon) bounded Gauss linearUpwind bounded;
-    div(phi,omega) bounded Gauss linearUpwind bounded;
-    div(phi,R) bounded Gauss vanLeer;
-    div(phi,Ekp)    bounded Gauss linearUpwind bounded;
+    div(phi,U)      bounded Gauss limitedLinearV 0.2;
+    div(phi,K)      bounded Gauss limitedLinear 0.2;
+    div(phi,e)      bounded Gauss limitedLinear 0.2;
+    div(phi,h)      bounded Gauss limitedLinear 0.2;
+    div(phi,k)      bounded Gauss limitedLinear 0.2;
+    div(phi,epsilon) bounded Gauss limitedLinear 0.2;
+    div(phi,R) bounded Gauss limitedLinear 0.2;
+    div(phi,Ekp)    bounded Gauss limitedLinear 0.2;
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
     div(((rho*(thermo:mu|thermo:rho))*dev2(T(grad(U))))) Gauss linear;
     div((rho*R))    Gauss linear;
