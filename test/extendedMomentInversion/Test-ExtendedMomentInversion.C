@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
     Info << "Testing extendedMomentInversion\n" << endl;
 
-    label nMoments = 7;
+    label nMoments = 5;
     univariateMomentSet moments(nMoments, 0.0);
 
 //  Valid moment set
@@ -83,11 +83,11 @@ int main(int argc, char *argv[])
 //     moments[8] = 86.9534420717;
     
 // Moment set on edge of moment space
-//     moments[0] = 3.125e12;
-//     moments[1] = 6.25e6;
-//     moments[2] = 12.5;
-//     moments[3] = 2.5e-5;
-//     moments[4] = 5.0e-11;
+    moments[0] = 3.125e12;
+    moments[1] = 6.25e6;
+    moments[2] = 12.5;
+    moments[3] = 2.5e-5;
+    moments[4] = 5.0e-11;
 
 //    moments[0] = 1.0;
 //    moments[1] = 2.0;
@@ -114,13 +114,13 @@ int main(int argc, char *argv[])
 
 // Moment set provided by Frederique Laurent-Negre
 // Last moment not preserved
-   moments[0] = 1.0; 
-   moments[1] = 1.0; 
-   moments[2] = 1.1; 
-   moments[3] = 1.41; 
-   moments[4] = 2.371; 
-   moments[5] = 5.4501; 
-   moments[6] = 15.75531; 
+//    moments[0] = 1.0; 
+//    moments[1] = 1.0; 
+//    moments[2] = 1.1; 
+//    moments[3] = 1.41; 
+//    moments[4] = 2.371; 
+//    moments[5] = 5.4501; 
+//    moments[6] = 15.75531; 
     
     Info << setprecision(16);
     Info << "Input moments\n" << endl;

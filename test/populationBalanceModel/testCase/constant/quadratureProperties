@@ -26,12 +26,12 @@ moments
 
 nodes
 (
-    node0{}
-    node1{}
+    node0{ nSecondaryNodes 7; }
+    node1{nSecondaryNodes 7;}
 );
 
 extendedMomentInversionCoeff
 {
-    extendedMomentInversion     lognormal;
+    extendedMomentInversion     gamma;
 }
 // ************************************************************************* //

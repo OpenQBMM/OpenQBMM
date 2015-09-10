@@ -125,7 +125,7 @@ public:
     );
     
     //- Compute maximum value of sigma to ensure realizability
-    virtual scalar sigmaMax(const univariateMomentSet& moments);
+    virtual scalar sigmaMax(univariateMomentSet& moments);
 };
 
 

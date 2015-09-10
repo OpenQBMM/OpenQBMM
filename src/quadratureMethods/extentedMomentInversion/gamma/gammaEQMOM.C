@@ -259,7 +259,7 @@ void Foam::gammaEQMOM::recurrenceRelation
     scalar primaryAbscissa,
     scalar sigma
 )
-{
+{   
     scalar alpha = primaryAbscissa/sigma - 1.0;
     
     forAll(a, aI)
@@ -275,7 +275,7 @@ void Foam::gammaEQMOM::recurrenceRelation
     }
 }
 
-Foam::scalar Foam::gammaEQMOM::sigmaMax(const univariateMomentSet& moments)
+Foam::scalar Foam::gammaEQMOM::sigmaMax(univariateMomentSet& moments)
 {  
     scalar sigmaZeta1 = 
         (moments[0]*moments[2] - moments[1]*moments[1])/(moments[0]*moments[1]);

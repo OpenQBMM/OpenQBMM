@@ -382,7 +382,7 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
 
     forAll(m0, cellI)
     {
-        univariateMomentSet momentsToInvert(nMoments_, 0);
+        univariateMomentSet momentsToInvert(nMoments_, 0.0);
 
         // Copying moment set from a cell to univariateMomentSet
         forAll(momentsToInvert, mI)
@@ -452,6 +452,7 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
     }
     
     updateBoundaryQuadrature();
+    updateMoments();
 }
 
 

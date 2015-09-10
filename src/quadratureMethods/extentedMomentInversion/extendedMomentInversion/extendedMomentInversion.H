@@ -89,7 +89,7 @@ class extendedMomentInversion
             const univariateMomentSet& moments,
             univariateMomentSet& momentsStar
         );
-
+        
         //- Attempt to find a min or max of the target function on an interval
         scalar minimizeTargetFunction
         (
@@ -219,7 +219,10 @@ protected:
         //  The value is exact for the two-node case. For cases with a larger
         //  number of nodes, this provides an over-estimation of the maximum
         //  value of the sigma parameter which ensures moment realizability.
-        virtual scalar sigmaMax(const univariateMomentSet& moments) = 0;
+        virtual scalar sigmaMax
+        (
+            univariateMomentSet& moments
+        ) = 0;
 
 
 public:

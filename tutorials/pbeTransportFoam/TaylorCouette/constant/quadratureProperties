@@ -22,17 +22,23 @@ moments
     (2)
     (3)
     (4)
+    (5)
+    (6)
 );
 
 nodes
 (
     node0
     {
-        nSecondaryNodes 10;
+        nSecondaryNodes 4;
     }
     node1
     {
-        nSecondaryNodes 10;
+        nSecondaryNodes 4;
+    }
+    node2
+    {
+        nSecondaryNodes 4;
     }
 );
 

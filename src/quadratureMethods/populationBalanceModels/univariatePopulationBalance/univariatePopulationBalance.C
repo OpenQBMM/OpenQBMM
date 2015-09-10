@@ -128,7 +128,7 @@ void Foam::populationBalanceModels::univariatePopulationBalance::updateAdvection
     
     phiOwn = fvc::interpolate(U_, own, "reconstruct(U)") & U_.mesh().Sf();
     phiNei = fvc::interpolate(U_, nei, "reconstruct(U)") & U_.mesh().Sf();
-    
+  
     // Update interpolated nodes
     quadrature_.interpolateNodes();
     
@@ -153,7 +153,7 @@ Foam::populationBalanceModels::univariatePopulationBalance::advectMoment
         (
             IOobject
             (
-                "mFlux",
+                "divMoment",
                 U_.mesh().time().timeName(),
                 U_.mesh(),
                 IOobject::NO_READ,
@@ -172,7 +172,7 @@ Foam::populationBalanceModels::univariatePopulationBalance::advectMoment
         quadrature_.momentsNei()[order]*min(phiNei, zeroPhi) 
       + quadrature_.momentsOwn()[order]*max(phiOwn, zeroPhi)
     );
-         
+ 
     fvc::surfaceIntegrate(divMoment(), mFlux);
     divMoment().dimensions().reset(moment.dimensions()/dimTime);
 
@@ -338,12 +338,12 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
     surfaceScalarField phiOwn("phiOwn", fvc::interpolate(U_) & U_.mesh().Sf());
     surfaceScalarField phiNei("phiNei", phiOwn);
     updateAdvection(phiOwn, phiNei);
-       
+    
     // Integrate source and diffusion terms
     forAll(quadrature_.moments(), mI)
     {
         volUnivariateMoment& m = quadrature_.moments()[mI];
-        
+
         fvScalarMatrix momentEqn
         (
             fvm::ddt(m)

@@ -154,15 +154,22 @@ void Foam::lognormalEQMOM::recurrenceRelation
     }
 }
 
-Foam::scalar Foam::lognormalEQMOM::sigmaMax(const univariateMomentSet& moments)
+Foam::scalar Foam::lognormalEQMOM::sigmaMax(univariateMomentSet& moments)
 {  
-    scalar sigmaZeta1 = 
-        sqrt(2.0*log(sqrt(moments[0]*moments[2]/(sqr(moments[1])))));
+    label nRealizableMoments = moments.nRealizableMoments();
     
-    scalar sigmaZeta2 = 
-        sqrt(2.0*log(sqrt(moments[1]*moments[3]/(sqr(moments[2])))));
+    scalar sigmaZeta1 = 
+            sqrt(2.0*log(sqrt(moments[0]*moments[2]/(sqr(moments[1])))));
 
-    return min(sigmaZeta1, sigmaZeta2);
+    if (nRealizableMoments > 3)
+    {
+        scalar sigmaZeta2 = 
+            sqrt(2.0*log(sqrt(moments[1]*moments[3]/(sqr(moments[2])))));
+
+        return min(sigmaZeta1, sigmaZeta2);
+    }
+
+    return sigmaZeta1;
 }
 
 // ************************************************************************* //
