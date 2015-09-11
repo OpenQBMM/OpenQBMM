@@ -32,7 +32,7 @@ univariatePopulationBalanceCoeffs
     {
         breakupKernel LuoSvendsen;
         
-        Cb        Cb        [ 0 0 0 0 0 0 0 ] 6.0e-4;
+        Cb        Cb        [ 0 0 0 0 0 0 0 ] 1.0e-3;
         epsilonExp          0.75;
         nuExp              -1.25;
         sizeExp             1.0;

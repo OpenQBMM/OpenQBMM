@@ -197,7 +197,7 @@ void Foam::moment<fieldType, nodeType>::update()
 
             *this == *this + m;
         }
-    }    
+    }  
 }
 
 

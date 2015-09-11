@@ -98,7 +98,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     }
     
     label nRealizableMoments = m.nRealizableMoments();
-    
+   
     if (nRealizableMoments % 2 == 0)
     {
         // If the number of realizable moments is even, we apply the standard
@@ -154,7 +154,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                 sigma_ = 0.0;
                 nullSigma_ = true;
                 secondaryQuadrature(m);
-                    
+
                 return;
             }
             
@@ -207,7 +207,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     sigma_ = 0.0;
                     nullSigma_ = true;
                     secondaryQuadrature(m);
-                    
+
                     return;
                 }
                 
@@ -372,11 +372,12 @@ Foam::scalar Foam::extendedMomentInversion::normalizedMomentError
     univariateMomentSet approximatedMoments(moments.size(), 0);
     momentsStarToMoments(sigma, approximatedMoments, momentsStar);
     
-    // Info << setprecision (17);
-    // Info << "Approximated moments: " << endl << approximatedMoments;
-    // Info << "Is realizable?" << approximatedMoments.isRealizable() << endl;
+    //  Info << setprecision (17);
+    //  Info << "Approximated moments: " << endl << approximatedMoments;
+    //  Info << "Is realizable?" << approximatedMoments.isRealizable() << endl;
+    //  Info << "sigma = " << sigma;
 
-    for (label momentI = 0; momentI < nMoments_; momentI++)
+    for (label momentI = 0; momentI < moments.size(); momentI++)
     {
         norm += mag(1.0 - approximatedMoments[momentI]/moments[momentI]);
     }

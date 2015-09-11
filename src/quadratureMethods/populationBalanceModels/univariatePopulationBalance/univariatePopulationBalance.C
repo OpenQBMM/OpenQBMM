@@ -333,8 +333,6 @@ Foam::populationBalanceModels::univariatePopulationBalance::breakupSource
 
 void Foam::populationBalanceModels::univariatePopulationBalance::solve()
 {
-    quadrature_.updateQuadrature();
-       
     surfaceScalarField phiOwn("phiOwn", fvc::interpolate(U_) & U_.mesh().Sf());
     surfaceScalarField phiNei("phiNei", phiOwn);
     updateAdvection(phiOwn, phiNei);
@@ -357,6 +355,8 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
         momentEqn.relax();
         momentEqn.solve();
     }
+    
+    quadrature_.updateQuadrature();
 }
 
 

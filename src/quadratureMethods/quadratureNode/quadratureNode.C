@@ -149,7 +149,7 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 :
     name_(name),
     nodeDict_(nodeDict),
-    nSecondaryNodes_(nodeDict_.lookupOrDefault("nSecondaryNodes", 20)),
+    nSecondaryNodes_(nodeDict_.lookupOrDefault("nSecondaryNodes", 7)),
     primaryWeight_
     (
         IOobject
@@ -195,7 +195,7 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
         boundaryTypes
     ),
     extended_(true)
-{   
+{      
     forAll(secondaryWeights_, nodeI)
     {
         secondaryWeights_.set

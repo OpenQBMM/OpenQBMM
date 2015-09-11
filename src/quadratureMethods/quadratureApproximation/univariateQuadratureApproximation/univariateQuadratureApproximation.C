@@ -122,7 +122,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
                 moments_[1].dimensions()/moments_[0].dimensions()
             )
         );
-        
+
         nodesOwn.set
         (
             pNodeI,
@@ -135,7 +135,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
                 moments_[1].dimensions()/moments_[0].dimensions()
             )
         );
-              
+
         for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
         {
         
@@ -260,7 +260,7 @@ void Foam::univariateQuadratureApproximation::interpolateNodes()
                 own, 
                 "reconstruct(sigma)"
             );
-            
+
         nodeNei.primaryWeight() = 
             fvc::interpolate(node.primaryWeight(), nei, "reconstruct(weight)");
         
@@ -341,10 +341,10 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
                     momentsToInvert[mI] 
                         = moments_[mI].boundaryField()[patchI][faceI];
                 }
-                
+
                 // Inverting them
                 momentInverter_->invert(momentsToInvert);
-                
+
                 // Copying quadrature data to boundary face
                 for (label pNodeI = 0; pNodeI < nPrimaryNodes_; pNodeI++)
                 {
@@ -389,10 +389,10 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
         {
             momentsToInvert[mI] = moments_[mI][cellI];
         }
-       
+
         // Inverting moments and updating secondary quadrature
         momentInverter_->invert(momentsToInvert);
-        
+
         // Recovering primary weights and abscissae from moment inverter
         const scalarDiagonalMatrix& pWeights(momentInverter_->primaryWeights());
 
@@ -405,7 +405,7 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
         for (label pNodeI = 0; pNodeI < nPrimaryNodes_; pNodeI++)
         {
             volScalarNode& node(nodes[pNodeI]);
-            
+
             // Copy primary node
             node.primaryWeight()[cellI] = pWeights[pNodeI];
             node.primaryAbscissa()[cellI] = pAbscissae[pNodeI];
@@ -413,23 +413,23 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
             // Copy secondary nodes
             PtrList<volScalarField>& sWeightFields(node.secondaryWeights());
             PtrList<volScalarField>& sAbscissaFields(node.secondaryAbscissae());
-            
+
             const scalarRectangularMatrix& sWeights
             (
                 momentInverter_->secondaryWeights()
             );
-            
+
             const scalarRectangularMatrix& sAbscissae
             (
                 momentInverter_->secondaryAbscissae()
             );
-            
+
             for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
             {
                 sWeightFields[sNodeI][cellI] = sWeights[pNodeI][sNodeI];
                 sAbscissaFields[sNodeI][cellI] = sAbscissae[pNodeI][sNodeI];
             }
-            
+
             // Copy sigma
             node.sigma()[cellI] = momentInverter_->sigma();
         }        
