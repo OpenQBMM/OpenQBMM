@@ -38,8 +38,8 @@ extendedMomentInversionCoeff
     extendedMomentInversion     gamma;
     
     maxSigmaIter        1000;
-    momentsTol          1.0e-8;
-    sigmaTol            1.0e-14;
-    targetFunctionTol   1.0e-14;  
+    momentsTol          1.0e-6;
+    sigmaTol            1.0e-8;
+    targetFunctionTol   1.0e-8;  
 }
 // ************************************************************************* //

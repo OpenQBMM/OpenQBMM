@@ -26,8 +26,8 @@ moments
 
 nodes
 (
-    node0{nSecondaryNodes 10;}
-    node1{nSecondaryNodes 10;}
+    node0{}
+    node1{}
 );
 
 extendedMomentInversionCoeff
