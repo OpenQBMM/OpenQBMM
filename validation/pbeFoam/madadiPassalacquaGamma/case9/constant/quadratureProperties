@@ -30,19 +30,31 @@ moments
 
 nodes
 (
-    node0{}
-    node1{}
-    node2{}
-    node3{}
+    node0
+    {
+        nSecondaryNodes 10;
+    }
+    node1
+    {
+        nSecondaryNodes 10;
+    }
+    node2
+    {
+        nSecondaryNodes 10;
+    }
+    node3
+    {
+        nSecondaryNodes 10;
+    }
 );
 
 extendedMomentInversionCoeff
 {
-    extendedMomentInversion     gamma;
+    extendedMomentInversion     lognormal;
     
     maxSigmaIter        1000;
-    momentsTol          1.0e-6;
+    momentsTol          1.0e-8;
     sigmaTol            1.0e-8;
-    targetFunctionTol   1.0e-8;  
+    targetFunctionTol   1.0e-8;   
 }
 // ************************************************************************* //
