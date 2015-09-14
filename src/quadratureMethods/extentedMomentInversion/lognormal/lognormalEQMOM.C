@@ -136,15 +136,15 @@ void Foam::lognormalEQMOM::recurrenceRelation
     
     for (label aI = 1; aI < a.size(); aI++)
     {
-        a[aI] = ((sqEta + 1)*pow(sqEta,scalar(aI)) - 1.0)
-              *pow(eta,2.0*scalar(aI) - 1);
+        a[aI] = ((sqEta + 1)*pow(sqEta, scalar(aI)) - 1.0)
+                *pow(eta, 2.0*scalar(aI) - 1.0);
     }
 
     b[0] = 0.0;
 
     for (label bI = 1; bI < b.size(); bI++)
     {
-        b[bI] = pow(eta, 6.0*scalar(bI)-4)*(pow(sqEta,scalar(bI)) - 1.0);
+        b[bI] = pow(eta, 6.0*scalar(bI) - 4.0)*(pow(sqEta, scalar(bI)) - 1.0);
     }
 }
 
