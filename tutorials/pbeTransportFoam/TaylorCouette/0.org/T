@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.3.0                                 |
+|  \\    /   O peration     | Version:  dev                                   |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -9,35 +9,37 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "constant";
-    object      quadratureProperties;
+    class       volScalarField;
+    object      T;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-moments
-(
-    (0)
-    (1)
-    (2)
-    (3)
-    (4)
-);
+dimensions      [0 0 0 1 0 0 0];
 
-nodes
-(
-    node0{}
-    node1{}
-);
+internalField   uniform 293;
 
-extendedMomentInversionCoeff
+boundaryField
 {
-    extendedMomentInversion     lognormal;
-    
-    maxSigmaIter        1000;
-    momentsTol          1.0e-6;
-    sigmaTol            1.0e-8;
-    targetFunctionTol   1.0e-8;  
+    "wedge.*"
+    {
+        type            wedge;
+    }
+    innerWall
+    {
+        type            zeroGradient;
+    }
+    outerWall
+    {
+        type            zeroGradient;
+    }
+    inlet
+    {
+        type            symmetry;
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
 }
 
 // ************************************************************************* //
