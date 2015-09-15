@@ -71,7 +71,7 @@ Foam::scalar Foam::lognormalEQMOM::secondaryAbscissa
     scalar sigma
 )
 {
-    return primaryAbscissa*exp(Foam::sqrt(2.0)*secondaryAbscissa*sigma);
+    return primaryAbscissa*secondaryAbscissa;
 }
 
 void Foam::lognormalEQMOM::momentsStarToMoments
@@ -129,28 +129,22 @@ void Foam::lognormalEQMOM::recurrenceRelation
     scalar sigma
 )
 {
-//  Unnecessary re-initialization because we set a to be full of zeros and b is
-//  recalculated
-//     forAll(a, aI)
-//     {
-//         a[aI] = 0.0;
-//     }
-//     
-//     forAll{b, bI)
-//     {
-//         b[bI] = 0.0;  
-//     }
-
-    forAll(b, bI)
+    scalar eta = exp(sqr(sigma)/2.0);
+    scalar sqEta = sqr(eta);
+    
+    a[0] = eta;
+    
+    for (label aI = 1; aI < a.size(); aI++)
     {
-        if (bI == 0)
-        {
-            b[bI] = sqrt(Foam::constant::mathematical::pi); //tgamma(0.5);
-        }
-        else 
-        {
-            b[bI] = scalar(bI)/2.0;
-        }
+        a[aI] = ((sqEta + 1)*pow(sqEta,scalar(aI)) - 1.0)
+              *pow(eta,2.0*scalar(aI) - 1);
+    }
+
+    b[0] = 0.0;
+
+    for (label bI = 1; bI < b.size(); bI++)
+    {
+        b[bI] = pow(eta, 6.0*scalar(bI)-4)*(pow(sqEta,scalar(bI)) - 1.0);
     }
 }
 
