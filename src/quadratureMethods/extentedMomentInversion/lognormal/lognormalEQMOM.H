@@ -43,7 +43,15 @@ Description
         H Dette, W J Studden 
         Wiley & Sons, 1997
     \endverbatim
-
+    
+    \verbatim
+        "A general approximation method for solving integrals containing a 
+        lognormal weighting function"
+        M Wilck 
+        Journal of Aerosol Science
+        Volume 32, Pages 1111-1116, 2001
+    \endverbatim
+       
 SourceFiles
     lognormalEQMOM.C
 
