@@ -128,7 +128,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
         2.0*Foam::constant::physicoChemical::k*flThermo.T()
         *sqr(abscissa1 + abscissa2)/(3.0*flThermo.mu()
         *max(abscissa1*abscissa2, smallAbs)) 
-        + 4.0*pow3(abscissa1 + abscissa2)
+        + 4.0/3.0*pow3(abscissa1 + abscissa2)
         *sqrt(3.0*Foam::constant::mathematical::pi*flTurb.epsilon()
         /(10.0*flTurb.nu()));
 }
