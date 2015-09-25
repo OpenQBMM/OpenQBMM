@@ -7,17 +7,18 @@ cd ${0%/*} || exit 1    # Run from this directory
 mkdir 0 2>&1
 cp 0.org/* 0/ 2>&1
 
-cp -f system/controlDict.flow system/controlDict
-runApplication blockMesh
-runApplication buoyantSimpleFoam
+#cp -f system/controlDict.flow system/controlDict
+#runApplication blockMesh
+#runApplication buoyantSimpleFoam
 
 mv 50000 50000.flow
 cp -f 50000.flow/* 0/ 2>&1
 cp -f system/controlDict.pbe system/controlDict
 
 runApplication decomposePar -time 0
-runParallel pbeTransportFoam 4
+runParallel pbeTransportFoam 4 >log.pbeTransportFoam
 
 runApplication reconstructPar -latestTime
+./crateGraph
 
 # ----------------------------------------------------------------- end-of-file
