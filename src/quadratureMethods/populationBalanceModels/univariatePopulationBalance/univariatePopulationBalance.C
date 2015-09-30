@@ -57,6 +57,7 @@ Foam::populationBalanceModels::univariatePopulationBalance
     quadrature_(U.mesh()),
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
+    growth_(dict.lookup("growth")),
     aggregationKernel_
     (
         Foam::populationBalanceSubModels::aggregationKernel::New
@@ -76,6 +77,13 @@ Foam::populationBalanceModels::univariatePopulationBalance
         Foam::populationBalanceSubModels::daughterDistribution::New
         (
             dict.subDict("daughterDistribution")
+        )
+    ),
+    growthModel_
+    (
+        Foam::populationBalanceSubModels::growthModel::New
+        (
+            dict.subDict("growthModel")
         )
     ),
     diffusionModel_
@@ -331,6 +339,67 @@ Foam::populationBalanceModels::univariatePopulationBalance::breakupSource
     return bSource;
 }
 
+Foam::tmp<Foam::volScalarField> 
+Foam::populationBalanceModels::univariatePopulationBalance::growthSource
+(
+    const volUnivariateMoment& moment
+)
+{    
+    tmp<volScalarField> gSource
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "gSource",
+                U_.mesh().time().timeName(),
+                U_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            U_.mesh(),
+            dimensionedScalar("zero", dimless, 0.0)
+        )
+    );
+    
+    if (!growth_)
+    {
+        gSource().dimensions().reset(moment.dimensions()/dimTime);
+        
+        return gSource;
+    }
+    
+    label order = moment.order();
+        
+    if (order < 1)
+    {
+        gSource().dimensions().reset(moment.dimensions()/dimTime);
+        
+        return gSource;
+    }
+    
+    volScalarField& growthSource = gSource();  
+       
+    forAll(quadrature_.nodes(), pNodeI)
+    {
+        const volScalarNode& node = quadrature_.nodes()[pNodeI];
+        
+        forAll(node.secondaryWeights(), sNodeI)
+        {
+            tmp<volScalarField> gSrc = node.primaryWeight()
+                *node.secondaryWeights()[sNodeI]
+                *growthModel_->Kg(node.secondaryAbscissae()[sNodeI])
+                *order*pow(node.secondaryAbscissae()[sNodeI],order-1);
+             
+            growthSource.dimensions().reset(gSrc().dimensions());
+            growthSource == growthSource + gSrc;
+        }
+    }
+
+    return gSource;
+}
+
 void Foam::populationBalanceModels::univariatePopulationBalance::solve()
 {
     surfaceScalarField phiOwn("phiOwn", fvc::interpolate(U_) & U_.mesh().Sf());
@@ -350,10 +419,12 @@ void Foam::populationBalanceModels::univariatePopulationBalance::solve()
           ==
             aggregationSource(m)
           + breakupSource(m)
+          + growthSource(m)
         );
                 
         momentEqn.relax();
         momentEqn.solve();
+
     }
     
     quadrature_.updateQuadrature();
