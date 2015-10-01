@@ -41,7 +41,8 @@ SourceFiles
 #include "aggregationKernel.H"
 #include "breakupKernel.H"
 #include "daughterDistribution.H"
-#include  "diffusionModel.H"
+#include "growthModel.H"
+#include "diffusionModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -66,8 +67,11 @@ class univariatePopulationBalance
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
         
-        //- Switch indicating the status of the aggregation model
+        //- Switch indicating the status of the breakup model
         Switch breakup_;
+
+        //- Switch indicating the status of the growth model
+        Switch growth_;
 
         //- Aggregation kernel model
         autoPtr
@@ -86,6 +90,12 @@ class univariatePopulationBalance
         <
             Foam::populationBalanceSubModels::daughterDistribution
         > daughterDistribution_;
+      
+        //- Growth model function
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::growthModel
+        > growthModel_;
       
         //- Diffusion model
         autoPtr
@@ -118,6 +128,9 @@ class univariatePopulationBalance
         
         //- Calculate Breakup source term
         tmp<volScalarField> breakupSource(const volUnivariateMoment& moment);
+
+        //- Calculate Growth source term
+        tmp<volScalarField> growthSource(const volUnivariateMoment& moment);
 
 
 public:
