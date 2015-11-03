@@ -57,7 +57,7 @@ namespace Foam
 /*---------------------------------------------------------------------------*\
                        Class quadratureNode Declaration
 \*---------------------------------------------------------------------------*/
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType, class sigmaType> 
 class quadratureNode
 {
     // Private data
@@ -117,7 +117,8 @@ public:
         );
 
         //- Return clone
-        autoPtr<quadratureNode<weightType, abscissaType> > clone() const;
+        autoPtr<quadratureNode<weightType, abscissaType, sigmaType> > 
+            clone() const;
         
         //- Return a pointer to a new quadrature node created on freestore
         //  from Istream
@@ -144,15 +145,15 @@ public:
                 boundaryTypes_(boundaryTypes)
             {}
 
-            autoPtr<quadratureNode<weightType, abscissaType> > operator()
+            autoPtr<quadratureNode<weightType, abscissaType, sigmaType> > operator()
             (
                 Istream& is
             ) const
             {
                 dictionaryEntry ent(dictionary::null, is);
-                return autoPtr<quadratureNode<weightType, abscissaType> >
+                return autoPtr<quadratureNode<weightType, abscissaType, sigmaType> >
                 (
-                    new quadratureNode<weightType, abscissaType>
+                    new quadratureNode<weightType, abscissaType, sigmaType>
                     (
                         ent.keyword(), 
                         ent, 
@@ -207,10 +208,10 @@ public:
             inline PtrList<abscissaType>& secondaryAbscissae();
 
             //- Const access to sigma
-            inline const weightType& sigma() const;
+            inline const sigmaType& sigma() const;
 
             //- Non-const access to sigma
-            inline weightType& sigma();
+            inline sigmaType& sigma();
 };
 
 

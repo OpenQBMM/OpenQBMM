@@ -30,87 +30,92 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType> 
-const Foam::word& Foam::quadratureNode<weightType, abscissaType>::name() const
+template <class weightType, class abscissaType, class sigmaType> 
+const Foam::word& 
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::name() const
 {
     return name_;
 }
 
-template <class weightType, class abscissaType>
-inline bool Foam::quadratureNode<weightType, abscissaType>::extended() const
+template <class weightType, class abscissaType, class sigmaType>
+inline bool 
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::extended() const
 {
     return extended_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType, class sigmaType> 
 Foam::label 
-Foam::quadratureNode<weightType, abscissaType>::nSecondaryNodes() const
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::nSecondaryNodes() const
 {
     return nSecondaryNodes_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType, class sigmaType> 
 const weightType& 
-Foam::quadratureNode<weightType, abscissaType>::primaryWeight() const
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::primaryWeight() const
 {
     return primaryWeight_;
 }
 
-template <class weightType, class abscissaType> 
-weightType& Foam::quadratureNode<weightType, abscissaType>::primaryWeight()
+template <class weightType, class abscissaType, class sigmaType> 
+weightType& 
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::primaryWeight()
 {
     return primaryWeight_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType, class sigmaType> 
 const abscissaType& 
-Foam::quadratureNode<weightType, abscissaType>::primaryAbscissa() const
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::primaryAbscissa() const
 {
     return primaryAbscissa_;
 }
 
-template <class weightType, class abscissaType> 
-abscissaType& Foam::quadratureNode<weightType, abscissaType>::primaryAbscissa()
+template <class weightType, class abscissaType, class sigmaType> 
+abscissaType& 
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::primaryAbscissa()
 {
     return primaryAbscissa_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType, class sigmaType> 
 const Foam::PtrList<weightType>& 
-Foam::quadratureNode<weightType, abscissaType>::secondaryWeights() const
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::secondaryWeights() const
 {
     return secondaryWeights_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType, class sigmaType> 
 Foam::PtrList<weightType>& 
-Foam::quadratureNode<weightType, abscissaType>::secondaryWeights()
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::secondaryWeights()
 {
     return secondaryWeights_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType, class sigmaType> 
 const Foam::PtrList<abscissaType>& 
-Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae() const
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::secondaryAbscissae() const
 {
     return secondaryAbscissae_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType, class sigmaType> 
 Foam::PtrList<abscissaType>& 
-Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae()
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::secondaryAbscissae()
 {
     return secondaryAbscissae_;
 }
 
-template <class weightType, class abscissaType> 
-const weightType& Foam::quadratureNode<weightType, abscissaType>::sigma() const
+template <class weightType, class abscissaType, class sigmaType> 
+const sigmaType& 
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::sigma() const
 {
     return sigma_;
 }
 
-template <class weightType, class abscissaType> 
-weightType& Foam::quadratureNode<weightType, abscissaType>::sigma()
+template <class weightType, class abscissaType, class sigmaType> 
+sigmaType& Foam::quadratureNode<weightType, abscissaType, sigmaType>::sigma()
 {
     return sigma_;
 }

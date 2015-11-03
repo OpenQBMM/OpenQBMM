@@ -32,8 +32,8 @@ License
 #include "quadratureNode.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-template <class weightType, class abscissaType>
-Foam::quadratureNode<weightType, abscissaType>::quadratureNode
+template <class weightType, class abscissaType, class sigmaType>
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::quadratureNode
 (
     const word& name,
     const label nSecondaryNodes,
@@ -93,11 +93,11 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensioned<typename weightType::value_type>
+        dimensioned<typename sigmaType::value_type>
         (
             "zeroSigma",
             dimless,
-            pTraits<typename weightType::value_type>::zero
+            pTraits<typename sigmaType::value_type>::zero
         )  
     ),
     extended_(true)
@@ -161,8 +161,8 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 }
 
 
-template <class weightType, class abscissaType>
-Foam::quadratureNode<weightType, abscissaType>::quadratureNode
+template <class weightType, class abscissaType, class sigmaType>
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::quadratureNode
 (
     const word& name,
     const dictionary& nodeDict,
@@ -229,11 +229,11 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensioned<typename weightType::value_type>
+        dimensioned<typename sigmaType::value_type>
         (
             "zeroSigma",
             dimless,
-            pTraits<typename weightType::value_type>::zero
+            pTraits<typename sigmaType::value_type>::zero
         ),
         boundaryTypes
     ),
@@ -301,18 +301,18 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType>
-Foam::quadratureNode<weightType, abscissaType>::~quadratureNode()
+template <class weightType, class abscissaType, class sigmaType>
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::~quadratureNode()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType> 
-Foam::autoPtr<Foam::quadratureNode<weightType, abscissaType> > 
-Foam::quadratureNode<weightType, abscissaType>::clone() const
+template <class weightType, class abscissaType, class sigmaType> 
+Foam::autoPtr<Foam::quadratureNode<weightType, abscissaType, sigmaType> > 
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::clone() const
 {
     notImplemented("quadratureNode::clone() const");
-    return autoPtr<quadratureNode<weightType, abscissaType> >(NULL);
+    return autoPtr<quadratureNode<weightType, abscissaType, sigmaType> >(NULL);
 }
 
 // ************************************************************************* //
