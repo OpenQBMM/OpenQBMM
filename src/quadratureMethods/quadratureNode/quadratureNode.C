@@ -55,7 +55,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar("zeroWeight", weightDimensions, 0.0)
+        dimensioned<typename weightType::value_type>
+        (
+            "zeroWeight",
+            weightDimensions,
+            pTraits<typename weightType::value_type>::zero
+        )     
     ),
     primaryAbscissa_
     (
@@ -68,7 +73,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar("zeroAbscissa", abscissaDimensions, 0.0)
+        dimensioned<typename abscissaType::value_type>
+        (
+            "zeroAbscissa",
+            abscissaDimensions,
+            pTraits<typename abscissaType::value_type>::zero
+        ) 
     ),
     secondaryWeights_(nSecondaryNodes_),
     secondaryAbscissae_(nSecondaryNodes_),
@@ -83,7 +93,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar("zeroSigma", dimless, 0.0)
+        dimensioned<typename weightType::value_type>
+        (
+            "zeroSigma",
+            dimless,
+            pTraits<typename weightType::value_type>::zero
+        )  
     ),
     extended_(true)
 {
@@ -107,7 +122,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
                     IOobject::NO_WRITE
                 ),
                 mesh,
-                dimensionedScalar("zeroWeight", dimless, 0.0)
+                dimensioned<typename weightType::value_type>
+                (
+                    "zeroWeight",
+                    dimless,
+                    pTraits<typename weightType::value_type>::zero
+                )  
             )
         );
 
@@ -129,7 +149,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
                     IOobject::NO_WRITE
                 ),
                 mesh,
-                dimensionedScalar("zeroAbscissa", abscissaDimensions, 0.0)            
+                dimensioned<typename abscissaType::value_type>
+                (
+                    "zeroAbscissa",
+                    abscissaDimensions,
+                    pTraits<typename abscissaType::value_type>::zero
+                )            
             )
         );
     }
@@ -164,7 +189,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar("zeroWeight", weightDimensions, 0.0),
+        dimensioned<typename weightType::value_type>
+        (
+            "zeroWeight",
+            weightDimensions,
+            pTraits<typename weightType::value_type>::zero
+        ),  
         boundaryTypes
     ),
     primaryAbscissa_
@@ -178,7 +208,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar("zeroAbscissa", abscissaDimensions, 0.0),
+        dimensioned<typename abscissaType::value_type>
+        (
+            "zeroAbscissa",
+            abscissaDimensions,
+            pTraits<typename abscissaType::value_type>::zero
+        ),
         boundaryTypes
     ),
     secondaryWeights_(nSecondaryNodes_),
@@ -194,7 +229,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar("zeroSigma", dimless, 0.0),
+        dimensioned<typename weightType::value_type>
+        (
+            "zeroSigma",
+            dimless,
+            pTraits<typename weightType::value_type>::zero
+        ),
         boundaryTypes
     ),
     extended_(true)
@@ -219,7 +259,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
                     IOobject::NO_WRITE
                 ),
                 mesh,
-                dimensionedScalar("zeroWeight", dimless, 0.0),
+                dimensioned<typename weightType::value_type>
+                (
+                    "zeroWeight",
+                    dimless,
+                    pTraits<typename weightType::value_type>::zero
+                ),
                 boundaryTypes
             )
         );
@@ -242,7 +287,12 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
                     IOobject::NO_WRITE
                 ),
                 mesh,
-                dimensionedScalar("zeroAbscissa", abscissaDimensions, 0.0),
+                dimensioned<typename abscissaType::value_type>
+                (
+                    "zeroAbscissa",
+                    abscissaDimensions,
+                    pTraits<typename abscissaType::value_type>::zero
+                ),
                 boundaryTypes
             )
         );
