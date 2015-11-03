@@ -137,38 +137,38 @@ void Foam::moment<fieldType, nodeType>::update()
     
     const PtrList<nodeType>& nodes = nodes_();
     
-//    bool extendedNode = nodes_[0].extended();
+    bool extendedNode = nodes[0].extended();
     
 //     // If nodes do not have extended status, only use primary quadrature.
-//     if (!extendedNode)
-//     {
-//         forAll(nodes_, pNodeI)
-//         {
-//             const nodeType& node = nodes_[pNodeI];
-//             
-//             if (!node.extended())
-//             {
-//                 fieldType m = node.primaryWeight();
-//             
-//                 for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
-//                 {
-//                     const label cmptMomentOrder = cmptOrders()[cmpt];
-//                     
-//                     tmp<fieldType> abscissaCmpt 
-//                             = node.primaryAbscissa().component(cmpt);
-// 
-//                     tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
-//                     m.dimensions().reset(mPow().dimensions());
-// 
-//                     m == mPow;
-//                 }
-// 
-//                 *this == *this + m;
-//             }
-//         }
-// 
-//         return;
-//     }
+    if (!extendedNode)
+    {
+        forAll(nodes, pNodeI)
+        {
+            const nodeType& node = nodes[pNodeI];
+            
+            if (!node.extended())
+            {
+                fieldType m = node.weight();
+            
+                for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
+                {
+                    const label cmptMomentOrder = cmptOrders()[cmpt];
+                    
+                    tmp<fieldType> abscissaCmpt 
+                            = node.abscissa().component(cmpt);
+
+                    tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
+                    m.dimensions().reset(mPow().dimensions());
+
+                    m == mPow;
+                }
+
+                *this == *this + m;
+            }
+        }
+
+        return;
+    }
 
     // Extended quadrature case    
     forAll(nodes, pNodeI)

@@ -2,14 +2,8 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
      \\/     M anipulation  |
--------------------------------------------------------------------------------
-2015-02-19 Alberto Passalacqua: Templated class on type of weight and abscissa
-                                to store a basic quadrature node made of weight
-                                and abscissa.
-2015-11-02 Alberto Passalacqua: Generalized initialization of fields based on
-                                value_type of the field.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -28,25 +22,27 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::quadratureNode
+    Foam::extendedQuadratureNode
 
 Description
-    Stores a quadrature weight and a quadrature abscissa, whose type is
-    templated.
+    Extended version of the quadrature node, which stores the list of secondary 
+    weights and abscissae associated to the primary weight and abscissa, and 
+    the sigma parameter.
 
 SourceFiles
-    quadratureNode.C
-    quadratureNodeI.H
+    extendedQuadratureNode.C
+    extendedQuadratureNodeI.H
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef quadratureNode_H
-#define quadratureNode_H
+#ifndef extendedQuadratureNode_H
+#define extendedQuadratureNode_H
 
 #include "fvMesh.H"
 #include "PtrList.H"
 #include "dictionary.H"
 #include "dictionaryEntry.H"
+#include "quadratureNode.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -54,25 +50,30 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                       Class quadratureNode Declaration
+                       Class extendedQuadratureNode Declaration
 \*---------------------------------------------------------------------------*/
-template <class weightType, class abscissaType> 
-class quadratureNode
+template <class weightType, class abscissaType, class sigmaType> 
+class extendedQuadratureNode
+:
+    public quadratureNode<weightType, abscissaType>
 {
     // Private data
 
-        //- Name of node
+        //- Name of the quadrature node
         word name_;
-        
-        //- Node dictionary
-        dictionary nodeDict_;
 
-        //- Primary weight of the node
-        weightType weight_;
+        //- Number of secondary nodes
+        label nSecondaryNodes_;
 
-        //- Primary abscissa of the node
-        abscissaType abscissa_;
-        
+        //- List of secondary weights of the node
+        PtrList<weightType> secondaryWeights_;
+
+        //- List of secondary abscissae of the node
+        PtrList<abscissaType> secondaryAbscissae_;
+
+        //- Parameter of the kernel density function used in EQMOM
+        sigmaType sigma_;
+
         //- Boolean variable to identify extended nodes
         bool extended_;
 
@@ -81,7 +82,7 @@ public:
     // Constructors
 
         //- Construct from name, dictionary, mesh and dimensions
-        quadratureNode
+        extendedQuadratureNode
         (           
             const word& name,
             const dictionary& nodeDict,
@@ -91,17 +92,18 @@ public:
             const wordList& boundaryTypes
         );
         
-        //- Construct from name, mesh and dimensions
-        quadratureNode
+        //- Construct from name, number of secondary nodes, mesh and dimensions
+        extendedQuadratureNode
         (
             const word& name,
+            const label nSecondaryNodes,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const dimensionSet& abscissaDimensions
         );
 
         //- Return clone
-        autoPtr<quadratureNode<weightType, abscissaType> > clone() const;
+        autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> > clone() const;
         
         //- Return a pointer to a new quadrature node created on freestore
         //  from Istream
@@ -128,15 +130,15 @@ public:
                 boundaryTypes_(boundaryTypes)
             {}
 
-            autoPtr<quadratureNode<weightType, abscissaType> > operator()
+            autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> > operator()
             (
                 Istream& is
             ) const
             {
                 dictionaryEntry ent(dictionary::null, is);
-                return autoPtr<quadratureNode<weightType, abscissaType> >
+                return autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> >
                 (
-                    new quadratureNode<weightType, abscissaType>
+                    new extendedQuadratureNode<weightType, abscissaType, sigmaType>
                     (
                         ent.keyword(), 
                         ent, 
@@ -151,7 +153,7 @@ public:
 
 
     //- Destructor
-    virtual ~quadratureNode();
+    virtual ~extendedQuadratureNode();
 
 
     // Member Functions
@@ -163,17 +165,38 @@ public:
 
             inline bool extended() const;
 
-            //- Const access to the weight of the node
-            inline const weightType& weight() const;
+            //- Returns the number of secondary nodes
+            inline label nSecondaryNodes() const;
 
-            //- Non-const access to the weight of the node
-            inline weightType& weight();
+            //- Const access to the primary weight of the node
+            inline const weightType& primaryWeight() const;
 
-            //- Const access to the abscissa of the node
-            inline const abscissaType& abscissa() const;
+            //- Non-const access to the primary weight of the node
+            inline weightType& primaryWeight();
 
-            //- Non-const access to the abscissa of the node
-            inline abscissaType& abscissa();
+            //- Const access to the primary abscissa of the node
+            inline const abscissaType& primaryAbscissa() const;
+
+            //- Non-const access to the primary abscissa of the node
+            inline abscissaType& primaryAbscissa();
+
+            //- Const access to the secondary weight of the node
+            inline const PtrList<weightType>& secondaryWeights() const;
+
+            //- Non-const access to the secondary weight of the node
+            inline PtrList<weightType>& secondaryWeights();
+
+            //- Const access to the list of secondary abscissae of the node
+            inline const PtrList<abscissaType>& secondaryAbscissae() const;
+
+            //- Non-const access to the list of secondary abscissae of the node
+            inline PtrList<abscissaType>& secondaryAbscissae();
+
+            //- Const access to sigma
+            inline const sigmaType& sigma() const;
+
+            //- Non-const access to sigma
+            inline sigmaType& sigma();
 };
 
 
@@ -183,8 +206,8 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 #ifdef NoRepository
-#   include "quadratureNodeI.H"
-#   include "quadratureNode.C"
+#   include "extendedQuadratureNodeI.H"
+#   include "extendedQuadratureNode.C"
 #endif
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

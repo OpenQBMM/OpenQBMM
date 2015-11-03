@@ -6,10 +6,8 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2015-02-19 Alberto Passalacqua: Templated class on type of weight and abscissa.
-2015-03-08 Alberto Passalacqua: Generalised implementation to include secondary
-                                quadrature and the sigma parameter of kernel 
-                                density functions used in the extended 
-                                quadrature method of moments.
+2015-11-02 Alberto Passalacqua: Generalized initialization of fields based on
+                                value_type of the field.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -32,23 +30,21 @@ License
 #include "quadratureNode.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-template <class weightType, class abscissaType, class sigmaType>
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::quadratureNode
+template <class weightType, class abscissaType>
+Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 (
     const word& name,
-    const label nSecondaryNodes,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
     const dimensionSet& abscissaDimensions
 )
 :
     name_(name),
-    nSecondaryNodes_(nSecondaryNodes),
-    primaryWeight_
+    weight_
     (
         IOobject
         (
-            IOobject::groupName(name_, "primaryWeight"),
+            IOobject::groupName(name_, "weight"),
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -60,13 +56,13 @@ Foam::quadratureNode<weightType, abscissaType, sigmaType>::quadratureNode
             "zeroWeight",
             weightDimensions,
             pTraits<typename weightType::value_type>::zero
-        )     
+        )
     ),
-    primaryAbscissa_
+    abscissa_
     (
         IOobject
         (
-            IOobject::groupName(name_, "primaryAbscissa"),
+            IOobject::groupName(name_, "abscissa"),
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -78,91 +74,14 @@ Foam::quadratureNode<weightType, abscissaType, sigmaType>::quadratureNode
             "zeroAbscissa",
             abscissaDimensions,
             pTraits<typename abscissaType::value_type>::zero
-        ) 
+        )
     ),
-    secondaryWeights_(nSecondaryNodes_),
-    secondaryAbscissae_(nSecondaryNodes_),
-    sigma_
-    (
-        IOobject
-        (
-            IOobject::groupName(name_, "sigma"),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensioned<typename sigmaType::value_type>
-        (
-            "zeroSigma",
-            dimless,
-            pTraits<typename sigmaType::value_type>::zero
-        )  
-    ),
-    extended_(true)
-{
-    forAll(secondaryWeights_, nodeI)
-    {
-        secondaryWeights_.set
-        (
-            nodeI,
-            new weightType
-            (
-                IOobject
-                (
-                    IOobject::groupName
-                    (
-                        name_,
-                        "secondaryWeight." + Foam::name(nodeI)
-                    ),
-                    mesh.time().timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh,
-                dimensioned<typename weightType::value_type>
-                (
-                    "zeroWeight",
-                    dimless,
-                    pTraits<typename weightType::value_type>::zero
-                )  
-            )
-        );
-
-        secondaryAbscissae_.set
-        (
-            nodeI,
-            new abscissaType
-            (
-                IOobject
-                (
-                    IOobject::groupName
-                    (
-                        name_,
-                        "secondaryAbscissa." + Foam::name(nodeI)
-                    ),
-                    mesh.time().timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh,
-                dimensioned<typename abscissaType::value_type>
-                (
-                    "zeroAbscissa",
-                    abscissaDimensions,
-                    pTraits<typename abscissaType::value_type>::zero
-                )            
-            )
-        );
-    }
-}
+    extended_(false)
+{}
 
 
-template <class weightType, class abscissaType, class sigmaType>
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::quadratureNode
+template <class weightType, class abscissaType>
+Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 (
     const word& name,
     const dictionary& nodeDict,
@@ -174,15 +93,11 @@ Foam::quadratureNode<weightType, abscissaType, sigmaType>::quadratureNode
 :
     name_(name),
     nodeDict_(nodeDict),
-    nSecondaryNodes_
-    (
-        nodeDict_.lookupOrDefault("nSecondaryNodes", 10)
-    ),
-    primaryWeight_
+    weight_
     (
         IOobject
         (
-            IOobject::groupName(name_, "primaryWeight"),
+            IOobject::groupName(name_, "weight"),
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -194,14 +109,14 @@ Foam::quadratureNode<weightType, abscissaType, sigmaType>::quadratureNode
             "zeroWeight",
             weightDimensions,
             pTraits<typename weightType::value_type>::zero
-        ),  
+        ),
         boundaryTypes
     ),
-    primaryAbscissa_
+    abscissa_
     (
         IOobject
         (
-            IOobject::groupName(name_, "primaryAbscissa"),
+            IOobject::groupName(name_, "abscissa"),
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -216,103 +131,23 @@ Foam::quadratureNode<weightType, abscissaType, sigmaType>::quadratureNode
         ),
         boundaryTypes
     ),
-    secondaryWeights_(nSecondaryNodes_),
-    secondaryAbscissae_(nSecondaryNodes_),
-    sigma_
-    (
-        IOobject
-        (
-            IOobject::groupName(name_, "sigma"),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensioned<typename sigmaType::value_type>
-        (
-            "zeroSigma",
-            dimless,
-            pTraits<typename sigmaType::value_type>::zero
-        ),
-        boundaryTypes
-    ),
-    extended_(true)
-{ 
-    forAll(secondaryWeights_, nodeI)
-    {
-        secondaryWeights_.set
-        (
-            nodeI,
-            new weightType
-            (
-                IOobject
-                (
-                    IOobject::groupName
-                    (
-                        name_,
-                        "secondaryWeight." + Foam::name(nodeI)
-                    ),
-                    mesh.time().timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh,
-                dimensioned<typename weightType::value_type>
-                (
-                    "zeroWeight",
-                    dimless,
-                    pTraits<typename weightType::value_type>::zero
-                ),
-                boundaryTypes
-            )
-        );
-
-        secondaryAbscissae_.set
-        (
-            nodeI,
-            new abscissaType
-            (
-                IOobject
-                (
-                    IOobject::groupName
-                    (
-                        name_,
-                        "secondaryAbscissa." + Foam::name(nodeI)
-                    ),
-                    mesh.time().timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                mesh,
-                dimensioned<typename abscissaType::value_type>
-                (
-                    "zeroAbscissa",
-                    abscissaDimensions,
-                    pTraits<typename abscissaType::value_type>::zero
-                ),
-                boundaryTypes
-            )
-        );
-    }
-}
+    extended_(false)
+{}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType, class sigmaType>
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::~quadratureNode()
+template <class weightType, class abscissaType>
+Foam::quadratureNode<weightType, abscissaType>::~quadratureNode()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType, class sigmaType> 
-Foam::autoPtr<Foam::quadratureNode<weightType, abscissaType, sigmaType> > 
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::clone() const
+template <class weightType, class abscissaType> 
+Foam::autoPtr<Foam::quadratureNode<weightType, abscissaType> > 
+Foam::quadratureNode<weightType, abscissaType>::clone() const
 {
     notImplemented("quadratureNode::clone() const");
-    return autoPtr<quadratureNode<weightType, abscissaType, sigmaType> >(NULL);
+    return autoPtr<quadratureNode<weightType, abscissaType> >(NULL);
 }
 
 // ************************************************************************* //

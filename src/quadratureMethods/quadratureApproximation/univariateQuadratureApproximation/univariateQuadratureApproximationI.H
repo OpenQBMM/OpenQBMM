@@ -25,19 +25,19 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-const Foam::PtrList<Foam::volScalarNode>&
+const Foam::PtrList<Foam::extendedVolScalarNode>&
 Foam::univariateQuadratureApproximation::nodes() const
 {
     return nodes_();
 }
 
-const Foam::momentFieldSet<Foam::volUnivariateMoment, Foam::volScalarNode>& 
+const Foam::momentFieldSet<Foam::volUnivariateMoment, Foam::extendedVolScalarNode>& 
 Foam::univariateQuadratureApproximation::moments() const
 {
     return moments_;
 }
 
-Foam::momentFieldSet<Foam::volUnivariateMoment, Foam::volScalarNode>& 
+Foam::momentFieldSet<Foam::volUnivariateMoment, Foam::extendedVolScalarNode>& 
 Foam::univariateQuadratureApproximation::moments()
 {
     return moments_;
@@ -45,7 +45,7 @@ Foam::univariateQuadratureApproximation::moments()
 
 const Foam::momentFieldSet
 <
-    Foam::surfaceUnivariateMoment, Foam::surfaceScalarNode
+    Foam::surfaceUnivariateMoment, Foam::extendedSurfaceScalarNode
 >& 
 Foam::univariateQuadratureApproximation::momentsNei() const
 {
@@ -54,7 +54,7 @@ Foam::univariateQuadratureApproximation::momentsNei() const
 
 Foam::momentFieldSet
 <
-    Foam::surfaceUnivariateMoment, Foam::surfaceScalarNode
+    Foam::surfaceUnivariateMoment, Foam::extendedSurfaceScalarNode
 >&  
 Foam::univariateQuadratureApproximation::momentsNei()
 {
@@ -63,7 +63,7 @@ Foam::univariateQuadratureApproximation::momentsNei()
 
 const Foam::momentFieldSet
 <
-    Foam::surfaceUnivariateMoment, Foam::surfaceScalarNode
+    Foam::surfaceUnivariateMoment, Foam::extendedSurfaceScalarNode
 >& 
 Foam::univariateQuadratureApproximation::momentsOwn() const
 {
@@ -72,7 +72,7 @@ Foam::univariateQuadratureApproximation::momentsOwn() const
 
 Foam::momentFieldSet
 <
-    Foam::surfaceUnivariateMoment, Foam::surfaceScalarNode
+    Foam::surfaceUnivariateMoment, Foam::extendedSurfaceScalarNode
 >&  
 Foam::univariateQuadratureApproximation::momentsOwn()
 {

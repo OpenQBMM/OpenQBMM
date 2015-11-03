@@ -34,7 +34,7 @@ SourceFiles
 #define moments_H
 
 #include "volFields.H"
-#include "quadratureNode.H"
+#include "quadratureNodes.H"
 #include "moment.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -42,8 +42,10 @@ SourceFiles
 namespace Foam
 {
 
-typedef moment<volScalarField, volScalarNode> volUnivariateMoment;
-typedef moment<surfaceScalarField, surfaceScalarNode> surfaceUnivariateMoment;
+typedef moment<volScalarField, extendedVolScalarNode> volUnivariateMoment;
+
+typedef moment<surfaceScalarField, extendedSurfaceScalarNode> 
+    surfaceUnivariateMoment;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

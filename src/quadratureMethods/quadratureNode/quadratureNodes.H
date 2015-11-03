@@ -35,20 +35,29 @@ SourceFiles
 
 #include "volFields.H"
 #include "quadratureNode.H"
+#include "extendedQuadratureNode.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-typedef quadratureNode<volScalarField, volScalarField, volScalarField> 
-    volScalarNode;
-typedef quadratureNode<surfaceScalarField, surfaceScalarField, surfaceScalarField> 
-    surfaceScalarNode;
-typedef quadratureNode<volScalarField, volVectorField, volScalarField> 
-    volVectorNode;
-typedef quadratureNode<surfaceScalarField, surfaceVectorField, surfaceScalarField> 
-    surfaceVectorNode;
+typedef quadratureNode<volScalarField, volScalarField> basicVolScalarNode;
+typedef quadratureNode<surfaceScalarField, surfaceScalarField> 
+    basicSurfaceScalarNode;
+typedef quadratureNode<volScalarField, volVectorField> basicVolVectorNode;
+typedef quadratureNode<surfaceScalarField, surfaceVectorField> 
+    basicSurfaceVectorNode;
+    
+
+typedef extendedQuadratureNode<volScalarField, volScalarField, volScalarField> 
+    extendedVolScalarNode;
+typedef extendedQuadratureNode<surfaceScalarField, surfaceScalarField, surfaceScalarField> 
+    extendedSurfaceScalarNode;
+typedef extendedQuadratureNode<volScalarField, volVectorField, volScalarField> 
+    extendedVolVectorNode;
+typedef extendedQuadratureNode<surfaceScalarField, surfaceVectorField, surfaceScalarField> 
+    extendedSurfaceVectorNode;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
