@@ -86,7 +86,7 @@ class quadratureNode
         //- Parameter of the kernel density function used in EQMOM
         //  It is assumed that the sigma parameter has the same type of 
         //  the quadrature weight. 
-        weightType sigma_;
+        sigmaType sigma_;
 
         //- Boolean variable to identify extended nodes
         bool extended_;
