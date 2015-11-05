@@ -75,7 +75,7 @@ abscissaType& Foam::quadratureNode<weightType, abscissaType>::primaryAbscissa()
 }
 
 template <class weightType, class abscissaType> 
-const PtrList<weightType>& 
+const Foam::PtrList<weightType>& 
 Foam::quadratureNode<weightType, abscissaType>::secondaryWeights() const
 {
     NotImplemented;
@@ -83,7 +83,7 @@ Foam::quadratureNode<weightType, abscissaType>::secondaryWeights() const
 }
 
 template <class weightType, class abscissaType> 
-PtrList<weightType>& 
+Foam::PtrList<weightType>& 
 Foam::quadratureNode<weightType, abscissaType>::secondaryWeights()
 {
     NotImplemented;
@@ -91,7 +91,7 @@ Foam::quadratureNode<weightType, abscissaType>::secondaryWeights()
 }
 
 template <class weightType, class abscissaType> 
-const PtrList<abscissaType>& 
+const Foam::PtrList<abscissaType>& 
 Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae() const
 {
     NotImplemented;
@@ -99,7 +99,7 @@ Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae() const
 }
 
 template <class weightType, class abscissaType> 
-PtrList<abscissaType>& 
+Foam::PtrList<abscissaType>& 
 Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae()
 {
     NotImplemented;
