@@ -103,7 +103,8 @@ public:
         );
 
         //- Return clone
-        autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> > clone() const;
+        autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> > 
+            clone() const;
         
         //- Return a pointer to a new quadrature node created on freestore
         //  from Istream
@@ -130,15 +131,25 @@ public:
                 boundaryTypes_(boundaryTypes)
             {}
 
-            autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> > operator()
+            autoPtr
+            <
+                extendedQuadratureNode<weightType, abscissaType, sigmaType> 
+            > 
+            operator()
             (
                 Istream& is
             ) const
             {
                 dictionaryEntry ent(dictionary::null, is);
-                return autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> >
+                return autoPtr
+                <
+                    extendedQuadratureNode<weightType, abscissaType, sigmaType> 
+                >
                 (
-                    new extendedQuadratureNode<weightType, abscissaType, sigmaType>
+                    new extendedQuadratureNode
+                    <
+                        weightType, abscissaType, sigmaType
+                    >
                     (
                         ent.keyword(), 
                         ent, 
@@ -168,22 +179,10 @@ public:
             //- Returns the number of secondary nodes
             inline label nSecondaryNodes() const;
 
-            //- Const access to the primary weight of the node
-            inline const weightType& primaryWeight() const;
-
-            //- Non-const access to the primary weight of the node
-            inline weightType& primaryWeight();
-
-            //- Const access to the primary abscissa of the node
-            inline const abscissaType& primaryAbscissa() const;
-
-            //- Non-const access to the primary abscissa of the node
-            inline abscissaType& primaryAbscissa();
-
-            //- Const access to the secondary weight of the node
+            //- Const access to the secondary weights of the node
             inline const PtrList<weightType>& secondaryWeights() const;
 
-            //- Non-const access to the secondary weight of the node
+            //- Non-const access to the secondary weights of the node
             inline PtrList<weightType>& secondaryWeights();
 
             //- Const access to the list of secondary abscissae of the node

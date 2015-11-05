@@ -10,6 +10,8 @@
                                 and abscissa.
 2015-11-02 Alberto Passalacqua: Generalized initialization of fields based on
                                 value_type of the field.
+2015-11-05 Alberto Passalacqua: Added interface functions for secondary
+                                quadrature (not implemented).
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -162,18 +164,33 @@ public:
             inline const word& name() const;
 
             inline bool extended() const;
+            
+            //- Returns the number of secondary nodes
+            inline label nSecondaryNodes() const;
 
             //- Const access to the weight of the node
-            inline const weightType& weight() const;
+            inline const weightType& primaryWeight() const;
 
             //- Non-const access to the weight of the node
-            inline weightType& weight();
+            inline weightType& primaryWeight();
 
             //- Const access to the abscissa of the node
-            inline const abscissaType& abscissa() const;
+            inline const abscissaType& primaryAbscissa() const;
 
             //- Non-const access to the abscissa of the node
-            inline abscissaType& abscissa();
+            inline abscissaType& primaryAbscissa();
+            
+            //- Const access to the secondary weight of the node
+            inline const PtrList<weightType>& secondaryWeights() const;
+
+            //- Non-const access to the secondary weight of the node
+            inline PtrList<weightType>& secondaryWeights();
+
+            //- Const access to the list of secondary abscissae of the node
+            inline const PtrList<abscissaType>& secondaryAbscissae() const;
+
+            //- Non-const access to the list of secondary abscissae of the node
+            inline PtrList<abscissaType>& secondaryAbscissae();
 };
 
 

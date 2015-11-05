@@ -43,21 +43,32 @@ namespace Foam
 {
 
 typedef quadratureNode<volScalarField, volScalarField> basicVolScalarNode;
+
 typedef quadratureNode<surfaceScalarField, surfaceScalarField> 
     basicSurfaceScalarNode;
+
 typedef quadratureNode<volScalarField, volVectorField> basicVolVectorNode;
+
 typedef quadratureNode<surfaceScalarField, surfaceVectorField> 
     basicSurfaceVectorNode;
     
-
 typedef extendedQuadratureNode<volScalarField, volScalarField, volScalarField> 
     extendedVolScalarNode;
-typedef extendedQuadratureNode<surfaceScalarField, surfaceScalarField, surfaceScalarField> 
-    extendedSurfaceScalarNode;
+
+typedef extendedQuadratureNode
+<
+    surfaceScalarField, surfaceScalarField, surfaceScalarField
+> 
+extendedSurfaceScalarNode;
+
 typedef extendedQuadratureNode<volScalarField, volVectorField, volScalarField> 
     extendedVolVectorNode;
-typedef extendedQuadratureNode<surfaceScalarField, surfaceVectorField, surfaceScalarField> 
-    extendedSurfaceVectorNode;
+
+typedef extendedQuadratureNode
+<
+    surfaceScalarField, surfaceVectorField, surfaceScalarField
+> 
+extendedSurfaceVectorNode;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

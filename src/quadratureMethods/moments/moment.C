@@ -139,7 +139,7 @@ void Foam::moment<fieldType, nodeType>::update()
     
     bool extendedNode = nodes[0].extended();
     
-//     // If nodes do not have extended status, only use primary quadrature.
+    // If nodes do not have extended status, only use primary quadrature.
     if (!extendedNode)
     {
         forAll(nodes, pNodeI)
@@ -148,14 +148,14 @@ void Foam::moment<fieldType, nodeType>::update()
             
             if (!node.extended())
             {
-                fieldType m = node.weight();
+                fieldType m = node.primaryWeight();
             
                 for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
                 {
                     const label cmptMomentOrder = cmptOrders()[cmpt];
                     
                     tmp<fieldType> abscissaCmpt 
-                            = node.abscissa().component(cmpt);
+                            = node.primaryAbscissa().component(cmpt);
 
                     tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
                     m.dimensions().reset(mPow().dimensions());

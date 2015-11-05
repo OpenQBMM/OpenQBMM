@@ -32,78 +32,56 @@ Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::name() const
 }
 
 template <class weightType, class abscissaType, class sigmaType>
-inline bool 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::extended() const
+inline bool Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
+extended() const
 {
     return extended_;
 }
 
 template <class weightType, class abscissaType, class sigmaType> 
 Foam::label 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::nSecondaryNodes() const
+Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
+nSecondaryNodes() const
 {
     return nSecondaryNodes_;
 }
 
 template <class weightType, class abscissaType, class sigmaType> 
-const weightType& 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::primaryWeight() const
-{
-    return (*this).weight();
-}
-
-template <class weightType, class abscissaType, class sigmaType> 
-weightType& 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::primaryWeight()
-{
-    return (*this).weight();
-}
-
-template <class weightType, class abscissaType, class sigmaType> 
-const abscissaType& 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::primaryAbscissa() const
-{
-    return (*this).abscissa();
-}
-
-template <class weightType, class abscissaType, class sigmaType> 
-abscissaType& 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::primaryAbscissa()
-{
-    return (*this).abscissa();
-}
-
-template <class weightType, class abscissaType, class sigmaType> 
 const Foam::PtrList<weightType>& 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::secondaryWeights() const
+Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
+secondaryWeights() const
 {
     return secondaryWeights_;
 }
 
 template <class weightType, class abscissaType, class sigmaType> 
 Foam::PtrList<weightType>& 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::secondaryWeights()
+Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
+secondaryWeights()
 {
     return secondaryWeights_;
 }
 
 template <class weightType, class abscissaType, class sigmaType> 
 const Foam::PtrList<abscissaType>& 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::secondaryAbscissae() const
+Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>
+::secondaryAbscissae() const
 {
     return secondaryAbscissae_;
 }
 
 template <class weightType, class abscissaType, class sigmaType> 
 Foam::PtrList<abscissaType>& 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::secondaryAbscissae()
+Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>
+::secondaryAbscissae()
 {
     return secondaryAbscissae_;
 }
 
 template <class weightType, class abscissaType, class sigmaType> 
 const sigmaType& 
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::sigma() const
+Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>
+::sigma() const
 {
     return sigma_;
 }

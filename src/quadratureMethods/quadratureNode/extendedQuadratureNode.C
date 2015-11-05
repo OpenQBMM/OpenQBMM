@@ -27,7 +27,8 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 template <class weightType, class abscissaType, class sigmaType>
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::extendedQuadratureNode
+Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
+extendedQuadratureNode
 (
     const word& name,
     const label nSecondaryNodes,
@@ -127,7 +128,8 @@ Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::extendedQuadr
 
 
 template <class weightType, class abscissaType, class sigmaType>
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::extendedQuadratureNode
+Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
+extendedQuadratureNode
 (
     const word& name,
     const dictionary& nodeDict,
@@ -237,17 +239,24 @@ Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::extendedQuadr
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template <class weightType, class abscissaType, class sigmaType>
-Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::~extendedQuadratureNode()
+Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
+~extendedQuadratureNode()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template <class weightType, class abscissaType, class sigmaType> 
-Foam::autoPtr<Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType> > 
+Foam::autoPtr
+<
+    Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType> 
+> 
 Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::clone() const
 {
     notImplemented("extendedQuadratureNode::clone() const");
-    return autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> >(NULL);
+    return autoPtr
+    <
+        extendedQuadratureNode<weightType, abscissaType, sigmaType> 
+    >(NULL);
 }
 
 // ************************************************************************* //

@@ -27,14 +27,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-template <class momentType, class nodeType> 
-Foam::label 
-Foam::momentFieldSet<momentType, nodeType>::dimToCmptOrder(label dim) const
-{
-    dim = nDimensions_ - dim - 1;
-
-    return pow(10, dim);
-}
+// template <class momentType, class nodeType> 
+// Foam::label 
+// Foam::momentFieldSet<momentType, nodeType>::dimToCmptOrder(label dim) const
+// {
+//     dim = nDimensions_ - dim - 1;
+// 
+//     return pow(10, dim);
+// }
 
 template <class momentType, class nodeType> 
 momentType& Foam::momentFieldSet<momentType, nodeType>::operator()()
@@ -52,14 +52,14 @@ Foam::momentFieldSet<momentType, nodeType>::operator()() const
 template <class momentType, class nodeType> 
 momentType& Foam::momentFieldSet<momentType, nodeType>::operator()(label a)
 {
-    return this->operator[](momentMap_[dimToCmptOrder(a)]);
+    return this->operator[](map(0, 0, a));
 }
 
 template <class momentType, class nodeType> 
 const momentType& 
 Foam::momentFieldSet<momentType, nodeType>::operator()(label a) const
 {
-    return this->operator[](momentMap_[dimToCmptOrder(a)]);
+    return this->operator[](map(0, 0, a));
 }
 
 template <class momentType, class nodeType> 
@@ -69,14 +69,7 @@ momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
     label b
 )
 {
-    return this->operator[]
-    (
-        momentMap_
-        [
-            dimToCmptOrder(a)
-          + dimToCmptOrder(b)
-        ]
-    );
+    return this->operator[](map(0, a, b));
 }
 
 template <class momentType, class nodeType> 
@@ -86,14 +79,7 @@ const momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
     label b
 ) const
 {
-    return this->operator[]
-    (
-        momentMap_
-        [
-            dimToCmptOrder(a)
-          + dimToCmptOrder(b)
-        ]
-    );
+    return this->operator[](map(0, a, b));
 }
 
 template <class momentType, class nodeType> 
@@ -104,15 +90,7 @@ momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
     label c
 )
 {
-    return this->operator[]
-    (
-        momentMap_
-        [
-            dimToCmptOrder(a)
-          + dimToCmptOrder(b)
-          + dimToCmptOrder(c)
-        ]
-    );
+    return this->operator[](map(a, b, c));
 }
 
 template <class momentType, class nodeType> 
@@ -123,15 +101,7 @@ const momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
     label c
 ) const
 {
-    return this->operator[]
-    (
-        momentMap_
-        [
-            dimToCmptOrder(a)
-          + dimToCmptOrder(b)
-          + dimToCmptOrder(c)
-        ]
-    );
+    return this->operator[](map(a, b, c));
 }
 
 
