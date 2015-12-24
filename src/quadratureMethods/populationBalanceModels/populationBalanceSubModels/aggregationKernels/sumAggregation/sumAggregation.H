@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::aggregationKernels::sumAggregation
+    Foam::populationBalanceSubModels::aggregationKernels::sumAggregation
 
 Description
     Sum aggregation kernel with user defined coefficient (default Cagg = 1).

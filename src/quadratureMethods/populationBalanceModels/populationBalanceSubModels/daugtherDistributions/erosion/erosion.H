@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::daughterDistribution::erosion
+    Foam::populationBalanceSubModels::daughterDistribution::erosion
 
 Description
     Daughter distribution of fragments for erosion.

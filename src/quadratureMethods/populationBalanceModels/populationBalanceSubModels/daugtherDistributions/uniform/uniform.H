@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::daughterDistribution::uniform
+    Foam::populationBalanceSubModels::daughterDistribution::uniform
 
 Description
     Daughter distribution of fragments with uniform fragmentation.

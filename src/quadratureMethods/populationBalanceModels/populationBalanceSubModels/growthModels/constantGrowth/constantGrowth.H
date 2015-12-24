@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::growthModels::constantGrowth
+    Foam::populationBalanceSubModels::growthModels::constantGrowth
 
 Description
     Constant growth model. The value of the constant is read from dictionary

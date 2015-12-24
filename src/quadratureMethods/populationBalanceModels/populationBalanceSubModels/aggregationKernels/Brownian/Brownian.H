@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::aggregationKernels::Brownian
+    Foam::populationBalanceSubModels::aggregationKernels::Brownian
 
 Description
     Brownian aggregation kernel.

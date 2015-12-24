@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::diffusionModels::molecularDiffusion
+    Foam::populationBalanceSubModels::diffusionModels::molecularDiffusion
 
 Description
     Standard turbulent diffusion model. This model should be default for
