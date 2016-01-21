@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::daughterDistribution::symmetricFragmentation
+    Foam::populationBalanceSubModels::daughterDistribution::symmetricFragmentation
 
 Description
     Daughter distribution of fragments with symmetric fragmentation.

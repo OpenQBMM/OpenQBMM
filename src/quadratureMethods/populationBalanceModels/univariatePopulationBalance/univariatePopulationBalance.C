@@ -224,7 +224,7 @@ Foam::populationBalanceModels::univariatePopulationBalance::aggregationSource
        
     forAll(quadrature_.nodes(), pNode1I)
     {
-        const volScalarNode& node1 = quadrature_.nodes()[pNode1I];
+        const extendedVolScalarNode& node1 = quadrature_.nodes()[pNode1I];
         
         const volScalarField& pWeight1 = node1.primaryWeight();
         
@@ -238,7 +238,7 @@ Foam::populationBalanceModels::univariatePopulationBalance::aggregationSource
             
             forAll(quadrature_.nodes(), pNode2I)
             {
-                const volScalarNode& node2 = quadrature_.nodes()[pNode2I];
+                const extendedVolScalarNode& node2 = quadrature_.nodes()[pNode2I];
                 
                 const volScalarField& pWeight2 = node2.primaryWeight();
                 
@@ -315,7 +315,7 @@ Foam::populationBalanceModels::univariatePopulationBalance::breakupSource
        
     forAll(quadrature_.nodes(), pNodeI)
     {
-        const volScalarNode& node = quadrature_.nodes()[pNodeI];
+        const extendedVolScalarNode& node = quadrature_.nodes()[pNodeI];
         
         forAll(node.secondaryWeights(), sNodeI)
         {
@@ -383,7 +383,7 @@ Foam::populationBalanceModels::univariatePopulationBalance::growthSource
        
     forAll(quadrature_.nodes(), pNodeI)
     {
-        const volScalarNode& node = quadrature_.nodes()[pNodeI];
+        const extendedVolScalarNode& node = quadrature_.nodes()[pNodeI];
         
         forAll(node.secondaryWeights(), sNodeI)
         {

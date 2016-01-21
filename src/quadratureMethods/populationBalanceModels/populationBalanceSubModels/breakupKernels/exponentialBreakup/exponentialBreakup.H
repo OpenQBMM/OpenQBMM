@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::breakupKernels::exponentialBreakup
+    Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup
 
 Description
     Exponential breakup kernel. The value of the kernel is read from dictionary

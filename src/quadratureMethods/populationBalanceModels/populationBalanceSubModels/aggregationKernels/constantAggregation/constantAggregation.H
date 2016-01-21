@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::aggregationKernels::constantAggregation
+    Foam::populationBalanceSubModels::aggregationKernels::constantAggregation
 
 Description
     Constant aggregation kernel. The value of the kernel is read from dictionary

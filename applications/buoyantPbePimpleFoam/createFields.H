@@ -50,9 +50,9 @@
         )
     );
 
-    Info<< "Calculating field g.h\n" << endl;
-    volScalarField gh("gh", g & mesh.C());
-    surfaceScalarField ghf("ghf", g & mesh.Cf());
+    #include "readGravitationalAcceleration.H"
+    #include "readhRef.H"
+    #include "gh.H"
 
     Info<< "Reading field p_rgh\n" << endl;
     volScalarField p_rgh
@@ -70,6 +70,8 @@
 
     // Force p_rgh to be consistent with p
     p_rgh = p - rho*gh;
+    
+    mesh.setFluxRequired(p_rgh.name());
 
     Info<< "Creating field dpdt\n" << endl;
     volScalarField dpdt

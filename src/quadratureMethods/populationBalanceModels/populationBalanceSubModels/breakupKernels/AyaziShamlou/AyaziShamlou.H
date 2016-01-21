@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::breakupKernels::AyaziShamlou
+    Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
 
 Description
     Breakup kernel for liquid-solid systems.

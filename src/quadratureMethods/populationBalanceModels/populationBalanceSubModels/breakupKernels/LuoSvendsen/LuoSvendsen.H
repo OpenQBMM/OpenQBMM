@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::breakupKernels::LuoSvendsen
+    Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen
 
 Description
     Breakup kernel for liquid-solid systems.

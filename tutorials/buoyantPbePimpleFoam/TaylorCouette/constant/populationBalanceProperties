@@ -49,6 +49,15 @@ univariatePopulationBalanceCoeffs
         gammaLam        gammaLam    [ 0 2 -1 0 0 0 0 ] 0.0001;
         Sc              0.7;
     }
+    
+    growth off;
+
+    growthModel
+    {
+        growthModel constant;
+
+        Cg        Cg        [0 3 -1 0 0 0 0 ] 1.0;
+    }
 }
 
 

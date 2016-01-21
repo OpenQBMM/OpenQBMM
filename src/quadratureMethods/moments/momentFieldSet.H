@@ -95,7 +95,7 @@ class momentFieldSet
         //  0 -> 100
         //  1 -> 10
         //  2 -> 1
-        inline label dimToCmptOrder(label dim) const;
+        //inline label dimToCmptOrder(label dim) const;
 
         //- Disallow default bitwise copy construct
         momentFieldSet(const momentFieldSet&);

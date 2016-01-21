@@ -70,10 +70,10 @@ class univariateQuadratureApproximation
         const fvMesh& mesh_;
 
         //- AutoPtr to the PtrList of quadrature nodes
-        autoPtr<PtrList<volScalarNode> > nodes_;
+        autoPtr<PtrList<extendedVolScalarNode> > nodes_;
 
         //- List of moments
-        momentFieldSet<volUnivariateMoment, volScalarNode> moments_;
+        momentFieldSet<volUnivariateMoment, extendedVolScalarNode> moments_;
         
         //- Number of primary quadrature nodes
         label nPrimaryNodes_;
@@ -82,10 +82,10 @@ class univariateQuadratureApproximation
         label nSecondaryNodes_;
         
         //- List of interpolated nodes (neighbour)
-        autoPtr<PtrList<surfaceScalarNode> > nodesNei_;
+        autoPtr<PtrList<extendedSurfaceScalarNode> > nodesNei_;
         
         //- List of interpolated nodes (owner)
-        autoPtr<PtrList<surfaceScalarNode> > nodesOwn_;
+        autoPtr<PtrList<extendedSurfaceScalarNode> > nodesOwn_;
         
         //- Dimensionality of the distribution function
         const label nDimensions_;
@@ -94,10 +94,10 @@ class univariateQuadratureApproximation
         const label nMoments_;
         
         //- List of interpolated moments (neighbour)
-        momentFieldSet<surfaceUnivariateMoment, surfaceScalarNode> momentsNei_;
+        momentFieldSet<surfaceUnivariateMoment, extendedSurfaceScalarNode> momentsNei_;
 
         //- List of interpolated moments (owner)
-        momentFieldSet<surfaceUnivariateMoment, surfaceScalarNode> momentsOwn_;
+        momentFieldSet<surfaceUnivariateMoment, extendedSurfaceScalarNode> momentsOwn_;
 
         //- Moment inversion method
         autoPtr<extendedMomentInversion> momentInverter_;
@@ -125,42 +125,42 @@ public:
         // Access
 
             //- Return the nodes
-            inline const PtrList<volScalarNode>& nodes() const;
+            inline const PtrList<extendedVolScalarNode>& nodes() const;
 
             //- Const access to the moments
-            inline const momentFieldSet<volUnivariateMoment, volScalarNode>& 
+            inline const momentFieldSet<volUnivariateMoment, extendedVolScalarNode>& 
                 moments() const;
 
             //- Non-const access to the moments
-            inline momentFieldSet<volUnivariateMoment, volScalarNode>& 
+            inline momentFieldSet<volUnivariateMoment, extendedVolScalarNode>& 
                 moments();
                 
             //- Const access to the interpolated moments (neighbour)
             inline const momentFieldSet
             <
                 surfaceUnivariateMoment, 
-                surfaceScalarNode
+                extendedSurfaceScalarNode
             >& momentsNei() const;
 
             //- Non-const access to the interpolated moments (neighbour)
             inline momentFieldSet
             <
                 surfaceUnivariateMoment, 
-                surfaceScalarNode
+                extendedSurfaceScalarNode
             >& momentsNei();
                 
             //- Const access to the interpolated moments (owner)
             inline const momentFieldSet
             <
                 surfaceUnivariateMoment, 
-                surfaceScalarNode
+                extendedSurfaceScalarNode
             >& momentsOwn() const;
 
             //- Non-const access to the interpolated moments (owner)
             inline momentFieldSet
             <
                 surfaceUnivariateMoment, 
-                surfaceScalarNode
+                extendedSurfaceScalarNode
             >& momentsOwn();
 
             //- Return the number of dimensions in the distribution

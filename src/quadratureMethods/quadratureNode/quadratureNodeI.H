@@ -5,10 +5,8 @@
     \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 2015-02-19 Alberto Passalacqua: Templated class on type of weight and abscissa.
-2015-03-08 Alberto Passalacqua: Generalised implementation to include secondary
-                                quadrature and the sigma parameter of kernel 
-                                density functions used in the extended 
-                                quadrature method of moments.
+2015-11-05 Alberto Passalacqua: Added interface functions for secondary
+                                quadrature (not implemented).
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -43,77 +41,69 @@ inline bool Foam::quadratureNode<weightType, abscissaType>::extended() const
 }
 
 template <class weightType, class abscissaType> 
-Foam::label 
-Foam::quadratureNode<weightType, abscissaType>::nSecondaryNodes() const
+Foam::label Foam::quadratureNode<weightType, abscissaType>::
+nSecondaryNodes() const
 {
-    return nSecondaryNodes_;
+    NotImplemented;
+    return 0;
 }
 
 template <class weightType, class abscissaType> 
 const weightType& 
 Foam::quadratureNode<weightType, abscissaType>::primaryWeight() const
 {
-    return primaryWeight_;
+    return weight_;
 }
 
 template <class weightType, class abscissaType> 
 weightType& Foam::quadratureNode<weightType, abscissaType>::primaryWeight()
 {
-    return primaryWeight_;
+    return weight_;
 }
 
 template <class weightType, class abscissaType> 
 const abscissaType& 
 Foam::quadratureNode<weightType, abscissaType>::primaryAbscissa() const
 {
-    return primaryAbscissa_;
+    return abscissa_;
 }
 
 template <class weightType, class abscissaType> 
 abscissaType& Foam::quadratureNode<weightType, abscissaType>::primaryAbscissa()
 {
-    return primaryAbscissa_;
+    return abscissa_;
 }
 
 template <class weightType, class abscissaType> 
 const Foam::PtrList<weightType>& 
 Foam::quadratureNode<weightType, abscissaType>::secondaryWeights() const
 {
-    return secondaryWeights_;
+    NotImplemented;
+    return NullObjectRef<Foam::PtrList<weightType> >();
 }
 
 template <class weightType, class abscissaType> 
 Foam::PtrList<weightType>& 
 Foam::quadratureNode<weightType, abscissaType>::secondaryWeights()
 {
-    return secondaryWeights_;
+    NotImplemented;
+    return NullObjectRef<Foam::PtrList<weightType> >();
 }
 
 template <class weightType, class abscissaType> 
 const Foam::PtrList<abscissaType>& 
 Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae() const
 {
-    return secondaryAbscissae_;
+    NotImplemented;
+    return NullObjectRef<Foam::PtrList<abscissaType> >();
 }
 
 template <class weightType, class abscissaType> 
 Foam::PtrList<abscissaType>& 
 Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae()
 {
-    return secondaryAbscissae_;
+    NotImplemented;
+    return NullObjectRef<Foam::PtrList<abscissaType> >();
 }
-
-template <class weightType, class abscissaType> 
-const weightType& Foam::quadratureNode<weightType, abscissaType>::sigma() const
-{
-    return sigma_;
-}
-
-template <class weightType, class abscissaType> 
-weightType& Foam::quadratureNode<weightType, abscissaType>::sigma()
-{
-    return sigma_;
-}
-
 
 // ************************************************************************* //

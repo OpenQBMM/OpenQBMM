@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::breakupKernels::powerLawBreakup
+    Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup
 
 Description
     Power law breakup kernel. The value of the kernel is read from dictionary

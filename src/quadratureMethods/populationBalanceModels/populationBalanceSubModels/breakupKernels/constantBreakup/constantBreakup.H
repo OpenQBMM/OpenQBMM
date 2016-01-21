@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::breakupKernels::constantBreakup
+    Foam::populationBalanceSubModels::breakupKernels::constantBreakup
 
 Description
     Constant breakup kernel. The value of the kernel is read from dictionary
