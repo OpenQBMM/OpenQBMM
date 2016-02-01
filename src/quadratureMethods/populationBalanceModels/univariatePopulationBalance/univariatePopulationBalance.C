@@ -30,6 +30,8 @@ License
 
 namespace Foam
 {
+namespace PDFTransportModels
+{
 namespace populationBalanceModels
 {
     defineTypeNameAndDebug(univariatePopulationBalance, 0);
@@ -41,11 +43,11 @@ namespace populationBalanceModels
     );
 }
 }
-
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceModels::univariatePopulationBalance
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::univariatePopulationBalance
 (
     const dictionary& dict,
@@ -53,8 +55,8 @@ Foam::populationBalanceModels::univariatePopulationBalance
     const surfaceScalarField& phi
 )
 :
+    univariatePDFTransportModel(dict, U.mesh(), U),
     populationBalanceModel(dict, U, phi),
-    quadrature_(U.mesh()),
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
     growth_(dict.lookup("growth")),
@@ -98,97 +100,16 @@ Foam::populationBalanceModels::univariatePopulationBalance
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceModels::univariatePopulationBalance
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::~univariatePopulationBalance()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-void Foam::populationBalanceModels::univariatePopulationBalance::updateAdvection
-(
-    surfaceScalarField& phiOwn,
-    surfaceScalarField& phiNei
-)
-{
-    surfaceScalarField nei
-    (
-        IOobject
-        (
-            "nei",
-            U_.mesh().time().timeName(),
-            U_.mesh()
-        ),
-        U_.mesh(),
-        dimensionedScalar("nei", dimless, -1.0)
-    );
-
-    surfaceScalarField own
-    (
-        IOobject
-        (
-            "own",
-            U_.mesh().time().timeName(),
-            U_.mesh()
-        ),
-        U_.mesh(),
-        dimensionedScalar("own", dimless, 1.0)
-    );
-    
-    phiOwn = fvc::interpolate(U_, own, "reconstruct(U)") & U_.mesh().Sf();
-    phiNei = fvc::interpolate(U_, nei, "reconstruct(U)") & U_.mesh().Sf();
-  
-    // Update interpolated nodes
-    quadrature_.interpolateNodes();
-    
-    // Updated reconstructed moments
-    quadrature_.momentsNei().update();
-    quadrature_.momentsOwn().update();
-}
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceModels::univariatePopulationBalance::advectMoment
-(
-    const volUnivariateMoment& moment,
-    const surfaceScalarField& phiOwn,
-    const surfaceScalarField& phiNei
-)
-{
-    dimensionedScalar zeroPhi("zero", phiNei.dimensions(), 0.0);
-    
-    tmp<volScalarField> divMoment
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "divMoment",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            U_.mesh(),
-            dimensionedScalar("zero", dimless, 0.0)
-        )
-    );
-    
-    label order = moment.order();
-    
-    surfaceScalarField mFlux
-    (   
-        quadrature_.momentsNei()[order]*min(phiNei, zeroPhi) 
-      + quadrature_.momentsOwn()[order]*max(phiOwn, zeroPhi)
-    );
- 
-    fvc::surfaceIntegrate(divMoment(), mFlux);
-    divMoment().dimensions().reset(moment.dimensions()/dimTime);
-
-    return divMoment;
-}
-
-Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceModels::univariatePopulationBalance::aggregationSource
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::aggregationSource
 (
     const volUnivariateMoment& moment
 )
@@ -279,7 +200,8 @@ Foam::populationBalanceModels::univariatePopulationBalance::aggregationSource
 }
 
 Foam::tmp<Foam::volScalarField> 
-Foam::populationBalanceModels::univariatePopulationBalance::breakupSource
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::breakupSource
 (
     const volUnivariateMoment& moment
 )
@@ -339,8 +261,18 @@ Foam::populationBalanceModels::univariatePopulationBalance::breakupSource
     return bSource;
 }
 
+Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::populationBalanceModels
+::univariatePopulationBalance::momentDiffusion
+(
+    const volUnivariateMoment& moment
+)
+{
+    return diffusionModel_->momentDiff(moment);
+}
+
 Foam::tmp<Foam::volScalarField> 
-Foam::populationBalanceModels::univariatePopulationBalance::growthSource
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::phaseSpaceConvection
 (
     const volUnivariateMoment& moment
 )
@@ -400,35 +332,21 @@ Foam::populationBalanceModels::univariatePopulationBalance::growthSource
     return gSource;
 }
 
-void Foam::populationBalanceModels::univariatePopulationBalance::solve()
+Foam::tmp<Foam::volScalarField> 
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::momentSource
+(
+    const volUnivariateMoment& moment
+)
 {
-    surfaceScalarField phiOwn("phiOwn", fvc::interpolate(U_) & U_.mesh().Sf());
-    surfaceScalarField phiNei("phiNei", phiOwn);
-    updateAdvection(phiOwn, phiNei);
-    
-    // Integrate source and diffusion terms
-    forAll(quadrature_.moments(), mI)
-    {
-        volUnivariateMoment& m = quadrature_.moments()[mI];
-
-        fvScalarMatrix momentEqn
-        (
-            fvm::ddt(m)
-          + advectMoment(m, phiOwn, phiNei)  
-          - diffusionModel_->momentDiff(m)
-          ==
-            aggregationSource(m)
-          + breakupSource(m)
-          + growthSource(m)
-        );
-                
-        momentEqn.relax();
-        momentEqn.solve();
-
-    }
-    
-    quadrature_.updateQuadrature();
+    return aggregationSource(moment) + breakupSource(moment);
 }
 
+void Foam::PDFTransportModels::populationBalanceModels
+::univariatePopulationBalance::solve
+()
+{
+    univariatePDFTransportModel::solve();
+}
 
 // ************************************************************************* //

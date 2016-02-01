@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,23 +22,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModel
+    Foam::PDFTransportModel
 
 Description
-    Abstract class for the run-time selection of the population balance model.
+    Abstract class for the run-time selection of the PDF transport model.
 
 SourceFiles
-    populationBalanceModel.C
+    PDFTransportModel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef populationBalanceModel_H
-#define populationBalanceModel_H
+#ifndef PDFTransportModel_H
+#define PDFTransportModel_H
 
 #include "dictionary.H"
+#include "fvMesh.H"
 #include "volFields.H"
 #include "dimensionedTypes.H"
-#include "runTimeSelectionTables.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,77 +46,46 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class populationBalanceModel Declaration
+                    Class PDFTransportModel Declaration
 \*---------------------------------------------------------------------------*/
 
-class populationBalanceModel
+class PDFTransportModel
 {       
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
-        populationBalanceModel(const populationBalanceModel&);
+        PDFTransportModel(const PDFTransportModel&);
 
         //- Disallow default bitwise assignment
-        void operator=(const populationBalanceModel&);
+        void operator=(const PDFTransportModel&);
 
         
 protected:
         
     // Protected data
 
-        //- Fluid-phase face-normal velocity
-        const surfaceScalarField& phi_;
+        //- Constant reference to the mesh
+        const fvMesh& mesh_;
 
 
 public:
 
-    //- Runtime type information
-    TypeName("populationBalanceModel");
-
-    // Declare runtime constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        populationBalanceModel,
-        dictionary,
-        (
-            const dictionary& dict,
-            const volVectorField& U,
-            const surfaceScalarField& phi
-        ),
-        (dict, U, phi)
-    );
-
-
     // Constructors
 
         //- Construct from components
-        populationBalanceModel
+        PDFTransportModel
         (
             const dictionary& dict,
-            const volVectorField& U,
-            const surfaceScalarField& phi
+            const fvMesh& mesh
         );
-
-
-    // Selectors
-
-        //- Select null constructed
-        static autoPtr<populationBalanceModel> New
-        (
-            const dictionary& dict,
-            const volVectorField& U,
-            const surfaceScalarField& phi
-        );
-
 
     //- Destructor
-    virtual ~populationBalanceModel();
+    virtual ~PDFTransportModel();
 
 
     // Member Functions
 
-        //- Solve population balance equation
+        //- Solve PDF transport equation
         virtual void solve() = 0;
 
 };

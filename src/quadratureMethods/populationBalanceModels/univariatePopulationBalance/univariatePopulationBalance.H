@@ -36,8 +36,8 @@ SourceFiles
 #ifndef univariatePopulationBalance_H
 #define univariatePopulationBalance_H
 
+#include "univariatePDFTransportModel.H"
 #include "populationBalanceModel.H"
-#include "univariateQuadratureApproximation.H"
 #include "aggregationKernel.H"
 #include "breakupKernel.H"
 #include "daughterDistribution.H"
@@ -48,6 +48,8 @@ SourceFiles
 
 namespace Foam
 {
+namespace PDFTransportModels
+{
 namespace populationBalanceModels
 {
 
@@ -57,13 +59,10 @@ namespace populationBalanceModels
 
 class univariatePopulationBalance
 :
-    public populationBalanceModel
+    public univariatePDFTransportModel, public populationBalanceModel
 {
     // Private data
 
-        //- Dictionary containing quadrature settings
-        univariateQuadratureApproximation quadrature_;
-        
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
         
@@ -104,22 +103,7 @@ class univariatePopulationBalance
         > diffusionModel_;
         
     // Private member functions
-        
-        //- Update fields required to compute kinetic fluxes
-        void updateAdvection
-        (
-            surfaceScalarField& phiOwn, 
-            surfaceScalarField& phiNei
-        );
-        
-        //- Calculate explicit advection term 
-        tmp<volScalarField> advectMoment
-        (
-            const volUnivariateMoment& moment,
-            const surfaceScalarField& phiOwn,
-            const surfaceScalarField& phiNei
-        );
-        
+
         //- Calculate aggregation source terms
         tmp<volScalarField> aggregationSource
         (
@@ -129,8 +113,23 @@ class univariatePopulationBalance
         //- Calculate Breakup source term
         tmp<volScalarField> breakupSource(const volUnivariateMoment& moment);
 
-        //- Calculate Growth source term
-        tmp<volScalarField> growthSource(const volUnivariateMoment& moment);
+        //- Diffusion term
+        virtual tmp<fvScalarMatrix> momentDiffusion
+        (
+            const volUnivariateMoment& moment
+        );
+
+        //- Convect moments in phase space
+        virtual tmp<volScalarField> phaseSpaceConvection
+        (
+            const volUnivariateMoment& moment
+        );
+
+        //- Calculate source terms
+        virtual tmp<volScalarField> momentSource
+        (
+            const volUnivariateMoment& moment
+        );
 
 
 public:
@@ -152,18 +151,18 @@ public:
 
     //- Destructor
     virtual ~univariatePopulationBalance();
-
-
+    
     // Member Functions
 
-        //- Solve univariate population balance equation
-        virtual void solve();
+        //- Solve population balance equation
+        void solve();
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace populationBalanceModels
+} // End namespace univariatePDFTransportModel
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
