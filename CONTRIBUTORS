@@ -24,5 +24,10 @@
   
  James Guthrie, University of Strathclyde
   - Ensured compatibility with OpenFOAM 3.0.x and testing
+  
+ Matteo Icardi, University of Warwick
+  - Implemented growth term framework and constant growth term for univariate 
+    PBE
+  - Implemented molecular diffusion sub-model for univariate PBE
  
  
