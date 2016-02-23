@@ -21,5 +21,8 @@
  Frederique Laurent-Negre, Ecole Centrale Paris
   - Algorithm to check the realizability of a set of moments
   - Improved solution algorithm to find the sigma parameter in EQMOM
+  
+ James Guthrie, University of Strathclyde
+  - Ensured compatibility with OpenFOAM 3.0.x and testing
  
  
