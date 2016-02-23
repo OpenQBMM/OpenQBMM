@@ -1,0 +1,8 @@
+<map id="updateQuadrature" name="updateQuadrature">
+<area shape="rect" id="node2" href="$d2/dee/a00049.html#a7fa1616cc61c19a5efcc863c950f7f30" title="Invert the set of moments to compute weights and abscissae. " alt="" coords="184,5,375,47"/>
+<area shape="rect" id="node3" href="$db/d3a/a00040.html#a436581ffd72d3ac178b6d3381f0928ce" title="Const access to the abscissa of the node. " alt="" coords="198,71,361,112"/>
+<area shape="rect" id="node4" href="$db/d3a/a00040.html#aa0a25e3fbd8098cb359e8e92cafba070" title="Const access to the weight of the node. " alt="" coords="198,136,361,177"/>
+<area shape="rect" id="node5" href="$d4/d51/a00017.html#acf323f4680d96d62aca77b85fab8d25c" title="Const access to the list of secondary abscissae of the node. " alt="" coords="184,201,375,243"/>
+<area shape="rect" id="node6" href="$d4/d51/a00017.html#a225ac587d44fce3f6a523a89784379af" title="Const access to the secondary weights of the node. " alt="" coords="185,267,374,308"/>
+<area shape="rect" id="node7" href="$d4/d51/a00017.html#ae7ed63986006f100bfc1515291f070cb" title="Const access to sigma. " alt="" coords="185,332,374,373"/>
+</map>

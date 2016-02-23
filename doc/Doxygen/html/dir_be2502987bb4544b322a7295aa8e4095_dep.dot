@@ -1,0 +1,10 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/mixingModels/mixingSubModels/diffusionModels/turbulentDiffusion" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_1d3315f5c4f20127508dcb3956b7dded {
+    graph [ bgcolor="#ddddee", pencolor="black", label="diffusionModels" fontname="Helvetica", fontsize="10", URL="dir_1d3315f5c4f20127508dcb3956b7dded.html"]
+  dir_be2502987bb4544b322a7295aa8e4095 [shape=box, label="turbulentDiffusion", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_be2502987bb4544b322a7295aa8e4095.html"];
+  }
+}

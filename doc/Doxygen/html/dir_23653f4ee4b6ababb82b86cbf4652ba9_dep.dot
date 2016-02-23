@@ -1,0 +1,16 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/mixingModels" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_e5e55741046256e9bd55bcdd3654ccb9 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="quadratureMethods" fontname="Helvetica", fontsize="10", URL="dir_e5e55741046256e9bd55bcdd3654ccb9.html"]
+  subgraph clusterdir_23653f4ee4b6ababb82b86cbf4652ba9 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_23653f4ee4b6ababb82b86cbf4652ba9.html"];
+    dir_23653f4ee4b6ababb82b86cbf4652ba9 [shape=plaintext label="mixingModels"];
+    dir_a4a8498ad90c68bae5970b6ff57defcf [shape=box label="mixingModel" color="black" fillcolor="white" style="filled" URL="dir_a4a8498ad90c68bae5970b6ff57defcf.html"];
+    dir_539dba81f8842818b6ef6a8173fe4809 [shape=box label="mixingSubModels" color="red" fillcolor="white" style="filled" URL="dir_539dba81f8842818b6ef6a8173fe4809.html"];
+  }
+  }
+  dir_a4a8498ad90c68bae5970b6ff57defcf->dir_539dba81f8842818b6ef6a8173fe4809 [headlabel="1", labeldistance=1.5 headhref="dir_000008_000009.html"];
+}

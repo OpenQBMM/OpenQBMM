@@ -1,0 +1,16 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/populationBalanceModels/populationBalanceSubModels/growthModels" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_b1ee97fb9fa509ad9ecab18185fe1bb7 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="populationBalanceSubModels" fontname="Helvetica", fontsize="10", URL="dir_b1ee97fb9fa509ad9ecab18185fe1bb7.html"]
+  subgraph clusterdir_0b3e1906baeafa11967cf7d6afc43677 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_0b3e1906baeafa11967cf7d6afc43677.html"];
+    dir_0b3e1906baeafa11967cf7d6afc43677 [shape=plaintext label="growthModels"];
+    dir_cdfbf72d298252df757e8d05985a2831 [shape=box label="constantGrowth" color="black" fillcolor="white" style="filled" URL="dir_cdfbf72d298252df757e8d05985a2831.html"];
+    dir_989868805b70029d07b04fdeda210fc9 [shape=box label="growthModel" color="black" fillcolor="white" style="filled" URL="dir_989868805b70029d07b04fdeda210fc9.html"];
+  }
+  }
+  dir_cdfbf72d298252df757e8d05985a2831->dir_989868805b70029d07b04fdeda210fc9 [headlabel="1", labeldistance=1.5 headhref="dir_000038_000039.html"];
+}

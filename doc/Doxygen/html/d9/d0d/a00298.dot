@@ -1,0 +1,20 @@
+digraph "aggregationKernel"
+{
+  bgcolor="transparent";
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="aggregationKernel",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Brownian",height=0.2,width=0.4,color="black",URL="$d0/d0b/a00004.html",tooltip="Brownian aggregation kernel. "];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="constantAggregation",height=0.2,width=0.4,color="black",URL="$dd/dad/a00005.html",tooltip="Constant aggregation kernel. The value of the kernel is read from dictionary or assumed equal to 1..."];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="differentialForceAggregation",height=0.2,width=0.4,color="black",URL="$da/da0/a00009.html"];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="hydrodynamicAggregation",height=0.2,width=0.4,color="black",URL="$dd/da2/a00019.html"];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="sumAggregation",height=0.2,width=0.4,color="black",URL="$de/d8c/a00036.html",tooltip="Sum aggregation kernel with user defined coefficient (default Cagg = 1). "];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="turbulentBrownian",height=0.2,width=0.4,color="black",URL="$d3/de7/a00039.html",tooltip="Brownian aggregation kernel supplemented kernel for particles in turbulent flows in conditions when t..."];
+}

@@ -1,0 +1,8 @@
+<map id="aggregationKernel" name="aggregationKernel">
+<area shape="rect" id="node2" href="$d0/d0b/a00004.html" title="Brownian aggregation kernel. " alt="" coords="245,5,323,32"/>
+<area shape="rect" id="node3" href="$dd/dad/a00005.html" title="Constant aggregation kernel. The value of the kernel is read from dictionary or assumed equal to 1..." alt="" coords="211,56,357,83"/>
+<area shape="rect" id="node4" href="$da/da0/a00009.html" title="differentialForceAggregation" alt="" coords="188,107,380,133"/>
+<area shape="rect" id="node5" href="$dd/da2/a00019.html" title="hydrodynamicAggregation" alt="" coords="193,157,375,184"/>
+<area shape="rect" id="node6" href="$de/d8c/a00036.html" title="Sum aggregation kernel with user defined coefficient (default Cagg = 1). " alt="" coords="223,208,345,235"/>
+<area shape="rect" id="node7" href="$d3/de7/a00039.html" title="Brownian aggregation kernel supplemented kernel for particles in turbulent flows in conditions when t..." alt="" coords="221,259,347,285"/>
+</map>

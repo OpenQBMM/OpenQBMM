@@ -1,0 +1,13 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_b42758c7c85f0ab0b3beab32038064f1 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_b42758c7c85f0ab0b3beab32038064f1.html"];
+    dir_b42758c7c85f0ab0b3beab32038064f1 [shape=plaintext label="src"];
+    dir_1140c78c6728b5733e418ec45eaef0bd [shape=box label="eigenSolver" color="black" fillcolor="white" style="filled" URL="dir_1140c78c6728b5733e418ec45eaef0bd.html"];
+    dir_e5e55741046256e9bd55bcdd3654ccb9 [shape=box label="quadratureMethods" color="red" fillcolor="white" style="filled" URL="dir_e5e55741046256e9bd55bcdd3654ccb9.html"];
+  }
+  dir_e5e55741046256e9bd55bcdd3654ccb9->dir_1140c78c6728b5733e418ec45eaef0bd [headlabel="2", labeldistance=1.5 headhref="dir_000002_000001.html"];
+}

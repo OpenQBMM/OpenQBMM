@@ -1,0 +1,16 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/populationBalanceModels/univariatePopulationBalance" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_5bedec4fc8e15e6abb02d1e28aa12bfa {
+    graph [ bgcolor="#ddddee", pencolor="black", label="populationBalanceModels" fontname="Helvetica", fontsize="10", URL="dir_5bedec4fc8e15e6abb02d1e28aa12bfa.html"]
+  dir_864dd37fbf2ebd620745c979c4aed60f [shape=box, label="univariatePopulationBalance", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_864dd37fbf2ebd620745c979c4aed60f.html"];
+  }
+  dir_dae42dc60c2899b064791e3438990eb1 [shape=box label="quadratureApproximation" color="red" URL="dir_dae42dc60c2899b064791e3438990eb1.html"];
+  dir_b1ee97fb9fa509ad9ecab18185fe1bb7 [shape=box label="populationBalanceSubModels" color="red" URL="dir_b1ee97fb9fa509ad9ecab18185fe1bb7.html"];
+  dir_3913ad6d2225c40cbfe62ec6febeed57 [shape=box label="populationBalanceModel" URL="dir_3913ad6d2225c40cbfe62ec6febeed57.html"];
+  dir_864dd37fbf2ebd620745c979c4aed60f->dir_dae42dc60c2899b064791e3438990eb1 [headlabel="1", labeldistance=1.5 headhref="dir_000040_000041.html"];
+  dir_864dd37fbf2ebd620745c979c4aed60f->dir_b1ee97fb9fa509ad9ecab18185fe1bb7 [headlabel="5", labeldistance=1.5 headhref="dir_000040_000010.html"];
+  dir_864dd37fbf2ebd620745c979c4aed60f->dir_3913ad6d2225c40cbfe62ec6febeed57 [headlabel="1", labeldistance=1.5 headhref="dir_000040_000009.html"];
+}

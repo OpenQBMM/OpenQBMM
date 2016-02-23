@@ -1,0 +1,16 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/mixingModels/mixingSubModels/mixingKernel" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_539dba81f8842818b6ef6a8173fe4809 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="mixingSubModels" fontname="Helvetica", fontsize="10", URL="dir_539dba81f8842818b6ef6a8173fe4809.html"]
+  subgraph clusterdir_7b40899477aa0f69f11d942ee119b325 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_7b40899477aa0f69f11d942ee119b325.html"];
+    dir_7b40899477aa0f69f11d942ee119b325 [shape=plaintext label="mixingKernel"];
+    dir_dacf9d5deb9c62835de23dac20f876a2 [shape=box label="IEM" color="black" fillcolor="white" style="filled" URL="dir_dacf9d5deb9c62835de23dac20f876a2.html"];
+    dir_2e982a6c531908e42addc665737e565a [shape=box label="mixingKernel" color="black" fillcolor="white" style="filled" URL="dir_2e982a6c531908e42addc665737e565a.html"];
+  }
+  }
+  dir_dacf9d5deb9c62835de23dac20f876a2->dir_2e982a6c531908e42addc665737e565a [headlabel="1", labeldistance=1.5 headhref="dir_000021_000022.html"];
+}

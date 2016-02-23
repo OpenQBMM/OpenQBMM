@@ -1,0 +1,12 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/populationBalanceModels/populationBalanceSubModels/aggregationKernels/Brownian" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_6e005538c4c224a34282bf757016703a {
+    graph [ bgcolor="#ddddee", pencolor="black", label="aggregationKernels" fontname="Helvetica", fontsize="10", URL="dir_6e005538c4c224a34282bf757016703a.html"]
+  dir_b39ca899c0b9e475772ea97ae135087b [shape=box, label="Brownian", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_b39ca899c0b9e475772ea97ae135087b.html"];
+  }
+  dir_d9b916c5f069d44758b29cd53c9f53b0 [shape=box label="aggregationKernel" URL="dir_d9b916c5f069d44758b29cd53c9f53b0.html"];
+  dir_b39ca899c0b9e475772ea97ae135087b->dir_d9b916c5f069d44758b29cd53c9f53b0 [headlabel="1", labeldistance=1.5 headhref="dir_000013_000012.html"];
+}

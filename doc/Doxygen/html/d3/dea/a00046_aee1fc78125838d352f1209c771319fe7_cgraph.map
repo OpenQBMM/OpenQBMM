@@ -1,0 +1,7 @@
+<map id="interpolateNodes" name="interpolateNodes">
+<area shape="rect" id="node2" href="$d4/d8c/a00035.html#a436581ffd72d3ac178b6d3381f0928ce" title="Const access to the abscissa of the node. " alt="" coords="191,5,354,47"/>
+<area shape="rect" id="node3" href="$d4/d8c/a00035.html#aa0a25e3fbd8098cb359e8e92cafba070" title="Const access to the weight of the node. " alt="" coords="191,71,354,112"/>
+<area shape="rect" id="node4" href="$d7/d7a/a00016.html#acf323f4680d96d62aca77b85fab8d25c" title="Const access to the list of secondary abscissae of the node. " alt="" coords="177,136,368,177"/>
+<area shape="rect" id="node5" href="$d7/d7a/a00016.html#a225ac587d44fce3f6a523a89784379af" title="Const access to the secondary weights of the node. " alt="" coords="178,201,367,243"/>
+<area shape="rect" id="node6" href="$d7/d7a/a00016.html#ae7ed63986006f100bfc1515291f070cb" title="Const access to sigma. " alt="" coords="178,267,367,308"/>
+</map>

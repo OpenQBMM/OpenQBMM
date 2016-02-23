@@ -1,0 +1,12 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/populationBalanceModels/populationBalanceSubModels/daugtherDistributions/uniform" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_5226f9e10bfb374ced6a49d240d91cf0 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="daugtherDistributions" fontname="Helvetica", fontsize="10", URL="dir_5226f9e10bfb374ced6a49d240d91cf0.html"]
+  dir_6f015a31628d68c58b3570372ec75a00 [shape=box, label="uniform", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_6f015a31628d68c58b3570372ec75a00.html"];
+  }
+  dir_1ef46b217594f43523b2e5437acdd56a [shape=box label="daughterDistribution" URL="dir_1ef46b217594f43523b2e5437acdd56a.html"];
+  dir_6f015a31628d68c58b3570372ec75a00->dir_1ef46b217594f43523b2e5437acdd56a [headlabel="1", labeldistance=1.5 headhref="dir_000031_000027.html"];
+}

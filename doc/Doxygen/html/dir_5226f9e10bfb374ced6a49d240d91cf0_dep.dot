@@ -1,0 +1,22 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/populationBalanceModels/populationBalanceSubModels/daugtherDistributions" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_b1ee97fb9fa509ad9ecab18185fe1bb7 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="populationBalanceSubModels" fontname="Helvetica", fontsize="10", URL="dir_b1ee97fb9fa509ad9ecab18185fe1bb7.html"]
+  subgraph clusterdir_5226f9e10bfb374ced6a49d240d91cf0 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_5226f9e10bfb374ced6a49d240d91cf0.html"];
+    dir_5226f9e10bfb374ced6a49d240d91cf0 [shape=plaintext label="daugtherDistributions"];
+    dir_1ef46b217594f43523b2e5437acdd56a [shape=box label="daughterDistribution" color="black" fillcolor="white" style="filled" URL="dir_1ef46b217594f43523b2e5437acdd56a.html"];
+    dir_06f5043095336ae3777139468986fa38 [shape=box label="erosion" color="black" fillcolor="white" style="filled" URL="dir_06f5043095336ae3777139468986fa38.html"];
+    dir_9d50aff11b7504a4c1a072211e523e7c [shape=box label="oneQuarterMassRatio" color="black" fillcolor="white" style="filled" URL="dir_9d50aff11b7504a4c1a072211e523e7c.html"];
+    dir_81de749290b63ac768a2807e890be679 [shape=box label="symmetricFragmentation" color="black" fillcolor="white" style="filled" URL="dir_81de749290b63ac768a2807e890be679.html"];
+    dir_6f015a31628d68c58b3570372ec75a00 [shape=box label="uniform" color="black" fillcolor="white" style="filled" URL="dir_6f015a31628d68c58b3570372ec75a00.html"];
+  }
+  }
+  dir_81de749290b63ac768a2807e890be679->dir_1ef46b217594f43523b2e5437acdd56a [headlabel="1", labeldistance=1.5 headhref="dir_000030_000027.html"];
+  dir_6f015a31628d68c58b3570372ec75a00->dir_1ef46b217594f43523b2e5437acdd56a [headlabel="1", labeldistance=1.5 headhref="dir_000031_000027.html"];
+  dir_06f5043095336ae3777139468986fa38->dir_1ef46b217594f43523b2e5437acdd56a [headlabel="1", labeldistance=1.5 headhref="dir_000028_000027.html"];
+  dir_9d50aff11b7504a4c1a072211e523e7c->dir_1ef46b217594f43523b2e5437acdd56a [headlabel="1", labeldistance=1.5 headhref="dir_000029_000027.html"];
+}

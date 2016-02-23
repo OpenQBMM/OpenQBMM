@@ -1,0 +1,7 @@
+<map id="breakupKernel" name="breakupKernel">
+<area shape="rect" id="node2" href="$d7/d46/a00002.html" title="Breakup kernel for liquid&#45;solid systems. " alt="" coords="5,80,115,107"/>
+<area shape="rect" id="node3" href="$de/d21/a00006.html" title="Constant breakup kernel. The value of the kernel is read from dictionary or assumed equal to 1..." alt="" coords="139,80,261,107"/>
+<area shape="rect" id="node4" href="$d2/de7/a00014.html" title="Exponential breakup kernel. The value of the kernel is read from dictionary or assumed equal to 1..." alt="" coords="285,80,427,107"/>
+<area shape="rect" id="node5" href="$d3/dfe/a00025.html" title="Breakup kernel for liquid&#45;solid systems. " alt="" coords="450,80,555,107"/>
+<area shape="rect" id="node6" href="$db/df3/a00034.html" title="Power law breakup kernel. The value of the kernel is read from dictionary or assumed equal to 1..." alt="" coords="579,80,714,107"/>
+</map>

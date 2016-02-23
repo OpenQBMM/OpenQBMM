@@ -1,0 +1,12 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/extentedMomentInversion/lognormal" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_84a87e5ee03d6eeda404f667b1da0232 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="extentedMomentInversion" fontname="Helvetica", fontsize="10", URL="dir_84a87e5ee03d6eeda404f667b1da0232.html"]
+  dir_01c140839b8f04354a64f2a54cb9c4bf [shape=box, label="lognormal", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_01c140839b8f04354a64f2a54cb9c4bf.html"];
+  }
+  dir_58285a2582aa174f1d8cf6101e2f9b9d [shape=box label="extendedMomentInversion" URL="dir_58285a2582aa174f1d8cf6101e2f9b9d.html"];
+  dir_01c140839b8f04354a64f2a54cb9c4bf->dir_58285a2582aa174f1d8cf6101e2f9b9d [headlabel="1", labeldistance=1.5 headhref="dir_000006_000004.html"];
+}

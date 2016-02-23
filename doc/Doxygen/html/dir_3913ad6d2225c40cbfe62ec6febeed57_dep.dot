@@ -1,0 +1,10 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/populationBalanceModels/populationBalanceModel" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_5bedec4fc8e15e6abb02d1e28aa12bfa {
+    graph [ bgcolor="#ddddee", pencolor="black", label="populationBalanceModels" fontname="Helvetica", fontsize="10", URL="dir_5bedec4fc8e15e6abb02d1e28aa12bfa.html"]
+  dir_3913ad6d2225c40cbfe62ec6febeed57 [shape=box, label="populationBalanceModel", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_3913ad6d2225c40cbfe62ec6febeed57.html"];
+  }
+}

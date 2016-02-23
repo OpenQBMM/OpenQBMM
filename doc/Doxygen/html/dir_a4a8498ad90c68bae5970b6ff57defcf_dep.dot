@@ -1,0 +1,12 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/mixingModels/mixingModel" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_23653f4ee4b6ababb82b86cbf4652ba9 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="mixingModels" fontname="Helvetica", fontsize="10", URL="dir_23653f4ee4b6ababb82b86cbf4652ba9.html"]
+  dir_a4a8498ad90c68bae5970b6ff57defcf [shape=box, label="mixingModel", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_a4a8498ad90c68bae5970b6ff57defcf.html"];
+  }
+  dir_539dba81f8842818b6ef6a8173fe4809 [shape=box label="mixingSubModels" color="red" URL="dir_539dba81f8842818b6ef6a8173fe4809.html"];
+  dir_a4a8498ad90c68bae5970b6ff57defcf->dir_539dba81f8842818b6ef6a8173fe4809 [headlabel="1", labeldistance=1.5 headhref="dir_000008_000009.html"];
+}

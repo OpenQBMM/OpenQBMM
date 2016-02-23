@@ -1,0 +1,29 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_b42758c7c85f0ab0b3beab32038064f1 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="src" fontname="Helvetica", fontsize="10", URL="dir_b42758c7c85f0ab0b3beab32038064f1.html"]
+  subgraph clusterdir_e5e55741046256e9bd55bcdd3654ccb9 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_e5e55741046256e9bd55bcdd3654ccb9.html"];
+    dir_e5e55741046256e9bd55bcdd3654ccb9 [shape=plaintext label="quadratureMethods"];
+    dir_84a87e5ee03d6eeda404f667b1da0232 [shape=box label="extentedMomentInversion" color="red" fillcolor="white" style="filled" URL="dir_84a87e5ee03d6eeda404f667b1da0232.html"];
+    dir_987de63e9403e5c0381047e7cf2dd71f [shape=box label="moments" color="black" fillcolor="white" style="filled" URL="dir_987de63e9403e5c0381047e7cf2dd71f.html"];
+    dir_5bedec4fc8e15e6abb02d1e28aa12bfa [shape=box label="populationBalanceModels" color="red" fillcolor="white" style="filled" URL="dir_5bedec4fc8e15e6abb02d1e28aa12bfa.html"];
+    dir_dae42dc60c2899b064791e3438990eb1 [shape=box label="quadratureApproximation" color="red" fillcolor="white" style="filled" URL="dir_dae42dc60c2899b064791e3438990eb1.html"];
+    dir_b635509d06db30e564eafa14ffea7d40 [shape=box label="quadratureNode" color="black" fillcolor="white" style="filled" URL="dir_b635509d06db30e564eafa14ffea7d40.html"];
+    dir_7423af8eeb458c8e9e12074daec10d2d [shape=box label="univariateMomentSet" color="black" fillcolor="white" style="filled" URL="dir_7423af8eeb458c8e9e12074daec10d2d.html"];
+  }
+  }
+  dir_1140c78c6728b5733e418ec45eaef0bd [shape=box label="eigenSolver" URL="dir_1140c78c6728b5733e418ec45eaef0bd.html"];
+  dir_5bedec4fc8e15e6abb02d1e28aa12bfa->dir_dae42dc60c2899b064791e3438990eb1 [headlabel="1", labeldistance=1.5 headhref="dir_000008_000041.html"];
+  dir_7423af8eeb458c8e9e12074daec10d2d->dir_1140c78c6728b5733e418ec45eaef0bd [headlabel="1", labeldistance=1.5 headhref="dir_000044_000001.html"];
+  dir_dae42dc60c2899b064791e3438990eb1->dir_b635509d06db30e564eafa14ffea7d40 [headlabel="1", labeldistance=1.5 headhref="dir_000041_000043.html"];
+  dir_dae42dc60c2899b064791e3438990eb1->dir_7423af8eeb458c8e9e12074daec10d2d [headlabel="1", labeldistance=1.5 headhref="dir_000041_000044.html"];
+  dir_dae42dc60c2899b064791e3438990eb1->dir_84a87e5ee03d6eeda404f667b1da0232 [headlabel="1", labeldistance=1.5 headhref="dir_000041_000003.html"];
+  dir_dae42dc60c2899b064791e3438990eb1->dir_987de63e9403e5c0381047e7cf2dd71f [headlabel="2", labeldistance=1.5 headhref="dir_000041_000007.html"];
+  dir_84a87e5ee03d6eeda404f667b1da0232->dir_1140c78c6728b5733e418ec45eaef0bd [headlabel="1", labeldistance=1.5 headhref="dir_000003_000001.html"];
+  dir_84a87e5ee03d6eeda404f667b1da0232->dir_7423af8eeb458c8e9e12074daec10d2d [headlabel="1", labeldistance=1.5 headhref="dir_000003_000044.html"];
+  dir_987de63e9403e5c0381047e7cf2dd71f->dir_b635509d06db30e564eafa14ffea7d40 [headlabel="2", labeldistance=1.5 headhref="dir_000007_000043.html"];
+}

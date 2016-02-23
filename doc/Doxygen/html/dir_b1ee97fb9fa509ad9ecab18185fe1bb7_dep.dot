@@ -1,0 +1,18 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/populationBalanceModels/populationBalanceSubModels" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_5bedec4fc8e15e6abb02d1e28aa12bfa {
+    graph [ bgcolor="#ddddee", pencolor="black", label="populationBalanceModels" fontname="Helvetica", fontsize="10", URL="dir_5bedec4fc8e15e6abb02d1e28aa12bfa.html"]
+  subgraph clusterdir_b1ee97fb9fa509ad9ecab18185fe1bb7 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_b1ee97fb9fa509ad9ecab18185fe1bb7.html"];
+    dir_b1ee97fb9fa509ad9ecab18185fe1bb7 [shape=plaintext label="populationBalanceSubModels"];
+    dir_6e005538c4c224a34282bf757016703a [shape=box label="aggregationKernels" color="red" fillcolor="white" style="filled" URL="dir_6e005538c4c224a34282bf757016703a.html"];
+    dir_051f4dbe3d70e8d291b1f8370211ab04 [shape=box label="breakupKernels" color="red" fillcolor="white" style="filled" URL="dir_051f4dbe3d70e8d291b1f8370211ab04.html"];
+    dir_5226f9e10bfb374ced6a49d240d91cf0 [shape=box label="daugtherDistributions" color="red" fillcolor="white" style="filled" URL="dir_5226f9e10bfb374ced6a49d240d91cf0.html"];
+    dir_e36a2fb6ab2fea33d8997cb93aa2b8a9 [shape=box label="diffusionModels" color="red" fillcolor="white" style="filled" URL="dir_e36a2fb6ab2fea33d8997cb93aa2b8a9.html"];
+    dir_0b3e1906baeafa11967cf7d6afc43677 [shape=box label="growthModels" color="red" fillcolor="white" style="filled" URL="dir_0b3e1906baeafa11967cf7d6afc43677.html"];
+  }
+  }
+}

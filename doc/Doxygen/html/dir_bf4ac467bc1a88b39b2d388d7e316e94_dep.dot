@@ -1,0 +1,12 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/populationBalanceModels/populationBalanceSubModels/diffusionModels/turbulentDiffusion" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_e36a2fb6ab2fea33d8997cb93aa2b8a9 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="diffusionModels" fontname="Helvetica", fontsize="10", URL="dir_e36a2fb6ab2fea33d8997cb93aa2b8a9.html"]
+  dir_bf4ac467bc1a88b39b2d388d7e316e94 [shape=box, label="turbulentDiffusion", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_bf4ac467bc1a88b39b2d388d7e316e94.html"];
+  }
+  dir_8f7130e863e37ed04f3e15fb6099f61e [shape=box label="diffusionModel" URL="dir_8f7130e863e37ed04f3e15fb6099f61e.html"];
+  dir_bf4ac467bc1a88b39b2d388d7e316e94->dir_8f7130e863e37ed04f3e15fb6099f61e [headlabel="1", labeldistance=1.5 headhref="dir_000036_000033.html"];
+}

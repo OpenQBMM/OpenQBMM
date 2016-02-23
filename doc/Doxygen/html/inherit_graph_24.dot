@@ -1,0 +1,8 @@
+digraph "Graphical Class Hierarchy"
+{
+  bgcolor="transparent";
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="univariatePopulationBalance",height=0.2,width=0.4,color="black",URL="$d5/de0/a00050.html",tooltip="Solve a univariate population balance equation with the extended quadrature method of moments..."];
+}

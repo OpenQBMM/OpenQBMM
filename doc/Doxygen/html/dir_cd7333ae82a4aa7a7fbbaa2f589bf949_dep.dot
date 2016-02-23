@@ -1,0 +1,12 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/populationBalanceModels/populationBalanceSubModels/breakupKernels/LuoSvendsen" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_051f4dbe3d70e8d291b1f8370211ab04 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="breakupKernels" fontname="Helvetica", fontsize="10", URL="dir_051f4dbe3d70e8d291b1f8370211ab04.html"]
+  dir_cd7333ae82a4aa7a7fbbaa2f589bf949 [shape=box, label="LuoSvendsen", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_cd7333ae82a4aa7a7fbbaa2f589bf949.html"];
+  }
+  dir_9d871acf8e57389ebd78c35b00fe7a3b [shape=box label="breakupKernel" URL="dir_9d871acf8e57389ebd78c35b00fe7a3b.html"];
+  dir_cd7333ae82a4aa7a7fbbaa2f589bf949->dir_9d871acf8e57389ebd78c35b00fe7a3b [headlabel="1", labeldistance=1.5 headhref="dir_000024_000021.html"];
+}

@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['u_5f',['U_',['../d0/dc0/a00033.html#a6dc21987d43bf648b90e643918b02353',1,'Foam::populationBalanceModel']]],
+  ['uniform',['uniform',['../dd/d32/a00041.html',1,'Foam::populationBalanceSubModels::daughterDistributions']]],
+  ['uniform',['uniform',['../d5/db6/a00042.html',1,'Foam::populationBalanceSubModels::daughterDistribution']]],
+  ['uniform',['uniform',['../dd/d32/a00041.html#ac561847e384f201ac93f7f11fd889721',1,'Foam::populationBalanceSubModels::daughterDistributions::uniform']]],
+  ['uniform_2ec',['uniform.C',['../d5/d1e/a00103.html',1,'']]],
+  ['uniform_2eh',['uniform.H',['../d0/dc2/a00104.html',1,'']]],
+  ['univariatemomentset',['univariateMomentSet',['../d6/d42/a00043.html#a218b2917a586439b5bad69363cd00694',1,'Foam::univariateMomentSet::univariateMomentSet(const label nMoments, const scalar initValue)'],['../d6/d42/a00043.html#a0226895bbcce8012f63341b354b25451',1,'Foam::univariateMomentSet::univariateMomentSet(const scalarDiagonalMatrix &amp;m)']]],
+  ['univariatemomentset',['univariateMomentSet',['../d6/d42/a00043.html',1,'Foam']]],
+  ['univariatemomentset_2ec',['univariateMomentSet.C',['../d7/d06/a00131.html',1,'']]],
+  ['univariatemomentset_2eh',['univariateMomentSet.H',['../d5/deb/a00132.html',1,'']]],
+  ['univariatemomentseti_2eh',['univariateMomentSetI.H',['../d0/de8/a00133.html',1,'']]],
+  ['univariatepopulationbalance',['univariatePopulationBalance',['../d5/df9/a00044.html',1,'Foam']]],
+  ['univariatepopulationbalance',['univariatePopulationBalance',['../d6/d97/a00045.html',1,'Foam::populationBalanceModels']]],
+  ['univariatepopulationbalance',['univariatePopulationBalance',['../d6/d97/a00045.html#a3aa0119340d2bb09c73ead7d9161b330',1,'Foam::populationBalanceModels::univariatePopulationBalance']]],
+  ['univariatepopulationbalance_2ec',['univariatePopulationBalance.C',['../df/d6a/a00119.html',1,'']]],
+  ['univariatepopulationbalance_2eh',['univariatePopulationBalance.H',['../d4/d98/a00120.html',1,'']]],
+  ['univariatequadratureapproximation',['univariateQuadratureApproximation',['../d3/dea/a00046.html#a188cbaf2f28221e53541c7a6417465a2',1,'Foam::univariateQuadratureApproximation']]],
+  ['univariatequadratureapproximation',['univariateQuadratureApproximation',['../d3/dea/a00046.html',1,'Foam']]],
+  ['univariatequadratureapproximation_2ec',['univariateQuadratureApproximation.C',['../d8/dfa/a00121.html',1,'']]],
+  ['univariatequadratureapproximation_2eh',['univariateQuadratureApproximation.H',['../df/dc8/a00122.html',1,'']]],
+  ['univariatequadratureapproximationi_2eh',['univariateQuadratureApproximationI.H',['../de/d36/a00123.html',1,'']]],
+  ['update',['update',['../d0/d33/a00027.html#ac5c54df7ed3b930268c8d7752c101725',1,'Foam::moment::update()'],['../dc/d3c/a00028.html#ac5c54df7ed3b930268c8d7752c101725',1,'Foam::momentFieldSet::update()'],['../d6/d42/a00043.html#ac5c54df7ed3b930268c8d7752c101725',1,'Foam::univariateMomentSet::update()']]],
+  ['updateboundaryquadrature',['updateBoundaryQuadrature',['../d3/dea/a00046.html#a3425ac299e562256ef384508e140f0ab',1,'Foam::univariateQuadratureApproximation']]],
+  ['updatemoments',['updateMoments',['../d3/dea/a00046.html#ab46f111920d16a088f2fddf21d658315',1,'Foam::univariateQuadratureApproximation']]],
+  ['updatequadrature',['updateQuadrature',['../d3/dea/a00046.html#ac4aec727fcdd873ea78763aaeeb86e14',1,'Foam::univariateQuadratureApproximation']]]
+];

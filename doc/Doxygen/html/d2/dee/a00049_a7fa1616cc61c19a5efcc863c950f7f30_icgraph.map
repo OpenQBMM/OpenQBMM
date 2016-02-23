@@ -1,0 +1,5 @@
+<map id="invert" name="invert">
+<area shape="rect" id="node2" href="$d7/d7a/a00016.html#a45d56bb3ba42ace7670d4c68707abf5d" title="Invert moments to find weight, abscissae and sigma. " alt="" coords="137,5,361,47"/>
+<area shape="rect" id="node3" href="$d1/d84/a00052.html#a3425ac299e562256ef384508e140f0ab" title="Update quadrature nodes on fixed&#45;value boundaries. " alt="" coords="108,71,389,112"/>
+<area shape="rect" id="node4" href="$d1/d84/a00052.html#ac4aec727fcdd873ea78763aaeeb86e14" title="Recalculate the quadrature nodes from the moments. " alt="" coords="137,136,360,177"/>
+</map>

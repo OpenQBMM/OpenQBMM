@@ -1,0 +1,8 @@
+digraph "Graphical Class Hierarchy"
+{
+  bgcolor="transparent";
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="moment\< fieldType,\l nodeType \>::iNew",height=0.2,width=0.4,color="black",URL="$d3/d52/a00023.html",tooltip="Return a pointer to a new moment created on freestore. "];
+}

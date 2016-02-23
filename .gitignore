@@ -45,10 +45,10 @@ platforms/
 !wmake/rules/*/
 
 # doxygen generated documentation
-doc/Doxygen/html
-doc/Doxygen/latex
-doc/Doxygen/man
-doc/Doxygen/DTAGS
+# doc/Doxygen/html
+# doc/Doxygen/latex
+# doc/Doxygen/man
+# doc/Doxygen/DTAGS
 
 # Generated files in the main directory (e.g. ReleaseNotes-?.?.html)
 # and in the doc directory

@@ -1,0 +1,12 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/moments" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_e5e55741046256e9bd55bcdd3654ccb9 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="quadratureMethods" fontname="Helvetica", fontsize="10", URL="dir_e5e55741046256e9bd55bcdd3654ccb9.html"]
+  dir_987de63e9403e5c0381047e7cf2dd71f [shape=box, label="moments", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_987de63e9403e5c0381047e7cf2dd71f.html"];
+  }
+  dir_b635509d06db30e564eafa14ffea7d40 [shape=box label="quadratureNode" URL="dir_b635509d06db30e564eafa14ffea7d40.html"];
+  dir_987de63e9403e5c0381047e7cf2dd71f->dir_b635509d06db30e564eafa14ffea7d40 [headlabel="2", labeldistance=1.5 headhref="dir_000007_000043.html"];
+}

@@ -1,0 +1,16 @@
+digraph "/home/alberto/OpenFOAM-dev/albertop-dev/applications/development/OpenQBMM-dev/OpenQBMM-dev/src/quadratureMethods/mixingModels/mixingSubModels/diffusionModels" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_539dba81f8842818b6ef6a8173fe4809 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="mixingSubModels" fontname="Helvetica", fontsize="10", URL="dir_539dba81f8842818b6ef6a8173fe4809.html"]
+  subgraph clusterdir_1d3315f5c4f20127508dcb3956b7dded {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_1d3315f5c4f20127508dcb3956b7dded.html"];
+    dir_1d3315f5c4f20127508dcb3956b7dded [shape=plaintext label="diffusionModels"];
+    dir_a7b67063ef0a79331b60f883b8842f61 [shape=box label="diffusionModel" color="black" fillcolor="white" style="filled" URL="dir_a7b67063ef0a79331b60f883b8842f61.html"];
+    dir_8fb106bd17a1df5e6edf6f5a9a6f1bd2 [shape=box label="noDiffusion" color="black" fillcolor="white" style="filled" URL="dir_8fb106bd17a1df5e6edf6f5a9a6f1bd2.html"];
+    dir_be2502987bb4544b322a7295aa8e4095 [shape=box label="turbulentDiffusion" color="black" fillcolor="white" style="filled" URL="dir_be2502987bb4544b322a7295aa8e4095.html"];
+  }
+  }
+}
