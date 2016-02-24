@@ -4,7 +4,7 @@ set -x
 
 icoFoam -help > versionCheck
 
-if grep -Fxq "OpenFOAM-3" versionCheck
+if grep -r "OpenFOAM-3" versionCheck
 then
     (unzip 3.x.zip)
     (mv buoyantPbePimpleFoam.C applications/buoyantPbePimpleFoam)
