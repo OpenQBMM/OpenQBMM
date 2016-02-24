@@ -6,6 +6,7 @@ wclean libso eigenSolver
 wclean libso quadratureMethods/univariateMomentSet
 wclean libso quadratureMethods/extentedMomentInversion
 wclean libso quadratureMethods/quadratureApproximation
+wclean libso quadratureMethods/PDFTransportModels
 wclean libso quadratureMethods/populationBalanceModels
 
 # ----------------------------------------------------------------- end-of-file
