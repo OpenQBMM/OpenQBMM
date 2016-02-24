@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,33 +23,23 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "populationBalanceModel.H"
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-namespace Foam
-{
-    defineTypeNameAndDebug(populationBalanceModel, 0);
-    defineRunTimeSelectionTable(populationBalanceModel, dictionary);
-}
-
+#include "PDFTransportModel.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceModel::populationBalanceModel
+Foam::PDFTransportModel::PDFTransportModel
 (
     const dictionary& dict,
-    const volVectorField& U,
-    const surfaceScalarField& phi
+    const fvMesh& mesh
 )
 :
-    phi_(phi)
+    mesh_(mesh)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceModel::~populationBalanceModel()
+Foam::PDFTransportModel::~PDFTransportModel()
 {}
 
 
