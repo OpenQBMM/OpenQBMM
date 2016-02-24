@@ -2,10 +2,21 @@
 cd ${0%/*} || exit 1    # run from this directory
 set -x
 
-(cd src && ./Allwmake)
+icoFoam -help > versionCheck
 
-wmake -all applications
+if grep -Fxq "OpenFOAM-3" versionCheck
+then
+    (unzip 3.x.zip)
+    (mv buoyantPbePimpleFoam.C applications/buoyantPbePimpleFoam)
+else
+    (unzip 2.x.zip)
+    (mv buoyantPbePimpleFoam.C applications/buoyantPbePimpleFoam)
+fi
 
-curl -A "OpenQBMM-dev" http://bit.ly/openqbmm-dev >/dev/null 2>&1
+#(cd src && ./Allwmake)
+
+#wmake -all applications
+
+#curl -A "OpenQBMM-dev" http://bit.ly/openqbmm-dev >/dev/null 2>&1
 
 # ----------------------------------------------------------------- end-of-file

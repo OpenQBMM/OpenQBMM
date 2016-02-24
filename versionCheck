@@ -1,0 +1,16 @@
+
+Usage: icoFoam [OPTIONS]
+options:
+  -case <dir>       specify alternate case directory, default is the cwd
+  -noFunctionObjects
+                    do not execute functionObjects
+  -parallel         run in parallel
+  -roots <(dir1 .. dirN)>
+                    slave root directories for distributed running
+  -srcDoc           display source code in browser
+  -doc              display application documentation in browser
+  -help             print the usage
+
+Using: OpenFOAM-2.3.0 (see www.OpenFOAM.org)
+Build: 2.3.0-f5222ca19ce6
+
