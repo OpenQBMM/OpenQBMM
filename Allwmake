@@ -13,10 +13,10 @@ else
     (mv buoyantPbePimpleFoam.C applications/buoyantPbePimpleFoam)
 fi
 
-#(cd src && ./Allwmake)
+(cd src && ./Allwmake)
 
-#wmake -all applications
+wmake -all applications
 
-#curl -A "OpenQBMM-dev" http://bit.ly/openqbmm-dev >/dev/null 2>&1
+curl -A "OpenQBMM-dev" http://bit.ly/openqbmm-dev >/dev/null 2>&1
 
 # ----------------------------------------------------------------- end-of-file

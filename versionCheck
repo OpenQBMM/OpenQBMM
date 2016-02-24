@@ -11,6 +11,6 @@ options:
   -doc              display application documentation in browser
   -help             print the usage
 
-Using: OpenFOAM-3.0.1 (see www.OpenFOAM.org)
-Build: 3.0.1-119cac7e8750
+Using: OpenFOAM-2.3.0 (see www.OpenFOAM.org)
+Build: 2.3.0-f5222ca19ce6
 
