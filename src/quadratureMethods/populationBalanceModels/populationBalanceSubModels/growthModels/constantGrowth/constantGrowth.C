@@ -93,7 +93,7 @@ Foam::populationBalanceSubModels::growthModels::constantGrowth::Kg
     dimensionedScalar CgND
     (
         "CgND", 
-        inv(abscissa.dimensions())*inv(abscissa.dimensions())*Cg_.dimensions(), 
+        dimLength/dimTime,//inv(abscissa.dimensions())*inv(abscissa.dimensions())*Cg_.dimensions(), 
         Cg_.value()
     );
 
