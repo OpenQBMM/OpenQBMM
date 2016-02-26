@@ -10,40 +10,44 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      controlDict;
+    location    "constant";
+    object      thermophysicalProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pbeTransportFoam;
+thermoType
+{
+    type            heRhoThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState rhoConst;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
 
-startFrom       latestTime;
-
-startTime       0;
-
-stopAt          endTime;
-
-endTime         100000;
-
-deltaT          .01;
-
-writeControl    timeStep;
-
-writeInterval   100;
-
-purgeWrite      1;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression uncompressed;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
+mixture
+{
+    specie
+    {
+        nMoles      1;
+        molWeight   18;
+    }
+    equationOfState
+    {
+        rho         1055;
+    }
+    thermodynamics
+    {
+        Cp          4196;
+        Hf          0;
+    }
+    transport
+    {
+        mu          1.097e-3;
+        Pr          1;
+    }
+}
 
 
 // ************************************************************************* //

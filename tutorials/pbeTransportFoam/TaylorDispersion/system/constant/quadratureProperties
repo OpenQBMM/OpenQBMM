@@ -11,50 +11,33 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      populationaBalanceProperties;
+    object      quadratureProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-populationBalanceModel univariatePopulationBalance;
+moments
+(
+    (0)
+    (1)
+    (2)
+    (3)
+    (4)
+);
 
-univariatePopulationBalanceCoeffs
+nodes
+(
+    node0{}
+    node1{}
+);
+
+extendedMomentInversionCoeff
 {
-    aggregation off;
+    extendedMomentInversion     lognormal;
     
-    aggregationKernel
-    {
-        aggregationKernel turbulentBrownian;
-    }
-    
-    breakup off;
-    
-    breakupKernel
-    {
-        breakupKernel LuoSvendsen;
-        
-        Cb        Cb        [ 0 0 0 0 0 0 0 ] 1.0e-3;
-        epsilonExp          0.75;
-        nuExp              -1.25;
-        sizeExp             1.0;
-    }
-    
-    daughterDistribution
-    {
-        daughterDistribution symmetricFragmentation;
-    }
-    
-    diffusionModel
-    {
-        diffusionModel  molecularDiffusion;
-        gammaLam        gammaLam    [ 0 2 -1 0 0 0 0 ] 1e-2;
-    }
-
-    growth on;
-    growthModel
-    {
-        growthModel constant;
-    }
+    maxSigmaIter        1000;
+    momentsTol          1.0e-6;
+    sigmaTol            1.0e-8;
+    targetFunctionTol   1.0e-8;  
 }
-
 
 // ************************************************************************* //

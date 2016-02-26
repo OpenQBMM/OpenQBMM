@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                   |
+|  \\    /   O peration     | Version:  2.3.x                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -9,41 +9,43 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      controlDict;
+    class       volScalarField;
+    location    "0";
+    object      moment.3;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pbeTransportFoam;
+dimensions      [0 0 0 0 0 0 0];
 
-startFrom       latestTime;
+internalField   uniform 1;
 
-startTime       0;
+boundaryField
+{
+    topWall      
+    {
+        type            zeroGradient;
+    }
 
-stopAt          endTime;
+    bottomWall      
+    {
+        type            zeroGradient;
+    }
 
-endTime         100000;
+    outlet      
+    {
+        type            zeroGradient;
+    }
 
-deltaT          .01;
+    inlet      
+    {
+        type            fixedValue;
+         value           uniform 1;
+    }
 
-writeControl    timeStep;
-
-writeInterval   100;
-
-purgeWrite      1;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression uncompressed;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
+    frontAndBack    
+    {
+        type            empty;
+    }
+}
 
 // ************************************************************************* //
