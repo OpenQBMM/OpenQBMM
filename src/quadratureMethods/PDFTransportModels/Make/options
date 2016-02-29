@@ -13,8 +13,7 @@ EXE_INC = \
     -I../extentedMomentInversion/lnInclude \
     -I../quadratureNode \
     -I../moments \
-    -I../quadratureApproximation/lnInclude \
-    -I../PDFTransportModels/lnInclude
+    -I../quadratureApproximation/lnInclude 
     
 LIB_LIBS = \
     -lincompressibleTransportModels \
@@ -30,5 +29,4 @@ LIB_LIBS = \
     -leigenSolver \
     -lmomentSet \
     -lextendedMomentInversion \
-    -lquadratureApproximation \
-    -lPDFTransportModel
+    -lquadratureApproximation
