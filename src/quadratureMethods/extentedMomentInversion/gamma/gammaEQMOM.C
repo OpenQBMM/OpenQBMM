@@ -37,10 +37,10 @@ namespace Foam
 
     addToRunTimeSelectionTable
     (
-        extendedMomentInversion, 
-        gammaEQMOM, 
+        extendedMomentInversion,
+        gammaEQMOM,
         dictionary
-    ); 
+    );
 }
 
 
@@ -49,7 +49,7 @@ namespace Foam
 Foam::gammaEQMOM::gammaEQMOM
 (
     const dictionary& dict,
-    const label nMoments,    
+    const label nMoments,
     const label nSecondaryNodes
 )
 :
@@ -82,7 +82,7 @@ void Foam::gammaEQMOM::momentsStarToMoments
 )
 {
     label nMom = moments.size();
-    
+
     if (nMom >= 12)
     {
         FatalErrorIn
@@ -96,63 +96,61 @@ void Foam::gammaEQMOM::momentsStarToMoments
         )   << "Moment transformation not implemented."
             << abort(FatalError);
     }
-    
+
     moments[0] = momentsStar[0];
     moments[1] = momentsStar[1];
     moments[2] = momentsStar[2] + sigma*momentsStar[1];
-    
+
     if (nMom >= 5)
     {
-        moments[3] = momentsStar[3] + sigma*(3.0*momentsStar[2] 
+        moments[3] = momentsStar[3] + sigma*(3.0*momentsStar[2]
                 + 2.0*sigma*momentsStar[1]);
 
-        moments[4] = momentsStar[4] + sigma*(6.0*momentsStar[3] 
+        moments[4] = momentsStar[4] + sigma*(6.0*momentsStar[3]
                 + sigma*(11.0*momentsStar[2] + 6.0*momentsStar[1]*sigma));
     }
-    
+
     if (nMom >= 7)
-    {       
-        moments[5] = momentsStar[5] + sigma*(10.0*momentsStar[4] 
-                + sigma*(35.0*momentsStar[3] + sigma*(50.0*momentsStar[2] 
+    {
+        moments[5] = momentsStar[5] + sigma*(10.0*momentsStar[4]
+                + sigma*(35.0*momentsStar[3] + sigma*(50.0*momentsStar[2]
                 + 24.0*momentsStar[1]*sigma)));
 
-        moments[6] = momentsStar[6] + sigma*(15.0*momentsStar[5] 
-                + sigma*(85.0*momentsStar[4] + sigma*(225.0*momentsStar[3] 
-                + sigma*(274.0*momentsStar[2] + 120.0*momentsStar[1]*sigma))));                
+        moments[6] = momentsStar[6] + sigma*(15.0*momentsStar[5]
+                + sigma*(85.0*momentsStar[4] + sigma*(225.0*momentsStar[3]
+                + sigma*(274.0*momentsStar[2] + 120.0*momentsStar[1]*sigma))));
     }
-    
+
     if (nMom >= 9)
-    {       
-        moments[7] = momentsStar[7] + sigma*(21.0*momentsStar[6] 
-                + sigma*(175.0*momentsStar[5] + sigma*(735.0*momentsStar[4] 
-                + sigma*(1624.0*momentsStar[3] + sigma*(1764.0*momentsStar[2] 
+    {
+        moments[7] = momentsStar[7] + sigma*(21.0*momentsStar[6]
+                + sigma*(175.0*momentsStar[5] + sigma*(735.0*momentsStar[4]
+                + sigma*(1624.0*momentsStar[3] + sigma*(1764.0*momentsStar[2]
                 + 720.0*momentsStar[1]*sigma)))));
 
-        moments[8] = momentsStar[8] + sigma*(28.0*momentsStar[7] 
-                + sigma*(322.0*momentsStar[6] + sigma*(1960.0*momentsStar[5] 
-                + sigma*(6769.0*momentsStar[4] + sigma*(13132.0*momentsStar[3] 
-                + sigma*(13068.0*momentsStar[2] 
+        moments[8] = momentsStar[8] + sigma*(28.0*momentsStar[7]
+                + sigma*(322.0*momentsStar[6] + sigma*(1960.0*momentsStar[5]
+                + sigma*(6769.0*momentsStar[4] + sigma*(13132.0*momentsStar[3]
+                + sigma*(13068.0*momentsStar[2]
                 + 5040.0*momentsStar[1]*sigma))))));
     }
-    
-    if (nMom >= 11) 
-    {       
-        moments[9] = momentsStar[9] + sigma*(36.0*momentsStar[8] 
-                + sigma*(546.0*momentsStar[7] + sigma*(4536.0*momentsStar[6] 
-                + sigma*(22449.0*momentsStar[5] + sigma*(67284.0*momentsStar[4] 
-                + sigma*(118124.0*momentsStar[3] 
-                + sigma*(109584.0*momentsStar[2] 
-                + 40320.0*momentsStar[1]*sigma)))))));
-                
-                
 
-        moments[10] = momentsStar[10] + sigma*(45.0*momentsStar[9] 
-                + sigma*(870.0*momentsStar[8]  + sigma*(9450.0*momentsStar[7] 
-                + sigma*(63273.0*momentsStar[6] 
-                + sigma*(269325.0*momentsStar[5] 
-                + sigma*(723680.0*momentsStar[4] 
-                + sigma*(1172700.0*momentsStar[3] 
-                + sigma*(1026576.0*momentsStar[2] 
+    if (nMom >= 11)
+    {
+        moments[9] = momentsStar[9] + sigma*(36.0*momentsStar[8]
+                + sigma*(546.0*momentsStar[7] + sigma*(4536.0*momentsStar[6]
+                + sigma*(22449.0*momentsStar[5] + sigma*(67284.0*momentsStar[4]
+                + sigma*(118124.0*momentsStar[3]
+                + sigma*(109584.0*momentsStar[2]
+                + 40320.0*momentsStar[1]*sigma)))))));
+
+        moments[10] = momentsStar[10] + sigma*(45.0*momentsStar[9]
+                + sigma*(870.0*momentsStar[8]  + sigma*(9450.0*momentsStar[7]
+                + sigma*(63273.0*momentsStar[6]
+                + sigma*(269325.0*momentsStar[5]
+                + sigma*(723680.0*momentsStar[4]
+                + sigma*(1172700.0*momentsStar[3]
+                + sigma*(1026576.0*momentsStar[2]
                 + 362880.0*momentsStar[1]*sigma))))))));
     }
 }
@@ -179,89 +177,89 @@ void Foam::gammaEQMOM::momentsToMomentsStar
         )   << "Moment transformation not implemented."
             << abort(FatalError);
     }
-    
+
     momentsStar[0] = moments[0];
     momentsStar[1] = moments[1];
-    momentsStar[2] = moments[2] - sigma*moments[1];    
+    momentsStar[2] = moments[2] - sigma*moments[1];
 
     if (nMom >= 5)
     {
-        momentsStar[3] = moments[3] + sigma*(-3.0*moments[2] 
+        momentsStar[3] = moments[3] + sigma*(-3.0*moments[2]
                 + moments[1]*sigma);
 
-        momentsStar[4] = moments[4] + sigma*(-6.0*moments[3] 
+        momentsStar[4] = moments[4] + sigma*(-6.0*moments[3]
                 + sigma*(7.0*moments[2] - moments[1]*sigma));
     }
-    
+
     if (nMom >= 7)
     {
-        momentsStar[5] = moments[5] + sigma*(-10.0*moments[4] 
-                + sigma*(25.0*moments[3] + sigma*(-15.0*moments[2] 
+        momentsStar[5] = moments[5] + sigma*(-10.0*moments[4]
+                + sigma*(25.0*moments[3] + sigma*(-15.0*moments[2]
                 + moments[1]*sigma)));
-                
-       	momentsStar[6] = moments[6] + sigma*(-15.0*moments[5] 
-                + sigma*(65.0*moments[4] + sigma*(-90.0*moments[3] 
+
+       	momentsStar[6] = moments[6] + sigma*(-15.0*moments[5]
+                + sigma*(65.0*moments[4] + sigma*(-90.0*moments[3]
                 + sigma*(31.0*moments[2] - moments[1]*sigma))));
     }
-    
+
     if (nMom >= 9)
     {
-        momentsStar[7] = moments[7] + sigma*(-21.0*moments[6] 
-                + sigma*(140.0*moments[5] + sigma*(-350.0*moments[4] 
-                + sigma*(301.0*moments[3] + sigma*(-63.0*moments[2] 
+        momentsStar[7] = moments[7] + sigma*(-21.0*moments[6]
+                + sigma*(140.0*moments[5] + sigma*(-350.0*moments[4]
+                + sigma*(301.0*moments[3] + sigma*(-63.0*moments[2]
                 + moments[1]*sigma)))));
-                
-       	momentsStar[8] = moments[8] + sigma*(-28.0*moments[7] 
-                + sigma*(266.0*moments[6] + sigma*(-1050.0*moments[5] 
-                + sigma*(1701.0*moments[4] + sigma*(-966.0*moments[3] 
+
+       	momentsStar[8] = moments[8] + sigma*(-28.0*moments[7]
+                + sigma*(266.0*moments[6] + sigma*(-1050.0*moments[5]
+                + sigma*(1701.0*moments[4] + sigma*(-966.0*moments[3]
                 + sigma*(127.0*moments[2] - moments[1]*sigma))))));
     }
-    
+
     if (nMom >= 11)
     {
-        momentsStar[9] = moments[9] + sigma*(-36.0*moments[8] 
-                + sigma*(462.0*moments[7] + sigma*(-2646.0*moments[6] 
-                + sigma*(6951.0*moments[5] + sigma*(-7770.0*moments[4] 
-                + sigma*(3025.0*moments[3] + sigma*(-255.0*moments[2] 
+        momentsStar[9] = moments[9] + sigma*(-36.0*moments[8]
+                + sigma*(462.0*moments[7] + sigma*(-2646.0*moments[6]
+                + sigma*(6951.0*moments[5] + sigma*(-7770.0*moments[4]
+                + sigma*(3025.0*moments[3] + sigma*(-255.0*moments[2]
                 + moments[1]*sigma)))))));
-                
-       momentsStar[10] = moments[10] + sigma*(-45.0*moments[9] 
-            + sigma*(750.0*moments[8] + sigma*(-5880.0*moments[7] 
-            + sigma*(22827.0*moments[6] + sigma*(-42525.0*moments[5] 
-            + sigma*(34105.0*moments[4] + sigma*(-9330.0*moments[3] 
+
+       momentsStar[10] = moments[10] + sigma*(-45.0*moments[9]
+            + sigma*(750.0*moments[8] + sigma*(-5880.0*moments[7]
+            + sigma*(22827.0*moments[6] + sigma*(-42525.0*moments[5]
+            + sigma*(34105.0*moments[4] + sigma*(-9330.0*moments[3]
             + sigma*(511.0*moments[2] - moments[1]*sigma))))))));
     }
 }
 
 Foam::scalar Foam::gammaEQMOM::m2N
 (
-    scalar sigma, 
+    scalar sigma,
     univariateMomentSet momentsStar
 )
-{   
+{
     label nMomentsStar = momentsStar.size();
-    
+
     if (momentsStar.nRealizableMoments() >= nMomentsStar - 1)
     {
-        univariateMomentSet m(nMomentsStar, 0.0);
+        univariateMomentSet m(nMomentsStar, 0.0, "RPlus");
         momentsStarToMoments(sigma, m, momentsStar);
-        
+
         return m.last();
     }
-    
+
     return GREAT;
 }
 
 void Foam::gammaEQMOM::recurrenceRelation
 (
-    scalarDiagonalMatrix& a, 
+    scalarDiagonalMatrix& a,
     scalarDiagonalMatrix& b,
     scalar primaryAbscissa,
     scalar sigma
 )
-{   
+{
     scalar alpha = primaryAbscissa/sigma - 1.0;
-    
+
     forAll(a, aI)
     {
         a[aI] = (2.0*scalar(aI) + alpha + 1.0);
@@ -276,10 +274,10 @@ void Foam::gammaEQMOM::recurrenceRelation
 }
 
 Foam::scalar Foam::gammaEQMOM::sigmaMax(univariateMomentSet& moments)
-{  
-    scalar sigmaZeta1 = 
+{
+    scalar sigmaZeta1 =
         (moments[0]*moments[2] - moments[1]*moments[1])/(moments[0]*moments[1]);
-    
+
     return sigmaZeta1;//min(sigmaZeta1, sigmaZeta2);
 }
 

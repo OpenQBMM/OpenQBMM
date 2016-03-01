@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,8 +25,9 @@ Class
     Foam::univariateMomentSet
 
 Description
-    Stores and operates on a set of univariate moments.
-    
+    Stores, checks realizability and calculates the quadrature representation of
+    a measure from a set of univariate moments.
+
     References
     \verbatim
         "Modified moments and Gaussian quadratures"
@@ -34,18 +35,26 @@ Description
         Rocky Mountain Journal of Mathematics
         Volume 4, Pages 287-296, 1974
     \endverbatim
-    
+
     \verbatim
         "Numerical Recipes in C++"
         W H Press, S A Teukolsky, W Vetterling, B P Flannery
         Cambridge University Press, 2007
     \endverbatim
-    
+
     \verbatim
-        "The theory of canonical moments with applications in Statistics, 
+        "The theory of canonical moments with applications in Statistics,
         Probability and Analysis"
-        H Dette, W. J. Studden 
+        H Dette, W. J. Studden
         Wiley & Sons, 1997
+    \endverbatim
+
+    \verbatim
+        "Matrix measures, moment spaces and Favard’s theorem for the interval
+        [0, 1] and [0,∞)"
+        H Dette, W. J. Studden
+        Linear algebra and its applications
+        Issue 345, Pages 169-193, 2002
     \endverbatim
 
 SourceFiles
@@ -69,7 +78,7 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 class univariateMomentSet
-: 
+:
     public scalarDiagonalMatrix
 {
     // Private data
@@ -77,42 +86,64 @@ class univariateMomentSet
         //- Number of moments
         label nMoments_;
 
-        //- Position of fist negative zeta
+        //- Alpha coefficients of the recurrence relation
+        scalarDiagonalMatrix alpha_;
+
+        //- Beta coefficients of the recurrence relation
+        scalarDiagonalMatrix beta_;
+
+        //- Type of support of the measure associated to the moment set
+        word support_;
+
+        //- Position of first negative zeta
         label negativeZeta_;
 
         //- Bool to indicate if moments were inverted
         bool inverted_;
 
         //- Bool to indicate if the full moment set is realizable
-        //  It is set to false also if a subset of moments is realizable
-        bool realizable_;
+        bool fullyRealizable_;
+
+        //- Bool to indicate if a subset of the full moment set is realizable
+        bool subsetRealizable_;
 
         //- Bool to indicate moment realizability was checked
         bool realizabilityChecked_;
-        
+
         //- Bool to indicate quadrature setup was completed
         bool quadratureSetUp_;
 
         //- Number of invertible moments
         label nInvertibleMoments_;
-        
+
         //- Number of realizable moments
         label nRealizableMoments_;
-        
+
         //- Number of quadrature nodes
         label nNodes_;
-        
+
         //- Quadrature weights
         scalarDiagonalMatrix weights_;
-        
+
         //- Quadrature abscissae
         scalarDiagonalMatrix abscissae_;
-        
+
     // Private member functions
-        
+
         //- Check moment realizability
         void checkRealizability();
-        
+
+        //- Checks canonical moments for measures with support over [0,1]
+        void checkCanonicalMoments
+        (
+            const scalarDiagonalMatrix& zeta,
+            const label nZeta,
+            label& nRealizableMoments
+        );
+
+        //- Computes the number of invertible moments
+        inline void calcNInvertibleMoments();
+
         //- Setup quadrature storage based on realizability
         void setupQuadrature(bool clear = false);
 
@@ -124,13 +155,15 @@ public:
         univariateMomentSet
         (
             const label nMoments,
-            const scalar initValue
+            const scalar initValue,
+            const word support
         );
 
         //- Construct from diagonalMatrix
         univariateMomentSet
         (
-            const scalarDiagonalMatrix& m
+            const scalarDiagonalMatrix& m,
+            const word support
         );
 
     //- Destructor
@@ -141,7 +174,7 @@ public:
 
         //- Return quadrature abscissae
         inline const scalarDiagonalMatrix& abscissae() const;
-        
+
         //- Invert the set of moments to compute weights and abscissae
         void invert();
 
@@ -150,9 +183,12 @@ public:
 
         //- Returns the status of inversion
         inline bool isInverted() const;
-        
+
         //- Return realizability status of the moment set
-        inline bool isRealizable();
+        inline bool isFullyRealizable();
+
+        //- Return realizability status of the moment set
+        inline bool isSubsetRealizable();
 
         //- Return the number of invertible moments
         inline label nInvertibleMoments();
@@ -162,12 +198,15 @@ public:
 
         //- Return the number of moments
         inline label nMoments() const;
-        
+
         //- Return the number of nodes
         inline label nNodes() const;
-        
+
         //- Return quadrature weights
         inline const scalarDiagonalMatrix& weights() const;
+
+        //- Return support
+        inline const word support() const;
 };
 
 

@@ -50,7 +50,7 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 class PDFTransportModel
-{       
+{
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
@@ -59,9 +59,9 @@ class PDFTransportModel
         //- Disallow default bitwise assignment
         void operator=(const PDFTransportModel&);
 
-        
+
 protected:
-        
+
     // Protected data
 
         //- Constant reference to the mesh

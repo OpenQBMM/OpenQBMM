@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -29,33 +29,43 @@ bool Foam::univariateMomentSet::isInverted() const
     return inverted_;
 }
 
-bool Foam::univariateMomentSet::isRealizable()
+bool Foam::univariateMomentSet::isFullyRealizable()
 {
     if (!realizabilityChecked_)
     {
         checkRealizability();
     }
-    
-    return realizable_;
+
+    return fullyRealizable_;
 }
 
-Foam::label Foam::univariateMomentSet::nInvertibleMoments() 
+bool Foam::univariateMomentSet::isSubsetRealizable()
 {
     if (!realizabilityChecked_)
     {
         checkRealizability();
     }
-    
+
+    return subsetRealizable_;
+}
+
+Foam::label Foam::univariateMomentSet::nInvertibleMoments()
+{
+    if (!realizabilityChecked_)
+    {
+        checkRealizability();
+    }
+
     return nInvertibleMoments_;
 }
 
-Foam::label Foam::univariateMomentSet::nRealizableMoments() 
+Foam::label Foam::univariateMomentSet::nRealizableMoments()
 {
     if (!realizabilityChecked_)
     {
         checkRealizability();
     }
-    
+
     return nRealizableMoments_;
 }
 
@@ -79,6 +89,12 @@ const Foam::scalarDiagonalMatrix& Foam::univariateMomentSet::weights() const
 const Foam::scalarDiagonalMatrix& Foam::univariateMomentSet::abscissae() const
 {
     return abscissae_;
+}
+
+//- Return primary quadrature abscissae
+const Foam::word Foam::univariateMomentSet::support() const
+{
+    return support_;
 }
 
 // ************************************************************************* //
