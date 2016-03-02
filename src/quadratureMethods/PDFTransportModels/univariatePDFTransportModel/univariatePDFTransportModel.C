@@ -129,8 +129,8 @@ Foam::PDFTransportModels::univariatePDFTransportModel::physicalSpaceConvection
       + quadrature_.momentsOwn()[order]*max(phiOwn, zeroPhi)
     );
 
-    fvc::surfaceIntegrate(divMoment(), mFlux);
-    divMoment().dimensions().reset(moment.dimensions()/dimTime);
+    fvc::surfaceIntegrate(divMoment.ref(), mFlux);
+    divMoment.ref().dimensions().reset(moment.dimensions()/dimTime);
 
     return divMoment;
 }

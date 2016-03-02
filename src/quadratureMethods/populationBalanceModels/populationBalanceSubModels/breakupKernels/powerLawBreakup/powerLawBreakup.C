@@ -86,7 +86,7 @@ Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup::Kb
     tmp<volScalarField> brK = 
         Cb_*pos(abscissa - minAbs)*pow(abscissa, abscissaExponent_);
         
-    brK().dimensions().reset(pow(dimTime, -1));
+    brK.ref().dimensions().reset(pow(dimTime, -1));
 
     return brK;
 }
