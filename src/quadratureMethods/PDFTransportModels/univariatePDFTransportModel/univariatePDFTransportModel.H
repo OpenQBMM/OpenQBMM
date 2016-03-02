@@ -94,7 +94,7 @@ protected:
         ) = 0;
 
         //- Calculate source terms
-        virtual tmp<volScalarField> momentSource
+        virtual tmp<fvScalarMatrix> momentSource
         (
             const volUnivariateMoment& moment
         ) = 0;

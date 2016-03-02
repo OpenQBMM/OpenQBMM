@@ -332,14 +332,25 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return gSource;
 }
 
-Foam::tmp<Foam::volScalarField>
+Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::momentSource
 (
     const volUnivariateMoment& moment
 )
 {
-    return aggregationSource(moment) + breakupSource(moment);
+    tmp<fvScalarMatrix> mSource
+    (
+        new fvScalarMatrix
+        (
+            moment,
+            moment.dimensions()*dimVol/dimTime
+        )
+    );
+
+    mSource.ref() += aggregationSource(moment) + breakupSource(moment);
+
+    return mSource;
 }
 
 void Foam::PDFTransportModels::populationBalanceModels

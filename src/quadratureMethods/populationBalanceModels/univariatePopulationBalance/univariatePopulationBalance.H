@@ -126,7 +126,7 @@ class univariatePopulationBalance
         );
 
         //- Calculate source terms
-        virtual tmp<volScalarField> momentSource
+        virtual tmp<fvScalarMatrix> momentSource
         (
             const volUnivariateMoment& moment
         );
