@@ -456,7 +456,6 @@ void Foam::univariateMomentSet::checkRealizability()
 
         if (zeta[2*nD - 1] <= 0)
         {
-            Info << "Checking CM OUT 2dn - 1" << endl;
             if (support_ == "RPlus")
             {
                 negativeZeta_ = 2*nD;
