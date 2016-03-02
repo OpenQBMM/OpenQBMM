@@ -120,8 +120,15 @@ public:
 
     // Member Functions
 
-        //- Solve univariate PDF transport equation
-        virtual void solve();
+        //- Access
+
+            //- Returns a const reference to the quadrature approximation
+            inline const univariateQuadratureApproximation& quadrature() const;
+
+        //-Edit
+
+            //- Solve univariate PDF transport equation
+            virtual void solve();
 };
 
 
@@ -132,6 +139,8 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#endif
+#include "univariatePDFTransportModelI.H"
 
-// ************************************************************************* //
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
