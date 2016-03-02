@@ -228,7 +228,7 @@ void Foam::univariateMomentSet::checkRealizability()
         FatalErrorIn
         (
             "Foam::univariateMomentSet::checkRealizability()\n"
-        )   << "The moment set is degenerate."
+        )   << "The moment has size less or equal to 1."
             << abort(FatalError);
     }
 
@@ -376,7 +376,10 @@ void Foam::univariateMomentSet::checkRealizability()
                 }
                 else // Support on [0,1]
                 {
-                    checkCanonicalMoments(zeta, 2*zetaI - 1, nRealizableMoments_);
+                    checkCanonicalMoments
+                    (
+                        zeta, 2*zetaI - 1, nRealizableMoments_
+                    );
                 }
 
                 calcNInvertibleMoments();
@@ -503,8 +506,8 @@ void Foam::univariateMomentSet::checkRealizability()
         }
         else
         {
-            // If support is [0, + inf[ and this level is reached, the full set of
-            // moments is realizable
+            // If support is [0, + inf[ and this level is reached, the full set
+            // of moments is realizable
             if (support_ == "RPlus")
             {
                 fullyRealizable_ = true;
@@ -525,7 +528,6 @@ void Foam::univariateMomentSet::checkRealizability()
                     fullyRealizable_ = false;
                     subsetRealizable_ = true;
                 }
-                // TODO Check if case of fully non-realizable is possible
             }
 
             calcNInvertibleMoments();
