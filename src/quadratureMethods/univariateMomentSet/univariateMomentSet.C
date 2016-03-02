@@ -254,7 +254,7 @@ void Foam::univariateMomentSet::checkRealizability()
             return;
         }
 
-        zeta[0] = (*this)[1]/(*this)[0] - 1.0;
+        zeta[0] = (*this)[1]/(*this)[0];
 
         if (zeta[0] <= 0)
         {
