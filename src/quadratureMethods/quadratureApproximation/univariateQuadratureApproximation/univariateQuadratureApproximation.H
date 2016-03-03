@@ -48,8 +48,7 @@ SourceFiles
 #include "univariateMomentSet.H"
 #include "extendedMomentInversion.H"
 #include "quadratureNodes.H"
-#include "moments.H"
-#include "momentFieldSet.H"
+#include "momentFieldSets.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -73,7 +72,7 @@ class univariateQuadratureApproximation
         autoPtr<PtrList<extendedVolScalarNode> > nodes_;
 
         //- List of moments
-        momentFieldSet<volUnivariateMoment, extendedVolScalarNode> moments_;
+        volUnivariateMomentFieldSet moments_;
 
         //- Number of primary quadrature nodes
         label nPrimaryNodes_;
@@ -94,10 +93,10 @@ class univariateQuadratureApproximation
         const label nMoments_;
 
         //- List of interpolated moments (neighbour)
-        momentFieldSet<surfaceUnivariateMoment, extendedSurfaceScalarNode> momentsNei_;
+        surfaceUnivariateMomentFieldSet momentsNei_;
 
         //- List of interpolated moments (owner)
-        momentFieldSet<surfaceUnivariateMoment, extendedSurfaceScalarNode> momentsOwn_;
+        surfaceUnivariateMomentFieldSet momentsOwn_;
 
         //- Moment inversion method
         autoPtr<extendedMomentInversion> momentInverter_;
@@ -130,40 +129,22 @@ public:
             inline const PtrList<extendedVolScalarNode>& nodes() const;
 
             //- Const access to the moments
-            inline const momentFieldSet<volUnivariateMoment, extendedVolScalarNode>&
-                moments() const;
+            inline const volUnivariateMomentFieldSet& moments() const;
 
             //- Non-const access to the moments
-            inline momentFieldSet<volUnivariateMoment, extendedVolScalarNode>&
-                moments();
+            inline volUnivariateMomentFieldSet& moments();
 
             //- Const access to the interpolated moments (neighbour)
-            inline const momentFieldSet
-            <
-                surfaceUnivariateMoment,
-                extendedSurfaceScalarNode
-            >& momentsNei() const;
+            inline const surfaceUnivariateMomentFieldSet& momentsNei() const;
 
             //- Non-const access to the interpolated moments (neighbour)
-            inline momentFieldSet
-            <
-                surfaceUnivariateMoment,
-                extendedSurfaceScalarNode
-            >& momentsNei();
+            inline surfaceUnivariateMomentFieldSet& momentsNei();
 
             //- Const access to the interpolated moments (owner)
-            inline const momentFieldSet
-            <
-                surfaceUnivariateMoment,
-                extendedSurfaceScalarNode
-            >& momentsOwn() const;
+            inline const surfaceUnivariateMomentFieldSet& momentsOwn() const;
 
             //- Non-const access to the interpolated moments (owner)
-            inline momentFieldSet
-            <
-                surfaceUnivariateMoment,
-                extendedSurfaceScalarNode
-            >& momentsOwn();
+            inline surfaceUnivariateMomentFieldSet& momentsOwn();
 
             //- Return the number of dimensions in the distribution
             inline label nDimensions() const;

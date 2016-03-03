@@ -21,60 +21,41 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::momentFieldSets
+
+Description
+
+SourceFiles
+
 \*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+#ifndef momentFieldSets_H
+#define momentFieldSets_H
 
-const Foam::PtrList<Foam::extendedVolScalarNode>&
-Foam::univariateQuadratureApproximation::nodes() const
-{
-    return nodes_();
-}
+#include "volFields.H"
+#include "quadratureNodes.H"
+#include "moments.H"
+#include "momentFieldSet.H"
 
-const Foam::volUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::moments() const
-{
-    return moments_;
-}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-Foam::volUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::moments()
+namespace Foam
 {
-    return moments_;
-}
 
-const Foam::surfaceUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::momentsNei() const
-{
-    return momentsNei_;
-}
+typedef momentFieldSet<volUnivariateMoment, extendedVolScalarNode>
+    volUnivariateMomentFieldSet;
 
-Foam::surfaceUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::momentsNei()
-{
-    return momentsNei_;
-}
+typedef momentFieldSet<surfaceUnivariateMoment, extendedSurfaceScalarNode>
+    surfaceUnivariateMomentFieldSet;
 
-const Foam::surfaceUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::momentsOwn() const
-{
-    return momentsOwn_;
-}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-Foam::surfaceUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::momentsOwn()
-{
-    return momentsOwn_;
-}
+} // End namespace Foam
 
-Foam::label Foam::univariateQuadratureApproximation::nDimensions() const
-{
-    return nDimensions_;
-}
 
-Foam::label Foam::univariateQuadratureApproximation::nMoments() const
-{
-    return nMoments_;
-}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
 
 // ************************************************************************* //
