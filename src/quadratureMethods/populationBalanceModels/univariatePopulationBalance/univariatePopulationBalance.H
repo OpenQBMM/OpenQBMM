@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -36,8 +36,8 @@ SourceFiles
 #ifndef univariatePopulationBalance_H
 #define univariatePopulationBalance_H
 
-#include "univariatePDFTransportModel.H"
 #include "populationBalanceModel.H"
+#include "univariateQuadratureApproximation.H"
 #include "aggregationKernel.H"
 #include "breakupKernel.H"
 #include "daughterDistribution.H"
@@ -48,8 +48,6 @@ SourceFiles
 
 namespace Foam
 {
-namespace PDFTransportModels
-{
 namespace populationBalanceModels
 {
 
@@ -59,13 +57,16 @@ namespace populationBalanceModels
 
 class univariatePopulationBalance
 :
-    public univariatePDFTransportModel, public populationBalanceModel
+    public populationBalanceModel
 {
     // Private data
 
+        //- Dictionary containing quadrature settings
+        univariateQuadratureApproximation quadrature_;
+        
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
-
+        
         //- Switch indicating the status of the breakup model
         Switch breakup_;
 
@@ -77,59 +78,59 @@ class univariatePopulationBalance
         <
             Foam::populationBalanceSubModels::aggregationKernel
         > aggregationKernel_;
-
+        
         //- Breakup kernel model
         autoPtr
         <
             Foam::populationBalanceSubModels::breakupKernel
         > breakupKernel_;
-
+        
         //- Daughter distribution function
         autoPtr
         <
             Foam::populationBalanceSubModels::daughterDistribution
         > daughterDistribution_;
-
+      
         //- Growth model function
         autoPtr
         <
             Foam::populationBalanceSubModels::growthModel
         > growthModel_;
-
+      
         //- Diffusion model
         autoPtr
         <
             Foam::populationBalanceSubModels::diffusionModel
         > diffusionModel_;
-
+        
     // Private member functions
-
+        
+        //- Update fields required to compute kinetic fluxes
+        void updateAdvection
+        (
+            surfaceScalarField& phiOwn, 
+            surfaceScalarField& phiNei
+        );
+        
+        //- Calculate explicit advection term 
+        tmp<volScalarField> advectMoment
+        (
+            const volUnivariateMoment& moment,
+            const surfaceScalarField& phiOwn,
+            const surfaceScalarField& phiNei
+        );
+        
         //- Calculate aggregation source terms
         tmp<volScalarField> aggregationSource
         (
             const volUnivariateMoment& moment
         );
-
+        
         //- Calculate Breakup source term
         tmp<volScalarField> breakupSource(const volUnivariateMoment& moment);
 
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
-        (
-            const volUnivariateMoment& moment
-        );
-
-        //- Convect moments in phase space
-        virtual tmp<volScalarField> phaseSpaceConvection
-        (
-            const volUnivariateMoment& moment
-        );
-
-        //- Calculate source terms
-        virtual tmp<volScalarField> momentSource
-        (
-            const volUnivariateMoment& moment
-        );
+        //- Calculate Growth source term
+        tmp<volScalarField> growthSource(const volUnivariateMoment& moment);
 
 
 public:
@@ -152,17 +153,17 @@ public:
     //- Destructor
     virtual ~univariatePopulationBalance();
 
+
     // Member Functions
 
-        //- Solve population balance equation
-        void solve();
+        //- Solve univariate population balance equation
+        virtual void solve();
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace populationBalanceModels
-} // End namespace univariatePDFTransportModel
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -47,7 +47,7 @@ Foam::populationBalanceModel::New
     {
         FatalErrorIn("populationBalanceModel::New")
             << "(" << endl
-            << "    const dictionary&" << endl
+            << "    const dictionary&" << endl 
             << "    const volVectorField&" << endl
             << "    const surfaceScalarField&" << endl
             << ") : " << endl

@@ -23,8 +23,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "powerLawBreakup.H"
+#include "CoulaloglouTavlarides.H"
 #include "addToRunTimeSelectionTable.H"
+#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -34,12 +35,12 @@ namespace populationBalanceSubModels
 {
 namespace breakupKernels
 {
-    defineTypeNameAndDebug(powerLawBreakup, 0);
+    defineTypeNameAndDebug(CoulaloglouTavlarides, 0);
 
     addToRunTimeSelectionTable
     (
         breakupKernel,
-        powerLawBreakup,
+        CoulaloglouTavlarides,
         dictionary
     );
 }
@@ -49,46 +50,61 @@ namespace breakupKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup
-::powerLawBreakup
+Foam::populationBalanceSubModels::breakupKernels::CoulaloglouTavlarides
+::CoulaloglouTavlarides
 (
     const dictionary& dict
 )
 :
     breakupKernel(dict),
-    minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0)),
-    abscissaExponent_(dict.lookupOrDefault("abscissaExponent", 3))
+    C1b_
+    (
+        dict.lookupOrDefault
+        (
+            "C1b", 
+            dimensionedScalar("one", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.00481)  
+        )
+    ),
+    C2b_
+    (
+        dict.lookupOrDefault
+        (
+            "C2b", 
+            dimensionedScalar("one", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.08)  
+        )
+    ),
+    surfaceT_
+    (
+        dict.lookup("surfaceT")
+    )
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup
-::~powerLawBreakup()
+Foam::populationBalanceSubModels::breakupKernels::CoulaloglouTavlarides::~CoulaloglouTavlarides()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup::Kb
+Foam::populationBalanceSubModels::breakupKernels::CoulaloglouTavlarides::Kb
 (
     const volScalarField& abscissa
 ) const
 {   
-    dimensionedScalar minAbs
-    (
-        "minAbs", 
-        abscissa.dimensions(), 
-        minAbscissa_.value()
-    );
+    const compressible::turbulenceModel& fluidTurb =
+        abscissa.mesh().lookupObject<compressible::turbulenceModel>
+        (
+            turbulenceModel::propertiesName
+        );
 
-    tmp<volScalarField> brK = 
-        Cb_*pos(abscissa - minAbs)*pow(abscissa, abscissaExponent_);
-        
-    brK().dimensions().reset(pow(dimTime, -1));
+        const volScalarField& rhoc = fluidTurb.rho();
 
-    return brK;
+
+        return C1b_*pow(fluidTurb.epsilon(), 1.0/3.0)*pow(abscissa, -2.0/3.0)
+            *exp(-C2b_*surfaceT_/rhoc/pow(fluidTurb.epsilon(), 2.0/3.0)/pow(abscissa, 5.0/3.0));
 }
 
 // ************************************************************************* //

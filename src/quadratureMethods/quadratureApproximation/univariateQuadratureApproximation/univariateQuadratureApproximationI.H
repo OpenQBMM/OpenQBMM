@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -31,13 +31,13 @@ Foam::univariateQuadratureApproximation::nodes() const
     return nodes_();
 }
 
-const Foam::momentFieldSet<Foam::volUnivariateMoment, Foam::extendedVolScalarNode>&
+const Foam::momentFieldSet<Foam::volUnivariateMoment, Foam::extendedVolScalarNode>& 
 Foam::univariateQuadratureApproximation::moments() const
 {
     return moments_;
 }
 
-Foam::momentFieldSet<Foam::volUnivariateMoment, Foam::extendedVolScalarNode>&
+Foam::momentFieldSet<Foam::volUnivariateMoment, Foam::extendedVolScalarNode>& 
 Foam::univariateQuadratureApproximation::moments()
 {
     return moments_;
@@ -46,7 +46,7 @@ Foam::univariateQuadratureApproximation::moments()
 const Foam::momentFieldSet
 <
     Foam::surfaceUnivariateMoment, Foam::extendedSurfaceScalarNode
->&
+>& 
 Foam::univariateQuadratureApproximation::momentsNei() const
 {
     return momentsNei_;
@@ -55,7 +55,7 @@ Foam::univariateQuadratureApproximation::momentsNei() const
 Foam::momentFieldSet
 <
     Foam::surfaceUnivariateMoment, Foam::extendedSurfaceScalarNode
->&
+>&  
 Foam::univariateQuadratureApproximation::momentsNei()
 {
     return momentsNei_;
@@ -64,7 +64,7 @@ Foam::univariateQuadratureApproximation::momentsNei()
 const Foam::momentFieldSet
 <
     Foam::surfaceUnivariateMoment, Foam::extendedSurfaceScalarNode
->&
+>& 
 Foam::univariateQuadratureApproximation::momentsOwn() const
 {
     return momentsOwn_;
@@ -73,7 +73,7 @@ Foam::univariateQuadratureApproximation::momentsOwn() const
 Foam::momentFieldSet
 <
     Foam::surfaceUnivariateMoment, Foam::extendedSurfaceScalarNode
->&
+>&  
 Foam::univariateQuadratureApproximation::momentsOwn()
 {
     return momentsOwn_;

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -30,24 +30,22 @@ License
 
 namespace Foam
 {
-namespace PDFTransportModels
-{
 namespace populationBalanceModels
 {
     defineTypeNameAndDebug(univariatePopulationBalance, 0);
     addToRunTimeSelectionTable
     (
         populationBalanceModel,
-        univariatePopulationBalance,
+        univariatePopulationBalance, 
         dictionary
     );
 }
 }
-}
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+Foam::populationBalanceModels::univariatePopulationBalance
 ::univariatePopulationBalance
 (
     const dictionary& dict,
@@ -55,8 +53,8 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(dict, U.mesh(), U, "RPlus"),
     populationBalanceModel(dict, U, phi),
+    quadrature_(U.mesh()),
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
     growth_(dict.lookup("growth")),
@@ -100,20 +98,101 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+Foam::populationBalanceModels::univariatePopulationBalance
 ::~univariatePopulationBalance()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+void Foam::populationBalanceModels::univariatePopulationBalance::updateAdvection
+(
+    surfaceScalarField& phiOwn,
+    surfaceScalarField& phiNei
+)
+{
+    surfaceScalarField nei
+    (
+        IOobject
+        (
+            "nei",
+            U_.mesh().time().timeName(),
+            U_.mesh()
+        ),
+        U_.mesh(),
+        dimensionedScalar("nei", dimless, -1.0)
+    );
+
+    surfaceScalarField own
+    (
+        IOobject
+        (
+            "own",
+            U_.mesh().time().timeName(),
+            U_.mesh()
+        ),
+        U_.mesh(),
+        dimensionedScalar("own", dimless, 1.0)
+    );
+    
+    phiOwn = fvc::interpolate(U_, own, "reconstruct(U)") & U_.mesh().Sf();
+    phiNei = fvc::interpolate(U_, nei, "reconstruct(U)") & U_.mesh().Sf();
+  
+    // Update interpolated nodes
+    quadrature_.interpolateNodes();
+    
+    // Updated reconstructed moments
+    quadrature_.momentsNei().update();
+    quadrature_.momentsOwn().update();
+}
 
 Foam::tmp<Foam::volScalarField>
-Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
-::aggregationSource
+Foam::populationBalanceModels::univariatePopulationBalance::advectMoment
+(
+    const volUnivariateMoment& moment,
+    const surfaceScalarField& phiOwn,
+    const surfaceScalarField& phiNei
+)
+{
+    dimensionedScalar zeroPhi("zero", phiNei.dimensions(), 0.0);
+    
+    tmp<volScalarField> divMoment
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "divMoment",
+                U_.mesh().time().timeName(),
+                U_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            U_.mesh(),
+            dimensionedScalar("zero", dimless, 0.0)
+        )
+    );
+    
+    label order = moment.order();
+    
+    surfaceScalarField mFlux
+    (   
+        quadrature_.momentsNei()[order]*min(phiNei, zeroPhi) 
+      + quadrature_.momentsOwn()[order]*max(phiOwn, zeroPhi)
+    );
+ 
+    fvc::surfaceIntegrate(divMoment(), mFlux);
+    divMoment().dimensions().reset(moment.dimensions()/dimTime);
+
+    return divMoment;
+}
+
+Foam::tmp<Foam::volScalarField>
+Foam::populationBalanceModels::univariatePopulationBalance::aggregationSource
 (
     const volUnivariateMoment& moment
 )
-{
+{      
     tmp<volScalarField> aSource
     (
         new volScalarField
@@ -131,81 +210,80 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
-
+    
     if (!aggregation_)
     {
-        aSource.ref().dimensions().reset(moment.dimensions()/dimTime);
-
+        aSource().dimensions().reset(moment.dimensions()/dimTime);
+        
         return aSource;
     }
 
     label order = moment.order();
-
-    volScalarField& aggregationSource = aSource.ref();
-
+   
+    volScalarField& aggregationSource = aSource();
+       
     forAll(quadrature_.nodes(), pNode1I)
     {
         const extendedVolScalarNode& node1 = quadrature_.nodes()[pNode1I];
-
+        
         const volScalarField& pWeight1 = node1.primaryWeight();
-
+        
         forAll(node1.secondaryWeights(), sNode1I)
-        {
-
+        {              
+            
             const volScalarField& sWeight1 = node1.secondaryWeights()[sNode1I];
-
-            const volScalarField& sAbscissa1
+            
+            const volScalarField& sAbscissa1 
                 = node1.secondaryAbscissae()[sNode1I];
-
+            
             forAll(quadrature_.nodes(), pNode2I)
             {
                 const extendedVolScalarNode& node2 = quadrature_.nodes()[pNode2I];
-
+                
                 const volScalarField& pWeight2 = node2.primaryWeight();
-
+                
                 forAll(node2.secondaryWeights(), sNode2I)
                 {
-                    const volScalarField& sWeight2
+                    const volScalarField& sWeight2 
                         = node2.secondaryWeights()[sNode2I];
 
-                    const volScalarField& sAbscissa2
+                    const volScalarField& sAbscissa2 
                         = node2.secondaryAbscissae()[sNode2I];
-
+                    
                     tmp<volScalarField> aggInnerSum =
                         pWeight1*sWeight1*
                         (
                             pWeight2*sWeight2*
                             (
-                                0.5*pow // Birth
+                                0.5*pow // Birth 
                                 (
-                                    pow3(sAbscissa1) + pow3(sAbscissa2),
+                                    pow3(sAbscissa1) + pow3(sAbscissa2), 
                                     order/3.0
                                 )
                               - pow(sAbscissa1, order)
                             )*aggregationKernel_->Ka(sAbscissa1, sAbscissa2)
                         );
-
+                                                
                     aggregationSource.dimensions().reset
                     (
                         aggInnerSum().dimensions()
                     );
-
+                    
                     aggregationSource == aggregationSource + aggInnerSum();
                 }
             }
         }
     }
-
+    
     return aSource;
 }
 
-Foam::tmp<Foam::volScalarField>
-Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
-::breakupSource
+Foam::tmp<Foam::volScalarField> 
+Foam::populationBalanceModels::univariatePopulationBalance::breakupSource
 (
     const volUnivariateMoment& moment
 )
-{
+{    
     tmp<volScalarField> bSource
     (
         new volScalarField
@@ -223,60 +301,50 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
-
+    
     if (!breakup_)
     {
-        bSource.ref().dimensions().reset(moment.dimensions()/dimTime);
-
+        bSource().dimensions().reset(moment.dimensions()/dimTime);
+        
         return bSource;
     }
-
+    
     label order = moment.order();
-
-    volScalarField& breakupSource = bSource.ref();
-
+        
+    volScalarField& breakupSource = bSource();  
+       
     forAll(quadrature_.nodes(), pNodeI)
     {
         const extendedVolScalarNode& node = quadrature_.nodes()[pNodeI];
-
+        
         forAll(node.secondaryWeights(), sNodeI)
         {
             tmp<volScalarField> bSrc = node.primaryWeight()
                 *node.secondaryWeights()[sNodeI]
                 *breakupKernel_->Kb(node.secondaryAbscissae()[sNodeI])
-                *(
+                *(   
                     daughterDistribution_->mD                      //Birth
                     (
-                        order,
+                        order, 
                         node.secondaryAbscissae()[sNodeI]
-                    )
+                    ) 
                   - pow(node.secondaryAbscissae()[sNodeI], order)   //Death
                  );
-
+             
             breakupSource.dimensions().reset(bSrc().dimensions());
             breakupSource == breakupSource + bSrc;
         }
     }
-
+    
     return bSource;
 }
 
-Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::populationBalanceModels
-::univariatePopulationBalance::momentDiffusion
+Foam::tmp<Foam::volScalarField> 
+Foam::populationBalanceModels::univariatePopulationBalance::growthSource
 (
     const volUnivariateMoment& moment
 )
-{
-    return diffusionModel_->momentDiff(moment);
-}
-
-Foam::tmp<Foam::volScalarField>
-Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
-::phaseSpaceConvection
-(
-    const volUnivariateMoment& moment
-)
-{
+{    
     tmp<volScalarField> gSource
     (
         new volScalarField
@@ -294,36 +362,36 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
-
+    
     if (!growth_)
     {
-        gSource.ref().dimensions().reset(moment.dimensions()/dimTime);
-
+        gSource().dimensions().reset(moment.dimensions()/dimTime);
+        
         return gSource;
     }
-
+    
     label order = moment.order();
-
+        
     if (order < 1)
     {
-        gSource.ref().dimensions().reset(moment.dimensions()/dimTime);
-
+        gSource().dimensions().reset(moment.dimensions()/dimTime);
+        
         return gSource;
     }
-
-    volScalarField& growthSource = gSource.ref();
-
+    
+    volScalarField& growthSource = gSource();  
+       
     forAll(quadrature_.nodes(), pNodeI)
     {
         const extendedVolScalarNode& node = quadrature_.nodes()[pNodeI];
-
+        
         forAll(node.secondaryWeights(), sNodeI)
         {
             tmp<volScalarField> gSrc = node.primaryWeight()
                 *node.secondaryWeights()[sNodeI]
                 *growthModel_->Kg(node.secondaryAbscissae()[sNodeI])
                 *order*pow(node.secondaryAbscissae()[sNodeI],order-1);
-
+             
             growthSource.dimensions().reset(gSrc().dimensions());
             growthSource == growthSource + gSrc;
         }
@@ -332,21 +400,35 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return gSource;
 }
 
-Foam::tmp<Foam::volScalarField>
-Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
-::momentSource
-(
-    const volUnivariateMoment& moment
-)
+void Foam::populationBalanceModels::univariatePopulationBalance::solve()
 {
-    return aggregationSource(moment) + breakupSource(moment);
+    surfaceScalarField phiOwn("phiOwn", fvc::interpolate(U_) & U_.mesh().Sf());
+    surfaceScalarField phiNei("phiNei", phiOwn);
+    updateAdvection(phiOwn, phiNei);
+    
+    // Integrate source and diffusion terms
+    forAll(quadrature_.moments(), mI)
+    {
+        volUnivariateMoment& m = quadrature_.moments()[mI];
+
+        fvScalarMatrix momentEqn
+        (
+            fvm::ddt(m)
+          + advectMoment(m, phiOwn, phiNei)  
+          - diffusionModel_->momentDiff(m)
+          ==
+            aggregationSource(m)
+          + breakupSource(m)
+          + growthSource(m)
+        );
+                
+        momentEqn.relax();
+        momentEqn.solve();
+
+    }
+    
+    quadrature_.updateQuadrature();
 }
 
-void Foam::PDFTransportModels::populationBalanceModels
-::univariatePopulationBalance::solve
-()
-{
-    univariatePDFTransportModel::solve();
-}
 
 // ************************************************************************* //
