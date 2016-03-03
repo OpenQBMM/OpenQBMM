@@ -4,8 +4,8 @@ EXE_INC = \
     -I../univariateMomentSet/lnInclude \
     -I../extentedMomentInversion/lnInclude \
     -I../quadratureNode \
-    -I../moments
-
+    -I../moments 
+    
 LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \

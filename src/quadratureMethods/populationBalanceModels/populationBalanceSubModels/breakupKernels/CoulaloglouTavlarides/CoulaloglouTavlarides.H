@@ -22,111 +22,91 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModel
+    Foam::populationBalanceSubModels::breakupKernels::CoulaloglouTavlarides
 
 Description
-    Abstract class for the run-time selection of the population balance model.
-
+    Breakup kernel for liquid-liquid systems. 
+    
+    Reference
+    \verbatim
+        "Description of interaction processes in agitated liquid-liquid dis[ersions"
+        C Coulaloglou, L Tavlarides
+        Chemical Engineering Science 
+        Volume 32, Pages 1289-1297, 1977
+    \endverbatim 
+    
 SourceFiles
-    populationBalanceModel.C
+    CoulaloglouTavlarides.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef populationBalanceModel_H
-#define populationBalanceModel_H
+#ifndef CoulaloglouTavlarides_H
+#define CoulaloglouTavlarides_H
 
-#include "dictionary.H"
-#include "volFields.H"
-#include "dimensionedTypes.H"
-#include "runTimeSelectionTables.H"
+#include "breakupKernel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+namespace populationBalanceSubModels
+{
+namespace breakupKernels
+{
 
 /*---------------------------------------------------------------------------*\
-                    Class populationBalanceModel Declaration
+                    Class CoulaloglouTavlarides Declaration
 \*---------------------------------------------------------------------------*/
 
-class populationBalanceModel
-{       
-    // Private Member Functions
+class CoulaloglouTavlarides
+:
+    public breakupKernel
+{
+private:
+    
+    // Private data
 
-        //- Disallow default bitwise copy construct
-        populationBalanceModel(const populationBalanceModel&);
+        //- Model coefficient
+        const dimensionedScalar C1b_;
 
-        //- Disallow default bitwise assignment
-        void operator=(const populationBalanceModel&);
-
+        //- Model coefficient
+        const dimensionedScalar C2b_;
         
-protected:
+        //- Surface tension
+        const dimensionedScalar surfaceT_;
         
-    // Protected data
-
-        //- Fluid phase cell-centered velocity
-        const volVectorField& U_;
-
-        //- Fluid-phase face-normal velocity
-        const surfaceScalarField& phi_;
-
-
+    
 public:
 
-    //- Runtime type information
-    TypeName("populationBalanceModel");
-
-    // Declare runtime constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        populationBalanceModel,
-        dictionary,
-        (
-            const dictionary& dict,
-            const volVectorField& U,
-            const surfaceScalarField& phi
-        ),
-        (dict, U, phi)
-    );
+        //- Runtime type information
+        TypeName("CoulaloglouTavlarides");
 
 
     // Constructors
 
         //- Construct from components
-        populationBalanceModel
-        (
-            const dictionary& dict,
-            const volVectorField& U,
-            const surfaceScalarField& phi
-        );
-
-
-    // Selectors
-
-        //- Select null constructed
-        static autoPtr<populationBalanceModel> New
-        (
-            const dictionary& dict,
-            const volVectorField& U,
-            const surfaceScalarField& phi
-        );
+        CoulaloglouTavlarides(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~populationBalanceModel();
+    virtual ~CoulaloglouTavlarides();
 
 
     // Member Functions
 
-        //- Solve population balance equation
-        virtual void solve() = 0;
+        //- Breakup kernel
+        virtual tmp<volScalarField> Kb
+        (
+            const volScalarField& abscissa
+        ) const;
 
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace breakupKernels
+} // End namespace populationBalanceSubModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
