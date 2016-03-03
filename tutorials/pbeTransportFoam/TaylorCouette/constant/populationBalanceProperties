@@ -21,14 +21,21 @@ univariatePopulationBalanceCoeffs
 {
     aggregation on;
     
-    aggregationKernel
+    /*aggregationKernel
     {
         aggregationKernel turbulentBrownian;
+    }*/
+
+    aggregationKernel
+    {
+        aggregationKernel CoulaloglouTavlarides;
+	Ca Ca        	[ 0 0 0 0 0 0 0 ] 9e15;
+	surfaceT	surfaceT [ 1 0 -2 0 0 0 0 ] 0.025;
     }
     
     breakup on;
     
-    breakupKernel
+    /*breakupKernel
     {
         breakupKernel LuoSvendsen;
         
@@ -36,6 +43,21 @@ univariatePopulationBalanceCoeffs
         epsilonExp          0.75;
         nuExp              -1.25;
         sizeExp             1.0;
+    }*/
+
+    breakupKernel
+    {
+        //breakupKernel constant;
+	breakupKernel CoulaloglouTavlarides;
+	//breakupKernel	LuoSvendsen;
+        
+        Cb        Cb        [ 0 0 0 0 0 0 0 ] 6.0e-4;
+        epsilonExp          0.75;
+        nuExp              -1.25;
+        sizeExp             1.0;
+	C1b        C1b        [ 0 0 0 0 0 0 0 ] 0.00481;
+	C2b        C2b        [ 0 0 0 0 0 0 0 ] 0.08;
+	surfaceT	surfaceT [ 1 0 -2 0 0 0 0 ] 0.025;
     }
     
     daughterDistribution
