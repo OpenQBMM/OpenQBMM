@@ -25,8 +25,7 @@ Class
     Foam::populationBalanceSubModels::diffusionModels::molecularDiffusion
 
 Description
-    Standard turbulent diffusion model. This model should be default for
-    problems without size-dependent diffusion.
+    Molecular diffusion model.
 
 SourceFiles
     molecularDiffusion.C
@@ -54,15 +53,15 @@ namespace diffusionModels
 class molecularDiffusion
 :
     public diffusionModel
-{   
+{
     //- Private member functions
         tmp<volScalarField> turbViscosity(const volScalarField& moment) const;
-    
+
     //- Private data
-    
+
         //- Laminar diffusivity
         dimensionedScalar gammaLam_;
-       
+
 public:
 
         //- Runtime type information
