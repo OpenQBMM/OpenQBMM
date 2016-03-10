@@ -60,7 +60,7 @@ protected:
 
         //- Univariate quadrature approximation used to solve PDF transport
         univariateQuadratureApproximation quadrature_;
-        
+
         //- Velocity field
         const volVectorField& U_;
 
@@ -75,7 +75,7 @@ protected:
         //- Update fields required to compute kinetic fluxes
         void updatePhysicalSpaceConvection
         (
-            surfaceScalarField& phiOwn, 
+            surfaceScalarField& phiOwn,
             surfaceScalarField& phiNei
         );
 
@@ -109,7 +109,8 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const volVectorField& U
+            const volVectorField& U,
+            const word support
         );
 
 

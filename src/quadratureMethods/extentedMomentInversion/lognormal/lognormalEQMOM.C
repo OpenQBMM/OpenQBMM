@@ -37,10 +37,10 @@ namespace Foam
 
     addToRunTimeSelectionTable
     (
-        extendedMomentInversion, 
-        lognormalEQMOM, 
+        extendedMomentInversion,
+        lognormalEQMOM,
         dictionary
-    ); 
+    );
 }
 
 
@@ -49,7 +49,7 @@ namespace Foam
 Foam::lognormalEQMOM::lognormalEQMOM
 (
     const dictionary& dict,
-    const label nMoments,    
+    const label nMoments,
     const label nSecondaryNodes
 )
 :
@@ -106,24 +106,24 @@ void Foam::lognormalEQMOM::momentsToMomentsStar
 
 Foam::scalar Foam::lognormalEQMOM::m2N
 (
-    scalar sigma, 
+    scalar sigma,
     univariateMomentSet momentsStar
 )
-{   
+{
     if (momentsStar.nRealizableMoments() >= momentsStar.size() - 1)
     {
         scalar z = exp(sqr(sigma)/2.0);
         label nNod = momentsStar.size() - 1;
-        
+
         return momentsStar.last()*pow(z, nNod*nNod);
     }
-    
+
     return GREAT;
 }
 
 void Foam::lognormalEQMOM::recurrenceRelation
 (
-    scalarDiagonalMatrix& a, 
+    scalarDiagonalMatrix& a,
     scalarDiagonalMatrix& b,
     scalar primaryAbscissa,
     scalar sigma
@@ -131,9 +131,9 @@ void Foam::lognormalEQMOM::recurrenceRelation
 {
     scalar eta = exp(sqr(sigma)/2.0);
     scalar sqEta = sqr(eta);
-    
+
     a[0] = eta;
-    
+
     for (label aI = 1; aI < a.size(); aI++)
     {
         a[aI] = ((sqEta + 1)*pow(sqEta, scalar(aI)) - 1.0)
@@ -149,15 +149,15 @@ void Foam::lognormalEQMOM::recurrenceRelation
 }
 
 Foam::scalar Foam::lognormalEQMOM::sigmaMax(univariateMomentSet& moments)
-{  
+{
     label nRealizableMoments = moments.nRealizableMoments();
-    
-    scalar sigmaZeta1 = 
+
+    scalar sigmaZeta1 =
             sqrt(2.0*log(sqrt(moments[0]*moments[2]/(sqr(moments[1])))));
 
     if (nRealizableMoments > 3)
     {
-        scalar sigmaZeta2 = 
+        scalar sigmaZeta2 =
             sqrt(2.0*log(sqrt(moments[1]*moments[3]/(sqr(moments[2])))));
 
         return min(sigmaZeta1, sigmaZeta2);

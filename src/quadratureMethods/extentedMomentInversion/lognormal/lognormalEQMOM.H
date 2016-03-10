@@ -25,33 +25,33 @@ Class
     Foam::lognormalEQMOM
 
 Description
-    Extended quadrature method of moments with log-normal kernel density 
+    Extended quadrature method of moments with log-normal kernel density
     functions.
 
     References
     \verbatim
-        "An extended quadrature-based moment method with log-normal kernel 
+        "An extended quadrature-based moment method with log-normal kernel
         density functions"
         E Madadi-Kandjani, A Passalacqua
         Chemical Engineering Science
         Volume 131, Pages 323-339, 2015
     \endverbatim
-    
+
     \verbatim
-        "The theory of canonical moments with applications in Statistics, 
+        "The theory of canonical moments with applications in Statistics,
         Probability and Analysis"
-        H Dette, W J Studden 
+        H Dette, W J Studden
         Wiley & Sons, 1997
     \endverbatim
-    
+
     \verbatim
-        "A general approximation method for solving integrals containing a 
+        "A general approximation method for solving integrals containing a
         lognormal weighting function"
-        M Wilck 
+        M Wilck
         Journal of Aerosol Science
         Volume 32, Pages 1111-1116, 2001
     \endverbatim
-       
+
 SourceFiles
     lognormalEQMOM.C
 
@@ -97,7 +97,7 @@ public:
 
     // Member Functions
 
-    //- Computes the secondary abscissa 
+    //- Computes the secondary abscissa
     virtual scalar secondaryAbscissa
     (
         scalar primaryAbscissa,
@@ -120,19 +120,19 @@ public:
         const univariateMomentSet& moments,
         univariateMomentSet& momentsStar
     );
-    
+
     //- Compute the last moment from starred moments
     virtual scalar m2N(scalar sigma, univariateMomentSet momentsStar);
 
     //- Recurrence relation for polynomials orthogonal to kernel function
     virtual void recurrenceRelation
     (
-        scalarDiagonalMatrix& a, 
+        scalarDiagonalMatrix& a,
         scalarDiagonalMatrix& b,
         scalar primaryAbscissa,
         scalar sigma
     );
-    
+
     //- Compute maximum value of sigma to ensure realizability
     virtual scalar sigmaMax(univariateMomentSet& moments);
 };

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -32,31 +32,70 @@ License
 Foam::univariateMomentSet::univariateMomentSet
 (
     const label nMoments,
-    const scalar initValue
+    const scalar initValue,
+    const word support
 )
 :
     scalarDiagonalMatrix(nMoments, initValue),
     nMoments_(nMoments),
+    alpha_(label((nMoments_ - 2)/2) + 1, scalar(0)),
+    beta_(label((nMoments_ - 1)/2) + 1, scalar(0)),
+    support_(support),
     inverted_(false),
-    realizable_(true),
+    fullyRealizable_(true),
+    subsetRealizable_(true),
     realizabilityChecked_(false),
     quadratureSetUp_(false),
     nInvertibleMoments_(nMoments_)
-{}
+{
+    if (support_ != "R" && support_ != "RPlus" && support_ != "01")
+    {
+        FatalErrorIn
+        (
+            "Foam::univariateMomentSet::univariateMomentSet\n"
+            "(\n"
+            "    const label nMoments,\n"
+            "    const scalar initValue\n"
+            "    const word support\n"
+            ")"
+        )   << "The specified support is invalid.\n"
+            << "Valid supports are: R, RPlus and 01."
+            << abort(FatalError);
+    }
+}
 
 Foam::univariateMomentSet::univariateMomentSet
 (
-    const scalarDiagonalMatrix& m
+    const scalarDiagonalMatrix& m,
+    const word support
 )
 :
     scalarDiagonalMatrix(m),
     nMoments_(m.size()),
+    alpha_(label((nMoments_ - 2)/2) + 1, scalar(0)),
+    beta_(label((nMoments_ - 1)/2) + 1, scalar(0)),
+    support_(support),
     inverted_(false),
-    realizable_(true),
+    fullyRealizable_(true),
+    subsetRealizable_(true),
     realizabilityChecked_(false),
     quadratureSetUp_(false),
     nInvertibleMoments_(nMoments_)
-{}
+{
+    if (support_ != "R" && support_ != "RPlus" && support_ != "01")
+    {
+        FatalErrorIn
+        (
+            "Foam::univariateMomentSet::univariateMomentSet\n"
+            "(\n"
+            "    const scalarDiagonalMatrix& m\n"
+            "    const word support\n"
+            ")"
+        )   << "The specified support is invalid.\n"
+            << "Valid supports are: R, RPlus and 01."
+            << abort(FatalError);
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -76,17 +115,17 @@ void Foam::univariateMomentSet::invert()
 
     if (!realizabilityChecked_)
     {
-        isRealizable();
+        checkRealizability();
         setupQuadrature(true);
     }
-    
+
     if (!quadratureSetUp_)
     {
         setupQuadrature(true);
     }
 
     if (nInvertibleMoments_ < 2)
-    {       
+    {
         FatalErrorIn
         (
             "Foam::univariateMomentSet::invert\n"
@@ -94,257 +133,430 @@ void Foam::univariateMomentSet::invert()
             "    const scalarDiagonalMatrix& weights,\n"
             "    const scalarDiagonalMatrix& abscissae\n"
             ")"
-        )   << "Insufficient number (" << nInvertibleMoments_ 
+        )   << "Insufficient number (" << nInvertibleMoments_
             << ") of moments to define quadrature."
             << abort(FatalError);
     }
 
-    // Storage for the recurrence relationship
-    scalarDiagonalMatrix a(nNodes_, scalar(0));
-    scalarDiagonalMatrix b(nNodes_, scalar(0));
-    scalarSquareMatrix sig(2*nNodes_ + 1, 2*nNodes_ + 1, scalar(0));
-
-    // Applying Wheeler's algorithm
-    for (label i = 1; i < nInvertibleMoments_ + 1; i++)
+    if (nInvertibleMoments_ == 2)
     {
-        sig[1][i] = (*this)[i-1];
-    }
+        weights_[0] = 1.0;
+        abscissae_[0] = (*this)[1]/(*this)[0];
 
-    a[0] = (*this)[1]/(*this)[0];
-    b[0] = scalar(0);
+        inverted_ = true;
 
-    for (label k = 2; k < nNodes_ + 1; k++)
-    {
-        for (label l = k; l < nInvertibleMoments_ - k + 3; l++)
-        {
-            sig[k][l] = sig[k-1][l+1] - a[k-2]*sig[k-1][l] - b[k-2]*sig[k-2][l];
-        }
-
-        a[k-1] = sig[k][k+1]/sig[k][k] - sig[k-1][k]/sig[k-1][k-1];
-        b[k-1] = sig[k][k]/sig[k-1][k-1] ;
-    }
-
-    // Checking moment realizability
-    for (label i = 0; i < nNodes_; i++)
-    {
-        if (b[i] < scalar(0))
-        {
-            FatalErrorIn
-            (
-                "Foam::univariateMomentSet::invert\n"
-                "(\n"
-                "    const scalarDiagonalMatrix& weights,\n"
-                "    const scalarDiagonalMatrix& abscissae\n"
-                ")"
-            )   << "Moments are not realizable."
-                << abort(FatalError);
-        }
+        return;
     }
 
     scalarSquareMatrix z(nNodes_, nNodes_, scalar(0));
 
     for (label i = 0; i < nNodes_ - 1; i++)
     {
-        z[i][i] = a[i];
-        z[i][i+1] = Foam::sqrt(b[i+1]);
+        z[i][i] = alpha_[i];
+        z[i][i+1] = Foam::sqrt(beta_[i+1]);
         z[i+1][i] = z[i][i+1];
     }
 
-    z[nNodes_ - 1][nNodes_ - 1] = a[nNodes_ - 1];
+    z[nNodes_ - 1][nNodes_ - 1] = alpha_[nNodes_ - 1];
 
     // Computing weights and abscissae
     eigenSolver zEig(z, true);
-   
+
     // Computing weights and abscissae
     for (label i = 0; i < nNodes_; i++)
     {
         weights_[i] = (*this)[0]*sqr(zEig.eigenvectors()[0][i]);
         abscissae_[i] = zEig.eigenvaluesRe()[i];
     }
-    
+
     inverted_ = true;
 }
 
-void Foam::univariateMomentSet::checkRealizability() 
+void Foam::univariateMomentSet::checkCanonicalMoments
+(
+    const scalarDiagonalMatrix& zeta,
+    const label nZeta,
+    label& nRealizableMoments
+)
+{
+    Info << endl << "Checking canonical moments" << endl;
+    Info << "nZeta = " << nZeta << endl;
+
+    scalarDiagonalMatrix canonicalMoments(nZeta, 0.0);
+
+    canonicalMoments[0] = zeta[0];
+
+    for (label zetaI = 1; zetaI < nZeta; zetaI++)
+    {
+        Info << "Loop " << zetaI << endl;
+
+        canonicalMoments[zetaI] = zeta[zetaI]/(1.0 - canonicalMoments[zetaI]);
+
+        if (canonicalMoments[zetaI] < 0 || canonicalMoments[zetaI] > 1)
+        {
+            nRealizableMoments = zetaI + 1;
+
+            return;
+        }
+    }
+
+    nRealizableMoments = nZeta + 1;
+
+    Info << "Realizable moments: " << nRealizableMoments << endl;
+}
+
+void Foam::univariateMomentSet::checkRealizability()
 {
     if (realizabilityChecked_)
     {
         return;
     }
-    
-    label nN = nMoments_ - 1;
-    label nD = label(nN/2);
-    label nR = nN - 2*nD;
 
-    label nZRows = nD + 1;
-    label nZColumns = nMoments_;
-    label nAlpha = label((nN - 1)/2) + 1;
-    label nBeta = nD + 1;
-
-    scalarRectangularMatrix z(nZRows, nZColumns, 0.0);
-    scalarDiagonalMatrix alpha(nAlpha, 0.0);
-    scalarDiagonalMatrix beta(nBeta, 0.0);
-    scalarDiagonalMatrix zeta(nN);
+    // If the zero-order moment is negative, exit immediately.
+    if ((*this)[0] < 0)
+    {
+        FatalErrorIn
+        (
+            "Foam::univariateMomentSet::checkRealizability()\n"
+        )   << "The zero-order moment is negative."
+            << abort(FatalError);
+    }
 
     // Check for the degenerate case where only m0 is defined
     if (nMoments_ <= 1)
     {
         FatalErrorIn
         (
-            "Foam::univariateMomentSet::isRealizable()\n"
-        )   << "The moment set is degenerate."
+            "Foam::univariateMomentSet::checkRealizability()\n"
+        )   << "The moment has size less or equal to 1."
             << abort(FatalError);
     }
 
-    // Check if m0 < 0
-    if ((*this)[0] < 0)
-    {
-        FatalErrorIn
-        (
-            "Foam::univariateMomentSet::isRealizable()\n"
-        )   << "The zero-order moment is negative."
-            << abort(FatalError);
-    }
+    label nN = nMoments_ - 1;
+    label nD = label(nN/2);
+    label nR = nN - 2*nD;
 
-    // Check for the case with only two moments
+    // Vector of zeta values used to check moment realizability
+    scalarDiagonalMatrix zeta(nN);
+
+    // Check for the case with only two moments, if support is R+ or [0,1]
+    // In the case of support over R, only check if beta < 0
     if (nMoments_ == 2)
     {
-        zeta[0] = (*this)[1]/(*this)[0] - 1.0;
+        if (support_ == "R")
+        {
+            negativeZeta_ = 0;
+            nRealizableMoments_ = 2;
+            nInvertibleMoments_ = 2;
+            fullyRealizable_ = true;
+            subsetRealizable_ = true;
+
+            return;
+        }
+
+        zeta[0] = (*this)[1]/(*this)[0];
 
         if (zeta[0] <= 0)
         {
             negativeZeta_ = 1;
             nRealizableMoments_ = 1;
             nInvertibleMoments_ = 0;
-            realizable_ = false;
+            fullyRealizable_ = false;
+            subsetRealizable_ = true;
 
             FatalErrorIn
             (
-                "Foam::univariateMomentSet::isRealizable()\n"
+                "Foam::univariateMomentSet::checkRealizability()\n"
             )   << "Moment set with dimension 2 and only one realizable moment."
                 << abort(FatalError);
         }
 
-        negativeZeta_ = 0;
-        nRealizableMoments_ = 2;
-        nInvertibleMoments_ = 2;
-        realizable_ = true;
+        if (support_ == "RPlus")
+        {
+            negativeZeta_ = 0;
+            nRealizableMoments_ = 2;
+            nInvertibleMoments_ = 2;
+            fullyRealizable_ = true;
+            subsetRealizable_ = true;
+            realizabilityChecked_ = true;
 
-        return;
+            return;
+        }
+        else // Support on [0, 1] - Check if canonical moments belong to [0,1]
+        {
+            if (zeta[0] <= 1.0)
+            {
+                nRealizableMoments_ = 2;
+                nInvertibleMoments_ = 2;
+                fullyRealizable_ = true;
+                subsetRealizable_ = true;
+                realizabilityChecked_ = true;
+
+                return;
+            }
+            else
+            {
+                negativeZeta_ = 1;
+                nRealizableMoments_ = 1;
+                nInvertibleMoments_ = 0;
+                fullyRealizable_ = false;
+                subsetRealizable_ = true;
+
+                FatalErrorIn
+                (
+                    "Foam::univariateMomentSet::checkRealizability()\n"
+                )   << "Moment set with dimension 2 and only one "
+                    << "realizable moment."
+                    << abort(FatalError);
+            }
+        }
     }
 
-    // Fill the first row of the z matrix with the moments
-    for (label columnI = 0; columnI < nZColumns; columnI++)
+    // Matrix used to build the recurrence relation
+    scalarRectangularMatrix zRecurrence(nD + 1, nMoments_, 0.0);
+
+    for (label columnI = 0; columnI < nMoments_; columnI++)
     {
-        z[0][columnI] = (*this)[columnI];
+        zRecurrence[0][columnI] = (*this)[columnI];
     }
 
-    alpha[0] = (*this)[1]/(*this)[0];
-    beta[0] = (*this)[0];
+    alpha_[0] = (*this)[1]/(*this)[0];
+    beta_[0] = (*this)[0];
 
-    for (label columnI = 1; columnI < nZColumns - 1; columnI++)
+    for (label columnI = 1; columnI < nMoments_ - 1; columnI++)
     {
-        z[1][columnI] = z[0][columnI + 1] - alpha[0]*z[0][columnI];
+        zRecurrence[1][columnI] = zRecurrence[0][columnI + 1]
+              - alpha_[0]*zRecurrence[0][columnI];
     }
 
-    zeta[0] = alpha[0];
+    zeta[0] = alpha_[0];
 
-    if (zeta[0] <= 0)
+    if (!(support_ == "R") && zeta[0] <= 0)
     {
         negativeZeta_ = 1;
         nRealizableMoments_ = 1;
         nInvertibleMoments_ = 0;
-        realizable_ = false;
-        
+        fullyRealizable_ = false;
+        subsetRealizable_ = true;
+
         FatalErrorIn
         (
-            "Foam::univariateMomentSet::isRealizable()\n"
+            "Foam::univariateMomentSet::checkRealizability()\n"
         )   << "Moment set with only one realizable moment."
             << abort(FatalError);
+
+        // No need to check canonical moments
     }
 
     for (label zetaI = 1; zetaI <= nD - 1; zetaI++)
     {
-        beta[zetaI] = z[zetaI][zetaI]/z[zetaI - 1][zetaI - 1];
-        zeta[2*zetaI - 1] = beta[zetaI]/zeta[2*zetaI - 2];
+        beta_[zetaI] = zRecurrence[zetaI][zetaI]
+                /zRecurrence[zetaI - 1][zetaI - 1];
 
-        if (zeta[2*zetaI - 1] <= 0)
+        if (support_ == "R" && beta_[zetaI] < 0.0)
         {
-            negativeZeta_ = 2*zetaI;
-            nRealizableMoments_ = negativeZeta_;
-            nInvertibleMoments_ = nRealizableMoments_;
-            realizable_ = false;
+            nRealizableMoments_ = 2*zetaI;
+            calcNInvertibleMoments();
+            fullyRealizable_ = false;
+            subsetRealizable_ = true;
+            realizabilityChecked_ = true;
 
             return;
         }
-
-        alpha[zetaI] = z[zetaI][zetaI + 1]/z[zetaI][zetaI] 
-                - z[zetaI - 1][zetaI]/z[zetaI - 1][zetaI - 1];
-
-        zeta[2*zetaI] = alpha[zetaI] - zeta[2*zetaI - 1];
-
-        if (zeta[2*zetaI] <= 0)
+        else
         {
-            negativeZeta_ = 2*zetaI + 1;
-            nRealizableMoments_ = negativeZeta_;
-            nInvertibleMoments_ = nRealizableMoments_ - 1;
-            realizable_ = false;
-    
-            return;
+            zeta[2*zetaI - 1] = beta_[zetaI]/zeta[2*zetaI - 2];
+
+            if (zeta[2*zetaI - 1] <= 0)
+            {
+                if (support_ == "RPlus")
+                {
+                    negativeZeta_ = 2*zetaI;
+                    nRealizableMoments_ = negativeZeta_;
+                }
+                else // Support on [0,1]
+                {
+                    checkCanonicalMoments
+                    (
+                        zeta, 2*zetaI - 1, nRealizableMoments_
+                    );
+                }
+
+                calcNInvertibleMoments();
+                fullyRealizable_ = false;
+                subsetRealizable_ = true;
+                realizabilityChecked_ = true;
+
+                return;
+            }
+        }
+
+        alpha_[zetaI] = zRecurrence[zetaI][zetaI + 1]/zRecurrence[zetaI][zetaI]
+                - zRecurrence[zetaI - 1][zetaI]
+                /zRecurrence[zetaI - 1][zetaI - 1];
+
+        if (!(support_ == "R"))
+        {
+            zeta[2*zetaI] = alpha_[zetaI] - zeta[2*zetaI - 1];
+
+            if (zeta[2*zetaI] <= 0)
+            {
+                if (support_ == "RPlus")
+                {
+                    negativeZeta_ = 2*zetaI + 1;
+                    nRealizableMoments_ = negativeZeta_;
+                }
+                else // Support on [0,1]
+                {
+                    checkCanonicalMoments(zeta, 2*zetaI, nRealizableMoments_);
+                }
+
+                calcNInvertibleMoments();
+                fullyRealizable_ = false;
+                subsetRealizable_ = true;
+                realizabilityChecked_ = true;
+
+                return;
+            }
         }
 
         for (label columnI = zetaI + 1; columnI <= nN - zetaI - 1; columnI++)
         {
-            z[zetaI + 1][columnI] = z[zetaI][columnI + 1] 
-                    - alpha[zetaI]*z[zetaI][columnI]
-                    - beta[zetaI]*z[zetaI - 1][columnI];
+            zRecurrence[zetaI + 1][columnI] = zRecurrence[zetaI][columnI + 1]
+                    - alpha_[zetaI]*zRecurrence[zetaI][columnI]
+                    - beta_[zetaI]*zRecurrence[zetaI - 1][columnI];
         }
     }
 
-    beta[nD] = z[nD][nD]/z[nD - 1][nD - 1];
-    zeta[2*nD - 1] = beta[nD]/zeta[2*nD - 2];
+    beta_[nD] = zRecurrence[nD][nD]/zRecurrence[nD - 1][nD - 1];
 
-    if (zeta[2*nD - 1] <= 0)
+    if (support_ == "R")
     {
-        negativeZeta_ = 2*nD;
-        nRealizableMoments_ = negativeZeta_;
-        nInvertibleMoments_ = nRealizableMoments_;
-        realizable_ = false;
-
-        return;
-    }
-
-    if (nR == 1)
-    {
-        alpha[nD] = z[nD][nD + 1]/z[nD][nD] - z[nD - 1][nD]/z[nD - 1][nD - 1];
-        zeta[2*nD] = alpha[nD] - zeta[2*nD - 1];
-
-        if (zeta[2*nD] <= 0)
+        if (beta_[nD] < 0.0)
         {
-            negativeZeta_ = 2*nD + 1;
-            nRealizableMoments_ = negativeZeta_;
-            nInvertibleMoments_ = nRealizableMoments_ - 1;
-            realizable_ = false;
+            nRealizableMoments_ = 2*nD;
+            calcNInvertibleMoments();
+            fullyRealizable_ = false;
+            subsetRealizable_ = true;
+            realizabilityChecked_ = true;
+
+            return;
+        }
+        else
+        {
+            nRealizableMoments_ = nMoments_;
+            calcNInvertibleMoments();
+            fullyRealizable_ = true;
+            subsetRealizable_ = true;
+            realizabilityChecked_ = true;
 
             return;
         }
     }
-
-    realizable_ = true;
-    nRealizableMoments_ = nMoments_;
-
-    if (nMoments_ % 2 != 0)
+    else
     {
-        nInvertibleMoments_ = nMoments_ - 1;
+        zeta[2*nD - 1] = beta_[nD]/zeta[2*nD - 2];
+
+        if (zeta[2*nD - 1] <= 0)
+        {
+            if (support_ == "RPlus")
+            {
+                negativeZeta_ = 2*nD;
+                nRealizableMoments_ = negativeZeta_;
+            }
+            else  // Support on [0,1]
+            {
+                checkCanonicalMoments(zeta, 2*nD - 1, nRealizableMoments_);
+            }
+
+            calcNInvertibleMoments();
+            fullyRealizable_ = false;
+            subsetRealizable_ = true;
+            realizabilityChecked_ = true;
+
+            return;
+        }
+
+        if (nR == 1)
+        {
+            alpha_[nD] = zRecurrence[nD][nD + 1]/zRecurrence[nD][nD]
+                    - zRecurrence[nD - 1][nD]/zRecurrence[nD - 1][nD - 1];
+
+            zeta[2*nD] = alpha_[nD] - zeta[2*nD - 1];
+
+            if (zeta[2*nD] <= 0)
+            {
+                if (support_ == "RPlus")
+                {
+                    negativeZeta_ = 2*nD + 1;
+                    nRealizableMoments_ = negativeZeta_;
+                }
+                else // Support on [0,1]
+                {
+                    checkCanonicalMoments(zeta, 2*nD, nRealizableMoments_);
+                }
+
+                calcNInvertibleMoments();
+                fullyRealizable_ = false;
+                subsetRealizable_ = true;
+                realizabilityChecked_ = true;
+
+                return;
+            }
+        }
+        else
+        {
+            // If support is [0, + inf[ and this level is reached, the full set
+            // of moments is realizable
+            if (support_ == "RPlus")
+            {
+                fullyRealizable_ = true;
+                subsetRealizable_ = true;
+                nRealizableMoments_ = nMoments_;
+            }
+            else
+            {
+                checkCanonicalMoments(zeta, nN, nRealizableMoments_);
+
+                if (nRealizableMoments_ == nMoments_)
+                {
+                    fullyRealizable_ = true;
+                    subsetRealizable_ = true;
+                }
+                else if (nRealizableMoments_ > 1)
+                {
+                    fullyRealizable_ = false;
+                    subsetRealizable_ = true;
+                }
+            }
+
+            calcNInvertibleMoments();
+            realizabilityChecked_ = true;
+
+            return;
+        }
+    }
+}
+
+void Foam::univariateMomentSet::calcNInvertibleMoments()
+{
+    if (nRealizableMoments_ % 2 != 0)
+    {
+        nInvertibleMoments_ = nRealizableMoments_ - 1;
     }
     else
     {
-        nInvertibleMoments_ = nMoments_;
+        nInvertibleMoments_ = nRealizableMoments_;
     }
 }
 
 void Foam::univariateMomentSet::setupQuadrature(bool clear)
 {
+    if (!realizabilityChecked_)
+    {
+        checkRealizability();
+    }
+
     nNodes_ = nInvertibleMoments_/2.0;
 
     if (clear)
@@ -359,9 +571,8 @@ void Foam::univariateMomentSet::setupQuadrature(bool clear)
 
 void Foam::univariateMomentSet::update()
 {
-    // NOTE Recomputing all the moments (even if they originally were 
-    //      not realizable) from quadrature. 
-    //      Should we limit to nRealizableMoments_?
+    // NOTE Recomputing all the moments (even if they originally were
+    //      not realizable) from quadrature.
     for (label momentI = 0; momentI < nMoments_; momentI++)
     {
         (*this)[momentI] = 0.0;

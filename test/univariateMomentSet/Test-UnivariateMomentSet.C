@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -38,71 +38,127 @@ using namespace Foam;
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
-{	
-	Info << "Testing momentSet\n" << endl;
-	
-	label nMoments = 7;
-	scalarDiagonalMatrix m(nMoments, 0.0);
-	
-	// Computing integer moments of a log-normal function
-	scalar mu = 0.0;
-	scalar sigma = 0.25;
-	
-	for (label momentI = 0; momentI < nMoments; momentI++)
-	{
-		m[momentI] = Foam::exp(momentI*mu + Foam::sqr(momentI*sigma)/2.0);
-	}
-	
-// 	m[4] = -10.0;
-// 	m[5] = 0.000000001;
-// 	m[6] = 0.111111111;
+{
+    Info << "Testing univariateMomentSet\n" << endl;
 
-	Info << setprecision(16);
-    Info << "Input moments\n" << endl;
+    label nMoments = 2;
 
-	for (label momentI = 0; momentI < nMoments; momentI++)
-	{
-	    Info << "Moment " << momentI << " = " << m[momentI] << endl; 
-	}
+    scalarDiagonalMatrix m(nMoments, 0.0);
+    // Computing integer moments of a log-normal function
+//     scalarDiagonalMatrix m(nMoments, 1.0);
+//     scalar mu = 0.0;
+//     scalar sigma = 0.25;
+//
+//     for (label momentI = 0; momentI < nMoments; momentI++)
+//     {
+//         m[momentI] = Foam::exp(momentI*mu + Foam::sqr(momentI*sigma)/2.0);
+//     }
 
-	univariateMomentSet moments(m);
-    moments.invert();
-	
-	if(moments.isRealizable())
-	{
-		Info << "\nThe full set of moments is realizable.\n" << endl ;
-	}
-	else
-	{
-		Info << "\nThe full set of moments is not realizable.\n" << endl
-             << "The number of realizable moments is "
-             << moments.nRealizableMoments() << "\n" << endl;
-	}
+    // Computing integer moments of a gaussian function
+//     scalar mu = 0.0;
+//     scalar sigma = 0.25;
 
-	Info << "The number of invertible moments is " 
-		 << moments.nInvertibleMoments() << "\n" << endl;
 
-	scalarDiagonalMatrix weights(moments.weights());
-	scalarDiagonalMatrix abscissae(moments.abscissae());
+//     m[0] = 1.0;
+//
+//     for (label momentI = 2; momentI < nMoments; momentI = momentI + 2)
+//     {
+//         m[momentI] = pow(sigma, momentI)*Foam::factorial(momentI-1);
+//     }
 
-	Info << "Weights and abscissae:\n" << endl;
-	
-	for (label nodeI = 0; nodeI < moments.nNodes(); nodeI++)
-	{
-		Info << "Node " << nodeI 
-			 << " Weight: " << weights[nodeI] 
-			 << " Abscissa: " << abscissae[nodeI] << endl;
-	}
-	
-	moments.update();
-    
-    Info << "\nMoments computed from quadrature\n" << endl;
-    
+    // Computing integer moments of sum of two beta function
+//     scalar mu1 = 0.5;
+//     scalar sigma1 = 0.3;
+//     scalar mu2 = 0.5;
+//     scalar sigma2 = 0.3;
+//
+//     m[0] = 1.0;
+//
+//     for (label momentI = 1; momentI < nMoments; momentI++)
+//     {
+//         m[momentI] = (((mu1 + (momentI - 1.0)*sigma1)*m[momentI-1]
+//             /(1.0 + (momentI - 1.0)*sigma1))
+//             +((mu2 + (momentI - 1.0)*sigma2)*m[momentI-1]
+//             /(1.0 + (momentI - 1.0)*sigma2)))/2;
+//     }
+
+    // Computing integer moments of a beta function
+//     scalar mu = 0.5;
+//     scalar sigma = 0.3;
+//
+//     m[0] = 1.0;
+//
+//     for (label momentI = 1; momentI < nMoments; momentI++)
+//     {
+//         m[momentI] = (mu + (momentI - 1.0)*sigma)*m[momentI-1]
+//             /(1.0 + (momentI - 1.0)*sigma);
+//     }
+
+    m[0] = 1.0;
+    m[1] = 0.0;
+
+    word support = "R";
+
+    Info << "Support: " << support << endl;
+
+    Info << setprecision(16);
+    Info << "\nInput moments\n" << endl;
+
     for (label momentI = 0; momentI < nMoments; momentI++)
     {
-        Info << "Moment " << momentI << " = " << moments[momentI] << endl; 
+        Info << "Moment " << momentI << " = " << m[momentI] << endl;
     }
-	
+
+    univariateMomentSet moments(m, support);
+
+    Info << "\nStored moments\n" << endl;
+
+    forAll(moments, momentI)
+    {
+        Info << "Moment " << momentI << " = " << moments[momentI] << endl;
+    }
+
+    moments.invert();
+
+    if (moments.isFullyRealizable())
+    {
+	Info << "\nThe full set of moments is realizable.\n" << endl ;
+    }
+    else if (moments.isSubsetRealizable())
+    {
+        Info << "\nThe full set of moments is not realizable.\n" << endl
+             << "The number of realizable moments is "
+             << moments.nRealizableMoments() << "\n" << endl;
+    }
+    else
+    {
+        Info << "\nThe moment set is not realizable.\n" << endl;
+    }
+
+    Info << "The number of invertible moments is "
+	 << moments.nInvertibleMoments() << "\n" << endl;
+
+    scalarDiagonalMatrix weights(moments.weights());
+    scalarDiagonalMatrix abscissae(moments.abscissae());
+
+    Info << "Weights and abscissae:\n" << endl;
+
+    for (label nodeI = 0; nodeI < moments.nNodes(); nodeI++)
+    {
+	Info << "Node " << nodeI
+             << " Weight: " << weights[nodeI]
+             << " Abscissa: " << abscissae[nodeI] << endl;
+    }
+
+    moments.update();
+
+    Info << "\nMoments computed from quadrature\n" << endl;
+
+    for (label momentI = 0; momentI < nMoments; momentI++)
+    {
+        Info << "Moment " << momentI << " = " << moments[momentI] << endl;
+    }
+
     Info << "\nEnd\n" << endl;
 
     return 0;

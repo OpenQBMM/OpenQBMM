@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -65,7 +65,7 @@ class univariatePopulationBalance
 
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
-        
+
         //- Switch indicating the status of the breakup model
         Switch breakup_;
 
@@ -77,31 +77,31 @@ class univariatePopulationBalance
         <
             Foam::populationBalanceSubModels::aggregationKernel
         > aggregationKernel_;
-        
+
         //- Breakup kernel model
         autoPtr
         <
             Foam::populationBalanceSubModels::breakupKernel
         > breakupKernel_;
-        
+
         //- Daughter distribution function
         autoPtr
         <
             Foam::populationBalanceSubModels::daughterDistribution
         > daughterDistribution_;
-      
+
         //- Growth model function
         autoPtr
         <
             Foam::populationBalanceSubModels::growthModel
         > growthModel_;
-      
+
         //- Diffusion model
         autoPtr
         <
             Foam::populationBalanceSubModels::diffusionModel
         > diffusionModel_;
-        
+
     // Private member functions
 
         //- Calculate aggregation source terms
@@ -109,7 +109,7 @@ class univariatePopulationBalance
         (
             const volUnivariateMoment& moment
         );
-        
+
         //- Calculate Breakup source term
         tmp<volScalarField> breakupSource(const volUnivariateMoment& moment);
 
@@ -151,7 +151,7 @@ public:
 
     //- Destructor
     virtual ~univariatePopulationBalance();
-    
+
     // Member Functions
 
         //- Solve population balance equation

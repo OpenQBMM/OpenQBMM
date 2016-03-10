@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -50,7 +50,7 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 class populationBalanceModel
-{       
+{
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
@@ -59,9 +59,9 @@ class populationBalanceModel
         //- Disallow default bitwise assignment
         void operator=(const populationBalanceModel&);
 
-        
+
 protected:
-        
+
     // Protected data
 
         //- Fluid-phase face-normal velocity

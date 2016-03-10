@@ -48,7 +48,15 @@ int main(int argc, char *argv[])
     Info << "Testing extendedMomentInversion\n" << endl;
 
     label nMoments = 5;
-    univariateMomentSet moments(nMoments, 0.0);
+    word support = "RPlus";
+    univariateMomentSet moments(nMoments, 0.0, support);
+
+    // Dirac delta function
+    moments[0] = 1.0;
+    moments[1] = 1.0;
+    moments[2] = 1.0;
+    moments[3] = 1.0;
+    moments[4] = 1.0;
 
 //  Valid moment set
 //    moments[0] = 1.0;
@@ -56,7 +64,7 @@ int main(int argc, char *argv[])
 //    moments[2] = 8.951330468;
 //    moments[3] = 35.95258119;
 //    moments[4] = 174.4370267;
-    
+
 //  Unrealizable moment star
 //     moments[0] = 0.567128698550116;
 //     moments[1] = 0.659798044636756;
@@ -81,26 +89,26 @@ int main(int argc, char *argv[])
 //     moments[6] = 10.22526492;
 //     moments[7] = 27.0370458224;
 //     moments[8] = 86.9534420717;
-    
-// Moment set on edge of moment space
-    moments[0] = 3.125e12;
-    moments[1] = 6.25e6;
-    moments[2] = 12.5;
-    moments[3] = 2.5e-5;
-    moments[4] = 5.0e-11;
 
-//    moments[0] = 1.0;
-//    moments[1] = 2.0;
-//    moments[2] = 4.0;
-//    moments[3] = 8.0;
-//    moments[4] = 16.0;    
-   
+// Moment set on edge of moment space
+//     moments[0] = 3.125e12;
+//     moments[1] = 6.25e6;
+//     moments[2] = 12.5;
+//     moments[3] = 2.5e-5;
+//     moments[4] = 5.0e-11;
+
+//     moments[0] = 1.0;
+//     moments[1] = 2.0;
+//     moments[2] = 4.0;
+//     moments[3] = 8.0;
+//     moments[4] = 16.0;
+
 //     moments[0] = 0.9996;
 //     moments[1] =  0.99970396842;
 //     moments[2] = 0.999834960421;
 //     moments[3] = 1;
 //     moments[4] = 1.00020793684;
-       
+
 
 // Moment set provided by Frederique Laurent-Negre
 // M_k = 1/k; k = 1, 2*N + 1
@@ -109,34 +117,34 @@ int main(int argc, char *argv[])
 //        {
 //            moments[mI - 1] = 1.0/scalar(mI);
 //        }
-
-       //moments[9] = 0;
+//
+//        moments[9] = 0;
 
 // Moment set provided by Frederique Laurent-Negre
 // Last moment not preserved
-//    moments[0] = 1.0; 
-//    moments[1] = 1.0; 
-//    moments[2] = 1.1; 
-//    moments[3] = 1.41; 
-//    moments[4] = 2.371; 
-//    moments[5] = 5.4501; 
-//    moments[6] = 15.75531; 
-    
+//    moments[0] = 1.0;
+//    moments[1] = 1.0;
+//    moments[2] = 1.1;
+//    moments[3] = 1.41;
+//    moments[4] = 2.371;
+//    moments[5] = 5.4501;
+//    moments[6] = 15.75531;
+
     Info << setprecision(16);
     Info << "Input moments\n" << endl;
 
     for (label momentI = 0; momentI < nMoments; momentI++)
     {
-        Info << "Moment " << momentI << " = " << moments[momentI] << endl; 
+        Info << "Moment " << momentI << " = " << moments[momentI] << endl;
     }
-    
+
     Info << endl;
-    
+
     autoPtr<extendedMomentInversion> EQMOM
     (
         extendedMomentInversion::New
         (
-            quadratureProperties, 
+            quadratureProperties,
             nMoments,
             readLabel(quadratureProperties.lookup("nSecondaryNodes"))
         )
@@ -159,12 +167,12 @@ int main(int argc, char *argv[])
     const scalarRectangularMatrix& sAbscissae(EQMOM->secondaryAbscissae());
 
     Info << "\nStoring quadrature." << endl;
-    
+
     OFstream outputFile("./secondaryQuadrature");
 
     label nPrimaryNodes = EQMOM->nPrimaryNodes();
     label nSecondaryNodes = EQMOM->nSecondaryNodes();
-    
+
     for (label pNodeI = 0; pNodeI < nPrimaryNodes; pNodeI++)
     {
         outputFile << "Primary node " << pNodeI
@@ -175,12 +183,12 @@ int main(int argc, char *argv[])
 
         for (label sNodeI = 0; sNodeI < nSecondaryNodes; sNodeI++)
         {
-            outputFile << sWeights[pNodeI][sNodeI] << ", " 
+            outputFile << sWeights[pNodeI][sNodeI] << ", "
                 << sAbscissae[pNodeI][sNodeI] << endl;
         }
 
         outputFile << "\n\n";
-    }   
+    }
 
     Info << "\nEnd\n" << endl;
 

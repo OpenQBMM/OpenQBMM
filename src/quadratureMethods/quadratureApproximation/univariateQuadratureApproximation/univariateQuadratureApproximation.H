@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -74,25 +74,25 @@ class univariateQuadratureApproximation
 
         //- List of moments
         momentFieldSet<volUnivariateMoment, extendedVolScalarNode> moments_;
-        
+
         //- Number of primary quadrature nodes
         label nPrimaryNodes_;
 
         //- Number of secondary quadrature nodes
         label nSecondaryNodes_;
-        
+
         //- List of interpolated nodes (neighbour)
         autoPtr<PtrList<extendedSurfaceScalarNode> > nodesNei_;
-        
+
         //- List of interpolated nodes (owner)
         autoPtr<PtrList<extendedSurfaceScalarNode> > nodesOwn_;
-        
+
         //- Dimensionality of the distribution function
         const label nDimensions_;
 
         //- Number of moments
         const label nMoments_;
-        
+
         //- List of interpolated moments (neighbour)
         momentFieldSet<surfaceUnivariateMoment, extendedSurfaceScalarNode> momentsNei_;
 
@@ -102,18 +102,20 @@ class univariateQuadratureApproximation
         //- Moment inversion method
         autoPtr<extendedMomentInversion> momentInverter_;
 
+        //- Support of the distribution function
+        word support_;
 
-    // Private member functions
-
-        //- Calculate the m1/m0 ratio
-        //tmp<volScalarField> m1ByM0();
 
 public:
 
     // Constructors
 
         //- Construct from mesh
-        explicit univariateQuadratureApproximation(const fvMesh& mesh);
+        explicit univariateQuadratureApproximation
+        (
+            const fvMesh& mesh,
+            const word support
+        );
 
 
     //- Destructor
@@ -128,38 +130,38 @@ public:
             inline const PtrList<extendedVolScalarNode>& nodes() const;
 
             //- Const access to the moments
-            inline const momentFieldSet<volUnivariateMoment, extendedVolScalarNode>& 
+            inline const momentFieldSet<volUnivariateMoment, extendedVolScalarNode>&
                 moments() const;
 
             //- Non-const access to the moments
-            inline momentFieldSet<volUnivariateMoment, extendedVolScalarNode>& 
+            inline momentFieldSet<volUnivariateMoment, extendedVolScalarNode>&
                 moments();
-                
+
             //- Const access to the interpolated moments (neighbour)
             inline const momentFieldSet
             <
-                surfaceUnivariateMoment, 
+                surfaceUnivariateMoment,
                 extendedSurfaceScalarNode
             >& momentsNei() const;
 
             //- Non-const access to the interpolated moments (neighbour)
             inline momentFieldSet
             <
-                surfaceUnivariateMoment, 
+                surfaceUnivariateMoment,
                 extendedSurfaceScalarNode
             >& momentsNei();
-                
+
             //- Const access to the interpolated moments (owner)
             inline const momentFieldSet
             <
-                surfaceUnivariateMoment, 
+                surfaceUnivariateMoment,
                 extendedSurfaceScalarNode
             >& momentsOwn() const;
 
             //- Non-const access to the interpolated moments (owner)
             inline momentFieldSet
             <
-                surfaceUnivariateMoment, 
+                surfaceUnivariateMoment,
                 extendedSurfaceScalarNode
             >& momentsOwn();
 
@@ -174,10 +176,10 @@ public:
 
             //- Interpolate nodes
             void interpolateNodes();
-            
+
             //- Update quadrature nodes on fixed-value boundaries
             void updateBoundaryQuadrature();
-            
+
             //- Recalculate the quadrature nodes from the moments
             void updateQuadrature();
 
