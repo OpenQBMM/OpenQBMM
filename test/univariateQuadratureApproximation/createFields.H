@@ -1,1 +1,1 @@
-        univariateQuadratureApproximation quadrature(mesh);
+        univariateQuadratureApproximation quadrature(mesh, "RPlus");
