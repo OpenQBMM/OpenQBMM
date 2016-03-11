@@ -8,5 +8,6 @@ wmake libso quadratureMethods/extentedMomentInversion
 wmake libso quadratureMethods/quadratureApproximation
 wmake libso quadratureMethods/PDFTransportModels
 wmake libso quadratureMethods/populationBalanceModels
+wmake libso quadratureMethods/mixingModels
 
 # ----------------------------------------------------------------- end-of-file
