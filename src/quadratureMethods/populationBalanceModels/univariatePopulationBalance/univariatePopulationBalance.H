@@ -63,6 +63,9 @@ class univariatePopulationBalance
 {
     // Private data
 
+        //- Name of the univariatePopulationBalance
+        const word name_;
+
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
 
@@ -126,7 +129,7 @@ class univariatePopulationBalance
         );
 
         //- Calculate source terms
-        virtual tmp<volScalarField> momentSource
+        virtual tmp<fvScalarMatrix> momentSource
         (
             const volUnivariateMoment& moment
         );
@@ -143,6 +146,7 @@ public:
         //- Construct from components
         univariatePopulationBalance
         (
+            const word& name,
             const dictionary& dict,
             const volVectorField& U,
             const surfaceScalarField& phi

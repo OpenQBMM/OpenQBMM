@@ -50,13 +50,15 @@ namespace populationBalanceModels
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::univariatePopulationBalance
 (
+    const word& name,
     const dictionary& dict,
     const volVectorField& U,
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(dict, U.mesh(), U, "RPlus"),
-    populationBalanceModel(dict, U, phi),
+    univariatePDFTransportModel(name, dict, U.mesh(), U, "RPlus"),
+    populationBalanceModel(name, dict, U, phi),
+    name_(name),
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
     growth_(dict.lookup("growth")),
@@ -332,14 +334,25 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return gSource;
 }
 
-Foam::tmp<Foam::volScalarField>
+Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::momentSource
 (
     const volUnivariateMoment& moment
 )
 {
-    return aggregationSource(moment) + breakupSource(moment);
+    tmp<fvScalarMatrix> mSource
+    (
+        new fvScalarMatrix
+        (
+            moment,
+            moment.dimensions()*dimVol/dimTime
+        )
+    );
+
+    mSource.ref() += aggregationSource(moment) + breakupSource(moment);
+
+    return mSource;
 }
 
 void Foam::PDFTransportModels::populationBalanceModels

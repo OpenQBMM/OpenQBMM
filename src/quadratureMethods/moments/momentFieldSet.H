@@ -43,7 +43,7 @@ Description
          2 0 0       200         4
          2 1 0       210         5
 
-    operator() is overloaded in order to hide the above mapping. 
+    operator() is overloaded in order to hide the above mapping.
 
 SourceFiles
     momentFieldSetI.H
@@ -67,12 +67,15 @@ namespace Foam
                      Class momentFieldSet Declaration
 \*---------------------------------------------------------------------------*/
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 class momentFieldSet
 :
     public PtrList<momentType>
 {
     // Private data
+
+        //- Name of the momentFieldSet
+        const word name_;
 
         //- Reference to the quadrature nodes
         const autoPtr<PtrList<nodeType> >& nodes_;
@@ -111,22 +114,24 @@ public:
         //- Construct from dictionary and the quadrature nodes
         momentFieldSet
         (
+            const word& distributionName,
             const dictionary& dict,
             const fvMesh& mesh,
             const autoPtr<PtrList<nodeType> >& nodes
         );
 
         //- Construct from size, quadrature nodes, dimensions and moment map
-        //  The list of moments is initialised but moment fields are not 
+        //  The list of moments is initialised but moment fields are not
         //  automatically allocated.
         momentFieldSet
         (
+            const word& distributionName,
             const label nMoments,
             const autoPtr<PtrList<nodeType> >& nodes,
             const label nDimensions,
             const Map<label>& momentMap
         );
-  
+
 
     //- Destructor
     ~momentFieldSet();
@@ -167,7 +172,7 @@ public:
 
             //- Returns const access to the moment map
             inline const Map<label>& momentMap() const;
-            
+
             //- Return the dimensionality of the distribution
             inline label nDimensions() const;
 

@@ -29,10 +29,12 @@ License
 
 Foam::PDFTransportModel::PDFTransportModel
 (
+    const word& name,
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
+    name_(name),
     mesh_(mesh)
 {}
 

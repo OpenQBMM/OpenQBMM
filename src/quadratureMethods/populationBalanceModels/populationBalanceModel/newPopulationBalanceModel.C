@@ -30,6 +30,7 @@ License
 Foam::autoPtr<Foam::populationBalanceModel>
 Foam::populationBalanceModel::New
 (
+    const word& name,
     const dictionary& dict,
     const volVectorField& U,
     const surfaceScalarField& phi
@@ -47,6 +48,7 @@ Foam::populationBalanceModel::New
     {
         FatalErrorIn("populationBalanceModel::New")
             << "(" << endl
+            << "    const word&" << endl
             << "    const dictionary&" << endl
             << "    const volVectorField&" << endl
             << "    const surfaceScalarField&" << endl
@@ -64,6 +66,7 @@ Foam::populationBalanceModel::New
         (
             cstrIter()
             (
+                name,
                 dict.subDict(populationBalanceModelType + "Coeffs"),
                 U,
                 phi

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -76,7 +76,7 @@ Foam::populationBalanceSubModels::diffusionModels::noDiffusion
 (
     const volScalarField& moment
 ) const
-{   
+{
     tmp<volScalarField> noDiff
     (
         new volScalarField
@@ -93,8 +93,8 @@ Foam::populationBalanceSubModels::diffusionModels::noDiffusion
             moment.mesh(),
             dimensionedScalar("zero", inv(dimTime), 0.0)
         )
-    );    
-    
+    );
+
     return fvm::Sp(noDiff, moment);
 }
 

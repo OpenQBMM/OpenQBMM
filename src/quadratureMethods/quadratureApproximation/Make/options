@@ -4,7 +4,8 @@ EXE_INC = \
     -I../univariateMomentSet/lnInclude \
     -I../extentedMomentInversion/lnInclude \
     -I../quadratureNode \
-    -I../moments
+    -I../moments \
+    -DFULLDEBUG -g -O0
 
 LIB_LIBS = \
     -lfiniteVolume \

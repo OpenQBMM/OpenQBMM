@@ -58,14 +58,14 @@ namespace Foam
 /*---------------------------------------------------------------------------*\
                        Class quadratureNode Declaration
 \*---------------------------------------------------------------------------*/
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType>
 class quadratureNode
 {
     // Private data
 
         //- Name of node
-        word name_;
-        
+        const word name_;
+
         //- Node dictionary
         dictionary nodeDict_;
 
@@ -74,7 +74,7 @@ class quadratureNode
 
         //- Primary abscissa of the node
         abscissaType abscissa_;
-        
+
         //- Boolean variable to identify extended nodes
         bool extended_;
 
@@ -84,19 +84,21 @@ public:
 
         //- Construct from name, dictionary, mesh and dimensions
         quadratureNode
-        (           
+        (
             const word& name,
+            const word& distributionName,
             const dictionary& nodeDict,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const dimensionSet& abscissaDimensions,
             const wordList& boundaryTypes
         );
-        
+
         //- Construct from name, mesh and dimensions
         quadratureNode
         (
             const word& name,
+            const word& distributionName,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const dimensionSet& abscissaDimensions
@@ -104,11 +106,12 @@ public:
 
         //- Return clone
         autoPtr<quadratureNode<weightType, abscissaType> > clone() const;
-        
+
         //- Return a pointer to a new quadrature node created on freestore
         //  from Istream
         class iNew
         {
+            const word distributionName_;
             const fvMesh& mesh_;
             const dimensionSet& weightDimensions_;
             const dimensionSet& abscissaDimensions_;
@@ -118,12 +121,14 @@ public:
 
             iNew
             (
+                const word& distributionName,
                 const fvMesh& mesh,
                 const dimensionSet& weightDimensions,
                 const dimensionSet& abscissaDimensions,
                 const wordList& boundaryTypes
             )
             :
+                distributionName_(distributionName),
                 mesh_(mesh),
                 weightDimensions_(weightDimensions),
                 abscissaDimensions_(abscissaDimensions),
@@ -140,8 +145,9 @@ public:
                 (
                     new quadratureNode<weightType, abscissaType>
                     (
-                        ent.keyword(), 
-                        ent, 
+                        ent.keyword(),
+                        distributionName_,
+                        ent,
                         mesh_,
                         weightDimensions_,
                         abscissaDimensions_,
@@ -164,7 +170,7 @@ public:
             inline const word& name() const;
 
             inline bool extended() const;
-            
+
             //- Returns the number of secondary nodes
             inline label nSecondaryNodes() const;
 
@@ -179,7 +185,7 @@ public:
 
             //- Non-const access to the abscissa of the node
             inline abscissaType& primaryAbscissa();
-            
+
             //- Const access to the secondary weight of the node
             inline const PtrList<weightType>& secondaryWeights() const;
 

@@ -14,8 +14,9 @@ EXE_INC = \
     -I../quadratureNode \
     -I../moments \
     -I../quadratureApproximation/lnInclude \
-    -I../PDFTransportModels/lnInclude
-    
+    -I../PDFTransportModels/lnInclude \
+    -DFULLDEBUG -g -O0
+
 LIB_LIBS = \
     -lincompressibleTransportModels \
     -lcompressibleTransportModels \

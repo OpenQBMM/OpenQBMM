@@ -60,24 +60,27 @@ namespace Foam
                          Class moment Declaration
 \*---------------------------------------------------------------------------*/
 
-template <class fieldType, class nodeType> 
+template <class fieldType, class nodeType>
 class moment
 :
     public fieldType
 {
+    //- Name of the distribution associated to the moment
+    const word distributionName_;
+
     //- Reference to the quadrature nodes
     const autoPtr<PtrList<nodeType> >& nodes_;
 
-    //- The order of each dimension of the moment
+    //- Order of each dimension of the moment
     const labelList cmptOrders_;
 
-    //- The name of the moment
+    //- Name of the moment
     const word name_;
 
-    //- The number of dimensions of the distribution function
+    //- Number of dimensions of the distribution function
     const label nDimensions_;
 
-    //- The overall order of the moment
+    //- Overall order of the moment
     const label order_;
 
 
@@ -96,14 +99,16 @@ public:
         //  and the quadrature nodes
         moment
         (
+            const word& distributionName,
             const labelList& cmptOrders,
             const fvMesh& mesh,
             const autoPtr<PtrList<nodeType> >& nodes
         );
-        
+
         //- Construct from name, orders, and quadrature nodes
         moment
         (
+            const word& distributionName,
             const labelList& cmptOrders,
             const autoPtr<PtrList<nodeType> >& nodes,
             const fieldType& initMoment
@@ -117,6 +122,7 @@ public:
         //  from Istream
         class iNew
         {
+            const word& distributionName_;
             const fvMesh& mesh_;
             const autoPtr<PtrList<nodeType> >& nodes_;
 
@@ -124,10 +130,12 @@ public:
 
             iNew
             (
+                const word& distributionName,
                 const fvMesh& mesh,
                 const autoPtr<PtrList<nodeType> >& nodes
             )
             :
+                distributionName_(distributionName),
                 mesh_(mesh),
                 nodes_(nodes)
             {}
@@ -137,7 +145,13 @@ public:
                 labelList ent(is);
                 return autoPtr<moment<fieldType, nodeType> >
                 (
-                    new moment<fieldType, nodeType> (ent, mesh_, nodes_)
+                    new moment<fieldType, nodeType>
+                    (
+                        distributionName_,
+                        ent,
+                        mesh_,
+                        nodes_
+                    )
                 );
             }
         };
@@ -148,6 +162,18 @@ public:
 
 
     // Member Functions
+
+            //- Creates the name of the moment
+            word momentName
+            (
+                const word& order,
+                const word& distributionName
+            )
+            {
+                word tmpName = IOobject::groupName("moment", order);
+
+                return IOobject::groupName(tmpName, distributionName);
+            }
 
         // Access
 

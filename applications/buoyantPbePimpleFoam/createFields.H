@@ -70,7 +70,7 @@
 
     // Force p_rgh to be consistent with p
     p_rgh = p - rho*gh;
-    
+
     mesh.setFluxRequired(p_rgh.name());
 
     Info<< "Creating field dpdt\n" << endl;
@@ -90,7 +90,7 @@
     volScalarField K("K", 0.5*magSqr(U));
 
     Info<< "Reading populationBalanceProperties\n" << endl;
-    
+
     IOdictionary populationBalanceProperties
     (
         IOobject
@@ -105,5 +105,8 @@
 
     autoPtr<populationBalanceModel> populationBalance
     (
-        populationBalanceModel::New(populationBalanceProperties, U, phi)
+        populationBalanceModel::New
+        (
+            "populationBalance", populationBalanceProperties, U, phi
+        )
     );

@@ -32,6 +32,7 @@ License
 
 Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
 (
+    const word& name,
     const fvMesh& mesh,
     const word support
 )
@@ -40,24 +41,31 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
     (
         IOobject
         (
-            "quadratureProperties",
+            IOobject::groupName("quadratureProperties", name),
             mesh.time().constant(),
             mesh,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
     ),
+    name_(name),
     mesh_(mesh),
     nodes_(),
-    moments_(*this, mesh_, nodes_),
+    moments_(name_, *this, mesh_, nodes_),
     nPrimaryNodes_(0),
     nSecondaryNodes_(0),
     nodesNei_(),
     nodesOwn_(),
     nDimensions_(1),
     nMoments_(moments_.size()),
-    momentsNei_(nMoments_, nodesNei_, nDimensions_, moments_.momentMap()),
-    momentsOwn_(nMoments_, nodesOwn_, nDimensions_, moments_.momentMap()),
+    momentsNei_
+    (
+        name_, nMoments_, nodesNei_, nDimensions_, moments_.momentMap()
+    ),
+    momentsOwn_
+    (
+        name_, nMoments_, nodesOwn_, nDimensions_, moments_.momentMap()
+    ),
     momentInverter_(),
     support_(support)
 {
@@ -69,6 +77,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
             lookup("nodes"),
             Foam::extendedVolScalarNode::iNew
             (
+                name_,
                 mesh_,
                 moments_[0].dimensions(),
                 moments_[1].dimensions()/moments_[0].dimensions(),
@@ -118,6 +127,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
             new extendedSurfaceScalarNode
             (
                 node.name() + "Nei",
+                name_,
                 nSecondaryNodes_,
                 mesh_,
                 moments_[0].dimensions(),
@@ -131,6 +141,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
             new extendedSurfaceScalarNode
             (
                 node.name() + "Own",
+                name_,
                 nSecondaryNodes_,
                 mesh_,
                 moments_[0].dimensions(),
@@ -164,6 +175,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
             mI,
             new Foam::surfaceUnivariateMoment
             (
+                name_,
                 moments_[mI].cmptOrders(),
                 nodesNei_,
                 fvc::interpolate(moments_[mI])
@@ -175,6 +187,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
             mI,
             new Foam::surfaceUnivariateMoment
             (
+                name_,
                 moments_[mI].cmptOrders(),
                 nodesOwn_,
                 fvc::interpolate(moments_[mI])
