@@ -50,13 +50,15 @@ namespace populationBalanceModels
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::univariatePopulationBalance
 (
+    const word& name,
     const dictionary& dict,
     const volVectorField& U,
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(dict, U.mesh(), U, "RPlus"),
-    populationBalanceModel(dict, U, phi),
+    univariatePDFTransportModel(name, dict, U.mesh(), U, "RPlus"),
+    populationBalanceModel(name, dict, U, phi),
+    name_(name),
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
     growth_(dict.lookup("growth")),

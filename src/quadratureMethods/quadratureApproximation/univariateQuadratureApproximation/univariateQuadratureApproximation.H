@@ -65,6 +65,9 @@ class univariateQuadratureApproximation
 {
     // Private data
 
+        //- Name of the quadrature approximation
+        const word name_;
+
         //- Reference to the mesh
         const fvMesh& mesh_;
 
@@ -112,6 +115,7 @@ public:
         //- Construct from mesh
         explicit univariateQuadratureApproximation
         (
+            const word& name,
             const fvMesh& mesh,
             const word support
         );

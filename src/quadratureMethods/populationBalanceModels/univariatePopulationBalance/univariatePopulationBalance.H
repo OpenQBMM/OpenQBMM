@@ -63,6 +63,9 @@ class univariatePopulationBalance
 {
     // Private data
 
+        //- Name of the univariatePopulationBalance
+        const word name_;
+
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
 
@@ -143,6 +146,7 @@ public:
         //- Construct from components
         univariatePopulationBalance
         (
+            const word& name,
             const dictionary& dict,
             const volVectorField& U,
             const surfaceScalarField& phi

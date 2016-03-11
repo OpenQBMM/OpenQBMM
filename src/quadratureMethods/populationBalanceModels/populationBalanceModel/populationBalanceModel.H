@@ -51,6 +51,11 @@ namespace Foam
 
 class populationBalanceModel
 {
+    // Private data
+
+        //- Name of the populationBalanceModel
+        const word name_;
+
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
@@ -80,11 +85,12 @@ public:
         populationBalanceModel,
         dictionary,
         (
+            const word& name,
             const dictionary& dict,
             const volVectorField& U,
             const surfaceScalarField& phi
         ),
-        (dict, U, phi)
+        (name, dict, U, phi)
     );
 
 
@@ -93,6 +99,7 @@ public:
         //- Construct from components
         populationBalanceModel
         (
+            const word& name,
             const dictionary& dict,
             const volVectorField& U,
             const surfaceScalarField& phi
@@ -104,6 +111,7 @@ public:
         //- Select null constructed
         static autoPtr<populationBalanceModel> New
         (
+            const word& name,
             const dictionary& dict,
             const volVectorField& U,
             const surfaceScalarField& phi

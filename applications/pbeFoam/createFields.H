@@ -59,7 +59,7 @@
     );
 
     Info<< "Reading populationBalanceProperties\n" << endl;
-    
+
     IOdictionary populationBalanceProperties
     (
         IOobject
@@ -74,5 +74,8 @@
 
     autoPtr<populationBalanceModel> populationBalance
     (
-        populationBalanceModel::New(populationBalanceProperties, U, phi)
+        populationBalanceModel::New
+        (
+            "populationBalance", populationBalanceProperties, U, phi
+        )
     );

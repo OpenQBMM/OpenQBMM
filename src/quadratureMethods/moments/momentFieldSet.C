@@ -30,9 +30,10 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
 (
+    const word& distributionName,
     const dictionary& dict,
     const fvMesh& mesh,
     const autoPtr<PtrList<nodeType> >& nodes
@@ -40,18 +41,19 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
 :
     PtrList<momentType>
     (
-        dict.lookup("moments"), 
-        typename momentType::iNew(mesh, nodes)
+        dict.lookup("moments"),
+        typename momentType::iNew(distributionName, mesh, nodes)
     ),
+    name_(IOobject::groupName("moments", distributionName)),
     nodes_(nodes),
-    nDimensions_((*this)[0].nDimensions()), 
-    nMoments_((*this).size()), 
+    nDimensions_((*this)[0].nDimensions()),
+    nMoments_((*this).size()),
     momentMap_(nMoments_)
 {
     // Check on the number of moments and nodes may go here.
-    // However, to keep the implementation generic, it is moved to a 
+    // However, to keep the implementation generic, it is moved to a
     // higher-level class where the specific quadrature method is implemented.
-    
+
     // Populate the moment set
     forAll(*this, mI)
     {
@@ -67,9 +69,10 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
 }
 
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
 (
+    const word& distributionName,
     const label nMoments,
     const autoPtr<PtrList<nodeType> >& nodes,
     const label nDimensions,
@@ -77,22 +80,23 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
 )
 :
     PtrList<momentType>(nMoments),
+    name_(IOobject::groupName("moments", distributionName)),
     nodes_(nodes),
-    nDimensions_(nDimensions), 
+    nDimensions_(nDimensions),
     nMoments_(nMoments),
     momentMap_(momentMap)
 {}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 Foam::momentFieldSet<momentType, nodeType>::~momentFieldSet()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 void Foam::momentFieldSet<momentType, nodeType>::update()
 {
     forAll(*this, mI)

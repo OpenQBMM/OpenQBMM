@@ -30,14 +30,16 @@ License
 Foam::PDFTransportModels::univariatePDFTransportModel
 ::univariatePDFTransportModel
 (
+    const word& name,
     const dictionary& dict,
     const fvMesh& mesh,
     const volVectorField& U,
     const word support
 )
 :
-    PDFTransportModel(dict, mesh),
-    quadrature_(mesh, support),
+    PDFTransportModel(name, dict, mesh),
+    name_(name),
+    quadrature_(name, mesh, support),
     U_(U)
 {}
 

@@ -34,12 +34,13 @@ template <class weightType, class abscissaType>
 Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 (
     const word& name,
+    const word& distributionName,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
     const dimensionSet& abscissaDimensions
 )
 :
-    name_(name),
+    name_(IOobject::groupName(name, distributionName)),
     weight_
     (
         IOobject
@@ -84,6 +85,7 @@ template <class weightType, class abscissaType>
 Foam::quadratureNode<weightType, abscissaType>::quadratureNode
 (
     const word& name,
+    const word& distributionName,
     const dictionary& nodeDict,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
@@ -91,7 +93,7 @@ Foam::quadratureNode<weightType, abscissaType>::quadratureNode
     const wordList& boundaryTypes
 )
 :
-    name_(name),
+    name_(IOobject::groupName(name, distributionName)),
     nodeDict_(nodeDict),
     weight_
     (
@@ -142,8 +144,8 @@ Foam::quadratureNode<weightType, abscissaType>::~quadratureNode()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType> 
-Foam::autoPtr<Foam::quadratureNode<weightType, abscissaType> > 
+template <class weightType, class abscissaType>
+Foam::autoPtr<Foam::quadratureNode<weightType, abscissaType> >
 Foam::quadratureNode<weightType, abscissaType>::clone() const
 {
     notImplemented("quadratureNode::clone() const");

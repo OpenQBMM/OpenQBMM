@@ -74,6 +74,9 @@ class momentFieldSet
 {
     // Private data
 
+        //- Name of the momentFieldSet
+        const word name_;
+
         //- Reference to the quadrature nodes
         const autoPtr<PtrList<nodeType> >& nodes_;
 
@@ -111,6 +114,7 @@ public:
         //- Construct from dictionary and the quadrature nodes
         momentFieldSet
         (
+            const word& distributionName,
             const dictionary& dict,
             const fvMesh& mesh,
             const autoPtr<PtrList<nodeType> >& nodes
@@ -121,6 +125,7 @@ public:
         //  automatically allocated.
         momentFieldSet
         (
+            const word& distributionName,
             const label nMoments,
             const autoPtr<PtrList<nodeType> >& nodes,
             const label nDimensions,

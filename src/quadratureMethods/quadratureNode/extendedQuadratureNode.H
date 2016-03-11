@@ -25,8 +25,8 @@ Class
     Foam::extendedQuadratureNode
 
 Description
-    Extended version of the quadrature node, which stores the list of secondary 
-    weights and abscissae associated to the primary weight and abscissa, and 
+    Extended version of the quadrature node, which stores the list of secondary
+    weights and abscissae associated to the primary weight and abscissa, and
     the sigma parameter.
 
 SourceFiles
@@ -52,7 +52,7 @@ namespace Foam
 /*---------------------------------------------------------------------------*\
                        Class extendedQuadratureNode Declaration
 \*---------------------------------------------------------------------------*/
-template <class weightType, class abscissaType, class sigmaType> 
+template <class weightType, class abscissaType, class sigmaType>
 class extendedQuadratureNode
 :
     public quadratureNode<weightType, abscissaType>
@@ -83,19 +83,21 @@ public:
 
         //- Construct from name, dictionary, mesh and dimensions
         extendedQuadratureNode
-        (           
+        (
             const word& name,
+            const word& distributionName,
             const dictionary& nodeDict,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const dimensionSet& abscissaDimensions,
             const wordList& boundaryTypes
         );
-        
+
         //- Construct from name, number of secondary nodes, mesh and dimensions
         extendedQuadratureNode
         (
             const word& name,
+            const word& distributionName,
             const label nSecondaryNodes,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
@@ -103,13 +105,14 @@ public:
         );
 
         //- Return clone
-        autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> > 
+        autoPtr<extendedQuadratureNode<weightType, abscissaType, sigmaType> >
             clone() const;
-        
+
         //- Return a pointer to a new quadrature node created on freestore
         //  from Istream
         class iNew
         {
+            const word distributionName_;
             const fvMesh& mesh_;
             const dimensionSet& weightDimensions_;
             const dimensionSet& abscissaDimensions_;
@@ -119,12 +122,14 @@ public:
 
             iNew
             (
+                const word& distributionName,
                 const fvMesh& mesh,
                 const dimensionSet& weightDimensions,
                 const dimensionSet& abscissaDimensions,
                 const wordList& boundaryTypes
             )
             :
+                distributionName_(distributionName),
                 mesh_(mesh),
                 weightDimensions_(weightDimensions),
                 abscissaDimensions_(abscissaDimensions),
@@ -133,8 +138,8 @@ public:
 
             autoPtr
             <
-                extendedQuadratureNode<weightType, abscissaType, sigmaType> 
-            > 
+                extendedQuadratureNode<weightType, abscissaType, sigmaType>
+            >
             operator()
             (
                 Istream& is
@@ -143,7 +148,7 @@ public:
                 dictionaryEntry ent(dictionary::null, is);
                 return autoPtr
                 <
-                    extendedQuadratureNode<weightType, abscissaType, sigmaType> 
+                    extendedQuadratureNode<weightType, abscissaType, sigmaType>
                 >
                 (
                     new extendedQuadratureNode
@@ -151,8 +156,9 @@ public:
                         weightType, abscissaType, sigmaType
                     >
                     (
-                        ent.keyword(), 
-                        ent, 
+                        ent.keyword(),
+                        distributionName_,
+                        ent,
                         mesh_,
                         weightDimensions_,
                         abscissaDimensions_,

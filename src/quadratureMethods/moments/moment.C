@@ -37,8 +37,8 @@ License
 
 // * * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * //
 
-template <class fieldType, class nodeType> 
-Foam::word 
+template <class fieldType, class nodeType>
+Foam::word
 Foam::moment<fieldType, nodeType>::listToWord(const labelList& lst)
 {
     word w;
@@ -51,8 +51,8 @@ Foam::moment<fieldType, nodeType>::listToWord(const labelList& lst)
     return w;
 }
 
-template <class fieldType, class nodeType> 
-Foam::label 
+template <class fieldType, class nodeType>
+Foam::label
 Foam::moment<fieldType, nodeType>::listToLabel(const labelList& lst)
 {
     label l = 0;
@@ -68,9 +68,10 @@ Foam::moment<fieldType, nodeType>::listToLabel(const labelList& lst)
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template <class fieldType, class nodeType> 
+template <class fieldType, class nodeType>
 Foam::moment<fieldType, nodeType>::moment
 (
+    const word& distributionName,
     const labelList& cmptOrders,
     const fvMesh& mesh,
     const autoPtr<PtrList<nodeType> >& nodes
@@ -80,7 +81,7 @@ Foam::moment<fieldType, nodeType>::moment
     (
         IOobject
         (
-            IOobject::groupName("moment", listToWord(cmptOrders)), 
+            momentName(listToWord(cmptOrders), distributionName),
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -88,25 +89,28 @@ Foam::moment<fieldType, nodeType>::moment
         ),
         mesh
     ),
+    distributionName_(distributionName),
     nodes_(nodes),
     cmptOrders_(cmptOrders),
-    name_(listToWord(cmptOrders_)),
+    name_(momentName(listToWord(cmptOrders_), distributionName_)),
     nDimensions_(cmptOrders_.size()),
     order_(sum(cmptOrders_))
 {}
 
-template <class fieldType, class nodeType> 
+template <class fieldType, class nodeType>
 Foam::moment<fieldType, nodeType>::moment
 (
+    const word& distributionName,
     const labelList& cmptOrders,
     const autoPtr<PtrList<nodeType> >& nodes,
     const fieldType& initMoment
 )
 :
     fieldType(initMoment),
+    distributionName_(distributionName),
     nodes_(nodes),
     cmptOrders_(cmptOrders),
-    name_(listToWord(cmptOrders_)),
+    name_(momentName(listToWord(cmptOrders_), distributionName_)),
     nDimensions_(cmptOrders_.size()),
     order_(sum(cmptOrders_))
 {}
@@ -114,47 +118,47 @@ Foam::moment<fieldType, nodeType>::moment
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template <class fieldType, class nodeType> 
+template <class fieldType, class nodeType>
 Foam::moment<fieldType, nodeType>::~moment()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-template <class fieldType, class nodeType> 
-Foam::autoPtr<Foam::moment<fieldType, nodeType> > 
+template <class fieldType, class nodeType>
+Foam::autoPtr<Foam::moment<fieldType, nodeType> >
 Foam::moment<fieldType, nodeType>::clone() const
 {
     NotImplemented;
     return autoPtr<moment<fieldType, nodeType> >(NULL);
 }
 
-template <class fieldType, class nodeType> 
+template <class fieldType, class nodeType>
 void Foam::moment<fieldType, nodeType>::update()
-{  
+{
     // Resetting the moment to zero
     *this == dimensionedScalar("moment", (*this).dimensions(), 0);
-    
+
     const PtrList<nodeType>& nodes = nodes_();
-    
+
     bool extendedNode = nodes[0].extended();
-    
+
     // If nodes do not have extended status, only use primary quadrature.
     if (!extendedNode)
     {
         forAll(nodes, pNodeI)
         {
             const nodeType& node = nodes[pNodeI];
-            
+
             if (!node.extended())
             {
                 fieldType m = node.primaryWeight();
-            
+
                 for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
                 {
                     const label cmptMomentOrder = cmptOrders()[cmpt];
-                    
-                    tmp<fieldType> abscissaCmpt 
+
+                    tmp<fieldType> abscissaCmpt
                             = node.primaryAbscissa().component(cmpt);
 
                     tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
@@ -170,24 +174,24 @@ void Foam::moment<fieldType, nodeType>::update()
         return;
     }
 
-    // Extended quadrature case    
+    // Extended quadrature case
     forAll(nodes, pNodeI)
-    {       
+    {
         const nodeType& node = nodes[pNodeI];
 
         const fieldType& pW = node.primaryWeight();
 
         for (label sNodeI = 0; sNodeI < node.nSecondaryNodes(); sNodeI++)
-        {     
+        {
             fieldType m(pW*node.secondaryWeights()[sNodeI]);
 
             for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
             {
                 const label cmptMomentOrder = cmptOrders()[cmpt];
 
-                tmp<fieldType> abscissaCmpt 
+                tmp<fieldType> abscissaCmpt
                         = node.secondaryAbscissae()[sNodeI].component(cmpt);
-               
+
                 tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
 
                 m.dimensions().reset(mPow().dimensions());
@@ -197,7 +201,7 @@ void Foam::moment<fieldType, nodeType>::update()
 
             *this == *this + m;
         }
-    }  
+    }
 }
 
 
