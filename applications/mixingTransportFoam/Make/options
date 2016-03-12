@@ -1,0 +1,34 @@
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/fvOptions/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/transportModels/compressible/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
+    -I$../../../src/quadratureMethods/univariateMomentSet/lnInclude \
+    -I$../../../src/quadratureMethods/extentedMomentInversion/lnInclude \
+    -I$../../../src/quadratureMethods/quadratureNode \
+    -I$../../../src/quadratureMethods/moments \
+    -I$../../../src/quadratureMethods/quadratureApproximation/lnInclude \
+    -I$../../../src/quadratureMethods/mixingModels/lnInclude
+
+EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lsampling \
+    -lmeshTools \
+    -lcompressibleTransportModels \
+    -lfluidThermophysicalModels \
+    -lspecie \
+    -lradiationModels \
+    -lturbulenceModels \
+    -lcompressibleTurbulenceModels \
+    -lmeshTools \
+    -lmomentSet \
+    -lextendedMomentInversion \
+    -lquadratureApproximation \
+    -lmixing

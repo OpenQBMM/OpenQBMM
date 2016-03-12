@@ -14,4 +14,4 @@ mixingSubModels/mixingKernels/IEM/IEM.C
 noMixing/noMixing.C
 turbulentMixing/turbulentMixing.C
 
-LIB = $(FOAM_USER_LIBBIN)/libMixing
+LIB = $(FOAM_USER_LIBBIN)/libmixing

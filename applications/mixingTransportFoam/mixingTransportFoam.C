@@ -5,8 +5,8 @@
     \\  /    A nd           | Copyright (C) 2011-2015 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2015-06-30 Alberto Passalacqua: Steady-state solver for population balance
-                                equations. It requires a flow field obtained
+2016-03-12 Alberto Passalacqua: Solver for mixing model on steady velocity
+                                field. It requires a flow field obtained
                                 with buoyantSimpleFoam or equivalent solver.
 -------------------------------------------------------------------------------
 License
@@ -26,10 +26,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    pbeTransportFoam
+    mixingTransportFoam
 
 Description
-    Solver for population balance equation on steady velocity field.
+    Solver for mixing model on steady velocity field.
 
 \*---------------------------------------------------------------------------*/
 
@@ -39,7 +39,7 @@ Description
 #include "radiationModel.H"
 #include "pimpleControl.H"
 #include "fixedFluxPressureFvPatchScalarField.H"
-#include "populationBalanceModel.H"
+#include "mixingModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
         while (pimple.loop())
         {
-            populationBalance->solve();
+            mixing->solve();
         }
 
         runTime.write();
