@@ -23,20 +23,28 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "mixingModel.H"
+#include "noMixing.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    defineTypeNameAndDebug(mixingModel, 0);
-    defineRunTimeSelectionTable(mixingModel, dictionary);
+namespace mixingModels
+{
+    defineTypeNameAndDebug(noMixing, 0);
+    addToRunTimeSelectionTable
+    (
+        mixingModel,
+        noMixing,
+        dictionary
+    );
 }
-
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mixingModel::mixingModel
+Foam::mixingModels::noMixing::noMixing
 (
     const word& name,
     const dictionary& dict,
@@ -44,19 +52,22 @@ Foam::mixingModel::mixingModel
     const surfaceScalarField& phi
 )
 :
-    name_(name),
-    phi_(phi)
+    mixingModel(name, dict, U, phi),
+    name_(name)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::mixingModel::~mixingModel()
+Foam::mixingModels::noMixing::~noMixing()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-
+void Foam::mixingModels::noMixing::solve()
+{
+    return;
+}
 
 // ************************************************************************* //

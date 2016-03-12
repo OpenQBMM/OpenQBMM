@@ -22,11 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::noPopulationBalance
+    Foam::populationBalanceModels::noPopulationBalance
 
 Description
-    Solve a univariate population balance equation with the extended quadrature
-    method of moments.
+    Disables the solution of the population balance model.
 
 SourceFiles
     noPopulationBalance.C

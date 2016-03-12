@@ -22,94 +22,52 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixingModel
+    Foam::mixingModels::noMixing
 
 Description
-    Abstract class for the run-time selection of mixing models.
+    Disables the solution of the mixing model.
 
 SourceFiles
-    mixingModel.C
+    noMixing.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef mixingModel_H
-#define mixingModel_H
+#ifndef noMixing_H
+#define noMixing_H
 
-#include "dictionary.H"
-#include "volFields.H"
-#include "dimensionedTypes.H"
-#include "runTimeSelectionTables.H"
+#include "mixingModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+namespace mixingModels
+{
 
 /*---------------------------------------------------------------------------*\
-                    Class mixingModel Declaration
+                          Class noMixing Declaration
 \*---------------------------------------------------------------------------*/
 
-class mixingModel
+class noMixing
+:
+    public mixingModel
 {
     // Private data
 
-        //- Name of the mixingModel
+        //- Name of the noMixing
         const word name_;
-
-    // Private Member Functions
-
-        //- Disallow default bitwise copy construct
-        mixingModel(const mixingModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const mixingModel&);
-
-
-protected:
-
-    // Protected data
-
-        //- Fluid-phase face-normal velocity
-        const surfaceScalarField& phi_;
 
 
 public:
 
     //- Runtime type information
-    TypeName("mixingModel");
-
-    // Declare runtime constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        mixingModel,
-        dictionary,
-        (
-            const word& name,
-            const dictionary& dict,
-            const volVectorField& U,
-            const surfaceScalarField& phi
-        ),
-        (name, dict, U, phi)
-    );
+    TypeName("none");
 
 
     // Constructors
 
         //- Construct from components
-        mixingModel
-        (
-            const word& name,
-            const dictionary& dict,
-            const volVectorField& U,
-            const surfaceScalarField& phi
-        );
-
-
-    // Selectors
-
-        //- Select null constructed
-        static autoPtr<mixingModel> New
+        noMixing
         (
             const word& name,
             const dictionary& dict,
@@ -119,19 +77,18 @@ public:
 
 
     //- Destructor
-    virtual ~mixingModel();
-
+    virtual ~noMixing();
 
     // Member Functions
 
         //- Solve mixing model
-        virtual void solve() = 0;
-
+        void solve();
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace mixingModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

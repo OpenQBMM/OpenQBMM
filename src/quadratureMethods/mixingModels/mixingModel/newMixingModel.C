@@ -25,38 +25,53 @@ License
 
 #include "mixingModel.H"
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-namespace Foam
-{
-    defineTypeNameAndDebug(mixingModel, 0);
-    defineRunTimeSelectionTable(mixingModel, dictionary);
-}
-
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-Foam::mixingModel::mixingModel
+Foam::autoPtr<Foam::mixingModel> Foam::mixingModel::New
 (
     const word& name,
     const dictionary& dict,
     const volVectorField& U,
     const surfaceScalarField& phi
 )
-:
-    name_(name),
-    phi_(phi)
-{}
+{
+    word mixingModelType(dict.lookup("mixingModel"));
 
+    Info<< "Selecting mixingModel "
+        << mixingModelType << endl;
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+    dictionaryConstructorTable::iterator cstrIter =
+        dictionaryConstructorTablePtr_->find(mixingModelType);
 
-Foam::mixingModel::~mixingModel()
-{}
+    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorIn("mixingModel::New")
+            << "(" << endl
+            << "    const word&" << endl
+            << "    const dictionary&" << endl
+            << "    const volVectorField&" << endl
+            << "    const surfaceScalarField&" << endl
+            << ") : " << endl
+            << "    unknown mixingModelType type "
+            << mixingModelType
+            << ", constructor not in hash table" << endl << endl
+            << "    Valid mixingModelType types are :" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << abort(FatalError);
+    }
 
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
+    return
+        autoPtr<mixingModel>
+        (
+            cstrIter()
+            (
+                name,
+                dict.subDict(mixingModelType + "Coeffs"),
+                U,
+                phi
+            )
+        );
+}
 
 
 // ************************************************************************* //
