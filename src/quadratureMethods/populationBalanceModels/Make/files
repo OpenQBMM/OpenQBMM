@@ -35,7 +35,7 @@ populationBalanceSubModels/diffusionModels/noDiffusion/noDiffusion.C
 populationBalanceSubModels/diffusionModels/turbulentDiffusion/turbulentDiffusion.C
 populationBalanceSubModels/diffusionModels/molecularDiffusion/molecularDiffusion.C
 
-
+noPopulationBalance/noPopulationBalance.C
 univariatePopulationBalance/univariatePopulationBalance.C
 
 LIB = $(FOAM_USER_LIBBIN)/libpopulationBalance
