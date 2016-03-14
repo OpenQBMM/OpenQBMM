@@ -93,7 +93,9 @@ void Foam::gammaEQMOM::momentsStarToMoments
             "   univariateMomentSet& moments,\n"
             "   const univariateMomentSet& momentsStar\n"
             ")"
-        )   << "Moment transformation not implemented."
+        )   << "The number of moments is too large. The maximum number of"
+            << "moments allowed with the gamma kernel density function is 11."
+            << "Moment transformation not implemented."
             << abort(FatalError);
     }
 

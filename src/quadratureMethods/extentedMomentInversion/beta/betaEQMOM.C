@@ -192,7 +192,9 @@ void Foam::betaEQMOM::momentsToMomentsStar
             "   const univariateMomentSet& moments,\n"
             "   univariateMomentSet& momentsStar\n"
             ")"
-        )   << "Moment transformation not implemented."
+        )   << "The number of moments is too large. The maximum number of"
+            << "moments allowed with the beta kernel density function is 11."
+            << "Moment transformation not implemented."
             << abort(FatalError);
     }
 
