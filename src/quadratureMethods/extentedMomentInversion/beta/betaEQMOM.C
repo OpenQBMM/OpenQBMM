@@ -325,7 +325,7 @@ void Foam::betaEQMOM::recurrenceRelation
 
 Foam::scalar Foam::betaEQMOM::sigmaMax(univariateMomentSet& moments)
 {
-    scalar p2 = (moments[1]*moments[2] - sqr(moments[1]))
+    scalar p2 = (moments[0]*moments[2] - sqr(moments[1]))
                 /(moments[0]*moments[1] - sqr(moments[1]));
 
     return p2/(1.0 - p2);
