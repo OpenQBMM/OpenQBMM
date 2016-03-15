@@ -204,7 +204,7 @@ void Foam::betaEQMOM::momentsToMomentsStar
 
     if (nMom >= 5)
     {
-        momentsStar[3] = (1.0 + 2.0*sigma)*(1.0 + sigma)*moments[3] 
+        momentsStar[3] = (1.0 + 2.0*sigma)*(1.0 + sigma)*moments[3]
                 + sigma*(-3.0*(1.0 + sigma)*moments[2]
                 + moments[1]*sigma);
 
@@ -336,7 +336,7 @@ void Foam::betaEQMOM::recurrenceRelation
 
     b[0] = (pow(2.0, alpha + beta + 1.0)*gamma(alpha + 1.0)*gamma(beta + 1.0))
             /gamma(alpha + beta + 2.0);
-            
+
     a[1] = (sqr(beta) - sqr(alpha))/((alpha + beta + 2.0)*(alpha + beta + 4.0));
 
     b[1] = (4.0*(alpha + 1.0)*(beta + 1.0))
@@ -345,7 +345,7 @@ void Foam::betaEQMOM::recurrenceRelation
     for(label i = 2; i < a.size(); i++)
     {
         nab = 2.0*scalar(i) + alpha + beta;
-        
+
         a[i] = (sqr(beta) - sqr(alpha))/(nab*(nab + 2));
 
         b[i] = (4.0*(scalar(i) + alpha)*(scalar(i) + beta)*scalar(i)
