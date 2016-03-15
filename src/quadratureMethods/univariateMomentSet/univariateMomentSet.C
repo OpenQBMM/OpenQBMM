@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -79,14 +79,14 @@ void Foam::univariateMomentSet::invert()
         isRealizable();
         setupQuadrature(true);
     }
-    
+
     if (!quadratureSetUp_)
     {
         setupQuadrature(true);
     }
 
     if (nInvertibleMoments_ < 2)
-    {       
+    {
         FatalErrorIn
         (
             "Foam::univariateMomentSet::invert\n"
@@ -94,7 +94,7 @@ void Foam::univariateMomentSet::invert()
             "    const scalarDiagonalMatrix& weights,\n"
             "    const scalarDiagonalMatrix& abscissae\n"
             ")"
-        )   << "Insufficient number (" << nInvertibleMoments_ 
+        )   << "Insufficient number (" << nInvertibleMoments_
             << ") of moments to define quadrature."
             << abort(FatalError);
     }
@@ -154,24 +154,24 @@ void Foam::univariateMomentSet::invert()
 
     // Computing weights and abscissae
     eigenSolver zEig(z, true);
-   
+
     // Computing weights and abscissae
     for (label i = 0; i < nNodes_; i++)
     {
         weights_[i] = (*this)[0]*sqr(zEig.eigenvectors()[0][i]);
         abscissae_[i] = zEig.eigenvaluesRe()[i];
     }
-    
+
     inverted_ = true;
 }
 
-void Foam::univariateMomentSet::checkRealizability() 
+void Foam::univariateMomentSet::checkRealizability()
 {
     if (realizabilityChecked_)
     {
         return;
     }
-    
+
     label nN = nMoments_ - 1;
     label nD = label(nN/2);
     label nR = nN - 2*nD;
@@ -209,7 +209,7 @@ void Foam::univariateMomentSet::checkRealizability()
     // Check for the case with only two moments
     if (nMoments_ == 2)
     {
-        zeta[0] = (*this)[1]/(*this)[0] - 1.0;
+        zeta[0] = (*this)[1]/(*this)[0];
 
         if (zeta[0] <= 0)
         {
@@ -255,7 +255,7 @@ void Foam::univariateMomentSet::checkRealizability()
         nRealizableMoments_ = 1;
         nInvertibleMoments_ = 0;
         realizable_ = false;
-        
+
         FatalErrorIn
         (
             "Foam::univariateMomentSet::isRealizable()\n"
@@ -278,7 +278,7 @@ void Foam::univariateMomentSet::checkRealizability()
             return;
         }
 
-        alpha[zetaI] = z[zetaI][zetaI + 1]/z[zetaI][zetaI] 
+        alpha[zetaI] = z[zetaI][zetaI + 1]/z[zetaI][zetaI]
                 - z[zetaI - 1][zetaI]/z[zetaI - 1][zetaI - 1];
 
         zeta[2*zetaI] = alpha[zetaI] - zeta[2*zetaI - 1];
@@ -289,13 +289,13 @@ void Foam::univariateMomentSet::checkRealizability()
             nRealizableMoments_ = negativeZeta_;
             nInvertibleMoments_ = nRealizableMoments_ - 1;
             realizable_ = false;
-    
+
             return;
         }
 
         for (label columnI = zetaI + 1; columnI <= nN - zetaI - 1; columnI++)
         {
-            z[zetaI + 1][columnI] = z[zetaI][columnI + 1] 
+            z[zetaI + 1][columnI] = z[zetaI][columnI + 1]
                     - alpha[zetaI]*z[zetaI][columnI]
                     - beta[zetaI]*z[zetaI - 1][columnI];
         }
@@ -359,8 +359,8 @@ void Foam::univariateMomentSet::setupQuadrature(bool clear)
 
 void Foam::univariateMomentSet::update()
 {
-    // NOTE Recomputing all the moments (even if they originally were 
-    //      not realizable) from quadrature. 
+    // NOTE Recomputing all the moments (even if they originally were
+    //      not realizable) from quadrature.
     //      Should we limit to nRealizableMoments_?
     for (label momentI = 0; momentI < nMoments_; momentI++)
     {
