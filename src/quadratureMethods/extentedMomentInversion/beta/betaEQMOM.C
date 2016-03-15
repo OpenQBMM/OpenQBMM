@@ -198,74 +198,106 @@ void Foam::betaEQMOM::momentsToMomentsStar
             << abort(FatalError);
     }
 
-    scalar factor = 1.0 + sigma;
-
     momentsStar[0] = moments[0];
     momentsStar[1] = moments[1];
-    momentsStar[2] = (moments[2] - sigma*moments[1])/factor;
+    momentsStar[2] = (1.0 + sigma)*moments[2] - sigma*moments[1];
 
     if (nMom >= 5)
     {
-        factor *= 1.0 + 2.0*sigma;
-        momentsStar[3] = (moments[3] + sigma*(-3.0*moments[2]
-                + moments[1]*sigma)
-                )/factor;
+        momentsStar[3] = (1.0 + 2.0*sigma)*(1.0 + sigma)*moments[3] 
+                + sigma*(-3.0*(1.0 + sigma)*moments[2]
+                + moments[1]*sigma);
 
-        factor *= 1.0 + 3.0*sigma;
-        momentsStar[4] = (moments[4] + sigma*(-6.0*moments[3]
-                + sigma*(7.0*moments[2] - moments[1]*sigma))
-                )/factor;
+        momentsStar[4] = (1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)*(1.0 + sigma)
+                *moments[4] + sigma*(-6.0*(1.0 + 2.0*sigma)*(1.0 + sigma)
+                *moments[3] + sigma*(7.0*(1.0 + sigma)*moments[2]
+                - moments[1]*sigma));
     }
 
     if (nMom >= 7)
     {
-        factor *= 1.0 + 4.0*sigma;
-        momentsStar[5] = (moments[5] + sigma*(-10.0*moments[4]
-                + sigma*(25.0*moments[3] + sigma*(-15.0*moments[2]
-                + moments[1]*sigma)))
-                )/factor;
+        momentsStar[5] = (1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[5] + sigma*(-10.0*(1.0 + 3.0*sigma)
+                *(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[4]
+                + sigma*(25.0*(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[3]
+                + sigma*(-15.0*(1.0 + sigma)*moments[2] + moments[1]*sigma)));
 
-        factor *= 1.0 + 5.0*sigma;
-        momentsStar[6] = (moments[6] + sigma*(-15.0*moments[5]
-                + sigma*(65.0*moments[4] + sigma*(-90.0*moments[3]
-                + sigma*(31.0*moments[2] - moments[1]*sigma))))
-                )/factor;
+        momentsStar[6] = (1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)
+                *(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[6]
+                + sigma*(-15.0*(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)
+                *(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[5]
+                + sigma*(65.0*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)*(1.0 + sigma)
+                *moments[4] + sigma*(-90.0*(1.0 + 2.0*sigma)*(1.0 + sigma)
+                *moments[3] + sigma*(31.0*(1.0 + sigma)*moments[2]
+                - moments[1]*sigma))));
     }
 
     if (nMom >= 9)
     {
-        factor *= 1.0 + 6.0*sigma;
-        momentsStar[7] = (moments[7] + sigma*(-21.0*moments[6]
-                + sigma*(140.0*moments[5] + sigma*(-350.0*moments[4]
-                + sigma*(301.0*moments[3] + sigma*(-63.0*moments[2]
-                + moments[1]*sigma)))))
-                )/factor;
+        momentsStar[7] = (1.0 + 6.0*sigma)*(1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)
+                *(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[7]
+                + sigma*(-21.0*(1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)
+                *(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[6]
+                + sigma*(140.0*(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)
+                *(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[5]
+                + sigma*(-350.0*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[4] + sigma*(301.0*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[3] + sigma*(-63.0*(1.0 + sigma)
+                *moments[2] + moments[1]*sigma)))));
 
-        factor = 1.0 + 7.0*sigma;
-        momentsStar[8] = (moments[8] + sigma*(-28.0*moments[7]
-                + sigma*(266.0*moments[6] + sigma*(-1050.0*moments[5]
-                + sigma*(1701.0*moments[4] + sigma*(-966.0*moments[3]
-                + sigma*(127.0*moments[2] - moments[1]*sigma))))))
-                )/factor;
+        momentsStar[8] = (1.0 + 7.0*sigma)*(1.0 + 6.0*sigma)*(1.0 + 5.0*sigma)
+                *(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[8] + sigma*(-28.0*(1.0 + 6.0*sigma)
+                *(1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)
+                *(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[7]
+                + sigma*(266.0*(1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)
+                *(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[6]
+                + sigma*(-1050.0*(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)
+                *(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[5]
+                + sigma*(1701.0*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[4] + sigma*(-966.0*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[3] + sigma*(127.0*(1.0 + sigma)
+                *moments[2] - moments[1]*sigma))))));
     }
 
     if (nMom >= 11)
     {
-        factor *= 1.0 + 8.0*sigma;
-        momentsStar[9] = (moments[9] + sigma*(-36.0*moments[8]
-                + sigma*(462.0*moments[7] + sigma*(-2646.0*moments[6]
-                + sigma*(6951.0*moments[5] + sigma*(-7770.0*moments[4]
-                + sigma*(3025.0*moments[3] + sigma*(-255.0*moments[2]
-                + moments[1]*sigma)))))))
-                )/factor;
+        momentsStar[9] = (1.0 + 8.0*sigma)*(1.0 + 7.0*sigma)*(1.0 + 6.0*sigma)
+                *(1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)
+                *(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[9]
+                + sigma*(-36.0*(1.0 + 7.0*sigma)*(1.0 + 6.0*sigma)
+                *(1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)
+                *(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[8]
+                + sigma*(462.0*(1.0 + 6.0*sigma)*(1.0 + 5.0*sigma)
+                *(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[7] + sigma*(-2646.0*(1.0 + 5.0*sigma)
+                *(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[6] + sigma*(6951.0*(1.0 + 4.0*sigma)
+                *(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[5]
+                + sigma*(-7770.0*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[4] + sigma*(3025.0*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[3] + sigma*(-255.0*(1.0 + sigma)
+                *moments[2] + moments[1]*sigma)))))));
 
-        factor *= 1.0 + 9.0*sigma;
-        momentsStar[10] = (moments[10] + sigma*(-45.0*moments[9]
-                + sigma*(750.0*moments[8] + sigma*(-5880.0*moments[7]
-                + sigma*(22827.0*moments[6] + sigma*(-42525.0*moments[5]
-                + sigma*(34105.0*moments[4] + sigma*(-9330.0*moments[3]
-                + sigma*(511.0*moments[2] - moments[1]*sigma))))))))
-                )/factor;
+        momentsStar[10] = (1.0 + 9.0*sigma)*(1.0 + 8.0*sigma)*(1.0 + 7.0*sigma)
+                *(1.0 + 6.0*sigma)*(1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)
+                *(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[10]
+                + sigma*(-45.0*(1.0 + 8.0*sigma)*(1.0 + 7.0*sigma)
+                *(1.0 + 6.0*sigma)*(1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)
+                *(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[9]
+                + sigma*(750.0*(1.0 + 7.0*sigma)*(1.0 + 6.0*sigma)
+                *(1.0 + 5.0*sigma)*(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)
+                *(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[8]
+                + sigma*(-5880.0*(1.0 + 6.0*sigma)*(1.0 + 5.0*sigma)
+                *(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[7] + sigma*(22827.0*(1.0 + 5.0*sigma)
+                *(1.0 + 4.0*sigma)*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[6] + sigma*(-42525.0*(1.0 + 4.0*sigma)
+                *(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)*(1.0 + sigma)*moments[5]
+                + sigma*(34105.0*(1.0 + 3.0*sigma)*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[4] + sigma*(-9330.0*(1.0 + 2.0*sigma)
+                *(1.0 + sigma)*moments[3] + sigma*(511.0*(1.0 + sigma)
+                *moments[2] - moments[1]*sigma))))))));
     }
 }
 
@@ -296,30 +328,28 @@ void Foam::betaEQMOM::recurrenceRelation
     scalar sigma
 )
 {
-    label nMoments = a.size();
-    scalar alpha = primaryAbscissa/sigma;
-    scalar beta = (1.0 - primaryAbscissa)/sigma;
+    scalar alpha = (1.0 - primaryAbscissa)/sigma - 1.0;
+    scalar beta = primaryAbscissa/sigma - 1.0;
     scalar nab = 0.0;
 
     a[0] = (beta - alpha)/(alpha + beta + 2.0);
 
     b[0] = (pow(2.0, alpha + beta + 1.0)*gamma(alpha + 1.0)*gamma(beta + 1.0))
             /gamma(alpha + beta + 2.0);
+            
+    a[1] = (sqr(beta) - sqr(alpha))/((alpha + beta + 2.0)*(alpha + beta + 4.0));
 
     b[1] = (4.0*(alpha + 1.0)*(beta + 1.0))
             /(sqr(alpha + beta + 2.0)*(alpha + beta + 3.0));
 
-    for(label i = 1; i < nMoments; i++)
+    for(label i = 2; i < a.size(); i++)
     {
         nab = 2.0*scalar(i) + alpha + beta;
+        
         a[i] = (sqr(beta) - sqr(alpha))/(nab*(nab + 2));
 
-        if(i != 1)
-        {
-            b[i] = (4.0*(scalar(i) + alpha)*(scalar(i) + beta)*scalar(i)
-                    *(scalar(i)+ alpha + beta))
-                    /(sqr(nab)*(nab + 1.0)*(nab - 1.0));
-        }
+        b[i] = (4.0*(scalar(i) + alpha)*(scalar(i) + beta)*scalar(i)
+                *(scalar(i)+ alpha + beta))/(sqr(nab)*(nab + 1.0)*(nab - 1.0));
     }
 }
 

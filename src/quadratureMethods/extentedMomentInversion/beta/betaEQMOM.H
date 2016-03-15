@@ -42,6 +42,12 @@ Description
         H Dette, W J Studden 
         Wiley & Sons, 1997
     \endverbatim
+    
+    \verbatim
+        "Orthogonal Polynomials: Computational and Approximation"
+        W Gautschi
+        Oxford University Press, USA, 2004
+    \endverbatim
 
 SourceFiles
     betaEQMOM.C
