@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,26 +22,36 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixingSubModels::mixingKernel
+    Fokker-Planck mixing model.
 
 Description
-    Abstract class for mixing model kernels.
+    Brownian aggregation kernel supplemented kernel for particles in turbulent
+    flows in conditions when the particle size is smaller than the local
+    Kolmogorov scale.
+
+    References
+    \verbatim
+        "Computational Models for Turbulent Reacting Flows"
+        R O Fox
+        Cambridge University Press
+    \endverbatim
+    
+    \verbatim
+        "Solution of the Fokker-Planck Equation Using the Extended
+        Quadrature Method of Moments"
+        E Madadi-Kandjani and A Passalacqua 
+        2015 AIChE Annual Meeting, Salt Lake City, UT
+    \endverbatim
 
 SourceFiles
-    mixingKernel.C
+    FokkerPlanck.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef mixingKernel_H
-#define mixingKernel_H
+#ifndef FokkerPlanck_H
+#define FokkerPlanck_H
 
-#include "dictionary.H"
-#include "volFields.H"
-#include "dimensionedTypes.H"
-#include "fvMatrices.H"
-#include "fvm.H"
-#include "momentFieldSets.H"
-#include "runTimeSelectionTables.H"
+#include "mixingKernel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -49,69 +59,31 @@ namespace Foam
 {
 namespace mixingSubModels
 {
+namespace mixingKernels
+{
 
 /*---------------------------------------------------------------------------*\
-                    Class mixingKernel Declaration
+                           Class FokkerPlanck Declaration
 \*---------------------------------------------------------------------------*/
 
-class mixingKernel
+class FokkerPlanck
+:
+    public mixingKernel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        mixingKernel(const mixingKernel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const mixingKernel&);
-
-
-protected:
-
-    // Protected data
-
-        const dictionary& dict_;
-
-        //- Coefficient of aggregation kernel
-        const dimensionedScalar Cphi_;
-
-        //- Coefficient of relaxation control
-        const dimensionedScalar c_;
-
-
 public:
 
-    //- Runtime type information
-    TypeName("mixingKernel");
-
-    // Declare runtime constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        mixingKernel,
-        dictionary,
-        (
-            const dictionary& dict
-        ),
-        (dict)
-    );
+        //- Runtime type information
+        TypeName("FokkerPlanck");
 
 
     // Constructors
 
         //- Construct from components
-        mixingKernel(const dictionary& dict);
-
-
-    // Selectors
-
-        static autoPtr<mixingKernel> New
-        (
-            const dictionary& dict
-        );
+        FokkerPlanck(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~mixingKernel();
+    virtual ~FokkerPlanck();
 
 
     // Member Functions
@@ -121,12 +93,14 @@ public:
         (
             const volUnivariateMoment& moment,
             const volUnivariateMomentFieldSet& moments
-        ) const = 0;
+        ) const;
+
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace mixingKernels
 } // End namespace mixingSubModels
 } // End namespace Foam
 
