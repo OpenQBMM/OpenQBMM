@@ -71,7 +71,7 @@ Foam::scalar Foam::betaEQMOM::secondaryAbscissa
     scalar sigma
 )
 {
-    return sigma*secondaryAbscissa;
+    return (1.0 + secondaryAbscissa)/2.0;
 }
 
 void Foam::betaEQMOM::momentsStarToMoments
