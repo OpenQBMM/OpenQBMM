@@ -113,7 +113,7 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing
                 false
             ),
             U_.mesh(),
-            dimensionedScalar("zero", dimless, 0.0)
+            dimensionedScalar("zero", moment.dimensions()/dimTime, 0.0)
         )
     );
 
