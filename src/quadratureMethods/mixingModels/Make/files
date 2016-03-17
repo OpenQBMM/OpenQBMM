@@ -10,6 +10,7 @@ mixingSubModels/diffusionModels/molecularDiffusion/molecularDiffusion.C
 mixingSubModels/mixingKernels/mixingKernel/mixingKernel.C
 mixingSubModels/mixingKernels/mixingKernel/newMixingKernel.C
 mixingSubModels/mixingKernels/IEM/IEM.C
+mixingSubModels/mixingKernels/FokkerPlanck/FokkerPlanck.C
 
 noMixing/noMixing.C
 turbulentMixing/turbulentMixing.C
