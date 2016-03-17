@@ -113,8 +113,8 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
             moment.dimensions()*dimVol/dimTime
         )
     );
-    
-    dimensionedScalar one("one", moments[1].dimensions(),1.0);
+
+    dimensionedScalar oneMoment("oneMoment", moments[1].dimensions(),1.0);
 
     if (momentOrder == 0)
     {
@@ -124,11 +124,12 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
     {
         mixingK.ref() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
             *moments[momentOrder - 1]
-            *((c_ + 1.0)*moments[1] + c_*(momentOrder - 1)*one
-            *((moments[2] - sqr(moments[1]))/(moments[1]*one - moments[2])))
-            - fvm::Su(momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
-            *((c_ + 1.0) + c_*(momentOrder - 1)*((moments[2] - sqr(moments[1]))
-            /(moments[1]*one - moments[2]))), moment);
+            *((Cmixing_ + 1.0)*moments[1] + Cmixing_*(momentOrder - 1)*oneMoment
+            *((moments[2] - sqr(moments[1]))/(moments[1]*oneMoment
+            - moments[2]))) - fvm::Su(momentOrder*Cphi_*flTurb.epsilon()
+            /flTurb.k()*((Cmixing_ + 1.0) + Cmixing_*(momentOrder - 1)
+            *((moments[2] - sqr(moments[1]))/(moments[1]*oneMoment
+            - moments[2]))), moment);
     }
 
     return mixingK;

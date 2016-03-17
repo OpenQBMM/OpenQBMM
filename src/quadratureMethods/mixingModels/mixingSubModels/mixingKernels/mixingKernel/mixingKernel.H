@@ -75,7 +75,7 @@ protected:
         const dimensionedScalar Cphi_;
 
         //- Coefficient of relaxation control
-        const dimensionedScalar c_;
+        const dimensionedScalar Cmixing_;
 
 
 public:
