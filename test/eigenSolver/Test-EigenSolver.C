@@ -35,27 +35,27 @@ Description
 
 int main(int argc, char *argv[])
 {
-    scalarSquareMatrix A(3, 3, scalar(0));
+    scalarSquareMatrix A(3, scalar(0));
 
     A[0][0] = 1.0;
     A[0][1] = 2.0;
     A[0][2] = 3.0;
-    
+
     A[1][0] = 2.0;
     A[1][1] = 7.0;
     A[1][2] = 4.0;
-    
+
     A[2][0] = 3.0;
     A[2][1] = 4.0;
     A[2][2] = 9.0;
-    
+
     Info<< "Input matrix" << endl << A << endl;
 
     // Since the matrix is not symmtric, there are two possible ways of
     // constructing the eigenSolver:
     //
     // a) Using the general constructor, with symmetry check
-    
+
     eigenSolver eig(A);
 
     // b) Skypping the symmetry check by specifying the matrix is not
@@ -73,15 +73,15 @@ int main(int argc, char *argv[])
     // scalarSquareMatrix eigenvec(eig.eigenvectors());
 
     // Printing the real part of eigenvalues
-    Info<< "\nReal part of eigenvalues: " << endl << eig.eigenvaluesRe() 
+    Info<< "\nReal part of eigenvalues: " << endl << eig.eigenvaluesRe()
         << endl;
 
-    Info<< "\nImaginary part of eigenvalues: " << endl 
+    Info<< "\nImaginary part of eigenvalues: " << endl
         << eig.eigenvaluesIm() << endl;
-    
+
     Info<< "\nEigenvectors" << endl << eig.eigenvectors() << "\n\n";
-    
+
     Info<< "End\n" << endl;
-    
+
     return 0;
 }

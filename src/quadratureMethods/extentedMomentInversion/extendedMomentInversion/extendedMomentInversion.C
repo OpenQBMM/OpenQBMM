@@ -433,7 +433,7 @@ void Foam::extendedMomentInversion::secondaryQuadrature
             recurrenceRelation(a, b, primaryAbscissae_[pNodeI], sigma_);
 
             // Define the Jacobi matrix
-            scalarSquareMatrix J(nSecondaryNodes_, nSecondaryNodes_, 0.0);
+            scalarSquareMatrix J(nSecondaryNodes_, 0.0);
 
             // Fill diagonal of Jacobi matrix
             forAll(a, aI)

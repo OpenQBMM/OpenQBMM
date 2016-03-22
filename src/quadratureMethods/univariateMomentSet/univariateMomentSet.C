@@ -148,7 +148,7 @@ void Foam::univariateMomentSet::invert()
         return;
     }
 
-    scalarSquareMatrix z(nNodes_, nNodes_, scalar(0));
+    scalarSquareMatrix z(nNodes_, scalar(0));
 
     for (label i = 0; i < nNodes_ - 1; i++)
     {
