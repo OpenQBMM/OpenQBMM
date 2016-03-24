@@ -15,7 +15,7 @@ mv 50000 50000.flow
 cp -f 50000.flow/* 0/ 2>&1
 cp -f system/controlDict.pbe system/controlDict
 
-runApplication decomposePar -time 0
+runApplication decomposePar -time '0'
 runParallel pbeTransportFoam 4 >log.pbeTransportFoam
 
 runApplication reconstructPar -latestTime
