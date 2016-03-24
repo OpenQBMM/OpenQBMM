@@ -26,7 +26,7 @@ Class
 
 Description
     Eigenvalues and eigenvectors of a square real matrix
-   
+
 Acknowledgments
     This implementation derives almost completely from TNT/JAMA, a public-domain
     library developed at NIST, available at http://math.nist.gov/tnt/index.html
