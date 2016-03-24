@@ -96,6 +96,14 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
         (
             dict.subDict("diffusionModel")
         )
+    ),
+    nucleationModel_
+    (
+        Foam::populationBalanceSubModels::nucleationModel::New
+        (
+            dict.subDict("nucleationModel"),
+            U.mesh()
+        )
     )
 {}
 
@@ -350,7 +358,9 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
         )
     );
 
-    mSource.ref() += aggregationSource(moment) + breakupSource(moment);
+    mSource.ref() +=
+        aggregationSource(moment) + breakupSource(moment)
+        + nucleationModel_->nucleationSource(moment);
 
     return mSource;
 }

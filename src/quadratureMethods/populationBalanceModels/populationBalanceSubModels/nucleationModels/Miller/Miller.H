@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,68 +22,91 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::diffusionModels::noDiffusion
+    Foam::populationBalanceSubModels::nucleationModels::Miller
 
 Description
-    No diffusion model.
+    Miller nucleation model for soot formation.
 
 SourceFiles
-    noDiffusion.C
+    Miller.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef noDiffusion_H
-#define noDiffusion_H
+#ifndef Miller_H
+#define Miller_H
 
-#include "diffusionModel.H"
-#include "fvm.H"
+#include "nucleationModel.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace diffusionModels
+namespace nucleationModels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class noDiffusion Declaration
+                        Class Miller Declaration
 \*---------------------------------------------------------------------------*/
 
-class noDiffusion
+class Miller
 :
-    public diffusionModel
+    public nucleationModel
 {
+private:
+
+    // Private data
+
+        //- Molecular mass of one carbon atom
+        dimensionedScalar MCarbon_;
+
+        //- Number of carbon atoms in dimer species
+        dimensionedScalar nCarbonDimer_;
+
+        //- Number of carbon atoms in PAM species
+        dimensionedScalar nCarbonPAM_;
+
+        //- Soot density
+        dimensionedScalar rhoSoot_;
+
+        //- PAM concentration field
+        volScalarField pamConcentration_;
+
+
 public:
 
         //- Runtime type information
-        TypeName("none");
+        TypeName("Miller");
 
 
     // Constructors
 
         //- Construct from components
-        noDiffusion(const dictionary& dict);
+        Miller
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor
-    virtual ~noDiffusion();
+    virtual ~Miller();
 
 
     // Member Functions
 
-        //- Moments of the daughter distribution
-        virtual tmp<fvScalarMatrix> momentDiff
+        //- Growth model
+        virtual tmp<volScalarField> nucleationSource
         (
-            const volScalarField& moment
+            const volUnivariateMoment& moment
         ) const;
-
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace diffusionModels
+} // End namespace nucleationModels
 } // End namespace populationBalanceSubModels
 } // End namespace Foam
 

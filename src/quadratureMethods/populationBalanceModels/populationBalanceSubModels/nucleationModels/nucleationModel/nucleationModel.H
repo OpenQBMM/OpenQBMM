@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,68 +22,111 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::diffusionModels::noDiffusion
+    Foam::populationBalanceSubModels::nucleationModel
 
 Description
-    No diffusion model.
+    Abstract class for nucleation model.
 
 SourceFiles
-    noDiffusion.C
+    nucleationModel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef noDiffusion_H
-#define noDiffusion_H
+#ifndef nucleationModel_H
+#define nucleationModel_H
 
-#include "diffusionModel.H"
-#include "fvm.H"
+#include "dictionary.H"
+#include "volFields.H"
+#include "moments.H"
+#include "dimensionedTypes.H"
+#include "runTimeSelectionTables.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace diffusionModels
-{
 
 /*---------------------------------------------------------------------------*\
-                    Class noDiffusion Declaration
+                    Class nucleationModel Declaration
 \*---------------------------------------------------------------------------*/
 
-class noDiffusion
-:
-    public diffusionModel
+class nucleationModel
 {
+    // Private member functions
+
+        //- Disallow default bitwise copy construct
+        nucleationModel(const nucleationModel&);
+
+        //- Disallow default bitwise assignment
+        void operator=(const nucleationModel&);
+
+
+protected:
+
+    // Protected data
+
+        const dictionary& dict_;
+
+        //- Reference to mesh
+        const fvMesh& mesh_;
+
+
 public:
 
-        //- Runtime type information
-        TypeName("none");
+    //- Runtime type information
+    TypeName("nucleationModel");
+
+    // Declare runtime constructor selection table
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        nucleationModel,
+        dictionary,
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        ),
+        (dict, mesh)
+    );
 
 
     // Constructors
 
         //- Construct from components
-        noDiffusion(const dictionary& dict);
+        nucleationModel
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
+
+
+    // Selectors
+
+        static autoPtr<nucleationModel> New
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor
-    virtual ~noDiffusion();
+    virtual ~nucleationModel();
 
 
     // Member Functions
 
-        //- Moments of the daughter distribution
-        virtual tmp<fvScalarMatrix> momentDiff
+        //- Nucleation rate
+        virtual tmp<volScalarField> nucleationSource
         (
-            const volScalarField& moment
-        ) const;
-
+            const volUnivariateMoment& moment
+        ) const = 0;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace diffusionModels
 } // End namespace populationBalanceSubModels
 } // End namespace Foam
 
