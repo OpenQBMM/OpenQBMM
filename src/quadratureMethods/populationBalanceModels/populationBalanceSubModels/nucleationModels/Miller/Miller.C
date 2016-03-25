@@ -97,7 +97,7 @@ Foam::populationBalanceSubModels::nucleationModels::Miller
         /(rhoSoot_*Foam::constant::physicoChemical::NA);
 
     return 4.4*sqrt(Foam::constant::mathematical::pi
-        *Foam::constant::physicoChemical::k*flThermo.T()*
+        *Foam::constant::physicoChemical::k*flThermo.T()
         *Foam::constant::physicoChemical::NA
         /nCarbonPAM_*MCarbon_)*pow(6.0*nCarbonPAM_*MCarbon_
         /(Foam::constant::mathematical::pi*rhoSoot_
