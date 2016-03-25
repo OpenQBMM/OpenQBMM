@@ -179,9 +179,6 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     label& nRealizableMoments
 )
 {
-    Info << endl << "Checking canonical moments" << endl;
-    Info << "nZeta = " << nZeta << endl;
-
     scalarDiagonalMatrix canonicalMoments(nZeta, 0.0);
 
     canonicalMoments[0] = zeta[0];
