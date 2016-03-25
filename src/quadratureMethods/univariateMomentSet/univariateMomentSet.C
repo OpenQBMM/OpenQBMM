@@ -185,8 +185,6 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     for (label zetaI = 1; zetaI < nZeta; zetaI++)
     {
-        Info << "Loop " << zetaI << endl;
-
         canonicalMoments[zetaI] = zeta[zetaI]/(1.0 - canonicalMoments[zetaI]);
 
         if (canonicalMoments[zetaI] < 0 || canonicalMoments[zetaI] > 1)
@@ -198,8 +196,6 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     }
 
     nRealizableMoments = nZeta + 1;
-
-    Info << "Realizable moments: " << nRealizableMoments << endl;
 }
 
 void Foam::univariateMomentSet::checkRealizability()
