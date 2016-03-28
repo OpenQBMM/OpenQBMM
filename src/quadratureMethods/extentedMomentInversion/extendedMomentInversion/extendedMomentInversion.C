@@ -54,7 +54,7 @@ Foam::extendedMomentInversion::extendedMomentInversion
     secondaryAbscissae_(nPrimaryNodes_, nSecondaryNodes_),
     maxSigmaIter_(dict.lookupOrDefault<label>("maxSigmaIter", 1000)),
     momentsTol_(dict.lookupOrDefault("momentsTol", 1.0e-12)),
-    sigmaMin_(dict.lookupOrDefault("sigmaTol", 1.0e-3)),
+    sigmaMin_(dict.lookupOrDefault("sigmaMin", 1.0e-3)),
     sigmaTol_(dict.lookupOrDefault("sigmaTol", 1.0e-12)),
     targetFunctionTol_(dict.lookupOrDefault("targetFunctionTol", 1.0e-12)),
     foundUnrealizableSigma_(false),
