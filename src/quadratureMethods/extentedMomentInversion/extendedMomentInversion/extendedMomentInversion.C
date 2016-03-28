@@ -160,7 +160,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             sigma_ = minimizeTargetFunction(0, sigmaHigh, m, mStar);
 
             // Check if sigma is small and use QMOM
-            if (mag(sigma_) < sigmaTol_)
+            if (mag(sigma_) < sigmaMin_)
             {
                 m.invert();
                 sigma_ = 0.0;
