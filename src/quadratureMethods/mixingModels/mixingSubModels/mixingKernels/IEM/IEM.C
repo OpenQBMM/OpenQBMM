@@ -120,7 +120,7 @@ Foam::mixingSubModels::mixingKernels::IEM::K
     }
     else
     {
-        mixingK.ref() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
+        mixingK.ref() -= momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
             *(moments[momentOrder - 1]*moments[1])
             - fvm::Su(momentOrder*Cphi_*flTurb.epsilon()/flTurb.k(), moment);
     }

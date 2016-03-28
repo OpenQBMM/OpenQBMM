@@ -41,6 +41,7 @@ Foam::univariateMomentSet::univariateMomentSet
     alpha_(label((nMoments_ - 2)/2) + 1, scalar(0)),
     beta_(label((nMoments_ - 1)/2) + 1, scalar(0)),
     support_(support),
+    degenerate_(false),
     inverted_(false),
     fullyRealizable_(true),
     subsetRealizable_(true),
@@ -124,6 +125,16 @@ void Foam::univariateMomentSet::invert()
         setupQuadrature(true);
     }
 
+    if (degenerate_)
+    {
+        weights_[0] = (*this)[0];
+        abscissae_[0] = 0.0;
+
+        inverted_ = true;
+
+        return;
+    }
+
     if (nInvertibleMoments_ < 2)
     {
         FatalErrorIn
@@ -185,9 +196,9 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     for (label zetaI = 1; zetaI < nZeta; zetaI++)
     {
-        canonicalMoments[zetaI] = zeta[zetaI]/(1.0 - canonicalMoments[zetaI]);
+        canonicalMoments[zetaI] = zeta[zetaI]/(1.0 - canonicalMoments[zetaI-1]);
 
-        if (canonicalMoments[zetaI] < 0 || canonicalMoments[zetaI] > 1)
+        if (canonicalMoments[zetaI] < 0.0 || canonicalMoments[zetaI] > 1.0)
         {
             nRealizableMoments = zetaI + 1;
 
@@ -257,6 +268,11 @@ void Foam::univariateMomentSet::checkRealizability()
             fullyRealizable_ = false;
             subsetRealizable_ = true;
 
+            if (isDegenerate())
+            {
+                return;
+            }
+
             FatalErrorIn
             (
                 "Foam::univariateMomentSet::checkRealizability()\n"
@@ -295,6 +311,11 @@ void Foam::univariateMomentSet::checkRealizability()
                 fullyRealizable_ = false;
                 subsetRealizable_ = true;
 
+                if (isDegenerate())
+                {
+                    return;
+                }
+
                 FatalErrorIn
                 (
                     "Foam::univariateMomentSet::checkRealizability()\n"
@@ -332,13 +353,16 @@ void Foam::univariateMomentSet::checkRealizability()
         fullyRealizable_ = false;
         subsetRealizable_ = true;
 
+        if (isDegenerate())
+        {
+            return;
+        }
+
         FatalErrorIn
         (
             "Foam::univariateMomentSet::checkRealizability()\n"
         )   << "Moment set with only one realizable moment."
             << abort(FatalError);
-
-        // No need to check canonical moments
     }
 
     for (label zetaI = 1; zetaI <= nD - 1; zetaI++)
@@ -550,7 +574,14 @@ void Foam::univariateMomentSet::setupQuadrature(bool clear)
         checkRealizability();
     }
 
-    nNodes_ = nInvertibleMoments_/2.0;
+    if (degenerate_)
+    {
+        nNodes_ = 1.0;
+    }
+    else
+    {
+        nNodes_ = nInvertibleMoments_/2.0;
+    }
 
     if (clear)
     {

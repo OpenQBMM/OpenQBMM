@@ -54,6 +54,7 @@ Foam::extendedMomentInversion::extendedMomentInversion
     secondaryAbscissae_(nPrimaryNodes_, nSecondaryNodes_),
     maxSigmaIter_(dict.lookupOrDefault<label>("maxSigmaIter", 1000)),
     momentsTol_(dict.lookupOrDefault("momentsTol", 1.0e-12)),
+    sigmaMin_(dict.lookupOrDefault("sigmaTol", 1.0e-3)),
     sigmaTol_(dict.lookupOrDefault("sigmaTol", 1.0e-12)),
     targetFunctionTol_(dict.lookupOrDefault("targetFunctionTol", 1.0e-12)),
     foundUnrealizableSigma_(false),
@@ -99,6 +100,16 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     }
 
     label nRealizableMoments = m.nRealizableMoments();
+
+    if (nRealizableMoments == 1)
+    {
+        m.invert();
+        sigma_ = 0.0;
+        nullSigma_ = true;
+        secondaryQuadrature(m);
+
+        return;
+    }
 
     if (nRealizableMoments % 2 == 0)
     {
@@ -183,13 +194,13 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     "(\n"
                     "   const univariateMomentSet& moments\n"
                     ")"
-                )<< "Singular value encountered while attempting to find root."
-                 << "Moment set = " << m << endl
-                 << "sigma = " << sigma_ << endl
-                 << "fLow = " << fLow << endl
-                 << "fMid = " << fMid << endl
-                 << "fHigh = " << fHigh
-                 << abort(FatalError);
+                )   << "Singular value encountered searching for root."
+                    << "Moment set = " << m << endl
+                    << "sigma = " << sigma_ << endl
+                    << "fLow = " << fLow << endl
+                    << "fMid = " << fMid << endl
+                    << "fHigh = " << fHigh
+                    << abort(FatalError);
             }
 
             sigma_ = sigmaMid + (sigmaMid - sigmaLow)*sign(fLow - fHigh)*fMid/s;
@@ -202,7 +213,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             // Check for convergence
             if (mag(fNew) <= targetFunctionTol_ || mag(dSigma) <= sigmaTol_)
             {
-                if (mag(sigma_) < sigmaTol_)
+                if (mag(sigma_) < sigmaMin_)
                 {
                     m.invert();
                     sigma_ = 0.0;
@@ -229,7 +240,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     // Root not found. Minimize target function in [0, sigma_]
                     sigma_ = minimizeTargetFunction(0, sigma_, m, mStar);
 
-                    if (mag(sigma_) < sigmaTol_)
+                    if (mag(sigma_) < sigmaMin_)
                     {
                         m.invert();
                         sigma_ = 0.0;
@@ -354,7 +365,7 @@ Foam::scalar Foam::extendedMomentInversion::minimizeTargetFunction
             "       const scalar sigmaHigh\n"
             ")"
         )   << "Number of iterations exceeded."
-        << abort(FatalError);
+            << abort(FatalError);
     }
 
     return (a + b)/2.0;

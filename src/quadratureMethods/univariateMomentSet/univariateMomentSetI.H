@@ -24,6 +24,25 @@ License
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+bool Foam::univariateMomentSet::isDegenerate()
+{
+    // Checking if moments of order higher than zero are null
+    // The case when m0 = 0 is already managed
+    for (label momentI = 1; momentI < nMoments_; momentI++)
+    {
+        if ((*this)[momentI] != 0.0)
+        {
+            degenerate_ = false;
+
+            return degenerate_;
+        }
+    }
+
+    degenerate_ = true;
+
+    return degenerate_;
+}
+
 bool Foam::univariateMomentSet::isInverted() const
 {
     return inverted_;

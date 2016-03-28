@@ -358,6 +358,8 @@ Foam::scalar Foam::betaEQMOM::sigmaMax(univariateMomentSet& moments)
     scalar p2 = (moments[0]*moments[2] - sqr(moments[1]))
                 /(moments[0]*moments[1] - sqr(moments[1]));
 
+    //Info << "p2 = " << p2 << endl;
+
     return p2/(1.0 - p2);
 }
 

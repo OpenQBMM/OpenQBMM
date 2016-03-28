@@ -98,6 +98,10 @@ class univariateMomentSet
         //- Position of first negative zeta
         label negativeZeta_;
 
+        //- Bool to indicate if moment set is degenerate, with only the
+        //  zero-order moment realizable
+        bool degenerate_;
+
         //- Bool to indicate if moments were inverted
         bool inverted_;
 
@@ -180,6 +184,9 @@ public:
 
         //- Update moments from weights and abscissae
         void update();
+
+        //- Returns degenerate status of the moment set
+        inline bool isDegenerate();
 
         //- Returns the status of inversion
         inline bool isInverted() const;
