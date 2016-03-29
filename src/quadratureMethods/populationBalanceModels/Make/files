@@ -37,6 +37,7 @@ populationBalanceSubModels/diffusionModels/molecularDiffusion/molecularDiffusion
 
 populationBalanceSubModels/nucleationModels/nucleationModel/nucleationModel.C
 populationBalanceSubModels/nucleationModels/nucleationModel/newNucleationModel.C
+populationBalanceSubModels/nucleationModels/noNucleation/noNucleation.C
 populationBalanceSubModels/nucleationModels/Miller/Miller.C
 
 noPopulationBalance/noPopulationBalance.C
