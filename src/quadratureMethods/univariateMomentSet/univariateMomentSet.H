@@ -111,6 +111,10 @@ class univariateMomentSet
         //- Bool to indicate if a subset of the full moment set is realizable
         bool subsetRealizable_;
 
+        //- Bool to indicate if the moment set is on the boundary of the
+        //  moment space
+        bool onMomentSpaceBoundary_;
+
         //- Bool to indicate moment realizability was checked
         bool realizabilityChecked_;
 
@@ -194,8 +198,11 @@ public:
         //- Return realizability status of the moment set
         inline bool isFullyRealizable();
 
-        //- Return realizability status of the moment set
+        //- Return realizability status of the moment subsets
         inline bool isSubsetRealizable();
+
+        //- Return true if the moment set is on the boundary of the moment space
+        inline bool isOnMomentSpaceBoundary();
 
         //- Return the number of invertible moments
         inline label nInvertibleMoments();

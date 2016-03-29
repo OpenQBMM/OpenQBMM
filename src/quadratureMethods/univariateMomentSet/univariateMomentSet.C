@@ -45,6 +45,7 @@ Foam::univariateMomentSet::univariateMomentSet
     inverted_(false),
     fullyRealizable_(true),
     subsetRealizable_(true),
+    onMomentSpaceBoundary_(false),
     realizabilityChecked_(false),
     quadratureSetUp_(false),
     nInvertibleMoments_(nMoments_)
@@ -79,6 +80,7 @@ Foam::univariateMomentSet::univariateMomentSet
     inverted_(false),
     fullyRealizable_(true),
     subsetRealizable_(true),
+    onMomentSpaceBoundary_(false),
     realizabilityChecked_(false),
     quadratureSetUp_(false),
     nInvertibleMoments_(nMoments_)
@@ -196,6 +198,14 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     for (label zetaI = 1; zetaI < nZeta; zetaI++)
     {
+        if (canonicalMoments[zetaI - 1] == 1.0)
+        {
+            nRealizableMoments = zetaI + 1;
+            onMomentSpaceBoundary_ = true;
+
+            return;
+        }
+
         canonicalMoments[zetaI] = zeta[zetaI]/(1.0 - canonicalMoments[zetaI-1]);
 
         if (canonicalMoments[zetaI] < 0.0 || canonicalMoments[zetaI] > 1.0)
@@ -204,8 +214,20 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
             return;
         }
+        else if
+        (
+            canonicalMoments[zetaI] == 0.0
+         || canonicalMoments[zetaI] == 1.0
+        )
+        {
+            nRealizableMoments = zetaI + 1;
+            onMomentSpaceBoundary_ = true;
+
+            return;
+        }
     }
 
+    onMomentSpaceBoundary_ = false;
     nRealizableMoments = nZeta + 1;
 }
 
@@ -260,7 +282,7 @@ void Foam::univariateMomentSet::checkRealizability()
 
         zeta[0] = (*this)[1]/(*this)[0];
 
-        if (zeta[0] <= 0)
+        if (zeta[0] <= 0.0)
         {
             negativeZeta_ = 1;
             nRealizableMoments_ = 1;
@@ -268,10 +290,14 @@ void Foam::univariateMomentSet::checkRealizability()
             fullyRealizable_ = false;
             subsetRealizable_ = true;
 
-            if (isDegenerate())
+            if (isDegenerate() || zeta[0] == 0.0)
             {
+                onMomentSpaceBoundary_ = true;
+
                 return;
             }
+
+            onMomentSpaceBoundary_ = false;
 
             FatalErrorIn
             (
@@ -288,6 +314,7 @@ void Foam::univariateMomentSet::checkRealizability()
             fullyRealizable_ = true;
             subsetRealizable_ = true;
             realizabilityChecked_ = true;
+            onMomentSpaceBoundary_ = false;
 
             return;
         }
@@ -301,6 +328,15 @@ void Foam::univariateMomentSet::checkRealizability()
                 subsetRealizable_ = true;
                 realizabilityChecked_ = true;
 
+                if (zeta[0] == 1.0)
+                {
+                    onMomentSpaceBoundary_ = true;
+                }
+                else
+                {
+                    onMomentSpaceBoundary_ = false;
+                }
+
                 return;
             }
             else
@@ -313,6 +349,8 @@ void Foam::univariateMomentSet::checkRealizability()
 
                 if (isDegenerate())
                 {
+                    onMomentSpaceBoundary_ = true;
+
                     return;
                 }
 
@@ -345,7 +383,7 @@ void Foam::univariateMomentSet::checkRealizability()
 
     zeta[0] = alpha_[0];
 
-    if (!(support_ == "R") && zeta[0] <= 0)
+    if (!(support_ == "R") && zeta[0] <= 0.0)
     {
         negativeZeta_ = 1;
         nRealizableMoments_ = 1;
@@ -355,8 +393,12 @@ void Foam::univariateMomentSet::checkRealizability()
 
         if (isDegenerate())
         {
+            onMomentSpaceBoundary_ = true;
+
             return;
         }
+
+        onMomentSpaceBoundary_ = false;
 
         FatalErrorIn
         (
@@ -384,12 +426,22 @@ void Foam::univariateMomentSet::checkRealizability()
         {
             zeta[2*zetaI - 1] = beta_[zetaI]/zeta[2*zetaI - 2];
 
-            if (zeta[2*zetaI - 1] <= 0)
+            if (zeta[2*zetaI - 1] <= 0.0)
             {
                 if (support_ == "RPlus")
                 {
-                    negativeZeta_ = 2*zetaI;
-                    nRealizableMoments_ = negativeZeta_;
+                    if (zeta[2*zetaI - 1] < 0.0)
+                    {
+                        negativeZeta_ = 2*zetaI;
+                        nRealizableMoments_ = negativeZeta_;
+                        onMomentSpaceBoundary_ = false;
+                    }
+                    else
+                    {
+                        negativeZeta_ = 2*zetaI + 1;
+                        nRealizableMoments_ = negativeZeta_;
+                        onMomentSpaceBoundary_ = true;
+                    }
                 }
                 else // Support on [0,1]
                 {
@@ -416,12 +468,22 @@ void Foam::univariateMomentSet::checkRealizability()
         {
             zeta[2*zetaI] = alpha_[zetaI] - zeta[2*zetaI - 1];
 
-            if (zeta[2*zetaI] <= 0)
+            if (zeta[2*zetaI] <= 0.0)
             {
                 if (support_ == "RPlus")
                 {
-                    negativeZeta_ = 2*zetaI + 1;
-                    nRealizableMoments_ = negativeZeta_;
+                    if (zeta[2*zetaI] < 0.0)
+                    {
+                        negativeZeta_ = 2*zetaI + 1;
+                        nRealizableMoments_ = negativeZeta_;
+                        onMomentSpaceBoundary_ = false;
+                    }
+                    else
+                    {
+                        negativeZeta_ = 2*zetaI + 2;
+                        nRealizableMoments_ = negativeZeta_;
+                        onMomentSpaceBoundary_ = true;
+                    }
                 }
                 else // Support on [0,1]
                 {
@@ -474,12 +536,22 @@ void Foam::univariateMomentSet::checkRealizability()
     {
         zeta[2*nD - 1] = beta_[nD]/zeta[2*nD - 2];
 
-        if (zeta[2*nD - 1] <= 0)
+        if (zeta[2*nD - 1] <= 0.0)
         {
             if (support_ == "RPlus")
             {
-                negativeZeta_ = 2*nD;
-                nRealizableMoments_ = negativeZeta_;
+                if (zeta[2*nD - 1] < 0.0)
+                {
+                    negativeZeta_ = 2*nD;
+                    nRealizableMoments_ = negativeZeta_;
+                    onMomentSpaceBoundary_ = false;
+                }
+                else
+                {
+                    negativeZeta_ = 2*nD + 1;
+                    nRealizableMoments_ = negativeZeta_;
+                    onMomentSpaceBoundary_ = true;
+                }
             }
             else  // Support on [0,1]
             {
@@ -501,20 +573,41 @@ void Foam::univariateMomentSet::checkRealizability()
 
             zeta[2*nD] = alpha_[nD] - zeta[2*nD - 1];
 
-            if (zeta[2*nD] <= 0)
+            if (zeta[2*nD] <= 0.0)
             {
                 if (support_ == "RPlus")
                 {
-                    negativeZeta_ = 2*nD + 1;
-                    nRealizableMoments_ = negativeZeta_;
+                    if (zeta[2*nD] < 0.0)
+                    {
+                        negativeZeta_ = 2*nD + 1;
+                        nRealizableMoments_ = negativeZeta_;
+                        fullyRealizable_ = false;
+                        onMomentSpaceBoundary_ = false;
+                    }
+                    else
+                    {
+                        negativeZeta_ = 0;
+                        nRealizableMoments_ = nMoments_;
+                        fullyRealizable_ = true;
+                        onMomentSpaceBoundary_ = true;
+                    }
                 }
                 else // Support on [0,1]
                 {
                     checkCanonicalMoments(zeta, 2*nD, nRealizableMoments_);
+
+                    if (onMomentSpaceBoundary_)
+                    {
+                        fullyRealizable_ = true;
+                    }
+                    else
+                    {
+                        fullyRealizable_ = false;
+                    }
                 }
 
                 calcNInvertibleMoments();
-                fullyRealizable_ = false;
+
                 subsetRealizable_ = true;
                 realizabilityChecked_ = true;
 
@@ -530,6 +623,7 @@ void Foam::univariateMomentSet::checkRealizability()
                 fullyRealizable_ = true;
                 subsetRealizable_ = true;
                 nRealizableMoments_ = nMoments_;
+                onMomentSpaceBoundary_ = false;
             }
             else
             {

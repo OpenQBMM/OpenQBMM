@@ -68,6 +68,16 @@ bool Foam::univariateMomentSet::isSubsetRealizable()
     return subsetRealizable_;
 }
 
+bool Foam::univariateMomentSet::isOnMomentSpaceBoundary()
+{
+    if (!realizabilityChecked_)
+    {
+        checkRealizability();
+    }
+
+    return onMomentSpaceBoundary_;
+}
+
 Foam::label Foam::univariateMomentSet::nInvertibleMoments()
 {
     if (!realizabilityChecked_)

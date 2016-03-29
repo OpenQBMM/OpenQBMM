@@ -101,11 +101,12 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 
     label nRealizableMoments = m.nRealizableMoments();
 
-    if (nRealizableMoments == 1)
+    if (m.isOnMomentSpaceBoundary()) //nRealizableMoments == 1)
     {
-        m.invert();
+
         sigma_ = 0.0;
         nullSigma_ = true;
+        m.invert();
         secondaryQuadrature(m);
 
         return;
