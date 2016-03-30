@@ -188,8 +188,7 @@ void Foam::univariateMomentSet::invert()
 void Foam::univariateMomentSet::checkCanonicalMoments
 (
     const scalarDiagonalMatrix& zeta,
-    const label nZeta,
-    label& nRealizableMoments
+    const label nZeta
 )
 {
     scalarDiagonalMatrix canonicalMoments(nZeta, 0.0);
@@ -198,7 +197,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     if (canonicalMoments[0] == 1.0)
     {
-        nRealizableMoments = 2;
+        nRealizableMoments_ = 2;
         onMomentSpaceBoundary_ = true;
 
         return;
@@ -210,7 +209,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
         if (canonicalMoments[zetaI] < 0.0 || canonicalMoments[zetaI] > 1.0)
         {
-            nRealizableMoments = zetaI + 1;
+            nRealizableMoments_ = zetaI + 1;
 
             return;
         }
@@ -220,7 +219,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
          || canonicalMoments[zetaI] == 1.0
         )
         {
-            nRealizableMoments = zetaI + 2;
+            nRealizableMoments_ = zetaI + 2;
             onMomentSpaceBoundary_ = true;
 
             return;
@@ -228,7 +227,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     }
 
     onMomentSpaceBoundary_ = false;
-    nRealizableMoments = nZeta + 1;
+    nRealizableMoments_ = nZeta + 1;
 }
 
 void Foam::univariateMomentSet::checkRealizability()
@@ -461,10 +460,7 @@ void Foam::univariateMomentSet::checkRealizability()
                 }
                 else // Support on [0,1]
                 {
-                    checkCanonicalMoments
-                    (
-                        zeta, 2*zetaI, nRealizableMoments_
-                    );
+                    checkCanonicalMoments(zeta, 2*zetaI);
                 }
 
                 calcNInvertibleMoments();
@@ -503,10 +499,7 @@ void Foam::univariateMomentSet::checkRealizability()
                 }
                 else // Support on [0,1]
                 {
-                    checkCanonicalMoments
-                    (
-                        zeta, 2*zetaI + 1, nRealizableMoments_
-                    );
+                    checkCanonicalMoments(zeta, 2*zetaI + 1);
                 }
 
                 calcNInvertibleMoments();
@@ -574,7 +567,7 @@ void Foam::univariateMomentSet::checkRealizability()
             }
             else  // Support on [0,1]
             {
-                checkCanonicalMoments(zeta, 2*nD, nRealizableMoments_);
+                checkCanonicalMoments(zeta, 2*nD);
             }
 
             calcNInvertibleMoments();
@@ -613,7 +606,7 @@ void Foam::univariateMomentSet::checkRealizability()
                 }
                 else // Support on [0,1]
                 {
-                    checkCanonicalMoments(zeta, 2*nD + 1, nRealizableMoments_);
+                    checkCanonicalMoments(zeta, 2*nD + 1);
 
                     if (onMomentSpaceBoundary_)
                     {
@@ -646,7 +639,7 @@ void Foam::univariateMomentSet::checkRealizability()
             }
             else
             {
-                checkCanonicalMoments(zeta, nN, nRealizableMoments_);
+                checkCanonicalMoments(zeta, nN);
 
                 if (nRealizableMoments_ == nMoments_)
                 {

@@ -145,8 +145,7 @@ class univariateMomentSet
         void checkCanonicalMoments
         (
             const scalarDiagonalMatrix& zeta,
-            const label nZeta,
-            label& nRealizableMoments
+            const label nZeta
         );
 
         //- Computes the number of invertible moments
