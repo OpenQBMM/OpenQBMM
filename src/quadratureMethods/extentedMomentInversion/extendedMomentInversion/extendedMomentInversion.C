@@ -153,12 +153,13 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         scalar sigmaHigh = sigMax;
         scalar fHigh = targetFunction(sigmaHigh, m, mStar);
 
+        // This should not happen with the new algorithm
         if (fLow*fHigh > 0)
         {
             // Root not found. Minimize target function in [0, sigma_]
             sigma_ = minimizeTargetFunction(0, sigmaHigh, m, mStar);
 
-            // Check if sigma is small and use QMOM
+            // If sigma_ is small, use QMOM
             if (mag(sigma_) < sigmaMin_)
             {
                 m.invert();
@@ -212,6 +213,9 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             // Check for convergence
             if (mag(fNew) <= targetFunctionTol_ || mag(dSigma) <= sigmaTol_)
             {
+                // Root finding converged
+
+                // If sigma_ is small, use QMOM
                 if (mag(sigma_) < sigmaMin_)
                 {
                     m.invert();
@@ -239,6 +243,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     // Root not found. Minimize target function in [0, sigma_]
                     sigma_ = minimizeTargetFunction(0, sigma_, m, mStar);
 
+                    // If sigma_ is small, use QMOM
                     if (mag(sigma_) < sigmaMin_)
                     {
                         m.invert();
@@ -257,6 +262,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             }
             else
             {
+                // Root finding did not converge. Refine search.
+
                 if (fNew*fMid < 0 && sigma_ < sigmaMid)
                 {
                     sigmaLow = sigma_;
@@ -291,6 +298,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             "   const univariateMomentSet& moments\n"
             ")"
         )   << "Number of iterations exceeded."
+            << "Max allowed iterations = " << maxSigmaIter_
             << abort(FatalError);
     }
 }
@@ -361,8 +369,11 @@ Foam::scalar Foam::extendedMomentInversion::minimizeTargetFunction
             "(\n"
             "       const scalar sigmaLow,\n"
             "       const scalar sigmaHigh\n"
+            "       const univariateMomentSet& moments,\n"
+            "       univariateMomentSet& momentsStar\n"
             ")"
         )   << "Number of iterations exceeded."
+            << "Max allowed iterations = " << maxSigmaIter_
             << abort(FatalError);
     }
 
