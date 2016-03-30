@@ -158,9 +158,6 @@ protected:
         //- Bool to track if sigma = 0 is root
         bool nullSigma_;
 
-        //- Bool to check if sigma is bracketed
-        bool sigmaBracketed_;
-
     //- Protected member functions
 
         //- Computes kernel density function from abscissa and sigma

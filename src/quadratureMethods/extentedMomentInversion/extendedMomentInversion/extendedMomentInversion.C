@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -58,8 +58,7 @@ Foam::extendedMomentInversion::extendedMomentInversion
     sigmaTol_(dict.lookupOrDefault("sigmaTol", 1.0e-12)),
     targetFunctionTol_(dict.lookupOrDefault("targetFunctionTol", 1.0e-12)),
     foundUnrealizableSigma_(false),
-    nullSigma_(false),
-    sigmaBracketed_(true)
+    nullSigma_(false)
 {}
 
 
@@ -101,7 +100,10 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 
     label nRealizableMoments = m.nRealizableMoments();
 
-    if (m.isOnMomentSpaceBoundary()) //nRealizableMoments == 1)
+    // If the moment set is on the boundary of the moment space, the
+    // distribution will be reconstructed by a summation of Dirac delta,
+    // and no attempt to use the extended quadrature method of moments is made.
+    if (m.isOnMomentSpaceBoundary())
     {
 
         sigma_ = 0.0;
@@ -117,10 +119,6 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         // If the number of realizable moments is even, we apply the standard
         // QMOM directly to maximize the number of preserved moments.
 
-        // Info << "Even number of realizable moments: using QMOM" << endl;
-        // Info << "Moments: " << m << endl;
-        // Info << "Invertible: " << m.nInvertibleMoments() << endl;
-        // Info << "Realizable: " << m.nRealizableMoments() << endl;
         m.invert();
         sigma_ = 0.0;
         nullSigma_ = true;
@@ -301,7 +299,6 @@ void Foam::extendedMomentInversion::reset()
 {
     foundUnrealizableSigma_ = false;
     nullSigma_ = false;
-    sigmaBracketed_ = true;
 
     forAll(primaryWeights_, pNodeI)
     {
