@@ -52,15 +52,8 @@ Foam::univariateMomentSet::univariateMomentSet
 {
     if (support_ != "R" && support_ != "RPlus" && support_ != "01")
     {
-        FatalErrorIn
-        (
-            "Foam::univariateMomentSet::univariateMomentSet\n"
-            "(\n"
-            "    const label nMoments,\n"
-            "    const scalar initValue\n"
-            "    const word support\n"
-            ")"
-        )   << "The specified support is invalid.\n"
+        FatalErrorInFunction
+            << "The specified support is invalid." << endl
             << "Valid supports are: R, RPlus and 01."
             << abort(FatalError);
     }
@@ -87,14 +80,8 @@ Foam::univariateMomentSet::univariateMomentSet
 {
     if (support_ != "R" && support_ != "RPlus" && support_ != "01")
     {
-        FatalErrorIn
-        (
-            "Foam::univariateMomentSet::univariateMomentSet\n"
-            "(\n"
-            "    const scalarDiagonalMatrix& m\n"
-            "    const word support\n"
-            ")"
-        )   << "The specified support is invalid.\n"
+        FatalErrorInFunction
+            << "The specified support is invalid." << endl
             << "Valid supports are: R, RPlus and 01."
             << abort(FatalError);
     }

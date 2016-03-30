@@ -76,27 +76,20 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
     const volScalarField& abscissa1,
     const volScalarField& abscissa2
 ) const
-{   
+{
     if (!abscissa1.mesh().foundObject<fluidThermo>(basicThermo::dictName))
     {
-        FatalErrorIn
-        (
-            "Foam::populationBalanceSubModels::aggregationKernels::"
-            "turbulentBrownian::Ka\n"
-            "(\n"
-            "   const volScalarField& abscissa1,\n"
-            "   const volScalarField& abscissa2,\n"
-            ")"
-        )   << "No valid thermophysical model found."
+        FatalErrorInFunction
+            << "No valid thermophysical model found."
             << abort(FatalError);
     }
-    
+
     const fluidThermo& flThermo =
         abscissa1.mesh().lookupObject<fluidThermo>(basicThermo::dictName);
-    
+
     typedef compressible::turbulenceModel cmpTurbModel;
-    
-    if 
+
+    if
     (
         !abscissa1.mesh().foundObject<cmpTurbModel>
         (
@@ -104,30 +97,23 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
         )
     )
     {
-        FatalErrorIn
-        (
-            "Foam::populationBalanceSubModels::aggregationKernels::"
-            "turbulentBrownian::Ka\n"
-            "(\n"
-            "   const volScalarField& abscissa1,\n"
-            "   const volScalarField& abscissa2,\n"
-            ")"
-        )   << "No valid compressible turbulence model found."
+        FatalErrorInFunction
+            << "No valid compressible turbulence model found."
             << abort(FatalError);
     }
-        
+
     const compressible::turbulenceModel& flTurb =
         abscissa1.mesh().lookupObject<compressible::turbulenceModel>
         (
             turbulenceModel::propertiesName
         );
-    
+
     dimensionedScalar smallAbs("smallAbs", sqr(abscissa1.dimensions()), SMALL);
 
-    return 
+    return
         2.0*Foam::constant::physicoChemical::k*flThermo.T()
         *sqr(abscissa1 + abscissa2)/(3.0*flThermo.mu()
-        *max(abscissa1*abscissa2, smallAbs)) 
+        *max(abscissa1*abscissa2, smallAbs))
         + 4.0/3.0*pow3(abscissa1 + abscissa2)
         *sqrt(3.0*Foam::constant::mathematical::pi*flTurb.epsilon()
         /(10.0*flTurb.nu()));

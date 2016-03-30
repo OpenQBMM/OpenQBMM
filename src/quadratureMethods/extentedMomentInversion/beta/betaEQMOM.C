@@ -85,15 +85,8 @@ void Foam::betaEQMOM::momentsStarToMoments
 
     if (nMom >= 12)
     {
-        FatalErrorIn
-        (
-            "Foam::betaEQMOM::momentsStarToMoments\n"
-            "(\n"
-            "   scalar sigma,\n"
-            "   univariateMomentSet& moments,\n"
-            "   const univariateMomentSet& momentsStar\n"
-            ")"
-        )   << "Moment transformation not implemented."
+        FatalErrorInFunction
+            << "Moment transformation not implemented."
             << abort(FatalError);
     }
 
@@ -184,15 +177,8 @@ void Foam::betaEQMOM::momentsToMomentsStar
 
     if (nMom >= 12)
     {
-        FatalErrorIn
-        (
-            "Foam::betaEQMOM::momentsToMomentsStar\n"
-            "(\n"
-            "   scalar sigma,\n"
-            "   const univariateMomentSet& moments,\n"
-            "   univariateMomentSet& momentsStar\n"
-            ")"
-        )   << "The number of moments is too large. The maximum number of"
+        FatalErrorInFunction
+            << "The number of moments is too large. The maximum number of"
             << "moments allowed with the beta kernel density function is 11."
             << "Moment transformation not implemented."
             << abort(FatalError);

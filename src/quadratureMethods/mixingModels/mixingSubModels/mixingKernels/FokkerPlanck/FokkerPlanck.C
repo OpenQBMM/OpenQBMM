@@ -87,13 +87,8 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
         )
     )
     {
-        FatalErrorIn
-        (
-            "Foam::mixingSubModels::mixingKernels::FokkerPlanck::K\n"
-            "(\n"
-            "   const volUnivariateMoment& moment\n"
-            ")"
-        )   << "No valid compressible turbulence model found."
+        FatalErrorInFunction
+            << "No valid compressible turbulence model found."
             << abort(FatalError);
     }
 

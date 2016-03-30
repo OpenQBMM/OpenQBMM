@@ -78,13 +78,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     // Terminate execution if negative number density is encountered
     if (m[0] < 0.0)
     {
-        FatalErrorIn
-        (
-            "Foam::extendedMomentInversion::invert\n"
-            "(\n"
-            "   const univariateMomentSet& moments\n"
-            ")"
-        )   << "The zero-order moment is negative."
+        FatalErrorInFunction
+            << "The zero-order moment is negative."
             << abort(FatalError);
     }
 
@@ -188,13 +183,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 
             if (s == 0.0)
             {
-                FatalErrorIn
-                (
-                    "Foam::extendedMomentInversion::invert\n"
-                    "(\n"
-                    "   const univariateMomentSet& moments\n"
-                    ")"
-                )   << "Singular value encountered searching for root."
+                FatalErrorInFunction
+                    << "Singular value encountered searching for root.\n"
                     << "Moment set = " << m << endl
                     << "sigma = " << sigma_ << endl
                     << "fLow = " << fLow << endl
@@ -291,13 +281,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             }
         }
 
-        FatalErrorIn
-        (
-            "Foam::extendedMomentInversion::invert\n"
-            "(\n"
-            "   const univariateMomentSet& moments\n"
-            ")"
-        )   << "Number of iterations exceeded."
+        FatalErrorInFunction
+            << "Number of iterations exceeded.\n"
             << "Max allowed iterations = " << maxSigmaIter_
             << abort(FatalError);
     }
@@ -363,16 +348,8 @@ Foam::scalar Foam::extendedMomentInversion::minimizeTargetFunction
 
     if (iter > maxSigmaIter_)
     {
-        FatalErrorIn
-        (
-            "Foam::extendedMomentInversion::findExtremumTargetFunction\n"
-            "(\n"
-            "       const scalar sigmaLow,\n"
-            "       const scalar sigmaHigh\n"
-            "       const univariateMomentSet& moments,\n"
-            "       univariateMomentSet& momentsStar\n"
-            ")"
-        )   << "Number of iterations exceeded."
+        FatalErrorInFunction
+            << "Number of iterations exceeded.\n"
             << "Max allowed iterations = " << maxSigmaIter_
             << abort(FatalError);
     }

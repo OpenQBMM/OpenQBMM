@@ -44,13 +44,12 @@ Foam::populationBalanceSubModels::nucleationModel::New
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalError
-            << "nucleationModel::New(const dictionary&) : " << endl
-            << "    unknown nucleationModelType type "
-            << nucleationModelType
-            << ", constructor not in hash table" << endl << endl
-            << "    Valid nucleationModelType types are :" << endl;
-        Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
+        FatalErrorInFunction
+            << "Unknown nucleationModelType type "
+            << nucleationModelType << endl << endl
+            << "Valid nucleationModelType types are :" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << abort(FatalError);
     }
 
     return autoPtr<nucleationModel>(cstrIter()(dict, mesh));

@@ -43,13 +43,12 @@ Foam::populationBalanceSubModels::growthModel::New
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalError
-            << "growthModel::New(const dictionary&) : " << endl
-            << "    unknown growthModelType type "
-            << growthModelType
-            << ", constructor not in hash table" << endl << endl
-            << "    Valid growthModelType types are :" << endl;
-        Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
+        FatalErrorInFunction
+            << "Unknown growthModelType type "
+            << growthModelType << endl << endl
+            << "Valid growthModelType types are :" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << abort(FatalError);
     }
 
     return autoPtr<growthModel>(cstrIter()(dict));

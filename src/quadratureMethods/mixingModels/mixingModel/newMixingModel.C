@@ -45,17 +45,10 @@ Foam::autoPtr<Foam::mixingModel> Foam::mixingModel::New
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalErrorIn("mixingModel::New")
-            << "(" << endl
-            << "    const word&" << endl
-            << "    const dictionary&" << endl
-            << "    const volVectorField&" << endl
-            << "    const surfaceScalarField&" << endl
-            << ") : " << endl
-            << "    unknown mixingModelType type "
-            << mixingModelType
-            << ", constructor not in hash table" << endl << endl
-            << "    Valid mixingModelType types are :" << endl
+        FatalErrorInFunction
+            << "Unknown mixingModelType type "
+            << mixingModelType << endl << endl
+            << "Valid mixingModelType types are :" << endl
             << dictionaryConstructorTablePtr_->sortedToc()
             << abort(FatalError);
     }
