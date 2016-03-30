@@ -389,11 +389,6 @@ Foam::scalar Foam::extendedMomentInversion::normalizedMomentError
 
     momentsStarToMoments(sigma, approximatedMoments, momentsStar);
 
-    //  Info << setprecision (17);
-    //  Info << "Approximated moments: " << endl << approximatedMoments;
-    //  Info << "Is realizable?" << approximatedMoments.isRealizable() << endl;
-    //  Info << "sigma = " << sigma;
-
     for (label momentI = 0; momentI < moments.size(); momentI++)
     {
         norm += mag(1.0 - approximatedMoments[momentI]/moments[momentI]);
