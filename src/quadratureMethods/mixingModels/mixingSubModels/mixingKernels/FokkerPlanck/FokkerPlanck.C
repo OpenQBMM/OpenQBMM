@@ -109,7 +109,7 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
         )
     );
 
-    dimensionedScalar oneMoment("oneMoment", moments[1].dimensions(),1.0);
+    dimensionedScalar oneMoment("oneMoment", moments[1].dimensions(), 1.0);
 
     if (momentOrder == 0)
     {
@@ -121,7 +121,7 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
             *moments[momentOrder - 1]
             *((Cmixing_ + 1.0)*moments[1] + Cmixing_*(momentOrder - 1)*oneMoment
             *((moments[2] - sqr(moments[1]))/(moments[1]*oneMoment
-            - moments[2]))) - fvm::Su(momentOrder*Cphi_*flTurb.epsilon()
+            - moments[2]))) - fvm::SuSp(momentOrder*Cphi_*flTurb.epsilon()
             /flTurb.k()*((Cmixing_ + 1.0) + Cmixing_*(momentOrder - 1)
             *((moments[2] - sqr(moments[1]))/(moments[1]*oneMoment
             - moments[2]))), moment);
