@@ -701,8 +701,8 @@ void Foam::univariateMomentSet::setupQuadrature(bool clear)
 
 void Foam::univariateMomentSet::update()
 {
-    // NOTE Recomputing all the moments (even if they originally were
-    //      not realizable) from quadrature.
+    // Recomputing all the moments (even if they originally were not realizable)
+    // from quadrature (projection step).
     for (label momentI = 0; momentI < nMoments_; momentI++)
     {
         (*this)[momentI] = 0.0;
