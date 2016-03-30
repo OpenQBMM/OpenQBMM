@@ -78,18 +78,6 @@ class extendedMomentInversion
 {
     // Private member functions
 
-        //- Bracket minimum of the target function
-        void bracketMinimumTargetFunction
-        (
-            scalar a,
-            scalar b,
-            scalar& newA,
-            scalar& newB,
-            scalar& newC,
-            const univariateMomentSet& moments,
-            univariateMomentSet& momentsStar
-        );
-
         //- Attempt to find a min or max of the target function on an interval
         scalar minimizeTargetFunction
         (
