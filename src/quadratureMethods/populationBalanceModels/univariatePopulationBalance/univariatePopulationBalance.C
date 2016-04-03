@@ -161,7 +161,6 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
         forAll(node1.secondaryWeights(), sNode1I)
         {
-
             const volScalarField& sWeight1 = node1.secondaryWeights()[sNode1I];
 
             const volScalarField& sAbscissa1

@@ -1,8 +1,7 @@
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I../../eigenSolver/lnInclude \
-    -I../univariateMomentSet/lnInclude \
-    -DFULLDEBUG -g -O0
+    -I../univariateMomentSet/lnInclude
 
 LIB_LIBS = \
     -lfiniteVolume \
