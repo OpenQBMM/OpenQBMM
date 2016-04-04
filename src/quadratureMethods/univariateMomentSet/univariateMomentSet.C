@@ -117,7 +117,6 @@ void Foam::univariateMomentSet::invert()
 
     if (degenerate_)
     {
-        Info << "Degenerate" << endl;
         weights_[0] = (*this)[0];
         abscissae_[0] = 0.0;
 
