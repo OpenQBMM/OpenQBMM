@@ -70,6 +70,7 @@ Foam::univariateMomentSet::univariateMomentSet
     alpha_(label((nMoments_ - 2)/2) + 1, scalar(0)),
     beta_(label((nMoments_ - 1)/2) + 1, scalar(0)),
     support_(support),
+    degenerate_(false),
     inverted_(false),
     fullyRealizable_(true),
     subsetRealizable_(true),
@@ -116,6 +117,7 @@ void Foam::univariateMomentSet::invert()
 
     if (degenerate_)
     {
+        Info << "Degenerate" << endl;
         weights_[0] = (*this)[0];
         abscissae_[0] = 0.0;
 
@@ -140,7 +142,7 @@ void Foam::univariateMomentSet::invert()
 
     if (nInvertibleMoments_ == 2)
     {
-        weights_[0] = 1.0;
+        weights_[0] = (*this)[0];
         abscissae_[0] = (*this)[1]/(*this)[0];
 
         inverted_ = true;
