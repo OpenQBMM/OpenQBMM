@@ -28,8 +28,6 @@ bool Foam::univariateMomentSet::isDegenerate()
 {
     // Checking if moments of order higher than zero are null
     // The case when m0 = 0 is already managed
-    Info << "Checking degenerate case" << endl;
-
     for (label momentI = 1; momentI < nMoments_; momentI++)
     {
         if ((*this)[momentI] != 0.0)
