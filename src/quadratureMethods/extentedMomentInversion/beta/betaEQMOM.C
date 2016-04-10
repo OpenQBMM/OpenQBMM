@@ -321,7 +321,7 @@ void Foam::betaEQMOM::recurrenceRelation
     a[0] = (beta - alpha)/(alpha + beta + 2.0);
 
     b[0] = exp((alpha + beta + 1.0)*log(2.0) + lgamma(alpha + 1.0)
-            + lgamma(beta + 1.0) - lgamma(alpha + beta + 1.0));
+            + lgamma(beta + 1.0) - lgamma(alpha + beta + 2.0));
 
     a[1] = (sqr(beta) - sqr(alpha))/((alpha + beta + 2.0)*(alpha + beta + 4.0));
 
