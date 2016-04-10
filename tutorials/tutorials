@@ -19,6 +19,9 @@
 * buoyantPbePimpleFoam
     Tutorials for buoyant solver coupled to population balance solver.
 
+* mixingTransportFoam
+    Tutorials for mixing model on steady velocity field.
+
 * pbeFoam
     Tutorials for the single-cell solver pbeFoam to demonstrate kernel functions
     and perform verification and validation studies.
