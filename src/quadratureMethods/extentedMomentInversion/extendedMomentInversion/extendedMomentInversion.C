@@ -95,22 +95,6 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         return;
     }
 
-    // Do not attempt the EQMOM reconstruction if mean or variance of the moment
-    // set are small to avoid numerical problems. These problems are
-    // particularly acute in the calculation of the recurrence relationship of
-    // the Jacobi orthogonal polynomials used for the beta kernel density
-    // function.
-    if (m[1]/m[0] < minMean_ || (m[2]/m[0] - sqr(m[1]/m[0])) < minVariance_)
-    {
-        sigma_ = 0.0;
-        nullSigma_ = true;
-
-        m.invert();
-        secondaryQuadrature(m);
-
-        return;
-    }
-
     label nRealizableMoments = m.nRealizableMoments();
 
     // If the moment set is on the boundary of the moment space, the
@@ -139,6 +123,22 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     }
     else
     {
+        // Do not attempt the EQMOM reconstruction if mean or variance of the
+        /  moment set are small to avoid numerical problems. These problems are
+        // particularly acute in the calculation of the recurrence relationship
+        // of the Jacobi orthogonal polynomials used for the beta kernel density
+        // function.
+        if (m[1]/m[0] < minMean_ || (m[2]/m[0] - sqr(m[1]/m[0])) < minVariance_)
+        {
+            sigma_ = 0.0;
+            nullSigma_ = true;
+
+            m.invert();
+            secondaryQuadrature(m);
+
+            return;
+        }
+
         // Resizing the moment set to avoid copying again
         m.resize(nRealizableMoments);
 
