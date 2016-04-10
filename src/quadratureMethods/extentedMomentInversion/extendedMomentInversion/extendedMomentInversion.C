@@ -52,6 +52,8 @@ Foam::extendedMomentInversion::extendedMomentInversion
     sigma_(0.0),
     secondaryWeights_(nPrimaryNodes_, nSecondaryNodes_),
     secondaryAbscissae_(nPrimaryNodes_, nSecondaryNodes_),
+    minMean_(dict.lookupOrDefault("minMean_", 1.0e-8)),
+    minVariance_(dict.lookupOrDefault("minVariance_", 1.0e-8)),
     maxSigmaIter_(dict.lookupOrDefault<label>("maxSigmaIter", 1000)),
     momentsTol_(dict.lookupOrDefault("momentsTol", 1.0e-12)),
     sigmaMin_(dict.lookupOrDefault("sigmaMin", 1.0e-6)),
@@ -89,6 +91,22 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     {
         sigma_ = 0.0;
         nullSigma_ = true;
+
+        return;
+    }
+
+    // Do not attempt the EQMOM reconstruction if mean or variance of the moment
+    // set are small to avoid numerical problems. These problems are
+    // particularly acute in the calculation of the recurrence relationship of
+    // the Jacobi orthogonal polynomials used for the beta kernel density
+    // function.
+    if (m[1]/m[0] < minMean_ || (m[2]/m[0] - sqr(m[1]/m[0])) < minVariance_)
+    {
+        sigma_ = 0.0;
+        nullSigma_ = true;
+
+        m.invert();
+        secondaryQuadrature(m);
 
         return;
     }

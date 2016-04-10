@@ -136,6 +136,12 @@ protected:
         //- Secondary quadrature abscissae
         scalarRectangularMatrix secondaryAbscissae_;
 
+        //- Minimum mean to perform EQMOM reconstruction
+        scalar minMean_;
+
+        //- Minimum variance to perform EQMOM reconstruction
+        scalar minVariance_;
+
         //- Maximum number of iterations allowed to find sigma_
         label maxSigmaIter_;
 
