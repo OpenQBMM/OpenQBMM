@@ -124,7 +124,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     else
     {
         // Do not attempt the EQMOM reconstruction if mean or variance of the
-        /  moment set are small to avoid numerical problems. These problems are
+        //  moment set are small to avoid numerical problems. These problems are
         // particularly acute in the calculation of the recurrence relationship
         // of the Jacobi orthogonal polynomials used for the beta kernel density
         // function.
