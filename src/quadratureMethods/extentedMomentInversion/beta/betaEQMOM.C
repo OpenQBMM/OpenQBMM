@@ -320,8 +320,8 @@ void Foam::betaEQMOM::recurrenceRelation
 
     a[0] = (beta - alpha)/(alpha + beta + 2.0);
 
-    b[0] = (pow(2.0, alpha + beta + 1.0)*gamma(alpha + 1.0)*gamma(beta + 1.0))
-            /gamma(alpha + beta + 2.0);
+    b[0] = exp((alpha + beta + 1.0)*ln(2.0) + lgamma(alpha + 1.0)
+            + lgamma(beta + 1.0) - lgamma(alpha + beta + 1.0));
 
     a[1] = (sqr(beta) - sqr(alpha))/((alpha + beta + 2.0)*(alpha + beta + 4.0));
 
@@ -332,7 +332,7 @@ void Foam::betaEQMOM::recurrenceRelation
     {
         nab = 2.0*scalar(i) + alpha + beta;
 
-        a[i] = (sqr(beta) - sqr(alpha))/(nab*(nab + 2));
+        a[i] = (sqr(beta) - sqr(alpha))/(nab*(nab + 2.0));
 
         b[i] = (4.0*(scalar(i) + alpha)*(scalar(i) + beta)*scalar(i)
                 *(scalar(i)+ alpha + beta))/(sqr(nab)*(nab + 1.0)*(nab - 1.0));
