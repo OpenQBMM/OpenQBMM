@@ -56,7 +56,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(name, dict, U.mesh(), U, "RPlus"),
+    univariatePDFTransportModel(name, dict, U.mesh(), U, phi, "RPlus"),
     populationBalanceModel(name, dict, U, phi),
     name_(name),
     aggregation_(dict.lookup("aggregation")),

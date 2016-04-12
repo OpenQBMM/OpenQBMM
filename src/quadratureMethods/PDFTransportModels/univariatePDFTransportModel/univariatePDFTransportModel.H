@@ -69,6 +69,9 @@ protected:
         //- Velocity field
         const volVectorField& U_;
 
+        //- Face velocity field
+        const surfaceScalarField& phi_;
+
     // Protected member functions
 
         //- Diffusion term
@@ -116,6 +119,7 @@ public:
             const dictionary& dict,
             const fvMesh& mesh,
             const volVectorField& U,
+            const surfaceScalarField& phi,
             const word support
         );
 
