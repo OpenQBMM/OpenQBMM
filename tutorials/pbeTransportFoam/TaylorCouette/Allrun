@@ -1,5 +1,4 @@
-#
-/bin/sh
+#/bin/sh
 cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
@@ -17,7 +16,7 @@ cp -f 50000.flow/* 0/ 2>&1
 cp -f system/controlDict.pbe system/controlDict 2>&1
 
 runApplication decomposePar -time '0'
-runParallel pbeTransportFoam 
+runParallel pbeTransportFoam
 
 runApplication reconstructPar -latestTime
 
