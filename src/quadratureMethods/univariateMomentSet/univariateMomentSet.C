@@ -104,6 +104,16 @@ void Foam::univariateMomentSet::invert()
         return;
     }
 
+    if (isDegenerate())
+    {
+        setupQuadrature();
+        weights_[0] = (*this)[0];
+        abscissae_[0] = 0.0;
+        inverted_ = true;
+
+        return;
+    }
+
     if (!realizabilityChecked_)
     {
         checkRealizability();
@@ -113,16 +123,6 @@ void Foam::univariateMomentSet::invert()
     if (!quadratureSetUp_)
     {
         setupQuadrature(true);
-    }
-
-    if (degenerate_)
-    {
-        weights_[0] = (*this)[0];
-        abscissae_[0] = 0.0;
-
-        inverted_ = true;
-
-        return;
     }
 
     if (nInvertibleMoments_ < 2)
