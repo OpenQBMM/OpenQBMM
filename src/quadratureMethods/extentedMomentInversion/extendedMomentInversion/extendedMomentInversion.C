@@ -418,19 +418,6 @@ void Foam::extendedMomentInversion::secondaryQuadrature
         primaryAbscissae_[pNodeI] = pAbscissae[pNodeI];
     }
 
-    // Set weights and abscissae of unused primary nodes to zero
-//     for (label pNodeI = pWeights.size(); pNodeI < nPrimaryNodes_; pNodeI++)
-//     {
-//         primaryWeights_[pNodeI] = 0.0;
-//         primaryAbscissae_[pNodeI] = 0.0;
-//
-//         for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
-//         {
-//             secondaryWeights_[pNodeI][sNodeI] = 0.0;
-//             secondaryAbscissae_[pNodeI][sNodeI] = 0.0;
-//         }
-//     }
-
     if (!nullSigma_)
     {
         // Coefficients of the recurrence relation
@@ -475,9 +462,12 @@ void Foam::extendedMomentInversion::secondaryQuadrature
             }
         }
 
-        // Set weights and abscissae of unused secondary nodes to zero
+        // Set weights and abscissae of unused nodes to zero
         for (label pNodeI = pWeights.size(); pNodeI < nPrimaryNodes_; pNodeI++)
         {
+            primaryWeights_[pNodeI] = 0.0;
+            primaryAbscissae_[pNodeI] = 0.0;
+
             for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
             {
                 secondaryWeights_[pNodeI][sNodeI] = 0.0;
@@ -494,6 +484,19 @@ void Foam::extendedMomentInversion::secondaryQuadrature
             secondaryAbscissae_[pNodeI][0] = primaryAbscissae_[pNodeI];
 
             for (label sNodeI = 1; sNodeI < nSecondaryNodes_; sNodeI++)
+            {
+                secondaryWeights_[pNodeI][sNodeI] = 0.0;
+                secondaryAbscissae_[pNodeI][sNodeI] = 0.0;
+            }
+        }
+
+        // Set weights and abscissae of unused nodes to zero
+        for (label pNodeI = pWeights.size(); pNodeI < nPrimaryNodes_; pNodeI++)
+        {
+            primaryWeights_[pNodeI] = 0.0;
+            primaryAbscissae_[pNodeI] = 0.0;
+
+            for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
             {
                 secondaryWeights_[pNodeI][sNodeI] = 0.0;
                 secondaryAbscissae_[pNodeI][sNodeI] = 0.0;
