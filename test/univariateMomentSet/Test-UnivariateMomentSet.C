@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 {
     Info << "Testing univariateMomentSet\n" << endl;
 
-    label nMoments = 7;
+    label nMoments = 4;
 
     scalarDiagonalMatrix m(nMoments, 0.0);
     // Computing integer moments of a log-normal function
@@ -97,15 +97,15 @@ int main(int argc, char *argv[])
 //    m[0] = 1.0;
 //    m[1] = 0.0;
 
-    m[0] = 3.125e12;
-    m[1] = 6.25e6;
-    m[2] = 12.5;
-    m[3] = 2.5e-5;
-    m[4] = 5.0e-11;
-    m[5] = 1.0e-16;
-    m[6] = 2.0e-22;
+    m[0] = 1;
+    m[1] = 0.000205634192732;
+    m[2] = 4.25189233395e-08;
+    m[3] = 3.63331214177e-10;
+    //m[4] = 5.0e-11;
+    //m[5] = 1.0e-16;
+    //m[6] = 2.0e-22;
 
-    word support = "RPlus";
+    word support = "01";
 
     Info << "Support: " << support << endl;
 

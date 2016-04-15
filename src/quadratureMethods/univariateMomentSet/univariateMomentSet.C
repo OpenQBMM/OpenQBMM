@@ -613,6 +613,36 @@ void Foam::univariateMomentSet::checkRealizability()
 
                 return;
             }
+            else // zeta[2*nD] > 0.0
+            {
+                if (support_ == "RPlus")
+                {
+                    negativeZeta_ = 0;
+                    nRealizableMoments_ = nMoments_;
+                    fullyRealizable_ = true;
+                    onMomentSpaceBoundary_ = false;
+                }
+                else // Support on [0,1]
+                {
+                    checkCanonicalMoments(zeta, 2*nD + 1);
+
+                    if (onMomentSpaceBoundary_)
+                    {
+                        fullyRealizable_ = true;
+                    }
+                    else
+                    {
+                        fullyRealizable_ = false;
+                    }
+                }
+
+                calcNInvertibleMoments();
+
+                subsetRealizable_ = true;
+                realizabilityChecked_ = true;
+
+                return;
+            }
         }
         else
         {
