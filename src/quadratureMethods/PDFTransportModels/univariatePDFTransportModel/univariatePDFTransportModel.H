@@ -81,18 +81,12 @@ protected:
         ) = 0;
 
         //- Update fields required to compute kinetic fluxes
-        void updatePhysicalSpaceConvection
-        (
-            surfaceScalarField& phiOwn,
-            surfaceScalarField& phiNei
-        );
+        void updatePhysicalSpaceConvection();
 
         //- Calculate explicit convection term in physical space
         tmp<volScalarField> physicalSpaceConvection
         (
-            const volUnivariateMoment& moment,
-            const surfaceScalarField& phiOwn,
-            const surfaceScalarField& phiNei
+            const volUnivariateMoment& moment
         );
 
         //- Convect moments in phase space

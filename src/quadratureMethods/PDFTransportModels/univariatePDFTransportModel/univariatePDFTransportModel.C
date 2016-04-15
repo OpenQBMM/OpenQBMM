@@ -56,39 +56,8 @@ Foam::PDFTransportModels::univariatePDFTransportModel
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 void Foam::PDFTransportModels::univariatePDFTransportModel
-::updatePhysicalSpaceConvection
-(
-    surfaceScalarField& phiOwn,
-    surfaceScalarField& phiNei
-)
+::updatePhysicalSpaceConvection()
 {
-    surfaceScalarField nei
-    (
-        IOobject
-        (
-            "nei",
-            mesh_.time().timeName(),
-            mesh_
-        ),
-        mesh_,
-        dimensionedScalar("nei", dimless, -1.0)
-    );
-
-    surfaceScalarField own
-    (
-        IOobject
-        (
-            "own",
-            mesh_.time().timeName(),
-            mesh_
-        ),
-        mesh_,
-        dimensionedScalar("own", dimless, 1.0)
-    );
-
-    phiOwn = fvc::interpolate(U_, own, "reconstruct(U)") & mesh_.Sf();
-    phiNei = fvc::interpolate(U_, nei, "reconstruct(U)") & mesh_.Sf();
-
     // Update interpolated nodes
     quadrature_.interpolateNodes();
 
@@ -100,12 +69,10 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
 Foam::tmp<Foam::volScalarField>
 Foam::PDFTransportModels::univariatePDFTransportModel::physicalSpaceConvection
 (
-    const volUnivariateMoment& moment,
-    const surfaceScalarField& phiOwn,
-    const surfaceScalarField& phiNei
+    const volUnivariateMoment& moment
 )
 {
-    dimensionedScalar zeroPhi("zero", phiNei.dimensions(), 0.0);
+    dimensionedScalar zeroPhi("zero", phi_.dimensions(), 0.0);
 
     tmp<volScalarField> divMoment
     (
@@ -129,8 +96,8 @@ Foam::PDFTransportModels::univariatePDFTransportModel::physicalSpaceConvection
 
     surfaceScalarField mFlux
     (
-        quadrature_.momentsNei()[order]*min(phiNei, zeroPhi)
-      + quadrature_.momentsOwn()[order]*max(phiOwn, zeroPhi)
+        quadrature_.momentsNei()[order]*min(phi_, zeroPhi)
+      + quadrature_.momentsOwn()[order]*max(phi_, zeroPhi)
     );
 
     fvc::surfaceIntegrate(divMoment.ref(), mFlux);
@@ -141,9 +108,7 @@ Foam::PDFTransportModels::univariatePDFTransportModel::physicalSpaceConvection
 
 void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
 {
-    //surfaceScalarField phiOwn("phiOwn", fvc::interpolate(U_) & mesh_.Sf());
-    //surfaceScalarField phiNei("phiNei", phiOwn);
-    //updatePhysicalSpaceConvection(phiOwn, phiNei);
+    updatePhysicalSpaceConvection();
 
     // List of moment transport equations
     PtrList<fvScalarMatrix> momentEqns(quadrature_.nMoments());
@@ -159,8 +124,8 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             new fvScalarMatrix
             (
                 fvm::ddt(m)
-              + fvm::div(phi_, m, "div(phi,moment)")
-              //+ physicalSpaceConvection(m, phiOwn, phiNei)
+              //+ fvm::div(phi_, m, "div(phi,moment)")
+              + physicalSpaceConvection(m)
               - momentDiffusion(m)
               ==
                 momentSource(m)
