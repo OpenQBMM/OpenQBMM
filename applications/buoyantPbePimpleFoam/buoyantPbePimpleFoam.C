@@ -40,7 +40,7 @@ Description
 #include "rhoThermo.H"
 #include "turbulentFluidThermoModel.H"
 #include "radiationModel.H"
-#include "fvOptions.H"
+#include "fvIOoptionList.H"
 #include "pimpleControl.H"
 #include "fixedFluxPressureFvPatchScalarField.H"
 #include "populationBalanceModel.H"
