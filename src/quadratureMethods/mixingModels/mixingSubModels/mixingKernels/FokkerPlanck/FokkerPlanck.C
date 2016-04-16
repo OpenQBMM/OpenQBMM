@@ -117,7 +117,7 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
     }
     else
     {
-        mixingK.ref() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
+        mixingK() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
             *moments[momentOrder - 1]
             *((Cmixing_ + 1.0)*moments[1] + Cmixing_*(momentOrder - 1)*oneMoment
             *((moments[2] - sqr(moments[1]))/(moments[1]*oneMoment
