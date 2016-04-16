@@ -54,6 +54,11 @@ class univariatePDFTransportModel
 :
     public PDFTransportModel
 {
+    // Private data
+
+        //- Name of the univariatePDFTransportModel
+        const word name_;
+
 protected:
 
     // Protected data
@@ -64,6 +69,9 @@ protected:
         //- Velocity field
         const volVectorField& U_;
 
+        //- Face velocity field
+        const surfaceScalarField& phi_;
+
     // Protected member functions
 
         //- Diffusion term
@@ -73,18 +81,12 @@ protected:
         ) = 0;
 
         //- Update fields required to compute kinetic fluxes
-        void updatePhysicalSpaceConvection
-        (
-            surfaceScalarField& phiOwn,
-            surfaceScalarField& phiNei
-        );
+        void updatePhysicalSpaceConvection();
 
         //- Calculate explicit convection term in physical space
         tmp<volScalarField> physicalSpaceConvection
         (
-            const volUnivariateMoment& moment,
-            const surfaceScalarField& phiOwn,
-            const surfaceScalarField& phiNei
+            const volUnivariateMoment& moment
         );
 
         //- Convect moments in phase space
@@ -94,7 +96,7 @@ protected:
         ) = 0;
 
         //- Calculate source terms
-        virtual tmp<volScalarField> momentSource
+        virtual tmp<fvScalarMatrix> momentSource
         (
             const volUnivariateMoment& moment
         ) = 0;
@@ -107,9 +109,11 @@ public:
         //- Construct from components
         univariatePDFTransportModel
         (
+            const word& name,
             const dictionary& dict,
             const fvMesh& mesh,
             const volVectorField& U,
+            const surfaceScalarField& phi,
             const word support
         );
 
@@ -120,8 +124,15 @@ public:
 
     // Member Functions
 
-        //- Solve univariate PDF transport equation
-        virtual void solve();
+        //- Access
+
+            //- Returns a const reference to the quadrature approximation
+            inline const univariateQuadratureApproximation& quadrature() const;
+
+        //-Edit
+
+            //- Solve univariate PDF transport equation
+            virtual void solve();
 };
 
 
@@ -132,6 +143,8 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#endif
+#include "univariatePDFTransportModelI.H"
 
-// ************************************************************************* //
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif

@@ -39,7 +39,7 @@ divSchemes
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
     div(((rho*(thermo:mu|thermo:rho))*dev2(T(grad(U))))) Gauss linear;
     div((rho*R))    Gauss linear;
-    "div\(phi,moment.*\)" Gauss upwind;
+    div(phi,moment) Gauss upwind;
 }
 
 laplacianSchemes
@@ -50,9 +50,9 @@ laplacianSchemes
 interpolationSchemes
 {
     default         linear;
-    
+
     "interpolate\(moment.*\)" upwind phi;
-    
+
     reconstruct(U)          upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;

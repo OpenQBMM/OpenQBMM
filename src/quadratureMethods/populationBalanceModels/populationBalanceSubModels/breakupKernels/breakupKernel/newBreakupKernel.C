@@ -43,13 +43,12 @@ Foam::populationBalanceSubModels::breakupKernel::New
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalError
-            << "breakupKernel::New(const dictionary&) : " << endl
-            << "    unknown breakupKernelType type "
-            << breakupKernelType
-            << ", constructor not in hash table" << endl << endl
-            << "    Valid breakupKernelType types are :" << endl;
-        Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
+        FatalErrorInFunction
+            << "Unknown breakupKernelType type "
+            << breakupKernelType << endl << endl
+            << "Valid breakupKernelType types are :" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << abort(FatalError);
     }
 
     return autoPtr<breakupKernel>(cstrIter()(dict));

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,8 +25,7 @@ Class
     Foam::populationBalanceSubModels::diffusionModels::noDiffusion
 
 Description
-    Standard turbulent diffusion model. This model should be default for
-    problems without size-dependent diffusion.
+    No diffusion model.
 
 SourceFiles
     noDiffusion.C
@@ -54,7 +53,7 @@ namespace diffusionModels
 class noDiffusion
 :
     public diffusionModel
-{      
+{
 public:
 
         //- Runtime type information

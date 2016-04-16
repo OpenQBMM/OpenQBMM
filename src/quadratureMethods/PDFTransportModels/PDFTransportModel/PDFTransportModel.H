@@ -51,6 +51,11 @@ namespace Foam
 
 class PDFTransportModel
 {
+    // Private data
+
+        //- Name of the PDFTransportModel
+        const word name_;
+
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
@@ -75,6 +80,7 @@ public:
         //- Construct from components
         PDFTransportModel
         (
+            const word& name,
             const dictionary& dict,
             const fvMesh& mesh
         );

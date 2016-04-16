@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -79,9 +79,9 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
 (
     const volScalarField& moment
 ) const
-{   
+{
     volScalarField gamma = turbViscosity(moment)/Sc_ + gammaLam_;
-    
+
     return fvm::laplacian(gamma, moment);
 }
 
@@ -101,7 +101,7 @@ turbViscosity(const volScalarField& moment) const
 
         return turb.mut()/turb.rho();
     }
-    else if 
+    else if
     (
         moment.mesh().foundObject<icoTurbModel>(icoTurbModel::propertiesName)
     )
@@ -116,10 +116,7 @@ turbViscosity(const volScalarField& moment) const
     }
     else
     {
-        FatalErrorIn
-        (
-            "turbulentDiffusion::turbViscosity()"
-        )
+        FatalErrorInFunction
             << "No valid turbulence model for turbulent diffusion calculation."
             << exit(FatalError);
 

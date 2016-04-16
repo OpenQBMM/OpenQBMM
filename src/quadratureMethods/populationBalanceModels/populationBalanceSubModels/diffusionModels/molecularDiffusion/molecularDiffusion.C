@@ -78,8 +78,8 @@ Foam::populationBalanceSubModels::diffusionModels::molecularDiffusion
 (
     const volScalarField& moment
 ) const
-{   
-    
+{
+
     return fvm::laplacian(gammaLam_, moment);
 }
 

@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.3.0                                 |
+|  \\    /   O peration     | Version:  dev                                   |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -23,29 +23,29 @@ univariatePopulationBalanceCoeffs
     {
         diffusionModel  none;
     }
-    
+
     aggregation on;
-    
+
     aggregationKernel
     {
         aggregationKernel sum;
-        
+
         Ca        Ca        [ 0 0 -1 0 0 0 0 ] 1.0;
     }
-    
+
     breakup on;
-    
+
     breakupKernel
     {
         breakupKernel powerLaw;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.02;
     }
-    
+
     daughterDistribution
     {
         daughterDistribution symmetricFragmentation;
     }
-    
+
     growth off;
 
     growthModel
@@ -53,6 +53,11 @@ univariatePopulationBalanceCoeffs
         growthModel constant;
 
         Cg        Cg        [0 3 -1 0 0 0 0 ] 1.0;
+    }
+
+    nucleationModel
+    {
+        nucleationModel  none;
     }
 }
 

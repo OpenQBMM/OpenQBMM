@@ -98,6 +98,10 @@ class univariateMomentSet
         //- Position of first negative zeta
         label negativeZeta_;
 
+        //- Bool to indicate if moment set is degenerate, with only the
+        //  zero-order moment realizable
+        bool degenerate_;
+
         //- Bool to indicate if moments were inverted
         bool inverted_;
 
@@ -106,6 +110,10 @@ class univariateMomentSet
 
         //- Bool to indicate if a subset of the full moment set is realizable
         bool subsetRealizable_;
+
+        //- Bool to indicate if the moment set is on the boundary of the
+        //  moment space
+        bool onMomentSpaceBoundary_;
 
         //- Bool to indicate moment realizability was checked
         bool realizabilityChecked_;
@@ -137,8 +145,7 @@ class univariateMomentSet
         void checkCanonicalMoments
         (
             const scalarDiagonalMatrix& zeta,
-            const label nZeta,
-            label& nRealizableMoments
+            const label nZeta
         );
 
         //- Computes the number of invertible moments
@@ -181,14 +188,20 @@ public:
         //- Update moments from weights and abscissae
         void update();
 
+        //- Returns degenerate status of the moment set
+        inline bool isDegenerate();
+
         //- Returns the status of inversion
         inline bool isInverted() const;
 
         //- Return realizability status of the moment set
         inline bool isFullyRealizable();
 
-        //- Return realizability status of the moment set
+        //- Return realizability status of the moment subsets
         inline bool isSubsetRealizable();
+
+        //- Return true if the moment set is on the boundary of the moment space
+        inline bool isOnMomentSpaceBoundary();
 
         //- Return the number of invertible moments
         inline label nInvertibleMoments();

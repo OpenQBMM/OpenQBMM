@@ -74,12 +74,12 @@ Foam::tmp<Foam::volScalarField> Foam::populationBalanceSubModels
     const volScalarField& abscissa1,
     const volScalarField& abscissa2
 ) const
-{   
-    tmp<volScalarField> aggK 
+{
+    tmp<volScalarField> aggK
         = Ca_*sqr(abscissa1 + abscissa2)*mag(sqr(abscissa1) - sqr(abscissa2));
 
-    aggK().dimensions().reset(pow3(abscissa1.dimensions())/dimTime);
-    
+    aggK.ref().dimensions().reset(pow3(abscissa1.dimensions())/dimTime);
+
     return aggK;
 }
 

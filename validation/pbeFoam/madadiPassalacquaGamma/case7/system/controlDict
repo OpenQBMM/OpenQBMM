@@ -72,16 +72,16 @@ functions
         // Fields to be probed
         fields
         (
-            moment.0 
-            moment.1 
-            moment.2 
-            moment.3 
-            moment.4
+            moment.0.populationBalance
+            moment.1.populationBalance
+            moment.2.populationBalance
+            moment.3.populationBalance
+            moment.4.populationBalance
         );
 
         probeLocations
         (
-            ( 0.5 0.5 0.5 )        
+            ( 0.5 0.5 0.5 )
         );
     }
 }

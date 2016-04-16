@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,8 +25,7 @@ Class
     Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
 
 Description
-    Standard turbulent diffusion model. This model should be default for
-    problems without size-dependent diffusion.
+    Turbulent diffusion model.
 
 SourceFiles
     turbulentDiffusion.C
@@ -54,18 +53,18 @@ namespace diffusionModels
 class turbulentDiffusion
 :
     public diffusionModel
-{   
+{
     //- Private member functions
         tmp<volScalarField> turbViscosity(const volScalarField& moment) const;
-    
+
     //- Private data
-    
+
         //- Laminar diffusivity
         dimensionedScalar gammaLam_;
-    
+
         //- Turbulent Schmidt number
         scalar Sc_;
-    
+
 public:
 
         //- Runtime type information

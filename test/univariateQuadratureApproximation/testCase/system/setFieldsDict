@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.3.x                                 |
+|  \\    /   O peration     | Version:  dev                                   |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -17,11 +17,11 @@ FoamFile
 
 defaultFieldValues
 (
-    volScalarFieldValue moment.0 1.0
-    volScalarFieldValue moment.1 2.708217669
-    volScalarFieldValue moment.2 8.951330468
-    volScalarFieldValue moment.3 35.95258119
-    volScalarFieldValue moment.4 174.4370267
+    volScalarFieldValue moment.0.populationBalance 1.0
+    volScalarFieldValue moment.1.populationBalance 2.708217669
+    volScalarFieldValue moment.2.populationBalance 8.951330468
+    volScalarFieldValue moment.3.populationBalance 35.95258119
+    volScalarFieldValue moment.4.populationBalance 174.4370267
 );
 
 regions
@@ -31,11 +31,11 @@ regions
         box ( 0 0 -0.1 ) ( 0.015 0.05 0.1 );
         fieldValues
         (
-            volScalarFieldValue moment.0 0.567128698550116
-            volScalarFieldValue moment.1 0.659798044636756
-            volScalarFieldValue moment.2 0.796168501018439
-            volScalarFieldValue moment.3 1.0
-            volScalarFieldValue moment.4 1.3103698092
+            volScalarFieldValue moment.0.populationBalance 0.567128698550116
+            volScalarFieldValue moment.1.populationBalance 0.659798044636756
+            volScalarFieldValue moment.2.populationBalance 0.796168501018439
+            volScalarFieldValue moment.3.populationBalance 1.0
+            volScalarFieldValue moment.4.populationBalance 1.3103698092
         );
     }
 );

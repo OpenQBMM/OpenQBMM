@@ -43,13 +43,12 @@ Foam::populationBalanceSubModels::daughterDistribution::New
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalError
-            << "daughterDistribution::New(const dictionary&) : " << endl
-            << "    unknown daughterDistributionType type "
-            << daughterDistributionType
-            << ", constructor not in hash table" << endl << endl
-            << "    Valid daughterDistributionType types are :" << endl;
-        Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
+        FatalErrorInFunction
+            << "Unknown daughterDistributionType type "
+            << daughterDistributionType << endl << endl
+            << "Valid daughterDistributionType types are :" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << abort(FatalError);
     }
 
     return autoPtr<daughterDistribution>(cstrIter()(dict));

@@ -30,6 +30,7 @@ License
 Foam::autoPtr<Foam::populationBalanceModel>
 Foam::populationBalanceModel::New
 (
+    const word& name,
     const dictionary& dict,
     const volVectorField& U,
     const surfaceScalarField& phi
@@ -45,16 +46,10 @@ Foam::populationBalanceModel::New
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalErrorIn("populationBalanceModel::New")
-            << "(" << endl
-            << "    const dictionary&" << endl
-            << "    const volVectorField&" << endl
-            << "    const surfaceScalarField&" << endl
-            << ") : " << endl
-            << "    unknown populationBalanceModelType type "
-            << populationBalanceModelType
-            << ", constructor not in hash table" << endl << endl
-            << "    Valid populationBalanceModelType types are :" << endl
+        FatalErrorInFunction
+            << "Unknown populationBalanceModelType type "
+            << populationBalanceModelType << endl << endl
+            << "Valid populationBalanceModelType types are :" << endl
             << dictionaryConstructorTablePtr_->sortedToc()
             << abort(FatalError);
     }
@@ -64,6 +59,7 @@ Foam::populationBalanceModel::New
         (
             cstrIter()
             (
+                name,
                 dict.subDict(populationBalanceModelType + "Coeffs"),
                 U,
                 phi

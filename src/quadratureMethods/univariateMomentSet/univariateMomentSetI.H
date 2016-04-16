@@ -24,6 +24,25 @@ License
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+bool Foam::univariateMomentSet::isDegenerate()
+{
+    // Checking if moments of order higher than zero are null
+    // The case when m0 = 0 is already managed
+    for (label momentI = 1; momentI < nMoments_; momentI++)
+    {
+        if (mag((*this)[momentI]) > SMALL)
+        {
+            degenerate_ = false;
+
+            return degenerate_;
+        }
+    }
+
+    degenerate_ = true;
+
+    return degenerate_;
+}
+
 bool Foam::univariateMomentSet::isInverted() const
 {
     return inverted_;
@@ -47,6 +66,16 @@ bool Foam::univariateMomentSet::isSubsetRealizable()
     }
 
     return subsetRealizable_;
+}
+
+bool Foam::univariateMomentSet::isOnMomentSpaceBoundary()
+{
+    if (!realizabilityChecked_)
+    {
+        checkRealizability();
+    }
+
+    return onMomentSpaceBoundary_;
 }
 
 Foam::label Foam::univariateMomentSet::nInvertibleMoments()

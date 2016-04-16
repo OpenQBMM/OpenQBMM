@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::univariatePopulationBalance
+    Foam::populationBalanceModels::univariatePopulationBalance
 
 Description
     Solve a univariate population balance equation with the extended quadrature
@@ -43,6 +43,7 @@ SourceFiles
 #include "daughterDistribution.H"
 #include "growthModel.H"
 #include "diffusionModel.H"
+#include "nucleationModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -62,6 +63,9 @@ class univariatePopulationBalance
     public univariatePDFTransportModel, public populationBalanceModel
 {
     // Private data
+
+        //- Name of the univariatePopulationBalance
+        const word name_;
 
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
@@ -102,6 +106,11 @@ class univariatePopulationBalance
             Foam::populationBalanceSubModels::diffusionModel
         > diffusionModel_;
 
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::nucleationModel
+        > nucleationModel_;
+
     // Private member functions
 
         //- Calculate aggregation source terms
@@ -126,7 +135,7 @@ class univariatePopulationBalance
         );
 
         //- Calculate source terms
-        virtual tmp<volScalarField> momentSource
+        virtual tmp<fvScalarMatrix> momentSource
         (
             const volUnivariateMoment& moment
         );
@@ -143,6 +152,7 @@ public:
         //- Construct from components
         univariatePopulationBalance
         (
+            const word& name,
             const dictionary& dict,
             const volVectorField& U,
             const surfaceScalarField& phi

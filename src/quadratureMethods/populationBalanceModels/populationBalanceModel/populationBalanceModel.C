@@ -38,11 +38,13 @@ namespace Foam
 
 Foam::populationBalanceModel::populationBalanceModel
 (
+    const word& name,
     const dictionary& dict,
     const volVectorField& U,
     const surfaceScalarField& phi
 )
 :
+    name_(name),
     phi_(phi)
 {}
 

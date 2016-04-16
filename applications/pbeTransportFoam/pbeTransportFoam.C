@@ -29,7 +29,7 @@ Application
     pbeTransportFoam
 
 Description
-    Steady-state solver for population balance equation
+    Solver for population balance equation on steady velocity field.
 
 \*---------------------------------------------------------------------------*/
 
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
-    
+
     while (runTime.run())
     {
         #include "createTimeControls.H"
@@ -70,16 +70,16 @@ int main(int argc, char *argv[])
         #include "setDeltaT.H"
 
         runTime++;
-        
+
         Info<< "Time = " << runTime.timeName() << nl << endl;
-        
+
         while (pimple.loop())
         {
             populationBalance->solve();
         }
 
         runTime.write();
-        
+
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;

@@ -31,6 +31,7 @@ Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
 extendedQuadratureNode
 (
     const word& name,
+    const word& distributionName,
     const label nSecondaryNodes,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
@@ -40,11 +41,12 @@ extendedQuadratureNode
     quadratureNode<weightType, abscissaType>
     (
         name,
+        distributionName,
         mesh,
         weightDimensions,
         abscissaDimensions
     ),
-    name_(name),
+    name_(IOobject::groupName(name, distributionName)),
     nSecondaryNodes_(nSecondaryNodes),
     secondaryWeights_(nSecondaryNodes_),
     secondaryAbscissae_(nSecondaryNodes_),
@@ -120,7 +122,7 @@ extendedQuadratureNode
                     "zeroAbscissa",
                     abscissaDimensions,
                     pTraits<typename abscissaType::value_type>::zero
-                )           
+                )
             )
         );
     }
@@ -132,6 +134,7 @@ Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
 extendedQuadratureNode
 (
     const word& name,
+    const word& distributionName,
     const dictionary& nodeDict,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
@@ -142,13 +145,14 @@ extendedQuadratureNode
     quadratureNode<weightType, abscissaType>
     (
         name,
+        distributionName,
         nodeDict,
         mesh,
         weightDimensions,
         abscissaDimensions,
         boundaryTypes
     ),
-    name_(name),
+    name_(IOobject::groupName(name, distributionName)),
     nSecondaryNodes_
     (
         nodeDict.lookupOrDefault("nSecondaryNodes", 10)
@@ -175,7 +179,7 @@ extendedQuadratureNode
         boundaryTypes
     ),
     extended_(true)
-{ 
+{
     forAll(secondaryWeights_, nodeI)
     {
         secondaryWeights_.set
@@ -245,17 +249,17 @@ Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType, class sigmaType> 
+template <class weightType, class abscissaType, class sigmaType>
 Foam::autoPtr
 <
-    Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType> 
-> 
+    Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>
+>
 Foam::extendedQuadratureNode<weightType, abscissaType, sigmaType>::clone() const
 {
     notImplemented("extendedQuadratureNode::clone() const");
     return autoPtr
     <
-        extendedQuadratureNode<weightType, abscissaType, sigmaType> 
+        extendedQuadratureNode<weightType, abscissaType, sigmaType>
     >(NULL);
 }
 

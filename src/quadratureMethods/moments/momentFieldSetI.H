@@ -27,42 +27,42 @@ License
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-// template <class momentType, class nodeType> 
-// Foam::label 
+// template <class momentType, class nodeType>
+// Foam::label
 // Foam::momentFieldSet<momentType, nodeType>::dimToCmptOrder(label dim) const
 // {
 //     dim = nDimensions_ - dim - 1;
-// 
+//
 //     return pow(10, dim);
 // }
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 momentType& Foam::momentFieldSet<momentType, nodeType>::operator()()
 {
     return this->operator[](momentMap_[0]);
 }
 
-template <class momentType, class nodeType> 
-const momentType& 
+template <class momentType, class nodeType>
+const momentType&
 Foam::momentFieldSet<momentType, nodeType>::operator()() const
 {
     return this->operator[](momentMap_[0]);
 }
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 momentType& Foam::momentFieldSet<momentType, nodeType>::operator()(label a)
 {
     return this->operator[](map(0, 0, a));
 }
 
-template <class momentType, class nodeType> 
-const momentType& 
+template <class momentType, class nodeType>
+const momentType&
 Foam::momentFieldSet<momentType, nodeType>::operator()(label a) const
 {
     return this->operator[](map(0, 0, a));
 }
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
 (
     label a,
@@ -72,7 +72,7 @@ momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
     return this->operator[](map(0, a, b));
 }
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 const momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
 (
     label a,
@@ -82,7 +82,7 @@ const momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
     return this->operator[](map(0, a, b));
 }
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
 (
     label a,
@@ -93,7 +93,7 @@ momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
     return this->operator[](map(a, b, c));
 }
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 const momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
 (
     label a,
@@ -105,14 +105,14 @@ const momentType& Foam::momentFieldSet<momentType, nodeType>::operator()
 }
 
 
-template <class momentType, class nodeType> 
-const Map<label>& Foam::momentFieldSet<momentType, nodeType>::momentMap() const
+template <class momentType, class nodeType> const Foam::Map<Foam::label>&
+Foam::momentFieldSet<momentType, nodeType>::momentMap() const
 {
     return momentMap_;
 }
 
 
-template <class momentType, class nodeType> 
+template <class momentType, class nodeType>
 Foam::label Foam::momentFieldSet<momentType, nodeType>::nDimensions() const
 {
     return nDimensions_;

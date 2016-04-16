@@ -83,7 +83,7 @@
 
 
     Info<< "Reading populationBalanceProperties\n" << endl;
-    
+
     IOdictionary populationBalanceProperties
     (
         IOobject
@@ -96,7 +96,12 @@
         )
     );
 
+    surfaceScalarField phiByRho("phiByRho", phi/fvc::interpolate(rho));
+
     autoPtr<populationBalanceModel> populationBalance
     (
-        populationBalanceModel::New(populationBalanceProperties, U, phi)
+        populationBalanceModel::New
+        (
+            "populationBalance", populationBalanceProperties, U, phiByRho
+        )
     );
