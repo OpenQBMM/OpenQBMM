@@ -87,13 +87,8 @@ Foam::mixingSubModels::mixingKernels::IEM::K
         )
     )
     {
-        FatalErrorIn
-        (
-            "Foam::mixingSubModels::mixingKernels::IEM::K\n"
-            "(\n"
-            "   const volUnivariateMoment& moment\n"
-            ")"
-        )   << "No valid compressible turbulence model found."
+        FatalErrorInFunction
+            << "No valid compressible turbulence model found."
             << abort(FatalError);
     }
 
@@ -122,7 +117,7 @@ Foam::mixingSubModels::mixingKernels::IEM::K
     {
         mixingK.ref() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
             *(moments[momentOrder - 1]*moments[1])
-            - fvm::Su(momentOrder*Cphi_*flTurb.epsilon()/flTurb.k(), moment);
+            - fvm::SuSp(momentOrder*Cphi_*flTurb.epsilon()/flTurb.k(), moment);
     }
 
     return mixingK;

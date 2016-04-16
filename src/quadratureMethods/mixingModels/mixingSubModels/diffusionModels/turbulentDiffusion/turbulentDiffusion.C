@@ -116,10 +116,7 @@ turbViscosity(const volScalarField& moment) const
     }
     else
     {
-        FatalErrorIn
-        (
-            "turbulentDiffusion::turbViscosity()"
-        )
+        FatalErrorInFunction
             << "No valid turbulence model for turbulent diffusion calculation."
             << exit(FatalError);
 

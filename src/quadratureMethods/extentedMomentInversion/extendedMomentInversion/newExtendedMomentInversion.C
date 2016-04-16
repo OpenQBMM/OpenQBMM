@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -44,7 +44,7 @@ Foam::autoPtr<Foam::extendedMomentInversion> Foam::extendedMomentInversion::New
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalErrorIn("extendedMomentInversion::New")
+        FatalErrorInFunction
             << "Unknown extendedMomentInversionType type "
             << extendedMomentInversionType << endl << endl
             << "Valid extendedMomentInversion types are : " << endl

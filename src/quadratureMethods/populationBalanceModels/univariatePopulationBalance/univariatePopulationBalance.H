@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::univariatePopulationBalance
+    Foam::populationBalanceModels::univariatePopulationBalance
 
 Description
     Solve a univariate population balance equation with the extended quadrature
@@ -43,6 +43,7 @@ SourceFiles
 #include "daughterDistribution.H"
 #include "growthModel.H"
 #include "diffusionModel.H"
+#include "nucleationModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -104,6 +105,11 @@ class univariatePopulationBalance
         <
             Foam::populationBalanceSubModels::diffusionModel
         > diffusionModel_;
+
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::nucleationModel
+        > nucleationModel_;
 
     // Private member functions
 

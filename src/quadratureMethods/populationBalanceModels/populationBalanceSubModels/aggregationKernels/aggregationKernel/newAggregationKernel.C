@@ -43,13 +43,12 @@ Foam::populationBalanceSubModels::aggregationKernel::New
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalError
-            << "aggregationKernel::New(const dictionary&) : " << endl
-            << "    unknown aggregationKernelType type "
-            << aggregationKernelType
-            << ", constructor not in hash table" << endl << endl
-            << "    Valid aggregationKernelType types are :" << endl;
-        Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
+        FatalErrorInFunction
+            << "Unknown aggregationKernelType type "
+            << aggregationKernelType << endl << endl
+            << "Valid aggregationKernelType types are :" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << abort(FatalError);
     }
 
     return autoPtr<aggregationKernel>(cstrIter()(dict));

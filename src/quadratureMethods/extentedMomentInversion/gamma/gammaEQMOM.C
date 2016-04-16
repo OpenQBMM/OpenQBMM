@@ -85,15 +85,10 @@ void Foam::gammaEQMOM::momentsStarToMoments
 
     if (nMom >= 12)
     {
-        FatalErrorIn
-        (
-            "Foam::gammaEQMOM::momentsStarToMoments\n"
-            "(\n"
-            "   scalar sigma,\n"
-            "   univariateMomentSet& moments,\n"
-            "   const univariateMomentSet& momentsStar\n"
-            ")"
-        )   << "Moment transformation not implemented."
+        FatalErrorInFunction
+            << "The number of moments is too large. The maximum number of"
+            << "moments allowed with the gamma kernel density function is 11.\n"
+            << "Moment transformation not implemented."
             << abort(FatalError);
     }
 
@@ -166,15 +161,8 @@ void Foam::gammaEQMOM::momentsToMomentsStar
 
     if (nMom >= 12)
     {
-        FatalErrorIn
-        (
-            "Foam::gammaEQMOM::momentsToMomentsStar\n"
-            "(\n"
-            "   scalar sigma,\n"
-            "   const univariateMomentSet& moments,\n"
-            "   univariateMomentSet& momentsStar\n"
-            ")"
-        )   << "Moment transformation not implemented."
+        FatalErrorInFunction
+            << "Moment transformation not implemented."
             << abort(FatalError);
     }
 

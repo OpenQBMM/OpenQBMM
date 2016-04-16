@@ -74,6 +74,9 @@ protected:
         //- Coefficient of aggregation kernel
         const dimensionedScalar Cphi_;
 
+        //- Coefficient of relaxation control
+        const dimensionedScalar Cmixing_;
+
 
 public:
 

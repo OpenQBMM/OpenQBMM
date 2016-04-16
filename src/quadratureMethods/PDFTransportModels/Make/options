@@ -13,8 +13,7 @@ EXE_INC = \
     -I../extentedMomentInversion/lnInclude \
     -I../quadratureNode \
     -I../moments \
-    -I../quadratureApproximation/lnInclude \
-    -DFULLDEBUG -g -O0
+    -I../quadratureApproximation/lnInclude
 
 LIB_LIBS = \
     -lincompressibleTransportModels \

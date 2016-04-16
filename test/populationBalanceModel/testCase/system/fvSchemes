@@ -28,6 +28,7 @@ gradSchemes
 divSchemes
 {
     default         none;
+    div(phi,moment) upwind;
 }
 
 laplacianSchemes
@@ -38,11 +39,11 @@ laplacianSchemes
 interpolationSchemes
 {
     default         none;
-    
+
     "interpolate\(moment.*\)" linear;
-    
+
     interpolate(U)          linear;
-    
+
     reconstruct(U)          upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;

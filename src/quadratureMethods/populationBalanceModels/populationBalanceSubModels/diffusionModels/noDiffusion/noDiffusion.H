@@ -25,7 +25,7 @@ Class
     Foam::populationBalanceSubModels::diffusionModels::noDiffusion
 
 Description
-    Turbulent diffusion model.
+    No diffusion model.
 
 SourceFiles
     noDiffusion.C

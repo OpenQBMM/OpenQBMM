@@ -10,7 +10,7 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2015 OpenQBMM developers.
+  Copyright (C) 2014-2016 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 
@@ -19,10 +19,14 @@
 * buoyantPbePimpleFoam
     Tutorials for buoyant solver coupled to population balance solver.
 
+* mixingTransportFoam
+    Tutorials for mixing model on steady velocity field.
+
 * pbeFoam
     Tutorials for the single-cell solver pbeFoam to demonstrate kernel functions
     and perform verification and validation studies.
 
-* pbeTrasnportFoam
-    Tutorials for the steady-state solver for population balance equations.
+* pbeTransportFoam
+    Tutorials for the solver for population balance equations on steady velocity
+    field.
 

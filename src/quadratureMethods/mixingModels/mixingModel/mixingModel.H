@@ -25,7 +25,7 @@ Class
     Foam::mixingModel
 
 Description
-    Solve a turbulent mixing model.
+    Abstract class for the run-time selection of mixing models.
 
 SourceFiles
     mixingModel.C
@@ -35,65 +35,65 @@ SourceFiles
 #ifndef mixingModel_H
 #define mixingModel_H
 
-#include "univariatePDFTransportModel.H"
-#include "mixingKernel.H"
-#include "diffusionModel.H"
+#include "dictionary.H"
+#include "volFields.H"
+#include "dimensionedTypes.H"
+#include "runTimeSelectionTables.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace PDFTransportModels
-{
-namespace mixingModels
-{
 
 /*---------------------------------------------------------------------------*\
-                        Class mixingModel Declaration
+                    Class mixingModel Declaration
 \*---------------------------------------------------------------------------*/
 
 class mixingModel
-:
-    public univariatePDFTransportModel
 {
     // Private data
 
+        //- Name of the mixingModel
         const word name_;
 
-        //- Aggregation kernel model
-        autoPtr
-        <
-            Foam::mixingSubModels::mixingKernel
-        > mixingKernel_;
+    // Private Member Functions
 
-        //- Diffusion model
-        autoPtr
-        <
-            Foam::mixingSubModels::diffusionModel
-        > diffusionModel_;
+        //- Disallow default bitwise copy construct
+        mixingModel(const mixingModel&);
 
-    // Private member functions
+        //- Disallow default bitwise assignment
+        void operator=(const mixingModel&);
 
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
-        (
-            const volUnivariateMoment& moment
-        );
 
-        //- Convect moments in phase space
-        virtual tmp<volScalarField> phaseSpaceConvection
-        (
-            const volUnivariateMoment& moment
-        );
+protected:
 
-        //- Calculate source terms
-        virtual tmp<fvScalarMatrix> momentSource
-        (
-            const volUnivariateMoment& moment
-        );
+    // Protected data
+
+        //- Fluid-phase face-normal velocity
+        const surfaceScalarField& phi_;
 
 
 public:
+
+    //- Runtime type information
+    TypeName("mixingModel");
+
+    // Declare runtime constructor selection table
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        mixingModel,
+        dictionary,
+        (
+            const word& name,
+            const dictionary& dict,
+            const volVectorField& U,
+            const surfaceScalarField& phi
+        ),
+        (name, dict, U, phi)
+    );
+
+
     // Constructors
 
         //- Construct from components
@@ -106,20 +106,32 @@ public:
         );
 
 
+    // Selectors
+
+        //- Select null constructed
+        static autoPtr<mixingModel> New
+        (
+            const word& name,
+            const dictionary& dict,
+            const volVectorField& U,
+            const surfaceScalarField& phi
+        );
+
+
     //- Destructor
     virtual ~mixingModel();
 
+
     // Member Functions
 
-        //- Solve population balance equation
-        void solve();
+        //- Solve mixing model
+        virtual void solve() = 0;
+
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace populationBalanceModels
-} // End namespace univariatePDFTransportModel
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

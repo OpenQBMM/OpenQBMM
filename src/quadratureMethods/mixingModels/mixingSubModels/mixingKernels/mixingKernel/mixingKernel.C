@@ -53,6 +53,14 @@ Foam::mixingSubModels::mixingKernel::mixingKernel
             "Cphi",
             dimensionedScalar("CPhiDefault", dimless, 2.0)
         )
+    ),
+    Cmixing_
+    (
+        dict.lookupOrDefault
+        (
+            "Cmixing",
+            dimensionedScalar("CmixingDefault", dimless, 1.0)
+        )
     )
 {}
 

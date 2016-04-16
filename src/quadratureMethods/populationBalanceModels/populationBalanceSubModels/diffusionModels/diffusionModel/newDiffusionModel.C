@@ -43,13 +43,12 @@ Foam::populationBalanceSubModels::diffusionModel::New
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
-        FatalError
-            << "diffusionModel::New(const dictionary&) : " << endl
-            << "    unknown diffusionModelType type "
-            << diffusionModelType
-            << ", constructor not in hash table" << endl << endl
-            << "    Valid diffusionModelType types are :" << endl;
-        Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
+        FatalErrorInFunction
+            << "Unknown diffusionModelType type "
+            << diffusionModelType << endl << endl
+            << "Valid diffusionModelType types are :" << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << abort(FatalError);
     }
 
     return autoPtr<diffusionModel>(cstrIter()(dict));

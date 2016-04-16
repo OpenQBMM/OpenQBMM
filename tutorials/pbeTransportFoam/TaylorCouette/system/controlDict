@@ -22,13 +22,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         5000;
+endTime         50000;
 
-deltaT          10;
+deltaT          1;
 
-writeControl    adjustableRunTime;
+writeControl    runTime;
 
-writeInterval   10;
+writeInterval   100;
 
 purgeWrite      10;
 
@@ -44,15 +44,9 @@ timePrecision   12;
 
 runTimeModifiable true;
 
-adjustTimeStep  yes;
-
-maxCo           0.9;
-
-maxDeltaT       10;
-
 functions
 {
-    d43Average
+    epsilonVolAverage
     {
         functionObjectLibs ("libutilityFunctionObjects.so");
         type coded;
@@ -60,28 +54,23 @@ functions
         outputControl timeStep;
         code
         #{
-        const volScalarField& m3
-            = mesh().lookupObject<volScalarField>("moment.3.populationBalance");
-
-        const volScalarField& m4
-            = mesh().lookupObject<volScalarField>("moment.4.populationBalance");
-
-        volScalarField d43(m4/m3);
+        const volScalarField& epsilon
+                = mesh().lookupObject<volScalarField>("epsilon");
 
         scalar volAverage = 0;
         scalar totalVolume = 0;
 
-        forAll (d43, cellI)
+        forAll (epsilon, cellI)
         {
             totalVolume += mesh().V()[cellI];
         }
 
-        forAll (d43, cellI)
+        forAll (epsilon, cellI)
         {
-            volAverage += d43[cellI]*mesh().V()[cellI]/totalVolume;
+            volAverage += epsilon[cellI]*mesh().V()[cellI]/totalVolume;
         }
 
-        Info<<"Volume averaged normalized d43: " << volAverage/(2.0e-6) << endl;
+        Info<<"Volume averaged epsilon: " << volAverage << endl;
 
         #};
     }

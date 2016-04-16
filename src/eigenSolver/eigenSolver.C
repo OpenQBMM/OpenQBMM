@@ -411,7 +411,7 @@ void Foam::eigenSolver::Hessenberg()
             {
                 g = -g;
             }
-            
+
             h -= orth_[m]*g;
             orth_[m] -= g;
 
@@ -555,7 +555,7 @@ void Foam::eigenSolver::realSchur()
             eigenvaluesIm_[n] = scalar(0);
             n--;
             iter = 0;
-        } 
+        }
         else if (l == n - 1)  // Two roots found
         {
             w = H_[n][n - 1]*H_[n - 1][n];
@@ -713,8 +713,8 @@ void Foam::eigenSolver::realSchur()
 
                 if
                 (
-                    mag(H_[m][m - 1])*(mag(q) + mag(r)) 
-                            < eps*(mag(p)*(mag(H_[m - 1][m - 1]) 
+                    mag(H_[m][m - 1])*(mag(q) + mag(r))
+                            < eps*(mag(p)*(mag(H_[m - 1][m - 1])
                                     + mag(z) + mag(H_[m + 1][m + 1])))
                 )
                 {
@@ -745,7 +745,7 @@ void Foam::eigenSolver::realSchur()
                     q = H_[k + 1][k - 1];
                     r = (notlast ? H_[k + 2][k - 1] : 0.0);
                     x = mag(p) + mag(q) + mag(r);
-                
+
                     if (x != 0.0)
                     {
                         p /= x;
@@ -970,18 +970,18 @@ void Foam::eigenSolver::realSchur()
                         // Solve complex equations
                         x = H_[i][i + 1];
                         y = H_[i + 1][i];
-                        vr = (eigenvaluesRe_[i] - p)*(eigenvaluesRe_[i] - p) 
+                        vr = (eigenvaluesRe_[i] - p)*(eigenvaluesRe_[i] - p)
                                 + eigenvaluesIm_[i]*eigenvaluesIm_[i] - q*q;
 
                         vi = 2.0*(eigenvaluesRe_[i] - p)*q;
 
                         if ((vr == 0.0) && (vi == 0.0))
                         {
-                            vr = eps*norm*(mag(w) + mag(q) + mag(x) + mag(y) 
+                            vr = eps*norm*(mag(w) + mag(q) + mag(x) + mag(y)
                                     + mag(z));
                         }
 
-                        complex cDiv = 
+                        complex cDiv =
                                 complex(x*r - z*ra + q*sa, x*s - z*sa - q*ra)
                                     /complex(vr, vi);
 
@@ -990,15 +990,15 @@ void Foam::eigenSolver::realSchur()
 
                         if (mag(x) > (mag(z) + mag(q)))
                         {
-                            H_[i + 1][n - 1] = (-ra - w*H_[i][n - 1] 
+                            H_[i + 1][n - 1] = (-ra - w*H_[i][n - 1]
                                     + q*H_[i][n])/x;
-                            
-                            H_[i + 1][n] = (-sa - w*H_[i][n] 
+
+                            H_[i + 1][n] = (-sa - w*H_[i][n]
                                     - q*H_[i][n - 1])/x;
                         }
                         else
                         {
-                            complex cDiv = complex(-r - y*H_[i][n - 1], -s 
+                            complex cDiv = complex(-r - y*H_[i][n - 1], -s
                                     - y*H_[i][n])/complex(z, q);
 
                             H_[i + 1][n - 1] = cDiv.Re();

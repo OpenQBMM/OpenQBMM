@@ -25,9 +25,18 @@ License
 
 #include "mixingModel.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(mixingModel, 0);
+    defineRunTimeSelectionTable(mixingModel, dictionary);
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::PDFTransportModels::mixingModels::mixingModel::mixingModel
+Foam::mixingModel::mixingModel
 (
     const word& name,
     const dictionary& dict,
@@ -35,87 +44,19 @@ Foam::PDFTransportModels::mixingModels::mixingModel::mixingModel
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(name, dict, U.mesh(), U, "01"),
     name_(name),
-    mixingKernel_
-    (
-        Foam::mixingSubModels::mixingKernel::New
-        (
-            dict.subDict("mixingKernel")
-        )
-    ),
-    diffusionModel_
-    (
-        Foam::mixingSubModels::diffusionModel::New
-        (
-            dict.subDict("diffusionModel")
-        )
-    )
+    phi_(phi)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::PDFTransportModels::mixingModels::mixingModel::~mixingModel()
+Foam::mixingModel::~mixingModel()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::mixingModels
-::mixingModel::momentDiffusion
-(
-    const volUnivariateMoment& moment
-)
-{
-    return diffusionModel_->momentDiff(moment);
-}
 
-Foam::tmp<Foam::volScalarField>
-Foam::PDFTransportModels::mixingModels::mixingModel
-::phaseSpaceConvection
-(
-    const volUnivariateMoment& moment
-)
-{
-    tmp<volScalarField> gSource
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "gSource",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            U_.mesh(),
-            dimensionedScalar("zero", dimless, 0.0)
-        )
-    );
-
-    return gSource;
-}
-
-Foam::tmp<Foam::fvScalarMatrix>
-Foam::PDFTransportModels::mixingModels::mixingModel
-::momentSource
-(
-    const volUnivariateMoment& moment
-)
-{
-    const volUnivariateMomentFieldSet& moments = (*this).quadrature().moments();
-
-    return mixingKernel_->K(moment, moments);
-}
-
-void Foam::PDFTransportModels::mixingModels
-::mixingModel::solve
-()
-{
-    univariatePDFTransportModel::solve();
-}
 
 // ************************************************************************* //
