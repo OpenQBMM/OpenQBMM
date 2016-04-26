@@ -114,13 +114,13 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
     PtrList<fvScalarMatrix> momentEqns(quadrature_.nMoments());
 
     // Solve moment transport equations
-    forAll(quadrature_.moments(), mI)
+    forAll(quadrature_.moments(), momenti)
     {
-        volUnivariateMoment& m = quadrature_.moments()[mI];
+        volUnivariateMoment& m = quadrature_.moments()[momenti];
 
         momentEqns.set
         (
-            mI,
+            momenti,
             new fvScalarMatrix
             (
                 fvm::ddt(m)
