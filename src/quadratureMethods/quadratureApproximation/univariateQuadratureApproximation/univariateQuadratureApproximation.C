@@ -360,21 +360,21 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
                 {
                     extendedVolScalarNode& node = nodes_()[pNodeI];
 
-                    node.primaryWeight().boundaryField()[patchI][faceI]
+                    node.primaryWeight().boundaryFieldRef()[patchI][faceI]
                         = momentInverter_->primaryWeights()[pNodeI];
 
-                    node.primaryAbscissa().boundaryField()[patchI][faceI]
+                    node.primaryAbscissa().boundaryFieldRef()[patchI][faceI]
                         = momentInverter_->primaryAbscissae()[pNodeI];
 
-                    node.sigma().boundaryField()[patchI][faceI]
+                    node.sigma().boundaryFieldRef()[patchI][faceI]
                         = momentInverter_->sigma();
 
                     for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
                     {
-                        node.secondaryWeights()[sNodeI].boundaryField()[patchI][faceI]
+                        node.secondaryWeights()[sNodeI].boundaryFieldRef()[patchI][faceI]
                             = momentInverter_->secondaryWeights()[pNodeI][sNodeI];
 
-                        node.secondaryAbscissae()[sNodeI].boundaryField()[patchI][faceI]
+                        node.secondaryAbscissae()[sNodeI].boundaryFieldRef()[patchI][faceI]
                             = momentInverter_->secondaryAbscissae()[pNodeI][sNodeI];
                     }
                 }
