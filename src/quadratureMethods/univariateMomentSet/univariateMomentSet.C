@@ -191,23 +191,23 @@ void Foam::univariateMomentSet::checkCanonicalMoments
         return;
     }
 
-    for (label zetaI = 1; zetaI < nZeta; zetaI++)
+    for (label zetai = 1; zetai < nZeta; zetai++)
     {
-        canonicalMoments[zetaI] = zeta[zetaI]/(1.0 - canonicalMoments[zetaI-1]);
+        canonicalMoments[zetai] = zeta[zetai]/(1.0 - canonicalMoments[zetai-1]);
 
-        if (canonicalMoments[zetaI] < 0.0 || canonicalMoments[zetaI] > 1.0)
+        if (canonicalMoments[zetai] < 0.0 || canonicalMoments[zetai] > 1.0)
         {
-            nRealizableMoments_ = zetaI + 1;
+            nRealizableMoments_ = zetai + 1;
 
             return;
         }
         else if
         (
-            canonicalMoments[zetaI] == 0.0
-         || canonicalMoments[zetaI] == 1.0
+            canonicalMoments[zetai] == 0.0
+         || canonicalMoments[zetai] == 1.0
         )
         {
-            nRealizableMoments_ = zetaI + 2;
+            nRealizableMoments_ = zetai + 2;
             onMomentSpaceBoundary_ = true;
 
             return;
@@ -407,16 +407,16 @@ void Foam::univariateMomentSet::checkRealizability()
             << abort(FatalError);
     }
 
-    for (label zetaI = 1; zetaI <= nD - 1; zetaI++)
+    for (label zetai = 1; zetai <= nD - 1; zetai++)
     {
-        beta_[zetaI] = zRecurrence[zetaI][zetaI]
-                /zRecurrence[zetaI - 1][zetaI - 1];
+        beta_[zetai] = zRecurrence[zetai][zetai]
+                /zRecurrence[zetai - 1][zetai - 1];
 
         if (support_ == "R")
         {
-            if (beta_[zetaI] < 0.0)
+            if (beta_[zetai] < 0.0)
             {
-                nRealizableMoments_ = 2*zetaI;
+                nRealizableMoments_ = 2*zetai;
                 calcNInvertibleMoments();
                 fullyRealizable_ = false;
                 subsetRealizable_ = true;
@@ -427,28 +427,28 @@ void Foam::univariateMomentSet::checkRealizability()
         }
         else
         {
-            zeta[2*zetaI - 1] = beta_[zetaI]/zeta[2*zetaI - 2];
+            zeta[2*zetai - 1] = beta_[zetai]/zeta[2*zetai - 2];
 
-            if (zeta[2*zetaI - 1] <= 0.0)
+            if (zeta[2*zetai - 1] <= 0.0)
             {
                 if (support_ == "RPlus")
                 {
-                    if (zeta[2*zetaI - 1] < 0.0)
+                    if (zeta[2*zetai - 1] < 0.0)
                     {
-                        negativeZeta_ = 2*zetaI;
+                        negativeZeta_ = 2*zetai;
                         nRealizableMoments_ = negativeZeta_;
                         onMomentSpaceBoundary_ = false;
                     }
                     else
                     {
-                        negativeZeta_ = 2*zetaI + 1;
+                        negativeZeta_ = 2*zetai + 1;
                         nRealizableMoments_ = negativeZeta_;
                         onMomentSpaceBoundary_ = true;
                     }
                 }
                 else // Support on [0,1]
                 {
-                    checkCanonicalMoments(zeta, 2*zetaI);
+                    checkCanonicalMoments(zeta, 2*zetai);
                 }
 
                 calcNInvertibleMoments();
@@ -460,34 +460,34 @@ void Foam::univariateMomentSet::checkRealizability()
             }
         }
 
-        alpha_[zetaI] = zRecurrence[zetaI][zetaI + 1]/zRecurrence[zetaI][zetaI]
-                - zRecurrence[zetaI - 1][zetaI]
-                /zRecurrence[zetaI - 1][zetaI - 1];
+        alpha_[zetai] = zRecurrence[zetai][zetai + 1]/zRecurrence[zetai][zetai]
+                - zRecurrence[zetai - 1][zetai]
+                /zRecurrence[zetai - 1][zetai - 1];
 
         if (!(support_ == "R"))
         {
-            zeta[2*zetaI] = alpha_[zetaI] - zeta[2*zetaI - 1];
+            zeta[2*zetai] = alpha_[zetai] - zeta[2*zetai - 1];
 
-            if (zeta[2*zetaI] <= 0.0)
+            if (zeta[2*zetai] <= 0.0)
             {
                 if (support_ == "RPlus")
                 {
-                    if (zeta[2*zetaI] < 0.0)
+                    if (zeta[2*zetai] < 0.0)
                     {
-                        negativeZeta_ = 2*zetaI + 1;
+                        negativeZeta_ = 2*zetai + 1;
                         nRealizableMoments_ = negativeZeta_;
                         onMomentSpaceBoundary_ = false;
                     }
                     else
                     {
-                        negativeZeta_ = 2*zetaI + 2;
+                        negativeZeta_ = 2*zetai + 2;
                         nRealizableMoments_ = negativeZeta_;
                         onMomentSpaceBoundary_ = true;
                     }
                 }
                 else // Support on [0,1]
                 {
-                    checkCanonicalMoments(zeta, 2*zetaI + 1);
+                    checkCanonicalMoments(zeta, 2*zetai + 1);
                 }
 
                 calcNInvertibleMoments();
@@ -499,11 +499,11 @@ void Foam::univariateMomentSet::checkRealizability()
             }
         }
 
-        for (label columnI = zetaI + 1; columnI <= nN - zetaI - 1; columnI++)
+        for (label columnI = zetai + 1; columnI <= nN - zetai - 1; columnI++)
         {
-            zRecurrence[zetaI + 1][columnI] = zRecurrence[zetaI][columnI + 1]
-                    - alpha_[zetaI]*zRecurrence[zetaI][columnI]
-                    - beta_[zetaI]*zRecurrence[zetaI - 1][columnI];
+            zRecurrence[zetai + 1][columnI] = zRecurrence[zetai][columnI + 1]
+                    - alpha_[zetai]*zRecurrence[zetai][columnI]
+                    - beta_[zetai]*zRecurrence[zetai - 1][columnI];
         }
     }
 
