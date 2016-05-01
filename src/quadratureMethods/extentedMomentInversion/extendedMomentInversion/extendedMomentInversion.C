@@ -143,7 +143,13 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         m.resize(nRealizableMoments);
 
         // Local set of starred moments
-        univariateMomentSet mStar(nRealizableMoments, 0, m.support());
+        univariateMomentSet mStar
+        (
+            nRealizableMoments,
+            0,
+            m.quadratureType(),
+            m.support()
+        );
 
         // Compute target function for sigma = 0
         scalar sigmaLow = 0.0;

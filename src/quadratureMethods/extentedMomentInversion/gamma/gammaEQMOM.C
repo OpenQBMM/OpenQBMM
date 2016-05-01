@@ -229,7 +229,7 @@ Foam::scalar Foam::gammaEQMOM::m2N
 
     if (momentsStar.nRealizableMoments() >= nMomentsStar - 1)
     {
-        univariateMomentSet m(nMomentsStar, 0.0, "RPlus");
+        univariateMomentSet m(nMomentsStar, 0.0, "Gauss", "RPlus");
         momentsStarToMoments(sigma, m, momentsStar);
 
         return m.last();

@@ -33,13 +33,16 @@ Foam::univariateMomentSet::univariateMomentSet
 (
     const label nMoments,
     const scalar initValue,
-    const word support
+    const word quadratureType,
+    const word support,
+    const scalar knownAbscissa
 )
 :
     scalarDiagonalMatrix(nMoments, initValue),
     nMoments_(nMoments),
-    alpha_(label((nMoments_ - 2)/2) + 1, scalar(0)),
-    beta_(label((nMoments_ - 1)/2) + 1, scalar(0)),
+    alpha_(),
+    beta_(),
+    quadratureType_(quadratureType),
     support_(support),
     degenerate_(false),
     inverted_(false),
@@ -48,7 +51,13 @@ Foam::univariateMomentSet::univariateMomentSet
     onMomentSpaceBoundary_(false),
     realizabilityChecked_(false),
     quadratureSetUp_(false),
-    nInvertibleMoments_(nMoments_)
+    forceGauss_(false),
+    nInvertibleMoments_(nMoments_),
+    nRealizableMoments_(0),
+    nNodes_(0),
+    knownAbscissa_(knownAbscissa),
+    weights_(),
+    abscissae_()
 {
     if (support_ != "R" && support_ != "RPlus" && support_ != "01")
     {
@@ -57,18 +66,34 @@ Foam::univariateMomentSet::univariateMomentSet
             << "Valid supports are: R, RPlus and 01."
             << abort(FatalError);
     }
+
+    if (quadratureType_ != "Gauss" && quadratureType_ != "GaussRadau")
+    {
+        FatalErrorInFunction
+            << "The specified quadrature type is invalid." << endl
+            << "Valid supports are: Gauss and GaussRadau."
+            << abort(FatalError);
+    }
+
+    const label recurrenceSize = label((nMoments_ - 2)/2) + 1;
+
+    alpha_.setSize(recurrenceSize, scalar(0));
+    beta_.setSize(recurrenceSize, scalar(0));
 }
 
 Foam::univariateMomentSet::univariateMomentSet
 (
     const scalarDiagonalMatrix& m,
-    const word support
+    const word quadratureType,
+    const word support,
+    const scalar knownAbscissa
 )
 :
     scalarDiagonalMatrix(m),
     nMoments_(m.size()),
-    alpha_(label((nMoments_ - 2)/2) + 1, scalar(0)),
-    beta_(label((nMoments_ - 1)/2) + 1, scalar(0)),
+    alpha_(),
+    beta_(),
+    quadratureType_(quadratureType),
     support_(support),
     degenerate_(false),
     inverted_(false),
@@ -77,7 +102,13 @@ Foam::univariateMomentSet::univariateMomentSet
     onMomentSpaceBoundary_(false),
     realizabilityChecked_(false),
     quadratureSetUp_(false),
-    nInvertibleMoments_(nMoments_)
+    forceGauss_(false),
+    nInvertibleMoments_(nMoments_),
+    nRealizableMoments_(0),
+    nNodes_(0),
+    knownAbscissa_(knownAbscissa),
+    weights_(),
+    abscissae_()
 {
     if (support_ != "R" && support_ != "RPlus" && support_ != "01")
     {
@@ -86,6 +117,19 @@ Foam::univariateMomentSet::univariateMomentSet
             << "Valid supports are: R, RPlus and 01."
             << abort(FatalError);
     }
+
+    if (quadratureType_ != "Gauss" && quadratureType_ != "GaussRadau")
+    {
+        FatalErrorInFunction
+            << "The specified quadrature type is invalid." << endl
+            << "Valid supports are: Gauss and GaussRadau."
+            << abort(FatalError);
+    }
+
+    const label recurrenceSize = label((nMoments_ - 2)/2) + 1;
+
+    alpha_.setSize(recurrenceSize, scalar(0));
+    beta_.setSize(recurrenceSize, scalar(0));
 }
 
 
@@ -127,16 +171,21 @@ void Foam::univariateMomentSet::invert()
 
     if (nInvertibleMoments_ < 2)
     {
-        FatalErrorIn
-        (
-            "Foam::univariateMomentSet::invert\n"
-            "(\n"
-            "    const scalarDiagonalMatrix& weights,\n"
-            "    const scalarDiagonalMatrix& abscissae\n"
-            ")"
-        )   << "Insufficient number (" << nInvertibleMoments_
+        FatalErrorInFunction
+            << "Insufficient number (" << nInvertibleMoments_
             << ") of moments to define quadrature."
             << abort(FatalError);
+    }
+
+    if (forceGauss_)
+    {
+        WarningInFunction
+            << "Forcing Gauss quadrature. " << nl
+            << "    Originally requested quadrature type: "
+            << quadratureType_ << nl
+            << "    Number of realizable moments: "
+            << nRealizableMoments_
+            << endl;
     }
 
     if (nInvertibleMoments_ == 2)
@@ -147,6 +196,24 @@ void Foam::univariateMomentSet::invert()
         inverted_ = true;
 
         return;
+    }
+
+    if (quadratureType_ == "GaussRadau" && !forceGauss_)
+    {
+        // Compute P_{N-1} and P_{N-2} by recurrence
+        // It is assumed the added point has abscissa in zero (xi0 = 0)
+        scalar p = knownAbscissa_ - alpha_[0];
+        scalar pMinus1 = 1.0;
+        scalar p1 = p;
+
+        for (label i = 1; i < nNodes_ - 1; i++)
+        {
+            p = knownAbscissa_ - alpha_[0]*p1 - beta_[i]*pMinus1;
+            pMinus1 = p1;
+            p1 = p;
+        }
+
+        alpha_[nNodes_ - 1] = knownAbscissa_ - beta_[nNodes_ - 1]*pMinus1/p;
     }
 
     scalarSquareMatrix z(nNodes_, scalar(0));
@@ -167,7 +234,15 @@ void Foam::univariateMomentSet::invert()
     for (label i = 0; i < nNodes_; i++)
     {
         weights_[i] = (*this)[0]*sqr(zEig.eigenvectors()[0][i]);
-        abscissae_[i] = zEig.eigenvaluesRe()[i];
+
+        if (i != 0 || quadratureType_ == "Gauss" || forceGauss_)
+        {
+            abscissae_[i] = zEig.eigenvaluesRe()[i];
+        }
+        else
+        {
+            abscissae_[0] = knownAbscissa_;
+        }
     }
 
     inverted_ = true;
@@ -228,20 +303,16 @@ void Foam::univariateMomentSet::checkRealizability()
     // If the zero-order moment is negative, exit immediately.
     if ((*this)[0] < 0.0)
     {
-        FatalErrorIn
-        (
-            "Foam::univariateMomentSet::checkRealizability()\n"
-        )   << "The zero-order moment is negative."
+        FatalErrorInFunction
+            << "The zero-order moment is negative."
             << abort(FatalError);
     }
 
     // Check for the degenerate case where only m0 is defined
     if (nMoments_ <= 1)
     {
-        FatalErrorIn
-        (
-            "Foam::univariateMomentSet::checkRealizability()\n"
-        )   << "The moment has size less or equal to 1."
+        FatalErrorInFunction
+            << "The moment has size less or equal to 1."
             << abort(FatalError);
     }
 
@@ -290,10 +361,8 @@ void Foam::univariateMomentSet::checkRealizability()
             subsetRealizable_ = true;
             onMomentSpaceBoundary_ = false;
 
-            FatalErrorIn
-            (
-                "Foam::univariateMomentSet::checkRealizability()\n"
-            )   << "Moment set with dimension 2 and only one realizable moment."
+            FatalErrorInFunction
+                << "Moment set with dimension 2 and only one realizable moment."
                 << abort(FatalError);
         }
 
@@ -350,10 +419,8 @@ void Foam::univariateMomentSet::checkRealizability()
                 fullyRealizable_ = false;
                 subsetRealizable_ = true;
 
-                FatalErrorIn
-                (
-                    "Foam::univariateMomentSet::checkRealizability()\n"
-                )   << "Moment set with dimension 2 and only one "
+                FatalErrorInFunction
+                    << "Moment set with dimension 2 and only one "
                     << "realizable moment."
                     << abort(FatalError);
             }
@@ -400,10 +467,8 @@ void Foam::univariateMomentSet::checkRealizability()
         subsetRealizable_ = true;
         onMomentSpaceBoundary_ = false;
 
-        FatalErrorIn
-        (
-            "Foam::univariateMomentSet::checkRealizability()\n"
-        )   << "Moment set with only one realizable moment."
+        FatalErrorInFunction
+            << "Moment set with only one realizable moment."
             << abort(FatalError);
     }
 
@@ -681,13 +746,28 @@ void Foam::univariateMomentSet::checkRealizability()
 
 void Foam::univariateMomentSet::calcNInvertibleMoments()
 {
-    if (nRealizableMoments_ % 2 != 0)
+    if (quadratureType_ == "Gauss")
     {
-        nInvertibleMoments_ = nRealizableMoments_ - 1;
+        if (nRealizableMoments_ % 2 != 0)
+        {
+            nInvertibleMoments_ = nRealizableMoments_ - 1;
+        }
+        else
+        {
+            nInvertibleMoments_ = nRealizableMoments_;
+        }
+
+        return;
     }
     else
     {
+        forceGauss_ = false;
         nInvertibleMoments_ = nRealizableMoments_;
+
+        if (nRealizableMoments_ % 2 == 0)
+        {
+            forceGauss_ = true;
+        }
     }
 }
 
@@ -704,7 +784,12 @@ void Foam::univariateMomentSet::setupQuadrature(bool clear)
     }
     else
     {
-        nNodes_ = nInvertibleMoments_/2.0;
+        nNodes_ = nInvertibleMoments_/2;
+
+        if (quadratureType_ == "GaussRadau" && !forceGauss_)
+        {
+            nNodes_ += 1;
+        }
     }
 
     if (clear)
@@ -721,13 +806,13 @@ void Foam::univariateMomentSet::update()
 {
     // Recomputing all the moments (even if they originally were not realizable)
     // from quadrature (projection step).
-    for (label momentI = 0; momentI < nMoments_; momentI++)
+    for (label momenti = 0; momenti < nMoments_; momenti++)
     {
-        (*this)[momentI] = 0.0;
+        (*this)[momenti] = 0.0;
 
-        for (label nodeI = 0; nodeI < nNodes_; nodeI++)
+        for (label nodei = 0; nodei < nNodes_; nodei++)
         {
-            (*this)[momentI] += weights_[nodeI]*pow(abscissae_[nodeI], momentI);
+            (*this)[momenti] += weights_[nodei]*pow(abscissae_[nodei], momenti);
         }
     }
 

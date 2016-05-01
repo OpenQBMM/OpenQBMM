@@ -393,7 +393,7 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
 
     forAll(m0, celli)
     {
-        univariateMomentSet momentsToInvert(nMoments_, 0.0, support_);
+        univariateMomentSet momentsToInvert(nMoments_, 0.0, "Gauss", support_);
 
         // Copying moment set from a cell to univariateMomentSet
         forAll(momentsToInvert, momenti)
