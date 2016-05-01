@@ -234,15 +234,7 @@ void Foam::univariateMomentSet::invert()
     for (label i = 0; i < nNodes_; i++)
     {
         weights_[i] = (*this)[0]*sqr(zEig.eigenvectors()[0][i]);
-
-        if (i != 0 || quadratureType_ == "Gauss" || forceGauss_)
-        {
-            abscissae_[i] = zEig.eigenvaluesRe()[i];
-        }
-        else
-        {
-            abscissae_[0] = knownAbscissa_;
-        }
+        abscissae_[i] = zEig.eigenvaluesRe()[i];
     }
 
     inverted_ = true;
