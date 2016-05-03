@@ -333,7 +333,7 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
 {
     // Recover reference to boundaryField of zero-order moment.
     // All moments will share the same BC types at a given boundary.
-    const volScalarField::GeometricBoundaryField& bf
+    const volScalarField::Boundary& bf
         = moments_().boundaryFieldRef();
 
     forAll(bf, patchi)
