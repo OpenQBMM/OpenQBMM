@@ -78,7 +78,7 @@ Foam::univariateMomentSet::univariateMomentSet
     const label recurrenceSize = label((nMoments_ - 2)/2) + 1;
 
     alpha_.setSize(recurrenceSize, scalar(0));
-    beta_.setSize(recurrenceSize, scalar(0));
+    beta_.setSize(recurrenceSize + 1, scalar(0));
 }
 
 Foam::univariateMomentSet::univariateMomentSet
@@ -129,7 +129,7 @@ Foam::univariateMomentSet::univariateMomentSet
     const label recurrenceSize = label((nMoments_ - 2)/2) + 1;
 
     alpha_.setSize(recurrenceSize, scalar(0));
-    beta_.setSize(recurrenceSize, scalar(0));
+    beta_.setSize(recurrenceSize + 1, scalar(0));
 }
 
 
@@ -564,7 +564,10 @@ void Foam::univariateMomentSet::checkRealizability()
         }
     }
 
-    beta_[nD] = zRecurrence[nD][nD]/zRecurrence[nD - 1][nD - 1];
+	if (nR == 1)
+	{
+		beta_[nD] = zRecurrence[nD][nD]/zRecurrence[nD - 1][nD - 1];
+	}
 
     if (support_ == "R")
     {
