@@ -146,7 +146,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         univariateMomentSet mStar
         (
             nRealizableMoments,
-            0,
+            0.0,
             m.quadratureType(),
             m.support()
         );
@@ -395,7 +395,8 @@ Foam::scalar Foam::extendedMomentInversion::normalizedMomentError
     univariateMomentSet approximatedMoments
     (
         moments.size(),
-        0,
+        0.0,
+        moments.quadratureType(),
         moments.support()
     );
 

@@ -34,7 +34,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
 (
     const word& name,
     const fvMesh& mesh,
-    const word support
+    const word& support
 )
 :
     IOdictionary
@@ -333,8 +333,7 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
 {
     // Recover reference to boundaryField of zero-order moment.
     // All moments will share the same BC types at a given boundary.
-    const volScalarField::Boundary& bf
-        = moments_().boundaryFieldRef();
+    const volScalarField::Boundary& bf = moments_().boundaryFieldRef();
 
     forAll(bf, patchi)
     {
@@ -344,7 +343,13 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
         {
             forAll(m0Patch, faceI)
             {
-                univariateMomentSet momentsToInvert(nMoments_, 0, support_);
+                univariateMomentSet momentsToInvert
+                (
+                    nMoments_, 
+                    0.0, 
+                    "Gauss", 
+                    support_
+                );
 
                 // Copying moments from a face
                 forAll(momentsToInvert, momenti)
@@ -393,8 +398,14 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
 
     forAll(m0, celli)
     {
-        univariateMomentSet momentsToInvert(nMoments_, 0.0, "Gauss", support_);
-
+        univariateMomentSet momentsToInvert
+        (
+            nMoments_, 
+            0.0, 
+            "Gauss", 
+            support_
+        );
+			
         // Copying moment set from a cell to univariateMomentSet
         forAll(momentsToInvert, momenti)
         {

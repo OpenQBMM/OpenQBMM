@@ -114,7 +114,7 @@ public:
             const fvMesh& mesh,
             const volVectorField& U,
             const surfaceScalarField& phi,
-            const word support
+            const word& support
         );
 
 

@@ -38,7 +38,7 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default         none;
+    default         linear;
 
     "interpolate\(moment.*\)" linear;
 
