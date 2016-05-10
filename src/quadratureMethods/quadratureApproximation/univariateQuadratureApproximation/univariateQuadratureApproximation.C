@@ -92,8 +92,8 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
     if (nMoments_ != 2*nPrimaryNodes_ + 1)
     {
         FatalErrorInFunction
-            << "Number of moments from dictionary different from number" << endl
-            << "of moments calculated from primary quadrature nodes."
+            << "Number of moments from dictionary different from number" << nl
+            << "    of moments calculated from primary quadrature nodes."
             << abort(FatalError);
     }
 

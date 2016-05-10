@@ -62,16 +62,18 @@ Foam::univariateMomentSet::univariateMomentSet
     if (support_ != "R" && support_ != "RPlus" && support_ != "01")
     {
         FatalErrorInFunction
-            << "The specified support is invalid." << endl
-            << "Valid supports are: R, RPlus and 01."
+            << "The specified support is invalid." << nl
+            << "    Valid supports are: R, RPlus and 01." << nl
+            << "    Moment set: " << (*this)
             << abort(FatalError);
     }
 
     if (quadratureType_ != "Gauss" && quadratureType_ != "GaussRadau")
     {
         FatalErrorInFunction
-            << "The specified quadrature type is invalid." << endl
-            << "Valid supports are: Gauss and GaussRadau."
+            << "The specified quadrature type is invalid." << nl
+            << "    Valid supports are: Gauss and GaussRadau." << nl
+            << "    Moment set: " << (*this)
             << abort(FatalError);
     }
 
@@ -113,16 +115,16 @@ Foam::univariateMomentSet::univariateMomentSet
     if (support_ != "R" && support_ != "RPlus" && support_ != "01")
     {
         FatalErrorInFunction
-            << "The specified support is invalid." << endl
-            << "Valid supports are: R, RPlus and 01."
+            << "The specified support is invalid." << nl
+            << "    Valid supports are: R, RPlus and 01."
             << abort(FatalError);
     }
 
     if (quadratureType_ != "Gauss" && quadratureType_ != "GaussRadau")
     {
         FatalErrorInFunction
-            << "The specified quadrature type is invalid." << endl
-            << "Valid supports are: Gauss and GaussRadau."
+            << "The specified quadrature type is invalid." << nl
+            << "    Valid supports are: Gauss and GaussRadau."
             << abort(FatalError);
     }
 
@@ -173,7 +175,8 @@ void Foam::univariateMomentSet::invert()
     {
         FatalErrorInFunction
             << "Insufficient number (" << nInvertibleMoments_
-            << ") of moments to define quadrature."
+            << ") of moments to define quadrature." << nl
+            << "    Moment set: " << (*this)
             << abort(FatalError);
     }
 
@@ -184,7 +187,8 @@ void Foam::univariateMomentSet::invert()
             << "    Originally requested quadrature type: "
             << quadratureType_ << nl
             << "    Number of realizable moments: "
-            << nRealizableMoments_
+            << nRealizableMoments_ << nl
+            << "    Moment set: " << (*this)
             << endl;
     }
 
@@ -296,7 +300,8 @@ void Foam::univariateMomentSet::checkRealizability()
     if ((*this)[0] < 0.0)
     {
         FatalErrorInFunction
-            << "The zero-order moment is negative."
+            << "The zero-order moment is negative." << nl
+            << "    Moment set: " << (*this)
             << abort(FatalError);
     }
 
@@ -304,7 +309,8 @@ void Foam::univariateMomentSet::checkRealizability()
     if (nMoments_ <= 1)
     {
         FatalErrorInFunction
-            << "The moment has size less or equal to 1."
+            << "The moment has size less or equal to 1." << nl <<
+            << "    Moment set: " << (*this)
             << abort(FatalError);
     }
 
@@ -355,6 +361,7 @@ void Foam::univariateMomentSet::checkRealizability()
 
             FatalErrorInFunction
                 << "Moment set with dimension 2 and only one realizable moment."
+                << nl << "    Moment set: " << (*this)
                 << abort(FatalError);
         }
 
@@ -413,7 +420,8 @@ void Foam::univariateMomentSet::checkRealizability()
 
                 FatalErrorInFunction
                     << "Moment set with dimension 2 and only one "
-                    << "realizable moment."
+                    << "realizable moment." << nl
+                    << "    Moment set: " << (*this)
                     << abort(FatalError);
             }
         }
@@ -460,7 +468,8 @@ void Foam::univariateMomentSet::checkRealizability()
         onMomentSpaceBoundary_ = false;
 
         FatalErrorInFunction
-            << "Moment set with only one realizable moment."
+            << "Moment set with only one realizable moment." << nl
+            << "    Moment set: " << (*this)
             << abort(FatalError);
     }
 
