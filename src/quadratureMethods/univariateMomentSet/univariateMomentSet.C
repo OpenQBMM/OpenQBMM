@@ -309,7 +309,7 @@ void Foam::univariateMomentSet::checkRealizability()
     if (nMoments_ <= 1)
     {
         FatalErrorInFunction
-            << "The moment has size less or equal to 1." << nl <<
+            << "The moment has size less or equal to 1." << nl
             << "    Moment set: " << (*this)
             << abort(FatalError);
     }
