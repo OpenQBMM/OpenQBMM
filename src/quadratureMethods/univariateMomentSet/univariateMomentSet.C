@@ -72,7 +72,7 @@ Foam::univariateMomentSet::univariateMomentSet
     {
         FatalErrorInFunction
             << "The specified quadrature type is invalid." << endl
-            << "Valid supports are: Gauss and GaussRadau."
+            << "Valid quadrature types are: Gauss and GaussRadau."
             << abort(FatalError);
     }
 
@@ -124,7 +124,7 @@ Foam::univariateMomentSet::univariateMomentSet
     {
         FatalErrorInFunction
             << "The specified quadrature type is invalid." << endl
-            << "Valid supports are: Gauss and GaussRadau."
+            << "Valid quadrature types are: Gauss and GaussRadau."
             << abort(FatalError);
     }
 
