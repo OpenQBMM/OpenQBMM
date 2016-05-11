@@ -176,8 +176,8 @@ public:
         (
             const label nMoments,
             const scalar initValue,
-            const word quadratureType,
-            const word support,
+            const word& quadratureType,
+            const word& support,
             const scalar knownAbscissa = 0.0
         );
 
@@ -185,8 +185,8 @@ public:
         univariateMomentSet
         (
             const scalarDiagonalMatrix& m,
-            const word quadratureType,
-            const word support,
+            const word& quadratureType,
+            const word& support,
             const scalar knownAbscissa = 0.0
         );
 

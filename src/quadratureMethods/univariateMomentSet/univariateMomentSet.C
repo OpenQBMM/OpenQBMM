@@ -33,8 +33,8 @@ Foam::univariateMomentSet::univariateMomentSet
 (
     const label nMoments,
     const scalar initValue,
-    const word quadratureType,
-    const word support,
+    const word& quadratureType,
+    const word& support,
     const scalar knownAbscissa
 )
 :
@@ -85,8 +85,8 @@ Foam::univariateMomentSet::univariateMomentSet
 Foam::univariateMomentSet::univariateMomentSet
 (
     const scalarDiagonalMatrix& m,
-    const word quadratureType,
-    const word support,
+    const word& quadratureType,
+    const word& support,
     const scalar knownAbscissa
 )
 :
