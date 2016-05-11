@@ -566,10 +566,7 @@ void Foam::univariateMomentSet::checkRealizability()
         }
     }
 
-	if (nR == 1)
-	{
-		beta_[nD] = zRecurrence[nD][nD]/zRecurrence[nD - 1][nD - 1];
-	}
+    beta_[nD] = zRecurrence[nD][nD]/zRecurrence[nD - 1][nD - 1];
 
     if (support_ == "R")
     {
