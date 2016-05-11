@@ -44,6 +44,7 @@ Foam::univariateMomentSet::univariateMomentSet
     beta_(),
     quadratureType_(quadratureType),
     support_(support),
+    negativeZeta_(0),
     degenerate_(false),
     inverted_(false),
     fullyRealizable_(true),
@@ -95,6 +96,7 @@ Foam::univariateMomentSet::univariateMomentSet
     beta_(),
     quadratureType_(quadratureType),
     support_(support),
+    negativeZeta_(0),
     degenerate_(false),
     inverted_(false),
     fullyRealizable_(true),
@@ -775,7 +777,7 @@ void Foam::univariateMomentSet::setupQuadrature(bool clear)
 
     if (degenerate_)
     {
-        nNodes_ = 1.0;
+        nNodes_ = 1;
     }
     else
     {
