@@ -92,8 +92,8 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
     if (nMoments_ != 2*nPrimaryNodes_ + 1)
     {
         FatalErrorInFunction
-            << "Number of moments from dictionary different from number" << endl
-            << "of moments calculated from primary quadrature nodes."
+            << "Number of moments from dictionary different from number" << nl
+            << "    of moments calculated from primary quadrature nodes."
             << abort(FatalError);
     }
 
@@ -341,13 +341,13 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
 
         if (m0Patch.fixesValue())
         {
-            forAll(m0Patch, faceI)
+            forAll(m0Patch, facei)
             {
                 univariateMomentSet momentsToInvert
                 (
-                    nMoments_, 
-                    0.0, 
-                    "Gauss", 
+                    nMoments_,
+                    0.0,
+                    "Gauss",
                     support_
                 );
 
@@ -355,7 +355,7 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
                 forAll(momentsToInvert, momenti)
                 {
                     momentsToInvert[momenti]
-                        = moments_[momenti].boundaryField()[patchi][faceI];
+                        = moments_[momenti].boundaryField()[patchi][facei];
                 }
 
                 // Inverting them
@@ -366,21 +366,21 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
                 {
                     extendedVolScalarNode& node = nodes_()[pNodei];
 
-                    node.primaryWeight().boundaryFieldRef()[patchi][faceI]
+                    node.primaryWeight().boundaryFieldRef()[patchi][facei]
                         = momentInverter_->primaryWeights()[pNodei];
 
-                    node.primaryAbscissa().boundaryFieldRef()[patchi][faceI]
+                    node.primaryAbscissa().boundaryFieldRef()[patchi][facei]
                         = momentInverter_->primaryAbscissae()[pNodei];
 
-                    node.sigma().boundaryFieldRef()[patchi][faceI]
+                    node.sigma().boundaryFieldRef()[patchi][facei]
                         = momentInverter_->sigma();
 
                     for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
                     {
-                        node.secondaryWeights()[sNodei].boundaryFieldRef()[patchi][faceI]
+                        node.secondaryWeights()[sNodei].boundaryFieldRef()[patchi][facei]
                             = momentInverter_->secondaryWeights()[pNodei][sNodei];
 
-                        node.secondaryAbscissae()[sNodei].boundaryFieldRef()[patchi][faceI]
+                        node.secondaryAbscissae()[sNodei].boundaryFieldRef()[patchi][facei]
                             = momentInverter_->secondaryAbscissae()[pNodei][sNodei];
                     }
                 }
@@ -400,12 +400,12 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
     {
         univariateMomentSet momentsToInvert
         (
-            nMoments_, 
-            0.0, 
-            "Gauss", 
+            nMoments_,
+            0.0,
+            "Gauss",
             support_
         );
-			
+
         // Copying moment set from a cell to univariateMomentSet
         forAll(momentsToInvert, momenti)
         {

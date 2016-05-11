@@ -81,7 +81,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     if (m[0] < 0.0)
     {
         FatalErrorInFunction
-            << "The zero-order moment is negative."
+            << "The zero-order moment is negative." << nl
+            << "    Moment set: " << m
             << abort(FatalError);
     }
 
@@ -207,12 +208,12 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             if (s == 0.0)
             {
                 FatalErrorInFunction
-                    << "Singular value encountered searching for root.\n"
-                    << "Moment set = " << m << endl
-                    << "sigma = " << sigma_ << endl
-                    << "fLow = " << fLow << endl
-                    << "fMid = " << fMid << endl
-                    << "fHigh = " << fHigh
+                    << "Singular value encountered searching for root." << nl
+                    << "    Moment set = " << m << nl
+                    << "    sigma = " << sigma_ << nl
+                    << "    fLow = " << fLow << nl
+                    << "    fMid = " << fMid << nl
+                    << "    fHigh = " << fHigh
                     << abort(FatalError);
             }
 
@@ -305,8 +306,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         }
 
         FatalErrorInFunction
-            << "Number of iterations exceeded.\n"
-            << "Max allowed iterations = " << maxSigmaIter_
+            << "Number of iterations exceeded." << nl
+            << "    Max allowed iterations = " << maxSigmaIter_
             << abort(FatalError);
     }
 }
@@ -372,8 +373,8 @@ Foam::scalar Foam::extendedMomentInversion::minimizeTargetFunction
     if (iter > maxSigmaIter_)
     {
         FatalErrorInFunction
-            << "Number of iterations exceeded.\n"
-            << "Max allowed iterations = " << maxSigmaIter_
+            << "Number of iterations exceeded." << nl
+            << "    Max allowed iterations = " << maxSigmaIter_
             << abort(FatalError);
     }
 
