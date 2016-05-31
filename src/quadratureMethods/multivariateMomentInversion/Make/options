@@ -1,0 +1,11 @@
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I../univariateMomentSet/lnInclude \
+    -I../nDimensionalMappedList \
+    -I../../Vandermonde/lnInclude
+
+LIB_LIBS = \
+    -lfiniteVolume \
+    -L$(FOAM_USER_LIBBIN) \
+    -lmomentSet \
+    -lvandermonde
