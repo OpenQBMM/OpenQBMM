@@ -6,8 +6,8 @@
 .*~
 *.bak
 *.bak[0-9][0-9]
-*.orig
-*.orig[0-9][0-9]
+#*.orig
+#*.orig[0-9][0-9]
 \#*\#
 
 # File-browser settings - anywhere

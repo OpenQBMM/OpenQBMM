@@ -15,9 +15,9 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-populationBalanceModel univariatePopulationBalance;
+populationBalanceModel univariate;
 
-univariatePopulationBalanceCoeffs
+univariateCoeffs
 {
     aggregation on;
 
