@@ -144,7 +144,7 @@ class univariatePopulationBalance
 public:
 
     //- Runtime type information
-    TypeName("univariatePopulationBalance");
+    TypeName("univariate");
 
 
     // Constructors

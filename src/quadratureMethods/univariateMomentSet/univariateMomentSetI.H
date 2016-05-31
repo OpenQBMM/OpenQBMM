@@ -120,10 +120,16 @@ const Foam::scalarDiagonalMatrix& Foam::univariateMomentSet::abscissae() const
     return abscissae_;
 }
 
-//- Return primary quadrature abscissae
+//- Return support of the measure associated to the moment set
 const Foam::word Foam::univariateMomentSet::support() const
 {
     return support_;
+}
+
+//- Return type of quadrature
+const Foam::word Foam::univariateMomentSet::quadratureType() const
+{
+    return quadratureType_;
 }
 
 // ************************************************************************* //

@@ -5,7 +5,7 @@ cd ${0%/*} || exit 1    # Run from this directory
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
 mkdir 0 2>&1
-cp 0.org/* 0/ 2>&1
+cp 0.orig/* 0/ 2>&1
 
 cp -f system/controlDict.flow system/controlDict 2>&1
 runApplication blockMesh

@@ -211,7 +211,7 @@ void Foam::gammaEQMOM::momentsToMomentsStar
                 + sigma*(3025.0*moments[3] + sigma*(-255.0*moments[2]
                 + moments[1]*sigma)))))));
 
-       momentsStar[10] = moments[10] + sigma*(-45.0*moments[9]
+        momentsStar[10] = moments[10] + sigma*(-45.0*moments[9]
             + sigma*(750.0*moments[8] + sigma*(-5880.0*moments[7]
             + sigma*(22827.0*moments[6] + sigma*(-42525.0*moments[5]
             + sigma*(34105.0*moments[4] + sigma*(-9330.0*moments[3]
@@ -229,7 +229,7 @@ Foam::scalar Foam::gammaEQMOM::m2N
 
     if (momentsStar.nRealizableMoments() >= nMomentsStar - 1)
     {
-        univariateMomentSet m(nMomentsStar, 0.0, "RPlus");
+        univariateMomentSet m(nMomentsStar, 0.0, "Gauss", "RPlus");
         momentsStarToMoments(sigma, m, momentsStar);
 
         return m.last();
@@ -248,16 +248,16 @@ void Foam::gammaEQMOM::recurrenceRelation
 {
     scalar alpha = primaryAbscissa/sigma - 1.0;
 
-    forAll(a, aI)
+    forAll(a, ai)
     {
-        a[aI] = (2.0*scalar(aI) + alpha + 1.0);
+        a[ai] = (2.0*scalar(ai) + alpha + 1.0);
     }
 
     b[0] = gamma(1.0 + alpha);
 
-    for (label bI = 1; bI < b.size(); bI++)
+    for (label bi = 1; bi < b.size(); bi++)
     {
-        b[bI] = scalar(bI)*(scalar(bI) + alpha);
+        b[bi] = scalar(bi)*(scalar(bi) + alpha);
     }
 }
 
