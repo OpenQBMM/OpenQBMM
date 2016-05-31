@@ -1,0 +1,3 @@
+twoPhasePbeTransportFoam.C
+
+EXE = $(FOAM_APPBIN)/twoPhasePbeTransportFoam
