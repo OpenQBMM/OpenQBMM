@@ -52,7 +52,7 @@ createEpsD43()
     set xrange [1:200]
     set yrange [1:5]
     plot \
-        "$verif" using 1:6 title "Madadi and Passalacqua (2015)" \
+        "$verif" using 1:(\$6/\$5) title "Madadi and Passalacqua (2015)" \
             with lines linetype -1 linewidth 2 linecolor rgb 'blue', \
         "$valid" title "Rigorous solution (Vanni, 2000)" \
             with lines linetype -1 linewidth 2 linecolor rgb 'black', \
