@@ -37,26 +37,24 @@
 createEpsD43()
 {
     openqbmmM4=$1
-    openqbmmM3=$2
-    verif=$3
-    valid=$4
-
+    verif=$2
+    valid=$3
+    
     gnuplot<<EOF
     set terminal postscript eps enhanced color font 'Helvetica,24' linewidth 2
-    set output "OpenQBMM_validation_d43$i.eps"
+    set output "OpenQBMM_validation_M4$i.eps"
     set xlabel "Time, t / [s]"
-    set ylabel "d_{43} / [{/Symbol m}m]"
+    set ylabel "M_{4} / [{/Symbol m}m^4]"
     set grid
     set key left bottom
     set size 1,1
-    set xrange [1:20]
-    set yrange [1:5]
+    set autoscale
     plot \
-        "$verif" using 1:(\$6/\$5) title "Madadi and Passalacqua (2015)" \
+        "$verif" using 1:6 title "Madadi and Passalacqua (2015)" \
             with lines linetype -1 linewidth 2 linecolor rgb 'blue', \
         "$valid" title "Rigorous solution (Vanni, 2000)" \
             with lines linetype -1 linewidth 2 linecolor rgb 'black', \
-        '< paste $openqbmmM4 $openqbmmM3' using 1:(\$2/\$4) every 500 \
+        "$openqbmmM4" using 1:2 every 500 \
             title "OpenQBMM" with points linetype -1 pointtype 6 linewidth 2 \
             linecolor rgb "#9db668"
 
@@ -86,12 +84,11 @@ VERIFICATIONDATAROOT=./verificationData
 VALIDATIONDATAROOT=./validationData
 
 echo "    processing d43 profile" > log.createGraphs 2>&1
-OPENQBMMM3="$OPENQBMMDATAROOT/moment.3.populationBalance"
 OPENQBMMM4="$OPENQBMMDATAROOT/moment.4.populationBalance"
 VERIFICATION="$VERIFICATIONDATAROOT/MadadiPassalacqua2015_d43.dat"
 VALIDATION="$VALIDATIONDATAROOT/Vanni2000_d43.dat"
 
-createEpsD43 $OPENQBMMM4 $OPENQBMMM3 $VERIFICATION $VALIDATION
+createEpsD43 $OPENQBMMM4 $VERIFICATION $VALIDATION
 
 echo Done
 
