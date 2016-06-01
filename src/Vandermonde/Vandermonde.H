@@ -2,11 +2,8 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
--------------------------------------------------------------------------------
-2016-04-19 Jeff Heylmun: Templated class on the type of moment and of
-                                quadrature node.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -70,8 +67,7 @@ public:
 
     // Constructors
 
-        //- Construct from size, dimensions, and map
-        //  The list is initialised
+        //- Construct for a given vector
         Vandermonde
         (
             const scalarDiagonalMatrix& A

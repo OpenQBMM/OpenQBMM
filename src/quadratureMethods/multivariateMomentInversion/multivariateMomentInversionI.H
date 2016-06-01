@@ -2,10 +2,8 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
--------------------------------------------------------------------------------
-2016-05-26 Jeff Heylmun:    Templated class on the mappedType
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -33,7 +31,7 @@ Foam::label Foam::multivariateMomentInversion::nMoments()
     return nMoments_;
 }
 
-//- Return the list of nNodes in each dimension
+//- Return the list of nNodes
 const Foam::labelList& Foam::multivariateMomentInversion::nNodes()
 {
     return nNodes_;
