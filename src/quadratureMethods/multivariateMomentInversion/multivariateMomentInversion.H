@@ -44,6 +44,7 @@ SourceFiles
 #ifndef multivariateMomentInversion_H
 #define multivariateMomentInversion_H
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include "scalar.H"
@@ -148,19 +149,19 @@ public:
 
     // Member Functions
 
-        //- Invert moments to find weight, abscissae and sigma
+        //- Invert moments to find weights and  abscissae
         void invert(const nDimensionalMappedList<scalar>& moments);
 
         //- Return number of moments
         inline label nMoments();
 
-        //- Return number of primary quadrature nodes
+        //- Return number of number of nodes in each dimension
         inline const labelList& nNodes();
         
-        //- Return primary quadrature weights
+        //- Return mapped quadrature weights for each dimension
         inline const PtrList<nDimensionalMappedList<scalar> >& weights() const;
 
-        //- Return primary quadrature abscissae
+        //- Return mapped quadrature abscissae for each dimension
         inline const PtrList<nDimensionalMappedList<scalar> >& abscissae() const;
 };
 
@@ -169,10 +170,12 @@ public:
 
 } // End namespace Foam
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include "multivariateMomentInversionI.H"
 
 #endif
+
 
 // ************************************************************************* //

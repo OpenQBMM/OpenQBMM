@@ -25,6 +25,7 @@ License
 
 #include "Vandermonde.H"
 
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::Vandermonde::Vandermonde
@@ -121,5 +122,6 @@ void Foam::Vandermonde::invert(scalarSquareMatrix& invA)
         }
     }
 }
+
 
 // ************************************************************************* //

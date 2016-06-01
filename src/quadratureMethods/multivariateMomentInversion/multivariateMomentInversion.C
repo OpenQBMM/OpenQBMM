@@ -25,6 +25,7 @@ License
 
 #include "multivariateMomentInversion.H"
 
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::multivariateMomentInversion::multivariateMomentInversion
@@ -437,4 +438,6 @@ void Foam::multivariateMomentInversion::reset()
         }
     }
 }
+
+
 // ************************************************************************* //

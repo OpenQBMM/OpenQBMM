@@ -48,6 +48,8 @@ SourceFiles
 
 #include "PtrList.H"
 #include "scalarMatrices.H"
+
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -80,7 +82,8 @@ public:
 
     // Member Functions
 
-        //- Solve Ax=b where A is the List of Vandermonde components
+        //- Solve Cx=b where C is the square Vandermonde matrix created from
+        //  the locally stored vector A
         void solve
         (
             const scalarDiagonalMatrix& b,
@@ -96,8 +99,10 @@ public:
 
 } // End namespace Foam
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
+
 
 // ************************************************************************* //

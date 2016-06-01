@@ -70,13 +70,12 @@ class nDimensionalMappedList
 {
     // Private data
 
-        //- The number of dimensions of the distribution function
-        //  Not nessarily equal to the length of nNodes
+        //- The number of dimensions for the mapped data set
         const label nDims_;
 
         //- Map from the label representation of the moment name to its index
         //  within the List
-        Map<label> map_; // Need to use long int (max int = 32767)
+        Map<label> map_;
 
 
     // Private Member Functions
@@ -123,7 +122,7 @@ public:
         );
 
         //- Construct mapped list using the number of nodes in each direction,
-        //  nDims is not nexserrarily equal to nNodes.size()
+        //  nDims is not necessarily equal to nNodes.size()
         nDimensionalMappedList
         (
             const label nDims,
@@ -146,10 +145,10 @@ public:
 
         // Access
 
-            //- Const access to the zeroth moment
+            //- Const access to the first element
             inline const mappedType& operator()() const;
 
-            //- Non-const access to the zeroth moment
+            //- Non-const access to the first element
             inline mappedType& operator()();
 
             //- Const access to the first dimension
@@ -227,7 +226,7 @@ public:
             //- Returns const access to the moment map
             inline const Map<label>& map() const;
 
-            //- Return the dimensionality of the distribution
+            //- Return the number of dimensions of the data set
             inline label nDims() const;
 
             //- Return the map label of a lookup
@@ -249,6 +248,7 @@ public:
 
 } // End namespace Foam
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
@@ -256,8 +256,10 @@ public:
 #   include "nDimensionalMappedList.C"
 #endif
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
+
 
 // ************************************************************************* //

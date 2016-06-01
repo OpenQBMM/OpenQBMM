@@ -25,6 +25,7 @@ License
 
 #include "nDimensionalMappedList.H"
 
+
 // * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * * //
 
 template <class mappedType>
@@ -86,6 +87,8 @@ Foam::nDimensionalMappedList<mappedType>::nDimensionalMappedList
     label mi = 0;
     setMappedPositions(nNodes, 0, mi, pos);
 }
+
+
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template <class mappedType>
