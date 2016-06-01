@@ -14,7 +14,7 @@ License
     (at your option) any later version.
 
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    ANY WARRANTY; without even the implied warranty of MERCHANTAbiLITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
@@ -52,8 +52,8 @@ Foam::extendedMomentInversion::extendedMomentInversion
     sigma_(0.0),
     secondaryWeights_(nPrimaryNodes_, nSecondaryNodes_),
     secondaryAbscissae_(nPrimaryNodes_, nSecondaryNodes_),
-    minMean_(dict.lookupOrDefault("minMean_", 1.0e-8)),
-    minVariance_(dict.lookupOrDefault("minVariance_", 1.0e-8)),
+    minMean_(dict.lookupOrDefault("minMean", 1.0e-8)),
+    minVariance_(dict.lookupOrDefault("minVariance", 1.0e-8)),
     maxSigmaIter_(dict.lookupOrDefault<label>("maxSigmaIter", 1000)),
     momentsTol_(dict.lookupOrDefault("momentsTol", 1.0e-12)),
     sigmaMin_(dict.lookupOrDefault("sigmaMin", 1.0e-6)),
@@ -81,7 +81,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     if (m[0] < 0.0)
     {
         FatalErrorInFunction
-            << "The zero-order moment is negative."
+            << "The zero-order moment is negative." << nl
+            << "    Moment set: " << m
             << abort(FatalError);
     }
 
@@ -96,13 +97,12 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     }
 
     label nRealizableMoments = m.nRealizableMoments();
-
+    
     // If the moment set is on the boundary of the moment space, the
     // distribution will be reconstructed by a summation of Dirac delta,
     // and no attempt to use the extended quadrature method of moments is made.
     if (m.isOnMomentSpaceBoundary())
     {
-
         sigma_ = 0.0;
         nullSigma_ = true;
         m.invert();
@@ -143,7 +143,13 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         m.resize(nRealizableMoments);
 
         // Local set of starred moments
-        univariateMomentSet mStar(nRealizableMoments, 0, m.support());
+        univariateMomentSet mStar
+        (
+            nRealizableMoments,
+            0.0,
+            m.quadratureType(),
+            m.support()
+        );
 
         // Compute target function for sigma = 0
         scalar sigmaLow = 0.0;
@@ -202,12 +208,12 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             if (s == 0.0)
             {
                 FatalErrorInFunction
-                    << "Singular value encountered searching for root.\n"
-                    << "Moment set = " << m << endl
-                    << "sigma = " << sigma_ << endl
-                    << "fLow = " << fLow << endl
-                    << "fMid = " << fMid << endl
-                    << "fHigh = " << fHigh
+                    << "Singular value encountered searching for root." << nl
+                    << "    Moment set = " << m << nl
+                    << "    sigma = " << sigma_ << nl
+                    << "    fLow = " << fLow << nl
+                    << "    fMid = " << fMid << nl
+                    << "    fHigh = " << fHigh
                     << abort(FatalError);
             }
 
@@ -300,8 +306,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         }
 
         FatalErrorInFunction
-            << "Number of iterations exceeded.\n"
-            << "Max allowed iterations = " << maxSigmaIter_
+            << "Number of iterations exceeded." << nl
+            << "    Max allowed iterations = " << maxSigmaIter_
             << abort(FatalError);
     }
 }
@@ -311,15 +317,15 @@ void Foam::extendedMomentInversion::reset()
     foundUnrealizableSigma_ = false;
     nullSigma_ = false;
 
-    forAll(primaryWeights_, pNodeI)
+    forAll(primaryWeights_, pNodei)
     {
-        primaryWeights_[pNodeI] = 0.0;
-        primaryAbscissae_[pNodeI] = 0.0;
+        primaryWeights_[pNodei] = 0.0;
+        primaryAbscissae_[pNodei] = 0.0;
 
-        for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
+        for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
         {
-            secondaryWeights_[pNodeI][sNodeI] = 0.0;
-            secondaryAbscissae_[pNodeI][sNodeI] = 0.0;
+            secondaryWeights_[pNodei][sNodei] = 0.0;
+            secondaryAbscissae_[pNodei][sNodei] = 0.0;
         }
     }
 }
@@ -367,8 +373,8 @@ Foam::scalar Foam::extendedMomentInversion::minimizeTargetFunction
     if (iter > maxSigmaIter_)
     {
         FatalErrorInFunction
-            << "Number of iterations exceeded.\n"
-            << "Max allowed iterations = " << maxSigmaIter_
+            << "Number of iterations exceeded." << nl
+            << "    Max allowed iterations = " << maxSigmaIter_
             << abort(FatalError);
     }
 
@@ -389,15 +395,16 @@ Foam::scalar Foam::extendedMomentInversion::normalizedMomentError
     univariateMomentSet approximatedMoments
     (
         moments.size(),
-        0,
+        0.0,
+        moments.quadratureType(),
         moments.support()
     );
 
     momentsStarToMoments(sigma, approximatedMoments, momentsStar);
 
-    for (label momentI = 0; momentI < moments.size(); momentI++)
+    for (label momenti = 0; momenti < moments.size(); momenti++)
     {
-        norm += mag(1.0 - approximatedMoments[momentI]/moments[momentI]);
+        norm += mag(1.0 - approximatedMoments[momenti]/moments[momenti]);
     }
 
     return sqrt(norm);
@@ -412,24 +419,11 @@ void Foam::extendedMomentInversion::secondaryQuadrature
     const scalarDiagonalMatrix& pAbscissae(moments.abscissae());
 
     // Copy primary weights and abscissae
-    forAll(pWeights, pNodeI)
+    forAll(pWeights, pNodei)
     {
-        primaryWeights_[pNodeI] = pWeights[pNodeI];
-        primaryAbscissae_[pNodeI] = pAbscissae[pNodeI];
+        primaryWeights_[pNodei] = pWeights[pNodei];
+        primaryAbscissae_[pNodei] = pAbscissae[pNodei];
     }
-
-    // Set weights and abscissae of unused primary nodes to zero
-//     for (label pNodeI = pWeights.size(); pNodeI < nPrimaryNodes_; pNodeI++)
-//     {
-//         primaryWeights_[pNodeI] = 0.0;
-//         primaryAbscissae_[pNodeI] = 0.0;
-//
-//         for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
-//         {
-//             secondaryWeights_[pNodeI][sNodeI] = 0.0;
-//             secondaryAbscissae_[pNodeI][sNodeI] = 0.0;
-//         }
-//     }
 
     if (!nullSigma_)
     {
@@ -437,25 +431,25 @@ void Foam::extendedMomentInversion::secondaryQuadrature
         scalarDiagonalMatrix a(nSecondaryNodes_, 0.0);
         scalarDiagonalMatrix b(nSecondaryNodes_, 0.0);
 
-        forAll(pWeights, pNodeI)
+        forAll(pWeights, pNodei)
         {
             // Compute coefficients of the recurrence relation
-            recurrenceRelation(a, b, primaryAbscissae_[pNodeI], sigma_);
+            recurrenceRelation(a, b, primaryAbscissae_[pNodei], sigma_);
 
             // Define the Jacobi matrix
             scalarSquareMatrix J(nSecondaryNodes_, 0.0);
 
             // Fill diagonal of Jacobi matrix
-            forAll(a, aI)
+            forAll(a, ai)
             {
-                J[aI][aI] = a[aI];
+                J[ai][ai] = a[ai];
             }
 
             // Fill off-diagonal terms of the Jacobi matrix
-            for (label bI = 0; bI < nSecondaryNodes_ - 1; bI++)
+            for (label bi = 0; bi < nSecondaryNodes_ - 1; bi++)
             {
-                J[bI][bI + 1] = Foam::sqrt(b[bI + 1]);
-                J[bI + 1][bI] = J[bI][bI + 1];
+                J[bi][bi + 1] = Foam::sqrt(b[bi + 1]);
+                J[bi + 1][bi] = J[bi][bi + 1];
             }
 
             // Compute Gaussian quadrature used to find secondary quadrature
@@ -464,39 +458,55 @@ void Foam::extendedMomentInversion::secondaryQuadrature
             const scalarDiagonalMatrix& JEigenvaluesRe(JEig.eigenvaluesRe());
 
             // Compute secondary weights before normalization and calculate sum
-            for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
+            for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
             {
-                secondaryWeights_[pNodeI][sNodeI]
-                    = sqr(JEig.eigenvectors()[0][sNodeI]);
+                secondaryWeights_[pNodei][sNodei]
+                    = sqr(JEig.eigenvectors()[0][sNodei]);
 
-                secondaryAbscissae_[pNodeI][sNodeI] =
-                    secondaryAbscissa(primaryAbscissae_[pNodeI],
-                        JEigenvaluesRe[sNodeI], sigma_);
+                secondaryAbscissae_[pNodei][sNodei] =
+                    secondaryAbscissa(primaryAbscissae_[pNodei],
+                        JEigenvaluesRe[sNodei], sigma_);
             }
         }
 
-        // Set weights and abscissae of unused secondary nodes to zero
-        for (label pNodeI = pWeights.size(); pNodeI < nPrimaryNodes_; pNodeI++)
+        // Set weights and abscissae of unused nodes to zero
+        for (label pNodei = pWeights.size(); pNodei < nPrimaryNodes_; pNodei++)
         {
-            for (label sNodeI = 0; sNodeI < nSecondaryNodes_; sNodeI++)
+            primaryWeights_[pNodei] = 0.0;
+            primaryAbscissae_[pNodei] = 0.0;
+
+            for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
             {
-                secondaryWeights_[pNodeI][sNodeI] = 0.0;
-                secondaryAbscissae_[pNodeI][sNodeI] = 0.0;
+                secondaryWeights_[pNodei][sNodei] = 0.0;
+                secondaryAbscissae_[pNodei][sNodei] = 0.0;
             }
         }
     }
     else
     {
         // Manage case with null sigma to avoid redefining source terms
-        forAll(pWeights, pNodeI)
+        forAll(pWeights, pNodei)
         {
-            secondaryWeights_[pNodeI][0] = 1.0;
-            secondaryAbscissae_[pNodeI][0] = primaryAbscissae_[pNodeI];
+            secondaryWeights_[pNodei][0] = 1.0;
+            secondaryAbscissae_[pNodei][0] = primaryAbscissae_[pNodei];
 
-            for (label sNodeI = 1; sNodeI < nSecondaryNodes_; sNodeI++)
+            for (label sNodei = 1; sNodei < nSecondaryNodes_; sNodei++)
             {
-                secondaryWeights_[pNodeI][sNodeI] = 0.0;
-                secondaryAbscissae_[pNodeI][sNodeI] = 0.0;
+                secondaryWeights_[pNodei][sNodei] = 0.0;
+                secondaryAbscissae_[pNodei][sNodei] = 0.0;
+            }
+        }
+
+        // Set weights and abscissae of unused nodes to zero
+        for (label pNodei = pWeights.size(); pNodei < nPrimaryNodes_; pNodei++)
+        {
+            primaryWeights_[pNodei] = 0.0;
+            primaryAbscissae_[pNodei] = 0.0;
+
+            for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
+            {
+                secondaryWeights_[pNodei][sNodei] = 0.0;
+                secondaryAbscissae_[pNodei][sNodei] = 0.0;
             }
         }
     }

@@ -29,6 +29,7 @@ gradSchemes
 divSchemes
 {
     default             none;
+    div(phi,moment)     upwind;
 }
 
 laplacianSchemes
