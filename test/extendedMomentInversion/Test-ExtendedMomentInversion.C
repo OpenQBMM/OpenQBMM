@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
     label nMoments = 5;
     word support = "RPlus";
-    univariateMomentSet moments(nMoments, 0.0, support);
+    univariateMomentSet moments(nMoments, 0.0, "Gauss", support);
 
     // Dirac delta function
     moments[0] = 1.0;

@@ -96,10 +96,12 @@
         )
     );
 
+    surfaceScalarField phiByRho("phiByRho", phi/fvc::interpolate(rho));
+
     autoPtr<mixingModel> mixing
     (
         mixingModel::New
         (
-            "mixing", mixingProperties, U, phi
+            "mixing", mixingProperties, U, phiByRho
         )
     );

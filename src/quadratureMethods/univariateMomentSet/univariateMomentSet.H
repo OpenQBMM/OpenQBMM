@@ -92,6 +92,9 @@ class univariateMomentSet
         //- Beta coefficients of the recurrence relation
         scalarDiagonalMatrix beta_;
 
+        //- Type of quadrature formula computed when inverting the moment set
+        word quadratureType_;
+
         //- Type of support of the measure associated to the moment set
         word support_;
 
@@ -121,6 +124,11 @@ class univariateMomentSet
         //- Bool to indicate quadrature setup was completed
         bool quadratureSetUp_;
 
+        //- Bool to force Gauss quadrature when using other quadrature
+        //  formulae. Usually needed to preserve the largest possible
+        //  number of moments.
+        bool forceGauss_;
+
         //- Number of invertible moments
         label nInvertibleMoments_;
 
@@ -129,6 +137,11 @@ class univariateMomentSet
 
         //- Number of quadrature nodes
         label nNodes_;
+
+        //- Known abscissa for Gauss-Radau quadrature
+        //  Optionally specified at construction. If not specified, it is
+        //  assumed to be zero.
+        scalar knownAbscissa_;
 
         //- Quadrature weights
         scalarDiagonalMatrix weights_;
@@ -163,14 +176,18 @@ public:
         (
             const label nMoments,
             const scalar initValue,
-            const word support
+            const word& quadratureType,
+            const word& support,
+            const scalar knownAbscissa = 0.0
         );
 
         //- Construct from diagonalMatrix
         univariateMomentSet
         (
             const scalarDiagonalMatrix& m,
-            const word support
+            const word& quadratureType,
+            const word& support,
+            const scalar knownAbscissa = 0.0
         );
 
     //- Destructor
@@ -217,6 +234,9 @@ public:
 
         //- Return quadrature weights
         inline const scalarDiagonalMatrix& weights() const;
+
+        //- Return support
+        inline const word quadratureType() const;
 
         //- Return support
         inline const word support() const;
