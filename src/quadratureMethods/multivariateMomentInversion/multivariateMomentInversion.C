@@ -47,7 +47,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
     invVR_(nDims_ - 1)
 {
     labelList nNodesCM = nNodes_;
-    
+
     forAll(nNodes_, dimi)
     {
         weights_.set
@@ -59,7 +59,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
                 nNodes_
             )
         );
-        
+
         abscissae_.set
         (
             dimi,
@@ -69,7 +69,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
                 nNodes_
             )
         );
-        
+
         forAll(abscissae_[dimi], ai)
         {
             weights_[dimi].set
@@ -77,16 +77,16 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
                 ai,
                 new scalar(0.0)
             );
-            
+
             abscissae_[dimi].set
             (
                 ai,
                 new scalar(0.0)
             );
         }
-        
+
     }
-    
+
     forAll(conditionalMoments_, dimi)
     {
         conditionalMoments_.set
@@ -97,7 +97,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
                 dimi + 1
             )
         );
-        
+
         nNodesCM = nNodes_;
         nNodesCM[dimi] = 2*nNodes_[dimi];
 
@@ -112,7 +112,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
                     nNodesCM
                 )
             );
-            
+
             forAll(conditionalMoments_[dimi][dimj], ai)
             {
                 conditionalMoments_[dimi][dimj].set
@@ -134,7 +134,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
                 nNodes_
             )
         );
-        
+
         forAll(invVR_[dimi], ai)
         {
             invVR_[dimi].set
@@ -148,7 +148,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
             );
         }
     }
-    
+
     forAll(moments_, mi)
     {
         moments_.set
@@ -186,17 +186,17 @@ void Foam::multivariateMomentInversion
     univariateMomentSet momentsToInvert
     (
         2*nNodes_[0],
-        0.0, 
+        0.0,
         "Gauss",
         support_[0]
     );
-    
+
     for (label mi = 0; mi < 2*nNodes_[0]; mi++)
     {
         pos[0] = mi;
         momentsToInvert[mi] = moments_(pos);
     }
-    
+
     momentsToInvert.invert();
 
     for (label nodei = 0; nodei < nNodes_[0]; nodei++)
@@ -206,7 +206,7 @@ void Foam::multivariateMomentInversion
         weights_[0](nodei) = momentsToInvert.weights()[nodei];
         abscissae_[0](nodei) = momentsToInvert.abscissae()[nodei];
     }
-    
+
     // Solve remaining directions
     for (label dimi = 1; dimi < nDims_; dimi++)
     {
@@ -220,7 +220,7 @@ void Foam::multivariateMomentInversion
             labelList posC(dimi + 1, 0);
             cycleAlphaCM(dimi, dimj, 0, posC);
         }
-        
+
         labelList posW(dimi + 1, 0);
         cycleAlphaWheeler(dimi, 0, posW);
     }
@@ -260,11 +260,11 @@ void Foam::multivariateMomentInversion::cycleAlphaCM
     else
     {
         scalarRectangularMatrix Yold(nNodes_[dimj], 1, 0.0);
-        
+
         for (label i = 0; i < nNodes_[dimj]; i++)
         {
             pos[dimj] = i;
-            
+
             if (dimj == 0)
             {
                 labelList posM(nDims_,0);
@@ -280,7 +280,7 @@ void Foam::multivariateMomentInversion::cycleAlphaCM
                     conditionalMoments_[dimi][dimj - 1](pos);
             }
         }
-        
+
         labelList posVR(max(1, dimj), 0);
         if (dimj != 0)
         {
@@ -289,15 +289,15 @@ void Foam::multivariateMomentInversion::cycleAlphaCM
                 posVR[i] = pos[i];
             }
         }
-        
+
         scalarRectangularMatrix Ynew = invVR_[dimj](posVR)*Yold;
-        
+
         for (label i = 0; i < nNodes_[dimj]; i++)
         {
             pos[dimj] = i;
             conditionalMoments_[dimi][dimj](pos) = Ynew(i,0);
         }
-    }    
+    }
 }
 
 void Foam::multivariateMomentInversion::setVR
@@ -307,32 +307,30 @@ void Foam::multivariateMomentInversion::setVR
     label ai
 )
 {
-    if ( ai < dimi)
+    if (ai < dimi)
     {
         for (label i = 0; i < nNodes_[ai]; i++)
         {
             pos[ai] = i;
-            
+
             setVR(dimi,pos,ai + 1);
         }
-        return;
     }
     else
     {
         scalarDiagonalMatrix x(nNodes_[dimi], 0.0);
         scalarSquareMatrix invR(nNodes_[dimi], 0.0);
-        
+
         for (label i = 0; i < nNodes_[dimi]; i++)
         {
             pos[dimi] = i;
-
             x[i] = abscissae_[dimi](pos);
-            invR(i,i) = 1.0/weights_[dimi](pos);
+            invR[i][i] = 1.0/weights_[dimi](pos);
         }
+
         Vandermonde V(x);
 
-        scalarSquareMatrix invV(nNodes_[dimi]);
-        V.invert(invV);
+        scalarSquareMatrix invV(V.inv());
 
         labelList posVR(max(1, dimi), 0);
 
@@ -343,9 +341,8 @@ void Foam::multivariateMomentInversion::setVR
                 posVR[ai] = pos[ai];
             }
         }
-        invVR_[dimi](posVR) = invR*invV;
 
-        return;
+        invVR_[dimi](posVR) = invR*invV;
     }
 }
 
@@ -361,10 +358,10 @@ void Foam::multivariateMomentInversion::cycleAlphaWheeler
         for (label i = 0; i < nNodes_[ai]; i++)
         {
             pos[ai] = i;
-            
+
             cycleAlphaWheeler(dimi,ai+1,pos);
         }
-        
+
         return;
     }
     else
@@ -376,7 +373,7 @@ void Foam::multivariateMomentInversion::cycleAlphaWheeler
             "Gauss",
             support_[dimi]
         );
-        
+
         forAll(momentsToInvert, mi)
         {
             pos[dimi] = mi;
@@ -385,28 +382,28 @@ void Foam::multivariateMomentInversion::cycleAlphaWheeler
         }
 
         momentsToInvert.invert();
-        
+
         for (label nodei = 0; nodei < nNodes_[ai]; nodei++)
         {
             pos[dimi] = nodei;
-            
+
             weights_[dimi](pos) =
                 momentsToInvert.weights()[nodei];
-              
+
             abscissae_[dimi](pos) =
                 momentsToInvert.abscissae()[nodei];
         }
         return;
     }
 }
-    
+
 void Foam::multivariateMomentInversion::reset()
 {
     forAll(moments_, mi)
     {
         moments_[mi] = 0.0;
     }
-    
+
     forAll(invVR_, dimi)
     {
         forAll(invVR_[dimi], ai)
@@ -419,7 +416,7 @@ void Foam::multivariateMomentInversion::reset()
                 }
             }
         }
-        
+
         forAll(conditionalMoments_[dimi], dimj)
         {
             forAll(conditionalMoments_[dimi][dimj], ai)

@@ -63,36 +63,36 @@ namespace Foam
 class multivariateMomentInversion
 {
     // Private member data
-        
+
         //- Number of moments
         const label nMoments_;
-        
+
         //- List of the number of nodes
         const labelList nNodes_;
-        
+
         //- Number of dimensions
         const label nDims_;
-        
+
         //- Type of support for each direction
         const List<word> support_;
-        
+
         //- Quadratrure abscissae
         PtrList< nDimensionalMappedList<scalar> > abscissae_;
-        
+
         //- Quadratrure weights
         PtrList< nDimensionalMappedList<scalar> > weights_;
-        
+
         //- Stored moments
         nDimensionalMappedList<scalar> moments_;
-        
+
         //- Stored conditional moments
         PtrList< PtrList< nDimensionalMappedList<scalar> > > conditionalMoments_;
-        
+
         //- Inverted VanderMonde matricies
         PtrList< nDimensionalMappedList<scalarSquareMatrix> > invVR_;
-        
+
     // Private member functions
-        
+
         //- Cycles through all alphas and solves the given conditional moments
         void cycleAlphaCM
         (
@@ -101,7 +101,7 @@ class multivariateMomentInversion
             label ai,
             labelList& pos
         );
-        
+
         //- Sets the Vandermonde matricies for the previous dimension
         void setVR
         (
@@ -109,7 +109,7 @@ class multivariateMomentInversion
             labelList& pos,
             label ai
         );
-        
+
         //- Once all of the conditional moments are known, said moments are
         //  inverted to find the weights and abscissae
         void cycleAlphaWheeler
@@ -157,7 +157,7 @@ public:
 
         //- Return number of number of nodes in each dimension
         inline const labelList& nNodes();
-        
+
         //- Return mapped quadrature weights for each dimension
         inline const PtrList<nDimensionalMappedList<scalar> >& weights() const;
 
