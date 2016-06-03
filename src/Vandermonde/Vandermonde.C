@@ -25,7 +25,6 @@ License
 
 #include "Vandermonde.H"
 
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::Vandermonde::Vandermonde
@@ -47,80 +46,87 @@ Foam::Vandermonde::~Vandermonde()
 
 void Foam::Vandermonde::solve
 (
-    const scalarDiagonalMatrix& b,
-    scalarDiagonalMatrix& x
+    scalarDiagonalMatrix& x,
+    const scalarDiagonalMatrix& source
 )
 {
-    const scalarDiagonalMatrix& A = *this;
-    label n = this->size();
-    scalarDiagonalMatrix c(n, scalar(0));
-    scalar t = scalar(1);
-    scalar r = scalar(1);
-    scalar s = scalar(0);
-    scalar xx = scalar(0);
-    
+    const label n = size();
+    scalarDiagonalMatrix c(n, 0.0);
+
+    scalar t = 1.0;
+    scalar r = 1.0;
+    scalar s = 0.0;
+    scalar xx = 0.0;
+
     if (n == 1)
     {
-        x[0] = b[0];
+        x[0] = source[0];
     }
-    
     else
     {
-        c[n-1] = -A[0];
-        
+        c[n-1] = -(*this)[0];
+
         for (label i = 1; i < n; i++)
         {
-            xx = -A[i];
-            
+            xx = -(*this)[i];
+
             for (label j = (n-i-1); j < (n-1); j++)
             {
                 c[j] += xx*c[j+1];
             }
             c[n-1] += xx;
         }
-        
+
         for (label i = 0; i < n; i++)
         {
-            xx = A[i];
-            t = scalar(1);
-            r = scalar(1);
-            s = b[n-1];
-            
-            for (label j = (n-1); j > 0; j--)
+            xx = (*this)[i];
+            t = 1.0;
+            r = 1.0;
+            s = source[n-1];
+
+            for (label j = n - 1; j > 0; j--)
             {
-                r = c[j] + xx*r;
-                s += b[j-1]*r;
-                t = xx*t + r;
+                r = c[j] + r*xx;
+                s += r*source[j-1];
+                t = r + t*xx;
             }
+
             x[i] = s/t;
         }
     }
-    return;
 }
 
-void Foam::Vandermonde::invert(scalarSquareMatrix& invA)
-{    
-    label n = this->size();
-    scalarSquareMatrix identity(n, scalar(0));
-    
-    scalarDiagonalMatrix b(n);
+Foam::scalarSquareMatrix Foam::Vandermonde::inv()
+{
+    const label n = size();
+
+    scalarSquareMatrix inv(n);
+    scalarDiagonalMatrix source(n);
     scalarDiagonalMatrix x(n);
-    
+
     for (label i = 0; i < n; i++)
     {
-        identity(i,i) = scalar(1);
-        
         for (label j = 0; j < n; j++)
         {
-            b[j] = identity(j,i);
+            if (i != j)
+            {
+                source[j] = 0.0;
+            }
+            else
+            {
+                source[j] = 1.0;
+            }
         }
-        solve(b, x);
+
+        solve(x, source);
 
         for (label j = 0; j < n; j++)
         {
-            invA(j,i) = x[j];
+            inv[i][j] = x[j];
         }
     }
+
+    return inv;
 }
 
 

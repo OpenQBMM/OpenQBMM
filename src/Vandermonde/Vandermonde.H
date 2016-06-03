@@ -25,20 +25,18 @@ Class
     Foam::Vandermonde
 
 Description
-    Stores the second row of a Vandermonde form. Solves a system of equations
-    based on a square Vandermonde form with powers from 0 to n-1.
+    Stores the second row of a Vandermonde matrix, and solves the associated
+    linear system.
 
     References
     \verbatim
-        William H. Press, Saul A. Teukolsky, 
-        William T. Vetterling, and Brian P. Flannery. 1992. 
+        William H. Press, Saul A. Teukolsky,
+        William T. Vetterling, and Brian P. Flannery. 1992.
         "Numerical Recipes in C (2nd Ed.): The Art of Scientific Computing."
         Cambridge University Press, New York, NY, USA.
-
     \endverbatim
-    
+
 SourceFiles
-    VandermondeI.H
     Vandermonde.C
 
 \*---------------------------------------------------------------------------*/
@@ -46,7 +44,6 @@ SourceFiles
 #ifndef Vandermonde_H
 #define Vandermonde_H
 
-#include "PtrList.H"
 #include "scalarMatrices.H"
 
 
@@ -82,16 +79,15 @@ public:
 
     // Member Functions
 
-        //- Solve Cx=b where C is the square Vandermonde matrix created from
-        //  the locally stored vector A
+        //- Solve the linear system with the given source vector
         void solve
         (
-            const scalarDiagonalMatrix& b,
-            scalarDiagonalMatrix& x
+            scalarDiagonalMatrix& x,
+            const scalarDiagonalMatrix& source
         );
-            
-        //- Invert Vancermonde system
-        void invert(scalarSquareMatrix& invA);
+
+        //- Invert Vandermonde matrix
+        scalarSquareMatrix inv();
 };
 
 
