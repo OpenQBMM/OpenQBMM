@@ -122,7 +122,7 @@ Foam::scalarSquareMatrix Foam::Vandermonde::inv()
 
         for (label j = 0; j < n; j++)
         {
-            inv[i][j] = x[j];
+            inv[j][i] = x[j];
         }
     }
 
