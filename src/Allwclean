@@ -3,8 +3,10 @@ cd ${0%/*} || exit 1    # run from this directory
 set -x
 
 wclean libso eigenSolver
+wclean libso Vandermonde
 wclean libso quadratureMethods/univariateMomentSet
 wclean libso quadratureMethods/extentedMomentInversion
+wclean libso quadratureMethods/multivariateMomentInversion
 wclean libso quadratureMethods/quadratureApproximation
 wclean libso quadratureMethods/PDFTransportModels
 wclean libso quadratureMethods/populationBalanceModels

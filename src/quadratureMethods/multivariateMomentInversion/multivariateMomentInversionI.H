@@ -46,7 +46,7 @@ Foam::multivariateMomentInversion::weights() const
 }
 
 //- Return mapped list of abscissae
-const Foam::PtrList< Foam::nDimensionalMappedList< Foam::scalar> >& 
+const Foam::PtrList< Foam::nDimensionalMappedList< Foam::scalar> >&
 Foam::multivariateMomentInversion::abscissae() const
 {
     return abscissae_;

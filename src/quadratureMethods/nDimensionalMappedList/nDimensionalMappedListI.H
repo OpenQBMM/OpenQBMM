@@ -145,7 +145,7 @@ const mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
     return this->operator[](map(a, b, c, d, e));
 }
 
-template <class mappedType> 
+template <class mappedType>
 const mappedType&
 Foam::nDimensionalMappedList<mappedType>::operator()
 (
@@ -155,7 +155,7 @@ Foam::nDimensionalMappedList<mappedType>::operator()
     return this->operator[](map_[listToLabel(l)]);
 }
 
-template <class mappedType> 
+template <class mappedType>
 mappedType&
 Foam::nDimensionalMappedList<mappedType>::operator()
 (

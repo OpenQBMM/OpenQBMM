@@ -93,7 +93,7 @@ class nDimensionalMappedList
             label& mI,
             labelList& pos
         );
-        
+
         //- Calculate the length of the PtrList given nNodes, and nDimensions
         label nDimensionalListLength
         (
@@ -134,7 +134,7 @@ public:
 
 
     // Member Functions
-    
+
         // Static member functions
             //- Convert a list of labels to a word. {1, 2, 3} -> 123
             static word listToWord(const labelList& lst);
@@ -178,7 +178,7 @@ public:
                 label b,
                 label c
             );
-            
+
             //- Const access to the fourth dimension
             inline const mappedType& operator()
             (
@@ -196,7 +196,7 @@ public:
                 label c,
                 label d
             );
-            
+
             //- Const access to the fith dimension
             inline const mappedType& operator()
             (
@@ -216,10 +216,10 @@ public:
                 label d,
                 label e
             );
-            
+
             //- Constant access given a label list
             inline const mappedType& operator()(const labelList& l) const;
-            
+
             //- Non-constant access given a label list
             inline mappedType& operator()(const labelList& l);
 

@@ -128,7 +128,7 @@ void Foam::nDimensionalMappedList<mappedType>::setMappedPositions
         mi++;
     }
 }
-        
+
 template <class mappedType>
 Foam::label Foam::nDimensionalMappedList<mappedType>::nDimensionalListLength
 (
