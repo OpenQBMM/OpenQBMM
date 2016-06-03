@@ -38,6 +38,7 @@ Description
 
 SourceFiles
     multivariateMomentInversion.C
+    multivariateMomentInversionI.C
 
 \*---------------------------------------------------------------------------*/
 
