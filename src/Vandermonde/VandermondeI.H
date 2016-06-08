@@ -28,11 +28,11 @@ License
 
 Foam::scalarSquareMatrix Foam::Vandermonde::operator()()
 {
-    scalarSquareMatrix tmpV(size());
+    scalarSquareMatrix tmpV(m_);
 
-    for (label i = 0; i < size(); i++)
+    for (label i = 0; i < m_; i++)
     {
-        for (label j = 0; j < size(); j++)
+        for (label j = 0; j < m_; j++)
         {
             tmpV[i][j] = pow((*this)[j], i);
         }

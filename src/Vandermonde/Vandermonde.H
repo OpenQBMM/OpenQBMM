@@ -99,6 +99,7 @@ public:
         //- Invert Vandermonde matrix
         scalarSquareMatrix inv();
 
+
     // Member Operators
 
         //- Return the complete Vandermonde matrix
