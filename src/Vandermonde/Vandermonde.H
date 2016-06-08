@@ -94,6 +94,14 @@ public:
 
         //- Invert Vandermonde matrix
         scalarSquareMatrix inv();
+        
+    // Member Operators
+        
+        //- Return the complete Vandermonde system
+        scalarSquareMatrix operator()();
+        
+        //- Return a given component of the full system
+        scalar operator()(label i, label j);
 };
 
 
@@ -101,6 +109,10 @@ public:
 
 } // End namespace Foam
 
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "VandermondeI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
