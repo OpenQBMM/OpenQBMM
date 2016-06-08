@@ -50,7 +50,7 @@ Foam::Vandermonde::Vandermonde
         {
             for (label j = 0; i < size(); j++)
             {
-                if (A[i][j] != pow(A[1][j], j))
+                if (A[i][j] != pow(A[1][j], i))
                 {
                     FatalErrorInFunction
                         << "Source matrix not of Vandermonde type." << nl
