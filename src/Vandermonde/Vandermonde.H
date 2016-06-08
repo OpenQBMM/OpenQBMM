@@ -75,7 +75,8 @@ public:
         //- Construct from a Vandermonde Matrix
         Vandermonde
         (
-            const scalarSquareMatrix& A
+            const scalarSquareMatrix& A,
+            const bool checkVandermonde = false
         );
 
 
