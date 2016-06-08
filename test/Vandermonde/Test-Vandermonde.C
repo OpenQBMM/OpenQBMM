@@ -22,10 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Test-ExtendedMomentInversion.C
+    Test-Vandermonde.C
 
 Description
-    Test the extendedMomentInversion class and its subclasses.
+    Test the Vandermonde class.
 
 \*---------------------------------------------------------------------------*/
 
@@ -45,58 +45,61 @@ int main(int argc, char *argv[])
 {
     label n = 5;
     scalarDiagonalMatrix A(n);
+
     forAll(A, i)
     {
         A[i] = scalar(rand())/scalar(RAND_MAX);
     }
 
-    Vandermonde vm(A);
-    Vandermonde V(vm());
+    Vandermonde Vm(A);
+    Vandermonde V(Vm());
 
-    Info<< nl << "Initial Vector: " << A << endl;
-    Info<< "Vector constructed from square Vandermonde system: " << nl << "\t"
+    Info<< nl << "Initial vector: " << A << endl;
+    Info<< "Vector constructed from square Vandermonde matrix: " << nl << "\t"
         << V << endl;
 
-    scalarSquareMatrix invVM = vm.inv();
+    scalarSquareMatrix invVm = Vm.inv();
 
-    Info<< nl
-        << "Vandermonde system: " << endl;
-
-    for (label i = 0; i < n; i++)
-    {
-        for (label j = 0; j < n; j++)
-        {
-            Info<< vm(i,j) << ", \t";
-        }
-        Info<< endl;
-    }
-
-    Info<< nl
-        << "Inverted Vandermonde matrix:" << endl;
+    Info<< nl << "Vandermonde matrix: " << endl;
 
     for (label i = 0; i < n; i++)
     {
         for (label j = 0; j < n; j++)
         {
-            Info<< invVM(i,j) << ", \t";
+            Info<< Vm(i,j) << ", \t";
         }
+
         Info<< endl;
     }
 
-    scalarRectangularMatrix VM = SVDinv(invVM);
+    Info<< nl << "Inverted Vandermonde matrix:" << endl;
+
+    for (label i = 0; i < n; i++)
+    {
+        for (label j = 0; j < n; j++)
+        {
+            Info<< invVm(i,j) << ", \t";
+        }
+
+        Info<< endl;
+    }
+
+    scalarRectangularMatrix svdInv = SVDinv(invVm);
 
     scalar error = 0.0;
+
     for (label i = 0; i < n; i++)
     {
         for (label j = 0; j < n; j++)
         {
-            error += sqr(VM(i,j) - vm(i,j));
+            error += sqr(svdInv(i,j) - Vm(i,j));
         }
     }
 
     error = Foam::sqrt(error);
-    Info<< nl << "Total magnitude of error when Vandermonde system is " << nl
-        << "inverted twice: " << error << endl;
+
+    Info<< nl << "Total magnitude of error when Vandermonde system is "
+        << nl << "inverted twice: " << error << endl;
 
     Info<< "\nEnd\n" << endl;
 
