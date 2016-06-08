@@ -29,7 +29,7 @@ License
 Foam::scalarSquareMatrix Foam::Vandermonde::operator()()
 {
     scalarSquareMatrix vm(size());
-    
+
     for (label i = 0; i < size(); i++)
     {
         for (label j = 0; j < size(); j++)
@@ -37,7 +37,7 @@ Foam::scalarSquareMatrix Foam::Vandermonde::operator()()
             vm(i,j) = pow((*this)[j], i);
         }
     }
-    
+
     return vm;
 }
 

@@ -47,10 +47,10 @@ Foam::Vandermonde::Vandermonde
     {
         FatalErrorInFunction
             << "Refrence matrix is not a Vandermonde system." << nl
-            << "Matrix is not square." 
+            << "Matrix is not square."
             << abort(FatalError);
     }
-    
+
     scalar sumRow = 0.0;
     scalar sumCol = 0.0;
     for (label i = 0; i < size(); i++)
@@ -58,7 +58,7 @@ Foam::Vandermonde::Vandermonde
         sumRow += A(0,i);
         sumCol += A(i,0);
     }
-    
+
     if (sumRow == A.m())
     {
         for (label i = 0; i < size(); i++)
@@ -77,7 +77,7 @@ Foam::Vandermonde::Vandermonde
     {
         FatalErrorInFunction
             << "Refrence matrix is not a Vandermonde system." << nl
-            << "First row is not composed of ones." 
+            << "First row is not composed of ones."
             << abort(FatalError);
     }
 }
