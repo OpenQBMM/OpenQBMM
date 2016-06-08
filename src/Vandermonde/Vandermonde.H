@@ -72,7 +72,13 @@ public:
             const scalarDiagonalMatrix& A
         );
 
-
+        //- Construct from a Vandermonde Matrix
+        Vandermonde
+        (
+            const scalarSquareMatrix& A
+        );
+        
+        
     //- Destructor
     ~Vandermonde();
 
