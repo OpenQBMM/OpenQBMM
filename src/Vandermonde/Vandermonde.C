@@ -32,7 +32,8 @@ Foam::Vandermonde::Vandermonde
     const scalarDiagonalMatrix& A
 )
 :
-    scalarDiagonalMatrix(A)
+    scalarDiagonalMatrix(A),
+    m_(A.size())
 {}
 
 
@@ -42,13 +43,14 @@ Foam::Vandermonde::Vandermonde
     const bool checkVandermonde
 )
 :
-    scalarDiagonalMatrix(A.m())
+    scalarDiagonalMatrix(A.m()),
+    m_(A.m())
 {
     if (checkVandermonde)
     {
-        for (label i = 0; i < size(); i++)
+        for (label i = 0; i < m_; i++)
         {
-            for (label j = 0; i < size(); j++)
+            for (label j = 0; i < m_; j++)
             {
                 if (A[i][j] != pow(A[1][j], i))
                 {
@@ -60,7 +62,7 @@ Foam::Vandermonde::Vandermonde
         }
     }
 
-    for (label i = 0; i < size(); i++)
+    for (label i = 0; i < m_; i++)
     {
         (*this)[i] = A[1][i];
     }
@@ -79,44 +81,43 @@ void Foam::Vandermonde::solve
     const scalarDiagonalMatrix& source
 )
 {
-    const label n = size();
-    scalarDiagonalMatrix c(n, 0.0);
+    scalarDiagonalMatrix c(m_, 0.0);
 
     scalar t = 1.0;
     scalar r = 1.0;
     scalar s = 0.0;
     scalar xx = 0.0;
 
-    if (n == 1)
+    if (m_ == 1)
     {
         x[0] = source[0];
     }
     else
     {
-        c[n-1] = -(*this)[0];
+        c[m_ - 1] = -(*this)[0];
 
-        for (label i = 1; i < n; i++)
+        for (label i = 1; i < m_; i++)
         {
             xx = -(*this)[i];
 
-            for (label j = (n-i-1); j < (n-1); j++)
+            for (label j = m_ - i - 1; j < m_ - 1; j++)
             {
-                c[j] += xx*c[j+1];
+                c[j] += xx*c[j + 1];
             }
-            c[n-1] += xx;
+            c[m_ - 1] += xx;
         }
 
-        for (label i = 0; i < n; i++)
+        for (label i = 0; i < m_; i++)
         {
             xx = (*this)[i];
             t = 1.0;
             r = 1.0;
-            s = source[n-1];
+            s = source[m_ - 1];
 
-            for (label j = n - 1; j > 0; j--)
+            for (label j = m_ - 1; j > 0; j--)
             {
                 r = c[j] + r*xx;
-                s += r*source[j-1];
+                s += r*source[j - 1];
                 t = r + t*xx;
             }
 
@@ -127,15 +128,13 @@ void Foam::Vandermonde::solve
 
 Foam::scalarSquareMatrix Foam::Vandermonde::inv()
 {
-    const label n = size();
+    scalarSquareMatrix inv(m_);
+    scalarDiagonalMatrix source(m_);
+    scalarDiagonalMatrix x(m_);
 
-    scalarSquareMatrix inv(n);
-    scalarDiagonalMatrix source(n);
-    scalarDiagonalMatrix x(n);
-
-    for (label i = 0; i < n; i++)
+    for (label i = 0; i < m_; i++)
     {
-        for (label j = 0; j < n; j++)
+        for (label j = 0; j < m_; j++)
         {
             if (i != j)
             {
@@ -149,7 +148,7 @@ Foam::scalarSquareMatrix Foam::Vandermonde::inv()
 
         solve(x, source);
 
-        for (label j = 0; j < n; j++)
+        for (label j = 0; j < m_; j++)
         {
             inv[j][i] = x[j];
         }

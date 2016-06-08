@@ -60,8 +60,11 @@ class Vandermonde
 :
     public scalarDiagonalMatrix
 {
+    // Private data
 
-// Public Data
+        //- Dimesions of the matrix
+        const label m_;
+
 public:
 
     // Constructors
