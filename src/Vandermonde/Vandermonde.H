@@ -66,13 +66,13 @@ public:
 
     // Constructors
 
-        //- Construct for a given vector
+        //- Construct from a given vector
         Vandermonde
         (
             const scalarDiagonalMatrix& A
         );
 
-        //- Construct from a Vandermonde Matrix
+        //- Construct from a square Vandermonde matrix
         Vandermonde
         (
             const scalarSquareMatrix& A,
@@ -86,7 +86,7 @@ public:
 
     // Member Functions
 
-        //- Solve the linear system with the given source vector
+        //- Solve the Vandermonde linear system with the given source vector
         void solve
         (
             scalarDiagonalMatrix& x,
@@ -98,10 +98,10 @@ public:
 
     // Member Operators
 
-        //- Return the complete Vandermonde system
+        //- Return the complete Vandermonde matrix
         scalarSquareMatrix operator()();
 
-        //- Return a given component of the full system
+        //- Return a given component of the Vandermonde matrix
         scalar operator()(label i, label j);
 };
 
