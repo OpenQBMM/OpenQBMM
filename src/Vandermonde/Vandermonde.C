@@ -43,14 +43,6 @@ Foam::Vandermonde::Vandermonde
 :
     scalarDiagonalMatrix(A.m())
 {
-    if (A.m() != A.n())
-    {
-        FatalErrorInFunction
-            << "Refrence matrix is not a Vandermonde system." << nl
-            << "Matrix is not square."
-            << abort(FatalError);
-    }
-
     scalar sumRow = 0.0;
     scalar sumCol = 0.0;
     for (label i = 0; i < size(); i++)
