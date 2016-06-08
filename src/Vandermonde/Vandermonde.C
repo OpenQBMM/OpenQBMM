@@ -36,6 +36,51 @@ Foam::Vandermonde::Vandermonde
 {}
 
 
+Foam::Vandermonde::Vandermonde
+(
+    const scalarSquareMatrix& A
+)
+:
+    scalarDiagonalMatrix(A.m())
+{
+    if (A.m() != A.n())
+    {
+        FatalErrorInFunction
+            << "Refrence matrix is not a Vandermonde system." << nl
+            << "Matrix is not square." 
+            << abort(FatalError);
+    }
+    
+    scalar sumRow = 0.0;
+    scalar sumCol = 0.0;
+    for (label i = 0; i < size(); i++)
+    {
+        sumRow += A(0,i);
+        sumCol += A(i,0);
+    }
+    
+    if (sumRow == A.m())
+    {
+        for (label i = 0; i < size(); i++)
+        {
+            (*this)[i] = A(1,i);
+        }
+    }
+    else if (sumCol == A.m())
+    {
+        for (label i = 0; i < size(); i++)
+        {
+            (*this)[i] = A(i,1);
+        }
+    }
+    else
+    {
+        FatalErrorInFunction
+            << "Refrence matrix is not a Vandermonde system." << nl
+            << "First row is not composed of ones." 
+            << abort(FatalError);
+    }
+}
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::Vandermonde::~Vandermonde()
