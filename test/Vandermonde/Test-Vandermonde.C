@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -52,16 +52,16 @@ int main(int argc, char *argv[])
 
     Vandermonde vm(A);
     Vandermonde V(vm());
-    
+
     Info<< nl << "Initial Vector: " << A << endl;
     Info<< "Vector constructed from square Vandermonde system: " << nl << "\t"
         << V << endl;
-    
+
     scalarSquareMatrix invVM = vm.inv();
-    
+
     Info<< nl
         << "Vandermonde system: " << endl;
-    
+
     for (label i = 0; i < n; i++)
     {
         for (label j = 0; j < n; j++)
@@ -70,10 +70,10 @@ int main(int argc, char *argv[])
         }
         Info<< endl;
     }
-    
+
     Info<< nl
         << "Inverted Vandermonde matrix:" << endl;
-    
+
     for (label i = 0; i < n; i++)
     {
         for (label j = 0; j < n; j++)
@@ -82,9 +82,9 @@ int main(int argc, char *argv[])
         }
         Info<< endl;
     }
-    
+
     scalarRectangularMatrix VM = SVDinv(invVM);
-    
+
     scalar error = 0.0;
     for (label i = 0; i < n; i++)
     {
@@ -93,11 +93,11 @@ int main(int argc, char *argv[])
             error += sqr(VM(i,j) - vm(i,j));
         }
     }
-    
+
     error = Foam::sqrt(error);
     Info<< nl << "Total magnitude of error when Vandermonde system is " << nl
         << "inverted twice: " << error << endl;
-    
+
     Info<< "\nEnd\n" << endl;
 
     return 0;
