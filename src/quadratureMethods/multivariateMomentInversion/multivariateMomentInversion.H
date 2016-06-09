@@ -87,7 +87,7 @@ class multivariateMomentInversion
         nDimensionalMappedList<scalar> moments_;
 
         //- Stored conditional moments
-        PtrList< PtrList< nDimensionalMappedList<scalar> > > conditionalMoments_;
+        PtrList<PtrList<nDimensionalMappedList<scalar> > > conditionalMoments_;
 
         //- Inverted VanderMonde matricies
         PtrList< nDimensionalMappedList<scalarSquareMatrix> > invVR_;

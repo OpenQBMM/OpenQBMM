@@ -47,28 +47,28 @@ int main(int argc, char *argv[])
     //#include "createFields.H"
     label nMoments = 1;
     label nDims = 4;
-    
+
     // Set number of nodes in each direction
     labelList nNodes(nDims);
     nNodes[0] = 1;
     nNodes[1] = 2;
     nNodes[2] = 3;
     nNodes[3] = 4;
-    
+
     // Declaration of permutation ([0 1 2 3] is normal).
     labelList permutation(nDims);
     permutation[0] = 0;
     permutation[1] = 1;
     permutation[2] = 2;
     permutation[3] = 3;
-    
-    
+
+
     labelList nNodesP = nNodes;
     for (label dimi = 0; dimi < nDims; dimi++)
     {
         nNodesP[dimi] = nNodes[permutation[dimi]];
     }
-    
+
     // Set number of moments corresponding to 2*nNodes[i] in each direction
     // (Worst case senario)
     for (int i = 0; i < nDims; i++)
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     List<word> support(nDims,"RPlus");
     PtrList<nDimensionalMappedList<scalar>> x(nDims);
     PtrList<nDimensionalMappedList<scalar>> w(nDims);
-    
+
     forAll(x, i)
     {
         x.set
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
                 nNodes
             )
         );
-        
+
         w.set
         (
             i,
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
                 nNodes
             )
         );
-        
+
         forAll(x[i], j)
         {
             x[i].set
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
                 j,
                 new scalar(0.0)
             );
-            
+
             w[i].set
             (
                 j,
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
             );
         }
     }
-    
+
     forAll(x, dimi)
     {
         forAll(x[dimi], cmpti)
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
             //Info<< "abscissa["<<dimi<<"]["<<cmpti<<"]: "<< x[dimi][cmpti] << endl;
         }
     }
-    
+
     Map<label> map(nMoments);
     Map<label> mapP(nMoments);
     labelList pos(nDims);
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
                     pos[1] = j;
                     pos[2] = k;
                     pos[3] = l;
-                
+
                     map.insert
                     (
                         Foam::nDimensionalMappedList<scalar>::listToLabel
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
                     posP[1] = pos[permutation[1]];
                     posP[2] = pos[permutation[2]];
                     posP[3] = pos[permutation[3]];
-                    
+
                     mapP.insert
                     (
                         Foam::nDimensionalMappedList<scalar>::listToLabel
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     }
 
     Info<< "Original moments:" << endl;
-    
+
     nDimensionalMappedList<scalar> moments(nMoments, nDims, map);
     nDimensionalMappedList<scalar> momentsP(nMoments, nDims, mapP);
     forAll(moments, mi)
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     }
 
     scalar sum = 0.0;
-    
+
     for (label l = 0; l < 2*nNodes[0]; l++)
     {
         pos[0] = l;
@@ -206,9 +206,9 @@ int main(int argc, char *argv[])
                 for (label nn = 0; nn < 2*nNodes[3]; nn++)
                 {
                     pos[3] = nn;
-                
+
                     sum = 0.0;
-                    
+
                     for (label i = 0; i < nNodes[0]; i++)
                     {
                         for (label j = 0; j < nNodes[1]; j++)
@@ -226,16 +226,16 @@ int main(int argc, char *argv[])
                         }
                     }
                     moments(l,m,n,nn) = sum;
-                    Info<< "moment." << l << m << n << nn <<": " 
+                    Info<< "moment." << l << m << n << nn <<": "
                         << moments(l,m,n,nn) << endl;
                 }
             }
         }
     }
-    
+
     // Premutation 213
-    
-    
+
+
     for (label l = 0; l < 2*nNodes[0]; l++)
     {
         for (label m = 0; m < 2*nNodes[1]; m++)
@@ -248,15 +248,15 @@ int main(int argc, char *argv[])
                     pos[1] = m;
                     pos[2] = n;
                     pos[3] = nn;
-                
+
                     posP[0] = pos[permutation[0]];
                     posP[1] = pos[permutation[1]];
                     posP[2] = pos[permutation[2]];
                     posP[3] = pos[permutation[3]];
-                    
+
                     momentsP(posP)
                         = moments(pos);
-                    //Info<< "moment." << l << m << n << nn <<": " 
+                    //Info<< "moment." << l << m << n << nn <<": "
                     //    << momentsP(posP) << endl; //<< "    "
                         //<< moments(pos) << endl;
                 }
@@ -264,18 +264,18 @@ int main(int argc, char *argv[])
         }
     }
     multivariateMomentInversion momentInverter(nMoments, mapP, nNodesP, support);
-    
+
     Info<< "\nInverting moments" << endl;
-    
+
     momentInverter.invert(momentsP);
-    
+
     Info<< "\nReconstructed moments:" << endl;
-    
+
     const PtrList<nDimensionalMappedList<scalar> >& weights =
         momentInverter.weights();
     const PtrList<nDimensionalMappedList<scalar> >& abscissae =
         momentInverter.abscissae();
-            
+
     for (label l = 0; l < 2*nNodesP[0]; l++)
     {
         pos[0] = l;
@@ -288,9 +288,9 @@ int main(int argc, char *argv[])
                 for (label nn = 0; nn < 2*nNodesP[3]; nn++)
                 {
                     pos[3] = nn;
-                
+
                     sum = 0.0;
-                    
+
                     for (label i = 0; i < nNodesP[0]; i++)
                     {
                         for (label j = 0; j < nNodesP[1]; j++)
@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
                         }
                     }
                     momentsP(l,m,n,nn) = sum;
-                    //Info<< "moment." << l << m << n << nn <<": " 
+                    //Info<< "moment." << l << m << n << nn <<": "
                     //    << sum << endl;
                 }
             }
@@ -328,15 +328,15 @@ int main(int argc, char *argv[])
                     pos[1] = m;
                     pos[2] = n;
                     pos[3] = nn;
-                
+
                     posP[0] = pos[permutation[0]];
                     posP[1] = pos[permutation[1]];
                     posP[2] = pos[permutation[2]];
                     posP[3] = pos[permutation[3]];
-                    
+
                     moments(pos)
                         = momentsP(posP);
-                    Info<< "moment." << l << m << n << nn << ": " 
+                    Info<< "moment." << l << m << n << nn << ": "
                         << moments(pos) << endl; //<< "    "
                         //<< moments(pos) << endl;
                 }

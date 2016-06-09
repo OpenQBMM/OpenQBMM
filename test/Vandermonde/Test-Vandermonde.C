@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
     Vandermonde V(Vm());
 
     Info<< nl << "Initial vector: " << A << endl;
+
     Info<< "Vector constructed from square Vandermonde matrix: " << nl << "\t"
         << V << endl;
 
