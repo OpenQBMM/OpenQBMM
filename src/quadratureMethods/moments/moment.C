@@ -43,9 +43,9 @@ Foam::moment<fieldType, nodeType>::listToWord(const labelList& lst)
 {
     word w;
 
-    forAll(lst, dimI)
+    forAll(lst, dimi)
     {
-        w += Foam::name(lst[dimI]);
+        w += Foam::name(lst[dimi]);
     }
 
     return w;
@@ -57,7 +57,7 @@ Foam::moment<fieldType, nodeType>::listToLabel(const labelList& lst)
 {
     label l = 0;
 
-    forAll(lst, dimI)
+    forAll(lst, dimi)
     {
         l += lst[dimI]*pow((Foam::label)10, (Foam::label)(lst.size() - dimI - 1));
     }
@@ -146,9 +146,9 @@ void Foam::moment<fieldType, nodeType>::update()
     // If nodes do not have extended status, only use primary quadrature.
     if (!extendedNode)
     {
-        forAll(nodes, pNodeI)
+        forAll(nodes, pNodei)
         {
-            const nodeType& node = nodes[pNodeI];
+            const nodeType& node = nodes[pNodei];
 
             if (!node.extended())
             {
@@ -175,22 +175,22 @@ void Foam::moment<fieldType, nodeType>::update()
     }
 
     // Extended quadrature case
-    forAll(nodes, pNodeI)
+    forAll(nodes, pNodei)
     {
-        const nodeType& node = nodes[pNodeI];
+        const nodeType& node = nodes[pNodei];
 
         const fieldType& pW = node.primaryWeight();
 
-        for (label sNodeI = 0; sNodeI < node.nSecondaryNodes(); sNodeI++)
+        for (label sNodei = 0; sNodei < node.nSecondaryNodes(); sNodei++)
         {
-            fieldType m(pW*node.secondaryWeights()[sNodeI]);
+            fieldType m(pW*node.secondaryWeights()[sNodei]);
 
             for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
             {
                 const label cmptMomentOrder = cmptOrders()[cmpt];
 
                 tmp<fieldType> abscissaCmpt
-                        = node.secondaryAbscissae()[sNodeI].component(cmpt);
+                        = node.secondaryAbscissae()[sNodei].component(cmpt);
 
                 tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
 

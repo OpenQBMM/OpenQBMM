@@ -70,11 +70,11 @@ extendedQuadratureNode
     ),
     extended_(true)
 {
-    forAll(secondaryWeights_, nodeI)
+    forAll(secondaryWeights_, nodei)
     {
         secondaryWeights_.set
         (
-            nodeI,
+            nodei,
             new weightType
             (
                 IOobject
@@ -82,7 +82,7 @@ extendedQuadratureNode
                     IOobject::groupName
                     (
                         name_,
-                        "secondaryWeight." + Foam::name(nodeI)
+                        "secondaryWeight." + Foam::name(nodei)
                     ),
                     mesh.time().timeName(),
                     mesh,
@@ -101,7 +101,7 @@ extendedQuadratureNode
 
         secondaryAbscissae_.set
         (
-            nodeI,
+            nodei,
             new abscissaType
             (
                 IOobject
@@ -109,7 +109,7 @@ extendedQuadratureNode
                     IOobject::groupName
                     (
                         name_,
-                        "secondaryAbscissa." + Foam::name(nodeI)
+                        "secondaryAbscissa." + Foam::name(nodei)
                     ),
                     mesh.time().timeName(),
                     mesh,
@@ -180,11 +180,11 @@ extendedQuadratureNode
     ),
     extended_(true)
 {
-    forAll(secondaryWeights_, nodeI)
+    forAll(secondaryWeights_, nodei)
     {
         secondaryWeights_.set
         (
-            nodeI,
+            nodei,
             new weightType
             (
                 IOobject
@@ -192,7 +192,7 @@ extendedQuadratureNode
                     IOobject::groupName
                     (
                         name_,
-                        "secondaryWeight." + Foam::name(nodeI)
+                        "secondaryWeight." + Foam::name(nodei)
                     ),
                     mesh.time().timeName(),
                     mesh,
@@ -212,7 +212,7 @@ extendedQuadratureNode
 
         secondaryAbscissae_.set
         (
-            nodeI,
+            nodei,
             new abscissaType
             (
                 IOobject
@@ -220,7 +220,7 @@ extendedQuadratureNode
                     IOobject::groupName
                     (
                         name_,
-                        "secondaryAbscissa." + Foam::name(nodeI)
+                        "secondaryAbscissa." + Foam::name(nodei)
                     ),
                     mesh.time().timeName(),
                     mesh,
