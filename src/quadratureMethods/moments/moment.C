@@ -59,7 +59,7 @@ Foam::moment<fieldType, nodeType>::listToLabel(const labelList& lst)
 
     forAll(lst, dimi)
     {
-        l += lst[dimI]*pow((Foam::label)10, (Foam::label)(lst.size() - dimI - 1));
+        l += lst[dimi]*pow(10, lst.size() - dimi - 1);
     }
 
     return l;

@@ -40,7 +40,7 @@ Description
 #include "rhoThermo.H"
 #include "turbulentFluidThermoModel.H"
 #include "radiationModel.H"
-#include "fvIOoptionList.H"
+#include "fvOptions.H"
 #include "pimpleControl.H"
 #include "fixedFluxPressureFvPatchScalarField.H"
 #include "populationBalanceModel.H"
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     #include "compressibleCourantNo.H"
     #include "setInitialDeltaT.H"
     
-    //turbulence->validate();
+    turbulence->validate();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

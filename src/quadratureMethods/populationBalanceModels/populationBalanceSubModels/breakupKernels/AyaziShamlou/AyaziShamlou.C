@@ -91,18 +91,18 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     dimensionedScalar C = 0.41*df_ - 0.211;
     
     // Volume fraction of solid within aggregates
-    volScalarField phiL = C*pow(abscissa/primarySize_, df_ - 3.0);
+    volScalarField phiL(C*pow(abscissa/primarySize_, df_ - 3.0));
     
     // Coordination number
-    volScalarField kc = 15.0*pow(phiL, 1.2);
+    volScalarField kc(15.0*pow(phiL, 1.2));
     
     // Aggregation strength
-    volScalarField tauf = 9.0*kc*phiL*F/(8.0*sqr(primarySize_)
-            *Foam::constant::mathematical::pi);
+    volScalarField tauf(9.0*kc*phiL*F/(8.0*sqr(primarySize_)
+            *Foam::constant::mathematical::pi));
     
     const volScalarField& mu = flTurb.mu();
 
-    volScalarField epsilonByNu = flTurb.epsilon()*flTurb.rho()/mu;
+    volScalarField epsilonByNu(flTurb.epsilon()*flTurb.rho()/mu);
     
     return sqrt(epsilonByNu/15.0)*exp(-tauf/(mu*sqrt(epsilonByNu)));
 }
