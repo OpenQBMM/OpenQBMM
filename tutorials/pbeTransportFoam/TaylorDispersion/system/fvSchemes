@@ -40,7 +40,8 @@ divSchemes
     div(((rho*(thermo:mu|thermo:rho))*dev2(T(grad(U))))) Gauss linear;
     div((rho*R))    Gauss linear;
     "div\(phi,moment.*\)" Gauss upwind;
-}
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+    }
 
 laplacianSchemes
 {

@@ -15,9 +15,9 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-populationBalanceModel univariatePopulationBalance;
+populationBalanceModel univariate;
 
-univariatePopulationBalanceCoeffs
+univariateCoeffs
 {
     aggregation off;
     
@@ -53,6 +53,15 @@ univariatePopulationBalanceCoeffs
     growthModel
     {
         growthModel constant;
+        minAbscissa minAbscissa [ 0 1 0 0 0 0 0 ] 1e-10;
+        maxAbscissa maxAbscissa [ 0 1 0 0 0 0 0 ] 1e10;
+    }
+
+    nucleation off;
+
+    nucleationModel
+    {
+        nucleationModel none;
     }
 }
 

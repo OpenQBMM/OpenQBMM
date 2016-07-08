@@ -17,7 +17,7 @@ FoamFile
 
 solvers
 {
-    p_rgh
+    "(p_rgh|p)"
     {
         solver           GAMG;
         tolerance        1e-10;
@@ -50,7 +50,8 @@ solvers
 
 SIMPLE
 {
-    momentumPredictor yes;
+    momentumPredictor no;
+    consistent        yes;
     nNonOrthogonalCorrectors 0;
     pRefCell        0;
     pRefValue       1.0e5;
