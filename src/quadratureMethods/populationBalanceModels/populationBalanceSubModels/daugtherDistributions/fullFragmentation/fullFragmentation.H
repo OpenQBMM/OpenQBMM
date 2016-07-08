@@ -54,6 +54,14 @@ class fullFragmentation
 :
     public daughterDistribution
 {
+private:
+
+    // Private data
+
+        //- Primary particle size
+        dimensionedScalar primarySize_;
+
+
 public:
 
         //- Runtime type information
