@@ -40,6 +40,7 @@ linux*Icc*/
 solaris*Gcc*/
 SunOS*Gcc*/
 platforms/
+darwin*/
 
 # Reinstate wmake/rules that might look like build directories
 !wmake/rules/*/

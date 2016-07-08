@@ -80,7 +80,7 @@ Foam::mixingSubModels::diffusionModels::turbulentDiffusion
     const volScalarField& moment
 ) const
 {
-    volScalarField gamma = turbViscosity(moment)/Sc_ + gammaLam_;
+    volScalarField gamma(turbViscosity(moment)/Sc_ + gammaLam_);
 
     return fvm::laplacian(gamma, moment);
 }
