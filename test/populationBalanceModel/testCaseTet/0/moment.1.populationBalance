@@ -9,56 +9,38 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      fvSchemes;
+    class       volScalarField;
+    location    "0";
+    object      moment.1.populationBalance;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ddtSchemes
+dimensions      [0 -2 0 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
 {
-    default         Euler;
-}
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 6.25e6;
+    }
 
-gradSchemes
-{
-    default         Gauss linear;
-}
+    outlet
+    {
+        type            zeroGradient;
+    }
 
-divSchemes
-{
-    default         none;
-    div(phi,moment) Gauss upwind;
-}
+    walls
+    {
+        type            zeroGradient;
+    }
 
-laplacianSchemes
-{
-    default         none;
-}
-
-interpolationSchemes
-{
-    default         linear;
-
-    "interpolate\(moment.*\)" linear;
-
-    interpolate(U)          linear;
-
-    reconstruct(U)          limitedMUSCL;
-    reconstruct(weight)     limitedMUSCL;
-    reconstruct(abscissa)   limitedMUSCL;
-    reconstruct(sigma)      limitedMUSCL;
-}
-
-snGradSchemes
-{
-    default         uncorrected;
-}
-
-fluxRequired
-{
-    default         no;
-    T               ;
+    frontAndBack
+    {
+        type            empty;
+    }
 }
 
 

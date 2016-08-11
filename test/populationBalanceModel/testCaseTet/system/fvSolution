@@ -11,54 +11,32 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSchemes;
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ddtSchemes
+solvers
 {
-    default         Euler;
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-06;
+        relTol          0;
+    }
+    
+    "moment.*"
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-06;
+        relTol          0;
+    }
 }
 
-gradSchemes
+SIMPLE
 {
-    default         Gauss linear;
-}
-
-divSchemes
-{
-    default         none;
-    div(phi,moment) Gauss upwind;
-}
-
-laplacianSchemes
-{
-    default         none;
-}
-
-interpolationSchemes
-{
-    default         linear;
-
-    "interpolate\(moment.*\)" linear;
-
-    interpolate(U)          linear;
-
-    reconstruct(U)          limitedMUSCL;
-    reconstruct(weight)     limitedMUSCL;
-    reconstruct(abscissa)   limitedMUSCL;
-    reconstruct(sigma)      limitedMUSCL;
-}
-
-snGradSchemes
-{
-    default         uncorrected;
-}
-
-fluxRequired
-{
-    default         no;
-    T               ;
+    nNonOrthogonalCorrectors 0;
 }
 
 

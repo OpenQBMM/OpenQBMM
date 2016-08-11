@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         Gauss linear;
+    default         leastSquares;
 }
 
 divSchemes
@@ -44,15 +44,15 @@ interpolationSchemes
 
     interpolate(U)          linear;
 
-    reconstruct(U)          limitedMUSCL;
-    reconstruct(weight)     limitedMUSCL;
-    reconstruct(abscissa)   limitedMUSCL;
-    reconstruct(sigma)      limitedMUSCL;
+    reconstruct(U)          upwind;
+    reconstruct(weight)     upwind;
+    reconstruct(abscissa)   upwind;
+    reconstruct(sigma)      upwind;
 }
 
 snGradSchemes
 {
-    default         uncorrected;
+    default         corrected;
 }
 
 fluxRequired

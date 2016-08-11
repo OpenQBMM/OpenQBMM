@@ -10,56 +10,28 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      fvSchemes;
+    location    "constant";
+    object      quadratureProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ddtSchemes
+moments
+(
+    (0)
+    (1)
+    (2)
+    (3)
+    (4)
+);
+
+nodes
+(
+    node0{ nSecondaryNodes 7; }
+    node1{nSecondaryNodes 7;}
+);
+
+extendedMomentInversionCoeff
 {
-    default         Euler;
+    extendedMomentInversion     gamma;
 }
-
-gradSchemes
-{
-    default         Gauss linear;
-}
-
-divSchemes
-{
-    default         none;
-    div(phi,moment) Gauss upwind;
-}
-
-laplacianSchemes
-{
-    default         none;
-}
-
-interpolationSchemes
-{
-    default         linear;
-
-    "interpolate\(moment.*\)" linear;
-
-    interpolate(U)          linear;
-
-    reconstruct(U)          limitedMUSCL;
-    reconstruct(weight)     limitedMUSCL;
-    reconstruct(abscissa)   limitedMUSCL;
-    reconstruct(sigma)      limitedMUSCL;
-}
-
-snGradSchemes
-{
-    default         uncorrected;
-}
-
-fluxRequired
-{
-    default         no;
-    T               ;
-}
-
-
 // ************************************************************************* //

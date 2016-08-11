@@ -41,7 +41,7 @@ interpolationSchemes
 {
     default         linear;
 
-    "interpolate\(moment.*\)" upwind phi;
+    "interpolate\(moment.*\)" linear;
     reconstruct(U)          upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;
