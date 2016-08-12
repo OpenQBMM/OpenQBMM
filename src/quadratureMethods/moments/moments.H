@@ -44,8 +44,13 @@ namespace Foam
 
 typedef moment<volScalarField, extendedVolScalarNode> volUnivariateMoment;
 
-typedef moment<surfaceScalarField, extendedSurfaceScalarNode> 
+typedef moment<surfaceScalarField, extendedSurfaceScalarNode>
     surfaceUnivariateMoment;
+
+typedef moment<volScalarField, extendedVolScalarNode> basicVolUnivariateMoment;
+
+typedef moment<surfaceScalarField, basicSurfaceScalarNode>
+    basicSurfaceUnivariateMoment;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
