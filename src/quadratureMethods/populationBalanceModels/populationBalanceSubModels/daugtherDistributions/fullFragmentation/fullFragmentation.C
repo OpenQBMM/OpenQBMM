@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Matteo Icardi
+    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "constantGrowth.H"
+#include "fullFragmentation.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -32,14 +32,14 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace growthModels
+namespace daughterDistributions
 {
-    defineTypeNameAndDebug(constantGrowth, 0);
+    defineTypeNameAndDebug(fullFragmentation, 0);
 
     addToRunTimeSelectionTable
     (
-        growthModel,
-        constantGrowth,
+        daughterDistribution,
+        fullFragmentation,
         dictionary
     );
 }
@@ -49,36 +49,35 @@ namespace growthModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::growthModels::constantGrowth
-::constantGrowth
+Foam::populationBalanceSubModels::daughterDistributions::fullFragmentation
+::fullFragmentation
 (
     const dictionary& dict
 )
 :
-    growthModel(dict),
-    minAbscissa_(dict.lookup("minAbscissa")),
-    maxAbscissa_(dict.lookup("maxAbscissa"))
+    daughterDistribution(dict)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::growthModels::constantGrowth
-::~constantGrowth()
+Foam::populationBalanceSubModels::daughterDistributions::fullFragmentation
+::~fullFragmentation()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::growthModels::constantGrowth::Kg
+Foam::populationBalanceSubModels::daughterDistributions::fullFragmentation
+::mD
 (
+    const label order,
     const volScalarField& abscissa
 ) const
-{  
-    dimensionedScalar oneAbs("oneAbs",dimVolume/pow(abscissa.dimensions(),2),1.0);
+{
 
-    return Cg_*pos(-abscissa+maxAbscissa_)*pos(abscissa-minAbscissa_)*oneAbs;
+    return (pow3(abscissa)/pow3(primarySize_))*pow(primarySize_, order);
 }
 
 // ************************************************************************* //
