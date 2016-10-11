@@ -80,14 +80,11 @@ protected:
             const volUnivariateMoment& moment
         ) = 0;
 
-        //- Update fields required to compute kinetic fluxes
-        void updatePhysicalSpaceConvection();
-
-        //- Calculate explicit convection term in physical space
-        tmp<volScalarField> physicalSpaceConvection
+        //- Calculate source terms
+        virtual tmp<fvScalarMatrix> momentSource
         (
             const volUnivariateMoment& moment
-        );
+        ) = 0;
 
         //- Convect moments in phase space
         virtual tmp<volScalarField> phaseSpaceConvection
@@ -95,11 +92,14 @@ protected:
             const volUnivariateMoment& moment
         ) = 0;
 
-        //- Calculate source terms
-        virtual tmp<fvScalarMatrix> momentSource
+        //- Calculate explicit convection term in physical space
+        tmp<volScalarField> physicalSpaceConvection
         (
             const volUnivariateMoment& moment
-        ) = 0;
+        );
+
+        //- Update fields required to compute kinetic fluxes
+        void updatePhysicalSpaceConvection();
 
 
 public:

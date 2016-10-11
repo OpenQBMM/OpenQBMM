@@ -3,8 +3,10 @@ cd ${0%/*} || exit 1    # run from this directory
 set -x
 
 wmake libso eigenSolver
+wmake libso Vandermonde
 wmake libso quadratureMethods/univariateMomentSet
 wmake libso quadratureMethods/extentedMomentInversion
+wmake libso quadratureMethods/multivariateMomentInversion
 wmake libso quadratureMethods/quadratureApproximation
 wmake libso quadratureMethods/PDFTransportModels
 wmake libso quadratureMethods/populationBalanceModels

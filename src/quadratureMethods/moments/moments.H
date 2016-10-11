@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -44,8 +44,13 @@ namespace Foam
 
 typedef moment<volScalarField, extendedVolScalarNode> volUnivariateMoment;
 
-typedef moment<surfaceScalarField, extendedSurfaceScalarNode> 
+typedef moment<surfaceScalarField, extendedSurfaceScalarNode>
     surfaceUnivariateMoment;
+
+typedef moment<volScalarField, extendedVolScalarNode> basicVolUnivariateMoment;
+
+typedef moment<surfaceScalarField, basicSurfaceScalarNode>
+    basicSurfaceUnivariateMoment;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

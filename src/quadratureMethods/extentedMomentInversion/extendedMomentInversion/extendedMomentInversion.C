@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -97,7 +97,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     }
 
     label nRealizableMoments = m.nRealizableMoments();
-    
+
     // If the moment set is on the boundary of the moment space, the
     // distribution will be reconstructed by a summation of Dirac delta,
     // and no attempt to use the extended quadrature method of moments is made.
