@@ -15,11 +15,9 @@ createEpsD43()
     set size 2,2
     set autoscale
 
-    plot    "$1" using 1:2 every 1 title 'Marchisio C_{Br} = 0.6-3'\
-                with points linetype 1 linewidth 5 linecolor rgb 'blue', \
-            "$2" using 1:2 title 'Experiments (Serra et al., 1997)'\
+    plot    "$1" using 1:2 title 'Experiments (Serra et al., 1997)'\
                 with points pointtype 7 ps 3 linecolor rgb 'black',\
-            "$3" using 1:2 every 20 title 'OpenQBMM C_{Br} = 0.6e-3'\
+            "$2" using 1:2 every 20 title 'OpenQBMM C_{Br} = 0.6e-3'\
                 with points linetype 2 linewidth 5 linecolor rgb '#9db668'
 EOF
 }
