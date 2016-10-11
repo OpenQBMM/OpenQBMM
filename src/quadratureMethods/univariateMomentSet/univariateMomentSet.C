@@ -77,7 +77,12 @@ Foam::univariateMomentSet::univariateMomentSet
             << abort(FatalError);
     }
 
-    const label recurrenceSize = label((nMoments_ - 2)/2) + 1;
+    label recurrenceSize = label((nMoments_ - 2)/2) + 1;
+
+    if (quadratureType_ == "GaussRadau")
+    {
+        recurrenceSize += 1;
+    }
 
     alpha_.setSize(recurrenceSize, scalar(0));
     beta_.setSize(recurrenceSize + 1, scalar(0));
@@ -129,7 +134,7 @@ Foam::univariateMomentSet::univariateMomentSet
             << abort(FatalError);
     }
 
-    const label recurrenceSize = label((nMoments_ - 2)/2) + 1;
+    label recurrenceSize = label((nMoments_ - 2)/2) + 1;
 
     alpha_.setSize(recurrenceSize, scalar(0));
     beta_.setSize(recurrenceSize + 1, scalar(0));
@@ -151,8 +156,16 @@ void Foam::univariateMomentSet::invert()
         return;
     }
 
-    if (isDegenerate())
+    if ((*this)[0] < SMALL)
     {
+        nNodes_ = 0;
+
+        return;
+    }
+
+    if (isDegenerate()) // || (*this)[0] <= 0.0)
+    {
+        //degenerate_ = true;
         setupQuadrature();
         weights_[0] = (*this)[0];
         abscissae_[0] = 0.0;
@@ -773,7 +786,11 @@ void Foam::univariateMomentSet::calcNInvertibleMoments()
     }
 }
 
-void Foam::univariateMomentSet::setupQuadrature(bool clear)
+void Foam::univariateMomentSet::setupQuadrature
+(
+    bool clear,
+    bool nullMomentSet
+)
 {
     if (!realizabilityChecked_)
     {
@@ -802,6 +819,8 @@ void Foam::univariateMomentSet::setupQuadrature(bool clear)
 
     weights_.resize(nNodes_, 0.0);
     abscissae_.resize(nNodes_, 0.0);
+
+    //quadratureSetUp_ = true;
 }
 
 void Foam::univariateMomentSet::update()

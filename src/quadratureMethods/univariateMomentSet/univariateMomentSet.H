@@ -165,7 +165,7 @@ class univariateMomentSet
         inline void calcNInvertibleMoments();
 
         //- Setup quadrature storage based on realizability
-        void setupQuadrature(bool clear = false);
+        void setupQuadrature(bool clear = false, bool nullMomentSet = false);
 
 public:
 

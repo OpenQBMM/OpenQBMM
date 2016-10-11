@@ -43,25 +43,25 @@ Foam::univariateQuadratureApproximation::moments()
     return moments_;
 }
 
-const Foam::surfaceUnivariateMomentFieldSet&
+const Foam::basicSurfaceUnivariateMomentFieldSet&
 Foam::univariateQuadratureApproximation::momentsNei() const
 {
     return momentsNei_;
 }
 
-Foam::surfaceUnivariateMomentFieldSet&
+Foam::basicSurfaceUnivariateMomentFieldSet&
 Foam::univariateQuadratureApproximation::momentsNei()
 {
     return momentsNei_;
 }
 
-const Foam::surfaceUnivariateMomentFieldSet&
+const Foam::basicSurfaceUnivariateMomentFieldSet&
 Foam::univariateQuadratureApproximation::momentsOwn() const
 {
     return momentsOwn_;
 }
 
-Foam::surfaceUnivariateMomentFieldSet&
+Foam::basicSurfaceUnivariateMomentFieldSet&
 Foam::univariateQuadratureApproximation::momentsOwn()
 {
     return momentsOwn_;
