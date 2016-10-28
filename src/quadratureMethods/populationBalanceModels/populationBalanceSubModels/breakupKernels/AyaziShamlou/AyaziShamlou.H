@@ -26,15 +26,15 @@ Class
 
 Description
     Breakup kernel for liquid-solid systems.
-    
+
     Reference
     \verbatim
-        "Growth-independent breakage frequency of protein precipitates in 
+        "Growth-independent breakage frequency of protein precipitates in
         turbulently agitated bioreactors"
         P Ayazi Shamlou, S Stravrinides, N Titchener-Hooker, M Hoare
         Chemical Engineering Science
         Volume 49, Pages 2647-2656, 1994
-    \endverbatim 
+    \endverbatim
 
 SourceFiles
     AyaziShamlou.C
@@ -64,21 +64,21 @@ class AyaziShamlou
     public breakupKernel
 {
 private:
-    
+
     // Private data
 
         //- Hamaker constant
         dimensionedScalar A_;
-        
+
         //- Fractal dimension of the aggregates
         dimensionedScalar df_;
-        
+
         //- Distance between primary particles
-        dimensionedScalar H0_;        
-        
+        dimensionedScalar H0_;
+
         //- Primary particle size
         dimensionedScalar primarySize_;
-    
+
 public:
 
         //- Runtime type information

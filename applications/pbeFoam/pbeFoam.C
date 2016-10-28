@@ -28,8 +28,7 @@ Application
 
 Description
     Solver for population balance problems
-    - designed for use on single cell cases to provide comparison against
-      other chemistry solvers
+    - designed for use on single cell cases to validate kernels
     - single cell mesh created on-the-fly
     - fields created on the fly from the initial conditions
 
@@ -69,7 +68,7 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         populationBalance->solve();
-        
+
         #include "output.H"
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
