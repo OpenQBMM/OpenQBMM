@@ -75,17 +75,17 @@ Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup::Kb
 (
     const volScalarField& abscissa
 ) const
-{   
+{
     dimensionedScalar minAbs
     (
-        "minAbs", 
-        abscissa.dimensions(), 
+        "minAbs",
+        abscissa.dimensions(),
         minAbscissa_.value()
     );
 
-    tmp<volScalarField> brK = 
+    tmp<volScalarField> brK =
         Cb_*pos(abscissa - minAbs)*pow(abscissa, abscissaExponent_);
-        
+
     brK.ref().dimensions().reset(pow(dimTime, -1));
 
     return brK;

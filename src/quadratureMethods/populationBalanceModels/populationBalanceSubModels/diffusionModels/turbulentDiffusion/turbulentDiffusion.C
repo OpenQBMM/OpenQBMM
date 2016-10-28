@@ -85,8 +85,9 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
     return fvm::laplacian(gamma, moment);
 }
 
-Foam::tmp<Foam::volScalarField> Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion::
-turbViscosity(const volScalarField& moment) const
+Foam::tmp<Foam::volScalarField>
+Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
+::turbViscosity(const volScalarField& moment) const
 {
     typedef compressible::turbulenceModel cmpTurbModel;
     typedef incompressible::turbulenceModel icoTurbModel;

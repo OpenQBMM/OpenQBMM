@@ -78,7 +78,32 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     const volScalarField& abscissa
 ) const
 {
-    const compressible::turbulenceModel& fluidTurb =
+    if (!abscissa.mesh().foundObject<fluidThermo>(basicThermo::dictName))
+    {
+        FatalErrorInFunction
+            << "No valid thermophysical model found."
+            << abort(FatalError);
+    }
+
+    const fluidThermo& flThermo =
+        abscissa.mesh().lookupObject<fluidThermo>(basicThermo::dictName);
+
+    typedef compressible::turbulenceModel cmpTurbModel;
+
+    if
+    (
+        !abscissa.mesh().foundObject<cmpTurbModel>
+        (
+            cmpTurbModel::propertiesName
+        )
+    )
+    {
+        FatalErrorInFunction
+            << "No valid compressible turbulence model found."
+            << abort(FatalError);
+    }
+
+    const compressible::turbulenceModel& flTurb =
         abscissa.mesh().lookupObject<compressible::turbulenceModel>
         (
             turbulenceModel::propertiesName
@@ -100,9 +125,9 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     volScalarField tauf(9.0*kc*phiL*F/(8.0*sqr(primarySize_)
             *Foam::constant::mathematical::pi));
 
-    const volScalarField& mu = fluidTurb.mu();
+    const volScalarField& mu = flThermo.mu();
 
-    volScalarField epsilonByNu(fluidTurb.epsilon()*fluidTurb.rho()/mu);
+    volScalarField epsilonByNu(flTurb.epsilon()*flThermo.rho()/mu);
 
     return sqrt(epsilonByNu/15.0)*exp(-tauf/(mu*sqrt(epsilonByNu)));
 }

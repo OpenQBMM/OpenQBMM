@@ -47,7 +47,7 @@
     #include "createPhi.H"
 
     Info << "Creating turbulence model.\n" << endl;
-    autoPtr<compressible::turbulenceModel> turbulence
+    autoPtr<compressible::turbulenceModel> pTurbulence
     (
         compressible::turbulenceModel::New
         (
@@ -57,6 +57,9 @@
             thermo
         )
     );
+
+    compressible::turbulenceModel& turbulence = pTurbulence();
+    turbulence.validate();
 
     Info<< "Reading populationBalanceProperties\n" << endl;
 

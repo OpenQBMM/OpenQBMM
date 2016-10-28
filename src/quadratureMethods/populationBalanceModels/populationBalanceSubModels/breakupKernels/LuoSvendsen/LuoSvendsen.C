@@ -77,15 +77,30 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::Kb
 (
     const volScalarField& abscissa
 ) const
-{   
-    const compressible::turbulenceModel& fluidTurb =
+{
+    typedef compressible::turbulenceModel cmpTurbModel;
+
+    if
+    (
+        !abscissa.mesh().foundObject<cmpTurbModel>
+        (
+            cmpTurbModel::propertiesName
+        )
+    )
+    {
+        FatalErrorInFunction
+            << "No valid compressible turbulence model found."
+            << abort(FatalError);
+    }
+
+    const compressible::turbulenceModel& flTurb =
         abscissa.mesh().lookupObject<compressible::turbulenceModel>
         (
             turbulenceModel::propertiesName
         );
 
-    return Cb_*pow(fluidTurb.epsilon(), epsilonExp_)
-        *pow(fluidTurb.nu(), nuExp_)*pow(abscissa, sizeExp_);
+    return Cb_*pow(flTurb.epsilon(), epsilonExp_)
+        *pow(flTurb.nu(), nuExp_)*pow(abscissa, sizeExp_);
 }
 
 // ************************************************************************* //
