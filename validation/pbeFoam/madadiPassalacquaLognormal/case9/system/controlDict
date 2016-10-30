@@ -66,8 +66,8 @@ functions
         name            probes;
 
         // Write at same frequency as fields
-        outputControl   timeStep;
-        outputInterval  1;
+        writeControl   timeStep;
+        writeInterval  1;
 
         // Fields to be probed
         fields
