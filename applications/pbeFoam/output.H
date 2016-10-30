@@ -4,4 +4,3 @@
 
     Info<< "moment.0 = " << moment0[0] << endl;
 
-

@@ -57,7 +57,6 @@
             thermo
         )
     );
-
     compressible::turbulenceModel& turbulence = pTurbulence();
     turbulence.validate();
 
@@ -79,6 +78,9 @@
     (
         populationBalanceModel::New
         (
-            "populationBalance", populationBalanceProperties, U, phi
+            "populationBalance",
+            populationBalanceProperties,
+            U,
+            phi
         )
     );

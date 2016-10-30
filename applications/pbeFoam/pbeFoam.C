@@ -38,8 +38,8 @@ Description
 #include "psiThermo.H"
 #include "turbulentFluidThermoModel.H"
 #include "OFstream.H"
-#include "thermoPhysicsTypes.H"
-#include "basicMultiComponentMixture.H"
+//#include "thermoPhysicsTypes.H"
+//#include "basicMultiComponentMixture.H"
 #include "cellModeller.H"
 #include "populationBalanceModel.H"
 
@@ -48,6 +48,10 @@ Description
 int main(int argc, char *argv[])
 {
     argList::noParallel();
+
+    #define CREATE_MESH createSingleCellMesh.H
+    #define NO_CONTROL
+    #include "postProcess.H"
 
     #include "setRootCase.H"
     #include "createTime.H"

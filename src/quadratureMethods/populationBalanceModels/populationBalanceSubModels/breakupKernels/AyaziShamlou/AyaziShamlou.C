@@ -78,7 +78,7 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     const volScalarField& abscissa
 ) const
 {
-    if (!abscissa.mesh().foundObject<fluidThermo>(basicThermo::dictName))
+    if (!abscissa.db().foundObject<fluidThermo>(basicThermo::dictName))
     {
         FatalErrorInFunction
             << "No valid thermophysical model found."
@@ -86,13 +86,13 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     }
 
     const fluidThermo& flThermo =
-        abscissa.mesh().lookupObject<fluidThermo>(basicThermo::dictName);
+        abscissa.db().lookupObject<fluidThermo>(basicThermo::dictName);
 
     typedef compressible::turbulenceModel cmpTurbModel;
 
     if
     (
-        !abscissa.mesh().foundObject<cmpTurbModel>
+        !abscissa.mesh().time().db().foundObject<cmpTurbModel>
         (
             cmpTurbModel::propertiesName
         )
@@ -103,8 +103,8 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
             << abort(FatalError);
     }
 
-    const compressible::turbulenceModel& flTurb =
-        abscissa.mesh().lookupObject<compressible::turbulenceModel>
+    const cmpTurbModel& flTurb =
+        abscissa.mesh().time().db().lookupObject<cmpTurbModel>
         (
             turbulenceModel::propertiesName
         );
@@ -122,14 +122,14 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     volScalarField kc(15.0*pow(phiL, 1.2));
 
     // Aggregation strength
-    volScalarField tauf(9.0*kc*phiL*F/(8.0*sqr(primarySize_)
+    volScalarField sigma(9.0*kc*phiL*F/(8.0*sqr(primarySize_)
             *Foam::constant::mathematical::pi));
 
-    const volScalarField& mu = flThermo.mu();
+    volScalarField epsilonByNu(flTurb.epsilon()/flThermo.nu());
 
-    volScalarField epsilonByNu(flTurb.epsilon()*flThermo.rho()/mu);
+    volScalarField tau = flThermo.mu()*sqrt(epsilonByNu);
 
-    return sqrt(epsilonByNu/15.0)*exp(-tauf/(mu*sqrt(epsilonByNu)));
+    return sqrt(epsilonByNu/15.0)*exp(-sigma/tau);
 }
 
 // ************************************************************************* //

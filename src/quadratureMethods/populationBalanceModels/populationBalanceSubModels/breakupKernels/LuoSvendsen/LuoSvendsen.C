@@ -82,7 +82,7 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::Kb
 
     if
     (
-        !abscissa.mesh().foundObject<cmpTurbModel>
+        !abscissa.mesh().time().db().foundObject<cmpTurbModel>
         (
             cmpTurbModel::propertiesName
         )
@@ -93,10 +93,10 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::Kb
             << abort(FatalError);
     }
 
-    const compressible::turbulenceModel& flTurb =
-        abscissa.mesh().lookupObject<compressible::turbulenceModel>
+    const cmpTurbModel& flTurb =
+        abscissa.mesh().time().db().lookupObject<cmpTurbModel>
         (
-            turbulenceModel::propertiesName
+            cmpTurbModel::propertiesName
         );
 
     return Cb_*pow(flTurb.epsilon(), epsilonExp_)
