@@ -92,7 +92,7 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
 
     if
     (
-        !abscissa.mesh().time().db().foundObject<cmpTurbModel>
+        !abscissa.db().foundObject<cmpTurbModel>
         (
             cmpTurbModel::propertiesName
         )
@@ -104,7 +104,7 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     }
 
     const cmpTurbModel& flTurb =
-        abscissa.mesh().time().db().lookupObject<cmpTurbModel>
+        abscissa.db().lookupObject<cmpTurbModel>
         (
             turbulenceModel::propertiesName
         );

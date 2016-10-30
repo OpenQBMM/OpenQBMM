@@ -58,6 +58,8 @@ int main(int argc, char *argv[])
     #include "createSingleCellMesh.H"
     #include "createFields.H"
 
+    turbulence->validate();
+
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
@@ -71,6 +73,7 @@ int main(int argc, char *argv[])
         runTime++;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
+        turbulence->validate();
         populationBalance->solve();
 
         #include "output.H"
