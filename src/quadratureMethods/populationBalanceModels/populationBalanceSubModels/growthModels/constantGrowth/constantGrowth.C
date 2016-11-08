@@ -75,10 +75,16 @@ Foam::populationBalanceSubModels::growthModels::constantGrowth::Kg
 (
     const volScalarField& abscissa
 ) const
-{  
-    dimensionedScalar oneAbs("oneAbs",dimVolume/pow(abscissa.dimensions(),2),1.0);
+{
+    dimensionedScalar oneAbs
+    (
+        "oneAbs",
+        dimVolume/sqr(abscissa.dimensions()),
+        1.0
+    );
 
-    return Cg_*pos(-abscissa+maxAbscissa_)*pos(abscissa-minAbscissa_)*oneAbs;
+    return Cg_*pos(-abscissa + maxAbscissa_)
+        *pos(abscissa - minAbscissa_)*oneAbs;
 }
 
 // ************************************************************************* //

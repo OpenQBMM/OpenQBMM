@@ -77,34 +77,59 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
 (
     const volScalarField& abscissa
 ) const
-{   
-    const compressible::turbulenceModel& flTurb =
-        abscissa.mesh().lookupObject<compressible::turbulenceModel>
+{
+    if (!abscissa.db().foundObject<fluidThermo>(basicThermo::dictName))
+    {
+        FatalErrorInFunction
+            << "No valid thermophysical model found."
+            << abort(FatalError);
+    }
+
+    const fluidThermo& flThermo =
+        abscissa.db().lookupObject<fluidThermo>(basicThermo::dictName);
+
+    typedef compressible::turbulenceModel cmpTurbModel;
+
+    if
+    (
+        !abscissa.db().foundObject<cmpTurbModel>
+        (
+            cmpTurbModel::propertiesName
+        )
+    )
+    {
+        FatalErrorInFunction
+            << "No valid compressible turbulence model found."
+            << abort(FatalError);
+    }
+
+    const cmpTurbModel& flTurb =
+        abscissa.db().lookupObject<cmpTurbModel>
         (
             turbulenceModel::propertiesName
         );
-        
+
     // Interparticle force
     dimensionedScalar F = A_*primarySize_/(12.0*sqr(H0_));
-    
+
     // Coefficient of volume fraction (Vanni, 2000)
     dimensionedScalar C = 0.41*df_ - 0.211;
-    
+
     // Volume fraction of solid within aggregates
     volScalarField phiL(C*pow(abscissa/primarySize_, df_ - 3.0));
-    
+
     // Coordination number
     volScalarField kc(15.0*pow(phiL, 1.2));
-    
-    // Aggregation strength
-    volScalarField tauf(9.0*kc*phiL*F/(8.0*sqr(primarySize_)
-            *Foam::constant::mathematical::pi));
-    
-    const volScalarField& mu = flTurb.mu();
 
-    volScalarField epsilonByNu(flTurb.epsilon()*flTurb.rho()/mu);
-    
-    return sqrt(epsilonByNu/15.0)*exp(-tauf/(mu*sqrt(epsilonByNu)));
+    // Aggregation strength
+    volScalarField sigma(9.0*kc*phiL*F/(8.0*sqr(primarySize_)
+            *Foam::constant::mathematical::pi));
+
+    volScalarField epsilonByNu(flTurb.epsilon()/flThermo.nu());
+
+    volScalarField tau = flThermo.mu()*sqrt(epsilonByNu);
+
+    return sqrt(epsilonByNu/15.0)*exp(-sigma/tau);
 }
 
 // ************************************************************************* //

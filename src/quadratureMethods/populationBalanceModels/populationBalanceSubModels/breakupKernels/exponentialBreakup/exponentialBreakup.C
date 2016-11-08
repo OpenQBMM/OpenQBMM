@@ -61,7 +61,7 @@ Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup
     (
         dict.lookupOrDefault
         (
-            "expCoeff", 
+            "expCoeff",
             dimensionedScalar("expC", inv(pow3(dimLength)), 0.1)
         )
     )
@@ -82,14 +82,14 @@ Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup::Kb
 (
     const volScalarField& abscissa
 ) const
-{   
+{
     dimensionedScalar minAbs
     (
-        "minAbs", 
-        abscissa.dimensions(), 
+        "minAbs",
+        abscissa.dimensions(),
         minAbscissa_.value()
     );
-    
+
     return Cb_*pos(abscissa - minAbs)*exp(expCoeff_*pow3(abscissa));
 }
 

@@ -51,21 +51,21 @@ maxCo           0.9;
 maxDeltaT       10;
 
 functions
-{  
+{
     d43Average
     {
         functionObjectLibs ("libutilityFunctionObjects.so");
         type coded;
         redirectType integral;
-        outputControl timeStep;
+        writeControl timeStep;
         code
         #{
-        const volScalarField& m3 
+        const volScalarField& m3
                 = mesh().lookupObject<volScalarField>("moment.3");
-                
+
         const volScalarField& m4
                 = mesh().lookupObject<volScalarField>("moment.4");
-                
+
         volScalarField d43(m4/m3);
 
         scalar volAverage = 0;

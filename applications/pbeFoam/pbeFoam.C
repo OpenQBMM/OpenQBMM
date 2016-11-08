@@ -28,8 +28,7 @@ Application
 
 Description
     Solver for population balance problems
-    - designed for use on single cell cases to provide comparison against
-      other chemistry solvers
+    - designed for use on single cell cases to validate kernels
     - single cell mesh created on-the-fly
     - fields created on the fly from the initial conditions
 
@@ -39,8 +38,8 @@ Description
 #include "psiThermo.H"
 #include "turbulentFluidThermoModel.H"
 #include "OFstream.H"
-#include "thermoPhysicsTypes.H"
-#include "basicMultiComponentMixture.H"
+//#include "thermoPhysicsTypes.H"
+//#include "basicMultiComponentMixture.H"
 #include "cellModeller.H"
 #include "populationBalanceModel.H"
 
@@ -50,10 +49,16 @@ int main(int argc, char *argv[])
 {
     argList::noParallel();
 
+    #define CREATE_MESH createSingleCellMesh.H
+    #define NO_CONTROL
+    #include "postProcess.H"
+
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createSingleCellMesh.H"
     #include "createFields.H"
+
+    turbulence->validate();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -68,8 +73,9 @@ int main(int argc, char *argv[])
         runTime++;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
+        turbulence->validate();
         populationBalance->solve();
-        
+
         #include "output.H"
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"

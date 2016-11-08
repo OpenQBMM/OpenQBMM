@@ -20,7 +20,7 @@
         (
             "rho",
             runTime.timeName(),
-            runTime,
+            mesh,
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
@@ -35,7 +35,7 @@
         (
             "U",
             runTime.timeName(),
-            runTime,
+            mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
@@ -76,6 +76,9 @@
     (
         populationBalanceModel::New
         (
-            "populationBalance", populationBalanceProperties, U, phi
+            "populationBalance",
+            populationBalanceProperties,
+            U,
+            phi
         )
     );

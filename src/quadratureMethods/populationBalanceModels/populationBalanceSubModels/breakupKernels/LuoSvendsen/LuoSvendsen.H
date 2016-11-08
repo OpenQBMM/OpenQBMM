@@ -26,17 +26,17 @@ Class
 
 Description
     Breakup kernel for liquid-solid systems.
-    
+
     Reference
     \verbatim
         "Theoretical model for drop and bubble breakup in turbulent dispersion"
-        H Luo, H F Svendsen 
+        H Luo, H F Svendsen
         AIChE Journal
         Volume 42, Pages 1225-1233, 1996
-    \endverbatim 
+    \endverbatim
 
-    
-    
+
+
 SourceFiles
     LuoSvendsen.C
 
@@ -65,21 +65,21 @@ class LuoSvendsen
     public breakupKernel
 {
 private:
-    
+
     // Private data
 
         //- Model coefficient
         dimensionedScalar Cb_;
-        
+
         //- Exponent of the turbulent dissipation rate
         scalar epsilonExp_;
-        
+
         //- Exponent of the kinematic viscosity
         scalar nuExp_;
-        
+
         //- Exponent of the abscissa
         scalar sizeExp_;
-    
+
 public:
 
         //- Runtime type information

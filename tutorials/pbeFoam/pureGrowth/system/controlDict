@@ -66,22 +66,22 @@ functions
         name            probes;
 
         // Write at same frequency as fields
-        outputControl   timeStep;
-        outputInterval  1;
+        writeControl   timeStep;
+        writeInterval  1;
 
         // Fields to be probed
         fields
         (
-            moment.0 
-            moment.1 
-            moment.2 
-            moment.3 
-            moment.4
+            moment.0.populationBalance
+            moment.1.populationBalance
+            moment.2.populationBalance
+            moment.3.populationBalance
+            moment.4.populationBalance
         );
 
         probeLocations
         (
-            ( 0.5 0.5 0.5 )        
+            ( 0.5 0.5 0.5 )
         );
     }
 }
