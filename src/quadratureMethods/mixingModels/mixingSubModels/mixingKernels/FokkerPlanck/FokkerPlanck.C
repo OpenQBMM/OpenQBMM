@@ -70,7 +70,7 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::fvScalarMatrix>
+Foam::tmp<Foam::volScalarField>
 Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
 (
     const volUnivariateMoment& moment,
@@ -100,12 +100,26 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
 
     label momentOrder = moment.order();
 
-    tmp<fvScalarMatrix> mixingK
+    tmp<volScalarField> mixingK
     (
-        new fvScalarMatrix
+        new volScalarField
         (
-            moment,
-            moment.dimensions()*dimVol/dimTime
+            IOobject
+            (
+                "mixingK",
+                moment.mesh().time().timeName(),
+                moment.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            moment.mesh(),
+            dimensionedScalar
+            (
+                "mixingK",
+                moment.dimensions()/dimTime,
+                0.0
+            )
         )
     );
 
@@ -121,10 +135,10 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
             *moments[momentOrder - 1]
             *((Cmixing_ + 1.0)*moments[1] + Cmixing_*(momentOrder - 1)*oneMoment
             *((moments[2] - sqr(moments[1]))/(moments[1]*oneMoment
-            - moments[2]))) - fvm::SuSp(momentOrder*Cphi_*flTurb.epsilon()
+            - moments[2]))) - /*fvm::SuSp*/(momentOrder*Cphi_*flTurb.epsilon()
             /flTurb.k()*((Cmixing_ + 1.0) + Cmixing_*(momentOrder - 1)
             *((moments[2] - sqr(moments[1]))/(moments[1]*oneMoment
-            - moments[2]))), moment);
+            - moments[2])))*moment);
     }
 
     return mixingK;

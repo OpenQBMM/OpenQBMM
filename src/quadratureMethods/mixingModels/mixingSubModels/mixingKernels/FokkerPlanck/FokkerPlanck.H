@@ -35,11 +35,11 @@ Description
         R O Fox
         Cambridge University Press
     \endverbatim
-    
+
     \verbatim
         "Solution of the Fokker-Planck Equation Using the Extended
         Quadrature Method of Moments"
-        E Madadi-Kandjani and A Passalacqua 
+        E Madadi-Kandjani and A Passalacqua
         2015 AIChE Annual Meeting, Salt Lake City, UT
     \endverbatim
 
@@ -89,7 +89,7 @@ public:
     // Member Functions
 
         //- Aggregation kernel
-        virtual tmp<fvScalarMatrix> K
+        virtual tmp<volScalarField> K
         (
             const volUnivariateMoment& moment,
             const volUnivariateMomentFieldSet& moments
