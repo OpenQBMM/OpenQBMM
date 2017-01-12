@@ -7,20 +7,16 @@
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
-
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
-
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 #include "IEM.H"
@@ -70,7 +66,7 @@ Foam::mixingSubModels::mixingKernels::IEM
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::fvScalarMatrix>
+Foam::tmp<Foam::volScalarField>
 Foam::mixingSubModels::mixingKernels::IEM::K
 (
     const volUnivariateMoment& moment,
@@ -100,12 +96,26 @@ Foam::mixingSubModels::mixingKernels::IEM::K
 
     label momentOrder = moment.order();
 
-    tmp<fvScalarMatrix> mixingK
+    tmp<volScalarField> mixingK
     (
-        new fvScalarMatrix
+        new volScalarField
         (
-            moment,
-            moment.dimensions()*dimVol/dimTime
+            IOobject
+            (
+                "mixingK",
+                moment.mesh().time().timeName(),
+                moment.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            moment.mesh(),
+            dimensionedScalar
+            (
+                "mixingK",
+                moment.dimensions()/dimTime,
+                0.0
+            )
         )
     );
 
@@ -117,7 +127,7 @@ Foam::mixingSubModels::mixingKernels::IEM::K
     {
         mixingK.ref() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
             *(moments[momentOrder - 1]*moments[1])
-            - fvm::SuSp(momentOrder*Cphi_*flTurb.epsilon()/flTurb.k(), moment);
+            - /*fvm::SuSp*/(momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()*moment);
     }
 
     return mixingK;

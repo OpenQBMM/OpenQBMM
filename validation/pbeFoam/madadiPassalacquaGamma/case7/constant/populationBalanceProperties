@@ -19,6 +19,16 @@ populationBalanceModel univariate;
 
 univariateCoeffs
 {
+    ode on;
+    odeCoeffs
+    {
+        fac 0.5;
+        facMin  1e-3;
+        facMax  2.0;
+        RTol    1e-6;
+        ATol    1e-8;
+    }
+
     diffusionModel
     {
         diffusionModel none;
@@ -59,6 +69,7 @@ univariateCoeffs
         Cg        Cg        [0 3 -1 0 0 0 0 ] 1.0;
     }
 
+    nucleation off;
     nucleationModel
     {
         nucleationModel  none;
