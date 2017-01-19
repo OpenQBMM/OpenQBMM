@@ -52,6 +52,7 @@ functions
         type coded;
         redirectType integral;
         writeControl timeStep;
+
         code
         #{
         const volScalarField& epsilon
@@ -74,40 +75,6 @@ functions
 
         #};
     }
-
-//     d43Average
-//     {
-//         functionObjectLibs ("libutilityFunctionObjects.so");
-//         type coded;
-//         redirectType integral;
-//         writeControl timeStep;
-//         code
-//         #{
-//         const volScalarField& m3
-//                 = mesh().lookupObject<volScalarField>("moment.3");
-//
-//         const volScalarField& m4
-//                 = mesh().lookupObject<volScalarField>("moment.4");
-//
-//         volScalarField d43(m4/m3);
-//
-//         scalar volAverage = 0;
-//         scalar totalVolume = 0;
-//
-//         forAll (d43, cellI)
-//         {
-//             totalVolume += mesh().V()[cellI];
-//         }
-//
-//         forAll (d43, cellI)
-//         {
-//             volAverage += d43[cellI]*mesh().V()[cellI]/totalVolume;
-//         }
-//
-//         Info<<"Volume averaged normalized d43: " << volAverage/(2.0e-6) << endl;
-//
-//         #};
-//     }
 }
 
 

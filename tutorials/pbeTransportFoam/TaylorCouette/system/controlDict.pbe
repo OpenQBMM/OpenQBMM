@@ -57,7 +57,8 @@ functions
         functionObjectLibs ("libutilityFunctionObjects.so");
         type coded;
         redirectType integral;
-        outputControl timeStep;
+        writeControl timeStep;
+
         code
         #{
         const volScalarField& m3
