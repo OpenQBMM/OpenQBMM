@@ -7,30 +7,23 @@
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
-
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
-
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
 Class
     Foam::univariatePDFTransportModel
-
 Description
     Solve a univariate PDF transport equation with the extended quadrature
     method of moments.
-
 SourceFiles
     univariatePDFTransportModel.C
-
 \*---------------------------------------------------------------------------*/
 
 #ifndef univariatePDFTransportModel_H
@@ -38,6 +31,9 @@ SourceFiles
 
 #include "PDFTransportModel.H"
 #include "univariateQuadratureApproximation.H"
+
+#include "turbulentFluidThermoModel.H"
+#include "turbulentTransportModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -59,6 +55,28 @@ class univariatePDFTransportModel
         //- Name of the univariatePDFTransportModel
         const word name_;
 
+        //- Support
+        const word support_;
+
+
+    // Variables for ODE solver
+        Switch ode_;
+
+        //- Moment inversion method
+        autoPtr<extendedMomentInversion> momentInverter_;
+
+        //- ODE constants
+        scalar ATol_;
+        scalar RTol_;
+        scalar fac_;
+        scalar facMin_;
+        scalar facMax_;
+
+        //- Stored local time step
+        dimensionedScalar h_;
+
+        bool maxDeltaT_;
+
 protected:
 
     // Protected data
@@ -72,6 +90,12 @@ protected:
         //- Face velocity field
         const surfaceScalarField& phi_;
 
+        //- Local nodes
+        autoPtr<PtrList<extendedVolScalarNode> > nodes_;
+
+        //- Local moment set
+        volUnivariateMomentFieldSet moments_;
+
     // Protected member functions
 
         //- Diffusion term
@@ -80,17 +104,8 @@ protected:
             const volUnivariateMoment& moment
         ) = 0;
 
-        //- Calculate source terms
-        virtual tmp<fvScalarMatrix> momentSource
-        (
-            const volUnivariateMoment& moment
-        ) = 0;
-
-        //- Convect moments in phase space
-        virtual tmp<volScalarField> phaseSpaceConvection
-        (
-            const volUnivariateMoment& moment
-        ) = 0;
+        //- Update fields required to compute kinetic fluxes
+        void updatePhysicalSpaceConvection();
 
         //- Calculate explicit convection term in physical space
         tmp<volScalarField> physicalSpaceConvection
@@ -98,8 +113,24 @@ protected:
             const volUnivariateMoment& moment
         );
 
-        //- Update fields required to compute kinetic fluxes
-        void updatePhysicalSpaceConvection();
+
+        //- Convect moments in phase space
+        virtual tmp<volScalarField> phaseSpaceConvection
+        (
+            const volUnivariateMoment& moment
+        ) = 0;
+
+        //- Calculate source terms (not uded in ODE)
+        virtual tmp<volScalarField> momentSource
+        (
+            const volUnivariateMoment& m
+        ) = 0;
+
+        //- Update local quadrature
+        void updateQuadrature();
+
+        //- ODE solver for moment source
+        void solveMomentSource();
 
 
 public:
@@ -125,6 +156,9 @@ public:
     // Member Functions
 
         //- Access
+
+            //- Returns whether or not the ode solver is turned on.
+            inline bool ode() const;
 
             //- Returns a const reference to the quadrature approximation
             inline const univariateQuadratureApproximation& quadrature() const;

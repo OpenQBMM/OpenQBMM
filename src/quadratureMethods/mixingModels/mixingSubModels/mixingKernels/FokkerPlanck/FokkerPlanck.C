@@ -7,20 +7,16 @@
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
-
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
-
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 #include "FokkerPlanck.H"
@@ -70,7 +66,7 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::fvScalarMatrix>
+Foam::tmp<Foam::volScalarField>
 Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
 (
     const volUnivariateMoment& moment,
@@ -100,12 +96,26 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
 
     label momentOrder = moment.order();
 
-    tmp<fvScalarMatrix> mixingK
+    tmp<volScalarField> mixingK
     (
-        new fvScalarMatrix
+        new volScalarField
         (
-            moment,
-            moment.dimensions()*dimVol/dimTime
+            IOobject
+            (
+                "mixingK",
+                moment.mesh().time().timeName(),
+                moment.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            moment.mesh(),
+            dimensionedScalar
+            (
+                "mixingK",
+                moment.dimensions()/dimTime,
+                0.0
+            )
         )
     );
 
@@ -121,10 +131,10 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
             *moments[momentOrder - 1]
             *((Cmixing_ + 1.0)*moments[1] + Cmixing_*(momentOrder - 1)*oneMoment
             *((moments[2] - sqr(moments[1]))/(moments[1]*oneMoment
-            - moments[2]))) - fvm::SuSp(momentOrder*Cphi_*flTurb.epsilon()
+            - moments[2]))) - /*fvm::SuSp*/(momentOrder*Cphi_*flTurb.epsilon()
             /flTurb.k()*((Cmixing_ + 1.0) + Cmixing_*(momentOrder - 1)
             *((moments[2] - sqr(moments[1]))/(moments[1]*oneMoment
-            - moments[2]))), moment);
+            - moments[2])))*moment);
     }
 
     return mixingK;

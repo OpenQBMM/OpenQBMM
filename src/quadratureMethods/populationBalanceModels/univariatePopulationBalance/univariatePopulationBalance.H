@@ -7,30 +7,23 @@
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
-
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
-
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
 Class
     Foam::populationBalanceModels::univariatePopulationBalance
-
 Description
     Solve a univariate population balance equation with the extended quadrature
     method of moments.
-
 SourceFiles
     univariatePopulationBalance.C
-
 \*---------------------------------------------------------------------------*/
 
 #ifndef univariatePopulationBalance_H
@@ -75,6 +68,9 @@ class univariatePopulationBalance
 
         //- Switch indicating the status of the growth model
         Switch growth_;
+
+        //- Switch indicating the status of the nucleation model
+        Switch nucleation_;
 
         //- Aggregation kernel model
         autoPtr
@@ -134,12 +130,11 @@ class univariatePopulationBalance
             const volUnivariateMoment& moment
         );
 
-        //- Calculate source terms
-        virtual tmp<fvScalarMatrix> momentSource
+        //- Calculate source terms not used in ODE
+        virtual tmp<volScalarField> momentSource
         (
             const volUnivariateMoment& moment
         );
-
 
 public:
 
