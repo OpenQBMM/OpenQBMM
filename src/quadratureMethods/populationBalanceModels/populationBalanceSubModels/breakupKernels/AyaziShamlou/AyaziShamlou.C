@@ -127,7 +127,7 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
 
     volScalarField epsilonByNu(flTurb.epsilon()/flThermo.nu());
 
-    volScalarField tau = flThermo.mu()*sqrt(epsilonByNu);
+    volScalarField tau(flThermo.mu()*sqrt(epsilonByNu));
 
     return sqrt(epsilonByNu/15.0)*exp(-sigma/tau);
 }
