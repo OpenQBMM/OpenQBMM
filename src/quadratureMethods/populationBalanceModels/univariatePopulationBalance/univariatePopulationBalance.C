@@ -7,20 +7,16 @@
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
-
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
-
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 #include "univariatePopulationBalance.H"
@@ -62,6 +58,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
     growth_(dict.lookup("growth")),
+    nucleation_(dict.lookup("nucleation")),
     aggregationKernel_
     (
         Foam::populationBalanceSubModels::aggregationKernel::New
@@ -153,9 +150,9 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
     volScalarField& aggregationSource = aSource.ref();
 
-    forAll(quadrature_.nodes(), pNode1i)
+    forAll(nodes_(), pNode1I)
     {
-        const extendedVolScalarNode& node1 = quadrature_.nodes()[pNode1i];
+        const extendedVolScalarNode& node1 = nodes_()[pNode1I];
 
         const volScalarField& pWeight1 = node1.primaryWeight();
 
@@ -166,9 +163,9 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             const volScalarField& sAbscissa1
                 = node1.secondaryAbscissae()[sNode1i];
 
-            forAll(quadrature_.nodes(), pNode2i)
+            forAll(nodes_(), pNode2I)
             {
-                const extendedVolScalarNode& node2 = quadrature_.nodes()[pNode2i];
+                const extendedVolScalarNode& node2 = nodes_()[pNode2I];
 
                 const volScalarField& pWeight2 = node2.primaryWeight();
 
@@ -244,9 +241,9 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
     volScalarField& breakupSource = bSource.ref();
 
-    forAll(quadrature_.nodes(), pNodeI)
+    forAll(nodes_(), pNodeI)
     {
-        const extendedVolScalarNode& node = quadrature_.nodes()[pNodeI];
+        const extendedVolScalarNode& node = nodes_()[pNodeI];
 
         forAll(node.secondaryWeights(), sNodei)
         {
@@ -341,25 +338,40 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return gSource;
 }
 
-Foam::tmp<Foam::fvScalarMatrix>
+Foam::tmp<Foam::volScalarField>
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::momentSource
 (
     const volUnivariateMoment& moment
 )
 {
-    tmp<fvScalarMatrix> mSource
+    tmp<volScalarField> mSource
     (
-        new fvScalarMatrix
+        new volScalarField
         (
-            moment,
-            moment.dimensions()*dimVol/dimTime
+            IOobject
+            (
+                "mSource",
+                moment.mesh().time().timeName(),
+                moment.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            moment.mesh(),
+            dimensionedScalar
+            (
+                "mSource",
+                moment.dimensions()/dimTime,
+                0.0
+            )
         )
     );
-
-    mSource.ref() +=
-        aggregationSource(moment) + breakupSource(moment)
-        + nucleationModel_->nucleationSource(moment);
+    mSource.ref() ==
+        aggregationSource(moment)
+      + breakupSource(moment)
+      + phaseSpaceConvection(moment)
+      + nucleationModel_->nucleationSource(moment);
 
     return mSource;
 }

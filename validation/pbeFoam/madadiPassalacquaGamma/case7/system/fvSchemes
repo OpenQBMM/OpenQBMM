@@ -27,7 +27,7 @@ gradSchemes
 
 divSchemes
 {
-    default         none;
+    default         Gauss linear;
 }
 
 laplacianSchemes
@@ -38,9 +38,9 @@ laplacianSchemes
 interpolationSchemes
 {
     default         linear;
-    
+
     "interpolate\(moment.*\)" linear;
-    
+
     reconstruct(U)          upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;
