@@ -126,7 +126,6 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             new fvScalarMatrix
             (
                 fvm::ddt(m)
-              //+ fvm::div(phi_, m, "div(phi,moment)")
               + physicalSpaceConvection(m)
               - momentDiffusion(m)
               ==
