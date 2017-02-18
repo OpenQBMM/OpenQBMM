@@ -28,11 +28,11 @@ nodes
 (
     node0
     {
-        nSecondaryNodes 10;
+        nSecondaryNodes 1;
     }
     node1
     {
-        nSecondaryNodes 10;
+        nSecondaryNodes 1;
     }
 );
 
