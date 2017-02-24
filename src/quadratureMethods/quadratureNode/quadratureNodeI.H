@@ -28,7 +28,7 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType>
 const Foam::word& Foam::quadratureNode<weightType, abscissaType>::name() const
 {
     return name_;
@@ -40,7 +40,7 @@ inline bool Foam::quadratureNode<weightType, abscissaType>::extended() const
     return extended_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType>
 Foam::label Foam::quadratureNode<weightType, abscissaType>::
 nSecondaryNodes() const
 {
@@ -48,62 +48,62 @@ nSecondaryNodes() const
     return 0;
 }
 
-template <class weightType, class abscissaType> 
-const weightType& 
+template <class weightType, class abscissaType>
+const weightType&
 Foam::quadratureNode<weightType, abscissaType>::primaryWeight() const
 {
     return weight_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType>
 weightType& Foam::quadratureNode<weightType, abscissaType>::primaryWeight()
 {
     return weight_;
 }
 
-template <class weightType, class abscissaType> 
-const abscissaType& 
+template <class weightType, class abscissaType>
+const abscissaType&
 Foam::quadratureNode<weightType, abscissaType>::primaryAbscissa() const
 {
     return abscissa_;
 }
 
-template <class weightType, class abscissaType> 
+template <class weightType, class abscissaType>
 abscissaType& Foam::quadratureNode<weightType, abscissaType>::primaryAbscissa()
 {
     return abscissa_;
 }
 
-template <class weightType, class abscissaType> 
-const Foam::PtrList<weightType>& 
+template <class weightType, class abscissaType>
+const Foam::PtrList<weightType>&
 Foam::quadratureNode<weightType, abscissaType>::secondaryWeights() const
 {
     NotImplemented;
-    return NullObjectRef<Foam::PtrList<weightType> >();
+    return NullObjectRef<Foam::PtrList<weightType>>();
 }
 
-template <class weightType, class abscissaType> 
-Foam::PtrList<weightType>& 
+template <class weightType, class abscissaType>
+Foam::PtrList<weightType>&
 Foam::quadratureNode<weightType, abscissaType>::secondaryWeights()
 {
     NotImplemented;
-    return NullObjectRef<Foam::PtrList<weightType> >();
+    return NullObjectRef<Foam::PtrList<weightType>>();
 }
 
-template <class weightType, class abscissaType> 
-const Foam::PtrList<abscissaType>& 
+template <class weightType, class abscissaType>
+const Foam::PtrList<abscissaType>&
 Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae() const
 {
     NotImplemented;
-    return NullObjectRef<Foam::PtrList<abscissaType> >();
+    return NullObjectRef<Foam::PtrList<abscissaType>>();
 }
 
-template <class weightType, class abscissaType> 
-Foam::PtrList<abscissaType>& 
+template <class weightType, class abscissaType>
+Foam::PtrList<abscissaType>&
 Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae()
 {
     NotImplemented;
-    return NullObjectRef<Foam::PtrList<abscissaType> >();
+    return NullObjectRef<Foam::PtrList<abscissaType>>();
 }
 
 // ************************************************************************* //

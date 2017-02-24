@@ -105,7 +105,7 @@ public:
         );
 
         //- Return clone
-        autoPtr<quadratureNode<weightType, abscissaType> > clone() const;
+        autoPtr<quadratureNode<weightType, abscissaType>> clone() const;
 
         //- Return a pointer to a new quadrature node created on freestore
         //  from Istream
@@ -135,13 +135,13 @@ public:
                 boundaryTypes_(boundaryTypes)
             {}
 
-            autoPtr<quadratureNode<weightType, abscissaType> > operator()
+            autoPtr<quadratureNode<weightType, abscissaType>> operator()
             (
                 Istream& is
             ) const
             {
                 dictionaryEntry ent(dictionary::null, is);
-                return autoPtr<quadratureNode<weightType, abscissaType> >
+                return autoPtr<quadratureNode<weightType, abscissaType>>
                 (
                     new quadratureNode<weightType, abscissaType>
                     (

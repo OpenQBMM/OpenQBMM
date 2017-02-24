@@ -69,7 +69,7 @@ class moment
     const word distributionName_;
 
     //- Reference to the quadrature nodes
-    const autoPtr<PtrList<nodeType> >& nodes_;
+    const autoPtr<PtrList<nodeType>>& nodes_;
 
     //- Order of each dimension of the moment
     const labelList cmptOrders_;
@@ -102,7 +102,7 @@ public:
             const word& distributionName,
             const labelList& cmptOrders,
             const fvMesh& mesh,
-            const autoPtr<PtrList<nodeType> >& nodes
+            const autoPtr<PtrList<nodeType>>& nodes
         );
 
         //- Construct from name, orders, and quadrature nodes
@@ -110,7 +110,7 @@ public:
         (
             const word& distributionName,
             const labelList& cmptOrders,
-            const autoPtr<PtrList<nodeType> >& nodes,
+            const autoPtr<PtrList<nodeType>>& nodes,
             const fieldType& initMoment
         );
 
@@ -124,7 +124,7 @@ public:
         {
             const word& distributionName_;
             const fvMesh& mesh_;
-            const autoPtr<PtrList<nodeType> >& nodes_;
+            const autoPtr<PtrList<nodeType>>& nodes_;
 
         public:
 
@@ -132,7 +132,7 @@ public:
             (
                 const word& distributionName,
                 const fvMesh& mesh,
-                const autoPtr<PtrList<nodeType> >& nodes
+                const autoPtr<PtrList<nodeType>>& nodes
             )
             :
                 distributionName_(distributionName),
@@ -140,10 +140,10 @@ public:
                 nodes_(nodes)
             {}
 
-            autoPtr<moment<fieldType, nodeType> > operator()(Istream& is) const
+            autoPtr<moment<fieldType, nodeType>> operator()(Istream& is) const
             {
                 labelList ent(is);
-                return autoPtr<moment<fieldType, nodeType> >
+                return autoPtr<moment<fieldType, nodeType>>
                 (
                     new moment<fieldType, nodeType>
                     (

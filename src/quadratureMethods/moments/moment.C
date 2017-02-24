@@ -74,7 +74,7 @@ Foam::moment<fieldType, nodeType>::moment
     const word& distributionName,
     const labelList& cmptOrders,
     const fvMesh& mesh,
-    const autoPtr<PtrList<nodeType> >& nodes
+    const autoPtr<PtrList<nodeType>>& nodes
 )
 :
     fieldType
@@ -102,7 +102,7 @@ Foam::moment<fieldType, nodeType>::moment
 (
     const word& distributionName,
     const labelList& cmptOrders,
-    const autoPtr<PtrList<nodeType> >& nodes,
+    const autoPtr<PtrList<nodeType>>& nodes,
     const fieldType& initMoment
 )
 :
@@ -126,11 +126,11 @@ Foam::moment<fieldType, nodeType>::~moment()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template <class fieldType, class nodeType>
-Foam::autoPtr<Foam::moment<fieldType, nodeType> >
+Foam::autoPtr<Foam::moment<fieldType, nodeType>>
 Foam::moment<fieldType, nodeType>::clone() const
 {
     NotImplemented;
-    return autoPtr<moment<fieldType, nodeType> >(NULL);
+    return autoPtr<moment<fieldType, nodeType>>(NULL);
 }
 
 template <class fieldType, class nodeType>

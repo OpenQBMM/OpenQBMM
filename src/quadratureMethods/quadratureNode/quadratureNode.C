@@ -145,11 +145,11 @@ Foam::quadratureNode<weightType, abscissaType>::~quadratureNode()
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template <class weightType, class abscissaType>
-Foam::autoPtr<Foam::quadratureNode<weightType, abscissaType> >
+Foam::autoPtr<Foam::quadratureNode<weightType, abscissaType>>
 Foam::quadratureNode<weightType, abscissaType>::clone() const
 {
     notImplemented("quadratureNode::clone() const");
-    return autoPtr<quadratureNode<weightType, abscissaType> >(NULL);
+    return autoPtr<quadratureNode<weightType, abscissaType>>(NULL);
 }
 
 // ************************************************************************* //

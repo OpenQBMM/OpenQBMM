@@ -78,7 +78,7 @@ class momentFieldSet
         const word name_;
 
         //- Reference to the quadrature nodes
-        const autoPtr<PtrList<nodeType> >& nodes_;
+        const autoPtr<PtrList<nodeType>>& nodes_;
 
         //- The number of dimensions of the distribution function
         const label nDimensions_;
@@ -117,7 +117,7 @@ public:
             const word& distributionName,
             const dictionary& dict,
             const fvMesh& mesh,
-            const autoPtr<PtrList<nodeType> >& nodes
+            const autoPtr<PtrList<nodeType>>& nodes
         );
 
         //- Construct from size, quadrature nodes, dimensions and moment map
@@ -127,7 +127,7 @@ public:
         (
             const word& distributionName,
             const label nMoments,
-            const autoPtr<PtrList<nodeType> >& nodes,
+            const autoPtr<PtrList<nodeType>>& nodes,
             const label nDimensions,
             const Map<label>& momentMap
         );
