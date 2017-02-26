@@ -73,9 +73,6 @@ void Foam::gaussLobattoMomentInversion::updateRecurrenceRelation()
     scalarList& aRecurrence(moments_.alphaRecurrence());
     scalarList& bRecurrence(moments_.betaRecurrence());
 
-    Info << "a " << aRecurrence[nNodes_ - 1] << endl;
-    Info << "b " << bRecurrence[nNodes_ - 1] << endl;
-
     if (forceRadau_)
     {
         scalar p = minKnownAbscissa_ - aRecurrence[0];
@@ -122,8 +119,6 @@ void Foam::gaussLobattoMomentInversion::updateRecurrenceRelation()
 
         scalar d = pLeft*pMinus1Right - pRight*pMinus1Left;
 
-        Info << "det" << d << endl;
-
         aRecurrence[nNodes_ - 1] =
                 (minKnownAbscissa_*pLeft*pMinus1Right
                 - maxKnownAbscissa_*pRight*pMinus1Left)/d;
@@ -131,9 +126,6 @@ void Foam::gaussLobattoMomentInversion::updateRecurrenceRelation()
         bRecurrence[nNodes_ - 1] =
                 (maxKnownAbscissa_ - minKnownAbscissa_)*pLeft*pRight/d;
     }
-
-    Info << "a " << aRecurrence[nNodes_ - 1] << endl;
-    Info << "b " << bRecurrence[nNodes_ - 1] << endl;
 }
 
 
