@@ -591,6 +591,9 @@ void Foam::univariateMomentSet::checkRealizability()
 
     if (support_ == "R")
     {
+        alpha_[nD] = zRecurrence[nD][nD + 1]/zRecurrence[nD][nD]
+                    - zRecurrence[nD - 1][nD]/zRecurrence[nD - 1][nD - 1];
+
         if (beta_[nD] < 0.0)
         {
             nRealizableMoments_ = 2*nD;
