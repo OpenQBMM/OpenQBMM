@@ -104,7 +104,6 @@ public:
         univariateMomentSet
         (
             const label nMoments,
-            const labelListList& momentOrders,
             const word& support,
             const label nFixedQuadraturePoints = 0
         );
@@ -113,7 +112,6 @@ public:
         univariateMomentSet
         (
             const scalarList& m,
-            const labelListList& momentOrders,
             const word& support,
             const label nFixedQuadraturePoints = 0
         );
@@ -147,6 +145,13 @@ public:
 
         //- Return true if the moment set is on the boundary of the moment space
         inline bool isOnMomentSpaceBoundary();
+
+        //- Return moment orders
+        const labelListList& momentOrders() const
+        {
+            NotImplemented;
+            return NullObjectRef<labelListList>();
+        };
 
         //- Return the number of realizable moments
         inline label nRealizableMoments();

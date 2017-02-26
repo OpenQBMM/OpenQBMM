@@ -44,21 +44,9 @@ int main(int argc, char *argv[])
 
     label nMoments = 5;
 
-    labelListList momentOrders(0);
-
-    for(label mi = 0; mi < nMoments; mi++)
-    {
-        labelList a(1, mi);
-
-        momentOrders.append(a);
-    }
-
-    Info << "List of moment orders" << endl << momentOrders << endl;
-
     univariateMomentSet m
     (
         nMoments,
-        momentOrders,
         "01",
         1
     );

@@ -30,12 +30,16 @@ License
 Foam::univariateMomentSet::univariateMomentSet
 (
     const label nMoments,
-    const labelListList& momentOrders,
     const word& support,
     const label nFixedQuadraturePoints
 )
 :
-    momentSet(nMoments, momentOrders, support),
+    momentSet
+    (
+        nMoments,
+        NullObjectRef<labelListList>(),
+        support
+    ),
     alpha_(),
     beta_(),
     negativeZeta_(0),
@@ -64,12 +68,16 @@ Foam::univariateMomentSet::univariateMomentSet
 Foam::univariateMomentSet::univariateMomentSet
 (
     const scalarList& m,
-    const labelListList& momentOrders,
     const word& support,
     const label nFixedQuadraturePoints
 )
 :
-    momentSet(m, momentOrders, support),
+    momentSet
+    (
+        m,
+        NullObjectRef<labelListList>(),
+        support
+    ),
     alpha_(),
     beta_(),
     negativeZeta_(0),

@@ -3,6 +3,9 @@ cd ${0%/*} || exit 1    # run from this directory
 set -x
 
 wclean libso eigenSolver
+wclean libso quadratureMethods/momentSets
+wclean libso quadratureMethods/momentInversion
+
 wclean libso Vandermonde
 wclean libso quadratureMethods/univariateMomentSet
 wclean libso quadratureMethods/extentedMomentInversion
