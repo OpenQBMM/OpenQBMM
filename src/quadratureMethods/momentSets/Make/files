@@ -1,0 +1,4 @@
+momentSet/momentSet.C
+univariateMomentSet/univariateMomentSet.C
+
+LIB = $(FOAM_USER_LIBBIN)/libmomentSets

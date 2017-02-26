@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 {
     Info << "Testing univariateMomentSet\n" << endl;
 
-    label nMoments = 5;
+    label nMoments = 4;
 
     scalarDiagonalMatrix m(nMoments, 0.0);
     // Computing integer moments of a log-normal function
@@ -94,21 +94,13 @@ int main(int argc, char *argv[])
             /(1.0 + (momenti - 1.0)*sigma);
     }
 
+    m[0] = 1.0;
+    m[1] = 2.708217669;
+    m[2] = 8.951330468;
+    m[3] = 35.95258119;
 
-
-//    m[0] = 1.0;
-//    m[1] = 0.0;
-
-//     m[0] = 1;
-//     m[1] = 0.000205634192732;
-//     m[2] = 4.25189233395e-08;
-//     m[3] = 3.63331214177e-10;
-    //m[4] = 5.0e-11;
-    //m[5] = 1.0e-16;
-    //m[6] = 2.0e-22;
-
-    word support = "01";
-    word quadratureType = "GaussRadau";
+    word support = "R";
+    word quadratureType = "Gauss";
 
     Info << "Support: " << support << endl;
     Info << "Quadrature type: " << quadratureType << endl;

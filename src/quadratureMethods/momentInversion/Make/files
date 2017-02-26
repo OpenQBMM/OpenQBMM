@@ -1,0 +1,6 @@
+univariateMomentInversion/univariateMomentInversion.C
+gaussMomentInversion/gaussMomentInversion.C
+gaussRadauMomentInversion/gaussRadauMomentInversion.C
+gaussLobattoMomentInversion/gaussLobattoMomentInversion.C
+
+LIB = $(FOAM_USER_LIBBIN)/libmomentInversion
