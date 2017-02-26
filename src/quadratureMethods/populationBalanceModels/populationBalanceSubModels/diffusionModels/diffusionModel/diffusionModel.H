@@ -26,7 +26,7 @@ Class
 
 Description
     Abstract class for turbulent diffusion models.
-    
+
 SourceFiles
     diffusionModel.C
 
@@ -53,7 +53,7 @@ namespace populationBalanceSubModels
 \*---------------------------------------------------------------------------*/
 
 class diffusionModel
-{   
+{
     // Private member functions
 
         //- Disallow default bitwise copy construct
@@ -108,7 +108,7 @@ public:
 
     // Member Functions
 
-        //- Return the source term for diffusion term in the moment equation  
+        //- Return the source term for diffusion term in the moment equation
         virtual tmp<fvScalarMatrix> momentDiff
         (
             const volScalarField& moment

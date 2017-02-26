@@ -341,19 +341,33 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return gSource;
 }
 
-Foam::tmp<Foam::fvScalarMatrix>
+Foam::tmp<Foam::volScalarField>
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::momentSource
 (
     const volUnivariateMoment& moment
 )
 {
-    tmp<fvScalarMatrix> mSource
+    tmp<volScalarField> mSource
     (
-        new fvScalarMatrix
+        new volScalarField
         (
-            moment,
-            moment.dimensions()*dimVol/dimTime
+            IOobject
+            (
+                "momentSource",
+                U_.mesh().time().timeName(),
+                U_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            U_.mesh(),
+            dimensionedScalar
+            (
+                "zero",
+                moment.dimensions()/dimTime,
+                scalar(0)
+            )
         )
     );
 

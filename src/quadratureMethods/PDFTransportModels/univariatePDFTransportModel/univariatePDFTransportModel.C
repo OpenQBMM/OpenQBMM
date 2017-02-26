@@ -40,6 +40,13 @@ Foam::PDFTransportModels::univariatePDFTransportModel
 :
     PDFTransportModel(name, dict, mesh),
     name_(name),
+    ATol_(readScalar(dict.subDict("odeCoeffs").lookup("ATol"))),
+    RTol_(readScalar(dict.subDict("odeCoeffs").lookup("RTol"))),
+    fac_(readScalar(dict.subDict("odeCoeffs").lookup("fac"))),
+    facMin_(readScalar(dict.subDict("odeCoeffs").lookup("facMin"))),
+    facMax_(readScalar(dict.subDict("odeCoeffs").lookup("facMax"))),
+    h_(facMin_*U.mesh().time().deltaT()),
+    maxDeltaT_(false),
     quadrature_(name, mesh, support),
     U_(U),
     phi_(phi)
@@ -107,6 +114,235 @@ Foam::PDFTransportModels::univariatePDFTransportModel::physicalSpaceConvection
 }
 
 
+void
+Foam::PDFTransportModels::univariatePDFTransportModel::solveMomentSource()
+{
+    Info<< "RK23-SSP: Solving for moment source terms" << endl;
+
+    // Read current deltaT
+    dimensionedScalar dt0 = U_.mesh().time().deltaT();
+
+    //- Initialize rate change PtrLists
+    PtrList<volScalarField> k1(quadrature_.nMoments());
+    PtrList<volScalarField> k2(quadrature_.nMoments());
+    PtrList<volScalarField> k3(quadrature_.nMoments());
+
+    volUnivariateMomentFieldSet& moments(quadrature_.moments());
+
+    // create a volScalarField copy of moments, updates before each itteration
+    PtrList<volScalarField> momentsOld(quadrature_.nMoments());
+
+    forAll(moments, mi)
+    {
+        k1.set
+        (
+            mi,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "k1",
+                    U_.mesh().time().timeName(),
+                    U_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                U_.mesh(),
+                dimensionedScalar("k1", moments[mi].dimensions(), 0.0)
+            )
+        );
+
+        k2.set
+        (
+            mi,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "k2",
+                    U_.mesh().time().timeName(),
+                    U_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                U_.mesh(),
+                dimensionedScalar("k2", moments[mi].dimensions(), 0.0)
+            )
+        );
+
+        k3.set
+        (
+            mi,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "k3",
+                    U_.mesh().time().timeName(),
+                    U_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                U_.mesh(),
+                dimensionedScalar("k3", moments[mi].dimensions(), 0.0)
+            )
+        );
+
+        momentsOld.set
+        (
+            mi,
+            new volScalarField(moments[mi])
+        );
+    }
+
+    quadrature_.updateQuadrature();
+
+    if (h_ > dt0)
+    {
+        maxDeltaT_ = true;
+    }
+
+    if (maxDeltaT_)
+    {
+        h_ = dt0;
+    }
+
+    dimensionedScalar dTime("dTime", dimTime, 0.0);
+
+    label nItt = 0;
+    bool timeComplete = false;
+
+    while (!timeComplete)
+    {
+        if (dTime + h_ > dt0)
+        {
+            h_ = dt0 - dTime;
+        }
+
+        dTime += h_;
+
+        // set original moments for current itteration
+        forAll(moments, mi)
+        {
+            momentsOld[mi] == moments[mi];
+        }
+
+        nItt++;
+
+        // Calculate k1 for all moments
+        forAll(moments, mi)
+        {
+            k1[mi] = h_*momentSource(moments[mi]);
+            moments[mi] == momentsOld[mi] + k1[mi];
+        }
+
+        quadrature_.updateQuadrature();
+
+        // Calculate k2 for all moments
+        forAll(moments, mi)
+        {
+            k2[mi] = h_*momentSource(moments[mi]);
+            moments[mi] == momentsOld[mi] + (k1[mi] + k2[mi])/4.0;
+        }
+
+        quadrature_.updateQuadrature();
+
+        // calculate k3 and new moments for all moments
+        forAll(moments, mi)
+        {
+            k3[mi] = h_*momentSource(moments[mi]);
+
+            // Second order accurate, k3 only used for error estimation
+            moments[mi] ==
+                momentsOld[mi]
+              + (
+                  k1[mi] + k2[mi] + 4.0*k3[mi]
+                )/6.0;
+        }
+        quadrature_.updateQuadrature();
+
+        // Calculate error
+        scalar sc = 1.0;
+        scalar error = 0.0;
+
+        forAll(moments, mi)
+        {
+            sc =
+                min
+                (
+                    sc,
+                    ATol_
+                  + min
+                    (
+                        max
+                        (
+                            mag(momentsOld[mi]),
+                            mag(moments[mi])
+                        )
+                    ).value()*RTol_
+                );
+
+            error = max(error, max(mag(k1[mi] + k2[mi] - 2.0*k3[mi])).value());
+        }
+
+        scalar err = error/(3.0*sc);
+
+        if (err == 0.0)
+        {
+            h_ = dt0 - dTime;
+            maxDeltaT_ = true;
+        }
+
+        else
+        {
+            h_ =
+                max
+                (
+                    dt0*facMin_,
+                    min
+                    (
+                        h_*facMax_,
+                        dt0*fac_/pow(err, 1.0/3.0)
+                    )
+                );
+        }
+
+        if (dTime.value() >= dt0.value())
+        {
+            timeComplete = true;
+        }
+
+        if
+        (
+            Foam::name(U_.mesh().time().deltaT().value())
+         ==
+            U_.mesh().time().timeName()
+         && timeComplete == true
+        )
+        {
+            maxDeltaT_ = false;
+            h_ = dt0*facMin_;
+        }
+
+        // Write some stuff
+        Info<< "Iteration " << nItt
+            << ", "
+            << "Time step = " << h_.value() << "s"
+            << ", "
+            << "Local time = " << dTime.value() << "s"
+            << endl;
+
+    }
+
+    if (h_.value() == dt0.value())
+    {
+        maxDeltaT_ = true;
+    }
+    return;
+}
 
 void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
 {
@@ -126,18 +362,21 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             new fvScalarMatrix
             (
                 fvm::ddt(m)
-              //+ fvm::div(phi_, m, "div(phi,moment)")
               + physicalSpaceConvection(m)
               - momentDiffusion(m)
               ==
-                momentSource(m)
-              + phaseSpaceConvection(m)
+                phaseSpaceConvection(m)
             )
         );
     }
 
+    solveMomentSource();
+
     forAll (momentEqns, mEqnI)
     {
+//         Info<<"ddt(m): " << fvc::ddt(quadrature_.moments()[mEqnI]) <<endl;
+        momentEqns[mEqnI] -= fvc::ddt(quadrature_.moments()[mEqnI]);
+
         momentEqns[mEqnI].relax();
         momentEqns[mEqnI].solve();
     }

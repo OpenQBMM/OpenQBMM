@@ -120,7 +120,7 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing
     return gSource;
 }
 
-Foam::tmp<Foam::fvScalarMatrix>
+Foam::tmp<Foam::volScalarField>
 Foam::PDFTransportModels::mixingModels::turbulentMixing
 ::momentSource
 (

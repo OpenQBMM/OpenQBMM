@@ -59,6 +59,18 @@ class univariatePDFTransportModel
         //- Name of the univariatePDFTransportModel
         const word name_;
 
+        //- ODE constants
+        scalar ATol_;
+        scalar RTol_;
+        scalar fac_;
+        scalar facMin_;
+        scalar facMax_;
+
+        //- Stored local time step
+        dimensionedScalar h_;
+
+        bool maxDeltaT_;
+
 protected:
 
     // Protected data
@@ -81,7 +93,7 @@ protected:
         ) = 0;
 
         //- Calculate source terms
-        virtual tmp<fvScalarMatrix> momentSource
+        virtual tmp<volScalarField> momentSource
         (
             const volUnivariateMoment& moment
         ) = 0;
@@ -100,6 +112,10 @@ protected:
 
         //- Update fields required to compute kinetic fluxes
         void updatePhysicalSpaceConvection();
+
+        //- ODE solver for moment source
+        void solveMomentSource();
+
 
 
 public:
