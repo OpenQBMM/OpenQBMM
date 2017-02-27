@@ -94,19 +94,6 @@ int main(int argc, char *argv[])
             /(1.0 + (momenti - 1.0)*sigma);
     }
 
-
-
-//    m[0] = 1.0;
-//    m[1] = 0.0;
-
-//     m[0] = 1;
-//     m[1] = 0.000205634192732;
-//     m[2] = 4.25189233395e-08;
-//     m[3] = 3.63331214177e-10;
-    //m[4] = 5.0e-11;
-    //m[5] = 1.0e-16;
-    //m[6] = 2.0e-22;
-
     word support = "01";
     word quadratureType = "GaussRadau";
 
