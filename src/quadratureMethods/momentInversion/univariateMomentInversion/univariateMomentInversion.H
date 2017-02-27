@@ -86,11 +86,7 @@ protected:
         virtual void calcNQuadratureNodes() = 0;
 
         //- Create Jacobi matrix
-        scalarSquareMatrix JacobiMatrix
-        (
-            const scalarList& alpha,
-            const scalarList& beta
-        );
+        scalarSquareMatrix JacobiMatrix(scalarSquareMatrix& z);
 
 
 public:

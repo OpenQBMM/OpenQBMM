@@ -63,11 +63,11 @@ Foam::scalarList& Foam::univariateMomentInversion::betaRecurrence()
 
 Foam::scalarSquareMatrix Foam::univariateMomentInversion::JacobiMatrix
 (
-    const scalarList& alpha,
-    const scalarList& beta
+    scalarSquareMatrix& z
 )
 {
-    scalarSquareMatrix z(nNodes_, scalar(0));
+    alphaRecurrence();
+    betaRecurrence();
 
     for (label i = 0; i < nNodes_ - 1; i++)
     {
@@ -105,10 +105,8 @@ void Foam::univariateMomentInversion::invert()
         return;
     }
 
-    scalarList& a(alphaRecurrence());
-    scalarList& b(betaRecurrence());
-
-    scalarSquareMatrix z(JacobiMatrix(a, b));
+    scalarSquareMatrix z(nNodes_, scalar(0));
+    JacobiMatrix(z);
 
     // Computing weights and abscissae
     eigenSolver zEig(z, true);
