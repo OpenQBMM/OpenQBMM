@@ -94,44 +94,44 @@ public:
 
     // Member Functions
 
-    //- Computes the secondary abscissa
-    virtual scalar secondaryAbscissa
-    (
-        scalar primaryAbscissa,
-        scalar secondaryAbscissa,
-        scalar sigma
-    );
+        //- Computes the secondary abscissa
+        virtual scalar secondaryAbscissa
+        (
+            scalar primaryAbscissa,
+            scalar secondaryAbscissa,
+            scalar sigma
+        );
 
-    //- Compute moments from starred moments
-    virtual void momentsStarToMoments
-    (
-        scalar sigma,
-        univariateMomentSet& moments,
-        const univariateMomentSet& momentsStar
-    );
+        //- Compute moments from starred moments
+        virtual void momentsStarToMoments
+        (
+            scalar sigma,
+            univariateMomentSet& moments,
+            const univariateMomentSet& momentsStar
+        );
 
-    //- Compute the starred moments
-    virtual void momentsToMomentsStar
-    (
-        scalar sigma,
-        const univariateMomentSet& moments,
-        univariateMomentSet& momentsStar
-    );
+        //- Compute the starred moments
+        virtual void momentsToMomentsStar
+        (
+            scalar sigma,
+            const univariateMomentSet& moments,
+            univariateMomentSet& momentsStar
+        );
 
-    //- Compute the last moment from starred moments
-    virtual scalar m2N(scalar sigma, univariateMomentSet momentsStar);
+        //- Compute the last moment from starred moments
+        virtual scalar m2N(scalar sigma, univariateMomentSet momentsStar);
 
-    //- Recurrence relation for polynomials orthogonal to kernel function
-    virtual void recurrenceRelation
-    (
-        scalarDiagonalMatrix& a,
-        scalarDiagonalMatrix& b,
-        scalar primaryAbscissa,
-        scalar sigma
-    );
+        //- Recurrence relation for polynomials orthogonal to kernel function
+        virtual void recurrenceRelation
+        (
+            scalarDiagonalMatrix& a,
+            scalarDiagonalMatrix& b,
+            scalar primaryAbscissa,
+            scalar sigma
+        );
 
-    //- Compute maximum value of sigma to ensure realizability
-    virtual scalar sigmaMax(univariateMomentSet& moments);
+        //- Compute maximum value of sigma to ensure realizability
+        virtual scalar sigmaMax(univariateMomentSet& moments);
 
 };
 
