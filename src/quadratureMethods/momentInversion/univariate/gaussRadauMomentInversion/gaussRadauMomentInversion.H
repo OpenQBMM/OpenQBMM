@@ -22,23 +22,22 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::gaussMomentInversion
+    Foam::gaussRadauMomentInversion
 
 Description
-    Performs Gaussian quadrature on a moment set with an even numer of moments.
+    Performs Gauss-Lobatto quadrature on a moment set with an even number of
+    moments.
 
 SourceFiles
-    gaussMomentInversion.C
-    gaussMomentInversionI.H
+    gaussRadauMomentInversion.C
+    gaussRadauMomentInversionI.H
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef gaussMomentInversion_H
-#define gaussMomentInversion_H
+#ifndef gaussRadauMomentInversion_H
+#define gaussRadauMomentInversion_H
 
-#include "scalarMatrices.H"
 #include "univariateMomentInversion.H"
-#include "univariateMomentSet.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -47,33 +46,55 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class gaussMomentInversion Declaration
+                Class gaussRadauMomentInversion Declaration
 \*---------------------------------------------------------------------------*/
 
-class gaussMomentInversion
+class gaussRadauMomentInversion
 :
     public univariateMomentInversion
 {
-protected:
+    // Private data
 
-    // Protected member functions
-
-        //- Calculate the number of quadrature nodes
-        void calcNQuadratureNodes();
+        // Bool to check if Gauss quadrature must be performed
+        bool forceGauss_;
 
 
 public:
 
+    //- Runtime type information
+    TypeName("GaussRadau");
+
+
     // Constructors
 
         //- Construct from univariateMomentSet
-        gaussMomentInversion
+        gaussRadauMomentInversion
         (
-            univariateMomentSet& moments
+            const dictionary& dict
         );
 
+
     //- Destructor
-    virtual ~gaussMomentInversion();
+    virtual ~gaussRadauMomentInversion();
+
+
+    // Public member functions
+
+        //- Modify the recurrence relation for fixed-point quadrature
+        virtual void correctRecurrence
+        (
+            univariateMomentSet& moments,
+            const scalar minKnownAbscissa = 0,
+            const scalar maxKnownAbscissa = 0
+        );
+
+        //- Calculates the number of quadrature nodes
+        virtual void calcNQuadratureNodes
+        (
+            univariateMomentSet& moments,
+            scalarList& weights,
+            scalarList& abscissae
+        );
 };
 
 

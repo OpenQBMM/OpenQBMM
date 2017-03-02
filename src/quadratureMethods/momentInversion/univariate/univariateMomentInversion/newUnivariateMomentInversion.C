@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,33 +23,39 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+#include "univariateMomentInversion.H"
 
-bool Foam::univariateMomentInversion::isInverted() const
+// * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
+
+Foam::autoPtr<Foam::univariateMomentInversion>
+Foam::univariateMomentInversion::New
+(
+    const dictionary& dict
+)
 {
-    return inverted_;
+    word univariateMomentInversionType
+    (
+        dict.lookup("univariateMomentInversion")
+    );
+
+    Info<< "Selecting univariateMomentInversion: "
+        << univariateMomentInversionType << endl;
+
+    dictionaryConstructorTable::iterator cstrIter =
+        dictionaryConstructorTablePtr_->find(univariateMomentInversionType);
+
+    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorInFunction
+            << "Unknown univariateMomentInversion type "
+            << univariateMomentInversionType << endl << endl
+            << "Valid univariateMomentInversion types are : " << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
+    }
+
+    return cstrIter()(dict);
 }
 
-Foam::label Foam::univariateMomentInversion::nNodes() const
-{
-    return nNodes_;
-}
-
-Foam::label Foam::univariateMomentInversion::nInvertibleMoments() const
-{
-    return nInvertibleMoments_;
-}
-
-//- Return primary quadrature weights
-const Foam::scalarList& Foam::univariateMomentInversion::weights() const
-{
-    return weights_;
-}
-
-//- Return primary quadrature abscissae
-const Foam::scalarList& Foam::univariateMomentInversion::abscissae() const
-{
-    return abscissae_;
-}
 
 // ************************************************************************* //

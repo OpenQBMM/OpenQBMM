@@ -1,3 +1,0 @@
-Test-GaussRadauMomentInversion.C
-
-EXE = $(FOAM_USER_APPBIN)/Test-GaussRadauMomentInversion

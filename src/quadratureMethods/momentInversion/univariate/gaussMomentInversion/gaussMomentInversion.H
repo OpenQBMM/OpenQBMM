@@ -22,29 +22,22 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::gaussRadauMomentInversion
+    Foam::gaussMomentInversion
 
 Description
-    Performs Gauss-Radau quadrature on a moment set with an odd number of
-    moments, enforcing that one quadrature abscissa is equal to the specified
-    value.
-
-    The quadrature formula degenerates to standard Gaussian quadrature if the
-    number of realizable moments is even, in order to preserve the largest
-    possible number of moments.
+    Performs Gaussian quadrature on a moment set with an even numer of moments.
 
 SourceFiles
-    gaussRadauMomentInversion.C
-    gaussRadauMomentInversionI.H
+    gaussMomentInversion.C
+    gaussMomentInversionI.H
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef gaussRadauMomentInversion_H
-#define gaussRadauMomentInversion_H
+#ifndef gaussMomentInversion_H
+#define gaussMomentInversion_H
 
-#include "scalarMatrices.H"
 #include "univariateMomentInversion.H"
-#include "univariateMomentSet.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,57 +45,49 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                Class gaussRadauMomentInversion Declaration
+                    Class gaussMomentInversion Declaration
 \*---------------------------------------------------------------------------*/
 
-class gaussRadauMomentInversion
+class gaussMomentInversion
 :
     public univariateMomentInversion
 {
-    // Private data
-
-        //- Bool to indicate the quadrature fell back to Gaussian if a
-        //  subset of realizable moments with an even number of elements is
-        //  found
-        bool forceGauss_;
-
-        //- Known abscissa for Gauss-Radau quadrature
-        scalar knownAbscissa_;
-
-
-    // Primate member functions
-
-        //- Update recurrence relation for Gauss-Radau quadrature
-        void updateRecurrenceRelation();
-
-
-protected:
-
-    // Protected member functions
-
-        //- Calculate the number of quadrature nodes
-        void calcNQuadratureNodes();
-
-
 public:
+
+    //- Runtime type information
+    TypeName("Gauss");
+
 
     // Constructors
 
         //- Construct from univariateMomentSet
-        gaussRadauMomentInversion
+        gaussMomentInversion
         (
-            univariateMomentSet& moments,
-            scalar knownAbscissa = 0.0
+            const dictionary& dict
         );
 
+
     //- Destructor
-    virtual ~gaussRadauMomentInversion();
+    virtual ~gaussMomentInversion();
 
 
-    // Member functions
+    // Public member functions
 
-        //- Invert moments
-        virtual void invert();
+        //- Modify the recurrence relation for fixed-point quadrature
+        virtual void correctRecurrence
+        (
+            univariateMomentSet& moments,
+            const scalar minKnownAbscissa = 0,
+            const scalar maxKnownAbscissa = 0
+        );
+
+        //- Calculates the number of quadrature nodes
+        virtual void calcNQuadratureNodes
+        (
+            univariateMomentSet& moments,
+            scalarList& weights,
+            scalarList& abscissae
+        );
 };
 
 

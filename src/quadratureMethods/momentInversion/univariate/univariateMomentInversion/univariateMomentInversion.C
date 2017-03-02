@@ -24,22 +24,26 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "univariateMomentInversion.H"
+#include "IOmanip.H"
 
 #include "eigenSolver.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(univariateMomentInversion, 0);
+    defineRunTimeSelectionTable(univariateMomentInversion, dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::univariateMomentInversion::univariateMomentInversion
 (
-    univariateMomentSet& moments
+    const dictionary& dict
 )
 :
-    moments_(moments),
-    inverted_(false),
-    nInvertibleMoments_(moments.size()),
-    nNodes_(),
-    weights_(),
-    abscissae_()
+    nNodes_()
 {}
 
 
@@ -51,62 +55,62 @@ Foam::univariateMomentInversion::~univariateMomentInversion()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalarList& Foam::univariateMomentInversion::alphaRecurrence()
-{
-    return moments_.alphaRecurrence();
-}
-
-Foam::scalarList& Foam::univariateMomentInversion::betaRecurrence()
-{
-    return moments_.betaRecurrence();
-}
-
-Foam::scalarSquareMatrix Foam::univariateMomentInversion::JacobiMatrix
+void Foam::univariateMomentInversion::JacobiMatrix
 (
-    scalarSquareMatrix& z
+    univariateMomentSet& moments,
+    scalarSquareMatrix& z,
+    const scalar minKnownAbscissa,
+    const scalar maxKnownAbscissa
 )
 {
-    alphaRecurrence();
-    betaRecurrence();
+    correctRecurrence(moments, minKnownAbscissa, maxKnownAbscissa);
 
     for (label i = 0; i < nNodes_ - 1; i++)
     {
-        z[i][i] = moments_.alphaRecurrence()[i];
-        z[i][i+1] = Foam::sqrt(moments_.betaRecurrence()[i+1]);
+        z[i][i] = moments.alphaRecurrence()[i];
+        z[i][i+1] = Foam::sqrt(moments.betaRecurrence()[i+1]);
         z[i+1][i] = z[i][i+1];
     }
 
-    z[nNodes_ - 1][nNodes_ - 1] = moments_.alphaRecurrence()[nNodes_ - 1];
-
-    return z;
+    z[nNodes_ - 1][nNodes_ - 1] = moments.alphaRecurrence()[nNodes_ - 1];
 }
 
-void Foam::univariateMomentInversion::invert()
+void Foam::univariateMomentInversion::invert
+(
+    univariateMomentSet& moments,
+    scalarList& weights,
+    scalarList& abscissae,
+    const scalar minKnownAbscissa,
+    const scalar maxKnownAbscissa
+)
 {
-    if (inverted_ || moments_.isDegenerate())
+    if (moments.isDegenerate())
     {
         return;
     }
 
-    if (moments_[0] < SMALL)
+    if (moments[0] < SMALL)
     {
         nNodes_ = 0;
 
+        weights.setSize(nNodes_);
+        abscissae.setSize(nNodes_);
+
         return;
     }
 
+    calcNQuadratureNodes(moments, weights, abscissae);
+
     if (nInvertibleMoments_ == 2)
     {
-        weights_[0] = moments_[0];
-        abscissae_[0] = moments_[1]/moments_[0];
-
-        inverted_ = true;
+        weights[0] = moments[0];
+        abscissae[0] = moments[1]/moments[0];
 
         return;
     }
 
     scalarSquareMatrix z(nNodes_, scalar(0));
-    JacobiMatrix(z);
+    JacobiMatrix(moments, z, minKnownAbscissa, maxKnownAbscissa);
 
     // Computing weights and abscissae
     eigenSolver zEig(z, true);
@@ -114,11 +118,9 @@ void Foam::univariateMomentInversion::invert()
     // Computing weights and abscissae
     for (label i = 0; i < nNodes_; i++)
     {
-        weights_[i] = moments_[0]*sqr(zEig.eigenvectors()[0][i]);
-        abscissae_[i] = zEig.eigenvaluesRe()[i];
+        weights[i] = moments[0]*sqr(zEig.eigenvectors()[0][i]);
+        abscissae[i] = zEig.eigenvaluesRe()[i];
     }
-
-    inverted_ = true;
 }
 
 

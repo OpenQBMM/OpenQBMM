@@ -25,63 +25,14 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-bool Foam::univariateMomentSet::isDegenerate()
+const Foam::scalarList& Foam::univariateQuadratureMomentSet::abscissae() const
 {
-    // Checking if moments of order higher than zero are null
-    // The case when m0 = 0 is already managed
-    for (Foam::label momentI = 1; momentI < (*this).size(); momentI++)
-    {
-        if (mag((*this)[momentI]) > SMALL)
-        {
-            degenerate_ = false;
-
-            return degenerate_;
-        }
-    }
-
-    degenerate_ = true;
-
-    return degenerate_;
+    return abscissae_;
 }
 
-bool Foam::univariateMomentSet::isFullyRealizable()
+const Foam::scalarList& Foam::univariateQuadratureMomentSet::weights() const
 {
-    if (!realizabilityChecked_)
-    {
-        checkRealizability();
-    }
-
-    return fullyRealizable_;
-}
-
-bool Foam::univariateMomentSet::isSubsetRealizable()
-{
-    if (!realizabilityChecked_)
-    {
-        checkRealizability();
-    }
-
-    return subsetRealizable_;
-}
-
-bool Foam::univariateMomentSet::isOnMomentSpaceBoundary()
-{
-    if (!realizabilityChecked_)
-    {
-        checkRealizability();
-    }
-
-    return onMomentSpaceBoundary_;
-}
-
-Foam::label Foam::univariateMomentSet::nRealizableMoments()
-{
-    if (!realizabilityChecked_)
-    {
-        checkRealizability();
-    }
-
-    return nRealizableMoments_;
+    return weights_;
 }
 
 // ************************************************************************* //

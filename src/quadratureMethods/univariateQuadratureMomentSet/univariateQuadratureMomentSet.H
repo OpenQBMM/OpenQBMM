@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,85 +22,89 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::univariateMomentInversion
+    Foam::univariateQuadratureMomentSet
 
 Description
-    Abstract class for univariate quadrature on a moment set.
+    Stores a moment set and the associated quadrature.
 
 SourceFiles
-    univariateMomentInversion.C
-    univariateMomentInversionI.H
+    univariateQuadratureMomentSet.C
+    univariateQuadratureMomentSet.H
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef univariateMomentInversion_H
-#define univariateMomentInversion_H
+#ifndef univariateQuadratureMomentSet_H
+#define univariateQuadratureMomentSet_H
 
-#include "scalarList.H"
-#include "scalarMatrices.H"
 #include "univariateMomentSet.H"
+#include "univariateMomentInversion.H"
+#include "dictionary.H"
+#include "scalarList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
+//class univariateMomentInversion;
+
 /*---------------------------------------------------------------------------*\
-                    Class univariateMomentInversion Declaration
+                    Class univariateQuadratureMomentSet Declaration
 \*---------------------------------------------------------------------------*/
 
-class univariateMomentInversion
+class univariateQuadratureMomentSet
+:
+    public univariateMomentSet
 {
-protected:
-
-    // Protected data
-
-        //- Set of moments to invert
-        univariateMomentSet& moments_;
-
-        //- Bool to indicate if moments were inverted
-        bool inverted_;
-
-        //- Number of invertible moments
-        label nInvertibleMoments_;
-
-        //- Number of quadrature nodes
-        label nNodes_;
-
-        //- Quadrature weights
-        scalarList weights_;
+    // Private data
 
         //- Quadrature abscissae
         scalarList abscissae_;
 
+        //- Quadrature weights
+        scalarList weights_;
 
-    // Protected member functions
+        //- Bool to indicate the moment set was inverted
+        bool inverted_;
 
-        //- Returns the list of alpha parameters for the quadrature
-        virtual scalarList& alphaRecurrence();
+        //- Minimum known abscissa
+        scalar minKnownAbscissa_;
 
-        //- Returns the list of beta parameters for the quadrature
-        virtual scalarList& betaRecurrence();
+        //- Maximum known abscissa
+        scalar maxKnownAbscissa_;
 
-        //- Calculates the number of quadrature nodes
-        virtual void calcNQuadratureNodes() = 0;
-
-        //- Create Jacobi matrix
-        scalarSquareMatrix JacobiMatrix(scalarSquareMatrix& z);
+        //- Moment inversion method
+        autoPtr<univariateMomentInversion> momentInverter_;
 
 
 public:
 
     // Constructors
 
-        //- Construct from univariateMomentSet
-        univariateMomentInversion
+        //- Construct from number of moments and initial value
+        univariateQuadratureMomentSet
         (
-            univariateMomentSet& moments
+            const dictionary& dict,
+            const label nMoments,
+            const word& support,
+            const label nFixedQuadraturePoints = 0,
+            const scalar minKnownAbscissa = 0,
+            const scalar maxKnownAbscissa = 0
+        );
+
+        //- Construct from scalarList
+        univariateQuadratureMomentSet
+        (
+            const dictionary& dict,
+            const scalarList& m,
+            const word& support,
+            const label nFixedQuadraturePoints = 0,
+            const scalar minKnownAbscissa = 0,
+            const scalar maxKnownAbscissa = 0
         );
 
     //- Destructor
-    virtual ~univariateMomentInversion();
+    virtual ~univariateQuadratureMomentSet();
 
 
     // Member Functions
@@ -108,19 +112,13 @@ public:
         //- Return quadrature abscissae
         inline const scalarList& abscissae() const;
 
-        //- Invert the set of moments to compute weights and abscissae
-        virtual void invert();
+        //- Compute the quadrature associated to the moment set
+        void invert();
 
-        //- Returns the status of inversion
-        inline bool isInverted() const;
+        //- Update moments from the corresponding quadrature
+        virtual void update();
 
-        //- Return the number of invertible moments
-        inline label nInvertibleMoments() const;
-
-        //- Return the number of nodes
-        inline label nNodes() const;
-
-        //- Return quadrature weights
+        //- Return quadrature abscissae
         inline const scalarList& weights() const;
 };
 
@@ -131,7 +129,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "univariateMomentInversionI.H"
+#include "univariateQuadratureMomentSetI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

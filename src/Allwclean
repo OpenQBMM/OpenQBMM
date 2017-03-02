@@ -5,6 +5,7 @@ set -x
 wclean libso eigenSolver
 wclean libso quadratureMethods/momentSets
 wclean libso quadratureMethods/momentInversion
+wclean libso quadratureMethods/univariateQuadratureMomentSet
 
 wclean libso Vandermonde
 wclean libso quadratureMethods/univariateMomentSet

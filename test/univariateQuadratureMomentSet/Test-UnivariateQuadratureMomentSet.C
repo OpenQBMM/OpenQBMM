@@ -22,17 +22,19 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Test-GaussMomentInversion
+    Test-UnivariateQuadratureMomentSet
 
 Description
-    Test gaussMomentInversion class and methods.
+    Test QuadratureMomentInversion class and methods.
 
 \*---------------------------------------------------------------------------*/
 
 #include "IOmanip.H"
+#include "IFstream.H"
+#include "OFstream.H"
 #include "scalarMatrices.H"
-#include "univariateMomentSet.H"
-#include "gaussMomentInversion.H"
+#include "IOdictionary.H"
+#include "univariateQuadratureMomentSet.H"
 
 using namespace Foam;
 
@@ -40,22 +42,43 @@ using namespace Foam;
 
 int main(int argc, char *argv[])
 {
-    Info << "Testing GaussMomentInversion\n" << endl;
+    Info << "Testing UnivariateQuadratureMomentSet\n" << endl;
 
-    label nMoments = 4;
+    label nMoments = 5;
 
-    univariateMomentSet m
+    Info<< "Reading quadratureProperties\n" << endl;
+
+    dictionary quadratureProperties(IFstream("quadratureProperties")());
+
+    univariateQuadratureMomentSet mGauss
     (
+        quadratureProperties,
         nMoments,
         "R"
     );
 
     Info << "Moment set (empty): " << m << endl;
 
-    m[0] = 1.0;
-    m[1] = 2.708217669;
-    m[2] = 8.951330468;
-    m[3] = 35.95258119;
+    // Gauss Test
+//     m[0] = 1.0;
+//     m[1] = 2.708217669;
+//     m[2] = 8.951330468;
+//     m[3] = 35.95258119;
+
+    // Lobatto test
+//     m[0] = 1.0000;
+//     m[1] = 0.2500;
+//     m[2] = 0.1058;
+//     m[3] = 0.0562;
+//     m[4] = 0.0340;
+//     m[5] = 0.0224;
+
+    // Radau test
+    m[0] = 1.0000;
+    m[1] = 0.2500;
+    m[2] = 0.1058;
+    m[3] = 0.0562;
+    m[4] = 0.0340;
 
     Info << setprecision(16);
     Info << "\nInput moments\n" << endl;
@@ -65,8 +88,7 @@ int main(int argc, char *argv[])
         Info << "Moment " << momenti << " = " << m[momenti] << endl;
     }
 
-    gaussMomentInversion quadrature(m);
-    quadrature.invert();
+    m.invert();
 
     if (m.isFullyRealizable())
     {
@@ -83,11 +105,11 @@ int main(int argc, char *argv[])
         Info << "\nThe moment set is not realizable.\n" << endl;
     }
 
-    Info << "The number of invertible moments is "
-         << quadrature.nInvertibleMoments() << "\n" << endl;
+//     Info << "The number of invertible moments is "
+//          << m.nInvertibleMoments() << "\n" << endl;
 
-    scalarList weights(quadrature.weights());
-    scalarList abscissae(quadrature.abscissae());
+    scalarList weights(m.weights());
+    scalarList abscissae(m.abscissae());
 
     Info << "Weights and abscissae:\n" << endl;
 
@@ -98,7 +120,7 @@ int main(int argc, char *argv[])
              << " Abscissa: " << abscissae[nodei] << endl;
     }
 
-    m.update(weights, abscissae);
+    m.update();
 
     Info << "\nMoments computed from quadrature\n" << endl;
 

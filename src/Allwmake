@@ -5,6 +5,7 @@ set -x
 wmake libso eigenSolver
 wmake libso quadratureMethods/momentSets
 wmake libso quadratureMethods/momentInversion
+wmake libso quadratureMethods/univariateQuadratureMomentSet
 
 wmake libso Vandermonde
 wmake libso quadratureMethods/univariateMomentSet

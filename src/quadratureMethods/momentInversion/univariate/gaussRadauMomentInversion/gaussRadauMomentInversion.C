@@ -24,29 +24,32 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "gaussRadauMomentInversion.H"
+#include "addToRunTimeSelectionTable.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(gaussRadauMomentInversion, 0);
+
+    addToRunTimeSelectionTable
+    (
+        univariateMomentInversion,
+        gaussRadauMomentInversion,
+        dictionary
+    );
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::gaussRadauMomentInversion::gaussRadauMomentInversion
 (
-    univariateMomentSet& moments,
-    scalar knownAbscissa
+    const dictionary& dict
 )
 :
-    univariateMomentInversion(moments),
-    forceGauss_(false),
-    knownAbscissa_(knownAbscissa)
-{
-    if (moments_.nMoments() % 2 == 0)
-    {
-        FatalErrorInFunction
-            << "The moment has an even number of elements." << nl
-            << "    Moment set: " << moments_
-            << abort(FatalError);
-    }
-
-    calcNQuadratureNodes();
-}
+    univariateMomentInversion(dict),
+    forceGauss_(false)
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -57,46 +60,54 @@ Foam::gaussRadauMomentInversion::~gaussRadauMomentInversion()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::gaussRadauMomentInversion::updateRecurrenceRelation()
+void Foam::gaussRadauMomentInversion::correctRecurrence
+(
+    univariateMomentSet& moments,
+    const scalar minKnownAbscissa,
+    const scalar maxKnownAbscissa
+)
 {
-    scalarList& aRecurrence(moments_.alphaRecurrence());
+    scalarList& aRecurrence(moments.alphaRecurrence());
+    scalarList& bRecurrence(moments.betaRecurrence());
 
     if (!forceGauss_)
     {
-        scalar p = knownAbscissa_ - aRecurrence[0];
+        scalar p = minKnownAbscissa - aRecurrence[0];
         scalar pMinus1 = 1.0;
         scalar p1 = p;
 
         for (label i = 1; i < nNodes_ - 1; i++)
         {
-            p = knownAbscissa_ - aRecurrence[0]*p1
-                - moments_.betaRecurrence()[i]*pMinus1;
+            p = minKnownAbscissa - aRecurrence[0]*p1 - bRecurrence[i]*pMinus1;
 
             pMinus1 = p1;
             p1 = p;
         }
 
         aRecurrence[nNodes_ - 1] =
-            knownAbscissa_
-          - moments_.betaRecurrence()[nNodes_ - 1]*pMinus1/p;
+            minKnownAbscissa - bRecurrence[nNodes_ - 1]*pMinus1/p;
     }
 }
 
-void Foam::gaussRadauMomentInversion::calcNQuadratureNodes()
+void Foam::gaussRadauMomentInversion::calcNQuadratureNodes
+(
+    univariateMomentSet& moments,
+    scalarList& weights,
+    scalarList& abscissae
+)
 {
-    if (moments_.isDegenerate())
+    if (moments.isDegenerate())
     {
         nNodes_ = 1;
-        weights_.setSize(nNodes_);
-        abscissae_.setSize(nNodes_);
-        weights_[0] = moments_[0];
-        abscissae_[0] = 0.0;
-        inverted_ = true;
+        weights.setSize(nNodes_);
+        abscissae.setSize(nNodes_);
+        weights[0] = moments[0];
+        abscissae[0] = 0.0;
 
         return;
     }
 
-    label nRealizableMoments = moments_.nRealizableMoments();
+    label nRealizableMoments = moments.nRealizableMoments();
 
     if (nRealizableMoments >= 2)
     {
@@ -117,24 +128,12 @@ void Foam::gaussRadauMomentInversion::calcNQuadratureNodes()
     {
         FatalErrorInFunction
             << "The moment has size less or equal to 1." << nl
-            << "    Moment set: " << moments_
+            << "    Moment set: " << moments
             << abort(FatalError);
     }
 
-    weights_.setSize(nNodes_);
-    abscissae_.setSize(nNodes_);
+    weights.setSize(nNodes_);
+    abscissae.setSize(nNodes_);
 }
-
-void Foam::gaussRadauMomentInversion::invert()
-{
-    if (!inverted_)
-    {
-        calcNQuadratureNodes();
-        updateRecurrenceRelation();
-
-        univariateMomentInversion::invert();
-    }
-}
-
 
 // ************************************************************************* //

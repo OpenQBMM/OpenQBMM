@@ -47,9 +47,17 @@ Foam::univariateMomentSet::univariateMomentSet
     fullyRealizable_(true),
     subsetRealizable_(true),
     onMomentSpaceBoundary_(false),
-    realizabilityChecked_(false),
-    nRealizableMoments_(0)
+    nRealizableMoments_(0),
+    realizabilityChecked_(false)
 {
+    if (support_ != "R" && support_ != "RPlus" && support_ != "01")
+    {
+        FatalErrorInFunction
+            << "The specified support is invalid." << nl
+            << "    Valid supports are: R, RPlus and 01."
+            << abort(FatalError);
+    }
+
     if (nFixedQuadraturePoints < 0 || nFixedQuadraturePoints > 2)
     {
         FatalErrorInFunction
@@ -85,14 +93,22 @@ Foam::univariateMomentSet::univariateMomentSet
     fullyRealizable_(true),
     subsetRealizable_(true),
     onMomentSpaceBoundary_(false),
-    realizabilityChecked_(false),
-    nRealizableMoments_(0)
+    nRealizableMoments_(0),
+    realizabilityChecked_(false)
 {
     if (support_ != "R" && support_ != "RPlus" && support_ != "01")
     {
         FatalErrorInFunction
             << "The specified support is invalid." << nl
             << "    Valid supports are: R, RPlus and 01."
+            << abort(FatalError);
+    }
+
+    if (nFixedQuadraturePoints < 0 || nFixedQuadraturePoints > 2)
+    {
+        FatalErrorInFunction
+            << "The specified number of fixed points /*is*/ not correct." << nl
+            << "    Valid values are: 0, 1 and 2."
             << abort(FatalError);
     }
 

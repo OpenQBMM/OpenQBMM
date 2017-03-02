@@ -1,8 +1,10 @@
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I../momentSets/lnInclude \
+    -I../momentInversion/lnInclude \
     -DFULLDEBUG -g -O0
 
 LIB_LIBS = \
     -lfiniteVolume \
-    -L$(FOAM_USER_LIBBIN)
+    -L$(FOAM_USER_LIBBIN) \
+    -lmomentInversion

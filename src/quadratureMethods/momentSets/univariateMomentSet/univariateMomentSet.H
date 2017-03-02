@@ -77,9 +77,6 @@ class univariateMomentSet
         //  moment space
         bool onMomentSpaceBoundary_;
 
-        //- Bool to indicate moment realizability was checked
-        bool realizabilityChecked_;
-
         //- Number of realizable moments
         label nRealizableMoments_;
 
@@ -94,6 +91,14 @@ class univariateMomentSet
             const scalarList& zeta,
             const label nZeta
         );
+
+
+protected:
+
+        // Protected data
+
+            //- Bool to indicate moment realizability was checked
+            bool realizabilityChecked_;
 
 
 public:
@@ -157,7 +162,7 @@ public:
         inline label nRealizableMoments();
 
         //- Update moments from the corresponding quadrature
-        void update
+        virtual void update
         (
             const scalarList& weights,
             const scalarList& abscissae

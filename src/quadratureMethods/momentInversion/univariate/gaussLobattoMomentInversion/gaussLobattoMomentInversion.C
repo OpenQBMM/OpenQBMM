@@ -24,40 +24,32 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "gaussLobattoMomentInversion.H"
+#include "addToRunTimeSelectionTable.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(gaussLobattoMomentInversion, 0);
+
+    addToRunTimeSelectionTable
+    (
+        univariateMomentInversion,
+        gaussLobattoMomentInversion,
+        dictionary
+    );
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::gaussLobattoMomentInversion::gaussLobattoMomentInversion
 (
-    univariateMomentSet& moments,
-    scalar minKnownAbscissa,
-    scalar maxKnownAbscissa
+    const dictionary& dict
 )
 :
-    univariateMomentInversion(moments),
-    forceRadau_(false),
-    minKnownAbscissa_(minKnownAbscissa),
-    maxKnownAbscissa_(maxKnownAbscissa)
-{
-    if (minKnownAbscissa >= maxKnownAbscissa)
-    {
-        FatalErrorInFunction
-            << "The interval of integration is not correctly specified." << nl
-            << "    Min. abscissa: " << minKnownAbscissa << nl
-            << "    Max. abscissa: " << maxKnownAbscissa
-            << abort(FatalError);
-    }
-
-    if (moments_.nMoments() % 2 != 0)
-    {
-        FatalErrorInFunction
-            << "The moment has an odd number of elements." << nl
-            << "    Moment set: " << moments_
-            << abort(FatalError);
-    }
-
-    calcNQuadratureNodes();
-}
+    univariateMomentInversion(dict),
+    forceRadau_(false)
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -68,34 +60,39 @@ Foam::gaussLobattoMomentInversion::~gaussLobattoMomentInversion()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::gaussLobattoMomentInversion::updateRecurrenceRelation()
+void Foam::gaussLobattoMomentInversion::correctRecurrence
+(
+    univariateMomentSet& moments,
+    const scalar minKnownAbscissa,
+    const scalar maxKnownAbscissa
+)
 {
-    scalarList& aRecurrence(moments_.alphaRecurrence());
-    scalarList& bRecurrence(moments_.betaRecurrence());
+    scalarList& aRecurrence(moments.alphaRecurrence());
+    scalarList& bRecurrence(moments.betaRecurrence());
 
     if (forceRadau_)
     {
-        scalar p = minKnownAbscissa_ - aRecurrence[0];
+        scalar p = minKnownAbscissa - aRecurrence[0];
         scalar pMinus1 = 1.0;
         scalar p1 = p;
 
         for (label i = 1; i < nNodes_ - 1; i++)
         {
-            p = minKnownAbscissa_ - aRecurrence[0]*p1
-                - moments_.betaRecurrence()[i]*pMinus1;
+            p = minKnownAbscissa - aRecurrence[0]*p1
+                - moments.betaRecurrence()[i]*pMinus1;
 
             pMinus1 = p1;
             p1 = p;
         }
 
         aRecurrence[nNodes_ - 1] =
-                minKnownAbscissa_
-              - moments_.betaRecurrence()[nNodes_ - 1]*pMinus1/p;
+                minKnownAbscissa
+              - moments.betaRecurrence()[nNodes_ - 1]*pMinus1/p;
     }
     else
     {
-        scalar pLeft = minKnownAbscissa_ - aRecurrence[0];
-        scalar pRight = maxKnownAbscissa_ - aRecurrence[0];
+        scalar pLeft = minKnownAbscissa - aRecurrence[0];
+        scalar pRight = maxKnownAbscissa - aRecurrence[0];
 
         scalar pMinus1Left = 1.0;
         scalar pMinus1Right = 1.0;
@@ -105,10 +102,10 @@ void Foam::gaussLobattoMomentInversion::updateRecurrenceRelation()
 
         for (label i = 1; i < nNodes_ - 1; i++)
         {
-            pLeft = (minKnownAbscissa_ - aRecurrence[i])*p1Left
+            pLeft = (minKnownAbscissa - aRecurrence[i])*p1Left
                     - bRecurrence[i]*pMinus1Left;
 
-            pRight = (maxKnownAbscissa_ - aRecurrence[i])*p1Right
+            pRight = (maxKnownAbscissa - aRecurrence[i])*p1Right
                     - bRecurrence[i]*pMinus1Right;
 
             pMinus1Left = p1Left;
@@ -120,32 +117,35 @@ void Foam::gaussLobattoMomentInversion::updateRecurrenceRelation()
         scalar d = pLeft*pMinus1Right - pRight*pMinus1Left;
 
         aRecurrence[nNodes_ - 1] =
-                (minKnownAbscissa_*pLeft*pMinus1Right
-                - maxKnownAbscissa_*pRight*pMinus1Left)/d;
+                (minKnownAbscissa*pLeft*pMinus1Right
+                - maxKnownAbscissa*pRight*pMinus1Left)/d;
 
         bRecurrence[nNodes_ - 1] =
-                (maxKnownAbscissa_ - minKnownAbscissa_)*pLeft*pRight/d;
+                (maxKnownAbscissa - minKnownAbscissa)*pLeft*pRight/d;
     }
 }
 
-
-void Foam::gaussLobattoMomentInversion::calcNQuadratureNodes()
+void Foam::gaussLobattoMomentInversion::calcNQuadratureNodes
+(
+    univariateMomentSet& moments,
+    scalarList& weights,
+    scalarList& abscissae
+)
 {
-    if (moments_.isDegenerate())
+    if (moments.isDegenerate())
     {
         nNodes_ = 1;
-        weights_.setSize(nNodes_);
-        abscissae_.setSize(nNodes_);
-        weights_[0] = moments_[0];
-        abscissae_[0] = 0.0;
-        inverted_ = true;
+        weights.setSize(nNodes_);
+        abscissae.setSize(nNodes_);
+        weights[0] = moments[0];
+        abscissae[0] = 0.0;
 
         return;
     }
 
-    label nRealizableMoments = moments_.nRealizableMoments();
+    label nRealizableMoments = moments.nRealizableMoments();
 
-    if (nRealizableMoments >= 2)
+    if (nRealizableMoments > 2)
     {
         if (nRealizableMoments % 2 == 0)
         {
@@ -163,24 +163,13 @@ void Foam::gaussLobattoMomentInversion::calcNQuadratureNodes()
     else
     {
         FatalErrorInFunction
-            << "The moment has size less or equal to 1." << nl
-            << "    Moment set: " << moments_
+            << "The moment has size less or equal to 2." << nl
+            << "    Moment set: " << moments
             << abort(FatalError);
     }
 
-    weights_.setSize(nNodes_);
-    abscissae_.setSize(nNodes_);
-}
-
-void Foam::gaussLobattoMomentInversion::invert()
-{
-    if (!inverted_)
-    {
-        calcNQuadratureNodes();
-        updateRecurrenceRelation();
-
-        univariateMomentInversion::invert();
-    }
+    weights.setSize(nNodes_);
+    abscissae.setSize(nNodes_);
 }
 
 // ************************************************************************* //

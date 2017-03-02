@@ -37,9 +37,8 @@ SourceFiles
 #ifndef gaussLobattoMomentInversion_H
 #define gaussLobattoMomentInversion_H
 
-#include "scalarMatrices.H"
 #include "univariateMomentInversion.H"
-#include "univariateMomentSet.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -47,7 +46,7 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class gaussLobattoMomentInversion Declaration
+                Class gaussLobattoMomentInversion Declaration
 \*---------------------------------------------------------------------------*/
 
 class gaussLobattoMomentInversion
@@ -56,52 +55,46 @@ class gaussLobattoMomentInversion
 {
     // Private data
 
-        //- Bool to indicate the quadrature fell back to Gaussian if a
-        //  subset of realizable moments with an even number of elements is
-        //  found
+        // Bool to check if Radau quadrature must be performed
         bool forceRadau_;
-
-        //- Minimum known abscissa for Guauss-Lobatto quadrature
-        scalar minKnownAbscissa_;
-
-        //- Second known abscissa for Guauss-Lobatto quadrature
-        scalar maxKnownAbscissa_;
-
-
-    // Primate member functions
-
-        //- Update recurrence relation for Gauss-Lobatto quadrature
-        void updateRecurrenceRelation();
-
-
-protected:
-
-    // Protected member functions
-
-        //- Calculate the number of quadrature nodes
-        void calcNQuadratureNodes();
 
 
 public:
+
+    //- Runtime type information
+    TypeName("GaussLobatto");
+
 
     // Constructors
 
         //- Construct from univariateMomentSet
         gaussLobattoMomentInversion
         (
-            univariateMomentSet& moments,
-            scalar minKnownAbscissa,
-            scalar maxKnownAbscissa
+            const dictionary& dict
         );
+
 
     //- Destructor
     virtual ~gaussLobattoMomentInversion();
 
 
-    // Member functions
+    // Public member functions
 
-        //- Invert moments
-        virtual void invert();
+        //- Modify the recurrence relation for fixed-point quadrature
+        virtual void correctRecurrence
+        (
+            univariateMomentSet& moments,
+            const scalar minKnownAbscissa = 0,
+            const scalar maxKnownAbscissa = 0
+        );
+
+        //- Calculates the number of quadrature nodes
+        virtual void calcNQuadratureNodes
+        (
+            univariateMomentSet& moments,
+            scalarList& weights,
+            scalarList& abscissae
+        );
 };
 
 

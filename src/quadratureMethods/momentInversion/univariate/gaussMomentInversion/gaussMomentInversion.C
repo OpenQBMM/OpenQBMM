@@ -24,29 +24,31 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "gaussMomentInversion.H"
+#include "addToRunTimeSelectionTable.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(gaussMomentInversion, 0);
+
+    addToRunTimeSelectionTable
+    (
+        univariateMomentInversion,
+        gaussMomentInversion,
+        dictionary
+    );
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::gaussMomentInversion::gaussMomentInversion
 (
-    univariateMomentSet& moments
+    const dictionary& dict
 )
 :
-    univariateMomentInversion(moments)
-{
-    if (moments_.nMoments() % 2 != 0)
-    {
-        FatalErrorInFunction
-            << "The moment has an odd number of elements." << nl
-            << "    Moment set: " << moments_
-            << abort(FatalError);
-    }
-
-    calcNQuadratureNodes();
-
-    weights_.setSize(nNodes_);
-    abscissae_.setSize(nNodes_);
-}
+    univariateMomentInversion(dict)
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -57,21 +59,35 @@ Foam::gaussMomentInversion::~gaussMomentInversion()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::gaussMomentInversion::calcNQuadratureNodes()
+void Foam::gaussMomentInversion::correctRecurrence
+(
+    univariateMomentSet& moments,
+    const scalar minKnownAbscissa,
+    const scalar maxKnownAbscissa
+)
 {
-    if (moments_.isDegenerate())
+    return; // No correction needed for Gauss quadrature
+}
+
+void Foam::gaussMomentInversion::calcNQuadratureNodes
+(
+    univariateMomentSet& moments,
+    scalarList& weights,
+    scalarList& abscissae
+)
+{
+    if (moments.isDegenerate())
     {
         nNodes_ = 1;
-        weights_.setSize(nNodes_);
-        abscissae_.setSize(nNodes_);
-        weights_[0] = moments_[0];
-        abscissae_[0] = 0.0;
-        inverted_ = true;
+        weights.setSize(nNodes_);
+        abscissae.setSize(nNodes_);
+        weights[0] = moments[0];
+        abscissae[0] = 0.0;
 
         return;
     }
 
-    label nRealizableMoments = moments_.nRealizableMoments();
+    label nRealizableMoments = moments.nRealizableMoments();
 
     if (nRealizableMoments >= 2)
     {
@@ -87,12 +103,15 @@ void Foam::gaussMomentInversion::calcNQuadratureNodes()
     else
     {
         FatalErrorInFunction
-            << "The moment has size less or equal to 1." << nl
-            << "    Moment set: " << moments_
+            << "The moment set has size less or equal to 1." << nl
+            << "    Moment set: " << moments
             << abort(FatalError);
     }
 
-    nNodes_ = nRealizableMoments/2;
+    nNodes_ = nInvertibleMoments_/2;
+
+    weights.setSize(nNodes_);
+    abscissae.setSize(nNodes_);
 }
 
 // ************************************************************************* //
