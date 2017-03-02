@@ -287,7 +287,7 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
     {
         const fvPatchScalarField& m0Patch = bf[patchi];
 
-        if (m0Patch.fixesValue())
+        //if (m0Patch.fixesValue())
         {
             forAll(m0Patch, facei)
             {
