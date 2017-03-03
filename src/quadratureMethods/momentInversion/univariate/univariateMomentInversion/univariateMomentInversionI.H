@@ -25,9 +25,19 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+const Foam::scalarList& Foam::univariateMomentInversion::abscissae() const
+{
+    return abscissae_;
+}
+
 Foam::label Foam::univariateMomentInversion::nNodes() const
 {
     return nNodes_;
+}
+
+const Foam::scalarList& Foam::univariateMomentInversion::weights() const
+{
+    return weights_;
 }
 
 // ************************************************************************* //

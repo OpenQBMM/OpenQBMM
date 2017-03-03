@@ -15,6 +15,6 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-univariateMomentInversion	GaussRadau;
+univariateMomentInversion	GaussLobatto;
 
 // ************************************************************************* //

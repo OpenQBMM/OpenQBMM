@@ -63,46 +63,43 @@ Foam::gaussRadauMomentInversion::~gaussRadauMomentInversion()
 void Foam::gaussRadauMomentInversion::correctRecurrence
 (
     univariateMomentSet& moments,
+    scalarList& alpha,
+    scalarList& beta,
     const scalar minKnownAbscissa,
     const scalar maxKnownAbscissa
 )
 {
-    scalarList& aRecurrence(moments.alphaRecurrence());
-    scalarList& bRecurrence(moments.betaRecurrence());
-
     if (!forceGauss_)
     {
-        scalar p = minKnownAbscissa - aRecurrence[0];
+        scalar p = minKnownAbscissa - alpha[0];
         scalar pMinus1 = 1.0;
         scalar p1 = p;
 
         for (label i = 1; i < nNodes_ - 1; i++)
         {
-            p = minKnownAbscissa - aRecurrence[0]*p1 - bRecurrence[i]*pMinus1;
+            p = minKnownAbscissa - alpha[0]*p1 - beta[i]*pMinus1;
 
             pMinus1 = p1;
             p1 = p;
         }
 
-        aRecurrence[nNodes_ - 1] =
-            minKnownAbscissa - bRecurrence[nNodes_ - 1]*pMinus1/p;
+        alpha[nNodes_ - 1] =
+        minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;
     }
 }
 
 void Foam::gaussRadauMomentInversion::calcNQuadratureNodes
 (
-    univariateMomentSet& moments,
-    scalarList& weights,
-    scalarList& abscissae
+    univariateMomentSet& moments
 )
 {
     if (moments.isDegenerate())
     {
         nNodes_ = 1;
-        weights.setSize(nNodes_);
-        abscissae.setSize(nNodes_);
-        weights[0] = moments[0];
-        abscissae[0] = 0.0;
+        weights_.setSize(nNodes_);
+        abscissae_.setSize(nNodes_);
+        weights_[0] = moments[0];
+        abscissae_[0] = 0.0;
 
         return;
     }
@@ -132,8 +129,8 @@ void Foam::gaussRadauMomentInversion::calcNQuadratureNodes
             << abort(FatalError);
     }
 
-    weights.setSize(nNodes_);
-    abscissae.setSize(nNodes_);
+    abscissae_.setSize(nNodes_);
+    weights_.setSize(nNodes_);
 }
 
 // ************************************************************************* //

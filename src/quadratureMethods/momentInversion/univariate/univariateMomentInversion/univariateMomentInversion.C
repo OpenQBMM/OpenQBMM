@@ -43,7 +43,10 @@ Foam::univariateMomentInversion::univariateMomentInversion
     const dictionary& dict
 )
 :
-    nNodes_()
+    nInvertibleMoments_(),
+    nNodes_(),
+    abscissae_(),
+    weights_()
 {}
 
 
@@ -63,23 +66,31 @@ void Foam::univariateMomentInversion::JacobiMatrix
     const scalar maxKnownAbscissa
 )
 {
-    correctRecurrence(moments, minKnownAbscissa, maxKnownAbscissa);
+    scalarList alpha(moments.alphaRecurrence());
+    scalarList beta(moments.betaRecurrence());
+
+    correctRecurrence
+    (
+        moments,
+        alpha,
+        beta,
+        minKnownAbscissa,
+        maxKnownAbscissa
+    );
 
     for (label i = 0; i < nNodes_ - 1; i++)
     {
-        z[i][i] = moments.alphaRecurrence()[i];
-        z[i][i+1] = Foam::sqrt(moments.betaRecurrence()[i+1]);
+        z[i][i] = alpha[i];
+        z[i][i+1] = Foam::sqrt(beta[i+1]);
         z[i+1][i] = z[i][i+1];
     }
 
-    z[nNodes_ - 1][nNodes_ - 1] = moments.alphaRecurrence()[nNodes_ - 1];
+    z[nNodes_ - 1][nNodes_ - 1] = alpha[nNodes_ - 1];
 }
 
 void Foam::univariateMomentInversion::invert
 (
     univariateMomentSet& moments,
-    scalarList& weights,
-    scalarList& abscissae,
     const scalar minKnownAbscissa,
     const scalar maxKnownAbscissa
 )
@@ -93,18 +104,18 @@ void Foam::univariateMomentInversion::invert
     {
         nNodes_ = 0;
 
-        weights.setSize(nNodes_);
-        abscissae.setSize(nNodes_);
+        weights_.setSize(nNodes_);
+        abscissae_.setSize(nNodes_);
 
         return;
     }
 
-    calcNQuadratureNodes(moments, weights, abscissae);
+    calcNQuadratureNodes(moments);
 
     if (nInvertibleMoments_ == 2)
     {
-        weights[0] = moments[0];
-        abscissae[0] = moments[1]/moments[0];
+        weights_[0] = moments[0];
+        abscissae_[0] = moments[1]/moments[0];
 
         return;
     }
@@ -118,8 +129,8 @@ void Foam::univariateMomentInversion::invert
     // Computing weights and abscissae
     for (label i = 0; i < nNodes_; i++)
     {
-        weights[i] = moments[0]*sqr(zEig.eigenvectors()[0][i]);
-        abscissae[i] = zEig.eigenvaluesRe()[i];
+        weights_[i] = moments[0]*sqr(zEig.eigenvectors()[0][i]);
+        abscissae_[i] = zEig.eigenvaluesRe()[i];
     }
 }
 

@@ -63,36 +63,34 @@ Foam::gaussLobattoMomentInversion::~gaussLobattoMomentInversion()
 void Foam::gaussLobattoMomentInversion::correctRecurrence
 (
     univariateMomentSet& moments,
+    scalarList& alpha,
+    scalarList& beta,
     const scalar minKnownAbscissa,
     const scalar maxKnownAbscissa
 )
 {
-    scalarList& aRecurrence(moments.alphaRecurrence());
-    scalarList& bRecurrence(moments.betaRecurrence());
-
     if (forceRadau_)
     {
-        scalar p = minKnownAbscissa - aRecurrence[0];
+        scalar p = minKnownAbscissa - alpha[0];
         scalar pMinus1 = 1.0;
         scalar p1 = p;
 
         for (label i = 1; i < nNodes_ - 1; i++)
         {
-            p = minKnownAbscissa - aRecurrence[0]*p1
-                - moments.betaRecurrence()[i]*pMinus1;
+            p = minKnownAbscissa - alpha[0]*p1
+                - beta[i]*pMinus1;
 
             pMinus1 = p1;
             p1 = p;
         }
 
-        aRecurrence[nNodes_ - 1] =
-                minKnownAbscissa
-              - moments.betaRecurrence()[nNodes_ - 1]*pMinus1/p;
+        alpha[nNodes_ - 1] =
+                minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;
     }
     else
     {
-        scalar pLeft = minKnownAbscissa - aRecurrence[0];
-        scalar pRight = maxKnownAbscissa - aRecurrence[0];
+        scalar pLeft = minKnownAbscissa - alpha[0];
+        scalar pRight = maxKnownAbscissa - alpha[0];
 
         scalar pMinus1Left = 1.0;
         scalar pMinus1Right = 1.0;
@@ -102,11 +100,11 @@ void Foam::gaussLobattoMomentInversion::correctRecurrence
 
         for (label i = 1; i < nNodes_ - 1; i++)
         {
-            pLeft = (minKnownAbscissa - aRecurrence[i])*p1Left
-                    - bRecurrence[i]*pMinus1Left;
+            pLeft = (minKnownAbscissa - alpha[i])*p1Left
+                    - beta[i]*pMinus1Left;
 
-            pRight = (maxKnownAbscissa - aRecurrence[i])*p1Right
-                    - bRecurrence[i]*pMinus1Right;
+            pRight = (maxKnownAbscissa - alpha[i])*p1Right
+                    - beta[i]*pMinus1Right;
 
             pMinus1Left = p1Left;
             pMinus1Right = p1Right;
@@ -116,29 +114,27 @@ void Foam::gaussLobattoMomentInversion::correctRecurrence
 
         scalar d = pLeft*pMinus1Right - pRight*pMinus1Left;
 
-        aRecurrence[nNodes_ - 1] =
+        alpha[nNodes_ - 1] =
                 (minKnownAbscissa*pLeft*pMinus1Right
                 - maxKnownAbscissa*pRight*pMinus1Left)/d;
 
-        bRecurrence[nNodes_ - 1] =
+        beta[nNodes_ - 1] =
                 (maxKnownAbscissa - minKnownAbscissa)*pLeft*pRight/d;
     }
 }
 
 void Foam::gaussLobattoMomentInversion::calcNQuadratureNodes
 (
-    univariateMomentSet& moments,
-    scalarList& weights,
-    scalarList& abscissae
+    univariateMomentSet& moments
 )
 {
     if (moments.isDegenerate())
     {
         nNodes_ = 1;
-        weights.setSize(nNodes_);
-        abscissae.setSize(nNodes_);
-        weights[0] = moments[0];
-        abscissae[0] = 0.0;
+        weights_.setSize(nNodes_);
+        abscissae_.setSize(nNodes_);
+        weights_[0] = moments[0];
+        abscissae_[0] = 0.0;
 
         return;
     }
@@ -168,8 +164,8 @@ void Foam::gaussLobattoMomentInversion::calcNQuadratureNodes
             << abort(FatalError);
     }
 
-    weights.setSize(nNodes_);
-    abscissae.setSize(nNodes_);
+    abscissae_.setSize(nNodes_);
+    weights_.setSize(nNodes_);
 }
 
 // ************************************************************************* //

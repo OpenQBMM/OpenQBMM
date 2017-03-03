@@ -1,3 +1,0 @@
-Test-UnivariateQuadratureMomentInversion.C
-
-EXE = $(FOAM_USER_APPBIN)/Test-UnivariateQuadratureMomentInversion

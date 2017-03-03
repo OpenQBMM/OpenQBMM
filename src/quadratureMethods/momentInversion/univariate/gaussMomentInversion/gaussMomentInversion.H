@@ -77,6 +77,8 @@ public:
         virtual void correctRecurrence
         (
             univariateMomentSet& moments,
+            scalarList& alpha,
+            scalarList& beta,
             const scalar minKnownAbscissa = 0,
             const scalar maxKnownAbscissa = 0
         );
@@ -84,9 +86,7 @@ public:
         //- Calculates the number of quadrature nodes
         virtual void calcNQuadratureNodes
         (
-            univariateMomentSet& moments,
-            scalarList& weights,
-            scalarList& abscissae
+            univariateMomentSet& moments
         );
 };
 

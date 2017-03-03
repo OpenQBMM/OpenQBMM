@@ -70,7 +70,7 @@ Foam::univariateMomentSet::univariateMomentSet
             label((nMoments - 2)/2) + 1 + nFixedQuadraturePoints;
 
     alpha_.setSize(recurrenceSize, 0);
-    beta_.setSize(recurrenceSize, 0);
+    beta_.setSize(recurrenceSize + 1, 0);
 }
 
 Foam::univariateMomentSet::univariateMomentSet

@@ -62,6 +62,8 @@ Foam::gaussMomentInversion::~gaussMomentInversion()
 void Foam::gaussMomentInversion::correctRecurrence
 (
     univariateMomentSet& moments,
+    scalarList& alpha,
+    scalarList& beta,
     const scalar minKnownAbscissa,
     const scalar maxKnownAbscissa
 )
@@ -71,18 +73,16 @@ void Foam::gaussMomentInversion::correctRecurrence
 
 void Foam::gaussMomentInversion::calcNQuadratureNodes
 (
-    univariateMomentSet& moments,
-    scalarList& weights,
-    scalarList& abscissae
+    univariateMomentSet& moments
 )
 {
     if (moments.isDegenerate())
     {
         nNodes_ = 1;
-        weights.setSize(nNodes_);
-        abscissae.setSize(nNodes_);
-        weights[0] = moments[0];
-        abscissae[0] = 0.0;
+        weights_.setSize(nNodes_);
+        abscissae_.setSize(nNodes_);
+        weights_[0] = moments[0];
+        abscissae_[0] = 0.0;
 
         return;
     }
@@ -110,8 +110,8 @@ void Foam::gaussMomentInversion::calcNQuadratureNodes
 
     nNodes_ = nInvertibleMoments_/2;
 
-    weights.setSize(nNodes_);
-    abscissae.setSize(nNodes_);
+    abscissae_.setSize(nNodes_);
+    weights_.setSize(nNodes_);
 }
 
 // ************************************************************************* //

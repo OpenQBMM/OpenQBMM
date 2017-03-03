@@ -22,10 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Test-UnivariateQuadratureMomentSet
+    Test-UnivariateMomentInversion
 
 Description
-    Test QuadratureMomentInversion class and methods.
+    Test univariateMomentInversion class and methods.
 
 \*---------------------------------------------------------------------------*/
 
@@ -34,7 +34,8 @@ Description
 #include "OFstream.H"
 #include "scalarMatrices.H"
 #include "IOdictionary.H"
-#include "univariateQuadratureMomentSet.H"
+#include "univariateMomentSet.H"
+#include "univariateMomentInversion.H"
 
 using namespace Foam;
 
@@ -42,19 +43,19 @@ using namespace Foam;
 
 int main(int argc, char *argv[])
 {
-    Info << "Testing UnivariateQuadratureMomentSet\n" << endl;
+    Info << "Testing univariateMomentInversion\n" << endl;
 
-    label nMoments = 5;
+    label nMoments = 6;
 
     Info<< "Reading quadratureProperties\n" << endl;
 
     dictionary quadratureProperties(IFstream("quadratureProperties")());
 
-    univariateQuadratureMomentSet mGauss
+    univariateMomentSet m
     (
-        quadratureProperties,
         nMoments,
-        "R"
+        "R",
+        2
     );
 
     Info << "Moment set (empty): " << m << endl;
@@ -66,19 +67,19 @@ int main(int argc, char *argv[])
 //     m[3] = 35.95258119;
 
     // Lobatto test
-//     m[0] = 1.0000;
-//     m[1] = 0.2500;
-//     m[2] = 0.1058;
-//     m[3] = 0.0562;
-//     m[4] = 0.0340;
-//     m[5] = 0.0224;
-
-    // Radau test
     m[0] = 1.0000;
     m[1] = 0.2500;
     m[2] = 0.1058;
     m[3] = 0.0562;
     m[4] = 0.0340;
+    m[5] = 0.0224;
+
+    // Radau test
+//     m[0] = 1.0000;
+//     m[1] = 0.2500;
+//     m[2] = 0.1058;
+//     m[3] = 0.0562;
+//     m[4] = 0.0340;
 
     Info << setprecision(16);
     Info << "\nInput moments\n" << endl;
@@ -88,7 +89,12 @@ int main(int argc, char *argv[])
         Info << "Moment " << momenti << " = " << m[momenti] << endl;
     }
 
-    m.invert();
+    autoPtr<univariateMomentInversion> inversion
+    (
+        univariateMomentInversion::New(quadratureProperties)
+    );
+
+    inversion().invert(m, 0, 1);
 
     if (m.isFullyRealizable())
     {
@@ -105,11 +111,8 @@ int main(int argc, char *argv[])
         Info << "\nThe moment set is not realizable.\n" << endl;
     }
 
-//     Info << "The number of invertible moments is "
-//          << m.nInvertibleMoments() << "\n" << endl;
-
-    scalarList weights(m.weights());
-    scalarList abscissae(m.abscissae());
+    scalarList weights(inversion().weights());
+    scalarList abscissae(inversion().abscissae());
 
     Info << "Weights and abscissae:\n" << endl;
 
@@ -120,7 +123,7 @@ int main(int argc, char *argv[])
              << " Abscissa: " << abscissae[nodei] << endl;
     }
 
-    m.update();
+    m.update(weights, abscissae);
 
     Info << "\nMoments computed from quadrature\n" << endl;
 

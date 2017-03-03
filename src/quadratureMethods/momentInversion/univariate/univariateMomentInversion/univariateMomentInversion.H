@@ -70,6 +70,12 @@ protected:
         //- Number of quadrature nodes
         label nNodes_;
 
+        //- Quadrature abscissae
+        scalarList abscissae_;
+
+        //- Quadrature weights
+        scalarList weights_;
+
 
     // Protected member functions
 
@@ -126,34 +132,38 @@ public:
 
     // Member Functions
 
+        //- Calculates the number of quadrature nodes
+        virtual void calcNQuadratureNodes
+        (
+            univariateMomentSet& moments
+        ) = 0;
+
+        //- Modify the recurrence relation for fixed-point quadrature
+        virtual void correctRecurrence
+        (
+            univariateMomentSet& moments,
+            scalarList& alpha,
+            scalarList& beta,
+            const scalar minKnownAbscissa = 0,
+            const scalar maxKnownAbscissa = 0
+        ) = 0;
+
         //- Invert the set of moments to compute weights and abscissae
         virtual void invert
         (
             univariateMomentSet& moments,
-            scalarList& weights,
-            scalarList& abscissae,
             const scalar minKnownAbscissa = 0,
             const scalar maxKnownAbscissa = 0
         );
 
+        //- Return quadrature abscissae
+        inline const scalarList& abscissae() const;
+
         //- Return the number of nodes
         inline label nNodes() const;
 
-                //- Modify the recurrence relation for fixed-point quadrature
-        virtual void correctRecurrence
-        (
-            univariateMomentSet& moments,
-            const scalar minKnownAbscissa = 0,
-            const scalar maxKnownAbscissa = 0
-        ) = 0;
-
-        //- Calculates the number of quadrature nodes
-        virtual void calcNQuadratureNodes
-        (
-            univariateMomentSet& moments,
-            scalarList& weights,
-            scalarList& abscissae
-        ) = 0;
+        //- Return quadrature weigths
+        inline const scalarList& weights() const;
 
 };
 
