@@ -127,8 +127,8 @@ public:
         //- Recurrence relation for polynomials orthogonal to kernel function
         virtual void recurrenceRelation
         (
-            scalarDiagonalMatrix& a,
-            scalarDiagonalMatrix& b,
+            scalarList& a,
+            scalarList& b,
             scalar primaryAbscissa,
             scalar sigma
         );

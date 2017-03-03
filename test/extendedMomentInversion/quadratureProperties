@@ -23,5 +23,9 @@ momentsTol         1.0e-14;
 sigmaTol           1.0e-14;
 targetFunctionTol  1.0e-14;
 
+basicQuadrature
+{
+    univariateMomentInversion   Gauss;
+}
 
 // ************************************************************************* //

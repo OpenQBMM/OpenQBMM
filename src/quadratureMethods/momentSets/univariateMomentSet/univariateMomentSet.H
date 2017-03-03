@@ -110,6 +110,7 @@ public:
         (
             const label nMoments,
             const word& support,
+            const scalar initValue = 0,
             const label nFixedQuadraturePoints = 0
         );
 

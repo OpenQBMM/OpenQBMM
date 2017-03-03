@@ -74,7 +74,8 @@ public:
         (
             const label nMoments,
             const labelListList& momentOrders,
-            const word& support
+            const word& support,
+            const scalar initValue = 0
         );
 
         //- Construct from scalarList

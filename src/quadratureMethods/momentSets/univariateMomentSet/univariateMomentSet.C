@@ -31,6 +31,7 @@ Foam::univariateMomentSet::univariateMomentSet
 (
     const label nMoments,
     const word& support,
+    const scalar initValue,
     const label nFixedQuadraturePoints
 )
 :
@@ -38,7 +39,8 @@ Foam::univariateMomentSet::univariateMomentSet
     (
         nMoments,
         NullObjectRef<labelListList>(),
-        support
+        support,
+        initValue
     ),
     alpha_(),
     beta_(),

@@ -297,7 +297,7 @@ Foam::scalar Foam::betaEQMOM::m2N
 
     if (momentsStar.nRealizableMoments() >= nMomentsStar - 1)
     {
-        univariateMomentSet m(nMomentsStar, 0.0, "Gauss", "01");
+        univariateMomentSet m(nMomentsStar, "01");
         momentsStarToMoments(sigma, m, momentsStar);
 
         return m.last();
@@ -308,8 +308,8 @@ Foam::scalar Foam::betaEQMOM::m2N
 
 void Foam::betaEQMOM::recurrenceRelation
 (
-    scalarDiagonalMatrix& a,
-    scalarDiagonalMatrix& b,
+    scalarList& a,
+    scalarList& b,
     scalar primaryAbscissa,
     scalar sigma
 )

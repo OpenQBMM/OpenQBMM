@@ -62,10 +62,12 @@ SourceFiles
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include "scalar.H"
+#include "scalarList.H"
 #include "scalarMatrices.H"
 #include "dictionary.H"
 #include "runTimeSelectionTables.H"
 #include "univariateMomentSet.H"
+#include "univariateMomentInversion.H"
 
 namespace Foam
 {
@@ -76,6 +78,12 @@ namespace Foam
 
 class extendedMomentInversion
 {
+    // Private data
+
+        //- Univariate moment inversion method
+        autoPtr<univariateMomentInversion> momentInverter_;
+
+
     // Private member functions
 
         //- Attempt to find a min or max of the target function on an interval
@@ -91,7 +99,11 @@ class extendedMomentInversion
         void reset();
 
         //- Compute secondary weigths and abscissae
-        void secondaryQuadrature(const univariateMomentSet& moments);
+        void secondaryQuadrature
+        (
+            const scalarList& pWeights,
+            const scalarList& pAbscissae
+        );
 
         //- Compute target function whose root is sigma_
         scalar targetFunction
@@ -122,10 +134,10 @@ protected:
         label nSecondaryNodes_;
 
         //- Primary quadrature weights
-        scalarDiagonalMatrix primaryWeights_;
+        scalarList primaryWeights_;
 
         //- Primary quadrature abscissae
-        scalarDiagonalMatrix primaryAbscissae_;
+        scalarList primaryAbscissae_;
 
         //- Parameter sigma of the kernel density function
         scalar sigma_;
@@ -204,8 +216,8 @@ protected:
         //- Recurrence relation for polynomials orthogonal to kernel function
         virtual void recurrenceRelation
         (
-            scalarDiagonalMatrix& a,
-            scalarDiagonalMatrix& b,
+            scalarList& a,
+            scalarList& b,
             scalar primaryAbscissa,
             scalar sigma
         ) = 0;
@@ -296,13 +308,13 @@ public:
         }
 
         //- Return primary quadrature weights
-        inline const scalarDiagonalMatrix& primaryWeights() const
+        inline const scalarList& primaryWeights() const
         {
             return primaryWeights_;
         }
 
         //- Return primary quadrature abscissae
-        inline const scalarDiagonalMatrix& primaryAbscissae() const
+        inline const scalarList& primaryAbscissae() const
         {
             return primaryAbscissae_;
         }

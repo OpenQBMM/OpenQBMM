@@ -31,10 +31,11 @@ Foam::momentSet::momentSet
 (
     const label nMoments,
     const labelListList& momentOrders,
-    const word& support
+    const word& support,
+    const scalar initValue
 )
 :
-    scalarList(nMoments, scalar(0)),
+    scalarList(nMoments, initValue),
     nMoments_(nMoments),
     momentOrders_(momentOrders),
     support_(support)

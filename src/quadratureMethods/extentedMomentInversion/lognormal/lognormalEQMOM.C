@@ -123,8 +123,8 @@ Foam::scalar Foam::lognormalEQMOM::m2N
 
 void Foam::lognormalEQMOM::recurrenceRelation
 (
-    scalarDiagonalMatrix& a,
-    scalarDiagonalMatrix& b,
+    scalarList& a,
+    scalarList& b,
     scalar primaryAbscissa,
     scalar sigma
 )
