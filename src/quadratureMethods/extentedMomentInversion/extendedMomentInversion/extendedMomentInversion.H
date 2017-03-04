@@ -203,7 +203,11 @@ protected:
         ) = 0;
 
         //- Compute the last moment from starred moments
-        virtual scalar m2N(scalar sigma, univariateMomentSet momentsStar) = 0;
+        virtual scalar m2N
+        (
+            scalar sigma,
+            univariateMomentSet& momentsStar
+        ) = 0;
 
         //- Compute the normalized moment error
         scalar normalizedMomentError

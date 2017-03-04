@@ -107,7 +107,7 @@ void Foam::lognormalEQMOM::momentsToMomentsStar
 Foam::scalar Foam::lognormalEQMOM::m2N
 (
     scalar sigma,
-    univariateMomentSet momentsStar
+    univariateMomentSet& momentsStar
 )
 {
     if (momentsStar.nRealizableMoments() >= momentsStar.size() - 1)

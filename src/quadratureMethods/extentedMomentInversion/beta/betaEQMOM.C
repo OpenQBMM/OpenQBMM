@@ -290,7 +290,7 @@ void Foam::betaEQMOM::momentsToMomentsStar
 Foam::scalar Foam::betaEQMOM::m2N
 (
     scalar sigma,
-    univariateMomentSet momentsStar
+    univariateMomentSet& momentsStar
 )
 {
     label nMomentsStar = momentsStar.size();
