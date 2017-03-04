@@ -25,14 +25,17 @@
 * multivariateMomentInversion
     Example of use of the multivariateMomentInversion class.
 
+* populationBalanceModel
+    Example of use of the populationBalanceModel class.
+
+* univariateMomentInversion
+    Example of use of the univariateMomentInversion class.
+
 * univariateMomentSet
     Example of use of the univariateMomentSet class.
 
 * univariateQuadratureApproximation
     Example of use of the univariateQuadratureApproximation class.
-
-* populationBalanceModel
-    Example of use of the populationBalanceModel class.
 
 * Vandermonde
     Example of use of the Vandermonde class.
