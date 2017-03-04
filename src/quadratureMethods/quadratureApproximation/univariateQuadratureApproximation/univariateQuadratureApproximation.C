@@ -68,7 +68,11 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
     (
         name_, nMoments_, nodesOwn_, nDimensions_, moments_.momentMap()
     ),
-    momentInverter_(),
+    extendedMomentInverter_(),
+    fluxMomentInverter_
+    (
+        univariateMomentInversion::New((*this).subDict("fluxQuadrature"))
+    ),
     support_(support)
 {
     // Allocating nodes
@@ -191,7 +195,7 @@ Foam::univariateQuadratureApproximation::univariateQuadratureApproximation
         );
     }
 
-    momentInverter_ = autoPtr<Foam::extendedMomentInversion>
+    extendedMomentInverter_ = autoPtr<Foam::extendedMomentInversion>
     (
         Foam::extendedMomentInversion::New
         (
@@ -294,16 +298,12 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
                 univariateMomentSet momentsToInvert
                 (
                     nMoments_,
-                    0.0,
-                    "Gauss",
                     support_
                 );
 
                 univariateMomentSet momentsToInvertRadau
                 (
                     nMoments_,
-                    0.0,
-                    "GaussRadau",
                     support_
                 );
 
@@ -317,10 +317,10 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
                 }
 
                 // Inverting moments for EQMOM
-                momentInverter_->invert(momentsToInvert);
+                extendedMomentInverter_->invert(momentsToInvert);
 
                 // Finding Gauss-Radau quadrature
-                momentsToInvertRadau.invert();
+                fluxMomentInverter_().invert(momentsToInvertRadau);
 
                 // Copying quadrature data to boundary face
                 for (label pNodei = 0; pNodei < nPrimaryNodes_; pNodei++)
@@ -328,21 +328,21 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
                     extendedVolScalarNode& node = nodes_()[pNodei];
 
                     node.primaryWeight().boundaryFieldRef()[patchi][facei]
-                        = momentInverter_->primaryWeights()[pNodei];
+                        = extendedMomentInverter_->primaryWeights()[pNodei];
 
                     node.primaryAbscissa().boundaryFieldRef()[patchi][facei]
-                        = momentInverter_->primaryAbscissae()[pNodei];
+                        = extendedMomentInverter_->primaryAbscissae()[pNodei];
 
                     node.sigma().boundaryFieldRef()[patchi][facei]
-                        = momentInverter_->sigma();
+                        = extendedMomentInverter_->sigma();
 
                     for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
                     {
                         node.secondaryWeights()[sNodei].boundaryFieldRef()[patchi][facei]
-                            = momentInverter_->secondaryWeights()[pNodei][sNodei];
+                            = extendedMomentInverter_->secondaryWeights()[pNodei][sNodei];
 
                         node.secondaryAbscissae()[sNodei].boundaryFieldRef()[patchi][facei]
-                            = momentInverter_->secondaryAbscissae()[pNodei][sNodei];
+                            = extendedMomentInverter_->secondaryAbscissae()[pNodei][sNodei];
                     }
                 }
 
@@ -351,13 +351,13 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
                 {
                     basicVolScalarNode& nodeRadau = nodesRadau_()[rNodei];
 
-                    if (rNodei < momentsToInvertRadau.nNodes())
+                    if (rNodei < fluxMomentInverter_().nNodes())
                     {
                         nodeRadau.primaryWeight().boundaryFieldRef()[patchi][facei]
-                            = momentsToInvertRadau.weights()[rNodei];
+                            = fluxMomentInverter_().weights()[rNodei];
 
                         nodeRadau.primaryAbscissa().boundaryFieldRef()[patchi][facei]
-                            = momentsToInvertRadau.abscissae()[rNodei];
+                            = fluxMomentInverter_().abscissae()[rNodei];
                     }
                     else
                     {
@@ -382,21 +382,8 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
 
     forAll(m0, celli)
     {
-        univariateMomentSet momentsToInvert
-        (
-            nMoments_,
-            0.0,
-            "Gauss",
-            support_
-        );
-
-        univariateMomentSet momentsToInvertRadau
-        (
-            nMoments_,
-            0.0,
-            "GaussRadau",
-            support_
-        );
+        univariateMomentSet momentsToInvert(nMoments_, support_);
+        univariateMomentSet momentsToInvertRadau(nMoments_, support_);
 
         // Copying moment set from a cell to univariateMomentSet
         forAll(momentsToInvert, momenti)
@@ -406,25 +393,25 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
         }
 
         // Inverting moments and updating EQMOM
-        momentInverter_->invert(momentsToInvert);
+        extendedMomentInverter_->invert(momentsToInvert);
 
         // Finding Gauss-Radau quadrature
-        momentsToInvertRadau.invert();
+        fluxMomentInverter_().invert(momentsToInvertRadau);
 
         // Recovering primary weights and abscissae from moment inverter
-        const scalarDiagonalMatrix& pWeights(momentInverter_->primaryWeights());
+        const scalarList& pWeights(extendedMomentInverter_->primaryWeights());
 
-        const scalarDiagonalMatrix& pAbscissae
+        const scalarList& pAbscissae
         (
-            momentInverter_->primaryAbscissae()
+            extendedMomentInverter_->primaryAbscissae()
         );
 
         // Recovering Gauss-Radau quadrature
-        const scalarDiagonalMatrix& rWeights(momentsToInvertRadau.weights());
+        const scalarList& rWeights(fluxMomentInverter_().weights());
 
-        const scalarDiagonalMatrix& rAbscissae
+        const scalarList& rAbscissae
         (
-            momentsToInvertRadau.abscissae()
+            fluxMomentInverter_().abscissae()
         );
 
         // Copying EQMOM quadrature to fields
@@ -442,12 +429,12 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
 
             const scalarRectangularMatrix& sWeights
             (
-                momentInverter_->secondaryWeights()
+                extendedMomentInverter_->secondaryWeights()
             );
 
             const scalarRectangularMatrix& sAbscissae
             (
-                momentInverter_->secondaryAbscissae()
+                extendedMomentInverter_->secondaryAbscissae()
             );
 
             for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
@@ -457,14 +444,14 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
             }
 
             // Copy sigma
-            node.sigma()[celli] = momentInverter_->sigma();
+            node.sigma()[celli] = extendedMomentInverter_->sigma();
         }
 
         for (label rNodei = 0; rNodei < nNodesRadau_; rNodei++)
         {
             basicVolScalarNode& node(nodesRadau[rNodei]);
 
-            if (rNodei < momentsToInvertRadau.nNodes())
+            if (rNodei < fluxMomentInverter_().nNodes())
             {
                 node.primaryWeight()[celli] = rWeights[rNodei];
                 node.primaryAbscissa()[celli] = rAbscissae[rNodei];

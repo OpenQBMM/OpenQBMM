@@ -28,16 +28,26 @@ nodes
 (
     node0
     {
-        nSecondaryNodes 50;
+        nSecondaryNodes 10;
     }
     node1
     {
-        nSecondaryNodes 50;
+        nSecondaryNodes 10;
     }
 );
 
 extendedMomentInversionCoeff
 {
     extendedMomentInversion     lognormal;
+
+    basicQuadrature
+    {
+        univariateMomentInversion   Gauss;
+    }
+}
+
+fluxQuadrature
+{
+    univariateMomentInversion   GaussRadau;
 }
 // ************************************************************************* //

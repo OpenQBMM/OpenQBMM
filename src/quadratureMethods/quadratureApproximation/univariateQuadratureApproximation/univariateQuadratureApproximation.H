@@ -46,6 +46,7 @@ SourceFiles
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "univariateMomentSet.H"
+#include "univariateMomentInversion.H"
 #include "extendedMomentInversion.H"
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
@@ -56,7 +57,7 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                  Class univariateQuadratureApproximation Declaration
+                Class univariateQuadratureApproximation Declaration
 \*---------------------------------------------------------------------------*/
 
 class univariateQuadratureApproximation
@@ -107,8 +108,11 @@ class univariateQuadratureApproximation
         //- List of interpolated moments (owner)
         basicSurfaceUnivariateMomentFieldSet momentsOwn_;
 
-        //- Moment inversion method
-        autoPtr<extendedMomentInversion> momentInverter_;
+        //- Extended moment inversion method
+        autoPtr<extendedMomentInversion> extendedMomentInverter_;
+
+        //- Flux moment inversion method
+        autoPtr<univariateMomentInversion> fluxMomentInverter_;
 
         //- Support of the distribution function
         word support_;
