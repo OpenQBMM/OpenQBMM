@@ -8,12 +8,11 @@ wclean libso quadratureMethods/momentInversion
 #wclean libso quadratureMethods/univariateQuadratureMomentSet
 
 wclean libso Vandermonde
-#wclean libso quadratureMethods/univariateMomentSet
-# wclean libso quadratureMethods/extentedMomentInversion
+wclean libso quadratureMethods/extendedMomentInversion
 # wclean libso quadratureMethods/multivariateMomentInversion
-# wclean libso quadratureMethods/quadratureApproximation
-# wclean libso quadratureMethods/PDFTransportModels
-# wclean libso quadratureMethods/populationBalanceModels
-# wclean libso quadratureMethods/mixingModels
+wclean libso quadratureMethods/quadratureApproximation
+wclean libso quadratureMethods/PDFTransportModels
+wclean libso quadratureMethods/populationBalanceModels
+wclean libso quadratureMethods/mixingModels
 
 # ----------------------------------------------------------------- end-of-file

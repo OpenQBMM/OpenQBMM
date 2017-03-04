@@ -56,5 +56,16 @@ extendedMomentInversionCoeff
     momentsTol          1.0e-8;
     sigmaTol            1.0e-8;
     targetFunctionTol   1.0e-8;
+
+    basicQuadrature
+    {
+        univariateMomentInversion   Gauss;
+    }
 }
+
+fluxQuadrature
+{
+    univariateMomentInversion   GaussRadau;
+}
+
 // ************************************************************************* //

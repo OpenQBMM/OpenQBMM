@@ -92,6 +92,7 @@ Foam::label Foam::univariateMomentSet::nRealizableMoments()
 {
     if (!realizabilityChecked_)
     {
+        Info << "nReal " << (*this) << endl;
         checkRealizability();
     }
 

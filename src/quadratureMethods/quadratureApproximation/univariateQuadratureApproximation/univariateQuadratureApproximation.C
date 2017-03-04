@@ -304,7 +304,9 @@ void Foam::univariateQuadratureApproximation::updateBoundaryQuadrature()
                 univariateMomentSet momentsToInvertRadau
                 (
                     nMoments_,
-                    support_
+                    support_,
+                    0,
+                    1
                 );
 
                 // Copying moments from a face
@@ -383,7 +385,7 @@ void Foam::univariateQuadratureApproximation::updateQuadrature()
     forAll(m0, celli)
     {
         univariateMomentSet momentsToInvert(nMoments_, support_);
-        univariateMomentSet momentsToInvertRadau(nMoments_, support_);
+        univariateMomentSet momentsToInvertRadau(nMoments_, support_, 0, 1);
 
         // Copying moment set from a cell to univariateMomentSet
         forAll(momentsToInvert, momenti)

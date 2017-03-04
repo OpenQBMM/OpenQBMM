@@ -310,6 +310,8 @@ void Foam::univariateMomentSet::checkRealizability()
         return;
     }
 
+    Info << "Hmmm hhhm " << (*this) << endl;
+
     // If the zero-order moment is negative, exit immediately.
     if ((*this)[0] < 0.0)
     {

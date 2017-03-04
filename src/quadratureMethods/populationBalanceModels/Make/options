@@ -9,12 +9,14 @@ EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I../../eigenSolver/lnInclude \
-    -I../univariateMomentSet/lnInclude \
-    -I../extentedMomentInversion/lnInclude \
+    -I../momentSets/lnInclude \
+    -I../momentInversion/lnInclude \
+    -I../extendedMomentInversion/lnInclude \
     -I../quadratureNode \
     -I../moments \
     -I../quadratureApproximation/lnInclude \
-    -I../PDFTransportModels/lnInclude 
+    -I../PDFTransportModels/lnInclude \
+    -DFULLDEBUG -g -O0
 
 LIB_LIBS = \
     -lincompressibleTransportModels \
@@ -28,7 +30,8 @@ LIB_LIBS = \
     -lmeshTools \
     -L$(FOAM_USER_LIBBIN) \
     -leigenSolver \
-    -lmomentSet \
+    -lmomentSets \
+    -lmomentInversion \
     -lextendedMomentInversion \
     -lquadratureApproximation \
     -lPDFTransportModel
