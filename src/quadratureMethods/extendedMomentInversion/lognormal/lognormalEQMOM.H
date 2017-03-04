@@ -125,7 +125,7 @@ public:
         virtual scalar m2N
         (
             scalar sigma,
-            univariateMomentSet& momentsStar
+            const univariateMomentSet& momentsStar
         );
 
         //- Recurrence relation for polynomials orthogonal to kernel function

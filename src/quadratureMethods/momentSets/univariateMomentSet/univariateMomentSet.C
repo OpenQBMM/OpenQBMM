@@ -648,7 +648,6 @@ void Foam::univariateMomentSet::update
     }
 
     realizabilityChecked_ = false;
-    //inverted_ = false;
 }
 
 // ************************************************************************* //

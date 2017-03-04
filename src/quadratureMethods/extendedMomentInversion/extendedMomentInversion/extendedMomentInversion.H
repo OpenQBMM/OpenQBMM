@@ -206,7 +206,7 @@ protected:
         virtual scalar m2N
         (
             scalar sigma,
-            univariateMomentSet& momentsStar
+            const univariateMomentSet& momentsStar
         ) = 0;
 
         //- Compute the normalized moment error

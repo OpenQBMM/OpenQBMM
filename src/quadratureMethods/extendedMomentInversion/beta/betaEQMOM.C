@@ -290,15 +290,16 @@ void Foam::betaEQMOM::momentsToMomentsStar
 Foam::scalar Foam::betaEQMOM::m2N
 (
     scalar sigma,
-    univariateMomentSet& momentsStar
+    const univariateMomentSet& momentsStar
 )
 {
-    label nMomentsStar = momentsStar.size();
+    univariateMomentSet mStar(momentsStar);
+    label nMomentsStar = mStar.size();
 
-    if (momentsStar.nRealizableMoments() >= nMomentsStar - 1)
+    if (mStar.nRealizableMoments() >= nMomentsStar - 1)
     {
         univariateMomentSet m(nMomentsStar, "01");
-        momentsStarToMoments(sigma, m, momentsStar);
+        momentsStarToMoments(sigma, m, mStar);
 
         return m.last();
     }

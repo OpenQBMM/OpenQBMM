@@ -60,11 +60,11 @@ int main(int argc, char *argv[])
 //     moments[4] = 1.0;
 
 //  Valid moment set
-//    moments[0] = 1.0;
-//    moments[1] = 2.708217669;
-//    moments[2] = 8.951330468;
-//    moments[3] = 35.95258119;
-//    moments[4] = 174.4370267;
+   moments[0] = 1.0;
+   moments[1] = 2.708217669;
+   moments[2] = 8.951330468;
+   moments[3] = 35.95258119;
+   moments[4] = 174.4370267;
 
 //  Unrealizable moment star
 //     moments[0] = 0.567128698550116;
@@ -74,11 +74,11 @@ int main(int argc, char *argv[])
 //     moments[4] = 1.3103698092;
 
 //  Set of moment with sigma = 0 as root
-    moments[0] = 1.0;
-    moments[1] = 1.6487212707;
-    moments[2] = 2.7182818285;
-    moments[3] = 4.4816890703;
-    moments[4] = 7.3890560989;
+//     moments[0] = 1.0;
+//     moments[1] = 1.6487212707;
+//     moments[2] = 2.7182818285;
+//     moments[3] = 4.4816890703;
+//     moments[4] = 7.3890560989;
 
 // Set of moments with multiple roots not bracketed by sigmaMax
 //     moments[0] = 1.0;

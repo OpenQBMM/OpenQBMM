@@ -107,15 +107,17 @@ void Foam::lognormalEQMOM::momentsToMomentsStar
 Foam::scalar Foam::lognormalEQMOM::m2N
 (
     scalar sigma,
-    univariateMomentSet& momentsStar
+    const univariateMomentSet& momentsStar
 )
 {
-    if (momentsStar.nRealizableMoments() >= momentsStar.size() - 1)
+    univariateMomentSet mStar(momentsStar);
+
+    if (mStar.nRealizableMoments() >= mStar.size() - 1)
     {
         scalar z = exp(sqr(sigma)/2.0);
-        label nNod = momentsStar.size() - 1;
+        label nNod = mStar.size() - 1;
 
-        return momentsStar.last()*pow(z, nNod*nNod);
+        return mStar.last()*pow(z, nNod*nNod);
     }
 
     return GREAT;

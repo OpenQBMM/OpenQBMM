@@ -93,17 +93,6 @@ void Foam::gaussRadauMomentInversion::calcNQuadratureNodes
     univariateMomentSet& moments
 )
 {
-    if (moments.isDegenerate())
-    {
-        nNodes_ = 1;
-        weights_.setSize(nNodes_);
-        abscissae_.setSize(nNodes_);
-        weights_[0] = moments[0];
-        abscissae_[0] = 0.0;
-
-        return;
-    }
-
     label nRealizableMoments = moments.nRealizableMoments();
 
     if (nRealizableMoments >= 2)

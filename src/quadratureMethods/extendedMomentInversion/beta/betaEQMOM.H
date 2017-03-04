@@ -119,7 +119,11 @@ public:
         );
 
         //- Compute the last moment from starred moments
-        virtual scalar m2N(scalar sigma, univariateMomentSet& momentsStar);
+        virtual scalar m2N
+        (
+            scalar sigma,
+            const univariateMomentSet& momentsStar
+        );
 
         //- Recurrence relation for polynomials orthogonal to kernel function
         virtual void recurrenceRelation

@@ -222,15 +222,17 @@ void Foam::gammaEQMOM::momentsToMomentsStar
 Foam::scalar Foam::gammaEQMOM::m2N
 (
     scalar sigma,
-    univariateMomentSet& momentsStar
+    const univariateMomentSet& momentsStar
 )
 {
-    label nMomentsStar = momentsStar.size();
+    univariateMomentSet mStar(momentsStar);
 
-    if (momentsStar.nRealizableMoments() >= nMomentsStar - 1)
+    label nMomentsStar = mStar.size();
+
+    if (mStar.nRealizableMoments() >= nMomentsStar - 1)
     {
         univariateMomentSet m(nMomentsStar, "RPlus");
-        momentsStarToMoments(sigma, m, momentsStar);
+        momentsStarToMoments(sigma, m, mStar);
 
         return m.last();
     }
