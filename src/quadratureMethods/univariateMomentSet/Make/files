@@ -1,3 +1,0 @@
-univariateMomentSet.C
-
-LIB = $(FOAM_USER_LIBBIN)/libmomentSet
