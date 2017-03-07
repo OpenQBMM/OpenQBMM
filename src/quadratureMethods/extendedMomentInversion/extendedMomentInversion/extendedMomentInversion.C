@@ -110,6 +110,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         sigma_ = 0.0;
         nullSigma_ = true;
         momentInverter_().invert(m);
+
         secondaryQuadrature
         (
             momentInverter_().weights(),
@@ -126,6 +127,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         sigma_ = 0.0;
         nullSigma_ = true;
         momentInverter_().invert(m);
+
         secondaryQuadrature
         (
             momentInverter_().weights(),
@@ -143,8 +145,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         {
             sigma_ = 0.0;
             nullSigma_ = true;
-
             momentInverter_().invert(m);
+
             secondaryQuadrature
             (
                 momentInverter_().weights(),
@@ -170,8 +172,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         {
             sigma_ = 0.0;
             nullSigma_ = true;
-
             momentInverter_().invert(m);
+
             secondaryQuadrature
             (
                 momentInverter_().weights(),
@@ -195,15 +197,15 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             // If sigma_ is small, use QMOM
             if (mag(sigma_) < sigmaMin_)
             {
+                sigma_ = 0.0;
+                nullSigma_ = true;
                 momentInverter_().invert(m);
+
                 secondaryQuadrature
                 (
                     momentInverter_().weights(),
                     momentInverter_().abscissae()
                 );
-
-                sigma_ = 0.0;
-                nullSigma_ = true;
 
                 return;
             }
@@ -255,15 +257,15 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                 // If sigma_ is small, use QMOM
                 if (mag(sigma_) < sigmaMin_)
                 {
+                    sigma_ = 0.0;
+                    nullSigma_ = true;
                     momentInverter_().invert(m);
+
                     secondaryQuadrature
                     (
                         momentInverter_().weights(),
                         momentInverter_().abscissae()
                     );
-
-                    sigma_ = 0.0;
-                    nullSigma_ = true;
 
                     return;
                 }
@@ -292,20 +294,21 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     // If sigma_ is small, use QMOM
                     if (mag(sigma_) < sigmaMin_)
                     {
+                        sigma_ = 0.0;
+                        nullSigma_ = true;
                         momentInverter_().invert(m);
+
                         secondaryQuadrature
                         (
                             momentInverter_().weights(),
                             momentInverter_().abscissae()
                         );
 
-                        sigma_ = 0.0;
-                        nullSigma_ = true;
-
                         return;
                     }
 
                     targetFunction(sigma_, m, mStar);
+
                     secondaryQuadrature // Secondary quadrature from  mStar
                     (
                         momentInverter_().weights(),
