@@ -123,17 +123,14 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     {
         // If the number of realizable moments is even, we apply the standard
         // QMOM directly to maximize the number of preserved moments.
-
+        sigma_ = 0.0;
+        nullSigma_ = true;
         momentInverter_().invert(m);
         secondaryQuadrature
         (
             momentInverter_().weights(),
             momentInverter_().abscissae()
         );
-
-        sigma_ = 0.0;
-        nullSigma_ = true;
-
     }
     else
     {
@@ -171,15 +168,15 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         // Check if sigma = 0 is root
         if (mag(fLow) <= targetFunctionTol_)
         {
+            sigma_ = 0.0;
+            nullSigma_ = true;
+
             momentInverter_().invert(m);
             secondaryQuadrature
             (
                 momentInverter_().weights(),
                 momentInverter_().abscissae()
             );
-
-            sigma_ = 0.0;
-            nullSigma_ = true;
 
             return;
         }
