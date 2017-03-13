@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -38,11 +38,14 @@ Description
          2 0 0       200         4
          2 1 0       210         5
 
-    operator() is overloaded in order to hide the above mapping.
+    The operator () is overloaded in order to hide the above mapping.
 
 SourceFiles
     nDimensionalMappedListI.H
     nDimensionalMappedList.C
+
+Note
+    Implementation provided by Jeffrey C. Heylmun
 
 \*---------------------------------------------------------------------------*/
 
@@ -197,7 +200,7 @@ public:
                 label d
             );
 
-            //- Const access to the fith dimension
+            //- Const access to the fifth dimension
             inline const mappedType& operator()
             (
                 label a,
@@ -207,7 +210,7 @@ public:
                 label e
             ) const;
 
-            //- Non-const access to the fith dimension
+            //- Non-const access to the fifth dimension
             inline mappedType& operator()
             (
                 label a,
@@ -227,9 +230,9 @@ public:
             inline const Map<label>& map() const;
 
             //- Return the number of dimensions of the data set
-            inline label nDims() const;
+            inline label nDimensions() const;
 
-            //- Return the map label of a lookup
+            //- Return the map label given the indeces
             label map(label a, label b, label c, label d, label e) const
             {
                 return map_

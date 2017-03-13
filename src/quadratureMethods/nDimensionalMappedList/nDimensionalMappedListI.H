@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -171,9 +171,8 @@ Foam::nDimensionalMappedList<mappedType>::map() const
     return map_;
 }
 
-
 template <class mappedType>
-Foam::label Foam::nDimensionalMappedList<mappedType>::nDims() const
+Foam::label Foam::nDimensionalMappedList<mappedType>::nDimensions() const
 {
     return nDims_;
 }
