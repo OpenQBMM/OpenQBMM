@@ -4,8 +4,8 @@ EXE_INC = \
     -I../quadratureNode \
     -I../moments \
     -I../momentSets/lnInclude \
-    -I../momentInversion/lnInclude \
-    -I../extendedMomentInversion/lnInclude \
+    -I../momentInversion/univariate/basic/lnInclude \
+    -I../momentInversion/univariate/extended/lnInclude \
     -DFULLDEBUG -g -O0
 
 LIB_LIBS = \

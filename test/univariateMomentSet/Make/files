@@ -1,3 +1,0 @@
-Test-UnivariateMomentSet.C
-
-EXE = $(FOAM_USER_APPBIN)/Test-UnivariateMomentSet

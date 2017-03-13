@@ -1,11 +1,13 @@
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I../../eigenSolver/lnInclude \
-    -I../momentSets/lnInclude \
+    -I../../../../eigenSolver/lnInclude \
+    -I../../../momentSets/lnInclude \
+    -I../basic/lnInclude \
     -DFULLDEBUG -g -O0
 
 LIB_LIBS = \
     -lfiniteVolume \
     -L$(FOAM_USER_LIBBIN) \
     -leigenSolver \
-    -lmomentSets
+    -lmomentSets \
+    -lmomentInversion

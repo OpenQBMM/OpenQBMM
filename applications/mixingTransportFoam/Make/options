@@ -9,7 +9,7 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
     -I$../../../src/quadratureMethods/univariateMomentSet/lnInclude \
-    -I$../../../src/quadratureMethods/extentedMomentInversion/lnInclude \
+    -I$../../../src/quadratureMethods/momentInversion/univariate/extended/lnInclude \
     -I$../../../src/quadratureMethods/quadratureNode \
     -I$../../../src/quadratureMethods/moments \
     -I$../../../src/quadratureMethods/quadratureApproximation/lnInclude \
