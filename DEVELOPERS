@@ -10,18 +10,54 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2016 OpenQBMM developers.
+  Copyright (C) 2014-2017 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 
  List of developers
+ ------------------
 
  This list contains the names of the developers of OpenQBMM, with their period
- of contribution.
+ of contribution. Main contributions are listed here. Please refer to the
+ git repository for details.
 
- Name                  Role        Period
 
- Alberto Passalacqua   PI          2014 - Present
- Rodney O. Fox         Co-PI       2014 - Present
- Simanta Mitra         Co-PI       2014 - Present
+ Main developers
+ ---------------
+
+ Name                  Role     Period          Contribution
+
+ Alberto Passalacqua   PI       2014 - Present  Main code design,
+                                                  implementation and maintenance
+                                                Models and algorithm
+                                                  development
+
+ Rodney O. Fox         Co-PI    2014 - Present  Theory and model development
+
+ Simanta Mitra         Co-PI    2014 - Present  Code review and CS aspects
+
+
+ Graduate students
+ -----------------
+
+ A * indicates a student who was at least partially supported by the NSF-ACI
+ grant 1440443.
+
+ Name                   Degree  Period          Contribution
+
+ Aziz Ilgun*            Ph.D.   2017 - Present  Multivariate population balance
+                                                (TBC)
+
+ David Williams*        M.Eng.  2014 - 2016     Population balance kernels
+
+ Ehsan Madadi*          Ph.D.   2014 - Present  Turbulence mixing models
+                                                Lognormal EQMOM
+
+ Jeffrey Heylmun*       Ph.D.   2014 - Present  Population balance kernels
+                                                Conditional moment inversion
+                                                Realizable ODE solver
+                                                Gas-liquid flow solver
+
+ Zhenping Liu*          Ph.D.   2016            Population balance modeling in
+                                                turbulent reacting flows
 

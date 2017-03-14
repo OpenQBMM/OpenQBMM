@@ -10,7 +10,7 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2016 OpenQBMM developers.
+  Copyright (C) 2014-2017 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 
@@ -29,3 +29,7 @@
   - Implemented growth term framework and constant growth term for univariate
     PBE
   - Implemented molecular diffusion sub-model for univariate PBE
+
+ Xiaofei Hu, US DOE Ames Laboratory
+  - Code review and algorithm verification of moment realizability check
+  - Review of moment inversion and extended moment inversion
