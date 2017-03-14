@@ -7,7 +7,7 @@ wclean libso Vandermonde
 wclean libso quadratureMethods/momentSets
 wclean libso quadratureMethods/momentInversion/univariate/basic
 wclean libso quadratureMethods/momentInversion/univariate/extended
-wclean libso quadratureMethods/momentInversion/multivariate/conditional
+wclean libso quadratureMethods/momentInversion/multivariate
 wclean libso quadratureMethods/quadratureApproximation
 wclean libso quadratureMethods/PDFTransportModels
 wclean libso quadratureMethods/populationBalanceModels
