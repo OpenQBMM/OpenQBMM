@@ -22,8 +22,8 @@
 * extendedMomentInversion
     Example of use of the extendedMomentInversion class.
 
-* multivariateMomentInversion
-    Example of use of the multivariateMomentInversion class.
+* conditionalMomentInversion
+    Example of use of the conditionalMomentInversion class.
 
 * populationBalanceModel
     Example of use of the populationBalanceModel class.
