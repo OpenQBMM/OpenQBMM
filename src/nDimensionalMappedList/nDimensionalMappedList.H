@@ -74,7 +74,7 @@ class nDimensionalMappedList
     // Private data
 
         //- The number of dimensions for the mapped data set
-        const label nDims_;
+        const label nDimensions_;
 
         //- Map from the label representation of the moment name to its index
         //  within the List
@@ -100,7 +100,7 @@ class nDimensionalMappedList
         //- Calculate the length of the PtrList given nNodes, and nDimensions
         label nDimensionalListLength
         (
-            const label nDims,
+            const label nDimensions,
             const labelList nNodes
         );
 
@@ -119,16 +119,16 @@ public:
         //  The list is initialised
         nDimensionalMappedList
         (
-            const label nCmpt,
+            const label nComponents,
             const label nDimensions,
             const Map<label>& momentMap
         );
 
         //- Construct mapped list using the number of nodes in each direction,
-        //  nDims is not necessarily equal to nNodes.size()
+        //  nDimensions is not necessarily equal to nNodes.size()
         nDimensionalMappedList
         (
-            const label nDims,
+            const label nDimensions,
             const labelList& nNodes
         );
 

@@ -62,28 +62,28 @@ Foam::nDimensionalMappedList<mappedType>::listToLabel(const labelList& lst)
 template <class mappedType>
 Foam::nDimensionalMappedList<mappedType>::nDimensionalMappedList
 (
-    const label nCmpt,
-    const label nDims,
+    const label nComponents,
+    const label nDimensions,
     const Map<label>& map
 )
 :
-    PtrList<mappedType>(nCmpt),
-    nDims_(nDims),
+    PtrList<mappedType>(nComponents),
+    nDimensions_(nDimensions),
     map_(map)
 {}
 
 template <class mappedType>
 Foam::nDimensionalMappedList<mappedType>::nDimensionalMappedList
 (
-    const label nDims,
+    const label nDimensions,
     const labelList& nNodes
 )
 :
-    PtrList<mappedType>(nDimensionalListLength(nDims, nNodes)),
-    nDims_(nDims),
+    PtrList<mappedType>(nDimensionalListLength(nDimensions, nNodes)),
+    nDimensions_(nDimensions),
     map_(this->size())
 {
-    labelList pos(nDims);
+    labelList pos(nDimensions);
     label mi = 0;
     setMappedPositions(nNodes, 0, mi, pos);
 }
@@ -107,7 +107,7 @@ void Foam::nDimensionalMappedList<mappedType>::setMappedPositions
     labelList& pos
 )
 {
-    if (dimi < nDims_)
+    if (dimi < nDimensions_)
     {
         for (label i = 0; i < nNodes[dimi]; i++)
         {
@@ -117,14 +117,7 @@ void Foam::nDimensionalMappedList<mappedType>::setMappedPositions
     }
     else
     {
-        map_.insert
-        (
-            listToLabel
-            (
-                pos
-            ),
-            mi
-        );
+        map_.insert(listToLabel(pos), mi);
         mi++;
     }
 }
@@ -132,16 +125,18 @@ void Foam::nDimensionalMappedList<mappedType>::setMappedPositions
 template <class mappedType>
 Foam::label Foam::nDimensionalMappedList<mappedType>::nDimensionalListLength
 (
-    const label nDims,
+    const label nDimensions,
     const labelList nNodes
 )
 {
-    label totalProduct = 1;
-    for(label nodei = 0; nodei < nDims; nodei++)
+    label product = 1;
+
+    for(label nodei = 0; nodei < nDimensions; nodei++)
     {
-        totalProduct *= nNodes[nodei];
+        product *= nNodes[nodei];
     }
-    return totalProduct;
+
+    return product;
 }
 
 

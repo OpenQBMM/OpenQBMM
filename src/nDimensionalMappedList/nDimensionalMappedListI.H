@@ -23,8 +23,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template <class mappedType>
@@ -174,7 +172,7 @@ Foam::nDimensionalMappedList<mappedType>::map() const
 template <class mappedType>
 Foam::label Foam::nDimensionalMappedList<mappedType>::nDimensions() const
 {
-    return nDims_;
+    return nDimensions_;
 }
 
 
