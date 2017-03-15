@@ -17,7 +17,7 @@ EXE_LIBS = \
     -lmeshTools \
     -lsampling \
     -lvandermonde \
-    -lmomentSet \
+    -lmomentSets \
     -lmomentInversion \
     -lmultivariateInversion
 
