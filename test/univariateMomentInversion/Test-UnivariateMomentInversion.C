@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     (
         nMoments,
         "R",
-        2
+        3
     );
 
     Info << "Moment set (empty): " << m << endl;
@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
 
     // Lobatto test
     m[0] = 1.0000;
-    m[1] = 0.2500;
-    m[2] = 0.1058;
-    m[3] = 0.0562;
-    m[4] = 0.0340;
-    m[5] = 0.0224;
+    m[1] = 0.0;
+    m[2] = 1.5;
+    m[3] = -1.5;
+    m[4] = 4.5;
+    m[5] = -7.5;
 
     // Radau test
 //     m[0] = 1.0000;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 //     m[2] = 0.1058;
 //     m[3] = 0.0562;
 //     m[4] = 0.0340;
-
+    Info << "support: " << m.support() << endl;
     Info << setprecision(16);
     Info << "\nInput moments\n" << endl;
 

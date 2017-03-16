@@ -3,5 +3,6 @@ univariateMomentInversion/newUnivariateMomentInversion.C
 gaussMomentInversion/gaussMomentInversion.C
 gaussLobattoMomentInversion/gaussLobattoMomentInversion.C
 gaussRadauMomentInversion/gaussRadauMomentInversion.C
+hyperbolicMomentInversion/hyperbolicMomentInversion.C
 
 LIB = $(FOAM_USER_LIBBIN)/libmomentInversion
