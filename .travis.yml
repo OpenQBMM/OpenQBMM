@@ -5,8 +5,7 @@ dist: trusty
 language: cpp
 
 env:
-    # Test with both OpenFOAM 3.0 and 4
-    - OF_VERS=30
+    # Test with OpenFOAM 4 only
     - OF_VERS=4
 
 before_install:
