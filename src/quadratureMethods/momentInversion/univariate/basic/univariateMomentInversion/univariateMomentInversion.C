@@ -126,6 +126,9 @@ void Foam::univariateMomentInversion::invert
         return;
     }
 
+        Info << "AHHHHH " << nNodes_;
+
+
     scalarSquareMatrix z(nNodes_, scalar(0));
     JacobiMatrix(moments, z, minKnownAbscissa, maxKnownAbscissa);
 

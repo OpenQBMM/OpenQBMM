@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 {
     Info << "Testing univariateMomentInversion\n" << endl;
 
-    label nMoments = 6;
+    label nMoments = 5;
 
     Info<< "Reading quadratureProperties\n" << endl;
 
@@ -54,8 +54,9 @@ int main(int argc, char *argv[])
     univariateMomentSet m
     (
         nMoments,
-        "R",
-        2
+        "01",
+        0,
+        1
     );
 
     Info << "Moment set (empty): " << m << endl;
@@ -67,12 +68,12 @@ int main(int argc, char *argv[])
 //     m[3] = 35.95258119;
 
     // Lobatto test
-    m[0] = 1.0000;
-    m[1] = 0.2500;
-    m[2] = 0.1058;
-    m[3] = 0.0562;
-    m[4] = 0.0340;
-    m[5] = 0.0224;
+//     m[0] = 1.0000;
+//     m[1] = 0.2500;
+//     m[2] = 0.1058;
+//     m[3] = 0.0562;
+//     m[4] = 0.0340;
+//     m[5] = 0.0224;
 
     // Radau test
 //     m[0] = 1.0000;
@@ -81,20 +82,21 @@ int main(int argc, char *argv[])
 //     m[3] = 0.0562;
 //     m[4] = 0.0340;
 
+
+    m[0] = 1.00000001612;
+    m[1] = 1.00000001635;
+    m[2] = 1.00000001637;
+    m[3] = 1.00000001619;
+    m[4] = 1.000000016;
+
     Info << setprecision(16);
+
     Info << "\nInput moments\n" << endl;
 
     for (label momenti = 0; momenti < nMoments; momenti++)
     {
         Info << "Moment " << momenti << " = " << m[momenti] << endl;
     }
-
-    autoPtr<univariateMomentInversion> inversion
-    (
-        univariateMomentInversion::New(quadratureProperties)
-    );
-
-    inversion().invert(m, 0, 1);
 
     if (m.isFullyRealizable())
     {
@@ -110,6 +112,15 @@ int main(int argc, char *argv[])
     {
         Info << "\nThe moment set is not realizable.\n" << endl;
     }
+
+    autoPtr<univariateMomentInversion> inversion
+    (
+        univariateMomentInversion::New(quadratureProperties)
+    );
+
+    inversion().invert(m, 0, 1);
+
+
 
     scalarList weights(inversion().weights());
     scalarList abscissae(inversion().abscissae());
