@@ -329,7 +329,7 @@ void Foam::betaEQMOM::recurrenceRelation
     b[1] = (4.0*(alpha + 1.0)*(beta + 1.0))
             /(sqr(alpha + beta + 2.0)*(alpha + beta + 3.0));
 
-    for(label i = 2; i < a.size(); i++)
+    for (label i = 2; i < a.size(); i++)
     {
         nab = 2.0*scalar(i) + alpha + beta;
 

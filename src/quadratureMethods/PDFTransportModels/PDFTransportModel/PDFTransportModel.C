@@ -44,9 +44,4 @@ Foam::PDFTransportModel::PDFTransportModel
 Foam::PDFTransportModel::~PDFTransportModel()
 {}
 
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-
-
 // ************************************************************************* //

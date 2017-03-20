@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     {
         for (label j = 0; j < n; j++)
         {
-            Info<< Vm(i,j) << ", \t";
+            Info<< Vm(i, j) << ", \t";
         }
 
         Info<< endl;
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     {
         for (label j = 0; j < n; j++)
         {
-            Info<< invVm(i,j) << ", \t";
+            Info<< invVm(i, j) << ", \t";
         }
 
         Info<< endl;
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     {
         for (label j = 0; j < n; j++)
         {
-            error += sqr(svdInv(i,j) - Vm(i,j));
+            error += sqr(svdInv(i, j) - Vm(i, j));
         }
     }
 

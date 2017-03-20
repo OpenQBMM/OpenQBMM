@@ -53,9 +53,4 @@ Foam::populationBalanceModel::populationBalanceModel
 Foam::populationBalanceModel::~populationBalanceModel()
 {}
 
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-
-
 // ************************************************************************* //

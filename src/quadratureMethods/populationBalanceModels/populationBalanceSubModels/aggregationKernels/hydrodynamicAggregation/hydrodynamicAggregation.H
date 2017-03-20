@@ -26,7 +26,7 @@ Class
     ::hydrodynamicAggregationAggregation
 
 Description
-    Hydrodynamic aggregation kernel with user defined coefficient 
+    Hydrodynamic aggregation kernel with user defined coefficient
     (default Cagg = 1).
 
 SourceFiles

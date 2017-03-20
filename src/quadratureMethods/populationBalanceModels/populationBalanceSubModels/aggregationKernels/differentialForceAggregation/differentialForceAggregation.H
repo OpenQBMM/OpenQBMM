@@ -26,7 +26,7 @@ Class
     ::differentialForceAggregation
 
 Description
-    Differential force aggregation kernel with user defined coefficient 
+    Differential force aggregation kernel with user defined coefficient
     (default Cagg = 1).
 
 SourceFiles

@@ -35,11 +35,11 @@ Description
         R O Fox
         Cambridge University Press
     \endverbatim
-    
+
     \verbatim
         "Solution of the Fokker-Planck Equation Using the Extended
         Quadrature Method of Moments"
-        E Madadi-Kandjani and A Passalacqua 
+        E Madadi-Kandjani and A Passalacqua
         2015 AIChE Annual Meeting, Salt Lake City, UT
     \endverbatim
 

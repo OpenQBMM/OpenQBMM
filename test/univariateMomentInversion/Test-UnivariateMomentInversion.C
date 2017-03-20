@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
     if (m.isFullyRealizable())
     {
-        Info << "\nThe full set of moments is realizable.\n" << endl ;
+        Info << "\nThe full set of moments is realizable.\n" << endl;
     }
     else if (m.isSubsetRealizable())
     {
@@ -119,8 +119,6 @@ int main(int argc, char *argv[])
     );
 
     inversion().invert(m, 0, 1);
-
-
 
     scalarList weights(inversion().weights());
     scalarList abscissae(inversion().abscissae());

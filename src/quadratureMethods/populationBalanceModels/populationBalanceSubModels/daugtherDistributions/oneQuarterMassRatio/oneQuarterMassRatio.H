@@ -25,7 +25,7 @@ Class
     Foam::populationBalanceSubModels::daughterDistribution::oneQuarterMassRatio
 
 Description
-    Daughter distribution of fragments with one quarter mass ratio 
+    Daughter distribution of fragments with one quarter mass ratio
     fragmentation.
 
 SourceFiles

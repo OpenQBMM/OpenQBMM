@@ -53,9 +53,4 @@ Foam::mixingModel::mixingModel
 Foam::mixingModel::~mixingModel()
 {}
 
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-
-
 // ************************************************************************* //
