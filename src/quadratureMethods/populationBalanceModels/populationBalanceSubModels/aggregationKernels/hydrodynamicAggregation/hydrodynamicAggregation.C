@@ -75,7 +75,7 @@ Foam::populationBalanceSubModels::aggregationKernels::hydrodynamicAggregation
     const volScalarField& abscissa1,
     const volScalarField& abscissa2
 ) const
-{   
+{
     return Ca_*pow3(abscissa1 + abscissa2);
 }
 

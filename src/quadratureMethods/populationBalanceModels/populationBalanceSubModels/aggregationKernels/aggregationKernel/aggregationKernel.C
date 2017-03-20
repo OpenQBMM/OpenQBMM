@@ -50,8 +50,8 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationKernel
     (
         dict.lookupOrDefault
         (
-            "Ca", 
-            dimensionedScalar("one", inv(dimTime), 1.0)  
+            "Ca",
+            dimensionedScalar("one", inv(dimTime), 1.0)
         )
     )
 {}
