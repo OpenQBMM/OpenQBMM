@@ -156,7 +156,9 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             univariateMomentSet momentsToInvert
             (
                 moments.size(),
-                moments.support()
+                moments.support(),
+                0.0,                         // Initial value
+                nFixedQuadraturePoints_
             );
 
             // Copying moments from a face

@@ -268,7 +268,7 @@ Foam::scalar Foam::gammaEQMOM::sigmaMax(univariateMomentSet& moments)
     scalar sigmaZeta1 =
         (moments[0]*moments[2] - moments[1]*moments[1])/(moments[0]*moments[1]);
 
-    return sigmaZeta1;//min(sigmaZeta1, sigmaZeta2);
+    return sigmaZeta1;
 }
 
 // ************************************************************************* //
