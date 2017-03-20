@@ -52,12 +52,11 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 (
     const word& name,
     const dictionary& dict,
-    const volVectorField& U,
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(name, dict, U.mesh(), U, phi, "RPlus"),
-    populationBalanceModel(name, dict, U, phi),
+    univariatePDFTransportModel(name, dict, phi.mesh(), phi, "RPlus"),
+    populationBalanceModel(name, dict, phi),
     name_(name),
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
@@ -102,7 +101,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
         Foam::populationBalanceSubModels::nucleationModel::New
         (
             dict.subDict("nucleationModel"),
-            U.mesh()
+            phi_.mesh()
         )
     )
 {}
@@ -131,13 +130,13 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             IOobject
             (
                 "aSource",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE,
                 false
             ),
-            U_.mesh(),
+            phi_.mesh(),
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
@@ -155,7 +154,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
     forAll(quadrature_.nodes(), pNode1i)
     {
-        const extendedVolScalarNode& node1 = quadrature_.nodes()[pNode1i];
+        const volScalarNode& node1 = quadrature_.nodes()[pNode1i];
 
         const volScalarField& pWeight1 = node1.primaryWeight();
 
@@ -168,7 +167,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
             forAll(quadrature_.nodes(), pNode2i)
             {
-                const extendedVolScalarNode& node2 = quadrature_.nodes()[pNode2i];
+                const volScalarNode& node2 = quadrature_.nodes()[pNode2i];
 
                 const volScalarField& pWeight2 = node2.primaryWeight();
 
@@ -222,13 +221,13 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             IOobject
             (
                 "bSource",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE,
                 false
             ),
-            U_.mesh(),
+            phi_.mesh(),
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
@@ -246,7 +245,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
     forAll(quadrature_.nodes(), pNodeI)
     {
-        const extendedVolScalarNode& node = quadrature_.nodes()[pNodeI];
+        const volScalarNode& node = quadrature_.nodes()[pNodeI];
 
         forAll(node.secondaryWeights(), sNodei)
         {
@@ -293,13 +292,13 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             IOobject
             (
                 "gSource",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE,
                 false
             ),
-            U_.mesh(),
+            phi_.mesh(),
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
@@ -324,7 +323,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
     forAll(quadrature_.nodes(), pNodeI)
     {
-        const extendedVolScalarNode& node = quadrature_.nodes()[pNodeI];
+        const volScalarNode& node = quadrature_.nodes()[pNodeI];
 
         forAll(node.secondaryWeights(), sNodei)
         {

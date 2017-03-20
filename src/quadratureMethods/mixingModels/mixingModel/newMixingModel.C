@@ -31,7 +31,6 @@ Foam::autoPtr<Foam::mixingModel> Foam::mixingModel::New
 (
     const word& name,
     const dictionary& dict,
-    const volVectorField& U,
     const surfaceScalarField& phi
 )
 {
@@ -60,7 +59,6 @@ Foam::autoPtr<Foam::mixingModel> Foam::mixingModel::New
             (
                 name,
                 dict.subDict(mixingModelType + "Coeffs"),
-                U,
                 phi
             )
         );

@@ -107,6 +107,6 @@
     (
         populationBalanceModel::New
         (
-            "populationBalance", populationBalanceProperties, U, phi
+            "populationBalance", populationBalanceProperties, phi
         )
     );

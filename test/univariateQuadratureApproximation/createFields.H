@@ -1,4 +1,8 @@
         univariateQuadratureApproximation quadrature
         (
-            "populationBalance", mesh, "RPlus"
+            "populationBalance",
+            mesh,
+            "RPlus",
+            1
         );
+

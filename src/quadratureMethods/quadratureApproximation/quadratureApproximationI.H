@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,54 +25,44 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-const Foam::PtrList<Foam::extendedVolScalarNode>&
-Foam::univariateQuadratureApproximation::nodes() const
+template <class momentFieldSetType, class nodeType>
+const word
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::name() const
+{
+    return name_;
+}
+
+template <class momentFieldSetType, class nodeType>
+const Foam::PtrList<nodeType>&
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::nodes() const
 {
     return nodes_();
 }
 
-const Foam::volUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::moments() const
+template <class momentFieldSetType, class nodeType>
+const momentFieldSetType&
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::moments() const
 {
     return moments_;
 }
 
-Foam::volUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::moments()
+template <class momentFieldSetType, class nodeType>
+momentFieldSetType&
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::moments()
 {
     return moments_;
 }
 
-const Foam::basicSurfaceUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::momentsNei() const
-{
-    return momentsNei_;
-}
-
-Foam::basicSurfaceUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::momentsNei()
-{
-    return momentsNei_;
-}
-
-const Foam::basicSurfaceUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::momentsOwn() const
-{
-    return momentsOwn_;
-}
-
-Foam::basicSurfaceUnivariateMomentFieldSet&
-Foam::univariateQuadratureApproximation::momentsOwn()
-{
-    return momentsOwn_;
-}
-
-Foam::label Foam::univariateQuadratureApproximation::nDimensions() const
+template <class momentFieldSetType, class nodeType>
+Foam::label
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::nDimensions() const
 {
     return nDimensions_;
 }
 
-Foam::label Foam::univariateQuadratureApproximation::nMoments() const
+template <class momentFieldSetType, class nodeType>
+Foam::label
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::nMoments() const
 {
     return nMoments_;
 }

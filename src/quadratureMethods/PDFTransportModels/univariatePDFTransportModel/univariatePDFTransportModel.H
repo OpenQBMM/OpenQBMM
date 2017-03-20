@@ -37,7 +37,8 @@ SourceFiles
 #define univariatePDFTransportModel_H
 
 #include "PDFTransportModel.H"
-#include "univariateQuadratureApproximation.H"
+#include "quadratureApproximations.H"
+#include "univariateMomentAdvection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -66,11 +67,8 @@ protected:
         //- Univariate quadrature approximation used to solve PDF transport
         univariateQuadratureApproximation quadrature_;
 
-        //- Velocity field
-        const volVectorField& U_;
-
-        //- Face velocity field
-        const surfaceScalarField& phi_;
+        //- Moment advection
+        univariateMomentAdvection momentAdvection_;
 
     // Protected member functions
 
@@ -92,15 +90,6 @@ protected:
             const volUnivariateMoment& moment
         ) = 0;
 
-        //- Calculate explicit convection term in physical space
-        tmp<volScalarField> physicalSpaceConvection
-        (
-            const volUnivariateMoment& moment
-        );
-
-        //- Update fields required to compute kinetic fluxes
-        void updatePhysicalSpaceConvection();
-
 
 public:
 
@@ -112,7 +101,6 @@ public:
             const word& name,
             const dictionary& dict,
             const fvMesh& mesh,
-            const volVectorField& U,
             const surfaceScalarField& phi,
             const word& support
         );

@@ -42,15 +42,9 @@ SourceFiles
 namespace Foam
 {
 
-typedef moment<volScalarField, extendedVolScalarNode> volUnivariateMoment;
+typedef moment<volScalarField, volScalarNode> volUnivariateMoment;
 
-typedef moment<surfaceScalarField, extendedSurfaceScalarNode>
-    surfaceUnivariateMoment;
-
-typedef moment<volScalarField, extendedVolScalarNode> basicVolUnivariateMoment;
-
-typedef moment<surfaceScalarField, basicSurfaceScalarNode>
-    basicSurfaceUnivariateMoment;
+typedef moment<surfaceScalarField, surfaceScalarNode> surfaceUnivariateMoment;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

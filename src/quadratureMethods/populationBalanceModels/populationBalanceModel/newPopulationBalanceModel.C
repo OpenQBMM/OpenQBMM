@@ -32,7 +32,6 @@ Foam::populationBalanceModel::New
 (
     const word& name,
     const dictionary& dict,
-    const volVectorField& U,
     const surfaceScalarField& phi
 )
 {
@@ -61,7 +60,6 @@ Foam::populationBalanceModel::New
             (
                 name,
                 dict.subDict(populationBalanceModelType + "Coeffs"),
-                U,
                 phi
             )
         );

@@ -143,7 +143,7 @@ void Foam::moment<fieldType, nodeType>::update()
 
     bool extendedNode = nodes[0].extended();
 
-    // If nodes do not have extended status, only use primary quadrature.
+    // If nodes are not of extended type, only use primary quadrature.
     if (!extendedNode)
     {
         forAll(nodes, pNodei)

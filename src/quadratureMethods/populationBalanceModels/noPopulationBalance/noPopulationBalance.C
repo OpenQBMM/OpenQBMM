@@ -48,11 +48,10 @@ Foam::populationBalanceModels::noPopulationBalance::noPopulationBalance
 (
     const word& name,
     const dictionary& dict,
-    const volVectorField& U,
     const surfaceScalarField& phi
 )
 :
-    populationBalanceModel(name, dict, U, phi),
+    populationBalanceModel(name, dict, phi),
     name_(name)
 {}
 

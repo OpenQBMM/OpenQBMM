@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::univariateQuadratureApproximation
+    Foam::quadratureApproximation
 
 Description
     Provides storage for the moments and the corresponding quadrature
@@ -31,13 +31,13 @@ Description
     provided.
 
 SourceFiles
-    univariateQuadratureApproximation.C
-    univariateQuadratureApproximationI.H
+    quadratureApproximation.C
+    quadratureApproximationI.H
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef univariateQuadratureApproximation_H
-#define univariateQuadratureApproximation_H
+#ifndef quadratureApproximation_H
+#define quadratureApproximation_H
 
 #include "fvCFD.H"
 #include "IOdictionary.H"
@@ -45,11 +45,7 @@ SourceFiles
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
-#include "univariateMomentSet.H"
-#include "univariateMomentInversion.H"
-#include "extendedMomentInversion.H"
-#include "quadratureNodes.H"
-#include "momentFieldSets.H"
+#include "fieldMomentInversion.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -57,10 +53,11 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                Class univariateQuadratureApproximation Declaration
+                Class quadratureApproximation Declaration
 \*---------------------------------------------------------------------------*/
 
-class univariateQuadratureApproximation
+template <class momentFieldSetType, class nodeType>
+class quadratureApproximation
 :
     public IOdictionary
 {
@@ -73,28 +70,10 @@ class univariateQuadratureApproximation
         const fvMesh& mesh_;
 
         //- AutoPtr to the PtrList of quadrature nodes
-        autoPtr<PtrList<extendedVolScalarNode>> nodes_;
-
-        //- AutoPtr to the PtrList of Radau quadrature nodes
-        autoPtr<PtrList<basicVolScalarNode>> nodesRadau_;
+        autoPtr<PtrList<nodeType>> nodes_;
 
         //- List of moments
-        volUnivariateMomentFieldSet moments_;
-
-        //- Number of primary quadrature nodes
-        label nPrimaryNodes_;
-
-        //- Number of secondary quadrature nodes
-        label nSecondaryNodes_;
-
-        //- Number of Radau quadrature nodes
-        label nNodesRadau_;
-
-        //- List of interpolated nodes (neighbour)
-        autoPtr<PtrList<basicSurfaceScalarNode>> nodesNei_;
-
-        //- List of interpolated nodes (owner)
-        autoPtr<PtrList<basicSurfaceScalarNode>> nodesOwn_;
+        momentFieldSetType moments_;
 
         //- Dimensionality of the distribution function
         const label nDimensions_;
@@ -102,65 +81,52 @@ class univariateQuadratureApproximation
         //- Number of moments
         const label nMoments_;
 
-        //- List of interpolated moments (neighbour)
-        basicSurfaceUnivariateMomentFieldSet momentsNei_;
-
-        //- List of interpolated moments (owner)
-        basicSurfaceUnivariateMomentFieldSet momentsOwn_;
-
-        //- Extended moment inversion method
-        autoPtr<extendedMomentInversion> extendedMomentInverter_;
-
-        //- Flux moment inversion method
-        autoPtr<univariateMomentInversion> fluxMomentInverter_;
+        //- Number of secondary nodes
+        const label nSecondaryNodes_;
 
         //- Support of the distribution function
         word support_;
 
+        //- Extended moment inversion method
+        autoPtr<fieldMomentInversion> momentFieldInverter_;
+
 
 public:
+
+    //- Default name of the phase properties dictionary
+    static const word propertiesName;
 
     // Constructors
 
         //- Construct from mesh
-        explicit univariateQuadratureApproximation
+        explicit quadratureApproximation
         (
             const word& name,
             const fvMesh& mesh,
-            const word& support
+            const word& support,
+            const label nDimensions
         );
 
 
     //- Destructor
-    virtual ~univariateQuadratureApproximation();
+    virtual ~quadratureApproximation();
 
 
     // Member Functions
 
         // Access
 
+            //- Return name
+            inline const word name() const;
+
             //- Return the nodes
-            inline const PtrList<extendedVolScalarNode>& nodes() const;
+            inline const PtrList<nodeType>& nodes() const;
 
             //- Const access to the moments
-            inline const volUnivariateMomentFieldSet& moments() const;
+            inline const momentFieldSetType& moments() const;
 
             //- Non-const access to the moments
-            inline volUnivariateMomentFieldSet& moments();
-
-            //- Const access to the interpolated moments (neighbour)
-            inline const basicSurfaceUnivariateMomentFieldSet&
-                momentsNei() const;
-
-            //- Non-const access to the interpolated moments (neighbour)
-            inline basicSurfaceUnivariateMomentFieldSet& momentsNei();
-
-            //- Const access to the interpolated moments (owner)
-            inline const basicSurfaceUnivariateMomentFieldSet&
-                momentsOwn() const;
-
-            //- Non-const access to the interpolated moments (owner)
-            inline basicSurfaceUnivariateMomentFieldSet& momentsOwn();
+            inline momentFieldSetType& moments();
 
             //- Return the number of dimensions in the distribution
             inline label nDimensions() const;
@@ -170,12 +136,6 @@ public:
 
 
         // Edit
-
-            //- Interpolate nodes
-            void interpolateNodes();
-
-            //- Update quadrature nodes on fixed-value boundaries
-            void updateBoundaryQuadrature();
 
             //- Recalculate the quadrature nodes from the moments
             void updateQuadrature();
@@ -190,9 +150,10 @@ public:
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#include "univariateQuadratureApproximationI.H"
-
+#ifdef NoRepository
+#   include "quadratureApproximationI.H"
+#   include "quadratureApproximation.C"
+#endif
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
