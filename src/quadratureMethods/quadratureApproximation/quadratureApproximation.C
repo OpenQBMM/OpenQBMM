@@ -78,8 +78,7 @@ quadratureApproximation
             << "    approximation is not zero, but the selected" << nl
             << "    inversion algorithm is not of extended type." << nl
             << "    Proceeding with nSecondaryNodes = 0." << nl
-            << "    No extended quadrature will be computed." << nl
-            << abort(FatalError);
+            << "    No extended quadrature will be computed." << nl;
     }
 
     // Allocating nodes
