@@ -117,7 +117,7 @@ Foam::PDFTransportModels::univariatePDFTransportModel::physicalSpaceConvection
 void
 Foam::PDFTransportModels::univariatePDFTransportModel::solveMomentSource()
 {
-    Info<< "RK23-SSP: Solving for moment source terms" << endl;
+    Info<< "RK23-SSP: Solving source terms for moments." << name_ << endl;
 
     // Read current deltaT
     dimensionedScalar dt0 = U_.mesh().time().deltaT();
@@ -329,10 +329,8 @@ Foam::PDFTransportModels::univariatePDFTransportModel::solveMomentSource()
 
         // Write some stuff
         Info<< "Iteration " << nItt
-            << ", "
-            << "Time step = " << h_.value() << "s"
-            << ", "
-            << "Local time = " << dTime.value() << "s"
+            << ", Time = "
+            << (U_.mesh().time().value() + dTime.value()) << "s"
             << endl;
 
     }
@@ -374,7 +372,6 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
 
     forAll (momentEqns, mEqnI)
     {
-//         Info<<"ddt(m): " << fvc::ddt(quadrature_.moments()[mEqnI]) <<endl;
         momentEqns[mEqnI] -= fvc::ddt(quadrature_.moments()[mEqnI]);
 
         momentEqns[mEqnI].relax();
