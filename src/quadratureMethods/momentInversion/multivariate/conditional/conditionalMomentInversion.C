@@ -298,7 +298,7 @@ void Foam::conditionalMomentInversion::setVR
 
         if (dimi > 0)
         {
-            for (label ai = 0; ai < pos.size(); ai++)
+            for (label ai = 0; ai < posVR.size(); ai++)
             {
                 posVR[ai] = pos[ai];
             }
@@ -341,13 +341,21 @@ void Foam::conditionalMomentInversion::cycleAlphaWheeler
 
         for (label nodei = 0; nodei < nNodes_[ai]; nodei++)
         {
+            //  If the number of nodes calculated from the univariate
+            //  moment inversion is less than the set number of nodes
+            //  set extra weights and abscissae to 0
+            if (nodei >= momentInverter_().nNodes())
+            {
+                weights_[dimi](pos) = scalar(0);
+                abscissae_[dimi](pos) = scalar(0);
+                continue;
+            }
             pos[dimi] = nodei;
-
             weights_[dimi](pos) =
                 momentInverter_().weights()[nodei];
-
             abscissae_[dimi](pos) =
                 momentInverter_().abscissae()[nodei];
+
         }
         return;
     }
