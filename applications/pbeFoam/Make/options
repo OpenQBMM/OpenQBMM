@@ -12,7 +12,8 @@ EXE_INC = \
     -I$../../../src/quadratureMethods/momentInversion/univariate/extended/lnInclude \
     -I$../../../src/quadratureMethods/quadratureNode \
     -I$../../../src/quadratureMethods/moments \
-    -I$../../../src/quadratureMethods/quadratureApproximation/lnInclude \
+    -I$../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I$../../../src/quadratureMethods/quadratureApproximation \
     -I$../../../src/quadratureMethods/populationBalanceModels/lnInclude \
     -DFULLDEBUG -g -O0
 
@@ -29,5 +30,5 @@ EXE_LIBS = \
     -lmeshTools \
     -lmomentSets \
     -lextendedMomentInversion \
-    -lquadratureApproximation \
+    -lfieldMomentInversion \
     -lpopulationBalance

@@ -75,7 +75,7 @@ Foam::populationBalanceSubModels::daughterDistributions::symmetricFragmentation
     const label order,
     const volScalarField& abscissa
 ) const
-{    
+{
     return pow(2.0, (3.0 - order)/3.0)*pow(abscissa, order);
 }
 

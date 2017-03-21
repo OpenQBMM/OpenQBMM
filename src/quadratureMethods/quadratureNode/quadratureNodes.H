@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -35,40 +35,29 @@ SourceFiles
 
 #include "volFields.H"
 #include "quadratureNode.H"
-#include "extendedQuadratureNode.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-typedef quadratureNode<volScalarField, volScalarField> basicVolScalarNode;
+typedef quadratureNode<volScalarField, volScalarField, volScalarField>
+    volScalarNode;
 
-typedef quadratureNode<surfaceScalarField, surfaceScalarField>
-    basicSurfaceScalarNode;
-
-typedef quadratureNode<volScalarField, volVectorField> basicVolVectorNode;
-
-typedef quadratureNode<surfaceScalarField, surfaceVectorField>
-    basicSurfaceVectorNode;
-
-typedef extendedQuadratureNode<volScalarField, volScalarField, volScalarField>
-    extendedVolScalarNode;
-
-typedef extendedQuadratureNode
+typedef quadratureNode
 <
     surfaceScalarField, surfaceScalarField, surfaceScalarField
 >
-extendedSurfaceScalarNode;
+surfaceScalarNode;
 
-typedef extendedQuadratureNode<volScalarField, volVectorField, volScalarField>
-    extendedVolVectorNode;
+typedef quadratureNode<volScalarField, volVectorField, volScalarField>
+    volVectorNode;
 
-typedef extendedQuadratureNode
+typedef quadratureNode
 <
     surfaceScalarField, surfaceVectorField, surfaceScalarField
 >
-extendedSurfaceVectorNode;
+surfaceVectorNode;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

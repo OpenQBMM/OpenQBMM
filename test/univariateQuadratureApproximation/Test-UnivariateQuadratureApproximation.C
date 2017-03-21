@@ -30,7 +30,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
-#include "univariateQuadratureApproximation.H"
+#include "quadratureApproximations.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -48,48 +48,47 @@ int main(int argc, char *argv[])
     label nSecondaryNodes = quadrature.nodes()[0].nSecondaryNodes();
 
     Info << "\nNumber of primary nodes: " << nPrimaryNodes << endl;
-    
+
     Info << "\nNumber of secondary nodes: " << nSecondaryNodes << endl;
-    
+
     Info << "\nInverting moments. " << endl;
-    
+
     quadrature.updateQuadrature();
-    
+
     Info<< "\nStoring quadrature fields.\n" << endl;
-    
+
     for (label nodeI = 0; nodeI < nPrimaryNodes; nodeI++)
     {
         quadrature.nodes()[nodeI].primaryWeight().write();
         quadrature.nodes()[nodeI].primaryAbscissa().write();
         quadrature.nodes()[nodeI].sigma().write();
-        
+
         for (label sNodeI = 0; sNodeI < nSecondaryNodes; sNodeI++)
         {
             quadrature.nodes()[nodeI].secondaryWeights()[sNodeI].write();
             quadrature.nodes()[nodeI].secondaryAbscissae()[sNodeI].write();
         }
     }
-    
+
     runTime++;
-    
+
     quadrature.updateMoments();
-    
+
     for (label mI = 0; mI < quadrature.nMoments(); mI++)
     {
         quadrature.moments()[mI].write();
     }
-    
+
     runTime++;
-    
+
     for (label mI = 0; mI < quadrature.nMoments(); mI++)
     {
         quadrature.moments()[mI] *= 2.0;
     }
-    
+
     quadrature.updateQuadrature();
-    quadrature.interpolateNodes();
     quadrature.updateMoments();
-    
+
     for (label mI = 0; mI < quadrature.nMoments(); mI++)
     {
         quadrature.moments()[mI].write();

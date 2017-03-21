@@ -16,8 +16,9 @@ EXE_LIBS = \
     -lfvOptions \
     -lmeshTools \
     -lsampling \
-    -lmomentSet \
+    -lmomentSets \
     -lextendedMomentInversion \
-    -lquadratureApproximation \
+    -lfieldMomentInversion \
+    -lmomentAdvection \
     -lpopulationBalance
 

@@ -25,26 +25,26 @@ Class
     Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
 
 Description
-    Brownian aggregation kernel supplemented kernel for particles in turbulent 
-    flows in conditions when the particle size is smaller than the local 
+    Brownian aggregation kernel supplemented kernel for particles in turbulent
+    flows in conditions when the particle size is smaller than the local
     Kolmogorov scale.
-    
+
     References
     \verbatim
-        "Versuch Einer Mathematischen Theorie Der Koagulationskinetic Kolloider 
+        "Versuch Einer Mathematischen Theorie Der Koagulationskinetic Kolloider
         Losunger"
         M X Smoluchowski
         Zeitschrift fur Physikalische Chemie
         Volume 92, Pages 129-142, 1917
-    \endverbatim 
-    
+    \endverbatim
+
     \verbatim
-        "Kinetics of turbulent coagulation studied by means of end-over-end 
+        "Kinetics of turbulent coagulation studied by means of end-over-end
         rotation"
         Y Adachi, M A Cohen Stuart, R Fokkink
         Journal of Colloid and Interface Science
         Volume 165, Pages 310-317, 1994
-    \endverbatim 
+    \endverbatim
 
 SourceFiles
     turbulentBrownian.C

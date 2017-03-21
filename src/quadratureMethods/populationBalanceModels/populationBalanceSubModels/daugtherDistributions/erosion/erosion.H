@@ -55,7 +55,7 @@ class erosion
     public daughterDistribution
 {
 private:
-    
+
     // Private data
 
         //- Primary particle size

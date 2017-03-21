@@ -57,12 +57,12 @@ class constantBreakup
     public breakupKernel
 {
 private:
-    
+
     // Private data
 
         //- Minimum value of the abscissa to apply the model
         dimensionedScalar minAbscissa_;
-    
+
 public:
 
         //- Runtime type information

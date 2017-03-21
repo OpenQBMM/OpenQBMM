@@ -78,7 +78,6 @@
         (
             "populationBalance",
             populationBalanceProperties,
-            U,
             phi
         )
     );

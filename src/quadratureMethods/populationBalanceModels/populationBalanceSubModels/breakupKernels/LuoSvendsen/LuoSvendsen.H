@@ -35,8 +35,6 @@ Description
         Volume 42, Pages 1225-1233, 1996
     \endverbatim
 
-
-
 SourceFiles
     LuoSvendsen.C
 

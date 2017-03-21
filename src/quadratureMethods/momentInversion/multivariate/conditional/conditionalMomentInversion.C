@@ -198,7 +198,7 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
 {
     if (dimj == ai)
     {
-        cycleAlphaCM(dimi,dimj,ai+1,pos);
+        cycleAlphaCM(dimi, dimj, ai+1, pos);
         return;
     }
     else if (ai < dimi)
@@ -215,7 +215,7 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
         for (label i = 0; i < 2*nNodes_[dimi]; i++)
         {
             pos[dimi] = i;
-            cycleAlphaCM(dimi,dimj,ai+1,pos);
+            cycleAlphaCM(dimi, dimj, ai+1, pos);
         }
         return;
     }
@@ -252,7 +252,7 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
             }
         }
 
-        scalarRectangularMatrix Ynew = invVR_[dimj](posVR)*Yold;
+        scalarRectangularMatrix Ynew = Yold*invVR_[dimj](posVR);
 
         for (label i = 0; i < nNodes_[dimj]; i++)
         {

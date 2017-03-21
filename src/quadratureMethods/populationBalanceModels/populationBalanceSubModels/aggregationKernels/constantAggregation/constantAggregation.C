@@ -74,7 +74,7 @@ Foam::populationBalanceSubModels::aggregationKernels::constantAggregation::Ka
     const volScalarField& abscissa1,
     const volScalarField& abscissa2
 ) const
-{   
+{
     return
         tmp<volScalarField>
         (
@@ -89,8 +89,8 @@ Foam::populationBalanceSubModels::aggregationKernels::constantAggregation::Ka
                 abscissa1.mesh(),
                 dimensionedScalar
                 (
-                    "constAggK", 
-                    pow3(abscissa1.dimensions())/dimTime, 
+                    "constAggK",
+                    pow3(abscissa1.dimensions())/dimTime,
                     Ca_.value()
                 )
             )

@@ -51,12 +51,11 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::turbulentMixing
 (
     const word& name,
     const dictionary& dict,
-    const volVectorField& U,
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(name, dict, U.mesh(), U, phi, "01"),
-    mixingModel(name, dict, U, phi),
+    univariatePDFTransportModel(name, dict, phi.mesh(), phi, "01"),
+    mixingModel(name, dict, phi),
     name_(name),
     mixingKernel_
     (
@@ -106,13 +105,13 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing
             IOobject
             (
                 "gSource",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE,
                 false
             ),
-            U_.mesh(),
+            phi_.mesh(),
             dimensionedScalar("zero", moment.dimensions()/dimTime, 0.0)
         )
     );

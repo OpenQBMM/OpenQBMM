@@ -15,6 +15,10 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+fieldMomentInversion extendedFieldMomentInversion;
+
+momentInversion extended;
+
 extendedMomentInversion	lognormal;
 
 maxSigmaIter 	50;

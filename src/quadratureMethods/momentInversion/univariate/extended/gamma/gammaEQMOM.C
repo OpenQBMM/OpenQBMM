@@ -185,7 +185,7 @@ void Foam::gammaEQMOM::momentsToMomentsStar
                 + sigma*(25.0*moments[3] + sigma*(-15.0*moments[2]
                 + moments[1]*sigma)));
 
-       	momentsStar[6] = moments[6] + sigma*(-15.0*moments[5]
+        momentsStar[6] = moments[6] + sigma*(-15.0*moments[5]
                 + sigma*(65.0*moments[4] + sigma*(-90.0*moments[3]
                 + sigma*(31.0*moments[2] - moments[1]*sigma))));
     }
@@ -197,7 +197,7 @@ void Foam::gammaEQMOM::momentsToMomentsStar
                 + sigma*(301.0*moments[3] + sigma*(-63.0*moments[2]
                 + moments[1]*sigma)))));
 
-       	momentsStar[8] = moments[8] + sigma*(-28.0*moments[7]
+        momentsStar[8] = moments[8] + sigma*(-28.0*moments[7]
                 + sigma*(266.0*moments[6] + sigma*(-1050.0*moments[5]
                 + sigma*(1701.0*moments[4] + sigma*(-966.0*moments[3]
                 + sigma*(127.0*moments[2] - moments[1]*sigma))))));
@@ -268,7 +268,7 @@ Foam::scalar Foam::gammaEQMOM::sigmaMax(univariateMomentSet& moments)
     scalar sigmaZeta1 =
         (moments[0]*moments[2] - moments[1]*moments[1])/(moments[0]*moments[1]);
 
-    return sigmaZeta1;//min(sigmaZeta1, sigmaZeta2);
+    return sigmaZeta1;
 }
 
 // ************************************************************************* //

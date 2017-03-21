@@ -31,6 +31,10 @@
     PBE
   - Implemented molecular diffusion sub-model for univariate PBE
 
+ Pete Bachant
+  - README file in markdown format.
+  - Travis CI style checker configuration.
+
  Xiaofei Hu, US DOE Ames Laboratory
   - Code review and algorithm verification of moment realizability check
   - Review of moment inversion and extended moment inversion
