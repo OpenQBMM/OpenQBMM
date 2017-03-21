@@ -59,6 +59,33 @@ class univariatePDFTransportModel
         //- Name of the univariatePDFTransportModel
         const word name_;
 
+
+        // ODE constants
+
+            //- Absolute Tolerance
+            scalar ATol_;
+
+            //- Relative Tolerance
+            scalar RTol_;
+
+            //- percent difference between actual time step and set time step
+            scalar fac_;
+
+            //- Minimum time step, relative to the global time step
+            scalar facMin_;
+
+            //- Maximum increase in local time step from the previous local
+            //  time step
+            scalar facMax_;
+
+            
+        //- Stored local time step
+        dimensionedScalar h_;
+
+        //- Flag if local time step was at max value on for the previous
+        //  global time step
+        bool maxDeltaT_;
+
 protected:
 
     // Protected data
@@ -81,7 +108,7 @@ protected:
         ) = 0;
 
         //- Calculate source terms
-        virtual tmp<fvScalarMatrix> momentSource
+        virtual tmp<volScalarField> momentSource
         (
             const volUnivariateMoment& moment
         ) = 0;
@@ -100,6 +127,10 @@ protected:
 
         //- Update fields required to compute kinetic fluxes
         void updatePhysicalSpaceConvection();
+
+        //- ODE solver for moment source
+        void solveMomentSource();
+
 
 
 public:

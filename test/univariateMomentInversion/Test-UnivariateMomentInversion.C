@@ -55,7 +55,8 @@ int main(int argc, char *argv[])
     (
         nMoments,
         "R",
-        0
+        0,
+        1
     );
 
     Info << "Moment set (empty): " << m << endl;

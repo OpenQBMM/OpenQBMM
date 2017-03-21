@@ -62,8 +62,6 @@ void Foam::hyperbolicMomentInversion::calculateCentralMoments
                 moments[0]*moments[2]
               - Foam::sqr(moments[1])
             )/Foam::sqr(moments[0]);
-
-        return;
     }
     if (nNodes_ > 2)
     {
@@ -81,8 +79,6 @@ void Foam::hyperbolicMomentInversion::calculateCentralMoments
               + 6.0*moments[0]*Foam::sqr(moments[1])*moments[2]
               - 3.0*Foam::pow4(moments[1])
             )/Foam::pow4(moments[0]);
-
-        return;
     }
     if (nNodes_ > 3)
     {
@@ -190,8 +186,7 @@ void Foam::hyperbolicMomentInversion::invert
 )
 {
     calcNQuadratureNodes(moments);
-
-    centralMoments_ = scalarList(2*nNodes_, scalar(0));
+    centralMoments_ = scalarList(2*nNodes_ - 1, scalar(0));
     calculateCentralMoments(moments);
 
     if (nNodes_ == 1)
