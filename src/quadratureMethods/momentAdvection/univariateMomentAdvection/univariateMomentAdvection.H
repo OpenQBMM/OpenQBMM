@@ -64,6 +64,12 @@ class univariateMomentAdvection
         //- Name of the distribution associated to the quadrature approximation.
         const word name_;
 
+        //- Field used to identify owner contribution to the flux
+        const surfaceScalarField nei_;
+
+        //- Field used to identify owner contribution to the flux
+        const surfaceScalarField own_;
+
         //- Reference to the moments to advect
         const volUnivariateMomentFieldSet& moments_;
 

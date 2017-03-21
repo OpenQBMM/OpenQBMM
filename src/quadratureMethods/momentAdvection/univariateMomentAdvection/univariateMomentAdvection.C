@@ -38,6 +38,28 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
 )
 :
     name_(quadrature.name()),
+    nei_
+    (
+        IOobject
+        (
+            "nei",
+            moments_[0].mesh().time().timeName(),
+            moments_[0].mesh()
+        ),
+        moments_[0].mesh(),
+        dimensionedScalar("nei", dimless, -1.0)
+    ),
+    own_
+    (
+        IOobject
+        (
+            "own",
+            moments_[0].mesh().time().timeName(),
+            moments_[0].mesh()
+        ),
+        moments_[0].mesh(),
+        dimensionedScalar("own", dimless, 1.0)
+    ),
     moments_(quadrature.moments()),
     nMoments_(moments_.size()),
     divMoments_(nMoments_),
@@ -210,30 +232,6 @@ Foam::univariateMomentAdvection::~univariateMomentAdvection()
 
 void Foam::univariateMomentAdvection::interpolateNodes()
 {
-    surfaceScalarField nei
-    (
-        IOobject
-        (
-            "nei",
-            moments_[0].mesh().time().timeName(),
-            moments_[0].mesh()
-        ),
-        moments_[0].mesh(),
-        dimensionedScalar("nei", dimless, -1.0)
-    );
-
-    surfaceScalarField own
-    (
-        IOobject
-        (
-            "own",
-            moments_[0].mesh().time().timeName(),
-            moments_[0].mesh()
-        ),
-        moments_[0].mesh(),
-        dimensionedScalar("own", dimless, 1.0)
-    );
-
     const PtrList<volScalarNode>& nodes = nodes_();
     PtrList<surfaceScalarNode>& nodesNei = nodesNei_();
     PtrList<surfaceScalarNode>& nodesOwn = nodesOwn_();
@@ -245,24 +243,24 @@ void Foam::univariateMomentAdvection::interpolateNodes()
         surfaceScalarNode& nodeOwn(nodesOwn[rNodei]);
 
         nodeOwn.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), own, "reconstruct(weight)");
+            fvc::interpolate(node.primaryWeight(), own_, "reconstruct(weight)");
 
         nodeOwn.primaryAbscissa() =
             fvc::interpolate
             (
                 node.primaryAbscissa(),
-                own,
+                own_,
                 "reconstruct(abscissa)"
             );
 
         nodeNei.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), nei, "reconstruct(weight)");
+            fvc::interpolate(node.primaryWeight(), nei_, "reconstruct(weight)");
 
         nodeNei.primaryAbscissa() =
             fvc::interpolate
             (
                 node.primaryAbscissa(),
-                nei,
+                nei_,
                 "reconstruct(abscissa)"
             );
     }
