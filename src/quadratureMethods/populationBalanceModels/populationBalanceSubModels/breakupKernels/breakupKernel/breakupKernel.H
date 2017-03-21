@@ -26,7 +26,7 @@ Class
 
 Description
     Abstract class for breakup kernels.
-    
+
 SourceFiles
     breakupKernel.C
 
@@ -52,7 +52,7 @@ namespace populationBalanceSubModels
 \*---------------------------------------------------------------------------*/
 
 class breakupKernel
-{   
+{
     // Private member functions
 
         //- Disallow default bitwise copy construct

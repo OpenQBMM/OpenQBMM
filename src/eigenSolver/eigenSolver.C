@@ -937,7 +937,7 @@ void Foam::eigenSolver::realSchur()
 
             for (label i = n - 2; i >= 0; i--)
             {
-                scalar ra,sa,vr,vi;
+                scalar ra, sa, vr, vi;
                 ra = scalar(0);
                 sa = scalar(0);
 

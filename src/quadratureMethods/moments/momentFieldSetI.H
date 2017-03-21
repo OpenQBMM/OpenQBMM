@@ -118,5 +118,10 @@ Foam::label Foam::momentFieldSet<momentType, nodeType>::nDimensions() const
     return nDimensions_;
 }
 
+template <class momentType, class nodeType>
+const Foam::word Foam::momentFieldSet<momentType, nodeType>::support() const
+{
+    return support_;
+}
 
 // ************************************************************************* //

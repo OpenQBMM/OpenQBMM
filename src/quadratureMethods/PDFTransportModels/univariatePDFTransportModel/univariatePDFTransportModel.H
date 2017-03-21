@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -37,7 +37,8 @@ SourceFiles
 #define univariatePDFTransportModel_H
 
 #include "PDFTransportModel.H"
-#include "univariateQuadratureApproximation.H"
+#include "quadratureApproximations.H"
+#include "univariateMomentAdvection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -78,7 +79,7 @@ class univariatePDFTransportModel
             //  time step
             scalar facMax_;
 
-            
+
         //- Stored local time step
         dimensionedScalar h_;
 
@@ -93,11 +94,8 @@ protected:
         //- Univariate quadrature approximation used to solve PDF transport
         univariateQuadratureApproximation quadrature_;
 
-        //- Velocity field
-        const volVectorField& U_;
-
-        //- Face velocity field
-        const surfaceScalarField& phi_;
+        //- Moment advection
+        univariateMomentAdvection momentAdvection_;
 
     // Protected member functions
 
@@ -119,18 +117,8 @@ protected:
             const volUnivariateMoment& moment
         ) = 0;
 
-        //- Calculate explicit convection term in physical space
-        tmp<volScalarField> physicalSpaceConvection
-        (
-            const volUnivariateMoment& moment
-        );
-
-        //- Update fields required to compute kinetic fluxes
-        void updatePhysicalSpaceConvection();
-
         //- ODE solver for moment source
         void solveMomentSource();
-
 
 
 public:
@@ -143,7 +131,6 @@ public:
             const word& name,
             const dictionary& dict,
             const fvMesh& mesh,
-            const volVectorField& U,
             const surfaceScalarField& phi,
             const word& support
         );

@@ -15,6 +15,18 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+fieldMomentInversion extendedFieldMomentInversion;
+
+extendedMomentInversion
+{
+    extendedMomentInversion lognormal;
+
+    basicQuadrature
+    {
+        univariateMomentInversion  Gauss;
+    };
+}
+
 moments
 (
     (0)
@@ -35,16 +47,6 @@ nodes
         nSecondaryNodes 10;
     }
 );
-
-extendedMomentInversionCoeff
-{
-    extendedMomentInversion     lognormal;
-
-    basicQuadrature
-    {
-        univariateMomentInversion   Gauss;
-    }
-}
 
 fluxQuadrature
 {

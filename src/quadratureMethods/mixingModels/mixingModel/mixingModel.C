@@ -40,7 +40,6 @@ Foam::mixingModel::mixingModel
 (
     const word& name,
     const dictionary& dict,
-    const volVectorField& U,
     const surfaceScalarField& phi
 )
 :
@@ -53,10 +52,5 @@ Foam::mixingModel::mixingModel
 
 Foam::mixingModel::~mixingModel()
 {}
-
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-
 
 // ************************************************************************* //

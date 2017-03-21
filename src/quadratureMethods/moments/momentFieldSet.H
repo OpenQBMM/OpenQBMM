@@ -90,6 +90,9 @@ class momentFieldSet
         //  within the List of moments
         Map<label> momentMap_;
 
+        //- Support of the measure associated to the moment moment set
+        word support_;
+
 
     // Private Member Functions
 
@@ -117,7 +120,8 @@ public:
             const word& distributionName,
             const dictionary& dict,
             const fvMesh& mesh,
-            const autoPtr<PtrList<nodeType>>& nodes
+            const autoPtr<PtrList<nodeType>>& nodes,
+            const word& support
         );
 
         //- Construct from size, quadrature nodes, dimensions and moment map
@@ -129,7 +133,8 @@ public:
             const label nMoments,
             const autoPtr<PtrList<nodeType>>& nodes,
             const label nDimensions,
-            const Map<label>& momentMap
+            const Map<label>& momentMap,
+            const word& support
         );
 
 
@@ -175,6 +180,9 @@ public:
 
             //- Return the dimensionality of the distribution
             inline label nDimensions() const;
+
+            //- Return support of the measure associated to the moment set
+            inline const word support() const;
 
             //- Recalculate the moments from the quadrature nodes
             void update();

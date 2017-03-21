@@ -84,7 +84,7 @@ void Foam::gaussRadauMomentInversion::correctRecurrence
         }
 
         alpha[nNodes_ - 1] =
-        minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;
+            minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;
     }
 }
 
@@ -107,7 +107,7 @@ void Foam::gaussRadauMomentInversion::calcNQuadratureNodes
         {
             nInvertibleMoments_ = nRealizableMoments;
             forceGauss_ = false;
-            nNodes_ = nInvertibleMoments_/2 + 1;
+            nNodes_ = (nInvertibleMoments_ - 1)/2 + 1;
         }
     }
     else

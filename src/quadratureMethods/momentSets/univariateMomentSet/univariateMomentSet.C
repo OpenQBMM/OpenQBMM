@@ -187,7 +187,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     }
 
     onMomentSpaceBoundary_ = false;
-    nRealizableMoments_ = nZeta + 1;
+    nRealizableMoments_ = nZeta;
 }
 
 void Foam::univariateMomentSet::checkRealizability()

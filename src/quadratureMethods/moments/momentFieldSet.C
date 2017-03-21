@@ -36,7 +36,8 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     const word& distributionName,
     const dictionary& dict,
     const fvMesh& mesh,
-    const autoPtr<PtrList<nodeType>>& nodes
+    const autoPtr<PtrList<nodeType>>& nodes,
+    const word& support
 )
 :
     PtrList<momentType>
@@ -48,12 +49,9 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     nodes_(nodes),
     nDimensions_((*this)[0].nDimensions()),
     nMoments_((*this).size()),
-    momentMap_(nMoments_)
+    momentMap_(nMoments_),
+    support_(support)
 {
-    // Check on the number of moments and nodes may go here.
-    // However, to keep the implementation generic, it is moved to a
-    // higher-level class where the specific quadrature method is implemented.
-
     // Populate the moment set
     forAll(*this, mI)
     {
@@ -76,7 +74,8 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     const label nMoments,
     const autoPtr<PtrList<nodeType>>& nodes,
     const label nDimensions,
-    const Map<label>& momentMap
+    const Map<label>& momentMap,
+    const word& support
 )
 :
     PtrList<momentType>(nMoments),
@@ -84,7 +83,8 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     nodes_(nodes),
     nDimensions_(nDimensions),
     nMoments_(nMoments),
-    momentMap_(momentMap)
+    momentMap_(momentMap),
+    support_(support)
 {}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

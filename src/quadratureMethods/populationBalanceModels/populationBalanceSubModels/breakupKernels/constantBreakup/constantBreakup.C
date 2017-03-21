@@ -74,11 +74,11 @@ Foam::populationBalanceSubModels::breakupKernels::constantBreakup::Kb
 (
     const volScalarField& abscissa
 ) const
-{   
+{
     dimensionedScalar minAbs
     (
-        "minAbs", 
-        abscissa.dimensions(), 
+        "minAbs",
+        abscissa.dimensions(),
         minAbscissa_.value()
     );
 

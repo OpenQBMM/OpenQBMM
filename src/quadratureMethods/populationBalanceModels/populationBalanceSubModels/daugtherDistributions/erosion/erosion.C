@@ -75,8 +75,8 @@ Foam::populationBalanceSubModels::daughterDistributions::erosion::mD
     const label order,
     const volScalarField& abscissa
 ) const
-{    
-    return pow(primarySize_, order) 
+{
+    return pow(primarySize_, order)
         + pow(pow3(abscissa) - pow3(primarySize_) , order/3.0);
 }
 

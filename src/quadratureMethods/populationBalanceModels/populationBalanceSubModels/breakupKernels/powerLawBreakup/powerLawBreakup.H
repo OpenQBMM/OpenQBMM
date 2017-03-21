@@ -57,15 +57,15 @@ class powerLawBreakup
     public breakupKernel
 {
 private:
-    
+
     // Private data
 
         //- Minimum value of the abscissa to apply the model
         dimensionedScalar minAbscissa_;
-        
+
         //- Exponent of the kernel
         scalar abscissaExponent_;
-    
+
 public:
 
         //- Runtime type information

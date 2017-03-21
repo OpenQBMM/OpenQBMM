@@ -68,8 +68,6 @@ int main(int argc, char *argv[])
     {
         #include "readControls.H"
 
-        #include "setDeltaT.H"
-
         runTime++;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 

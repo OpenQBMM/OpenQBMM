@@ -102,6 +102,6 @@
     (
         mixingModel::New
         (
-            "mixing", mixingProperties, U, phiByRho
+            "mixing", mixingProperties, phiByRho
         )
     );

@@ -26,15 +26,15 @@ Class
 
 Description
     Brownian aggregation kernel.
-    
+
     Reference
     \verbatim
-        "Versuch Einer Mathematischen Theorie Der Koagulationskinetic Kolloider 
+        "Versuch Einer Mathematischen Theorie Der Koagulationskinetic Kolloider
         Losunger"
         M X Smoluchowski
         Zeitschrift fur Physikalische Chemie
         Volume 92, Pages 129-142, 1917
-    \endverbatim    
+    \endverbatim
 
 SourceFiles
     Brownian.C

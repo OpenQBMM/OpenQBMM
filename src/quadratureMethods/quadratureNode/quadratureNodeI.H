@@ -2,11 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
--------------------------------------------------------------------------------
-2015-02-19 Alberto Passalacqua: Templated class on type of weight and abscissa.
-2015-11-05 Alberto Passalacqua: Added interface functions for secondary
-                                quadrature (not implemented).
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -28,82 +24,151 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType>
-const Foam::word& Foam::quadratureNode<weightType, abscissaType>::name() const
+template <class weightType, class abscissaType, class sigmaType>
+const Foam::word&
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::name() const
 {
     return name_;
 }
 
-template <class weightType, class abscissaType>
-inline bool Foam::quadratureNode<weightType, abscissaType>::extended() const
+template <class weightType, class abscissaType, class sigmaType>
+inline bool Foam::quadratureNode<weightType, abscissaType, sigmaType>::
+extended() const
 {
     return extended_;
 }
 
-template <class weightType, class abscissaType>
-Foam::label Foam::quadratureNode<weightType, abscissaType>::
+template <class weightType, class abscissaType, class sigmaType>
+Foam::label
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::
 nSecondaryNodes() const
 {
-    NotImplemented;
-    return 0;
+    return nSecondaryNodes_;
 }
 
-template <class weightType, class abscissaType>
+template <class weightType, class abscissaType, class sigmaType>
 const weightType&
-Foam::quadratureNode<weightType, abscissaType>::primaryWeight() const
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::
+primaryWeight() const
 {
     return weight_;
 }
 
-template <class weightType, class abscissaType>
-weightType& Foam::quadratureNode<weightType, abscissaType>::primaryWeight()
+template <class weightType, class abscissaType, class sigmaType>
+weightType&
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::primaryWeight()
 {
     return weight_;
 }
 
-template <class weightType, class abscissaType>
+template <class weightType, class abscissaType, class sigmaType>
 const abscissaType&
-Foam::quadratureNode<weightType, abscissaType>::primaryAbscissa() const
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::
+primaryAbscissa() const
 {
     return abscissa_;
 }
 
-template <class weightType, class abscissaType>
-abscissaType& Foam::quadratureNode<weightType, abscissaType>::primaryAbscissa()
+template <class weightType, class abscissaType, class sigmaType>
+abscissaType&
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::primaryAbscissa()
 {
     return abscissa_;
 }
 
-template <class weightType, class abscissaType>
+template <class weightType, class abscissaType, class sigmaType>
 const Foam::PtrList<weightType>&
-Foam::quadratureNode<weightType, abscissaType>::secondaryWeights() const
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::
+secondaryWeights() const
 {
-    NotImplemented;
-    return NullObjectRef<Foam::PtrList<weightType>>();
+    if (!extended_)
+    {
+        FatalErrorInFunction
+            << "Attempt to access secondary weights of a quadrature node" << nl
+            << "    not of extended type. "
+            << abort(FatalError);
+    }
+
+    return secondaryWeights_;
 }
 
-template <class weightType, class abscissaType>
+template <class weightType, class abscissaType, class sigmaType>
 Foam::PtrList<weightType>&
-Foam::quadratureNode<weightType, abscissaType>::secondaryWeights()
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::
+secondaryWeights()
 {
-    NotImplemented;
-    return NullObjectRef<Foam::PtrList<weightType>>();
+    if (!extended_)
+    {
+        FatalErrorInFunction
+            << "Attempt to access secondary weights of a quadrature node" << nl
+            << "    not of extended type. "
+            << abort(FatalError);
+    }
+    return secondaryWeights_;
 }
 
-template <class weightType, class abscissaType>
+template <class weightType, class abscissaType, class sigmaType>
 const Foam::PtrList<abscissaType>&
-Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae() const
+Foam::quadratureNode<weightType, abscissaType, sigmaType>
+::secondaryAbscissae() const
 {
-    NotImplemented;
-    return NullObjectRef<Foam::PtrList<abscissaType>>();
+    if (!extended_)
+    {
+        FatalErrorInFunction
+            << "Attempt to access secondary abscissae of a quadrature" << nl
+            << "   node not of extended type. "
+            << abort(FatalError);
+    }
+
+    return secondaryAbscissae_;
 }
 
-template <class weightType, class abscissaType>
+template <class weightType, class abscissaType, class sigmaType>
 Foam::PtrList<abscissaType>&
-Foam::quadratureNode<weightType, abscissaType>::secondaryAbscissae()
+Foam::quadratureNode<weightType, abscissaType, sigmaType>
+::secondaryAbscissae()
 {
-    NotImplemented;
-    return NullObjectRef<Foam::PtrList<abscissaType>>();
+    if (!extended_)
+    {
+        FatalErrorInFunction
+            << "Attempt to access secondary abscissae of a quadrature" << nl
+            << "   node not of extended type. "
+            << abort(FatalError);
+    }
+
+    return secondaryAbscissae_;
 }
+
+template <class weightType, class abscissaType, class sigmaType>
+const sigmaType&
+Foam::quadratureNode<weightType, abscissaType, sigmaType>
+::sigma() const
+{
+    if (!extended_)
+    {
+        FatalErrorInFunction
+            << "Attempt to access sigma field of a quadrature node not" << nl
+            << "   of extended type. "
+            << abort(FatalError);
+    }
+
+    return sigma_();
+}
+
+template <class weightType, class abscissaType, class sigmaType>
+sigmaType&
+Foam::quadratureNode<weightType, abscissaType, sigmaType>::sigma()
+{
+    if (!extended_)
+    {
+        FatalErrorInFunction
+            << "Attempt to access sigma field of a quadrature node not" << nl
+            << "   of extended type. "
+            << abort(FatalError);
+    }
+
+    return sigma_();
+}
+
 
 // ************************************************************************* //

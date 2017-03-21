@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -52,12 +52,11 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 (
     const word& name,
     const dictionary& dict,
-    const volVectorField& U,
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(name, dict, U.mesh(), U, phi, "RPlus"),
-    populationBalanceModel(name, dict, U, phi),
+    univariatePDFTransportModel(name, dict, phi.mesh(), phi, "RPlus"),
+    populationBalanceModel(name, dict, phi),
     name_(name),
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
@@ -102,7 +101,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
         Foam::populationBalanceSubModels::nucleationModel::New
         (
             dict.subDict("nucleationModel"),
-            U.mesh()
+            phi_.mesh()
         )
     )
 {}
@@ -131,13 +130,13 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             IOobject
             (
                 "aSource",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE,
                 false
             ),
-            U_.mesh(),
+            phi_.mesh(),
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
@@ -150,13 +149,52 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     }
 
     label order = moment.order();
-
     volScalarField& aggregationSource = aSource.ref();
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
-    forAll(quadrature_.nodes(), pNode1i)
+    if (!nodes[0].extended())   // Non-extended quadrature case
     {
-        const extendedVolScalarNode& node1 = quadrature_.nodes()[pNode1i];
+        forAll(nodes, pNode1i)
+        {
+            const volScalarNode& node1 = nodes[pNode1i];
+            const volScalarField& pWeight1 = node1.primaryWeight();
+            const volScalarField& pAbscissa1 = node1.primaryAbscissa();
 
+            forAll(nodes, pNode2i)
+            {
+                const volScalarNode& node2 = nodes[pNode2i];
+                const volScalarField& pWeight2 = node2.primaryWeight();
+                const volScalarField& pAbscissa2 = node2.primaryAbscissa();
+
+                tmp<volScalarField> aggInnerSum =
+                        pWeight1*
+                        (
+                            pWeight2*
+                            (
+                                0.5*pow // Birth
+                                (
+                                    pow3(pAbscissa1) + pow3(pAbscissa2),
+                                        order/3.0
+                                )
+                                - pow(pAbscissa1, order)
+                            )*aggregationKernel_->Ka(pAbscissa1, pAbscissa2)
+                        );
+
+                        aggregationSource.dimensions().reset
+                        (
+                            aggInnerSum().dimensions()
+                        );
+
+                        aggregationSource == aggregationSource + aggInnerSum();
+                }
+        }
+
+        return aSource;
+    }
+
+    forAll(nodes, pNode1i)      // Extended quadrature case
+    {
+        const volScalarNode& node1 = nodes[pNode1i];
         const volScalarField& pWeight1 = node1.primaryWeight();
 
         forAll(node1.secondaryWeights(), sNode1i)
@@ -166,10 +204,9 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             const volScalarField& sAbscissa1
                 = node1.secondaryAbscissae()[sNode1i];
 
-            forAll(quadrature_.nodes(), pNode2i)
+            forAll(nodes, pNode2i)
             {
-                const extendedVolScalarNode& node2 = quadrature_.nodes()[pNode2i];
-
+                const volScalarNode& node2 = nodes[pNode2i];
                 const volScalarField& pWeight2 = node2.primaryWeight();
 
                 forAll(node2.secondaryWeights(), sNode2i)
@@ -222,13 +259,13 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             IOobject
             (
                 "bSource",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE,
                 false
             ),
-            U_.mesh(),
+            phi_.mesh(),
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
@@ -241,12 +278,36 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     }
 
     label order = moment.order();
-
     volScalarField& breakupSource = bSource.ref();
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
-    forAll(quadrature_.nodes(), pNodeI)
+    if (!nodes[0].extended())
     {
-        const extendedVolScalarNode& node = quadrature_.nodes()[pNodeI];
+        forAll(nodes, pNodeI)
+        {
+            const volScalarNode& node = nodes[pNodeI];
+
+            tmp<volScalarField> bSrc = node.primaryWeight()
+                    *breakupKernel_->Kb(node.primaryAbscissa())
+                    *(
+                        daughterDistribution_->mD          //Birth
+                        (
+                            order,
+                            node.primaryAbscissa()
+                        )
+                    - pow(node.primaryAbscissa(), order)   //Death
+                    );
+
+            breakupSource.dimensions().reset(bSrc().dimensions());
+            breakupSource == breakupSource + bSrc;
+        }
+
+        return bSource;
+    }
+
+    forAll(nodes, pNodeI)
+    {
+        const volScalarNode& node = nodes[pNodeI];
 
         forAll(node.secondaryWeights(), sNodei)
         {
@@ -259,7 +320,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
                         order,
                         node.secondaryAbscissae()[sNodei]
                     )
-                  - pow(node.secondaryAbscissae()[sNodei], order)   //Death
+                  - pow(node.secondaryAbscissae()[sNodei], order)  //Death
                  );
 
             breakupSource.dimensions().reset(bSrc().dimensions());
@@ -293,13 +354,13 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             IOobject
             (
                 "gSource",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE,
                 false
             ),
-            U_.mesh(),
+            phi_.mesh(),
             dimensionedScalar("zero", dimless, 0.0)
         )
     );
@@ -321,17 +382,35 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     }
 
     volScalarField& growthSource = gSource.ref();
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
-    forAll(quadrature_.nodes(), pNodeI)
+    if (!nodes[0].extended())
     {
-        const extendedVolScalarNode& node = quadrature_.nodes()[pNodeI];
+        forAll(nodes, pNodeI)
+        {
+            const volScalarNode& node = nodes[pNodeI];
+
+            tmp<volScalarField> gSrc = node.primaryWeight()
+                    *growthModel_->Kg(node.primaryAbscissa())
+                    *order*pow(node.primaryAbscissa(), order - 1);
+
+            growthSource.dimensions().reset(gSrc().dimensions());
+            growthSource == growthSource + gSrc;
+        }
+
+        return gSource;
+    }
+
+    forAll(nodes, pNodeI)
+    {
+        const volScalarNode& node = nodes[pNodeI];
 
         forAll(node.secondaryWeights(), sNodei)
         {
             tmp<volScalarField> gSrc = node.primaryWeight()
                 *node.secondaryWeights()[sNodei]
                 *growthModel_->Kg(node.secondaryAbscissae()[sNodei])
-                *order*pow(node.secondaryAbscissae()[sNodei],order-1);
+                *order*pow(node.secondaryAbscissae()[sNodei], order - 1);
 
             growthSource.dimensions().reset(gSrc().dimensions());
             growthSource == growthSource + gSrc;
@@ -355,13 +434,13 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             IOobject
             (
                 "momentSource",
-                U_.mesh().time().timeName(),
-                U_.mesh(),
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE,
                 false
             ),
-            U_.mesh(),
+            phi_.mesh(),
             dimensionedScalar
             (
                 "zero",

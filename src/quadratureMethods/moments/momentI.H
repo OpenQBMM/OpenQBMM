@@ -29,32 +29,32 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class fieldType, class nodeType> 
+template <class fieldType, class nodeType>
 const Foam::word& Foam::moment<fieldType, nodeType>::name() const
 {
     return name_;
 }
 
-template <class fieldType, class nodeType> 
+template <class fieldType, class nodeType>
 const Foam::word& Foam::moment<fieldType, nodeType>::keyword() const
 {
     return name();
 }
 
-template <class fieldType, class nodeType> 
+template <class fieldType, class nodeType>
 Foam::label Foam::moment<fieldType, nodeType>::nDimensions() const
 {
     return nDimensions_;
 }
 
-template <class fieldType, class nodeType> 
+template <class fieldType, class nodeType>
 Foam::label Foam::moment<fieldType, nodeType>::order() const
 {
     return order_;
 }
 
-template <class fieldType, class nodeType> 
-const Foam::labelList& 
+template <class fieldType, class nodeType>
+const Foam::labelList&
 Foam::moment<fieldType, nodeType>::cmptOrders() const
 {
     return cmptOrders_;
