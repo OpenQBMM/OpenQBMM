@@ -2,6 +2,17 @@
 cd ${0%/*} || exit 1    # run from this directory
 set -x
 
+icoFoam -help > versionCheck
+
+if grep -r "OpenFOAM-3" versionCheck
+then
+    (unzip 3.x.zip)
+    (mv buoyantPbePimpleFoam.C applications/buoyantPbePimpleFoam)
+else
+    (unzip 2.x.zip)
+    (mv buoyantPbePimpleFoam.C applications/buoyantPbePimpleFoam)
+fi
+
 (cd src && ./Allwmake)
 
 wmake -all applications
