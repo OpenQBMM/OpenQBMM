@@ -341,6 +341,9 @@ void Foam::conditionalMomentInversion::cycleAlphaWheeler
 
         for (label nodei = 0; nodei < nNodes_[ai]; nodei++)
         {
+            //  If the number of nodes calculated from the univariate
+            //  moment inversion is less than the set number of nodes
+            //  set extra weights and abscissae to 0
             if (nodei >= momentInverter_().nNodes())
             {
                 weights_[dimi](pos) = scalar(0);

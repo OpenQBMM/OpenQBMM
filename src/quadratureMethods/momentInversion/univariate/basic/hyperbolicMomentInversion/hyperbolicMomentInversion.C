@@ -48,36 +48,25 @@ void Foam::hyperbolicMomentInversion::calculateCentralMoments
     const scalarList& moments
 )
 {
+    centralMoments_[0] = scalar(1);
+    centralMoments_[1] = scalar(0);
+
     if (nNodes_ == 1)
     {
-        centralMoments_[0] = scalar(1);
-        centralMoments_[1] = scalar(0);
+        return;
     }
-    else if (nNodes_ == 2)
+    if (nNodes_ > 1)
     {
-        centralMoments_[0] = scalar(1);
-        centralMoments_[1] = scalar(0);
         centralMoments_[2] =
             (
                 moments[0]*moments[2]
               - Foam::sqr(moments[1])
             )/Foam::sqr(moments[0]);
 
-        centralMoments_[3] = scalar(0);
+        return;
     }
-
-    else if (nNodes_ == 3)
+    if (nNodes_ > 2)
     {
-        centralMoments_[0] = scalar(1);
-
-        centralMoments_[1] = scalar(0);
-
-        centralMoments_[2] =
-            (
-                moments[0]*moments[2]
-              - Foam::sqr(moments[1])
-            )/Foam::sqr(moments[0]);
-
         centralMoments_[3] =
             (
                 Foam::sqr(moments[0])*moments[3]
@@ -93,12 +82,14 @@ void Foam::hyperbolicMomentInversion::calculateCentralMoments
               - 3.0*Foam::pow4(moments[1])
             )/Foam::pow4(moments[0]);
 
-        centralMoments_[5] =
-            centralMoments_[3]/Foam::sqr(centralMoments_[2])
-           /(
-                2.0*centralMoments_[2]*centralMoments_[4]
-              - Foam::sqr(centralMoments_[3])
-            );
+        return;
+    }
+    if (nNodes_ > 3)
+    {
+        FatalErrorInFunction
+            << "Hyperbolic moment inversion can handle a maximum of " << nl
+            << "3 nodes. " << nNodes_ << " were selected."
+            << abort(FatalError);
     }
 }
 
@@ -116,6 +107,8 @@ void Foam::hyperbolicMomentInversion::unscaleAbscissae
         weights_[nodei] *= m0;
     }
 }
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::hyperbolicMomentInversion::hyperbolicMomentInversion
@@ -155,10 +148,9 @@ void Foam::hyperbolicMomentInversion::calcNQuadratureNodes
 )
 {
     label nRealizableMoments = moments.nRealizableMoments();
-
     if (nRealizableMoments >= 2)
     {
-        if (nRealizableMoments % 2 != 0)
+        if ((nRealizableMoments + 1) % 2 != 0)
         {
             nInvertibleMoments_ = nRealizableMoments - 1;
         }
@@ -175,7 +167,7 @@ void Foam::hyperbolicMomentInversion::calcNQuadratureNodes
             << abort(FatalError);
     }
 
-    nNodes_ = nInvertibleMoments_/2;
+    nNodes_ = (nInvertibleMoments_ + 1)/2;
 
     if (nNodes_ > 3)
     {
@@ -199,30 +191,37 @@ void Foam::hyperbolicMomentInversion::invert
 {
     calcNQuadratureNodes(moments);
 
-    centralMoments_ = scalarList(moments.size(), scalar(0));
+    centralMoments_ = scalarList(2*nNodes_, scalar(0));
     calculateCentralMoments(moments);
-Info<< "central Moments: " << centralMoments_ << endl;
+
     if (nNodes_ == 1)
     {
         weights_[0] = moments[0];
         abscissae_[0] = moments[1]/moments[0];
 
+        return;
     }
-    else if (nNodes_ == 2)
+    if (nNodes_ == 2)
     {
+        //  Set weights
         weights_[0] = 0.5;
         weights_[1] = 0.5;
 
+        //  Set abscissae
         abscissae_[0] = Foam::sqrt(centralMoments_[2]);
         abscissae_[1] = -1*abscissae_[0];
 
+        //  Return to normal moment components
         unscaleAbscissae(moments);
+
+        return;
     }
-    else if (nNodes_ == 3)
+    if (nNodes_ == 3)
     {
         //  Calculate intermediate variables
         scalar q =
-            centralMoments_[3]/Foam::pow(centralMoments_[2], 1.5);
+            centralMoments_[3]
+           /(centralMoments_[2]*Foam::sqrt(centralMoments_[2]));
 
         scalar eta =
             centralMoments_[4]/Foam::sqr(centralMoments_[2]);
@@ -249,6 +248,7 @@ Info<< "central Moments: " << centralMoments_ << endl;
                   - 3.0*Foam::sqr(centralMoments_[3])
                 )
             );
+
         weights_[1] =
             1.0
           + centralMoments_[2]
@@ -265,8 +265,17 @@ Info<< "central Moments: " << centralMoments_ << endl;
                 )
             );
 
+        //  Return to normal moment components
         unscaleAbscissae(moments);
-    }
 
+        return;
+    }
+    if (nNodes_ > 3)
+    {
+        FatalErrorInFunction
+            << "Hyperbolic moment inversion can handle a maximum of " << nl
+            << "3 nodes. " << nNodes_ << " were selected."
+            << abort(FatalError);
+    }
 }
 // ************************************************************************* //

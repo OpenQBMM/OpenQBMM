@@ -25,8 +25,7 @@ Class
     Foam::hyperbolicMomentInversion
 
 Description
-    Performs analytic HyQMOM inversion on a moment set with an even numer of
-    moments.
+    Performs analytical HyQMOM inversion on a moment set
 
 SourceFiles
     hyperbolicMomentInversion.C

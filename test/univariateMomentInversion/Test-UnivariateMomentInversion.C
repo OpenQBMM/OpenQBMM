@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 {
     Info << "Testing univariateMomentInversion\n" << endl;
 
-    label nMoments = 6;
+    label nMoments = 5;
 
     Info<< "Reading quadratureProperties\n" << endl;
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     (
         nMoments,
         "R",
-        3
+        0
     );
 
     Info << "Moment set (empty): " << m << endl;
@@ -72,7 +72,6 @@ int main(int argc, char *argv[])
     m[2] = 1.5;
     m[3] = -1.5;
     m[4] = 4.5;
-    m[5] = -7.5;
 
     // Radau test
 //     m[0] = 1.0000;
