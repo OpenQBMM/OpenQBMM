@@ -76,6 +76,12 @@ class univariateMomentAdvection
         //- List of quadrature nodes used for moment advection
         autoPtr<PtrList<volScalarNode>> nodes_;
 
+        //- Field used to find upwind values of the owner
+        surfaceScalarField own_;
+
+        //- Field used to find upwind values of the neighbour
+        surfaceScalarField nei_;
+
         //- List of interpolated nodes (neighbour)
         autoPtr<PtrList<surfaceScalarNode>> nodesNei_;
 
