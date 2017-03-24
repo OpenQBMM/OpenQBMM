@@ -168,6 +168,10 @@ public:
             const scalarList& weights,
             const scalarList& abscissae
         );
+
+        inline scalar& operator[](const label);
+
+        inline const scalar& operator[](const label) const;
 };
 
 

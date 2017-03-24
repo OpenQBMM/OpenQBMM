@@ -84,4 +84,20 @@ Foam::label Foam::univariateMomentSet::nRealizableMoments()
     return nRealizableMoments_;
 }
 
+Foam::scalar& Foam::univariateMomentSet::operator[](const label i)
+{
+    degenerate_ = false;
+    fullyRealizable_ = true;
+    subsetRealizable_ = true;
+    onMomentSpaceBoundary_ = false;
+    realizabilityChecked_ = false;
+
+    return scalarList::operator[](i);
+}
+
+const Foam::scalar& Foam::univariateMomentSet::operator[](const label i) const
+{
+    return scalarList::operator[](i);
+}
+
 // ************************************************************************* //
