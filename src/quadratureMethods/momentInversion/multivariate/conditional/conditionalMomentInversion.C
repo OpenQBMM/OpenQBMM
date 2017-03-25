@@ -283,11 +283,18 @@ void Foam::conditionalMomentInversion::setVR
         scalarDiagonalMatrix x(nNodes_[dimi], 0.0);
         scalarSquareMatrix invR(nNodes_[dimi], 0.0);
 
-        for (label i = 0; i < nNodes_[dimi]; i++)
+        for (label nodei = 0; nodei < nNodes_[dimi]; nodei++)
         {
-            pos[dimi] = i;
-            x[i] = abscissae_[dimi](pos);
-            invR[i][i] = 1.0/weights_[dimi](pos);
+            if (nodei >= momentInverter_().nNodes())
+            {
+                weights_[dimi](pos) = scalar(0);
+                abscissae_[dimi](pos) = scalar(0);
+                continue;
+            }
+
+            pos[dimi] = nodei;
+            x[nodei] = abscissae_[dimi](pos);
+            invR[nodei][nodei] = 1.0/weights_[dimi](pos);
         }
 
         Vandermonde V(x);
@@ -298,7 +305,7 @@ void Foam::conditionalMomentInversion::setVR
 
         if (dimi > 0)
         {
-            for (label ai = 0; ai < pos.size(); ai++)
+            for (label ai = 0; ai < posVR.size(); ai++)
             {
                 posVR[ai] = pos[ai];
             }
