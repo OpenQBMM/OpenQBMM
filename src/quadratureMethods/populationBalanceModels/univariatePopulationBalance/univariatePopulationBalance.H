@@ -106,6 +106,7 @@ class univariatePopulationBalance
             Foam::populationBalanceSubModels::diffusionModel
         > diffusionModel_;
 
+        //- Nucleation model
         autoPtr
         <
             Foam::populationBalanceSubModels::nucleationModel
@@ -134,12 +135,17 @@ class univariatePopulationBalance
             const volUnivariateMoment& moment
         );
 
-        //- Calculate source terms
-        virtual tmp<fvScalarMatrix> momentSource
+        //- Calculate explicit source terms
+        virtual tmp<volScalarField> explicitMomentSource
         (
             const volUnivariateMoment& moment
         );
 
+        //- Calculate implicit source terms
+        virtual tmp<fvScalarMatrix> implicitMomentSource
+        (
+            const volUnivariateMoment& moment
+        );
 
 public:
 

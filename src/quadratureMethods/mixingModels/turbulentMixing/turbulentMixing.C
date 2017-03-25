@@ -119,9 +119,35 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing
     return gSource;
 }
 
+Foam::tmp<Foam::volScalarField>
+Foam::PDFTransportModels::mixingModels::turbulentMixing::explicitMomentSource
+(
+    const volUnivariateMoment& moment
+)
+{
+    tmp<volScalarField> expSource
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "expSource",
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            phi_.mesh(),
+            dimensionedScalar("zero", moment.dimensions()/dimTime, 0.0)
+        )
+    );
+
+    return expSource;
+}
+
 Foam::tmp<Foam::fvScalarMatrix>
-Foam::PDFTransportModels::mixingModels::turbulentMixing
-::momentSource
+Foam::PDFTransportModels::mixingModels::turbulentMixing::implicitMomentSource
 (
     const volUnivariateMoment& moment
 )

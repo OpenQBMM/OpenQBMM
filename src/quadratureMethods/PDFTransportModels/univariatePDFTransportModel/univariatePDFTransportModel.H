@@ -78,8 +78,14 @@ protected:
             const volUnivariateMoment& moment
         ) = 0;
 
-        //- Calculate source terms
-        virtual tmp<fvScalarMatrix> momentSource
+        //- Calculate implicit source terms
+        virtual tmp<fvScalarMatrix> implicitMomentSource
+        (
+            const volUnivariateMoment& moment
+        ) = 0;
+
+        //- Calculate implicit source terms
+        virtual tmp<volScalarField> explicitMomentSource
         (
             const volUnivariateMoment& moment
         ) = 0;

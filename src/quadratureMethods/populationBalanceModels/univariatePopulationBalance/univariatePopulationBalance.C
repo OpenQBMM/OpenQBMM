@@ -420,14 +420,43 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return gSource;
 }
 
-Foam::tmp<Foam::fvScalarMatrix>
+Foam::tmp<Foam::volScalarField>
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
-::momentSource
+::explicitMomentSource
 (
     const volUnivariateMoment& moment
 )
 {
-    tmp<fvScalarMatrix> mSource
+    tmp<volScalarField> expSource
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "expSource",
+                phi_.mesh().time().timeName(),
+                phi_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            phi_.mesh(),
+            dimensionedScalar("zero", moment.dimensions()/dimTime, 0.0)
+        )
+    );
+
+    return expSource;
+}
+
+
+Foam::tmp<Foam::fvScalarMatrix>
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::implicitMomentSource
+(
+    const volUnivariateMoment& moment
+)
+{
+    tmp<fvScalarMatrix> impSource
     (
         new fvScalarMatrix
         (
@@ -436,11 +465,11 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
         )
     );
 
-    mSource.ref() +=
+    impSource.ref() +=
         aggregationSource(moment) + breakupSource(moment)
         + nucleationModel_->nucleationSource(moment);
 
-    return mSource;
+    return impSource;
 }
 
 void Foam::PDFTransportModels::populationBalanceModels

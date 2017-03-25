@@ -78,7 +78,8 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
               + momentAdvection_.divMoments()[momenti]
               - momentDiffusion(m)
               ==
-                momentSource(m)
+                implicitMomentSource(m)
+              + explicitMomentSource(m)
               + phaseSpaceConvection(m)
             )
         );

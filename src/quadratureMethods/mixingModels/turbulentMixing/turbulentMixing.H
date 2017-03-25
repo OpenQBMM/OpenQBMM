@@ -87,8 +87,14 @@ class turbulentMixing
             const volUnivariateMoment& moment
         );
 
-        //- Calculate source terms
-        virtual tmp<fvScalarMatrix> momentSource
+        //- Calculate explicit source terms
+        virtual tmp<volScalarField> explicitMomentSource
+        (
+            const volUnivariateMoment& moment
+        );
+
+        //- Calculate implicit source terms
+        virtual tmp<fvScalarMatrix> implicitMomentSource
         (
             const volUnivariateMoment& moment
         );
