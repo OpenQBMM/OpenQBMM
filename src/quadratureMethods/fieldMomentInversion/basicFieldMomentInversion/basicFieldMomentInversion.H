@@ -100,16 +100,27 @@ public:
 
     // Public member Functions
 
+        //- Invert moments in the entire computational domain
         virtual void invert
         (
             const volUnivariateMomentFieldSet& moments,
             PtrList<volScalarNode>& nodes
         );
 
+        //- Invert moments on boundaries
         virtual void invertBoundaryMoments
         (
             const volUnivariateMomentFieldSet& moments,
             PtrList<volScalarNode>& nodes
+        );
+
+        //- Invert moments in a single cell
+        virtual bool invertLocalMoments
+        (
+            const volUnivariateMomentFieldSet& moments,
+            PtrList<volScalarNode>& nodes,
+            const label celli,
+            const bool fatalErrorOnFailedRealizabilityTest = true
         );
 };
 

@@ -129,5 +129,28 @@ void Foam::quadratureApproximation<momentFieldSetType, nodeType>
     moments_.update();
 }
 
+template<class momentFieldSetType, class nodeType>
+void Foam::quadratureApproximation<momentFieldSetType, nodeType>
+::updateLocalMoments(label celli)
+{
+    moments_.updateLocalMoments(celli);
+}
+
+template<class momentFieldSetType, class nodeType>
+bool Foam::quadratureApproximation<momentFieldSetType, nodeType>
+::updateLocalQuadrature(label celli, bool fatalErrorOnFailedRealizabilityTest)
+{
+    bool realizable = momentFieldInverter_().invertLocalMoments
+    (
+        moments_, nodes(), celli, false
+    );
+
+    if(!realizable && fatalErrorOnFailedRealizabilityTest)
+    {
+        return realizable;
+    }
+
+    moments_.updateLocalMoments(celli);
+}
 
 // ************************************************************************* //

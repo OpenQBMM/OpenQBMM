@@ -105,5 +105,14 @@ void Foam::momentFieldSet<momentType, nodeType>::update()
     }
 }
 
+template <class momentType, class nodeType>
+void Foam::momentFieldSet<momentType, nodeType>
+::updateLocalMoments(label elemi)
+{
+    forAll(*this, mI)
+    {
+        this->operator[](mI).updateLocalMoment(elemi);
+    }
+}
 
 // ************************************************************************* //

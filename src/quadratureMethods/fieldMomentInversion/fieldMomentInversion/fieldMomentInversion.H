@@ -38,6 +38,7 @@ SourceFiles
 
 #include "runTimeSelectionTables.H"
 #include "quadratureNodes.H"
+#include "univariateMomentSet.H"
 #include "momentFieldSets.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -116,7 +117,7 @@ public:
 
     // Member Functions
 
-        //- Invert moment field set
+        //- Invert moments in the entire computational domain
         virtual void invert
         (
             const volUnivariateMomentFieldSet& moments,
@@ -128,6 +129,15 @@ public:
         (
             const volUnivariateMomentFieldSet& moments,
             PtrList<volScalarNode>& nodes
+        ) = 0;
+
+        //- Invert moments in a single cell
+        virtual bool invertLocalMoments
+        (
+            const volUnivariateMomentFieldSet& moments,
+            PtrList<volScalarNode>& nodes,
+            const label celli,
+            const bool fatalErrorOnFailedRealizabilityTest = true
         ) = 0;
 
         //- Return extended type

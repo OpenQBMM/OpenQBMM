@@ -119,6 +119,9 @@ public:
             //- Return name
             inline const word name() const;
 
+            //- Extended moment inversion method
+            inline fieldMomentInversion& momentFieldInverter();
+
             //- Return the nodes
             inline const PtrList<nodeType>& nodes() const;
 
@@ -142,6 +145,17 @@ public:
 
             //- Recalculate the moments from the quadrature nodes
             void updateMoments();
+
+            //- Recalculate moments in the specified cell
+            void updateLocalMoments(label celli);
+
+            //- Recalculate the quadrature nodes from the moments in the
+            //  specified cell
+            bool updateLocalQuadrature
+            (
+                label celli,
+                bool fatalErrorOnFailedRealizabilityTest = true
+            );
 };
 
 

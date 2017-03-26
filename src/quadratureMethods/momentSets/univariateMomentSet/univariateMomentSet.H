@@ -83,7 +83,10 @@ class univariateMomentSet
      // Private member functions
 
         //- Check moment realizability
-        void checkRealizability();
+        void checkRealizability
+        (
+            bool fatalErrorOnFailedRealizabilityTest = true
+        );
 
         //- Checks canonical moments for measures with support over [0,1]
         void checkCanonicalMoments
@@ -143,14 +146,29 @@ public:
         //- Returns degenerate status of the moment set
         inline bool isDegenerate();
 
-        //- Return realizability status of the moment set
-        inline bool isFullyRealizable();
+        //- Return true if the entire moment set is realizable
+        inline bool isFullyRealizable
+        (
+            bool fatalErrorOnFailedRealizabilityTest = true
+        );
 
-        //- Return realizability status of the moment subsets
-        inline bool isSubsetRealizable();
+        //- Return true if some moments are realizable
+        inline bool isRealizable
+        (
+            bool fatalErrorOnFailedRealizabilityTest = true
+        );
+
+        //- Return true if a subset of moments is realizable
+        inline bool isSubsetRealizable
+        (
+            bool fatalErrorOnFailedRealizabilityTest = true
+        );
 
         //- Return true if the moment set is on the boundary of the moment space
-        inline bool isOnMomentSpaceBoundary();
+        inline bool isOnMomentSpaceBoundary
+        (
+            bool fatalErrorOnFailedRealizabilityTest = true
+        );
 
         //- Return moment orders
         const labelListList& momentOrders() const
@@ -160,7 +178,10 @@ public:
         };
 
         //- Return the number of realizable moments
-        inline label nRealizableMoments();
+        inline label nRealizableMoments
+        (
+            bool fatalErrorOnFailedRealizabilityTest = true
+        );
 
         //- Update moments from the corresponding quadrature
         virtual void update

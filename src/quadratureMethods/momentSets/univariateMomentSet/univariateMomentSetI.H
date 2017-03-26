@@ -44,41 +44,68 @@ bool Foam::univariateMomentSet::isDegenerate()
     return degenerate_;
 }
 
-bool Foam::univariateMomentSet::isFullyRealizable()
+bool Foam::univariateMomentSet::isFullyRealizable
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
 {
     if (!realizabilityChecked_)
     {
-        checkRealizability();
+        checkRealizability(fatalErrorOnFailedRealizabilityTest);
     }
 
     return fullyRealizable_;
 }
 
-bool Foam::univariateMomentSet::isSubsetRealizable()
+bool Foam::univariateMomentSet::isRealizable
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
 {
     if (!realizabilityChecked_)
     {
-        checkRealizability();
+        checkRealizability(fatalErrorOnFailedRealizabilityTest);
+    }
+
+    bool realizable = fullyRealizable_ || subsetRealizable_;
+
+    return realizable;
+}
+
+bool Foam::univariateMomentSet::isSubsetRealizable
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
+{
+    if (!realizabilityChecked_)
+    {
+        checkRealizability(fatalErrorOnFailedRealizabilityTest);
     }
 
     return subsetRealizable_;
 }
 
-bool Foam::univariateMomentSet::isOnMomentSpaceBoundary()
+bool Foam::univariateMomentSet::isOnMomentSpaceBoundary
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
 {
     if (!realizabilityChecked_)
     {
-        checkRealizability();
+        checkRealizability(fatalErrorOnFailedRealizabilityTest);
     }
 
     return onMomentSpaceBoundary_;
 }
 
-Foam::label Foam::univariateMomentSet::nRealizableMoments()
+Foam::label Foam::univariateMomentSet::nRealizableMoments
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
 {
     if (!realizabilityChecked_)
     {
-        checkRealizability();
+        checkRealizability(fatalErrorOnFailedRealizabilityTest);
     }
 
     return nRealizableMoments_;

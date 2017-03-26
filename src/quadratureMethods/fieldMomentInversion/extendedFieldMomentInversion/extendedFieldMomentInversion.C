@@ -82,66 +82,7 @@ void Foam::extendedFieldMomentInversion::invert
 
     forAll(m0, celli)
     {
-        univariateMomentSet momentsToInvert
-        (
-            moments.size(),
-            moments.support()
-        );
-
-        // Copying moment set from a cell to univariateMomentSet
-        forAll(momentsToInvert, momenti)
-        {
-            momentsToInvert[momenti] = moments[momenti][celli];
-        }
-
-        // Inverting moments and updating EQMOM
-        momentInverter_().invert(momentsToInvert);
-
-        // Recovering primary weights and abscissae from moment inverter
-        const scalarList& pWeights(momentInverter_().primaryWeights());
-
-        const scalarList& pAbscissae
-        (
-            momentInverter_().primaryAbscissae()
-        );
-
-        // Copying EQMOM quadrature to fields
-        for (label pNodei = 0; pNodei < nodes.size(); pNodei++)
-        {
-            volScalarNode& node(nodes[pNodei]);
-
-            // Copy primary node
-            node.primaryWeight()[celli] = pWeights[pNodei];
-            node.primaryAbscissa()[celli] = pAbscissae[pNodei];
-
-            // Copy secondary nodes
-            PtrList<volScalarField>& sWeightFields(node.secondaryWeights());
-            PtrList<volScalarField>& sAbscissaFields(node.secondaryAbscissae());
-
-            const scalarRectangularMatrix& sWeights
-            (
-                momentInverter_().secondaryWeights()
-            );
-
-            const scalarRectangularMatrix& sAbscissae
-            (
-                momentInverter_().secondaryAbscissae()
-            );
-
-            for
-            (
-                label sNodei = 0;
-                sNodei < nodes[0].nSecondaryNodes();
-                sNodei++
-            )
-            {
-                sWeightFields[sNodei][celli] = sWeights[pNodei][sNodei];
-                sAbscissaFields[sNodei][celli] = sAbscissae[pNodei][sNodei];
-            }
-
-            // Copy sigma
-            node.sigma()[celli] = momentInverter_().sigma();
-        }
+        invertLocalMoments(moments, nodes, celli);
     }
 
     invertBoundaryMoments(moments, nodes);
@@ -209,6 +150,86 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
             }
         }
     }
+}
+
+bool Foam::extendedFieldMomentInversion::invertLocalMoments
+(
+    const volUnivariateMomentFieldSet& moments,
+    PtrList<volScalarNode>& nodes,
+    const label celli,
+    const bool fatalErrorOnFailedRealizabilityTest
+)
+{
+    univariateMomentSet momentsToInvert
+    (
+        moments.size(),
+        moments.support()
+    );
+
+    // Copying moment set from a cell to univariateMomentSet
+    forAll(momentsToInvert, momenti)
+    {
+        momentsToInvert[momenti] = moments[momenti][celli];
+    }
+
+    if (!fatalErrorOnFailedRealizabilityTest)
+    {
+        if (!momentsToInvert.isRealizable(fatalErrorOnFailedRealizabilityTest))
+        {
+            return false;
+        }
+    }
+
+    // Inverting moments and updating EQMOM
+    momentInverter_().invert(momentsToInvert);
+
+    // Recovering primary weights and abscissae from moment inverter
+    const scalarList& pWeights(momentInverter_().primaryWeights());
+
+    const scalarList& pAbscissae
+    (
+        momentInverter_().primaryAbscissae()
+    );
+
+    // Copying EQMOM quadrature to fields
+    for (label pNodei = 0; pNodei < nodes.size(); pNodei++)
+    {
+        volScalarNode& node(nodes[pNodei]);
+
+        // Copy primary node
+        node.primaryWeight()[celli] = pWeights[pNodei];
+        node.primaryAbscissa()[celli] = pAbscissae[pNodei];
+
+        // Copy secondary nodes
+        PtrList<volScalarField>& sWeightFields(node.secondaryWeights());
+        PtrList<volScalarField>& sAbscissaFields(node.secondaryAbscissae());
+
+        const scalarRectangularMatrix& sWeights
+        (
+            momentInverter_().secondaryWeights()
+        );
+
+        const scalarRectangularMatrix& sAbscissae
+        (
+            momentInverter_().secondaryAbscissae()
+        );
+
+        for
+        (
+            label sNodei = 0;
+            sNodei < nodes[0].nSecondaryNodes();
+            sNodei++
+        )
+        {
+            sWeightFields[sNodei][celli] = sWeights[pNodei][sNodei];
+            sAbscissaFields[sNodei][celli] = sAbscissae[pNodei][sNodei];
+        }
+
+        // Copy sigma
+        node.sigma()[celli] = momentInverter_().sigma();
+    }
+
+    return true;
 }
 
 // ************************************************************************* //

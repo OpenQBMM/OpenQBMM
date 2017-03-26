@@ -190,7 +190,10 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     nRealizableMoments_ = nZeta;
 }
 
-void Foam::univariateMomentSet::checkRealizability()
+void Foam::univariateMomentSet::checkRealizability
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
 {
     if (realizabilityChecked_)
     {
@@ -198,12 +201,23 @@ void Foam::univariateMomentSet::checkRealizability()
     }
 
     // If the zero-order moment is negative, exit immediately.
-    if ((*this)[0] < 0.0)
+    if ((*this)[0] < 0.0 && fatalErrorOnFailedRealizabilityTest)
     {
         FatalErrorInFunction
             << "The zero-order moment is negative." << nl
             << "    Moment set: " << (*this)
             << abort(FatalError);
+    }
+    else
+    {
+        realizabilityChecked_ = true;
+        negativeZeta_ = 0;
+        nRealizableMoments_ = 0;
+        fullyRealizable_ = false;
+        subsetRealizable_ = false;
+        onMomentSpaceBoundary_ = false;
+
+        return;
     }
 
     // Check for the degenerate case where only m0 is defined
@@ -232,6 +246,7 @@ void Foam::univariateMomentSet::checkRealizability()
             nRealizableMoments_ = 2;
             fullyRealizable_ = true;
             subsetRealizable_ = true;
+            onMomentSpaceBoundary_ = false;
 
             return;
         }
@@ -251,16 +266,23 @@ void Foam::univariateMomentSet::checkRealizability()
                 return;
             }
 
-            negativeZeta_ = 1;
-            nRealizableMoments_ = 1;
-            fullyRealizable_ = false;
-            subsetRealizable_ = true;
-            onMomentSpaceBoundary_ = false;
-
-            FatalErrorInFunction
-                << "Moment set with dimension 2 and only one realizable moment."
+            if (fatalErrorOnFailedRealizabilityTest)
+            {
+                FatalErrorInFunction
+                << "Moment set with dimension 2 and only one valid moment."
                 << nl << "    Moment set: " << (*this)
                 << abort(FatalError);
+            }
+            else
+            {
+                negativeZeta_ = 1;
+                nRealizableMoments_ = 1;
+                fullyRealizable_ = false;
+                subsetRealizable_ = false;
+                onMomentSpaceBoundary_ = false;
+
+                return;
+            }
         }
 
         if (support_ == "RPlus")
@@ -307,16 +329,23 @@ void Foam::univariateMomentSet::checkRealizability()
                     return;
                 }
 
-                negativeZeta_ = 1;
-                nRealizableMoments_ = 1;
-                fullyRealizable_ = false;
-                subsetRealizable_ = true;
-
-                FatalErrorInFunction
-                    << "Moment set with dimension 2 and only one "
-                    << "realizable moment." << nl
-                    << "    Moment set: " << (*this)
+                if (fatalErrorOnFailedRealizabilityTest)
+                {
+                    FatalErrorInFunction
+                    << "Moment set with dimension 2 and only one valid moment."
+                    << nl << "    Moment set: " << (*this)
                     << abort(FatalError);
+                }
+                else
+                {
+                    negativeZeta_ = 1;
+                    nRealizableMoments_ = 1;
+                    fullyRealizable_ = false;
+                    subsetRealizable_ = false;
+                    onMomentSpaceBoundary_ = false;
+
+                    return;
+                }
             }
         }
     }
@@ -353,16 +382,23 @@ void Foam::univariateMomentSet::checkRealizability()
             return;
         }
 
-        negativeZeta_ = 1;
-        nRealizableMoments_ = 1;
-        fullyRealizable_ = false;
-        subsetRealizable_ = true;
-        onMomentSpaceBoundary_ = false;
+        if (fatalErrorOnFailedRealizabilityTest)
+        {
+            FatalErrorInFunction
+                << "Moment set with only one valid moment."
+                << nl << "    Moment set: " << (*this)
+                << abort(FatalError);
+        }
+        else
+        {
+            negativeZeta_ = 1;
+            nRealizableMoments_ = 1;
+            fullyRealizable_ = false;
+            subsetRealizable_ = false;
+            onMomentSpaceBoundary_ = false;
 
-        FatalErrorInFunction
-            << "Moment set with only one realizable moment." << nl
-            << "    Moment set: " << (*this)
-            << abort(FatalError);
+            return;
+        }
     }
 
     for (label zetai = 1; zetai <= nD - 1; zetai++)

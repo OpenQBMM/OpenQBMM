@@ -197,6 +197,9 @@ public:
 
             //- Update the moment from the quadrature nodes
             void update();
+
+            //- Update the moment from the quadrature nodes in a single element
+            void updateLocalMoment(label elemi);
 };
 
 

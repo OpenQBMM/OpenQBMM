@@ -187,6 +187,9 @@ public:
             //- Recalculate the moments from the quadrature nodes
             void update();
 
+            //- Recalculate the moments from the quadrature nodes in an element
+            void updateLocalMoments(label elemi);
+
             //- Return the map label of a moment
             label map(label a, label b, label c) const
             {

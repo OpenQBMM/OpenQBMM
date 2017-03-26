@@ -33,6 +33,14 @@ Foam::quadratureApproximation<momentFieldSetType, nodeType>::name() const
 }
 
 template <class momentFieldSetType, class nodeType>
+Foam::fieldMomentInversion&
+Foam::quadratureApproximation<momentFieldSetType, nodeType>
+::momentFieldInverter()
+{
+    return momentFieldInverter_();
+}
+
+template <class momentFieldSetType, class nodeType>
 const Foam::PtrList<nodeType>&
 Foam::quadratureApproximation<momentFieldSetType, nodeType>::nodes() const
 {

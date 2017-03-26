@@ -89,50 +89,7 @@ void Foam::basicFieldMomentInversion::invert
 
     forAll(m0, celli)
     {
-        univariateMomentSet momentsToInvert
-        (
-            moments.size(),
-            moments.support(),
-            0.0,                         // Initial value
-            nFixedQuadraturePoints_
-        );
-
-        // Copy moment set from a cell to univariateMomentSet
-        forAll(momentsToInvert, momenti)
-        {
-            momentsToInvert[momenti] = moments[momenti][celli];
-        }
-
-        // Find quadrature
-        momentInverter_().invert
-        (
-            momentsToInvert,
-            minKnownAbscissa_,
-            maxKnownAbscissa_
-        );
-
-        label maxNodes = nodes.size();
-        label actualNodes = momentInverter_().nNodes();
-
-        // Recovering quadrature
-        const scalarList& weights(momentInverter_().weights());
-        const scalarList& abscissae(momentInverter_().abscissae());
-
-        for (label nodei = 0; nodei < maxNodes; nodei++)
-        {
-            volScalarNode& node(nodes[nodei]);
-
-            if (nodei < actualNodes)
-            {
-                node.primaryWeight()[celli] = weights[nodei];
-                node.primaryAbscissa()[celli] = abscissae[nodei];
-            }
-            else
-            {
-                node.primaryWeight()[celli] = 0.0;
-                node.primaryAbscissa()[celli] = 0.0;
-            }
-        }
+        invertLocalMoments(moments, nodes, celli);
     }
 
     invertBoundaryMoments(moments, nodes);
@@ -169,7 +126,12 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             }
 
             // Find quadrature
-            momentInverter_().invert(momentsToInvert);
+            momentInverter_().invert
+            (
+                momentsToInvert,
+                minKnownAbscissa_,
+                maxKnownAbscissa_
+            );
 
             label maxNodes = nodes.size();
             label actualNodes = momentInverter_().nNodes();
@@ -201,6 +163,70 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             }
         }
     }
+}
+
+bool Foam::basicFieldMomentInversion::invertLocalMoments
+(
+    const volUnivariateMomentFieldSet& moments,
+    PtrList<volScalarNode>& nodes,
+    const label celli,
+    const bool fatalErrorOnFailedRealizabilityTest
+)
+{
+    univariateMomentSet momentsToInvert
+    (
+        moments.size(),
+        moments.support(),
+        0.0,                         // Initial value
+        nFixedQuadraturePoints_
+    );
+
+    // Copying moments from cell
+    forAll(momentsToInvert, momenti)
+    {
+        momentsToInvert[momenti] = moments[momenti][celli];
+    }
+
+    if (!fatalErrorOnFailedRealizabilityTest)
+    {
+        if (!momentsToInvert.isRealizable(fatalErrorOnFailedRealizabilityTest))
+        {
+            return false;
+        }
+    }
+
+    // Find quadrature
+    momentInverter_().invert
+    (
+        momentsToInvert,
+        minKnownAbscissa_,
+        maxKnownAbscissa_
+    );
+
+    label maxNodes = nodes.size();
+    label actualNodes = momentInverter_().nNodes();
+
+    // Recovering quadrature
+    const scalarList& weights(momentInverter_().weights());
+    const scalarList& abscissae(momentInverter_().abscissae());
+
+    for (label nodei = 0; nodei < maxNodes; nodei++)
+    {
+        volScalarNode& node(nodes[nodei]);
+
+        if (nodei < actualNodes)
+        {
+            node.primaryWeight()[celli] = weights[nodei];
+            node.primaryAbscissa()[celli] = abscissae[nodei];
+        }
+        else
+        {
+            node.primaryWeight()[celli] = 0.0;
+            node.primaryAbscissa()[celli] = 0.0;
+        }
+    }
+
+    return true;
 }
 
 // ************************************************************************* //
