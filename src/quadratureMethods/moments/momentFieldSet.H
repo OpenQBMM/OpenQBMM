@@ -9,6 +9,8 @@
                                 quadrature node.
 2015-06-13 Alberto Passalacqua: Introduced autoPtr to the PtrList of nodes to
                                 improve initialization of nodes.
+2017-03-26 Alberto Passalacqua: Added the capability to recompute moments
+                                locally.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.

@@ -80,6 +80,7 @@ class univariateMomentSet
         //- Number of realizable moments
         label nRealizableMoments_;
 
+
      // Private member functions
 
         //- Check moment realizability

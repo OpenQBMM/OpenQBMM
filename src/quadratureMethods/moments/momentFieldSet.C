@@ -7,6 +7,8 @@
 -------------------------------------------------------------------------------
 2015-03-10 Alberto Passalacqua: Templated class on the type of moment and of
                                 quadrature node.
+2017-03-26 Alberto Passalacqua: Added the capability to recompute moments
+                                locally.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.

@@ -8,6 +8,8 @@
 2015-03-09 Alberto Passalacqua: Templated class on the type of field used to
                                 store the moment and on the type of quadrature
                                 node.
+2017-03-26 Alberto Passalacqua: Added the capability to recompute the moment
+                                locally.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
