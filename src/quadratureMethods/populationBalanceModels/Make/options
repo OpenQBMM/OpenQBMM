@@ -17,8 +17,7 @@ EXE_INC = \
     -I../fieldMomentInversion/lnInclude \
     -I../quadratureApproximation \
     -I../momentAdvection/lnInclude \
-    -I../PDFTransportModels/lnInclude \
-    -DFULLDEBUG -g -O0
+    -I../PDFTransportModels/lnInclude
 
 LIB_LIBS = \
     -lincompressibleTransportModels \

@@ -5,8 +5,7 @@ EXE_INC = \
     -I../moments \
     -I../momentSets/lnInclude \
     -I../momentInversion/univariate/basic/lnInclude \
-    -I../momentInversion/univariate/extended/lnInclude \
-    -DFULLDEBUG -g -O0
+    -I../momentInversion/univariate/extended/lnInclude
 
 LIB_LIBS = \
     -lfiniteVolume \

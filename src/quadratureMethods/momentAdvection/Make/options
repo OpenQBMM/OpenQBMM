@@ -6,8 +6,7 @@ EXE_INC = \
     -I../momentSets/lnInclude \
     -I../momentInversion/univariate/basic/lnInclude \
     -I../fieldMomentInversion/lnInclude \
-    -I../quadratureApproximation \
-    -DFULLDEBUG -g -O0
+    -I../quadratureApproximation
 
 LIB_LIBS = \
     -lfiniteVolume \
