@@ -15,8 +15,7 @@ EXE_INC = \
     -I$../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
     -I$../../../src/quadratureMethods/quadratureApproximation \
     -I$../../../src/quadratureMethods/momentAdvection/lnInclude \
-    -I$../../../src/quadratureMethods/populationBalanceModels/lnInclude \
-    -DFULLDEBUG -g -O0
+    -I$../../../src/quadratureMethods/populationBalanceModels/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \

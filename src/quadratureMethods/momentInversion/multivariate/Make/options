@@ -3,8 +3,7 @@ EXE_INC = \
     -I../../../Vandermonde/lnInclude \
     -I../../../nDimensionalMappedList \
     -I../../momentSets/lnInclude \
-    -I../univariate/basic/lnInclude \
-    -DFULLDEBUG -g -O0
+    -I../univariate/basic/lnInclude
 
 LIB_LIBS = \
     -lfiniteVolume \
