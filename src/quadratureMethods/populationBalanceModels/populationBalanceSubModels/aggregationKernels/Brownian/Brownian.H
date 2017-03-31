@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -45,6 +45,7 @@ SourceFiles
 #define Brownian_H
 
 #include "aggregationKernel.H"
+#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -63,6 +64,18 @@ class Brownian
 :
     public aggregationKernel
 {
+    //- Private data
+
+        //- Thermo model
+        const fluidThermo& flThermo_;
+
+        //- Temperature field
+        const volScalarField& T_;
+
+        //- Viscosity field
+        const volScalarField& mu_;
+
+
 public:
 
         //- Runtime type information
@@ -72,7 +85,11 @@ public:
     // Constructors
 
         //- Construct from components
-        Brownian(const dictionary& dict);
+        Brownian
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor
@@ -82,10 +99,11 @@ public:
     // Member Functions
 
         //- Aggregation kernel
-        virtual tmp<volScalarField> Ka
+        virtual scalar Ka
         (
-            const volScalarField& abscissa1,
-            const volScalarField& abscissa2
+            const scalar& abscissa1,
+            const scalar& abscissa2,
+            const label& celli
         ) const;
 
 };

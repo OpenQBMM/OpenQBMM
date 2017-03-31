@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -66,7 +66,11 @@ protected:
 
     // Protected data
 
+        //- Dictionary
         const dictionary& dict_;
+
+        //- Mesh
+        const fvMesh& mesh_;
 
         //- Coefficient of aggregation kernel
         const dimensionedScalar Cb_;
@@ -84,23 +88,29 @@ public:
         breakupKernel,
         dictionary,
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const fvMesh& mesh
         ),
-        (dict)
+        (dict, mesh)
     );
 
 
     // Constructors
 
         //- Construct from components
-        breakupKernel(const dictionary& dict);
+        breakupKernel
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     // Selectors
 
         static autoPtr<breakupKernel> New
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const fvMesh& mesh
         );
 
 
@@ -111,9 +121,10 @@ public:
     // Member Functions
 
         //- Breakup kernel
-        virtual tmp<volScalarField> Kb
+        virtual scalar Kb
         (
-            const volScalarField& abscissa
+            const scalar& abscissa,
+            const label& celli
         ) const = 0;
 };
 

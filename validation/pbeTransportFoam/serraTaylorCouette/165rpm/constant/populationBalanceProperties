@@ -66,6 +66,16 @@ univariateCoeffs
         gammaLam        gammaLam    [ 0 2 -1 0 0 0 0 ] 0.0001;
         Sc              0.7;
     }
+
+    odeCoeffs
+    {
+        ATol    1.0e-8;
+        RTol    1.0e-4;
+        fac     0.9;
+        facMin  0.5;
+        facMax  2.0;
+        minLocalDt 1.0e-5;
+    }
 }
 
 

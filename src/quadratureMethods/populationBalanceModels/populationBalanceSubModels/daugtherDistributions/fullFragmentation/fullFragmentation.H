@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -81,10 +81,10 @@ public:
     // Member Functions
 
         //- Moment of the daughter distribution function
-        virtual tmp<volScalarField> mD
+        virtual scalar mD
         (
-            const label order,
-            const volScalarField& abscissa
+            const label& order,
+            const scalar& abscissa
         ) const;
 
 };

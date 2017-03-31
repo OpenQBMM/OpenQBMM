@@ -44,6 +44,7 @@ SourceFiles
 #define LuoSvendsen_H
 
 #include "breakupKernel.H"
+#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -78,6 +79,15 @@ private:
         //- Exponent of the abscissa
         scalar sizeExp_;
 
+        //- Turbulence model
+        const compressible::turbulenceModel& flTurb_;
+
+        //- Turbulent dissipation rate
+        const volScalarField& epsilon_;
+
+        //- Kinematic viscosity
+        const volScalarField& nu_;
+
 public:
 
         //- Runtime type information
@@ -87,7 +97,11 @@ public:
     // Constructors
 
         //- Construct from components
-        LuoSvendsen(const dictionary& dict);
+        LuoSvendsen
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor
@@ -97,9 +111,10 @@ public:
     // Member Functions
 
         //- Breakup kernel
-        virtual tmp<volScalarField> Kb
+        virtual scalar Kb
         (
-            const volScalarField& abscissa
+            const scalar& abscissa,
+            const label& celli
         ) const;
 
 };

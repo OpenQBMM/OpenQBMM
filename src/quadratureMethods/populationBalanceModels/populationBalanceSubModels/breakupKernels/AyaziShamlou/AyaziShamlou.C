@@ -25,7 +25,6 @@ License
 
 #include "AyaziShamlou.H"
 #include "addToRunTimeSelectionTable.H"
-#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -53,14 +52,26 @@ namespace breakupKernels
 Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
 ::AyaziShamlou
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    breakupKernel(dict),
+    breakupKernel(dict, mesh),
     A_(dict.lookup("A")),
     df_(dict.lookup("df")),
     H0_(dict.lookup("H0")),
-    primarySize_(dict.lookup("primarySize"))
+    primarySize_(dict.lookup("primarySize")),
+    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
+    flTurb_
+    (
+        mesh_.lookupObject<compressible::turbulenceModel>
+        (
+            turbulenceModel::propertiesName
+        )
+    ),
+    epsilon_(flTurb_.epsilon()),
+    mu_(flThermo_.mu()),
+    nu_(flTurb_.nu())
 {}
 
 
@@ -72,62 +83,32 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::~AyaziShamlou()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
 (
-    const volScalarField& abscissa
+    const scalar& abscissa,
+    const label& celli
 ) const
 {
-    if (!abscissa.db().foundObject<fluidThermo>(basicThermo::dictName))
-    {
-        FatalErrorInFunction
-            << "No valid thermophysical model found."
-            << abort(FatalError);
-    }
-
-    const fluidThermo& flThermo =
-        abscissa.db().lookupObject<fluidThermo>(basicThermo::dictName);
-
-    typedef compressible::turbulenceModel cmpTurbModel;
-
-    if
-    (
-        !abscissa.db().foundObject<cmpTurbModel>
-        (
-            cmpTurbModel::propertiesName
-        )
-    )
-    {
-        FatalErrorInFunction
-            << "No valid compressible turbulence model found."
-            << abort(FatalError);
-    }
-
-    const cmpTurbModel& flTurb =
-        abscissa.db().lookupObject<cmpTurbModel>
-        (
-            turbulenceModel::propertiesName
-        );
-
     // Interparticle force
-    dimensionedScalar F = A_*primarySize_/(12.0*sqr(H0_));
+    scalar F = A_.value()*primarySize_.value()/(12.0*sqr(H0_.value()));
 
     // Coefficient of volume fraction (Vanni, 2000)
-    dimensionedScalar C = 0.41*df_ - 0.211;
+    scalar C = 0.41*df_.value() - 0.211;
 
     // Volume fraction of solid within aggregates
-    volScalarField phiL(C*pow(abscissa/primarySize_, df_ - 3.0));
+    scalar phiL = C*pow(abscissa/primarySize_.value(), df_.value() - 3.0);
 
     // Coordination number
-    volScalarField kc(15.0*pow(phiL, 1.2));
+    scalar kc = 15.0*pow(phiL, 1.2);
 
     // Aggregation strength
-    volScalarField sigma(9.0*kc*phiL*F/(8.0*sqr(primarySize_)
-            *Foam::constant::mathematical::pi));
+    scalar sigma = 9.0*kc*phiL*F/(8.0*sqr(primarySize_.value())
+            *Foam::constant::mathematical::pi);
 
-    volScalarField epsilonByNu(flTurb.epsilon()/flThermo.nu());
+    scalar epsilonByNu = epsilon_[celli]/nu_[celli];
 
-    volScalarField tau(flThermo.mu()*sqrt(epsilonByNu));
+    scalar tau = mu_[celli]*sqrt(epsilonByNu);
 
     return sqrt(epsilonByNu/15.0)*exp(-sigma/tau);
 }

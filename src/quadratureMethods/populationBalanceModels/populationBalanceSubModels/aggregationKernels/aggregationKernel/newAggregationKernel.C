@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -30,7 +30,8 @@ License
 Foam::autoPtr<Foam::populationBalanceSubModels::aggregationKernel>
 Foam::populationBalanceSubModels::aggregationKernel::New
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 {
     word aggregationKernelType(dict.lookup("aggregationKernel"));
@@ -51,7 +52,7 @@ Foam::populationBalanceSubModels::aggregationKernel::New
             << abort(FatalError);
     }
 
-    return autoPtr<aggregationKernel>(cstrIter()(dict));
+    return autoPtr<aggregationKernel>(cstrIter()(dict, mesh));
 }
 
 

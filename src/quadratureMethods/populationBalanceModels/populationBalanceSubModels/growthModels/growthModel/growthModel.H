@@ -26,7 +26,7 @@ Class
 
 Description
     Abstract class for growth model.
-    
+
 SourceFiles
     growthModel.C
 
@@ -52,7 +52,7 @@ namespace populationBalanceSubModels
 \*---------------------------------------------------------------------------*/
 
 class growthModel
-{   
+{
     // Private member functions
 
         //- Disallow default bitwise copy construct
@@ -111,9 +111,9 @@ public:
     // Member Functions
 
         //- Growth model
-        virtual tmp<volScalarField> Kg
+        virtual scalar Kg
         (
-            const volScalarField& abscissa
+            const scalar& abscissa
         ) const = 0;
 };
 

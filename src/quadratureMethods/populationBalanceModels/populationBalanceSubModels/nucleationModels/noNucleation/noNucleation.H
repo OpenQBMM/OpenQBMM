@@ -77,9 +77,10 @@ public:
     // Member Functions
 
         //- Growth model
-        virtual tmp<volScalarField> nucleationSource
+        virtual scalar nucleationSource
         (
-            const volUnivariateMoment& moment
+            const label& momentOrder,
+            const label& celli
         ) const;
 };
 

@@ -5,6 +5,8 @@
     \\  /    A nd           | Copyright (C) 2015 Matteo Icardi
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
+2017-03-28 Alberto Passalacqua: Adapted to single scalar calculation.
+-------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
 
@@ -86,9 +88,9 @@ public:
     // Member Functions
 
         //- Growth model
-        virtual tmp<volScalarField> Kg
+        virtual scalar Kg
         (
-            const volScalarField& abscissa
+            const scalar& abscissa
         ) const;
 
 };

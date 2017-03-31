@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -69,15 +69,15 @@ Foam::populationBalanceSubModels::daughterDistributions::erosion
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::daughterDistributions::erosion::mD
 (
-    const label order,
-    const volScalarField& abscissa
+    const label& order,
+    const scalar& abscissa
 ) const
 {
-    return pow(primarySize_, order)
-        + pow(pow3(abscissa) - pow3(primarySize_) , order/3.0);
+    return pow(primarySize_.value(), order)
+        + pow(pow3(abscissa) - pow3(primarySize_.value()), order/3.0);
 }
 
 // ************************************************************************* //

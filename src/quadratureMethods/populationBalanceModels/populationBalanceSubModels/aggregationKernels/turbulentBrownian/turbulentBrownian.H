@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -55,6 +55,7 @@ SourceFiles
 #define turbulentBrownian_H
 
 #include "aggregationKernel.H"
+#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -73,6 +74,27 @@ class turbulentBrownian
 :
     public aggregationKernel
 {
+    // Private data
+
+        //- Thermo model
+        const fluidThermo& flThermo_;
+
+        //- Turbulence model
+        const compressible::turbulenceModel& flTurb_;
+
+        //- Temperature field
+        const volScalarField& T_;
+
+        //- Kinematic viscosity field
+        const volScalarField& nu_;
+
+        //- Dynamic viscosity field
+        const volScalarField& mu_;
+
+        //- Turbulent dissipation rate field
+        const volScalarField& epsilon_;
+
+
 public:
 
         //- Runtime type information
@@ -82,7 +104,11 @@ public:
     // Constructors
 
         //- Construct from components
-        turbulentBrownian(const dictionary& dict);
+        turbulentBrownian
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor
@@ -92,10 +118,11 @@ public:
     // Member Functions
 
         //- Aggregation kernel
-        virtual tmp<volScalarField> Ka
+        virtual scalar Ka
         (
-            const volScalarField& abscissa1,
-            const volScalarField& abscissa2
+            const scalar& abscissa1,
+            const scalar& abscissa2,
+            const label& celli
         ) const;
 
 };

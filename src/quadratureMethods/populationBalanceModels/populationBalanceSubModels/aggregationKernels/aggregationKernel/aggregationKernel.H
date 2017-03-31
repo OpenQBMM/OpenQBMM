@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -26,7 +26,7 @@ Class
 
 Description
     Abstract class for aggregation kernels.
-    
+
 SourceFiles
     aggregationKernel.C
 
@@ -52,7 +52,7 @@ namespace populationBalanceSubModels
 \*---------------------------------------------------------------------------*/
 
 class aggregationKernel
-{   
+{
     // Private member functions
 
         //- Disallow default bitwise copy construct
@@ -66,7 +66,11 @@ protected:
 
     // Protected data
 
+        //- Dictionary
         const dictionary& dict_;
+
+        //- Mesh
+        const fvMesh& mesh_;
 
         //- Coefficient of aggregation kernel
         const dimensionedScalar Ca_;
@@ -84,23 +88,29 @@ public:
         aggregationKernel,
         dictionary,
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const fvMesh& mesh
         ),
-        (dict)
+        (dict, mesh)
     );
 
 
     // Constructors
 
         //- Construct from components
-        aggregationKernel(const dictionary& dict);
+        aggregationKernel
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     // Selectors
 
         static autoPtr<aggregationKernel> New
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const fvMesh& mesh
         );
 
 
@@ -111,10 +121,11 @@ public:
     // Member Functions
 
         //- Aggregation kernel
-        virtual tmp<volScalarField> Ka
+        virtual scalar Ka
         (
-            const volScalarField& abscissa1,
-            const volScalarField& abscissa2
+            const scalar& abscissa1,
+            const scalar& abscissa2,
+            const label& celli
         ) const = 0;
 };
 

@@ -45,6 +45,7 @@ SourceFiles
 #define AyaziShamlou_H
 
 #include "breakupKernel.H"
+#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -79,6 +80,22 @@ private:
         //- Primary particle size
         dimensionedScalar primarySize_;
 
+        //- Thermo model
+        const fluidThermo& flThermo_;
+
+        //- Turbulence model
+        const compressible::turbulenceModel& flTurb_;
+
+        //- Turbulent dissipation rate
+        const volScalarField& epsilon_;
+
+        //- Dynamic viscosity
+        const volScalarField& mu_;
+
+        //- Kinematic viscosity
+        const volScalarField& nu_;
+
+
 public:
 
         //- Runtime type information
@@ -88,7 +105,11 @@ public:
     // Constructors
 
         //- Construct from components
-        AyaziShamlou(const dictionary& dict);
+        AyaziShamlou
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor
@@ -98,9 +119,10 @@ public:
     // Member Functions
 
         //- Breakup kernel
-        virtual tmp<volScalarField> Kb
+        virtual scalar Kb
         (
-            const volScalarField& abscissa
+            const scalar& abscissa,
+            const label& celli
         ) const;
 
 };

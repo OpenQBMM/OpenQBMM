@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -42,16 +42,18 @@ namespace populationBalanceSubModels
 
 Foam::populationBalanceSubModels::breakupKernel::breakupKernel
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
     dict_(dict),
+    mesh_(mesh),
     Cb_
     (
         dict.lookupOrDefault
         (
-            "Cb", 
-            dimensionedScalar("one", inv(dimTime), 1.0)  
+            "Cb",
+            dimensionedScalar("one", inv(dimTime), 1.0)
         )
     )
 {}

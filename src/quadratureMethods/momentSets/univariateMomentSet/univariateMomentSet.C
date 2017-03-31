@@ -201,23 +201,26 @@ void Foam::univariateMomentSet::checkRealizability
     }
 
     // If the zero-order moment is negative, exit immediately.
-    if ((*this)[0] < 0.0 && fatalErrorOnFailedRealizabilityTest)
+    if ((*this)[0] < 0.0)
     {
-        FatalErrorInFunction
-            << "The zero-order moment is negative." << nl
-            << "    Moment set: " << (*this)
-            << abort(FatalError);
-    }
-    else
-    {
-        realizabilityChecked_ = true;
-        negativeZeta_ = 0;
-        nRealizableMoments_ = 0;
-        fullyRealizable_ = false;
-        subsetRealizable_ = false;
-        onMomentSpaceBoundary_ = false;
+        if(fatalErrorOnFailedRealizabilityTest)
+        {
+            FatalErrorInFunction
+                << "The zero-order moment is negative." << nl
+                << "    Moment set: " << (*this)
+                << abort(FatalError);
+        }
+        else
+        {
+            realizabilityChecked_ = true;
+            negativeZeta_ = 0;
+            nRealizableMoments_ = 0;
+            fullyRealizable_ = false;
+            subsetRealizable_ = false;
+            onMomentSpaceBoundary_ = false;
 
-        return;
+            return;
+        }
     }
 
     // Check for the degenerate case where only m0 is defined

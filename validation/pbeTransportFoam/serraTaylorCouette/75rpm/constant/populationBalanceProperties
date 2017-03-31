@@ -71,9 +71,11 @@ univariateCoeffs
     odeCoeffs
     {
         ATol    1.0e-8;
-        RTol    1.0e-6;
-        fac     0.8;
-        facMin  1e-2;
+        RTol    1.0e-4;
+        fac     0.9;
+        facMin  0.5;
+        facMax  2.0;
+        minLocalDt 1.0e-5;
     }
 }
 

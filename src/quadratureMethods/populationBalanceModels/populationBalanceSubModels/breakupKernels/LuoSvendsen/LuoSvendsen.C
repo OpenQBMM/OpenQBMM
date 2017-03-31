@@ -25,7 +25,6 @@ License
 
 #include "LuoSvendsen.H"
 #include "addToRunTimeSelectionTable.H"
-#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -53,14 +52,24 @@ namespace breakupKernels
 Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen
 ::LuoSvendsen
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    breakupKernel(dict),
+    breakupKernel(dict, mesh),
     Cb_(dict.lookup("Cb")),
     epsilonExp_(readScalar(dict.lookup("epsilonExp"))),
     nuExp_(readScalar(dict.lookup("nuExp"))),
-    sizeExp_(readScalar(dict.lookup("sizeExp")))
+    sizeExp_(readScalar(dict.lookup("sizeExp"))),
+    flTurb_
+    (
+        mesh_.lookupObject<compressible::turbulenceModel>
+        (
+            turbulenceModel::propertiesName
+        )
+    ),
+    epsilon_(flTurb_.epsilon()),
+    nu_(flTurb_.nu())
 {}
 
 
@@ -72,35 +81,15 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::~LuoSvendsen()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::Kb
 (
-    const volScalarField& abscissa
+    const scalar& abscissa,
+    const label& celli
 ) const
 {
-    typedef compressible::turbulenceModel cmpTurbModel;
-
-    if
-    (
-        !abscissa.db().foundObject<cmpTurbModel>
-        (
-            cmpTurbModel::propertiesName
-        )
-    )
-    {
-        FatalErrorInFunction
-            << "No valid compressible turbulence model found."
-            << abort(FatalError);
-    }
-
-    const cmpTurbModel& flTurb =
-        abscissa.db().lookupObject<cmpTurbModel>
-        (
-            cmpTurbModel::propertiesName
-        );
-
-    return Cb_*pow(flTurb.epsilon(), epsilonExp_)
-        *pow(flTurb.nu(), nuExp_)*pow(abscissa, sizeExp_);
+    return Cb_.value()*pow(epsilon_[celli], epsilonExp_)
+        *pow(nu_[celli], nuExp_)*pow(abscissa, sizeExp_);
 }
 
 // ************************************************************************* //

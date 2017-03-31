@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -68,11 +68,11 @@ Foam::populationBalanceSubModels::daughterDistributions::oneQuarterMassRatio
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::daughterDistributions::oneQuarterMassRatio::mD
 (
-    const label order,
-    const volScalarField& abscissa
+    const label& order,
+    const scalar& abscissa
 ) const
 {
     scalar exponent = order/3.0;

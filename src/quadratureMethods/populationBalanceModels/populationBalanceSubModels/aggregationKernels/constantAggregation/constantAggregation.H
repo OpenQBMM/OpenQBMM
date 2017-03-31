@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -64,7 +64,11 @@ public:
     // Constructors
 
         //- Construct from components
-        constantAggregation(const dictionary& dict);
+        constantAggregation
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor
@@ -74,10 +78,11 @@ public:
     // Member Functions
 
         //- Aggregation kernel
-        virtual tmp<volScalarField> Ka
+        virtual scalar Ka
         (
-            const volScalarField& abscissa1,
-            const volScalarField& abscissa2
+            const scalar& abscissa1,
+            const scalar& abscissa2,
+            const label& celli
         ) const;
 
 };

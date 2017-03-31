@@ -52,10 +52,11 @@ namespace breakupKernels
 Foam::populationBalanceSubModels::breakupKernels::constantBreakup
 ::constantBreakup
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    breakupKernel(dict),
+    breakupKernel(dict, mesh),
     minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0))
 {}
 
@@ -69,20 +70,14 @@ Foam::populationBalanceSubModels::breakupKernels::constantBreakup
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::constantBreakup::Kb
 (
-    const volScalarField& abscissa
+    const scalar& abscissa,
+    const label& celli
 ) const
 {
-    dimensionedScalar minAbs
-    (
-        "minAbs",
-        abscissa.dimensions(),
-        minAbscissa_.value()
-    );
-
-    return Cb_*pos(abscissa - minAbs);
+    return Cb_.value()*pos(abscissa - minAbscissa_.value());
 }
 
 // ************************************************************************* //

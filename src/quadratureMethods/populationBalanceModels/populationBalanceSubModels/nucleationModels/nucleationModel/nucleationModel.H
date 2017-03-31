@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -118,9 +118,10 @@ public:
     // Member Functions
 
         //- Nucleation rate
-        virtual tmp<volScalarField> nucleationSource
+        virtual scalar nucleationSource
         (
-            const volUnivariateMoment& moment
+            const label& momentOrder,
+            const label& celli
         ) const = 0;
 };
 

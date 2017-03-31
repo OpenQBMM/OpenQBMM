@@ -5,6 +5,8 @@
     \\  /    A nd           | Copyright (C) 2015 Matteo Icardi
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
+2017-03-28 Alberto Passalacqua: Adapted to single scalar calculation.
+-------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
 
@@ -70,21 +72,14 @@ Foam::populationBalanceSubModels::growthModels::constantGrowth
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::growthModels::constantGrowth::Kg
 (
-    const volScalarField& abscissa
+    const scalar& abscissa
 ) const
 {
-    dimensionedScalar oneAbs
-    (
-        "oneAbs",
-        dimVolume/sqr(abscissa.dimensions()),
-        1.0
-    );
-
-    return Cg_*pos(-abscissa + maxAbscissa_)
-        *pos(abscissa - minAbscissa_)*oneAbs;
+    return Cg_.value()*pos(-abscissa + maxAbscissa_.value())
+            *pos(abscissa - minAbscissa_.value());
 }
 
 // ************************************************************************* //

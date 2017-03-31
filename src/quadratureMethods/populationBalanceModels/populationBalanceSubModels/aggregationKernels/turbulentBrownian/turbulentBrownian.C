@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,7 +25,6 @@ License
 
 #include "turbulentBrownian.H"
 #include "addToRunTimeSelectionTable.H"
-#include "turbulentFluidThermoModel.H"
 #include "fundamentalConstants.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -54,10 +53,23 @@ namespace aggregationKernels
 Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
 ::turbulentBrownian
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    aggregationKernel(dict)
+    aggregationKernel(dict, mesh),
+    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
+    flTurb_
+    (
+        mesh_.lookupObject<compressible::turbulenceModel>
+        (
+            turbulenceModel::propertiesName
+        )
+    ),
+    T_(flThermo_.T()),
+    nu_(flTurb_.nu()),
+    mu_(flThermo_.mu()),
+    epsilon_(flTurb_.epsilon())
 {}
 
 
@@ -70,53 +82,19 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
 (
-    const volScalarField& abscissa1,
-    const volScalarField& abscissa2
+    const scalar& abscissa1,
+    const scalar& abscissa2,
+    const label& celli
 ) const
 {
-    if (!abscissa1.db().foundObject<fluidThermo>(basicThermo::dictName))
-    {
-        FatalErrorInFunction
-            << "No valid thermophysical model found."
-            << abort(FatalError);
-    }
-
-    const fluidThermo& flThermo =
-        abscissa1.db().lookupObject<fluidThermo>(basicThermo::dictName);
-
-    typedef compressible::turbulenceModel cmpTurbModel;
-
-    if
-    (
-        !abscissa1.db().foundObject<cmpTurbModel>
-        (
-            cmpTurbModel::propertiesName
-        )
-    )
-    {
-        FatalErrorInFunction
-            << "No valid compressible turbulence model found."
-            << abort(FatalError);
-    }
-
-    const compressible::turbulenceModel& flTurb =
-        abscissa1.db().lookupObject<compressible::turbulenceModel>
-        (
-            turbulenceModel::propertiesName
-        );
-
-    dimensionedScalar smallAbs("smallAbs", sqr(abscissa1.dimensions()), SMALL);
-
-    return
-        2.0*Foam::constant::physicoChemical::k*flThermo.T()
-        *sqr(abscissa1 + abscissa2)/(3.0*flThermo.mu()
-        *max(abscissa1*abscissa2, smallAbs))
-        + 4.0/3.0*pow3(abscissa1 + abscissa2)
-        *sqrt(3.0*Foam::constant::mathematical::pi*flTurb.epsilon()
-        /(10.0*flTurb.nu()));
+    return 2.0*Foam::constant::physicoChemical::k.value()*T_[celli]
+        *sqr(abscissa1 + abscissa2)/(3.0*mu_[celli]
+        *max(abscissa1*abscissa2, SMALL)) + 4.0/3.0*pow3(abscissa1 + abscissa2)
+        *sqrt(3.0*Foam::constant::mathematical::pi*epsilon_[celli]
+        /(10.0*nu_[celli]));
 }
 
 // ************************************************************************* //

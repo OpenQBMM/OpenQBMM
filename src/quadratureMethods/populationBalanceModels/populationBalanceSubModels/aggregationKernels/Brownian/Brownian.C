@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,7 +25,6 @@ License
 
 #include "Brownian.H"
 #include "addToRunTimeSelectionTable.H"
-#include "turbulentFluidThermoModel.H"
 #include "fundamentalConstants.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -54,10 +53,14 @@ namespace aggregationKernels
 Foam::populationBalanceSubModels::aggregationKernels::Brownian
 ::Brownian
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    aggregationKernel(dict)
+    aggregationKernel(dict, mesh),
+    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
+    T_(flThermo_.T()),
+    mu_(flThermo_.mu())
 {}
 
 
@@ -70,29 +73,17 @@ Foam::populationBalanceSubModels::aggregationKernels::Brownian
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::aggregationKernels::Brownian::Ka
 (
-    const volScalarField& abscissa1,
-    const volScalarField& abscissa2
+    const scalar& abscissa1,
+    const scalar& abscissa2,
+    const label& celli
 ) const
 {
-    if (!abscissa1.mesh().foundObject<fluidThermo>(basicThermo::dictName))
-    {
-        FatalErrorInFunction
-            << "No valid thermophysical model found."
-            << abort(FatalError);
-    }
-
-    const fluidThermo& flThermo =
-        abscissa1.mesh().lookupObject<fluidThermo>(basicThermo::dictName);
-
-    dimensionedScalar smallAbs("smallAbs", sqr(abscissa1.dimensions()), SMALL);
-
-    return
-        2.0*Foam::constant::physicoChemical::k*flThermo.T()
-        *sqr(abscissa1 + abscissa2)/(3.0*flThermo.mu()
-        *max(abscissa1*abscissa2, smallAbs));
+    return 2.0*Foam::constant::physicoChemical::k.value()*T_[celli]
+            *sqr(abscissa1 + abscissa2)/(3.0*mu_[celli]
+            *max(abscissa1*abscissa2, SMALL));
 }
 
 // ************************************************************************* //

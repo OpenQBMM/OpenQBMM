@@ -25,7 +25,6 @@ License
 
 #include "Miller.H"
 #include "addToRunTimeSelectionTable.H"
-#include "turbulentFluidThermoModel.H"
 #include "fundamentalConstants.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -73,7 +72,9 @@ Foam::populationBalanceSubModels::nucleationModels::Miller::Miller
             IOobject::AUTO_WRITE
         ),
         mesh
-    )
+    ),
+    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
+    T_(flThermo_.T())
 {}
 
 
@@ -85,25 +86,25 @@ Foam::populationBalanceSubModels::nucleationModels::Miller::~Miller()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::nucleationModels::Miller
-::nucleationSource(const volUnivariateMoment& moment) const
+Foam::scalar
+Foam::populationBalanceSubModels::nucleationModels::Miller::nucleationSource
+(
+    const label& momentOrder,
+    const label& celli
+) const
 {
-    const fluidThermo& flThermo =
-        mesh_.lookupObject<fluidThermo>(basicThermo::dictName);
+    scalar NA = Foam::constant::physicoChemical::NA.value();
+    scalar MCarbon = MCarbon_.value();
 
-    dimensionedScalar abscissaNucleation =
-        2.0*MCarbon_*nCarbonDimer_
-        /(rhoSoot_*Foam::constant::physicoChemical::NA);
+    scalar abscissaNucleation =
+        2.0*MCarbon*nCarbonDimer_.value()/(rhoSoot_.value()*NA);
 
     return 4.4*sqrt(Foam::constant::mathematical::pi
-        *Foam::constant::physicoChemical::k*flThermo.T()
-        *Foam::constant::physicoChemical::NA
-        /nCarbonPAM_*MCarbon_)*pow(6.0*nCarbonPAM_*MCarbon_
-        /(Foam::constant::mathematical::pi*rhoSoot_
-        *Foam::constant::physicoChemical::NA), 2.0/3.0)
-        *Foam::constant::physicoChemical::NA*sqr(pamConcentration_)
-        *pow(abscissaNucleation, moment.order());
+        *Foam::constant::physicoChemical::k.value()*T_[celli]*NA
+        /nCarbonPAM_.value()*MCarbon)*pow(6.0*nCarbonPAM_.value()*MCarbon
+        /(Foam::constant::mathematical::pi*rhoSoot_.value()
+        *NA), 2.0/3.0)*NA*sqr(pamConcentration_[celli])
+        *pow(abscissaNucleation, momentOrder);
 }
 
 // ************************************************************************* //

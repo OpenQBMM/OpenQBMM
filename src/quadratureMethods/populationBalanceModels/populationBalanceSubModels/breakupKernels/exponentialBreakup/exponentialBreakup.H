@@ -75,7 +75,11 @@ public:
     // Constructors
 
         //- Construct from components
-        exponentialBreakup(const dictionary& dict);
+        exponentialBreakup
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor
@@ -85,9 +89,10 @@ public:
     // Member Functions
 
         //- Breakup kernel
-        virtual tmp<volScalarField> Kb
+        virtual scalar Kb
         (
-            const volScalarField& abscissa
+            const scalar& abscissa,
+            const label& celli
         ) const;
 
 };

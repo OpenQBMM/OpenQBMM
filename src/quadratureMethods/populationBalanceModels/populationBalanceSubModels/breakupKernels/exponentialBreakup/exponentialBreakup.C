@@ -52,10 +52,11 @@ namespace breakupKernels
 Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup
 ::exponentialBreakup
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    breakupKernel(dict),
+    breakupKernel(dict, mesh),
     minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0)),
     expCoeff_
     (
@@ -77,20 +78,15 @@ Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup::Kb
 (
-    const volScalarField& abscissa
+    const scalar& abscissa,
+    const label& celli
 ) const
 {
-    dimensionedScalar minAbs
-    (
-        "minAbs",
-        abscissa.dimensions(),
-        minAbscissa_.value()
-    );
-
-    return Cb_*pos(abscissa - minAbs)*exp(expCoeff_*pow3(abscissa));
+    return Cb_.value()*pos(abscissa - minAbscissa_.value())
+            *exp(expCoeff_.value()*pow3(abscissa));
 }
 
 // ************************************************************************* //

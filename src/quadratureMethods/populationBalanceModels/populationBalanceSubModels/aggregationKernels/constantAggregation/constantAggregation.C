@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -52,10 +52,11 @@ namespace aggregationKernels
 Foam::populationBalanceSubModels::aggregationKernels::constantAggregation
 ::constantAggregation
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    aggregationKernel(dict)
+    aggregationKernel(dict, mesh)
 {}
 
 
@@ -68,33 +69,15 @@ Foam::populationBalanceSubModels::aggregationKernels::constantAggregation
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::aggregationKernels::constantAggregation::Ka
 (
-    const volScalarField& abscissa1,
-    const volScalarField& abscissa2
+    const scalar& abscissa1,
+    const scalar& abscissa2,
+    const label& celli
 ) const
 {
-    return
-        tmp<volScalarField>
-        (
-            new volScalarField
-            (
-                IOobject
-                (
-                    "constantAggregationK",
-                    abscissa1.mesh().time().timeName(),
-                    abscissa1.mesh()
-                ),
-                abscissa1.mesh(),
-                dimensionedScalar
-                (
-                    "constAggK",
-                    pow3(abscissa1.dimensions())/dimTime,
-                    Ca_.value()
-                )
-            )
-        );
+    return Ca_.value();
 }
 
 // ************************************************************************* //

@@ -52,17 +52,23 @@ univariateCoeffs
         minAbscissa     minAbscissa [0 -2 0 0 0 0 0] 0.0;
         maxAbscissa     maxAbscissa [0 -2 0 0 0 0 0] 1.0;
 
-        Cg        Cg        [0 3 -1 0 0 0 0 ] 1.0;
+        Cg              Cg        [0 3 -1 0 0 0 0 ] 1.0;
     }
 
     nucleationModel
     {
         nucleationModel  none;
     }
+
+    odeCoeffs
+    {
+        ATol    1.0e-8;
+        RTol    1.0e-4;
+        fac     0.9;
+        facMin  0.5;
+        facMax  2.0;
+        minLocalDt 1.0e-5;
+    }
 }
-
-
-
-
 
 // ************************************************************************* //

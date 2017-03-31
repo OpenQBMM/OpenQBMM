@@ -60,6 +60,25 @@ class univariatePDFTransportModel
         //- Name of the univariatePDFTransportModel
         const word name_;
 
+        //- Absolute tolerance for realizable ODE solver
+        scalar ATol_;
+
+        //- Relative tolerance for realizable ODE solver
+        scalar RTol_;
+
+        //- Time-step change factor
+        scalar fac_;
+
+        //- Minimum time-step change factor
+        scalar facMin_;
+
+        //- Maximum time-step change factor
+        scalar facMax_;
+
+        //- Minimum local step in realizable ODE solver
+        label minLocalDt_;
+
+
 protected:
 
     // Protected data
@@ -84,18 +103,25 @@ protected:
             const volUnivariateMoment& moment
         ) = 0;
 
-        //- Calculate implicit source terms
-        virtual tmp<volScalarField> explicitMomentSource
+        //- Calculate explicit source terms with realizable ODE solver
+        virtual void explicitMomentSource();
+
+
+//         //- Convect moments in phase space
+//         virtual tmp<volScalarField> phaseSpaceConvection
+//         (
+//             const volUnivariateMoment& moment
+//         ) = 0;
+
+        //- Calculate source term for moment equation in the specified cell
+        virtual scalar cellMomentSource
         (
-            const volUnivariateMoment& moment
+            label& momentOrder,
+            label& celli
         ) = 0;
 
-        //- Convect moments in phase space
-        virtual tmp<volScalarField> phaseSpaceConvection
-        (
-            const volUnivariateMoment& moment
-        ) = 0;
-
+//         //- Solve source terms in a cell using realizable ODE solver
+//         void realizableSourceSolve(const label& celli);
 
 public:
 

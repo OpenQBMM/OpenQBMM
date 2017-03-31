@@ -142,7 +142,7 @@ bool Foam::quadratureApproximation<momentFieldSetType, nodeType>
 {
     bool realizable = momentFieldInverter_().invertLocalMoments
     (
-        moments_, nodes(), celli, false
+        moments_, nodes_(), celli, false
     );
 
     if(!realizable && fatalErrorOnFailedRealizabilityTest)
@@ -151,6 +151,8 @@ bool Foam::quadratureApproximation<momentFieldSetType, nodeType>
     }
 
     moments_.updateLocalMoments(celli);
+
+    return realizable;
 }
 
 // ************************************************************************* //

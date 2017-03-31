@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -52,10 +52,11 @@ namespace aggregationKernels
 Foam::populationBalanceSubModels::aggregationKernels
 ::differentialForceAggregation::differentialForceAggregation
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    aggregationKernel(dict)
+    aggregationKernel(dict, mesh)
 {}
 
 
@@ -68,19 +69,17 @@ Foam::populationBalanceSubModels::aggregationKernels
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> Foam::populationBalanceSubModels
-::aggregationKernels::differentialForceAggregation::Ka
+Foam::scalar
+Foam::populationBalanceSubModels::aggregationKernels::
+differentialForceAggregation::Ka
 (
-    const volScalarField& abscissa1,
-    const volScalarField& abscissa2
+    const scalar& abscissa1,
+    const scalar& abscissa2,
+    const label& celli
 ) const
 {
-    tmp<volScalarField> aggK
-        = Ca_*sqr(abscissa1 + abscissa2)*mag(sqr(abscissa1) - sqr(abscissa2));
-
-    aggK.ref().dimensions().reset(pow3(abscissa1.dimensions())/dimTime);
-
-    return aggK;
+    return Ca_.value()*sqr(abscissa1 + abscissa2)
+            *mag(sqr(abscissa1) - sqr(abscissa2));
 }
 
 // ************************************************************************* //

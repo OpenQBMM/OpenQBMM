@@ -52,10 +52,11 @@ namespace breakupKernels
 Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup
 ::powerLawBreakup
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    breakupKernel(dict),
+    breakupKernel(dict, mesh),
     minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0)),
     abscissaExponent_(dict.lookupOrDefault("abscissaExponent", 3))
 {}
@@ -70,25 +71,15 @@ Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
+Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup::Kb
 (
-    const volScalarField& abscissa
+    const scalar& abscissa,
+    const label& celli
 ) const
 {
-    dimensionedScalar minAbs
-    (
-        "minAbs",
-        abscissa.dimensions(),
-        minAbscissa_.value()
-    );
-
-    tmp<volScalarField> brK =
-        Cb_*pos(abscissa - minAbs)*pow(abscissa, abscissaExponent_);
-
-    brK.ref().dimensions().reset(pow(dimTime, -1));
-
-    return brK;
+    return Cb_.value()*pos(abscissa - minAbscissa_.value())
+            *pow(abscissa, abscissaExponent_);
 }
 
 // ************************************************************************* //

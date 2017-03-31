@@ -115,13 +115,18 @@ class univariatePopulationBalance
     // Private member functions
 
         //- Calculate aggregation source terms
-        tmp<volScalarField> aggregationSource
+        scalar aggregationSource
         (
-            const volUnivariateMoment& moment
+            const label& momentOrder,
+            const label& celli
         );
 
         //- Calculate Breakup source term
-        tmp<volScalarField> breakupSource(const volUnivariateMoment& moment);
+        scalar breakupSource
+        (
+            const label& momentOrder,
+            const label& celli
+        );
 
         //- Diffusion term
         virtual tmp<fvScalarMatrix> momentDiffusion
@@ -130,21 +135,29 @@ class univariatePopulationBalance
         );
 
         //- Convect moments in phase space
-        virtual tmp<volScalarField> phaseSpaceConvection
+        virtual scalar phaseSpaceConvection
         (
-            const volUnivariateMoment& moment
+            const label& momentOrder,
+            const label& celli
         );
 
-        //- Calculate explicit source terms
-        virtual tmp<volScalarField> explicitMomentSource
-        (
-            const volUnivariateMoment& moment
-        );
+//         //- Calculate explicit source terms
+//         virtual tmp<volScalarField> explicitMomentSource
+//         (
+//             const volUnivariateMoment& moment
+//         );
 
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
             const volUnivariateMoment& moment
+        );
+
+        //- Calculate source term for moment equation in the specified cell
+        virtual scalar cellMomentSource
+        (
+            label& momentOrder,
+            label& celli
         );
 
 public:

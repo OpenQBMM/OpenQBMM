@@ -64,6 +64,16 @@ univariateCoeffs
     {
         nucleationModel  none;
     }
+
+    odeCoeffs
+    {
+        ATol    1.0e-6;
+        RTol    1.0e-3;
+        fac     0.9;
+        facMin  0.2;
+        facMax  2.0;
+        minLocalDt 1.0e-7;
+    }
 }
 
 
