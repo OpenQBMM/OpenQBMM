@@ -1,0 +1,23 @@
+/*! \mainpage OpenQBMM
+ *
+ * \section intro_sec Introduction
+ *
+ * OpenQBMM is a suite of solvers for the simulation of polydisperse
+ * multiphase flows.
+ *
+ * For additional details, please visit our website at http://www.openqbmm.org.
+ *
+ * \section contact_sec Contact information
+ *
+ * - Website: http://www.OpenQBMM.org
+ * - GitHub: https://github.com/OpenQBMM
+ * - Twitter: https://twitter.com/OpenQBMM
+ *
+ * \section copyright_sec Copyright
+ *
+ * OpenQBMM is free software. You can redistribute it and modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ */
