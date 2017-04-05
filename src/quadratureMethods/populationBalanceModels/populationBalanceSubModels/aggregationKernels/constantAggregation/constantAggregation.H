@@ -28,6 +28,16 @@ Description
     Constant aggregation kernel. The value of the kernel is read from dictionary
     or assumed equal to 1.
 
+    \f[
+        K_a = C_a
+    \f]
+
+    where
+
+    \vartable
+        C_a         |  Aggregation coefficient [1/s]
+    \endvartable
+
 SourceFiles
     constantAggregation.C
 

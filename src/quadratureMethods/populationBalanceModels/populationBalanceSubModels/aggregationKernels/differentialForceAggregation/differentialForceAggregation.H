@@ -22,12 +22,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::aggregationKernels
-    ::differentialForceAggregation
+    Foam::populationBalanceSubModels::aggregationKernels::differentialForceAggregation
 
 Description
     Differential force aggregation kernel with user defined coefficient
     (default Cagg = 1).
+
+    \f[
+        K_a = C_a (\xi_i + \xi_j)^2 |\xi_i^2 - \xi_j^2|
+    \f]
+
+    where
+
+    \vartable
+        C_a         |  Aggregation coefficient [1/s]
+        \xi_i       |  Abscissa of particle i [m]
+        \xi_j       |  Abscissa of particle j [m]
+    \endvartable
 
 SourceFiles
     differentialForceAggregation.C

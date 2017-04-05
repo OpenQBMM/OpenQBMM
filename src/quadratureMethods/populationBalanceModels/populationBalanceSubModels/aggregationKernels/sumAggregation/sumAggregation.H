@@ -27,6 +27,18 @@ Class
 Description
     Sum aggregation kernel with user defined coefficient (default Cagg = 1).
 
+    \f[
+        K_a = C_a (\xi_i^3 + \xi_j^3)
+    \f]
+
+    where
+
+    \vartable
+        C_a         |  Aggregation coefficient [1/s]
+        \xi_i       |  Abscissa of particle i [m]
+        \xi_j       |  Abscissa of particle j [m]
+    \endvartable
+
 SourceFiles
     sumAggregation.C
 

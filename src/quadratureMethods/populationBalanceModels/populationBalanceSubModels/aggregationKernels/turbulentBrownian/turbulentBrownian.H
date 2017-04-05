@@ -29,6 +29,24 @@ Description
     flows in conditions when the particle size is smaller than the local
     Kolmogorov scale.
 
+    \f[
+        K_a = \frac{2 \kappa T}{3 \mu} \frac{(\xi_i + \xi_j)^2}{\xi_i \xi_j}
+            + \frac{4}{3} (\xi_i + \xi_j)^3
+            \sqrt{\frac{3 \pi \varepsilon}{10 \nu}}
+    \f]
+
+    where
+
+    \vartable
+        T           |  Absolute Temperature [K]
+        \varepsilon |  Turbulent dissipation rate [m2/s3]
+        \kappa      |  Boltzmann's constant [J/K]
+        \mu         |  Molecular dynamic iscosity [Pa s]
+        \nu         |  Turbulent Kinematic viscosity [m2/s]
+        \xi_i       |  Abscissa of particle i [m]
+        \xi_j       |  Abscissa of particle j [m]
+    \endvartable
+
     References
     \verbatim
         "Versuch Einer Mathematischen Theorie Der Koagulationskinetic Kolloider
