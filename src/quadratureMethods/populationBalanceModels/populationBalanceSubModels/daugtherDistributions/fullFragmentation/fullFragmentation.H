@@ -22,10 +22,24 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::daughterDistribution::fullFragmentation
+    Foam::populationBalanceSubModels::daughterDistributions::fullFragmentation
 
 Description
     Daughter distribution of fragments with full fragmentation.
+
+    The moment source term corresponding to the distribution is:
+
+    \f[
+        \overline{b}_k = \left( \frac{\xi}{\xi_0} \right)^3 \xi_0^k
+    \f]
+
+    where
+
+    \vartable
+        k           |  Order of the moment [-]
+        \xi         |  Particle size [m]
+        \xi_0       |  Primary particle size [m]
+    \endvartable
 
 SourceFiles
     fullFragmentation.C

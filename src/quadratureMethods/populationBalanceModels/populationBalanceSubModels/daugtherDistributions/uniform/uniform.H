@@ -22,10 +22,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::daughterDistribution::uniform
+    Foam::populationBalanceSubModels::daughterDistributions::uniform
 
 Description
     Daughter distribution of fragments with uniform fragmentation.
+
+    The moment source term corresponding to the distribution is:
+
+    \f[
+        \overline{b}_k = \frac{6}{k + 3} \xi^k
+    \f]
+
+    \vartable
+        k           |  Order of the moment [-]
+        \xi         |  Particle size [m]
+    \endvartable
 
 SourceFiles
     uniform.C

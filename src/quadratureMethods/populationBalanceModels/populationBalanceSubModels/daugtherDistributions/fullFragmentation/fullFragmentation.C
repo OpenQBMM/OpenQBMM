@@ -77,7 +77,7 @@ Foam::populationBalanceSubModels::daughterDistributions::fullFragmentation
 ) const
 {
 
-    return (pow3(abscissa)/pow3(primarySize_.value()))
+    return (pow3(abscissa/primarySize_.value()))
             *pow(primarySize_.value(), order);
 }
 

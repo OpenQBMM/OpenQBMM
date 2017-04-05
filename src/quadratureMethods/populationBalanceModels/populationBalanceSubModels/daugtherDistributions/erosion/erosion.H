@@ -22,10 +22,24 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::daughterDistribution::erosion
+    Foam::populationBalanceSubModels::daughterDistributions::erosion
 
 Description
     Daughter distribution of fragments for erosion.
+
+    The moment source term corresponding to the distribution is:
+
+    \f[
+        \overline{b}_k = \xi_0^k + (\xi^3 - \xi_0^3)^{1/3}
+    \f]
+
+    where
+
+    \vartable
+        k           |  Order of the moment [-]
+        \xi         |  Particle size [m]
+        \xi_0       |  Primary particle size [m]
+    \endvartable
 
 SourceFiles
     erosion.C

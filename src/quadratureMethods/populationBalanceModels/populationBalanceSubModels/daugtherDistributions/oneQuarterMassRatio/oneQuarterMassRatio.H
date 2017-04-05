@@ -22,11 +22,24 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::daughterDistribution::oneQuarterMassRatio
+    Foam::populationBalanceSubModels::daughterDistributions::oneQuarterMassRatio
 
 Description
     Daughter distribution of fragments with one quarter mass ratio
     fragmentation.
+
+    The moment source term corresponding to the distribution is:
+
+    \f[
+        \overline{b}_k = \frac{4^{k/3} + 1}{5^{k/3}} \xi^k
+    \f]
+
+    where
+
+    \vartable
+        k           |  Order of the moment [-]
+        \xi         |  Particle size [m]
+    \endvartable
 
 SourceFiles
     oneQuarterMassRatio.C

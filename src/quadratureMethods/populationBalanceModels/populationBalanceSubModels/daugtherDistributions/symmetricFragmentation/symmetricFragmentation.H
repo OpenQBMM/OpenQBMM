@@ -27,6 +27,17 @@ Class
 Description
     Daughter distribution of fragments with symmetric fragmentation.
 
+    The moment source term corresponding to the distribution is:
+
+    \f[
+        \overline{b}_k = 2^{(3-k)/3} \xi^k
+    \f]
+
+    \vartable
+        k           |  Order of the moment [-]
+        \xi         |  Particle size [m]
+    \endvartable
+
 SourceFiles
     symmetricFragmentation.C
 
