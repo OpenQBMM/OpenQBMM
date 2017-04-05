@@ -25,7 +25,7 @@ Class
     Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
 
 Description
-    Brownian aggregation kernel supplemented kernel for particles in turbulent
+    Brownian aggregation kernel supplemented for particles in turbulent
     flows in conditions when the particle size is smaller than the local
     Kolmogorov scale.
 
