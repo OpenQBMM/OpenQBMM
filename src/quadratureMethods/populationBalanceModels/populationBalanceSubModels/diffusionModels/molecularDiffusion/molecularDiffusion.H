@@ -27,6 +27,22 @@ Class
 Description
     Molecular diffusion model.
 
+    The moment diffusion is modeled with a constant diffusion coefficient
+    specified by the user.
+
+    \f[
+        \mathcal{D}_k = \nabla \cdot \left( \Gamma_l
+            \nabla m_k \right)
+    \f]
+
+    where
+
+    \vartable
+        \mathcal{D}_k       |   Diffusion term in the moment transport equation
+        m_k                 |   Moment of order k [-]
+        \Gamma_l            |   Molecular diffusivity [m2/s]
+    \endvartable
+
 SourceFiles
     molecularDiffusion.C
 

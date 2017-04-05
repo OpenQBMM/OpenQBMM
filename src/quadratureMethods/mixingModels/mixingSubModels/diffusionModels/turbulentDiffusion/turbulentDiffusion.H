@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -26,6 +26,23 @@ Class
 
 Description
     Turbulent diffusion model.
+
+    The moment diffusion is modeled as
+
+    \f[
+        \mathcal{D}_k = \nabla \cdot \left[ \left( \Gamma_l
+            + \frac{\mu_t}{Sc_t} \right) \nabla m_k \right]
+    \f]
+
+    where
+
+    \vartable
+        \mathcal{D}_k       |   Diffusion term in the moment transport equation
+        m_k                 |   Moment of order k [-]
+        Sc_t                |   Turbulent Schmidt number [-]
+        \Gamma_l            |   Molecular diffusivity [m2/s]
+        \mu_t               |   Turbulent dynamic viscosity [m2/s]
+    \endvartable
 
 SourceFiles
     turbulentDiffusion.C
