@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,12 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Interaction by exchange with the mean mixing model.
+    Foam::mixingSubModels::mixingKernels::IEM
 
 Description
-    Brownian aggregation kernel supplemented kernel for particles in turbulent
-    flows in conditions when the particle size is smaller than the local
-    Kolmogorov scale.
+    Interaction by exchange with the mean mixing model.
 
     References
     \verbatim

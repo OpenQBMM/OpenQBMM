@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -63,8 +63,7 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::mixingKernels::FokkerPlanck
-::~FokkerPlanck()
+Foam::mixingSubModels::mixingKernels::FokkerPlanck::~FokkerPlanck()
 {}
 
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,25 +22,16 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Fokker-Planck mixing model.
+    Foam::mixingSubModels::mixingKernels::FokkerPlanck
 
 Description
-    Brownian aggregation kernel supplemented kernel for particles in turbulent
-    flows in conditions when the particle size is smaller than the local
-    Kolmogorov scale.
+    Fokker-Planck mixing model.
 
     References
     \verbatim
         "Computational Models for Turbulent Reacting Flows"
         R O Fox
         Cambridge University Press
-    \endverbatim
-
-    \verbatim
-        "Solution of the Fokker-Planck Equation Using the Extended
-        Quadrature Method of Moments"
-        E Madadi-Kandjani and A Passalacqua
-        2015 AIChE Annual Meeting, Salt Lake City, UT
     \endverbatim
 
 SourceFiles
@@ -63,7 +54,7 @@ namespace mixingKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class FokkerPlanck Declaration
+                        Class FokkerPlanck Declaration
 \*---------------------------------------------------------------------------*/
 
 class FokkerPlanck
@@ -88,7 +79,7 @@ public:
 
     // Member Functions
 
-        //- Aggregation kernel
+        //- Mixing kernel
         virtual tmp<fvScalarMatrix> K
         (
             const volUnivariateMoment& moment,
