@@ -79,7 +79,7 @@ public:
 
     // Member Functions
 
-        //- Aggregation kernel
+        //- Mixing kernel
         virtual tmp<fvScalarMatrix> K
         (
             const volUnivariateMoment& moment,
