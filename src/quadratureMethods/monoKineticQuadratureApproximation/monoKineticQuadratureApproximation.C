@@ -432,8 +432,8 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
             {
                 if (!nonZeroNodes[nodei])
                 {
-                    velocityAbscissae_[nodei].boundaryFieldRef()[patchi][facei] =
-                        U_.boundaryField()[patchi][facei];
+                    velocityAbscissae_[nodei].boundaryFieldRef()[patchi][facei]
+                    = U_.boundaryField()[patchi][facei];
                 }
             }
         }

@@ -531,14 +531,14 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             UsEqn.relax();
             UsEqn.solve();
 
-//             forAll(Us_[nodei], celli)
-//             {
-//                 if (alphas_[nodei][celli] < residualAlpha_.value())
-//                 {
-//                     Us_[nodei][celli] = U_[celli];
-//                 }
-//             }
-//             Us_[nodei].correctBoundaryConditions();
+            forAll(Us_[nodei], celli)
+            {
+                if (alphas_[nodei][celli] < residualAlpha_.value())
+                {
+                    Us_[nodei][celli] = Zero;
+                }
+            }
+            Us_[nodei].correctBoundaryConditions();
         }
         quadrature_.updateAllMoments();
 
