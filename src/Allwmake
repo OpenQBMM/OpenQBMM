@@ -9,6 +9,7 @@ wmake libso quadratureMethods/momentInversion/univariate/basic
 wmake libso quadratureMethods/momentInversion/univariate/extended
 wmake libso quadratureMethods/momentInversion/multivariate
 wmake libso quadratureMethods/fieldMomentInversion
+wmake libso quadratureMethods/monoKineticQuadratureApproximation
 wmake libso quadratureMethods/momentAdvection
 wmake libso quadratureMethods/PDFTransportModels
 wmake libso quadratureMethods/populationBalanceModels

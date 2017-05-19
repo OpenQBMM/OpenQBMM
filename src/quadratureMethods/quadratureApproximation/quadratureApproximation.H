@@ -61,7 +61,8 @@ class quadratureApproximation
 :
     public IOdictionary
 {
-    // Private data
+protected:
+    // Protected data
 
         //- Name of the quadrature approximation
         const word name_;
