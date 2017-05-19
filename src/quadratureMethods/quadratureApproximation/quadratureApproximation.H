@@ -99,7 +99,7 @@ public:
     // Constructors
 
         //- Construct from mesh
-        explicit quadratureApproximation
+        quadratureApproximation
         (
             const word& name,
             const fvMesh& mesh,
