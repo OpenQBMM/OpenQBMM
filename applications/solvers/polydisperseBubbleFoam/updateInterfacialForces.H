@@ -86,7 +86,8 @@ for (label nodei = 0; nodei < nNodes; nodei++)
     //  Disperson force
     //  Dispersion for mean velocity is handeld in pEqn.H
     {
-        AEqns[nodei] += dispersion->F<vector>(nodei,0)/alphaRhoi;
+        AEqns[nodei] +=
+            dispersion->F<vector>(nodei,0)/alphaRhoi;
     }
 
 

@@ -154,6 +154,24 @@ public:
 
         //- Average transport of moments
         virtual void averageTransport(const PtrList<fvVectorMatrix>& AEqns);
+
+        //- Update moments
+        virtual void updateMoments()
+        {
+            quadrature_.updateAllMoments();
+
+            // Correct mean velocity using the new velocity moments
+            U_ =
+                quadrature_.velocityMoments()[1]
+               /Foam::max
+                (
+                    quadrature_.moments()[1],
+                    residualAlpha_*rho_
+                );
+
+            U_.correctBoundaryConditions();
+            phiPtr_() == fvc::flux(U_);
+        }
 };
 
 

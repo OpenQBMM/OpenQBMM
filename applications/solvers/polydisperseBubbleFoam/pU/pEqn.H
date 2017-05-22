@@ -51,7 +51,6 @@ tmp<surfaceScalarField> phiF2;
         volScalarField Di = dispersion->D(nodei, 0);
 
         phiF1.ref() += fvc::interpolate(rAU1*Di)*snGradAlpha1;
-
         phiF2.ref() -= fvc::interpolate(rAU2*Di)*snGradAlpha1;
     }
 }

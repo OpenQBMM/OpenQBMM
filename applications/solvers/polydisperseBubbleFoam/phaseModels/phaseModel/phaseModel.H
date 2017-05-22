@@ -337,6 +337,11 @@ public:
         {
             return;
         }
+
+        virtual void updateMoments()
+        {
+            return;
+        }
 };
 
 
