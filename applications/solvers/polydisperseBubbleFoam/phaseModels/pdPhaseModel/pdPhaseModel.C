@@ -531,20 +531,25 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             UsEqn.relax();
             UsEqn.solve();
         }
-        quadrature_.updateAllMoments();
-
-        // Correct mean velocity using the new velocity moments
-        U_ =
-            quadrature_.velocityMoments()[1]
-           /Foam::max
-            (
-                quadrature_.moments()[1],
-                residualAlpha_*rho_
-            );
-
-        U_.correctBoundaryConditions();
-        phiPtr_() == fvc::flux(U_);
+        updateMoments();
     }
+}
+
+void Foam::pdPhaseModel::updateMoments()
+{
+    quadrature_.updateAllMoments();
+
+    // Correct mean velocity using the new velocity moments
+    U_ =
+        quadrature_.velocityMoments()[1]
+       /Foam::max
+        (
+            quadrature_.moments()[1],
+            residualAlpha_*rho_
+        );
+
+    U_.correctBoundaryConditions();
+    phiPtr_() == fvc::flux(U_);
 }
 
 
