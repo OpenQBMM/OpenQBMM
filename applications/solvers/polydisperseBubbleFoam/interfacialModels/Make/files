@@ -31,6 +31,7 @@ virtualMassModels/virtualMassModel/newVirtualMassModel.C
 virtualMassModels/noVirtualMass/noVirtualMass.C
 virtualMassModels/constantVirtualMassCoefficient/constantVirtualMassCoefficient.C
 virtualMassModels/Lamb/Lamb.C
+virtualMassModels/Zuber/Zuber.C
 
 wallLubricationModels/wallLubricationModel/wallLubricationModel.C
 wallLubricationModels/wallLubricationModel/newWallLubricationModel.C
