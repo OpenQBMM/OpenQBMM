@@ -65,19 +65,18 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
     //  Drag force
     {
-        volScalarField Kdi = drag->K(nodei,0);
-        Kd += Kdi;
+        Kd += drag->K(nodei,0);
 
         //  Relative drag term, added as a source term to the two fluid
-        F -= Kdi*phase1.Vs(nodei);
+        F -= drag->K(nodei,0)*phase1.Vs(nodei);
 
         //  Implicit drag term added to velocity abscissae equations
         AEqns[nodei] +=
         (
-            Kdi/alphaRhoi*U2
+           drag->Ki(nodei,0)/rho1*U2
           - fvm::Sp
             (
-                Kdi/alphaRhoi,
+                drag->Ki(nodei,0)/rho1,
                 phase1.Us(nodei)
             )
         );
@@ -93,10 +92,7 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
     // Virtual Mass
     {
-        volScalarField Cvmi = virtualMass->K(nodei,0);
-        Cvm += Cvmi;
-
-        surfaceScalarField phiAlpha = fvc::flux(phase1.Us(nodei));
+        Cvm += virtualMass->K(nodei,0);
 
         fvVectorMatrix DDtUs
         (
@@ -107,51 +103,45 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
         volScalarField DDtMi
         (
-            Cvmi
-           *(
-                fvc::ddt(phase1.alphas(nodei))
-              + fvc::div(phi1, phase1.alphas(nodei))
-              - fvc::div(phi1)*phase1.alphas(nodei)
-            )
+
+            fvc::ddt(phase1.alphas(nodei))
+          + fvc::div(phi1, phase1.alphas(nodei))
+          - fvc::div(phi1)*phase1.alphas(nodei)
         );
 
         F +=
         (
-            Cvmi
+            virtualMass->K(nodei,0)
            *(
                 (DDtU1 & U1)
               - (DDtUs & phase1.Us(nodei))
+              + phase1.Vs(nodei)*DDtMi
             )
-          + phase1.Vs(nodei)*DDtMi
         );
 
         AEqns[nodei] +=
         (
-            Cvmi/alphaRhoi
+            virtualMass->Ki(nodei,0)/rho1
            *(
                 (DDtU2 & U2)
               - DDtUs
             )
-          + fvm::Sp(DDtMi/alphaRhoi, phase1.Us(nodei))
-          - U2*DDtMi/alphaRhoi
+          + fvm::Sp(virtualMass->Ki(nodei,0)*DDtMi/rho1, phase1.Us(nodei))
+          - U2*virtualMass->Ki(nodei,0)*DDtMi/rho1
         );
     }
 
 
     // Lift Force
     {
-        volVectorField Fli = lift->F<vector>(nodei,0);
-
-        F += Fli;
-        AEqns[nodei] += Fli/alphaRhoi;
+        F += lift->F<vector>(nodei,0);
+        AEqns[nodei] += lift->Fi<vector>(nodei,0)/rho1;
     }
 
 
     // Wall lubrication
     {
-        volVectorField Fwli = wallLubrication->F<vector>(nodei,0);
-
-        F += Fwli;
-        AEqns[nodei] += Fwli/alphaRhoi;
+        F += lift->F<vector>(nodei,0);
+        AEqns[nodei] += lift->F<vector>(nodei,0)/rho1;
     }
 }

@@ -39,7 +39,6 @@ SourceFiles
 #include "dictionary.H"
 #include "dimensionedScalar.H"
 #include "volFields.H"
-#include "surfaceFields.H"
 #include "phaseModel.H"
 #include "monoKineticQuadratureApproximation.H"
 

@@ -108,22 +108,6 @@ int main(int argc, char *argv[])
 
             // Transport moments with mean gas velocity
             phase1.averageTransport(AEqns);
-            for (label nodei = 0; nodei < nNodes; nodei++)
-            {
-                forAll(alpha1, celli)
-                {
-                    if
-                    (
-                        phase1.alphas(nodei)[celli]
-                      < phase1.residualAlpha().value()
-                    )
-                    {
-                        phase1.Us(nodei)[celli] = U2[celli];
-                    }
-                }
-                phase1.Us(nodei).correctBoundaryConditions();
-            }
-            phase1.updateMoments();
 
             phi ==
                 fvc::interpolate(alpha1)*phi1

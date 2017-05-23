@@ -202,28 +202,23 @@ void Foam::pdPhaseModel::correct()
 
         //  Calculate bubble diameter based on bubble mass (abscissa)
         ds_[nodei] =
+            Foam::min
             (
-                Foam::min
+                Foam::max
                 (
-                    Foam::max
+                    pow
                     (
-                        Foam::pow
-                        (
-                            Foam::max
-                            (
-                                dimensionedScalar("0",dimMass,0.0),
-                                node.primaryAbscissa()*6.0
-                            )
-                           /(rho_*Foam::constant::mathematical::pi),
-                            1.0/3.0
-                        ),
-                        minD_
+                        node.primaryAbscissa()*6.0
+                       /(rho_*Foam::constant::mathematical::pi),
+                        1.0/3.0
                     ),
-                    maxD_
-                )
+                    minD_
+                ),
+                maxD_
             );
-        d_ += alphas_[nodei]*ds_[nodei]/Foam::max(*this, residualAlpha_);
+        d_ += alphas_[nodei]*ds_[nodei];
     }
+    d_ /= Foam::max((*this), residualAlpha_);
 }
 
 
@@ -501,8 +496,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 
             UpEqn.relax();
             UpEqn.solve();
-
-
         }
         quadrature_.updateAllQuadrature();
 
@@ -510,10 +503,13 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         //  terms do not change the mass
         forAll(Us_, nodei)
         {
-            // Colisional time, forces velocities towards mean in the case of
+            //  Colisional time, forces velocities towards mean in the case of
             //  high volume fractions
-            // --needs to be changed to a smooth function--
-            volScalarField tauC = neg(0.63 - (*this))*HUGE;
+            volScalarField tauC
+            (
+                "tauC",
+                (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE
+            );
             tauC.dimensions().reset(inv(dimTime));
 
             // Solve for velocities using acceleration terms

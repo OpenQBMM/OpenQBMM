@@ -110,6 +110,13 @@ public:
             const label nodej
         ) const;
 
+        //- The drag function used in the momentum equation
+        virtual tmp<volScalarField> Ki
+        (
+            const label nodei,
+            const label nodej
+        ) const;
+
         //- The drag function Kf used in the face-momentum equations
         virtual tmp<surfaceScalarField> Kf
         (

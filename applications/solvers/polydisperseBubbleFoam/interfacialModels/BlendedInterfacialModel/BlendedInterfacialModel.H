@@ -129,6 +129,13 @@ public:
             const label nodej
         ) const;
 
+        //- Return the blended force coefficient
+        tmp<volScalarField> Ki
+        (
+            const label nodei,
+            const label nodej
+        ) const;
+
         //- Return the face blended force coefficient
         tmp<surfaceScalarField> Kf
         (
@@ -139,6 +146,13 @@ public:
         //- Return the blended force
         template<class Type>
         tmp<GeometricField<Type, fvPatchField, volMesh>> F
+        (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        template<class Type>
+        tmp<GeometricField<Type, fvPatchField, volMesh>> Fi
         (
             const label nodei,
             const label nodej
