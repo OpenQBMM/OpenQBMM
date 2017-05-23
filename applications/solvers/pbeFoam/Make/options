@@ -23,7 +23,6 @@ EXE_LIBS = \
     -lreactionThermophysicalModels \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
-    -lthermophysicalFunctions \
     -lspecie \
     -lfiniteVolume \
     -lmeshTools \
