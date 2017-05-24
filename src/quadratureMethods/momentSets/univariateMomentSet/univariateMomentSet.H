@@ -171,17 +171,15 @@ public:
             bool fatalErrorOnFailedRealizabilityTest = true
         );
 
-        //- Return moment orders
-        const labelListList& momentOrders() const
-        {
-            NotImplemented;
-            return NullObjectRef<labelListList>();
-        };
-
         //- Return the number of realizable moments
         inline label nRealizableMoments
         (
             bool fatalErrorOnFailedRealizabilityTest = true
+        );
+
+        inline labelListList makeUnivariateMomentOrders
+        (
+            const label nMoments
         );
 
         //- Update moments from the corresponding quadrature
