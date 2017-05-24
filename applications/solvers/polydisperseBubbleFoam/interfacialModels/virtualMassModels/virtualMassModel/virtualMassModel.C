@@ -39,7 +39,6 @@ namespace Foam
 }
 
 const Foam::dimensionSet Foam::virtualMassModel::dimK(dimDensity);
-const Foam::dimensionSet Foam::virtualMassModel::dimKa(dimless);
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -82,16 +81,6 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Ki
 ) const
 {
     return Cvm(nodei,nodej)*pair_.continuous().rho();
-}
-
-
-Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Ka
-(
-    const label nodei,
-    const label nodej
-) const
-{
-    return Cvm(nodei,nodej)*pair_.continuous().rho()/pair_.dispersed().rho();
 }
 
 

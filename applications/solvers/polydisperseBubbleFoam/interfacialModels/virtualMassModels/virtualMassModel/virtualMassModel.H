@@ -92,10 +92,6 @@ public:
         //- Force coefficient dimensions
         static const dimensionSet dimK;
 
-        //- Acceleration coefficient dimensions
-        static const dimensionSet dimKa;
-
-
     // Constructors
 
         //- Construct from a dictionary and a phase pair
@@ -134,14 +130,6 @@ public:
         //    ddt(alpha1*rho1*U1) + ... = ... alphad*K*(DU1_Dt - DU2_Dt)
         //    ddt(alpha2*rho2*U2) + ... = ... alphad*K*(DU1_Dt - DU2_Dt)
         virtual tmp<volScalarField> Ki
-        (
-            const label nodei,
-            const label nodej
-        ) const;
-
-        //- Return virtual mass acceleration coefficient
-        //  used in the velocity abscissae transport
-        virtual tmp<volScalarField> Ka
         (
             const label nodei,
             const label nodej

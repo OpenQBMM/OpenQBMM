@@ -36,9 +36,6 @@ volTensorField taul
 //  Set source terms
 for (label nodei = 0; nodei < nNodes; nodei++)
 {
-    volScalarField alphaRhoi =
-        max(phase1.alphas(nodei), phase1.residualAlpha())*rho1;
-
     AEqns.set
     (
         nodei,
@@ -66,7 +63,7 @@ for (label nodei = 0; nodei < nNodes; nodei++)
     //  Drag force
     {
         tmp<volScalarField> Kdi = drag->K(nodei,0);
-        tmp<volScalarField> Kai = drag->Ka(nodei,0);
+        tmp<volScalarField> Ki = drag->Ki(nodei,0)/rho1;
         Kd += Kdi();
 
         //  Relative drag term, added as a source term to the two fluid
@@ -75,10 +72,10 @@ for (label nodei = 0; nodei < nNodes; nodei++)
         //  Implicit drag term added to velocity abscissae equations
         AEqns[nodei] +=
         (
-           Kai()*U2
+            Ki()*U2
           - fvm::Sp
             (
-                Kai(),
+                Ki(),
                 phase1.Us(nodei)
             )
         );
@@ -94,7 +91,7 @@ for (label nodei = 0; nodei < nNodes; nodei++)
     // Virtual Mass
     {
         tmp<volScalarField> Cvmi = virtualMass->K(nodei,0);
-        tmp<volScalarField> Cai = virtualMass->Ka(nodei,0);
+        tmp<volScalarField> Ci = virtualMass->Ki(nodei,0)/rho1;
 
         Cvm += Cvmi();
 
@@ -122,15 +119,28 @@ for (label nodei = 0; nodei < nNodes; nodei++)
             )
         );
 
+        volScalarField alphaRhoi
+            (
+                max
+                (
+                    phase1.alphas(nodei),
+                    phase1.residualAlpha()
+                )*rho1
+            );
+
         AEqns[nodei] +=
         (
-            Cai()
+            Ci()
            *(
                 (DDtU2 & U2)
               - DDtUs
             )
-          + fvm::Sp(Cai()*DDtMi, phase1.Us(nodei))
-          - U2*Cai()*DDtMi
+          + fvm::Sp
+            (
+                Ci()*DDtMi,
+                phase1.Us(nodei)
+            )
+          - U2*Ci()*DDtMi
         );
     }
 

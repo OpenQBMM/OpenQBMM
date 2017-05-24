@@ -160,14 +160,6 @@ public:
             const label nodej
         ) const;
 
-        //- Return the drag acceleration coefficient
-        //  used in the velocity abscissae transport
-        virtual tmp<volScalarField> Ka
-        (
-            const label nodei,
-            const label nodej
-        ) const;
-
         //- Return the drag coefficient Kf
         //  used in the face-momentum equations
         virtual tmp<surfaceScalarField> Kf

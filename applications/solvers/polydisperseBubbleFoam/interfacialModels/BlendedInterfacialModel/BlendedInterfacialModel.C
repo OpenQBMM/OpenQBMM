@@ -192,7 +192,7 @@ Foam::BlendedInterfacialModel<modelType>::K
 
 template<class modelType>
 Foam::tmp<Foam::volScalarField>
-Foam::BlendedInterfacialModel<modelType>::Ka
+Foam::BlendedInterfacialModel<modelType>::Ki
 (
     const label nodei,
     const label nodej
@@ -216,7 +216,7 @@ Foam::BlendedInterfacialModel<modelType>::Ka
         (
             IOobject
             (
-                modelType::typeName + ":Ka",
+                modelType::typeName + ":Ki",
                 pair_.phase1().mesh().time().timeName(),
                 pair_.phase1().mesh(),
                 IOobject::NO_READ,
@@ -224,23 +224,23 @@ Foam::BlendedInterfacialModel<modelType>::Ka
                 false
             ),
             pair_.phase1().mesh(),
-            dimensionedScalar("zero", modelType::dimKa, 0)
+            dimensionedScalar("zero", modelType::dimK, 0)
         )
     );
 
     if (model_.valid())
     {
-        x.ref() += model_->Ka(nodei,nodej)*(f1() - f2());
+        x.ref() += model_->Ki(nodei,nodej)*(f1() - f2());
     }
 
     if (model1In2_.valid())
     {
-        x.ref() += model1In2_->Ka(nodei,nodej)*(1 - f1);
+        x.ref() += model1In2_->Ki(nodei,nodej)*(1 - f1);
     }
 
     if (model2In1_.valid())
     {
-        x.ref() += model2In1_->Ka(nodej,nodei)*f2;
+        x.ref() += model2In1_->Ki(nodej,nodei)*f2;
     }
 
     if

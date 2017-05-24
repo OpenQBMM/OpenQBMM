@@ -82,7 +82,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::CdRe
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::Ka
+Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::Ki
 (
     const label nodei,
     const label nodej
@@ -90,7 +90,6 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::Ka
 {
     return
         K(nodei, nodej)
-       /pair_.phase1().rho()
        /max
         (
             pair_.phase1().alphas(nodei),

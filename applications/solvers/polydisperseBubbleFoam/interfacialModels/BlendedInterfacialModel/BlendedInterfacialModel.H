@@ -131,7 +131,7 @@ public:
         ) const;
 
         //- Return the blended acceleration coefficient
-        tmp<volScalarField> Ka
+        tmp<volScalarField> Ki
         (
             const label nodei,
             const label nodej

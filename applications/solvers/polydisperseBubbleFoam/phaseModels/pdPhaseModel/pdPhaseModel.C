@@ -206,7 +206,7 @@ void Foam::pdPhaseModel::correct()
             (
                 Foam::max
                 (
-                    pow
+                    Foam::pow
                     (
                         Foam::max
                         (
