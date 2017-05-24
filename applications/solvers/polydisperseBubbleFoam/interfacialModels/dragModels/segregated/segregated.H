@@ -111,7 +111,7 @@ public:
         ) const;
 
         //- The drag function used in the momentum equation
-        virtual tmp<volScalarField> Ki
+        virtual tmp<volScalarField> Ka
         (
             const label nodei,
             const label nodej

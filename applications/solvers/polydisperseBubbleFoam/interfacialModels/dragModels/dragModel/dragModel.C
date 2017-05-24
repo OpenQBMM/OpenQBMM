@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
+2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -40,6 +41,7 @@ namespace Foam
 }
 
 const Foam::dimensionSet Foam::dragModel::dimK(1, -3, -1, 0, 0);
+const Foam::dimensionSet Foam::dragModel::dimKa(0, 0, -1, 0, 0);
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -133,6 +135,16 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
             pair_.dispersed().alphas(nodei),
             pair_.dispersed().residualAlpha()
         )*Ki(nodei,nodej);
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::dragModel::Ka
+(
+    const label nodei,
+    const label nodej
+) const
+{
+    return Ki(nodei, nodej)/pair_.dispersed().rho();
 }
 
 

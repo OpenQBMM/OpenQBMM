@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
+2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -112,12 +113,39 @@ Foam::turbulentDispersionModels::noTurbulentDispersion::F
             (
                 IOobject
                 (
-                    "zero",
+                    "noTurbulentDispersion:F",
                     mesh.time().timeName(),
                     mesh
                 ),
                 mesh,
                 dimensionedVector("zero", dimF, Zero)
+            )
+        );
+}
+
+
+Foam::tmp<Foam::volVectorField>
+Foam::turbulentDispersionModels::noTurbulentDispersion::A
+(
+    const label nodei,
+    const label nodej
+) const
+{
+    const fvMesh& mesh(this->pair_.phase1().mesh());
+
+    return
+        tmp<volVectorField>
+        (
+            new volVectorField
+            (
+                IOobject
+                (
+                    "noTurbulentDispersion:A",
+                    mesh.time().timeName(),
+                    mesh
+                ),
+                mesh,
+                dimensionedVector("zero", dimA, Zero)
             )
         );
 }

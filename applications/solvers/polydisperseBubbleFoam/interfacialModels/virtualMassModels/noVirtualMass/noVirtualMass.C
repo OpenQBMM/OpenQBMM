@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
+2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -78,7 +79,7 @@ Foam::virtualMassModels::noVirtualMass::Cvm
             (
                 IOobject
                 (
-                    "zero",
+                    "noVirtualMass:Cvm",
                     mesh.time().timeName(),
                     mesh
                 ),
@@ -97,6 +98,17 @@ Foam::virtualMassModels::noVirtualMass::K
 ) const
 {
     return Cvm(nodei,nodej)*dimensionedScalar("zero", dimDensity, 0);
+}
+
+
+Foam::tmp<Foam::volScalarField>
+Foam::virtualMassModels::noVirtualMass::Ka
+(
+    const label nodei,
+    const label nodej
+) const
+{
+    return Cvm(nodei,nodej);
 }
 
 

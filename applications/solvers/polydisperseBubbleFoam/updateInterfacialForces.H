@@ -65,18 +65,20 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
     //  Drag force
     {
-        Kd += drag->K(nodei,0);
+        tmp<volScalarField> Kdi = drag->K(nodei,0);
+        tmp<volScalarField> Kai = drag->Ka(nodei,0);
+        Kd += Kdi();
 
         //  Relative drag term, added as a source term to the two fluid
-        F -= drag->K(nodei,0)*phase1.Vs(nodei);
+        F -= Kdi()*phase1.Vs(nodei);
 
         //  Implicit drag term added to velocity abscissae equations
         AEqns[nodei] +=
         (
-           drag->Ki(nodei,0)/rho1*U2
+           Kai()*U2
           - fvm::Sp
             (
-                drag->Ki(nodei,0)/rho1,
+                Kai(),
                 phase1.Us(nodei)
             )
         );
@@ -85,14 +87,16 @@ for (label nodei = 0; nodei < nNodes; nodei++)
     //  Disperson force
     //  Dispersion for mean velocity is handeld in pEqn.H
     {
-        AEqns[nodei] +=
-            dispersion->F<vector>(nodei,0)/alphaRhoi;
+        AEqns[nodei] += dispersion->A(nodei,0);
     }
 
 
     // Virtual Mass
     {
-        Cvm += virtualMass->K(nodei,0);
+        tmp<volScalarField> Cvmi = virtualMass->K(nodei,0);
+        tmp<volScalarField> Cai = virtualMass->Ka(nodei,0);
+
+        Cvm += Cvmi();
 
         fvVectorMatrix DDtUs
         (
@@ -103,7 +107,6 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
         volScalarField DDtMi
         (
-
             fvc::ddt(phase1.alphas(nodei))
           + fvc::div(phi1, phase1.alphas(nodei))
           - fvc::div(phi1)*phase1.alphas(nodei)
@@ -111,7 +114,7 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
         F +=
         (
-            virtualMass->K(nodei,0)
+            Cvmi()
            *(
                 (DDtU1 & U1)
               - (DDtUs & phase1.Us(nodei))
@@ -121,13 +124,13 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
         AEqns[nodei] +=
         (
-            virtualMass->Ki(nodei,0)/rho1
+            Cai()
            *(
                 (DDtU2 & U2)
               - DDtUs
             )
-          + fvm::Sp(virtualMass->Ki(nodei,0)*DDtMi/rho1, phase1.Us(nodei))
-          - U2*virtualMass->Ki(nodei,0)*DDtMi/rho1
+          + fvm::Sp(Cai()*DDtMi, phase1.Us(nodei))
+          - U2*Cai()*DDtMi
         );
     }
 
@@ -135,13 +138,13 @@ for (label nodei = 0; nodei < nNodes; nodei++)
     // Lift Force
     {
         F += lift->F<vector>(nodei,0);
-        AEqns[nodei] += lift->Fi<vector>(nodei,0)/rho1;
+        AEqns[nodei] += lift->A(nodei,0);
     }
 
 
     // Wall lubrication
     {
         F += lift->F<vector>(nodei,0);
-        AEqns[nodei] += lift->F<vector>(nodei,0)/rho1;
+        AEqns[nodei] += lift->A(nodei,0);
     }
 }

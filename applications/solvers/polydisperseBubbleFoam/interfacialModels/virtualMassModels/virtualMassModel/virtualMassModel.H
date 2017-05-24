@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
+2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -88,8 +89,11 @@ public:
 
     // Static data members
 
-        //- Coefficient dimensions
+        //- Force coefficient dimensions
         static const dimensionSet dimK;
+
+        //- Acceleration coefficient dimensions
+        static const dimensionSet dimKa;
 
 
     // Constructors
@@ -130,6 +134,14 @@ public:
         //    ddt(alpha1*rho1*U1) + ... = ... alphad*K*(DU1_Dt - DU2_Dt)
         //    ddt(alpha2*rho2*U2) + ... = ... alphad*K*(DU1_Dt - DU2_Dt)
         virtual tmp<volScalarField> Ki
+        (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        //- Return virtual mass acceleration coefficient
+        //  used in the velocity abscissae transport
+        virtual tmp<volScalarField> Ka
         (
             const label nodei,
             const label nodej

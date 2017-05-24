@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
+2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -144,5 +145,32 @@ Foam::tmp<Foam::surfaceScalarField> Foam::liftModels::noLift::Ff
     );
 }
 
+
+Foam::tmp<Foam::volVectorField> Foam::liftModels::noLift::A
+(
+    const label nodei,
+    const label nodej
+) const
+{
+    const fvMesh& mesh(this->pair_.phase1().mesh());
+
+    return tmp<volVectorField>
+    (
+        new volVectorField
+        (
+            IOobject
+            (
+                "noLift:A",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh,
+            dimensionedVector("zero", dimA, Zero)
+        )
+    );
+}
 
 // ************************************************************************* //

@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
+2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -129,8 +130,8 @@ public:
             const label nodej
         ) const;
 
-        //- Return the blended force coefficient
-        tmp<volScalarField> Ki
+        //- Return the blended acceleration coefficient
+        tmp<volScalarField> Ka
         (
             const label nodei,
             const label nodej
@@ -151,15 +152,15 @@ public:
             const label nodej
         ) const;
 
-        template<class Type>
-        tmp<GeometricField<Type, fvPatchField, volMesh>> Fi
+        //- Return the face blended force
+        tmp<surfaceScalarField> Ff
         (
             const label nodei,
             const label nodej
         ) const;
 
-        //- Return the face blended force
-        tmp<surfaceScalarField> Ff
+        //- Return the blended acceleration
+        tmp<volVectorField> A
         (
             const label nodei,
             const label nodej
