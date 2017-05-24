@@ -50,6 +50,7 @@ Description
 #include "virtualMassModel.H"
 #include "wallLubricationModel.H"
 #include "turbulentDispersionModel.H"
+#include "bubblePressureModel.H"
 #include "BlendedInterfacialModel.H"
 #include "blendingMethod.H"
 

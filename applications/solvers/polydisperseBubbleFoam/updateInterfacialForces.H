@@ -145,16 +145,16 @@ for (label nodei = 0; nodei < nNodes; nodei++)
     }
 
 
-    // Lift Force
+    // Lift, wall lubrication and bubble pressure forces
     {
-        F += lift->F<vector>(nodei,0);
-        AEqns[nodei] += lift->A(nodei,0);
-    }
+        F +=
+            lift->F<vector>(nodei,0)
+          + wallLubrication->F<vector>(nodei,0)
+          + bubblePressure->F<vector>(nodei,0);
 
-
-    // Wall lubrication
-    {
-        F += lift->F<vector>(nodei,0);
-        AEqns[nodei] += lift->A(nodei,0);
+        AEqns[nodei] +=
+            lift->A(nodei,0)
+          + wallLubrication->A(nodei,0)
+          + bubblePressure->A(nodei,0);
     }
 }

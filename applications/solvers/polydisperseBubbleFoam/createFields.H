@@ -193,6 +193,22 @@
         )
     );
 
+    autoPtr<BlendedInterfacialModel<bubblePressureModel> > bubblePressure
+    (
+        new BlendedInterfacialModel<bubblePressureModel>
+        (
+            phaseDict.lookup("bubblePressure"),
+            (
+                blendingMethods.found("bubblePressure")
+              ? blendingMethods["bubblePressure"]
+              : blendingMethods["default"]
+            ),
+            pair1And2,
+            pair1In2,
+            pair2In1
+        )
+    );
+
     // Rhos
     volScalarField rho1 = phase1.rho();
     volScalarField rho2 = phase2.rho();
