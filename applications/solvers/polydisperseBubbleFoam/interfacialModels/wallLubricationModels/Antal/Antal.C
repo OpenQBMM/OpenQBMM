@@ -78,7 +78,8 @@ Foam::tmp<Foam::volVectorField> Foam::wallLubricationModels::Antal::Fi
 
     const volVectorField& n(nWall());
 
-    return
+    return zeroGradWalls
+    (
         max
         (
             dimensionedScalar("zero", dimless/dimLength, 0),
@@ -86,7 +87,8 @@ Foam::tmp<Foam::volVectorField> Foam::wallLubricationModels::Antal::Fi
         )
        *pair_.continuous().rho()
        *magSqr(Ur - (Ur & n)*n)
-       *n;
+       *n
+    );
 }
 
 

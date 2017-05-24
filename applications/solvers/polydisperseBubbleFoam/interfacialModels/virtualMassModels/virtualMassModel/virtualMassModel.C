@@ -92,6 +92,7 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::K
 {
     return
         pair_.dispersed().alphas(nodei)
+       *pair_.continuous().alphas(nodej)
        *Ki(nodei,nodej);
 }
 
@@ -104,6 +105,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::virtualMassModel::Kf
 {
     return
         fvc::interpolate(pair_.dispersed().alphas(nodei))
+       *fvc::interpolate(pair_.continuous().alphas(nodej))
        *fvc::interpolate(Ki(nodei,nodej));
 }
 

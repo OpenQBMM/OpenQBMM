@@ -90,10 +90,11 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
     // Virtual Mass
     {
-        tmp<volScalarField> Cvmi = virtualMass->K(nodei,0);
-        tmp<volScalarField> Ci = virtualMass->Ki(nodei,0)/rho1;
+        tmp<volScalarField> Cvmi = virtualMass->Cvm(nodei,0);
+        tmp<volScalarField> Kvmi = virtualMass->K(nodei,0);
+        tmp<volScalarField> Ki = virtualMass->Ki(nodei,0)/rho1;
 
-        Cvm += Cvmi();
+        Cvm += Kvmi();
 
         fvVectorMatrix DDtUs
         (
@@ -111,36 +112,24 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
         F +=
         (
-            Cvmi()
+            Kvmi()
            *(
                 (DDtU1 & U1)
               - (DDtUs & phase1.Us(nodei))
               + phase1.Vs(nodei)*DDtMi
+               /max(alpha2, phase2.residualAlpha())
             )
         );
 
-        volScalarField alphaRhoi
-            (
-                max
-                (
-                    phase1.alphas(nodei),
-                    phase1.residualAlpha()
-                )*rho1
-            );
-
         AEqns[nodei] +=
         (
-            Ci()
+            Ki()*alpha2
            *(
                 (DDtU2 & U2)
               - DDtUs
             )
-          + fvm::Sp
-            (
-                Ci()*DDtMi,
-                phase1.Us(nodei)
-            )
-          - U2*Ci()*DDtMi
+          + fvm::Sp(Ki()*DDtMi, phase1.Us(nodei))
+          - U2*Ki()*DDtMi
         );
     }
 

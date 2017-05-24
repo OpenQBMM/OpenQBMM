@@ -430,17 +430,17 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
     correct();
 
     // If momodisperse, use mean velocity to construct velocity moments
-    if(nNodes_ == 1)
-    {
-        forAll(quadrature_.velocityMoments(), mi)
-        {
-            quadrature_.velocityMoments()[mi] = U_*quadrature_.moments()[mi];
-            quadrature_.velocityMoments()[mi].correctBoundaryConditions();
-        }
-
-        quadrature_.updateAllQuadrature();
-    }
-    else
+//     if(nNodes_ == 1)
+//     {
+//         forAll(quadrature_.velocityMoments(), mi)
+//         {
+//             quadrature_.velocityMoments()[mi] = U_*quadrature_.moments()[mi];
+//             quadrature_.velocityMoments()[mi].correctBoundaryConditions();
+//         }
+//
+//         quadrature_.updateAllQuadrature();
+//     }
+//     else
     {
         forAll(quadrature_.velocityMoments(), mEqni)
         {

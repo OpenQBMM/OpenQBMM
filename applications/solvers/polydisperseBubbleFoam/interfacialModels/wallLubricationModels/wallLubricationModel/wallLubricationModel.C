@@ -30,6 +30,7 @@ License
 #include "phasePair.H"
 #include "fvcFlux.H"
 #include "surfaceInterpolate.H"
+#include "wallFvPatch.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -41,6 +42,31 @@ namespace Foam
 
 const Foam::dimensionSet Foam::wallLubricationModel::dimF(1, -2, -2, 0, 0);
 const Foam::dimensionSet Foam::wallLubricationModel::dimA(0, 1, -2, 0, 0);
+
+
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+Foam::tmp<Foam::volVectorField> Foam::wallLubricationModel::zeroGradWalls
+(
+    tmp<volVectorField> tFi
+) const
+{
+    volVectorField& Fi = tFi.ref();
+    const fvPatchList& patches =  Fi.mesh().boundary();
+
+    volVectorField::Boundary& FiBf = Fi.boundaryFieldRef();
+
+    forAll(patches, patchi)
+    {
+        if (isA<wallFvPatch>(patches[patchi]))
+        {
+            fvPatchVectorField& Fiw = FiBf[patchi];
+            Fiw = Fiw.patchInternalField();
+        }
+    }
+
+    return tFi;
+}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

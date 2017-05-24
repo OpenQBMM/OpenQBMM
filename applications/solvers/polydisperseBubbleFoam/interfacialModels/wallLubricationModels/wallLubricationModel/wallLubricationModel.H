@@ -66,6 +66,12 @@ protected:
         const phasePair& pair_;
 
 
+    // Protected member functions
+
+        //- Zero-gradient wall-lubrication force at walls
+        tmp<volVectorField> zeroGradWalls(tmp<volVectorField>) const;
+
+
 public:
 
     //- Runtime type information

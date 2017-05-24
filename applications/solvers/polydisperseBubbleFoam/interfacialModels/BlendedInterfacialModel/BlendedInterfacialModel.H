@@ -144,6 +144,13 @@ public:
             const label nodej
         ) const;
 
+        //- Return the blended acceleration coefficient
+        tmp<volScalarField> Cvm
+        (
+            const label nodei,
+            const label nodej
+        ) const;
+
         //- Return the blended force
         template<class Type>
         tmp<GeometricField<Type, fvPatchField, volMesh>> F

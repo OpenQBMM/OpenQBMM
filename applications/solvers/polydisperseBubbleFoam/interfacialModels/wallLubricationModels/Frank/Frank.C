@@ -83,7 +83,8 @@ Foam::tmp<Foam::volVectorField> Foam::wallLubricationModels::Frank::Fi
     volScalarField Eo(pair_.Eo(nodei,nodej));
     volScalarField yTilde(y/(Cwc_*pair_.dispersed().ds(nodei)));
 
-    return
+    return zeroGradWalls
+    (
         (
             pos(Eo - 1.0)*neg(Eo - 5.0)*exp(-0.933*Eo + 0.179)
           + pos(Eo - 5.0)*neg(Eo - 33.0)*(0.00599*Eo - 0.0187)
@@ -96,7 +97,8 @@ Foam::tmp<Foam::volVectorField> Foam::wallLubricationModels::Frank::Fi
         )
        *pair_.continuous().rho()
        *magSqr(Ur - (Ur & n)*n)
-       *n;
+       *n
+    );
 }
 
 

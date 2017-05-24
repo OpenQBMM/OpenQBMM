@@ -328,6 +328,72 @@ Foam::BlendedInterfacialModel<modelType>::Kf
 
 
 template<class modelType>
+Foam::tmp<Foam::volScalarField>
+Foam::BlendedInterfacialModel<modelType>::Cvm
+(
+    const label nodei,
+    const label nodej
+) const
+{
+    tmp<volScalarField> f1, f2;
+
+    if (model_.valid() || model1In2_.valid())
+    {
+        f1 = blending_.f1(pair1In2_.dispersed(), pair2In1_.dispersed());
+    }
+
+    if (model_.valid() || model2In1_.valid())
+    {
+        f2 = blending_.f2(pair1In2_.dispersed(), pair2In1_.dispersed());
+    }
+
+    tmp<volScalarField> x
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                modelType::typeName + ":Cvm",
+                pair_.phase1().mesh().time().timeName(),
+                pair_.phase1().mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            pair_.phase1().mesh(),
+            dimensionedScalar("zero", dimless, 0)
+        )
+    );
+
+    if (model_.valid())
+    {
+        x.ref() += model_->Cvm(nodei,nodej)*(f1() - f2());
+    }
+
+    if (model1In2_.valid())
+    {
+        x.ref() += model1In2_->Cvm(nodei,nodej)*(1 - f1);
+    }
+
+    if (model2In1_.valid())
+    {
+        x.ref() += model2In1_->Cvm(nodej,nodei)*f2;
+    }
+
+    if
+    (
+        correctFixedFluxBCs_
+     && (model_.valid() || model1In2_.valid() || model2In1_.valid())
+    )
+    {
+        correctFixedFluxBCs(x.ref());
+    }
+
+    return x;
+}
+
+
+template<class modelType>
 template<class Type>
 Foam::tmp<Foam::GeometricField<Type, Foam::fvPatchField, Foam::volMesh>>
 Foam::BlendedInterfacialModel<modelType>::F
