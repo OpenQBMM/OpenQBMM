@@ -38,7 +38,7 @@ Foam::univariateMomentSet::univariateMomentSet
     momentSet
     (
         nMoments,
-        NullObjectRef<labelListList>(),
+        makeUnivariateMomentOrders(nMoments),//NullObjectRef<labelListList>(),
         support,
         initValue
     ),
@@ -85,7 +85,7 @@ Foam::univariateMomentSet::univariateMomentSet
     momentSet
     (
         m,
-        NullObjectRef<labelListList>(),
+        makeUnivariateMomentOrders(m.size()),
         support
     ),
     alpha_(),
@@ -666,6 +666,21 @@ void Foam::univariateMomentSet::checkRealizability
             return;
         }
     }
+}
+
+Foam::labelListList Foam::univariateMomentSet::makeUnivariateMomentOrders
+(
+    const label nMoments
+)
+{
+    labelListList mOrd(nMoments);
+
+    for (label mI = 0; mI < nMoments; mI++)
+    {
+        mOrd[mI] = labelList(1, mI);
+    }
+
+    return mOrd;
 }
 
 void Foam::univariateMomentSet::update
