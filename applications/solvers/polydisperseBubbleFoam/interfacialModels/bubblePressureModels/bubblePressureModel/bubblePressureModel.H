@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2017 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
@@ -123,53 +123,29 @@ public:
     // Member Functions
 
         //- Return bubble pressure
-        virtual tmp<volScalarField> pb
-        (
-            const label nodei,
-            const label nodej
-        ) const = 0;
+        virtual tmp<volScalarField> pb(const label, const label) const = 0;
 
         //- Return effective viscosity dues to dispersed phase
-        virtual tmp<volScalarField> nuEff
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        virtual tmp<volScalarField> nuEff(const label, const label) const;
 
         //- Return continuous phase viscous stress
         virtual tmp<volVectorField> divDevRhoReff
         (
-            const label nodei,
-            const label nodej
+            const label,
+            const label
         ) const;
 
         //- Return phase-intensive bubble pressure force
-        virtual tmp<volVectorField> Fi
-        (
-            const label nodei,
-            const label nodej
-        ) const ;
+        virtual tmp<volVectorField> Fi(const label, const label) const;
 
         //- Return bubble pressure force
-        virtual tmp<volVectorField> F
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        virtual tmp<volVectorField> F(const label, const label) const;
 
         //- Return face bubble pressure force
-        virtual tmp<surfaceScalarField> Ff
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        virtual tmp<surfaceScalarField> Ff(const label, const label) const;
 
         //- Return acceleration due to bubble pressure
-        virtual tmp<volVectorField> A
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        virtual tmp<volVectorField> A(const label, const label) const;
 };
 
 

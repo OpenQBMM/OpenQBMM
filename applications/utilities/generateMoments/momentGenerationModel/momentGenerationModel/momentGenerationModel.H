@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -19,9 +19,11 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 Class
     Foam::momentGenerationModel
+
 Description
     Base class for runtime selection for moment generation. One object is used
     for all node. Moments are constructed outside of class.
+
 SourceFiles
     momentGenetationModel.C
     momentGenerationModelnew.C

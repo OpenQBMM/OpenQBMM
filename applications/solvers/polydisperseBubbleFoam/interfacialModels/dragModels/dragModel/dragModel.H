@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2015 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2017 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
@@ -134,39 +134,23 @@ public:
     // Member Functions
 
         //- Drag coefficient
-        virtual tmp<volScalarField> CdRe
-        (
-            const label nodei,
-            const label nodej
-        ) const = 0;
+        virtual tmp<volScalarField> CdRe(const label, const label) const = 0;
 
         //- Return the phase-intensive drag coefficient Ki
         //  used in the momentum equations
         //    ddt(alpha1*rho1*U1) + ... = ... alphad*K*(U1-U2)
         //    ddt(alpha2*rho2*U2) + ... = ... alphad*K*(U2-U1)
-        virtual tmp<volScalarField> Ki
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        virtual tmp<volScalarField> Ki(const label, const label) const;
 
         //- Return the drag coefficient K
         //  used in the momentum equations
         //    ddt(alpha1*rho1*U1) + ... = ... K*(U1-U2)
         //    ddt(alpha2*rho2*U2) + ... = ... K*(U2-U1)
-        virtual tmp<volScalarField> K
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        virtual tmp<volScalarField> K(const label, const label) const;
 
         //- Return the drag coefficient Kf
         //  used in the face-momentum equations
-        virtual tmp<surfaceScalarField> Kf
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        virtual tmp<surfaceScalarField> Kf(const label, const label) const;
 
         //- Dummy write for regIOobject
         bool writeData(Ostream& os) const;

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2016 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2014-2017 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
@@ -126,58 +126,58 @@ public:
         //- Return the blended force coefficient
         tmp<volScalarField> K
         (
-            const label nodei,
-            const label nodej
+            const label,
+            const label
         ) const;
 
         //- Return the blended acceleration coefficient
         tmp<volScalarField> Ki
         (
-            const label nodei,
-            const label nodej
+            const label,
+            const label
         ) const;
 
         //- Return the face blended force coefficient
         tmp<surfaceScalarField> Kf
         (
-            const label nodei,
-            const label nodej
+            const label,
+            const label
         ) const;
 
         //- Return the blended acceleration coefficient
         tmp<volScalarField> Cvm
         (
-            const label nodei,
-            const label nodej
+            const label,
+            const label
         ) const;
 
         //- Return the blended force
         template<class Type>
         tmp<GeometricField<Type, fvPatchField, volMesh>> F
         (
-            const label nodei,
-            const label nodej
+            const label,
+            const label
         ) const;
 
         //- Return the face blended force
         tmp<surfaceScalarField> Ff
         (
-            const label nodei,
-            const label nodej
+            const label,
+            const label
         ) const;
 
         //- Return the blended acceleration
         tmp<volVectorField> A
         (
-            const label nodei,
-            const label nodej
+            const label,
+            const label
         ) const;
 
         //- Return the blended diffusivity
         tmp<volScalarField> D
         (
-            const label nodei,
-            const label nodej
+            const label,
+            const label
         ) const;
 };
 

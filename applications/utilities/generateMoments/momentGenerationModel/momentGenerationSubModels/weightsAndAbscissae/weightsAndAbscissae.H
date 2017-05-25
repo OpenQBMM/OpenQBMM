@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -17,10 +17,13 @@ License
     for more details.
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
 Class
     Foam::momentGenerationSubModels::weightsAndAbscissae
+
 Description
-    .
+    Constructs moments given weights and abscissae
+
 SourceFiles
     weightsAndAbscissae.C
 \*---------------------------------------------------------------------------*/

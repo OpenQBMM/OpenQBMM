@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2014-2017 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
@@ -92,7 +92,6 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::K
 {
     return
         pair_.dispersed().alphas(nodei)
-       *pair_.continuous().alphas(nodej)
        *Ki(nodei,nodej);
 }
 
@@ -105,7 +104,6 @@ Foam::tmp<Foam::surfaceScalarField> Foam::virtualMassModel::Kf
 {
     return
         fvc::interpolate(pair_.dispersed().alphas(nodei))
-       *fvc::interpolate(pair_.continuous().alphas(nodej))
        *fvc::interpolate(Ki(nodei,nodej));
 }
 

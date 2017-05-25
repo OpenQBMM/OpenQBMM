@@ -90,7 +90,7 @@ for (label nodei = 0; nodei < nNodes; nodei++)
 
     // Virtual Mass
     {
-        tmp<volScalarField> Cvmi = virtualMass->Cvm(nodei,0);
+//         tmp<volScalarField> Cvmi = virtualMass->Cvm(nodei,0);
         tmp<volScalarField> Kvmi = virtualMass->K(nodei,0);
         tmp<volScalarField> Ki = virtualMass->Ki(nodei,0)/rho1;
 
@@ -103,12 +103,12 @@ for (label nodei = 0; nodei < nNodes; nodei++)
           - fvm::Sp(fvc::div(phi1), phase1.Us(nodei))
         );
 
-        volScalarField DDtMi
-        (
-            fvc::ddt(phase1.alphas(nodei))
-          + fvc::div(phi1, phase1.alphas(nodei))
-          - fvc::div(phi1)*phase1.alphas(nodei)
-        );
+//         volScalarField DDtMi
+//         (
+//             fvc::ddt(phase1.alphas(nodei))
+//           + fvc::div(phi1, phase1.alphas(nodei))
+//           - fvc::div(phi1)*phase1.alphas(nodei)
+//         );
 
         F +=
         (
@@ -116,8 +116,8 @@ for (label nodei = 0; nodei < nNodes; nodei++)
            *(
                 (DDtU1 & U1)
               - (DDtUs & phase1.Us(nodei))
-              + phase1.Vs(nodei)*DDtMi
-               /max(alpha2, phase2.residualAlpha())
+//               + phase1.Vs(nodei)*DDtMi
+//                /max(alpha2, phase2.residualAlpha())
             )
         );
 
@@ -128,8 +128,8 @@ for (label nodei = 0; nodei < nNodes; nodei++)
                 (DDtU2 & U2)
               - DDtUs
             )
-          + fvm::Sp(Ki()*DDtMi, phase1.Us(nodei))
-          - U2*Ki()*DDtMi
+//           + fvm::Sp(Ki()*DDtMi, phase1.Us(nodei))
+//           - U2*Ki()*DDtMi
         );
     }
 

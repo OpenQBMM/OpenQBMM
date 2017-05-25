@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2017 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
@@ -80,25 +80,13 @@ public:
     // Member Functions
 
         //- Return phase-intensive wall lubrication force
-        tmp<volVectorField> Fi
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        tmp<volVectorField> Fi(const label, const label) const;
 
         //- Wall lubrication force
-        tmp<volVectorField> F
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        tmp<volVectorField> F(const label, const label) const;
 
         //- Acceleration due to wall lubrication
-        tmp<volVectorField> A
-        (
-            const label nodei,
-            const label nodej
-        ) const;
+        tmp<volVectorField> A(const label, const label) const;
 };
 
 
