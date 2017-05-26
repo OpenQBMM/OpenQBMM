@@ -9,37 +9,37 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volVectorField;
-    object      U.air;
+    class       volScalarField;
+    location    "0";
+    object      alpha.air;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
+dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform (0 0 0);
+internalField   uniform 0;
 
 boundaryField
 {
     inlet
     {
-        type                fixedValue;
-        value               uniform (0 0.03 0);
+        type            fixedValue;
+        value           uniform 0.5;
     }
     outlet
     {
-        type                inletOutlet;
-        phi                 phi.air;
-        inletValue          uniform (0 0 0);
-        value               $internalField;
+        type            inletOutlet;
+        phi             phi.air;
+        inletValue      uniform 1;
+        value           uniform 1;
     }
     walls
     {
-        type                fixedValue;
-        value               uniform (0 0 0);
+        type            zeroGradient;
     }
     defaultFaces
     {
-        type                empty;
+        type    empty;
     }
 }
 

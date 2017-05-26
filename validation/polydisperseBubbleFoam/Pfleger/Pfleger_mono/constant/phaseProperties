@@ -34,6 +34,9 @@ water
     d               1e-4;
 }
 
+pMin    1e3;
+pMax    1e7;
+
 blending
 {
     default
@@ -133,5 +136,9 @@ lift
 );
 
 wallLubrication
+(
+);
+
+bubblePressure
 (
 );

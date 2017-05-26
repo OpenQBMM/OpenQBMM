@@ -31,7 +31,7 @@ writeControl    adjustableRunTime;
 
 writeInterval   1;
 
-purgeWrite      0;
+purgeWrite      250;
 
 writeFormat     ascii;
 
@@ -49,7 +49,7 @@ adjustTimeStep  yes;
 
 maxCo           0.5;
 
-maxDeltaT       5e-5;
+maxDeltaT       1;
 
 functions
 {
@@ -59,7 +59,6 @@ functions
         functionObjectLibs ( "libfieldFunctionObjects.so" );
         outputControl   outputTime;
         timeStart       50;
-        resetOnOutput   false;
         fields
         (
             U.air
