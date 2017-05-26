@@ -113,6 +113,12 @@ int main(int argc, char *argv[])
             phi ==
                 fvc::interpolate(alpha1)*phi1
               + fvc::interpolate(alpha2)*phi2;
+
+            if (pimple.turbCorr())
+            {
+                phase1.turbulence().correct();
+                phase2.turbulence().correct();
+            }
         }
 
         runTime.write();
