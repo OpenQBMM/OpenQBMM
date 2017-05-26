@@ -48,7 +48,6 @@ SourceFiles
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
 #include "fieldMomentInversion.H"
-#include "Vandermonde.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

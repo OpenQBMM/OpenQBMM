@@ -1,6 +1,6 @@
 EXE_INC = \
-    -I$../../twoPhaseSystem \
-    -I$../../interfacialModels/lnInclude \
+    -I../twoPhaseSystem \
+    -I../interfacialModels/lnInclude \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
     -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
@@ -10,14 +10,14 @@ EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
-    -I$../../../../../src/quadratureMethods/momentSets/lnInclude \
-    -I$../../../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude \
-    -I$../../../../../src/quadratureMethods/quadratureNode \
-    -I$../../../../../src/quadratureMethods/moments \
-    -I$../../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I$../../../../../src/quadratureMethods/quadratureApproximation \
-    -I$../../../../../src/quadratureMethods/monoKineticQuadratureApproximation/lnInclude \
-    -I$../../../../../src/Vandermonde/lnInclude
+    -I../../../../src/quadratureMethods/momentSets/lnInclude \
+    -I../../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude \
+    -I../../../../src/quadratureMethods/quadratureNode \
+    -I../../../../src/quadratureMethods/moments \
+    -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I../../../../src/quadratureMethods/quadratureApproximation \
+    -I../../../../src/quadratureMethods/monoKineticQuadratureApproximation/lnInclude \
+    -I../../../../src/Vandermonde/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \

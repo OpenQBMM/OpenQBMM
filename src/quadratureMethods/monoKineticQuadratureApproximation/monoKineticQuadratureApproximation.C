@@ -32,6 +32,7 @@ License
 #include "fixedValueFvsPatchFields.H"
 #include "slipFvPatchFields.H"
 #include "partialSlipFvPatchFields.H"
+#include "Vandermonde.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
