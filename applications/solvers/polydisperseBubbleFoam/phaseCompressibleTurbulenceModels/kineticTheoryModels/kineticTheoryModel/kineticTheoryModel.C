@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "kineticTheoryModel.H"
+#include "twoPhaseSystem.H"
 #include "mathematicalConstants.H"
 #include "fvOptions.H"
 

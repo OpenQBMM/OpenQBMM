@@ -83,6 +83,9 @@ public:
         //- Virtual mass coefficient
         virtual tmp<volScalarField> Cvm(const label, const label) const;
 
+        //- Virtual mass coefficient
+        virtual tmp<volScalarField> Cvm() const;
+
         //- The virtual mass function K used in the momentum equation
         virtual tmp<volScalarField> K(const label, const label) const;
 

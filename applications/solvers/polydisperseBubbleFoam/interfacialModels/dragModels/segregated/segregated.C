@@ -82,6 +82,17 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::CdRe
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::CdRe() const
+{
+    FatalErrorInFunction
+        << "Not implemented."
+        << "Drag coefficient not defined for the segregated model."
+        << exit(FatalError);
+
+    return pair_.phase1();
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::Ki
 (
     const label nodei,

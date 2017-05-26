@@ -99,6 +99,9 @@ public:
         //- Drag coefficient
         virtual tmp<volScalarField> CdRe(const label, const label) const;
 
+        //- Drag coefficient
+        virtual tmp<volScalarField> CdRe() const;
+
         //- The drag function used in the momentum equation
         virtual tmp<volScalarField> K(const label, const label) const;
 

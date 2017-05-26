@@ -35,24 +35,11 @@ Description
 
 #include "fvCFD.H"
 #include "pimpleControl.H"
-#include "fvcSmooth.H"
-#include "MULES.H"
 #include "fvOptions.H"
-#include "subCycle.H"
+#include "twoPhaseSystem.H"
+#include "PhaseCompressibleTurbulenceModel.H"
+#include "fixedValueFvsPatchFields.H"
 
-#include "phaseModel.H"
-#include "pdPhaseModel.H"
-#include "phasePair.H"
-#include "orderedPhasePair.H"
-
-#include "dragModel.H"
-#include "liftModel.H"
-#include "virtualMassModel.H"
-#include "wallLubricationModel.H"
-#include "turbulentDispersionModel.H"
-#include "bubblePressureModel.H"
-#include "BlendedInterfacialModel.H"
-#include "blendingMethod.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -64,9 +51,19 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
     #include "createControl.H"
-    #include "createTimeControls.H"
-    #include "createRDeltaT.H"
     #include "createFields.H"
+    #include "createFieldRefs.H"
+    #include "createTimeControls.H"
+    #include "CourantNos.H"
+    #include "setInitialDeltaT.H"
+
+    Switch implicitPhasePressure
+    (
+        mesh.solverDict(alpha1.name()).lookupOrDefault<Switch>
+        (
+            "implicitPhasePressure", false
+        )
+    );
 
     #include "pU/createDDtU.H"
 
@@ -91,24 +88,27 @@ int main(int argc, char *argv[])
 
             // Transport moments with velocities relative to the mean gas
             // velocity
-            phase1.relativeTransport();
-            phi == fvc::interpolate(alpha1)*phi1 + fvc::interpolate(alpha2)*phi2;
+            fluid.relativeTransport();
+            phi ==
+                fvc::interpolate(alpha1)*phi1
+              + fvc::interpolate(alpha2)*phi2;
 
             // Solve for mean phase velocities and gas volume fraction
             while (pimple.loop())
             {
-                #include "alphas.H"
+                fluid.solve();
+                fluid.correct();
 
                 #include "contErrs.H"
+
                 #include "pU/DDtU.H"
-                #include "updateInterfacialForces.H"
 
                 #include "pU/UEqns.H"
                 #include "pU/pEqn.H"
             }
 
             // Transport moments with mean gas velocity
-            phase1.averageTransport(AEqns);
+            fluid.averageTransport();
 
             phi ==
                 fvc::interpolate(alpha1)*phi1
@@ -116,8 +116,7 @@ int main(int argc, char *argv[])
 
             if (pimple.turbCorr())
             {
-                phase1.turbulence().correct();
-                phase2.turbulence().correct();
+                fluid.correctTurbulence();
             }
         }
 

@@ -1,291 +1,87 @@
 #include "readGravitationalAcceleration.H"
 #include "readhRef.H"
 
-    // Create fields for 2-fluid solver
-    IOdictionary phaseDict
-    (
-        IOobject
-        (
-            "phaseProperties",
-            runTime.constant(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    );
+Info<< "Creating twoPhaseSystem\n" << endl;
 
-    //- Total U
-    volVectorField U
+twoPhaseSystem fluid(mesh, g);
+
+phaseModel& phase1 = fluid.phase1();
+phaseModel& phase2 = fluid.phase2();
+
+volScalarField& alpha1 = phase1;
+volVectorField& U1 = phase1.U();
+volVectorField& U2 = phase2.U();
+
+const label nNodes = phase1.nNodes();
+
+volScalarField& p = phase1.thermo().p();
+
+// Pressure
+dimensionedScalar pMin
+(
+    "pMin",
+    dimPressure,
+    fluid
+);
+
+#include "gh.H"
+
+Info<< "Reading field p_rgh\n" << endl;
+volScalarField p_rgh
+(
+    IOobject
     (
-        IOobject
-        (
-            "U",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
+        "p_rgh",
+        runTime.timeName(),
         mesh,
-        dimensionedVector("0", dimVelocity, Zero)
-    );
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
 
-    //- Total flux
-    surfaceScalarField phi
+volVectorField U
+(
+    IOobject
     (
-        IOobject
-        (
-            "phi",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
+        "U",
+        runTime.timeName(),
         mesh,
-        dimensionedScalar("0", dimVelocity*dimArea, 0.0)
-    );
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    fluid.U()
+);
 
-    wordList phases(phaseDict.lookup("phases"));
-    word dispersed(phases[0]);
-    word continuous(phases[1]);
+label pRefCell = 0;
+scalar pRefValue = 0.0;
+setRefCell
+(
+    p,
+    p_rgh,
+    pimple.dict(),
+    pRefCell,
+    pRefValue
+);
+mesh.setFluxRequired(p_rgh.name());
+mesh.setFluxRequired(alpha1.name());
 
-    // Create dispersed phase fields (uses quadrature)
-    pdPhaseModel phase1(mesh,phaseDict,dispersed);
-    volScalarField& alpha1 = phase1;
-    volVectorField& U1 = phase1.U();
-    surfaceScalarField& phi1 = phase1.phi();
-    surfaceScalarField& alphaPhi1 = phase1.alphaPhi();
-    surfaceScalarField& alphaRhoPhi1 = phase1.alphaRhoPhi();
-
-    const label nNodes = phase1.nNodes();
-
-    // Create continuous phase fields
-    phaseModel phase2(mesh,phaseDict,continuous);
-    volScalarField& alpha2 = phase2;
-    alpha2 == scalar(1) - alpha1;
-    volVectorField& U2 = phase2.U();
-    surfaceScalarField& phi2 = phase2.phi();
-    surfaceScalarField& alphaPhi2 = phase2.alphaPhi();
-    surfaceScalarField& alphaRhoPhi2 = phase2.alphaRhoPhi();
-
-    // Set information used in phase pair class
-    phasePair::dictTable aspectRatioTable(phaseDict.lookup("aspectRatio"));
-    phasePair::scalarTable sigmaTable(phaseDict.lookup("sigma"));
-    HashTable<autoPtr<blendingMethod>, word, word::hash> blendingMethods;
-
-    forAllConstIter(dictionary, phaseDict.subDict("blending"), iter)
-    {
-        blendingMethods.insert
-        (
-            iter().dict().dictName(),
-            blendingMethod::New
-            (
-                iter().dict(),
-                wordList(phaseDict.lookup("phases"))
-            )
-        );
-    }
-
-    // Create phase pairs
-    orderedPhasePair pair1In2
+Info<< "Creating field dpdt\n" << endl;
+volScalarField dpdt
+(
+    IOobject
     (
-        phase1,
-        phase2,
-        g,
-        sigmaTable,
-        aspectRatioTable
-    );
-    orderedPhasePair pair2In1
-    (
-        phase2,
-        phase1,
-        g,
-        sigmaTable,
-        aspectRatioTable
-    );
-    phasePair pair1And2
-    (
-        phase1,
-        phase2,
-        g,
-        sigmaTable
-    );
-
-
-    // Create interfacial models
-    autoPtr<BlendedInterfacialModel<dragModel> > drag
-    (
-        new BlendedInterfacialModel<dragModel>
-        (
-            phaseDict.lookup("drag"),
-            (
-                blendingMethods.found("drag")
-              ? blendingMethods["drag"]
-              : blendingMethods["default"]
-            ),
-            pair1And2,
-            pair1In2,
-            pair2In1,
-            false // Do not zero drag coefficent at fixed-flux BCs
-        )
-    );
-
-    autoPtr<BlendedInterfacialModel<turbulentDispersionModel> > dispersion
-    (
-        new BlendedInterfacialModel<turbulentDispersionModel>
-        (
-            phaseDict.lookup("turbulentDispersion"),
-            (
-                blendingMethods.found("turbulentDispersion")
-              ? blendingMethods["turbulentDispersion"]
-              : blendingMethods["default"]
-            ),
-            pair1And2,
-            pair1In2,
-            pair2In1
-        )
-    );
-
-    autoPtr<BlendedInterfacialModel<virtualMassModel> > virtualMass
-    (
-        new BlendedInterfacialModel<virtualMassModel>
-        (
-            phaseDict.lookup("virtualMass"),
-            (
-                blendingMethods.found("virtualMass")
-              ? blendingMethods["virtualMass"]
-              : blendingMethods["default"]
-            ),
-            pair1And2,
-            pair1In2,
-            pair2In1
-        )
-    );
-
-    autoPtr<BlendedInterfacialModel<liftModel> > lift
-    (
-        new BlendedInterfacialModel<liftModel>
-        (
-            phaseDict.lookup("lift"),
-            (
-                blendingMethods.found("lift")
-              ? blendingMethods["lift"]
-              : blendingMethods["default"]
-            ),
-            pair1And2,
-            pair1In2,
-            pair2In1
-        )
-    );
-
-    autoPtr<BlendedInterfacialModel<wallLubricationModel> > wallLubrication
-    (
-        new BlendedInterfacialModel<wallLubricationModel>
-        (
-            phaseDict.lookup("wallLubrication"),
-            (
-                blendingMethods.found("wallLubrication")
-              ? blendingMethods["wallLubrication"]
-              : blendingMethods["default"]
-            ),
-            pair1And2,
-            pair1In2,
-            pair2In1
-        )
-    );
-
-    autoPtr<BlendedInterfacialModel<bubblePressureModel> > bubblePressure
-    (
-        new BlendedInterfacialModel<bubblePressureModel>
-        (
-            phaseDict.lookup("bubblePressure"),
-            (
-                blendingMethods.found("bubblePressure")
-              ? blendingMethods["bubblePressure"]
-              : blendingMethods["default"]
-            ),
-            pair1And2,
-            pair1In2,
-            pair2In1
-        )
-    );
-
-    // Rhos
-    volScalarField rho1 = phase1.rho();
-    volScalarField rho2 = phase2.rho();
-
-    // Nus
-    volScalarField nu1 = phase1.nu();
-    volScalarField nu2 = phase2.nu();
-
-    //- Total U
-    U == alpha1*U1 + alpha2*U2;
-
-    //- Total flux
-    phi == fvc::interpolate(alpha1)*phi1 + fvc::interpolate(alpha2)*phi2;
-
-    //- Total rho
-    volScalarField rho
-    (
-        IOobject
-        (
-            "rho",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        alpha1*rho1 + alpha2*rho2
-    );
-
-    // Pressure
-    dimensionedScalar pMin
-    (
-        "pMin",
-        dimPressure,
-        0.0
-    );
-
-    #include "gh.H"
-
-    Info<< "Reading field p_rgh\n" << endl;
-    volScalarField p
-    (
-        IOobject
-        (
-            "p",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
+        "dpdt",
+        runTime.timeName(),
         mesh
-    );
-    volScalarField p_rgh
-    (
-        IOobject
-        (
-            "p_rgh",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    );
-    p_rgh = p - gh*rho;
+    ),
+    mesh,
+    dimensionedScalar("dpdt", p.dimensions()/dimTime, 0)
+);
 
-    label pRefCell = 0;
-    scalar pRefValue = 0.0;
-    setRefCell
-    (
-        p,
-        p_rgh,
-        pimple.dict(),
-        pRefCell,
-        pRefValue
-    );
-    mesh.setFluxRequired(p_rgh.name());
-    mesh.setFluxRequired(alpha1.name());
 
+Info<< "Creating field kinetic energy K\n" << endl;
+volScalarField K1(IOobject::groupName("K", phase1.name()), 0.5*magSqr(U1));
+volScalarField K2(IOobject::groupName("K", phase2.name()), 0.5*magSqr(U2));
 
 #include "createMRF.H"

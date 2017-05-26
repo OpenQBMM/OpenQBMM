@@ -366,6 +366,8 @@ void Foam::pdPhaseModel::relativeTransport()
 
 void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 {
+    Info<< "Transporting moments with average velocity" << endl;
+
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
 
@@ -427,7 +429,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         mEqn.relax();
         mEqn.solve();
     }
-    correct();
 
     // If momodisperse, use mean velocity to construct velocity moments
 //     if(nNodes_ == 1)
@@ -502,7 +503,9 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             UpEqn.solve();
         }
         quadrature_.updateAllQuadrature();
+        correct();
 
+        Info << "Solving for velocity abscissae" << endl;
         // Solve for velocity abscissa directly since the momentum exchange
         //  terms do not change the mass
         forAll(Us_, nodei)

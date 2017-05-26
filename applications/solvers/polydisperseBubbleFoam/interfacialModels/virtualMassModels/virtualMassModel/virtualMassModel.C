@@ -74,6 +74,37 @@ Foam::virtualMassModel::~virtualMassModel()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Cvm() const
+{
+    label nNodesi = pair_.dispersed().nNodes();
+    label nNodesj = pair_.continuous().nNodes();
+
+    tmp<volScalarField> tCvm;
+    tCvm =
+        Cvm(0, 0)
+       *pair_.dispersed().alphas(0)
+       *pair_.continuous().alphas(0);
+
+    for (label nodei = 1; nodei < nNodesi; nodei++)
+    {
+        for (label nodej = 1; nodej < nNodesj; nodej++)
+        {
+            tCvm.ref() +=
+                Cvm(nodei, nodej)
+               *pair_.dispersed().alphas(nodei)
+               *pair_.continuous().alphas(nodej);
+        }
+    }
+    tCvm.ref() /=
+        max
+        (
+            pair_.dispersed()*pair_.continuous(),
+            pair_.dispersed().residualAlpha()
+        );
+    return tCvm;
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Ki
 (
     const label nodei,

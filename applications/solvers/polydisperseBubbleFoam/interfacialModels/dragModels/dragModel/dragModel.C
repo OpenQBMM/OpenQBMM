@@ -106,6 +106,31 @@ Foam::dragModel::~dragModel()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+Foam::tmp<Foam::volScalarField> Foam::dragModel::CdRe() const
+{
+    label nNodesi = pair_.dispersed().nNodes();
+    label nNodesj = pair_.continuous().nNodes();
+
+    tmp<volScalarField> tCdRe;
+    tCdRe =
+        CdRe(0, 0)
+       *pair_.dispersed().alphas(0)
+       *pair_.continuous().alphas(0);
+
+    for (label nodei = 1; nodei < nNodesi; nodei++)
+    {
+        for (label nodej = 1; nodej < nNodesj; nodej++)
+        {
+            tCdRe.ref() +=
+                CdRe(nodei, nodej)
+               *pair_.dispersed().alphas(nodei)
+               *pair_.continuous().alphas(nodej);
+        }
+    }
+    return tCdRe;
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::dragModel::Ki
 (
     const label nodei,
@@ -134,6 +159,25 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
             pair_.dispersed().alphas(nodei),
             pair_.dispersed().residualAlpha()
         )*Ki(nodei,nodej);
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::dragModel::K() const
+{
+    label nNodesi = pair_.dispersed().nNodes();
+    label nNodesj = pair_.continuous().nNodes();
+
+    tmp<volScalarField> tKd;
+    tKd = K(0, 0);
+
+    for (label nodei = 1; nodei < nNodesi; nodei++)
+    {
+        for (label nodej = 1; nodej < nNodesj; nodej++)
+        {
+            tKd.ref() += K(nodei, nodej);
+        }
+    }
+    return tKd;
 }
 
 

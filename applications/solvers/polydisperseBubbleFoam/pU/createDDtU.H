@@ -1,15 +1,15 @@
     Info<< "Calculating field DDtU1 and DDtU2\n" << endl;
 
-    fvVectorMatrix DDtU1
+    volVectorField DDtU1
     (
-        fvm::ddt(U1)
-      + fvm::div(phi1, U1)
-      - fvm::Sp(fvc::div(phi1),U1)
+        fvc::ddt(U1)
+      + fvc::div(phi1, U1)
+      - fvc::div(phi1)*U1
     );
 
-    fvVectorMatrix DDtU2
+    volVectorField DDtU2
     (
-        fvm::ddt(U2)
-      + fvm::div(phi2, U2)
-      - fvm::Sp(fvc::div(phi2),U2)
+        fvc::ddt(U2)
+      + fvc::div(phi2, U2)
+      - fvc::div(phi2)*U2
     );

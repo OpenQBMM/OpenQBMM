@@ -91,6 +91,29 @@ Foam::virtualMassModels::noVirtualMass::Cvm
 
 
 Foam::tmp<Foam::volScalarField>
+Foam::virtualMassModels::noVirtualMass::Cvm() const
+{
+    const fvMesh& mesh(this->pair_.phase1().mesh());
+
+    return
+        tmp<volScalarField>
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "noVirtualMass:Cvm",
+                    mesh.time().timeName(),
+                    mesh
+                ),
+                mesh,
+                dimensionedScalar("zero", dimless, 0)
+            )
+        );
+}
+
+
+Foam::tmp<Foam::volScalarField>
 Foam::virtualMassModels::noVirtualMass::K
 (
     const label nodei,

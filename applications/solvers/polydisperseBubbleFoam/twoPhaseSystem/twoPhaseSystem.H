@@ -2,8 +2,10 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2013-2016 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2013-2017 OpenFOAM Foundation
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+2017-05-26 Jeff Heylmun:    Added support of pdPhaseModel
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -71,6 +73,9 @@ class twoPhaseSystem
         //- Reference to the mesh
         const fvMesh& mesh_;
 
+        //- Total volumetric flux
+        surfaceScalarField phi_;
+        
         //- Gravity
         const dimensionedVector g_;
 
@@ -82,9 +87,6 @@ class twoPhaseSystem
 
         //- Number of nodes in the dispersed phase
         label nNodes_;
-
-        //- Total volumetric flux
-        surfaceScalarField phi_;
 
         //- Dilatation term
         volScalarField dgdt_;
@@ -145,9 +147,6 @@ public:
 
 
     // Member Functions
-        tmp<fvVectorMatrix> DDtU1(const label nodei = -1) const;
-
-        tmp<fvVectorMatrix> DDtU2() const;
 
         //- Return the mixture density
         tmp<volScalarField> rho() const;

@@ -136,6 +136,9 @@ public:
         //- Drag coefficient
         virtual tmp<volScalarField> CdRe(const label, const label) const = 0;
 
+        //- Drag coefficient
+        virtual tmp<volScalarField> CdRe() const;
+
         //- Return the phase-intensive drag coefficient Ki
         //  used in the momentum equations
         //    ddt(alpha1*rho1*U1) + ... = ... alphad*K*(U1-U2)
@@ -147,6 +150,9 @@ public:
         //    ddt(alpha1*rho1*U1) + ... = ... K*(U1-U2)
         //    ddt(alpha2*rho2*U2) + ... = ... K*(U2-U1)
         virtual tmp<volScalarField> K(const label, const label) const;
+
+        //- Return total drag coefficient
+        virtual tmp<volScalarField> K() const;
 
         //- Return the drag coefficient Kf
         //  used in the face-momentum equations

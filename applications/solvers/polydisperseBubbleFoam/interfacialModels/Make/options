@@ -7,11 +7,11 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/phaseCompressible/lnInclude \
-    -I../phaseModels/lnInclude
+    -I../twoPhaseSystem/lnInclude
 
 LIB_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
-    -lpdPhaseModels \
+    -lpdPhaseSystem \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie

@@ -121,6 +121,9 @@ public:
         //- Return the virtual mass coefficient
         virtual tmp<volScalarField> Cvm(const label, const label) const = 0;
 
+        //- Return the virtual mass coefficient based on all nodes
+        virtual tmp<volScalarField> Cvm() const;
+
         //- Return the phase-intensive virtual mass coefficient Ki
         //  used in the momentum equation
         //    ddt(alpha1*rho1*U1) + ... = ... alphad*K*(DU1_Dt - DU2_Dt)

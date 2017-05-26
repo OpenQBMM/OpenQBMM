@@ -1,43 +1,43 @@
 EXE_INC = \
-    -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I$(LIB_SRC)/fvOptions/lnInclude \
-    -I$(LIB_SRC)/sampling/lnInclude \
-    -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
-    -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
+    -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
-    -I$../../../../src/quadratureMethods/momentSets/lnInclude \
-    -I$../../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude \
-    -I$../../../../src/quadratureMethods/quadratureNode \
-    -I$../../../../src/quadratureMethods/moments \
-    -I$../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I$../../../../src/quadratureMethods/quadratureApproximation \
-    -I$../../../../src/quadratureMethods/monoKineticQuadratureApproximation/lnInclude \
-    -I$../../../../src/Vandermonde/lnInclude \
-    -I$../phaseModels/lnInclude \
-    -I$../interfacialModels/lnInclude \
-    -DFULLDEBUG -g -O0
+    -I$(LIB_SRC)/TurbulenceModels/phaseCompressible/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I../../../src/quadratureMethods/momentSets/lnInclude \
+    -I../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude \
+    -I../../../src/quadratureMethods/quadratureNode \
+    -I../../../src/quadratureMethods/moments \
+    -I../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I../../../src/quadratureMethods/quadratureApproximation \
+    -I../../../src/quadratureMethods/monoKineticQuadratureApproximation/lnInclude \
+    -I../../../src/Vandermonde/lnInclude \
+    -ItwoPhaseSystem/lnInclude \
+    -IphaseCompressibleTurbulenceModels/lnInclude \
+    -IinterfacialModels/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
-    -lfiniteVolume \
-    -lfvOptions \
-    -lsampling \
-    -lmeshTools \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie \
-    -lradiationModels \
     -lturbulenceModels \
     -lcompressibleTurbulenceModels \
+    -lincompressibleTransportModels \
+    -lfiniteVolume \
+    -lfvOptions \
     -lmeshTools \
+    -lsampling \
     -lmomentSets \
     -lextendedMomentInversion \
     -lfieldMomentInversion \
     -lmonoKineticQuadratureApproximation \
     -lvandermonde \
-    -lpdPhaseModels \
+    -lpdPhaseSystem \
+    -lpdPhaseCompressibleTurbulenceModels \
     -lpdEulerianInterfacialModels
 

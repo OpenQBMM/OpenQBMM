@@ -1,5 +1,4 @@
 EXE_INC = \
-    -I../twoPhaseSystem \
     -I../interfacialModels/lnInclude \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \

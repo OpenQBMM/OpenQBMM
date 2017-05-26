@@ -32,6 +32,7 @@ License
 #include "turbulentDispersionModel.H"
 #include "bubblePressureModel.H"
 #include "surfaceInterpolate.H"
+#include "fvMatrix.H"
 #include "MULES.H"
 #include "subCycle.H"
 #include "fvcDdt.H"
@@ -67,6 +68,20 @@ Foam::twoPhaseSystem::twoPhaseSystem
 
     mesh_(mesh),
 
+    phi_
+    (
+        IOobject
+        (
+            "phi",
+            mesh.time().timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("0", dimVelocity*dimArea, 0.0)
+    ),
+
     g_(g),
 
     phase1_
@@ -85,19 +100,6 @@ Foam::twoPhaseSystem::twoPhaseSystem
 
     nNodes_(phase1_.nNodes()),
 
-    phi_
-    (
-        IOobject
-        (
-            "phi",
-            mesh.time().timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        this->calcPhi()
-    ),
-
     dgdt_
     (
         IOobject
@@ -112,6 +114,8 @@ Foam::twoPhaseSystem::twoPhaseSystem
         dimensionedScalar("dgdt", dimless/dimTime, 0)
     )
 {
+    phi_ = calcPhi();
+
     phase2_.volScalarField::operator=(scalar(1) - phase1_);
 
 
@@ -254,7 +258,7 @@ Foam::twoPhaseSystem::twoPhaseSystem
         )
     );
 
-    autoPtr<BlendedInterfacialModel<bubblePressureModel> > bubblePressure
+    bubblePressure_.set
     (
         new BlendedInterfacialModel<bubblePressureModel>
         (
@@ -268,7 +272,7 @@ Foam::twoPhaseSystem::twoPhaseSystem
             pair1In2_,
             pair2In1_
         )
-);
+    );
 }
 
 
@@ -279,34 +283,6 @@ Foam::twoPhaseSystem::~twoPhaseSystem()
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-Foam::tmp<Foam::fvVectorMatrix>
-Foam::twoPhaseSystem::DDtU1(const label nodei) const
-{
-    if (nodei == -1)
-    {
-        return
-            fvm::ddt(phase1_.U())
-          + fvm::div(phase1_.phi(), phase1_.U())
-          - fvm::Sp(fvc::div(phase1_.phi()),phase1_.U());
-    }
-    return
-        fvm::ddt(phase1_.Us(nodei))
-      + fvm::div(phase1_.phi(), phase1_.Us(nodei))
-      - fvm::Sp(fvc::div(phase1_.phi()),phase1_.Us(nodei));
-}
-
-
-Foam::tmp<Foam::fvVectorMatrix>
-Foam::twoPhaseSystem::DDtU2() const
-{
-
-    return
-        fvm::ddt(phase2_.U())
-      + fvm::div(phase2_.phi(), phase2_.U())
-      - fvm::Sp(fvc::div(phase2_.phi()),phase2_.U());
-}
-
 
 Foam::tmp<Foam::volScalarField> Foam::twoPhaseSystem::rho() const
 {
@@ -487,15 +463,28 @@ Foam::tmp<Foam::surfaceScalarField> Foam::twoPhaseSystem::Vmf() const
 Foam::tmp<Foam::volVectorField>
 Foam::twoPhaseSystem::F(const label nodei) const
 {
+    volVectorField DDtU1
+    (
+        fvc::ddt(phase1_.U())
+      + fvc::div(phase1_.phi(), phase1_.U())
+      - fvc::div(phase1_.phi())*phase1_.U()
+    );
+    volVectorField DDtUi
+    (
+        fvc::ddt(phase1_.U())
+      + fvc::div(phase1_.phi(), phase1_.Us(nodei))
+      - fvc::div(phase1_.phi())*phase1_.Us(nodei)
+    );
+
     return
         lift_->F<vector>(nodei, 0)
       + wallLubrication_->F<vector>(nodei, 0)
       + bubblePressure_->F<vector>(nodei, 0)
-      + Kd(nodei)*phase1_.Vs(nodei)
+      - Kd(nodei)*phase1_.Vs(nodei)
       + Vm(nodei)
        *(
-            (DDtU1() & phase1_.U())
-          - (DDtU1(nodei) & phase1_.Us(nodei))
+            DDtU1
+          - DDtUi
         );
 }
 
@@ -519,7 +508,7 @@ Foam::tmp<Foam::volVectorField> Foam::twoPhaseSystem::F() const
             dimensionedVector
             (
                 "F",
-                dimForce,
+                dimensionSet(1, -2, -2, 0, 0),
                 Zero
             )
         )
@@ -535,17 +524,29 @@ Foam::tmp<Foam::volVectorField> Foam::twoPhaseSystem::F() const
 Foam::tmp<Foam::surfaceScalarField>
 Foam::twoPhaseSystem::Ff(const label nodei) const
 {
+    volVectorField DDtU1
+    (
+        fvc::ddt(phase1_.U())
+      + fvc::div(phase1_.phi(), phase1_.U())
+      - fvc::div(phase1_.phi())*phase1_.U()
+    );
+    volVectorField DDtUi
+    (
+        fvc::ddt(phase1_.U())
+      + fvc::div(phase1_.phi(), phase1_.Us(nodei))
+      - fvc::div(phase1_.phi())*phase1_.Us(nodei)
+    );
     return
         lift_->Ff(nodei, 0)
       + wallLubrication_->Ff(nodei, 0)
       + bubblePressure_->Ff(nodei, 0)
       + fvc::flux
         (
-            Kd(nodei)*phase1_.Vs(nodei)
+          - Kd(nodei)*phase1_.Vs(nodei)
           + Vm(nodei)
            *(
-                (DDtU1() & phase1_.U())
-              - (DDtU1(nodei) & phase1_.Us(nodei))
+                DDtU1
+              - DDtUi
             )
         );
 }
@@ -569,7 +570,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::twoPhaseSystem::Ff() const
             dimensionedScalar
             (
                 "Ff",
-                dimForce/dimArea,
+                dimensionSet(1, 0, -2, 0, 0),
                 Zero
             )
         )
@@ -777,40 +778,6 @@ void Foam::twoPhaseSystem::solve()
 }
 
 
-void Foam::twoPhaseSystem::correct()
-{
-    phase1_.correct();
-    phase2_.correct();
-}
-
-
-void Foam::twoPhaseSystem::correctTurbulence()
-{
-    phase1_.turbulence().correct();
-    phase2_.turbulence().correct();
-}
-
-
-bool Foam::twoPhaseSystem::read()
-{
-    if (regIOobject::read())
-    {
-        bool readOK = true;
-
-        readOK &= phase1_.read(*this);
-        readOK &= phase2_.read(*this);
-
-        // models ...
-
-        return readOK;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-
 void Foam::twoPhaseSystem::relativeTransport()
 {
     phase1_.relativeTransport();
@@ -821,11 +788,15 @@ void Foam::twoPhaseSystem::averageTransport()
 {
     phase1_.correct();
 
-    volTensorField taul
+    // Liquid viscous stress
+    volSymmTensorField taul = phase2_.turbulence().devRhoReff();
+
+    // Acceleration of liquid phase
+    volVectorField DDtU2
     (
-        "taul",
-        phase2_.rho()*phase2_*phase2_.nu()
-       *(fvc::grad(phase2_.U()) + dev2(T(fvc::grad(phase2_.U()))))
+        fvc::ddt(phase2_.U())
+      + fvc::div(phase2_.phi(), phase2_.U())
+      - fvc::div(phase2_.phi())*phase2_.U()
     );
 
     PtrList<fvVectorMatrix> AEqns(nNodes_);
@@ -871,12 +842,20 @@ void Foam::twoPhaseSystem::averageTransport()
 
 
         // Virtual Mass
-        AEqns[nodei] +=
-            virtualMass_->Ki(nodei,0)/rho1
-           *(
-                (DDtU1() & phase1_.U())
-              - DDtU1(nodei)
+        {
+            fvVectorMatrix DDtUs
+            (
+                fvm::ddt(phase1_.Us(nodei))
+              + fvm::div(phase1_.phi(), phase1_.Us(nodei))
+              - fvm::Sp(fvc::div(phase1_.phi()),phase1_.Us(nodei))
             );
+            AEqns[nodei] +=
+                virtualMass_->Ki(nodei,0)/rho1
+               *(
+                    DDtU2
+                  - DDtUs
+                );
+        }
 
 
         // Lift, wall lubrication and bubble pressure forces
@@ -887,6 +866,40 @@ void Foam::twoPhaseSystem::averageTransport()
     }
 
     phase1_.averageTransport(AEqns);
+}
+
+
+void Foam::twoPhaseSystem::correct()
+{
+    phase1_.correct();
+    phase2_.correct();
+}
+
+
+void Foam::twoPhaseSystem::correctTurbulence()
+{
+    phase1_.turbulence().correct();
+    phase2_.turbulence().correct();
+}
+
+
+bool Foam::twoPhaseSystem::read()
+{
+    if (regIOobject::read())
+    {
+        bool readOK = true;
+
+        readOK &= phase1_.read(*this);
+        readOK &= phase2_.read(*this);
+
+        // models ...
+
+        return readOK;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 
