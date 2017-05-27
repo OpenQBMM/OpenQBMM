@@ -37,6 +37,13 @@ License
 #include "fvcFlux.H"
 #include "surfaceInterpolate.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(phaseModel, 0);
+    defineRunTimeSelectionTable(phaseModel, dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -219,6 +226,13 @@ Foam::phaseModel::phaseModel
 }
 
 
+Foam::autoPtr<Foam::phaseModel> Foam::phaseModel::clone() const
+{
+    NotImplemented;
+    return autoPtr<phaseModel>(nullptr);
+}
+
+
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::phaseModel::~phaseModel()
@@ -247,29 +261,10 @@ Foam::phaseModel::turbulence() const
 }
 
 
-Foam::tmp<Foam::volVectorField> Foam::phaseModel::Vs(const label nodei) const
+const Foam::volVectorField& Foam::phaseModel::Vs(const label nodei) const
 {
-    return tmp<volVectorField>
-    (
-        new volVectorField
-        (
-            IOobject
-            (
-                IOobject::groupName
-                (
-                    "V",
-                    name_
-                ),
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            fluid_.mesh(),
-            dimensionedVector("Zero",dimVelocity,Zero)
-        )
-    );
+    NotImplemented;
+    return U_;
 }
 
 

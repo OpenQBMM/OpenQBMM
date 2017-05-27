@@ -33,6 +33,8 @@ Description
 
 SourceFiles
     phaseModel.C
+    newPhaseModel.C
+    phaseModels.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -46,6 +48,7 @@ SourceFiles
 #include "fvMatricesFwd.H"
 #include "transportModel.H"
 #include "rhoThermo.H"
+#include "runTimeSelectionTables.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -110,11 +113,43 @@ protected:
 
 public:
 
+    //- Runtime type information
+    ClassName("phaseModel");
+
+
+    // Declare runtime construction
+
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            phaseModel,
+            dictionary,
+            (
+                const twoPhaseSystem& fluid,
+                const dictionary& dict,
+                const word& phaseName
+            ),
+            (fluid, dict, phaseName)
+        );
+
     // Constructors
         phaseModel
         (
             const twoPhaseSystem& fluid,
-            const dictionary& phaseProperties,
+            const dictionary& dict,
+            const word& phaseName
+        );
+
+         //- Return clone
+        autoPtr<phaseModel> clone() const;
+
+
+    // Selectors
+
+        static autoPtr<phaseModel> New
+        (
+            const twoPhaseSystem& fluid,
+            const dictionary& dict,
             const word& phaseName
         );
 
@@ -148,6 +183,18 @@ public:
         const dimensionedScalar& residualAlpha() const
         {
             return residualAlpha_;
+        }
+
+        //- Constant access to alpha field for nodei
+        virtual const volScalarField& alphas(const label nodei) const
+        {
+            return *this;
+        }
+
+        //- Non-constant access to alpha field for nodei
+        virtual volScalarField& alphas(const label nodei)
+        {
+            return *this;
         }
 
         //- Return the mean diameter
@@ -288,18 +335,6 @@ public:
             return thermo_->rho();
         }
 
-        //- Constant access to alpha field for nodei
-        virtual const volScalarField& alphas(const label nodei) const
-        {
-            return *this;
-        }
-
-        //- Non-constant access to alpha field for nodei
-        virtual volScalarField& alphas(const label nodei)
-        {
-            return *this;
-        }
-
         //- Constant access to the mean velocity
         const volVectorField& U() const
         {
@@ -325,7 +360,7 @@ public:
         }
 
         //- Deviation of velocity nodei from the mean
-        virtual tmp<volVectorField> Vs(const label nodei) const;
+        virtual const volVectorField& Vs(const label nodei) const;
 
         //- Constant access to the volumetric flux
         const surfaceScalarField& phi() const

@@ -109,12 +109,6 @@ public:
             return nNodes_;
         }
 
-        //- Return the diameter for nodei
-        virtual const volScalarField& ds(const label nodei) const
-        {
-            return ds_[nodei];
-        }
-
         //- Return alpha field for nodei
         virtual const volScalarField& alphas(const label nodei) const
         {
@@ -126,6 +120,13 @@ public:
         {
             return alphas_[nodei];
         }
+
+        //- Return the diameter for nodei
+        virtual const volScalarField& ds(const label nodei) const
+        {
+            return ds_[nodei];
+        }
+
 
         //- Return the velocity for nodei
         virtual const volVectorField& Us(const label nodei) const
@@ -140,7 +141,7 @@ public:
         }
 
         //- Return deviation velocity for nodei
-        virtual tmp<volVectorField> Vs(const label nodei) const
+        virtual const volVectorField& Vs(const label nodei) const
         {
             return Vs_[nodei];
         }

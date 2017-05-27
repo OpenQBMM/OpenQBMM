@@ -35,13 +35,8 @@ License
 #include "fvMatrix.H"
 #include "MULES.H"
 #include "subCycle.H"
-#include "fvcDdt.H"
-#include "fvcDiv.H"
-#include "fvcSnGrad.H"
-#include "fvcFlux.H"
-#include "fvcCurl.H"
-#include "fvmDdt.H"
-#include "fvmLaplacian.H"
+#include "fvc.H"
+#include "fvm.H"
 #include "fixedValueFvsPatchFields.H"
 #include "blendingMethod.H"
 #include "HashPtrTable.H"
@@ -480,6 +475,8 @@ Foam::twoPhaseSystem::F(const label nodei) const
         lift_->F<vector>(nodei, 0)
       + wallLubrication_->F<vector>(nodei, 0)
       + bubblePressure_->F<vector>(nodei, 0)
+
+      // Force due to deviation from mean velocity
       - Kd(nodei)*phase1_.Vs(nodei)
       + Vm(nodei)
        *(
@@ -540,6 +537,8 @@ Foam::twoPhaseSystem::Ff(const label nodei) const
         lift_->Ff(nodei, 0)
       + wallLubrication_->Ff(nodei, 0)
       + bubblePressure_->Ff(nodei, 0)
+
+      // Force due to deviation from mean velocity
       + fvc::flux
         (
           - Kd(nodei)*phase1_.Vs(nodei)

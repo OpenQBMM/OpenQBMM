@@ -430,112 +430,100 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         mEqn.solve();
     }
 
-    // If momodisperse, use mean velocity to construct velocity moments
-//     if(nNodes_ == 1)
-//     {
-//         forAll(quadrature_.velocityMoments(), mi)
-//         {
-//             quadrature_.velocityMoments()[mi] = U_*quadrature_.moments()[mi];
-//             quadrature_.velocityMoments()[mi].correctBoundaryConditions();
-//         }
-//
-//         quadrature_.updateAllQuadrature();
-//     }
-//     else
+
+    forAll(quadrature_.velocityMoments(), mEqni)
     {
-        forAll(quadrature_.velocityMoments(), mEqni)
-        {
-            dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
-            volVectorField& Up = quadrature_.velocityMoments()[mEqni];
+        dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
+        volVectorField& Up = quadrature_.velocityMoments()[mEqni];
 
-            volVectorField meanDivUbUp
+        volVectorField meanDivUbUp
+        (
+            IOobject
             (
-                IOobject
-                (
-                    "meanDivUbUp",
-                    fluid_.mesh().time().timeName(),
-                    fluid_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
+                "meanDivUbUp",
+                fluid_.mesh().time().timeName(),
                 fluid_.mesh(),
-                dimensionedVector("zero", Up.dimensions()/dimTime, Zero)
-            );
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedVector("zero", Up.dimensions()/dimTime, Zero)
+        );
 
-            for (label nodei = 0; nodei < nNodes_; nodei++)
-            {
-                // Update average velocity moment flux
-                surfaceVectorField aFluxUp
-                (
-                    "aFluxUp",
-                    quadrature_.velocitiesNei()[nodei]
-                   *nodesNei[nodei].primaryWeight()
-                    *(
-                        pow
-                        (
-                            nodesNei[nodei].primaryAbscissa(),
-                            mEqni
-                        )
-                    )*Foam::min(phiPtr_(), zeroPhi)
-                  + quadrature_.velocitiesOwn()[nodei]
-                   *nodesOwn[nodei].primaryWeight()
-                   *pow
-                    (
-                        nodesOwn[nodei].primaryAbscissa(),
-                        mEqni
-                    )*Foam::max(phiPtr_(), zeroPhi)
-                );
-
-                meanDivUbUp += fvc::surfaceIntegrate(aFluxUp);
-            }
-
-
-            // Solve average velocity moment transport Equation
-            fvVectorMatrix UpEqn
-            (
-                fvm::ddt(Up)
-              - fvc::ddt(Up)
-              + meanDivUbUp
-            );
-
-            UpEqn.relax();
-            UpEqn.solve();
-        }
-        quadrature_.updateAllQuadrature();
-        correct();
-
-        Info << "Solving for velocity abscissae" << endl;
-        // Solve for velocity abscissa directly since the momentum exchange
-        //  terms do not change the mass
-        forAll(Us_, nodei)
+        for (label nodei = 0; nodei < nNodes_; nodei++)
         {
-            //  Colisional time, forces velocities towards mean in the case of
-            //  high volume fractions
-            volScalarField tauC
+            // Update average velocity moment flux
+            surfaceVectorField aFluxUp
             (
-                "tauC",
-                (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE
+                "aFluxUp",
+                quadrature_.velocitiesNei()[nodei]
+               *nodesNei[nodei].primaryWeight()
+               *(
+                    pow
+                    (
+                        nodesNei[nodei].primaryAbscissa(),
+                        mEqni
+                    )
+                )*Foam::min(phiPtr_(), zeroPhi)
+              + quadrature_.velocitiesOwn()[nodei]
+               *nodesOwn[nodei].primaryWeight()
+               *pow
+                (
+                    nodesOwn[nodei].primaryAbscissa(),
+                    mEqni
+                )*Foam::max(phiPtr_(), zeroPhi)
             );
-            tauC.dimensions().reset(inv(dimTime));
 
-            // Solve for velocities using acceleration terms
-            fvVectorMatrix UsEqn
-            (
-                fvm::ddt(Us_[nodei])
-              - fvc::ddt(Us_[nodei])
-              + fvm::Sp(tauC, Us_[nodei])
-
-            ==
-                AEqns[nodei]
-              + tauC*U_
-            );
-
-            UsEqn.relax();
-            UsEqn.solve();
+            meanDivUbUp += fvc::surfaceIntegrate(aFluxUp);
         }
-        updateMoments();
+
+
+        // Solve average velocity moment transport Equation
+        fvVectorMatrix UpEqn
+        (
+            fvm::ddt(Up)
+          - fvc::ddt(Up)
+          + meanDivUbUp
+        );
+
+        UpEqn.relax();
+        UpEqn.solve();
     }
+    quadrature_.updateAllQuadrature();
+    correct();
+
+    Info << "Solving for velocity abscissae" << endl;
+
+    // Solve for velocity abscissa directly since the momentum exchange
+    //  terms do not change the mass
+    forAll(Us_, nodei)
+    {
+        //  Colisional time, forces velocities towards mean in the case of
+        //  high volume fractions
+        volScalarField tauC
+        (
+            "tauC",
+            (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE
+        );
+        tauC.dimensions().reset(inv(dimTime));
+
+        // Solve for velocities using acceleration terms
+        fvVectorMatrix UsEqn
+        (
+            fvm::ddt(Us_[nodei])
+          - fvc::ddt(Us_[nodei])
+          + fvm::Sp(tauC, Us_[nodei])
+
+         ==
+            AEqns[nodei]
+          + tauC*U_
+        );
+
+        UsEqn.relax();
+        UsEqn.solve();
+    }
+    updateMoments();
 }
 
 void Foam::pdPhaseModel::updateMoments()
