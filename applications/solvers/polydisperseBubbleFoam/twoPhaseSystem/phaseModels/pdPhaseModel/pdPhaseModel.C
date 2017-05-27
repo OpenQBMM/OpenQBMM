@@ -223,6 +223,7 @@ void Foam::pdPhaseModel::correct()
         d_ += alphas_[nodei]*ds_[nodei];
     }
     d_ /= Foam::max((*this), residualAlpha_);
+    d_.max(minD_);
 }
 
 

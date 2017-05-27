@@ -172,6 +172,10 @@ public:
             return fluid_;
         }
 
+        //- Return the other phase in this two-phase system
+        const phaseModel& otherPhase() const;
+
+
         //- Return the number of nodes
         virtual label nNodes() const
         {

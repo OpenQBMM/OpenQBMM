@@ -107,10 +107,12 @@ Foam::tmp<Foam::volVectorField> Foam::liftModel::A
 ) const
 {
     return
-        Cl(nodei,nodej)
-       *pair_.continuous().rho()/pair_.dispersed().rho()
-       *(
-            pair_.Ur(nodei,nodej) ^ fvc::curl(pair_.continuous().Us(nodej))
+        F(nodei, nodej)
+       /pair_.dispersed().rho()
+       /max
+        (
+            pair_.dispersed().alphas(nodei),
+            pair_.dispersed().residualAlpha()
         );
 }
 // ************************************************************************* //

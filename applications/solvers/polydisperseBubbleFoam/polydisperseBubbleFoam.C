@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
                 fvc::interpolate(alpha1)*phi1
               + fvc::interpolate(alpha2)*phi2;
 
-            if (pimple.turbCorr())
+//             if (pimple.turbCorr())
             {
                 fluid.correctTurbulence();
             }

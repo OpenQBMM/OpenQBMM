@@ -865,6 +865,7 @@ void Foam::twoPhaseSystem::averageTransport()
     }
 
     phase1_.averageTransport(AEqns);
+    phase1_.correct();
 }
 
 

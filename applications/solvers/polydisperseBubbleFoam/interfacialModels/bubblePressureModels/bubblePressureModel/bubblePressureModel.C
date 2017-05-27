@@ -160,7 +160,14 @@ Foam::tmp<Foam::volVectorField> Foam::bubblePressureModel::A
     const label nodej
 ) const
 {
-    return Fi(nodei,nodej)/pair_.dispersed().rho();
+    return
+        F(nodei, nodej)
+       /pair_.dispersed().rho()
+       /max
+        (
+            pair_.dispersed().alphas(nodei),
+            pair_.dispersed().residualAlpha()
+        );
 }
 
 // ************************************************************************* //

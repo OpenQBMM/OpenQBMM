@@ -241,6 +241,13 @@ Foam::phaseModel::~phaseModel()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+const Foam::phaseModel& Foam::phaseModel::otherPhase() const
+{
+    return fluid_.otherPhase(*this);
+}
+
+
+
 void Foam::phaseModel::correct()
 {
     return ;

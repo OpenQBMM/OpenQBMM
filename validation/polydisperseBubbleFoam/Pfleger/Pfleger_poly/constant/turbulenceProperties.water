@@ -17,4 +17,12 @@ FoamFile
 
 simulationType  laminar;
 
+RAS
+{
+    RASModel LaheyKEpsilon;
+
+    turbulence      on;
+    printCoeffs     on;
+}
+
 // ************************************************************************* //
