@@ -82,10 +82,6 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         {
-            // Create interfacial forces and coefficients for use in velocity
-            // moment transport as well as two fluid model
-            #include "createInterfacialForces.H"
-
             // Transport moments with velocities relative to the mean gas
             // velocity
             fluid.relativeTransport();
