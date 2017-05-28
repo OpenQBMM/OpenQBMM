@@ -6,7 +6,6 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
-2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -85,9 +84,6 @@ public:
 
         //- Turbulent dispersion force
         virtual tmp<volVectorField> F(const label, const label) const;
-
-        //- Acceleration due to turbulent dispersion
-        virtual tmp<volVectorField> A(const label, const label) const;
 };
 
 

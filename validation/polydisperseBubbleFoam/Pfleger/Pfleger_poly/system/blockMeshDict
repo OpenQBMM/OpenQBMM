@@ -36,11 +36,11 @@ in3  #calc "3*$w/4";
 in31 #calc "$in3 - $R";
 in32 #calc "$in3 + $R";
 
-nWallPts    #calc "$in11/$cellSize";
-nInPts      #calc "$dia/$cellSize";
-nCtrPts     #calc "($in21 - $in12)/$cellSize";
+nWallPts    #calc "round($in11/$cellSize)";
+nInPts      #calc "round($dia/$cellSize)";
+nCtrPts     #calc "round(($in21 - $in12)/$cellSize)";
 
-nVertPts    #calc "$h/$cellSize";
+nVertPts    #calc "round($h/$cellSize)";
 nDepthPts   1;
 
 vertices

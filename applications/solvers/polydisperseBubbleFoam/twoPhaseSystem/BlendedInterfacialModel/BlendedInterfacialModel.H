@@ -130,12 +130,6 @@ public:
             const label
         ) const;
 
-        //- Return the blended acceleration coefficient
-        tmp<volScalarField> Ki
-        (
-            const label,
-            const label
-        ) const;
 
         //- Return the face blended force coefficient
         tmp<surfaceScalarField> Kf
@@ -144,12 +138,6 @@ public:
             const label
         ) const;
 
-        //- Return the blended acceleration coefficient
-        tmp<volScalarField> Cvm
-        (
-            const label,
-            const label
-        ) const;
 
         //- Return the blended force
         template<class Type>
@@ -166,12 +154,6 @@ public:
             const label
         ) const;
 
-        //- Return the blended acceleration
-        tmp<volVectorField> A
-        (
-            const label,
-            const label
-        ) const;
 
         //- Return the blended diffusivity
         tmp<volScalarField> D

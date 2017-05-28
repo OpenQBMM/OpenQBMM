@@ -84,9 +84,6 @@ public:
 
         //- Wall lubrication force
         tmp<volVectorField> F(const label, const label) const;
-
-        //- Acceleration due to wall lubrication
-        tmp<volVectorField> A(const label, const label) const;
 };
 
 

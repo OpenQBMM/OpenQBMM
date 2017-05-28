@@ -125,33 +125,4 @@ Foam::bubblePressureModels::noBubblePressure::F
 }
 
 
-Foam::tmp<Foam::volVectorField>
-Foam::bubblePressureModels::noBubblePressure::A
-(
-    const label nodei,
-    const label nodej
-) const
-{
-    const fvMesh& mesh(this->pair_.phase1().mesh());
-
-    return tmp<volVectorField>
-    (
-        new volVectorField
-        (
-            IOobject
-            (
-                "noBubblePressure:A",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            mesh,
-            dimensionedVector("zero", dimA, Zero)
-        )
-    );
-}
-
-
 // ************************************************************************* //

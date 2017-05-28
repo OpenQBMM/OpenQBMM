@@ -146,6 +146,14 @@ public:
             return Vs_[nodei];
         }
 
+        //- Return weighted density
+        virtual tmp<volScalarField> alphaRho(const label nodei) const
+        {
+            return
+                quadrature_.nodes()[nodei].primaryWeight()
+               *quadrature_.nodes()[nodei].primaryAbscissa() ;
+        }
+
         //- Correct the phase properties
         virtual void correct();
 
@@ -156,7 +164,7 @@ public:
         virtual void averageTransport(const PtrList<fvVectorMatrix>& AEqns);
 
         //- Update moments
-        virtual void updateMoments();
+        virtual void updateVelocity();
 };
 
 

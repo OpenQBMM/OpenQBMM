@@ -378,6 +378,12 @@ public:
             return phiPtr_();
         }
 
+        //- Return weighted density
+        virtual tmp<volScalarField> alphaRho(const label nodei) const
+        {
+            return (*this)*rho();
+        }
+
         //- Return the volumetric flux of the phase
         const surfaceScalarField& alphaPhi() const
         {

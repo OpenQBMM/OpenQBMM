@@ -785,8 +785,6 @@ void Foam::twoPhaseSystem::relativeTransport()
 
 void Foam::twoPhaseSystem::averageTransport()
 {
-    phase1_.correct();
-
     // Liquid viscous stress
     volSymmTensorField taul = phase2_.turbulence().devRhoReff();
 
@@ -801,79 +799,56 @@ void Foam::twoPhaseSystem::averageTransport()
     PtrList<fvVectorMatrix> AEqns(nNodes_);
     for (label nodei = 0; nodei < nNodes_; nodei++)
     {
-        const volScalarField& rho1 = phase1_.rho();
-
         AEqns.set
         (
             nodei,
             new fvVectorMatrix
             (
                 phase1_.Us(nodei),
-                phase1_.Us(nodei).dimensions()*dimVol/dimTime
+                phase1_.Us(nodei).dimensions()*dimDensity*dimVol/dimTime
             )
         );
 
         const volScalarField& p = mesh_.lookupObject<volScalarField>("p");
+        volScalarField alphaRhoi = phase1_.alphaRho(nodei);
 
-        //  Buoyancy force for velocity moment transport
+        //  Implicit drag term added to velocity abscissae equations
+        volScalarField Kd = this->Kd(nodei);
+
+        // Interfacial forces
         AEqns[nodei] +=
-            g_
+            // Buoyancy
+            g_*alphaRhoi
           + (
               - fvc::grad(p)
               + fvc::div(taul)
-            )/phase1_.rho();
+            )*phase1_.alphas(nodei)
 
-
-        //  Implicit drag term added to velocity abscissae equations
-        tmp<volScalarField> Ki = drag_->Ki(nodei,0)/rho1;
-        AEqns[nodei] +=
-        (
-            Ki()*phase2_.U()
+            // Drag
+          + Kd*phase2_.U()
           - fvm::Sp
             (
-                Ki(),
+                Kd,
                 phase1_.Us(nodei)
             )
-        );
 
-        // Switch for force terms based on volume fraction
-        volScalarField onOff
-        (
-            pos
-            (
-                phase1_.alphas(nodei)
-              - dimensionedScalar("small", dimless, 0.001)
+            // Virtual Mass
+          + Vm(nodei)
+           *(
+                DDtU2
+              - (
+                    fvm::ddt(phase1_.Us(nodei))
+                  + fvm::div(phase1_.phi(), phase1_.Us(nodei))
+                  - fvm::Sp(fvc::div(phase1_.phi()),phase1_.Us(nodei))
+                )
             )
-        );
 
-        //  Disperson force
-        AEqns[nodei] += turbulentDispersion_->A(nodei,0)*onOff;
+            // Dispersion, lift, wall lubrication, and bubble pressure
+          + turbulentDispersion_->F<vector>(nodei,0)
+          + lift_->F<vector>(nodei,0)
+          + wallLubrication_->F<vector>(nodei,0)
+          + bubblePressure_->F<vector>(nodei,0);
 
-
-        // Virtual Mass
-        {
-            fvVectorMatrix DDtUs
-            (
-                fvm::ddt(phase1_.Us(nodei))
-              + fvm::div(phase1_.phi(), phase1_.Us(nodei))
-              - fvm::Sp(fvc::div(phase1_.phi()),phase1_.Us(nodei))
-            );
-            AEqns[nodei] +=
-                virtualMass_->Ki(nodei,0)/rho1*onOff
-               *(
-                    DDtU2
-                  - DDtUs
-                );
-        }
-
-
-        // Lift, wall lubrication and bubble pressure forces
-        AEqns[nodei] +=
-        (
-            lift_->A(nodei,0)
-          + wallLubrication_->A(nodei,0)
-          + bubblePressure_->A(nodei,0)
-        )*onOff;
     }
 
     phase1_.averageTransport(AEqns);

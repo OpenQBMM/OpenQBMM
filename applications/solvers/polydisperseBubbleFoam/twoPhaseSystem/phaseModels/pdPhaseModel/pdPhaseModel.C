@@ -361,18 +361,7 @@ void Foam::pdPhaseModel::relativeTransport()
             UpEqn.solve();
         }
         quadrature_.updateAllQuadrature();
-
-        // Update mean velocity based on new velocity moments
-        U_ =
-            quadrature_.velocityMoments()[1]
-           /Foam::max
-            (
-                quadrature_.moments()[1],
-                residualAlpha_*rho()
-            );
-
-        U_.correctBoundaryConditions();
-        phiPtr_() == fvc::flux(U_);
+        updateVelocity();
     }
 }
 
@@ -519,29 +508,31 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE
         );
         tauC.dimensions().reset(inv(dimTime));
+        volScalarField alphaRhoi =
+            quadrature_.nodes()[nodei].primaryAbscissa()
+           *quadrature_.nodes()[nodei].primaryWeight();
 
         // Solve for velocities using acceleration terms
         fvVectorMatrix UsEqn
         (
-            fvm::ddt(Us_[nodei])
-          - fvc::ddt(Us_[nodei])
-          + fvm::Sp(tauC, Us_[nodei])
+            fvm::ddt(alphaRhoi, Us_[nodei])
+          - alphaRhoi*fvc::ddt(Us_[nodei])
+          + fvm::Sp(tauC*alphaRhoi, Us_[nodei])
 
          ==
             AEqns[nodei]
-          + tauC*U_
+          + tauC*alphaRhoi*U_
         );
 
         UsEqn.relax();
         UsEqn.solve();
     }
-    updateMoments();
+    quadrature_.updateAllMoments();
+    updateVelocity();
 }
 
-void Foam::pdPhaseModel::updateMoments()
+void Foam::pdPhaseModel::updateVelocity()
 {
-    quadrature_.updateAllMoments();
-
     // Correct mean velocity using the new velocity moments
     U_ =
         quadrature_.velocityMoments()[1]
@@ -552,7 +543,10 @@ void Foam::pdPhaseModel::updateMoments()
         );
 
     U_.correctBoundaryConditions();
-    phiPtr_() == fvc::flux(U_);
+    phiPtr_() = fvc::flux(U_);
+    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
+    correctInflowOutflow(alphaPhi_);
+    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
 }
 
 

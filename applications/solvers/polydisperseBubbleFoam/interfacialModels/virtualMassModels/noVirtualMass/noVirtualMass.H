@@ -6,7 +6,6 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
-2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -88,10 +87,6 @@ public:
 
         //- The virtual mass function K used in the momentum equation
         virtual tmp<volScalarField> K(const label, const label) const;
-
-        //- The virtual mass function Ka used in transport of veloicty
-        //  abscissae
-        virtual tmp<volScalarField> Ka(const label, const label) const;
 };
 
 

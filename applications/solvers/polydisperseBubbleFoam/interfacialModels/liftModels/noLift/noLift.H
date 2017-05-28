@@ -6,7 +6,6 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
-2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -87,9 +86,6 @@ public:
 
         //- Lift force on faces
         virtual tmp<surfaceScalarField> Ff(const label, const label) const;
-
-        //- Acceleration due to lift
-        virtual tmp<volVectorField> A(const label, const label) const;
 };
 
 

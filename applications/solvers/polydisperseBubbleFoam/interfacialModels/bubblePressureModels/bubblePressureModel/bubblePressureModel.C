@@ -6,7 +6,6 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
-2017-05-24 Jeff Heylmun:    Added return functions for acceleration
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -43,7 +42,6 @@ namespace Foam
 }
 
 const Foam::dimensionSet Foam::bubblePressureModel::dimF(1, -2, -2, 0, 0);
-const Foam::dimensionSet Foam::bubblePressureModel::dimA(0, 1, -2, 0, 0);
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -153,21 +151,5 @@ Foam::tmp<Foam::surfaceScalarField> Foam::bubblePressureModel::Ff
        *fvc::flux(Fi(nodei,nodej));
 }
 
-
-Foam::tmp<Foam::volVectorField> Foam::bubblePressureModel::A
-(
-    const label nodei,
-    const label nodej
-) const
-{
-    return
-        F(nodei, nodej)
-       /pair_.dispersed().rho()
-       /max
-        (
-            pair_.dispersed().alphas(nodei),
-            pair_.dispersed().residualAlpha()
-        )*pos(pair_.dispersed().alphas(nodei) - 0.001);
-}
 
 // ************************************************************************* //

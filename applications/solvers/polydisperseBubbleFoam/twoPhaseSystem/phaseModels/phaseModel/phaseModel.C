@@ -247,7 +247,6 @@ const Foam::phaseModel& Foam::phaseModel::otherPhase() const
 }
 
 
-
 void Foam::phaseModel::correct()
 {
     return ;

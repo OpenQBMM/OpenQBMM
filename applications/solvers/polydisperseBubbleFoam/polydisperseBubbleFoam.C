@@ -85,9 +85,7 @@ int main(int argc, char *argv[])
             // Transport moments with velocities relative to the mean gas
             // velocity
             fluid.relativeTransport();
-            phi ==
-                fvc::interpolate(alpha1)*phi1
-              + fvc::interpolate(alpha2)*phi2;
+            phi = phase1.alphaPhi() + phase2.alphaPhi();
 
             // Solve for mean phase velocities and gas volume fraction
             while (pimple.loop())
@@ -105,10 +103,7 @@ int main(int argc, char *argv[])
 
             // Transport moments with mean gas velocity
             fluid.averageTransport();
-
-            phi ==
-                fvc::interpolate(alpha1)*phi1
-              + fvc::interpolate(alpha2)*phi2;
+            phi = phase1.alphaPhi() + phase2.alphaPhi();
 
 //             if (pimple.turbCorr())
             {
