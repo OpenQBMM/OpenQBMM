@@ -67,11 +67,11 @@ class monoKineticQuadratureApproximation
         //- Refrence to mean velocity
         const volVectorField& U_;
 
-        //- List of velocity moments
-        PtrList<volVectorField> velocityMoments_;
-
         //- Number of primary quadrature nodes
         label nNodes_;
+
+        //- List of velocity moments
+        PtrList<volVectorField> velocityMoments_;
 
         //- List of velocity abscissae
         PtrList<volVectorField> velocityAbscissae_;

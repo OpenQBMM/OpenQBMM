@@ -36,7 +36,7 @@ solvers
         nCellsInCoarsestLevel 10;
         agglomerator    faceAreaPair;
         mergeLevels     2;
-        tolerance       1e-8;
+        tolerance       1e-10;
         maxIter         1000;
     }
 
@@ -50,7 +50,7 @@ solvers
     {
         solver          PBiCG;
         preconditioner  DILU;
-        tolerance       1e-6;
+        tolerance       1e-8;
         relTol          0;
         minIter         1;
     }
@@ -59,7 +59,7 @@ solvers
     {
         solver          smoothSolver;
         preconditioner  symGaussSeidel;
-        tolerance       1e-5;
+        tolerance       1e-8;
         relTol          0;
         minIter         1;
     }

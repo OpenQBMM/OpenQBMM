@@ -51,8 +51,8 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
             IOobject::groupName("U",name_)
         )
     ),
-    velocityMoments_(moments_.size()),
     nNodes_(nodes_().size()),
+    velocityMoments_(nNodes_),
     velocityAbscissae_(nNodes_),
     nodesNei_(),
     velocitiesNei_(nNodes_),

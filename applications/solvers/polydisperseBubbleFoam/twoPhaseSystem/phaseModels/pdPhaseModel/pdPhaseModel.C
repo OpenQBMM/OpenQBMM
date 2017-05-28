@@ -241,7 +241,6 @@ void Foam::pdPhaseModel::relativeTransport()
         forAll(quadrature_.moments(), mEqni)
         {
             volScalarField& m = quadrature_.moments()[mEqni];
-            volVectorField& Up = quadrature_.velocityMoments()[mEqni];
             dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
 
             // Create total flux field so that the individual fluxes can be summed
@@ -259,21 +258,6 @@ void Foam::pdPhaseModel::relativeTransport()
                 ),
                 fluid_.mesh(),
                 dimensionedScalar("zero", m.dimensions()/dimTime, 0.0)
-            );
-
-            volVectorField relativeDivPp
-            (
-                IOobject
-                (
-                    "relativeDivPp",
-                    fluid_.mesh().time().timeName(),
-                    fluid_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                fluid_.mesh(),
-                dimensionedVector("zero", Up.dimensions()/dimTime, Zero)
             );
 
             for (label nodei = 0; nodei < nNodes_; nodei++)
@@ -301,6 +285,44 @@ void Foam::pdPhaseModel::relativeTransport()
                 );
 
                 relativeDivVp += fvc::surfaceIntegrate(rFluxVp);
+            }
+
+            // Solve relative size moment transport equation
+            fvScalarMatrix mEqn
+            (
+                fvm::ddt(m)
+              + relativeDivVp
+            );
+
+            mEqn.relax();
+            mEqn.solve();
+        }
+
+        forAll(quadrature_.velocityMoments(), mEqni)
+        {
+            volVectorField& Up = quadrature_.velocityMoments()[mEqni];
+            dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
+
+            // Create total flux field so that the individual fluxes can be summed
+            // together
+            volVectorField relativeDivPp
+            (
+                IOobject
+                (
+                    "relativeDivPp",
+                    fluid_.mesh().time().timeName(),
+                    fluid_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                fluid_.mesh(),
+                dimensionedVector("zero", Up.dimensions()/dimTime, Zero)
+            );
+
+            for (label nodei = 0; nodei < nNodes_; nodei++)
+            {
+                surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
 
                 // Calculate velocity moment flux
                 surfaceVectorField rFluxPp
@@ -337,17 +359,6 @@ void Foam::pdPhaseModel::relativeTransport()
 
             UpEqn.relax();
             UpEqn.solve();
-
-
-            // Solve relative size moment transport equation
-            fvScalarMatrix mEqn
-            (
-                fvm::ddt(m)
-              + relativeDivVp
-            );
-
-            mEqn.relax();
-            mEqn.solve();
         }
         quadrature_.updateAllQuadrature();
 

@@ -167,7 +167,7 @@ Foam::tmp<Foam::volVectorField> Foam::bubblePressureModel::A
         (
             pair_.dispersed().alphas(nodei),
             pair_.dispersed().residualAlpha()
-        );
+        )*pos(pair_.dispersed().alphas(nodei) - 0.001);
 }
 
 // ************************************************************************* //

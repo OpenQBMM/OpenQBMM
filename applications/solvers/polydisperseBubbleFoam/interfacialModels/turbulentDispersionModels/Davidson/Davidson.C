@@ -79,7 +79,6 @@ Foam::turbulentDispersionModels::Davidson::D
     const fvMesh& mesh(pair_.phase1().mesh());
     const volScalarField& alpha1 = pair_.dispersed().alphas(nodei);
     const volScalarField& alpha2 = pair_.continuous().alphas(nodej);
-    const volScalarField& d = pair_.dispersed().ds(nodei);
     const dragModel&
         drag
         (
@@ -91,10 +90,10 @@ Foam::turbulentDispersionModels::Davidson::D
 
     return
         Cdis_
-       *d
+       *pair_.dispersed().ds(nodei)
        *pair_.magUr(nodei, nodej)
        *Foam::sqrt(alpha1*alpha2)
-       *drag.K(nodei, nodej)
+       *drag.Ki(nodei, nodej)
        /Foam::max
         (
             alpha2,

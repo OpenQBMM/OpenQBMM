@@ -116,7 +116,7 @@ turbulentDispersion
 (
     (air in water)
     {
-        type Panicker;
+        type    Panicker;
     }
 );
 
