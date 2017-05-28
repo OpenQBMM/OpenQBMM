@@ -836,8 +836,18 @@ void Foam::twoPhaseSystem::averageTransport()
             )
         );
 
+        // Switch for force terms based on volume fraction
+        volScalarField onOff
+        (
+            pos
+            (
+                phase1_.alphas(nodei)
+              - dimensionedScalar("small", dimless, 0.001)
+            )
+        );
+
         //  Disperson force
-        AEqns[nodei] += turbulentDispersion_->A(nodei,0);
+        AEqns[nodei] += turbulentDispersion_->A(nodei,0)*onOff;
 
 
         // Virtual Mass
@@ -849,7 +859,7 @@ void Foam::twoPhaseSystem::averageTransport()
               - fvm::Sp(fvc::div(phase1_.phi()),phase1_.Us(nodei))
             );
             AEqns[nodei] +=
-                virtualMass_->Ki(nodei,0)/rho1
+                virtualMass_->Ki(nodei,0)/rho1*onOff
                *(
                     DDtU2
                   - DDtUs
@@ -859,9 +869,11 @@ void Foam::twoPhaseSystem::averageTransport()
 
         // Lift, wall lubrication and bubble pressure forces
         AEqns[nodei] +=
+        (
             lift_->A(nodei,0)
           + wallLubrication_->A(nodei,0)
-          + bubblePressure_->A(nodei,0);
+          + bubblePressure_->A(nodei,0)
+        )*onOff;
     }
 
     phase1_.averageTransport(AEqns);
