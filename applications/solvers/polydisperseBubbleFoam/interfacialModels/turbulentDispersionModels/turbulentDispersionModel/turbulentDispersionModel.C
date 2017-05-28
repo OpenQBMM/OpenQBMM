@@ -83,6 +83,7 @@ Foam::turbulentDispersionModel::A
     return
         D(nodei, nodej)
        *fvc::grad(pair_.dispersed().alphas(nodei))
+       *pos(pair_.dispersed().alphas(nodei) - 0.001)
        /max
         (
             pair_.dispersed().alphas(nodei),
