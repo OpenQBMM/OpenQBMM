@@ -156,7 +156,8 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
     return
         max
         (
-            pair_.dispersed().alphas(nodei),
+            pair_.dispersed().alphas(nodei)
+           *pair_.continuous().alphas(nodej),
             pair_.dispersed().residualAlpha()
         )*Ki(nodei,nodej);
 }
@@ -190,7 +191,8 @@ Foam::tmp<Foam::surfaceScalarField> Foam::dragModel::Kf
     return
         max
         (
-            fvc::interpolate(pair_.dispersed().alphas(nodei)),
+            fvc::interpolate(pair_.dispersed().alphas(nodei))
+           *fvc::interpolate(pair_.continuous().alphas(nodej)),
             pair_.dispersed().residualAlpha()
         )*fvc::interpolate(Ki(nodei,nodej));
 }

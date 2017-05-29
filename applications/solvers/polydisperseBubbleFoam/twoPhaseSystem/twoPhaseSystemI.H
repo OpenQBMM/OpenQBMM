@@ -33,25 +33,25 @@ inline const Foam::fvMesh& Foam::twoPhaseSystem::mesh() const
 
 inline const Foam::phaseModel& Foam::twoPhaseSystem::phase1() const
 {
-    return phase1_;
+    return phase1_();
 }
 
 
 inline Foam::phaseModel& Foam::twoPhaseSystem::phase1()
 {
-    return phase1_;
+    return phase1_();
 }
 
 
 inline const Foam::phaseModel& Foam::twoPhaseSystem::phase2() const
 {
-    return phase2_;
+    return phase2_();
 }
 
 
 inline Foam::phaseModel& Foam::twoPhaseSystem::phase2()
 {
-    return phase2_;
+    return phase2_();
 }
 
 
@@ -60,13 +60,13 @@ inline const Foam::phaseModel& Foam::twoPhaseSystem::otherPhase
     const phaseModel& phase
 ) const
 {
-    if (&phase == &phase1_)
+    if (&phase == &phase1_())
     {
-        return phase2_;
+        return phase2_();
     }
     else
     {
-        return phase1_;
+        return phase1_();
     }
 }
 

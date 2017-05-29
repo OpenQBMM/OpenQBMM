@@ -86,6 +86,12 @@ class pdPhaseModel
         dimensionedScalar minD_;
 
 
+    // Private member functions
+
+        //- Update moments
+        void updateVelocity();
+
+
 public:
 
     // Constructors
@@ -146,14 +152,6 @@ public:
             return Vs_[nodei];
         }
 
-        //- Return weighted density
-        virtual tmp<volScalarField> alphaRho(const label nodei) const
-        {
-            return
-                quadrature_.nodes()[nodei].primaryWeight()
-               *quadrature_.nodes()[nodei].primaryAbscissa() ;
-        }
-
         //- Correct the phase properties
         virtual void correct();
 
@@ -162,9 +160,6 @@ public:
 
         //- Average transport of moments
         virtual void averageTransport(const PtrList<fvVectorMatrix>& AEqns);
-
-        //- Update moments
-        virtual void updateVelocity();
 };
 
 

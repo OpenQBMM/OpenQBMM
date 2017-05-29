@@ -202,7 +202,7 @@ public:
         }
 
         //- Return the mean diameter
-        virtual const volScalarField& d() const
+        const volScalarField& d() const
         {
             return d_;
         }
@@ -378,12 +378,6 @@ public:
             return phiPtr_();
         }
 
-        //- Return weighted density
-        virtual tmp<volScalarField> alphaRho(const label nodei) const
-        {
-            return (*this)*rho();
-        }
-
         //- Return the volumetric flux of the phase
         const surfaceScalarField& alphaPhi() const
         {
@@ -421,12 +415,7 @@ public:
         }
 
         //- Average transport of moments, not used in standard phase model
-        virtual void averageTransport(PtrList<fvVectorMatrix>& AEqns)
-        {
-            return;
-        }
-
-        virtual void updateMoments()
+        virtual void averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         {
             return;
         }

@@ -361,7 +361,7 @@ void Foam::pdPhaseModel::relativeTransport()
             UpEqn.solve();
         }
         quadrature_.updateAllQuadrature();
-        updateVelocity();
+        this->updateVelocity();
     }
 }
 
@@ -528,7 +528,7 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         UsEqn.solve();
     }
     quadrature_.updateAllMoments();
-    updateVelocity();
+    this->updateVelocity();
 }
 
 void Foam::pdPhaseModel::updateVelocity()

@@ -38,7 +38,6 @@ SourceFiles
 
 #include "IOdictionary.H"
 #include "phaseModel.H"
-#include "pdPhaseModel.H"
 #include "phasePair.H"
 #include "orderedPhasePair.H"
 #include "volFields.H"
@@ -75,15 +74,15 @@ class twoPhaseSystem
 
         //- Total volumetric flux
         surfaceScalarField phi_;
-        
+
         //- Gravity
         const dimensionedVector g_;
 
         //- polydispersePhase
-        pdPhaseModel phase1_;
+        autoPtr<phaseModel> phase1_;
 
         //- continuous phase
-        phaseModel phase2_;
+        autoPtr<phaseModel> phase2_;
 
         //- Number of nodes in the dispersed phase
         label nNodes_;
