@@ -603,6 +603,59 @@ Foam::tmp<Foam::volScalarField> Foam::twoPhaseSystem::D(const label nodei) const
 }
 
 
+Foam::tmp<Foam::fvVectorMatrix> Foam::twoPhaseSystem::divDevRhoReff1()
+{
+    if (phase1_().BGviscosity())
+    {
+        volScalarField rhoNuEff1 =
+            phase1_()
+           *phase1_().d()
+           *mag(phase1_().U() - phase2_().U())
+           *sqrt(phase1_()*phase2_())
+           *(phase1_().rho() + phase2_().rho()*virtualMass(phase1_()).Cvm());
+
+        return
+            fvc::div(rhoNuEff1*dev2(T(fvc::grad(phase1_().U()))))
+          - fvm::laplacian(rhoNuEff1, phase1_().U());
+    }
+    else
+    {
+        volVectorField& U1 = phase1_().U();
+        return phase1().turbulence().divDevRhoReff(U1);
+    }
+}
+
+
+Foam::tmp<Foam::fvVectorMatrix> Foam::twoPhaseSystem::divDevRhoReff2()
+{
+    if (phase2_().BGviscosity())
+    {
+        volScalarField rhoNuEff2 =
+            phase2_().rho()
+           *phase2_()
+           *(
+                phase2_().nu()
+              + phase1_()/max(phase2_(), phase2_().residualAlpha())
+               *(
+                    phase1_().rho()/phase2_().rho()
+                  + virtualMass(phase1_()).Cvm()
+                )*phase1_().d()
+               *mag(phase1_().U() - phase2_().U())
+               *sqrt(phase1_()*phase2_())
+            );
+
+        return
+            fvc::div(rhoNuEff2*dev2(T(fvc::grad(phase2_().U()))))
+          - fvm::laplacian(rhoNuEff2, phase2_().U());
+    }
+    else
+    {
+        volVectorField& U2 = phase2_().U();
+        return phase2().turbulence().divDevRhoReff(U2);
+    }
+}
+
+
 void Foam::twoPhaseSystem::solve()
 {
     const Time& runTime = mesh_.time();

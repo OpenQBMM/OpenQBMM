@@ -50,7 +50,7 @@ namespace Foam
 Foam::phaseModel::phaseModel
 (
     const twoPhaseSystem& fluid,
-    const dictionary& phaseProperties,
+    const dictionary& dict,
     const word& phaseName
 )
 :
@@ -71,7 +71,7 @@ Foam::phaseModel::phaseModel
     name_(phaseName),
     phaseDict_
     (
-        phaseProperties.subDict(name_)
+        dict.subDict(name_)
     ),
     residualAlpha_
     (
@@ -140,7 +140,8 @@ Foam::phaseModel::phaseModel
                 0.0
             )
         )
-    )
+    ),
+    BGviscosity_(phaseDict_.lookupOrDefault("BGviscosity",false))
 {
     const word phiName = IOobject::groupName("phi", name_);
 

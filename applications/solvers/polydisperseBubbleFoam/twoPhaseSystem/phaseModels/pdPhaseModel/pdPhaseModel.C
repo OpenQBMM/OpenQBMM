@@ -262,7 +262,6 @@ void Foam::pdPhaseModel::relativeTransport()
 
             for (label nodei = 0; nodei < nNodes_; nodei++)
             {
-                Vs_[nodei] = Us_[nodei] - U_;
                 surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
 
                 // Calculate size moment flux
@@ -529,6 +528,12 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
     }
     quadrature_.updateAllMoments();
     this->updateVelocity();
+
+    // Update deviation velocity
+    forAll(Vs_, nodei)
+    {
+        Vs_[nodei] = Us_[nodei] - U_;
+    }
 }
 
 void Foam::pdPhaseModel::updateVelocity()

@@ -69,7 +69,7 @@ class Davidson
     // Private data
 
         //- Schmidt number
-        const dimensionedScalar Cdis_;
+        const dimensionedScalar residualRe_;
 
         //- Residual phase fraction
         const dimensionedScalar residualAlpha_;

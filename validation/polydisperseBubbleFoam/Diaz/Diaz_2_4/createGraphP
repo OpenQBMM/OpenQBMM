@@ -1,0 +1,101 @@
+#!/bin/bash
+#
+#Read d43average from pbeTransportFoam for 75 rpm
+createEps()
+{
+
+    gnuplot<<EOF
+    stats "$1" using 2 name "A" noout
+
+    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+        dl 8.0
+    set output "Diaz1_2_4_p.eps"
+    set xlabel "Time [s]"
+    set ylabel "Normalized Pressure"
+    set datafile commentschars "#"
+    set grid
+    set key off
+    set size 2,2
+    set autoscale
+    set xrange [0:50]
+    set yrange [-15:15]
+    set key bottom left
+
+    plot    "$1" using (\$1 - $3):(\$2 - A_mean) every 100 title 'QBMM'\
+                with lines linetype 1 linewidth 1 linecolor rgb '#9db668',\
+            "$2" using 1:2 title 'Diaz'\
+                with points pointtype 7 ps 1 linecolor rgb 'black'
+EOF
+
+    gnuplot<<EOF
+    stats "$1" using 3 name "B" noout
+
+    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+        dl 8.0
+    set output "Diaz2_2_4_p.eps"
+    set xlabel "Time [s]"
+    set ylabel "Normalized Pressure"
+    set datafile commentschars "#"
+    set grid
+    set key off
+    set size 2,2
+    set autoscale
+    set xrange [0:50]
+    set yrange [-15:15]
+    set key bottom left
+
+    plot    "$1" using (\$1 - $3):(\$3-B_mean) every 100 title 'QBMM'\
+                with lines linetype 1 linewidth 1 linecolor rgb '#9db668',\
+            "$2" using 1:2 title 'Diaz'\
+                with points pointtype 7 ps 1 linecolor rgb 'black'
+EOF
+
+    gnuplot<<EOF
+    stats "$1" using 4 name "C" noout
+
+    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+        dl 8.0
+    set output "Diaz3_2_4_p.eps"
+    set xlabel "Time [s]"
+    set ylabel "Normalized Pressure"
+    set datafile commentschars "#"
+    set grid
+    set key off
+    set size 3,3
+    set autoscale
+    set xrange [0:50]
+    set yrange [-10:10]
+    set key bottom left
+
+    plot    "$1" using (\$1 - $3):(\$4-C_mean) every 100 title 'QBMM'\
+                with lines linetype 1 linewidth 2 linecolor rgb '#9db668',\
+            "$2" using 1:2 title 'Diaz'\
+                with points pointtype 7 ps 2 linecolor rgb 'black'
+EOF
+}
+
+# test if gnuplot exists on the system
+if ! which gnuplot > /dev/null 2>&1
+then
+    echo "gnuplot not found - skipping graph creation" >&2
+    exit 1
+fi
+
+#set case Direcory names
+caseDir=$(pwd)
+pProbesDir="$caseDir/postProcessing/pProbes/5"
+validationDir="$caseDir/../validation/experiments"
+
+#Set files
+pProbes="$pProbesDir/p_rgh"
+pProbes_modified="$pProbesDir/p_rgh_modified"
+touch $pProbes_modified
+exp="$validationDir/experiments_2_4_data"
+
+ln=$( grep -wn -m1 "$1" $pProbes | awk '{ print $1 }' | sed 's/:/ /' )
+
+tail -n +$ln $pProbes >$pProbes_modified
+
+createEps $pProbes_modified $exp $1
+
+echo Done

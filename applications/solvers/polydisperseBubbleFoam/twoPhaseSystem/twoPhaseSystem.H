@@ -193,6 +193,9 @@ public:
         //  Multiplies the phase-fraction gradient
         tmp<volScalarField> D(const label) const;
 
+        tmp<fvVectorMatrix> divDevRhoReff1();
+        tmp<fvVectorMatrix> divDevRhoReff2();
+
         //- Solve for the two-phase-fractions
         void solve();
 

@@ -110,6 +110,9 @@ protected:
         //- Turbulence model
         autoPtr<PhaseCompressibleTurbulenceModel<phaseModel>> turbulence_;
 
+        //- Bool to use B&G bubble pressure based viscosity
+        bool BGviscosity_;
+
 
 public:
 
@@ -164,6 +167,12 @@ public:
         const word& name() const
         {
             return name_;
+        }
+
+        //- Return if B&G viscosity model is used
+        bool BGviscosity() const
+        {
+            return BGviscosity_;
         }
 
         //- Return the twoPhaseSystem

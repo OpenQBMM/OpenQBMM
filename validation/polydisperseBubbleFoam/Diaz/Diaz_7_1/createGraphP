@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+#Read d43average from pbeTransportFoam for 75 rpm
+createEps()
+{
+    gnuplot<<EOF
+    stats "$1" using 4 name "C" noout
+
+    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+        dl 8.0
+    set output "Diaz3_7_1_p.eps"
+    set xlabel "Time [s]"
+    set ylabel "Normalized Pressure"
+    set datafile commentschars "#"
+    set grid
+    set key off
+    set size 3,3
+    set autoscale
+    set xrange [150:200]
+    set yrange [-6:6]
+    set key bottom left
+
+    plot    "$1" using 1:(\$4-C_mean) every 100 title 'QBMM'\
+                with lines linetype 1 linewidth 2 linecolor rgb '#9db668',\
+            "$2" using (\$1+ 150):2 title 'Diaz'\
+                with points pointtype 7 ps 2 linecolor rgb 'black'
+EOF
+}
+
+# test if gnuplot exists on the system
+if ! which gnuplot > /dev/null 2>&1
+then
+    echo "gnuplot not found - skipping graph creation" >&2
+    exit 1
+fi
+
+#set case Direcory names
+caseDir=$(pwd)
+pProbesDir="$caseDir/postProcessing/pProbes/0"
+validationDir="$caseDir/../validation/experiments"
+
+#Set files
+pProbes="$pProbesDir/p_rgh"
+pProbes_modified="$pProbesDir/p_rgh_modified"
+touch $pProbes_modified
+exp="$validationDir/experiments_7_1_data"
+
+minTime="50"
+ln=$( grep -wn -m1 "$minTime" $pProbes | awk '{ print $1 }' | sed 's/:/ /' )
+
+tail -n +$ln $pProbes >$pProbes_modified
+
+createEps $pProbes_modified $exp
+
+echo Done

@@ -1,0 +1,188 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     polydisperseBubbleFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         250;
+
+deltaT          1e-3;
+
+writeControl    adjustableRunTime;
+
+writeInterval   1;
+
+purgeWrite      100;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.5;
+
+maxDeltaT       1e-3;
+
+functions
+{
+    computeD32
+    {
+        libs ("libutilityFunctionObjects.so");
+        type coded;
+        name integral;
+        writeControl timeStep;
+
+        codeExecute
+        #{
+            Info<< "Creating d_32" << endl;
+
+            const volScalarField& m2 =
+                mesh().lookupObject<volScalarField>("moment.2.air");
+            const volScalarField& m3 =
+                mesh().lookupObject<volScalarField>("moment.3.air");
+            const dictionary& phaseDict =
+                mesh().lookupObject<IOdictionary>("phaseProperties");
+
+            static autoPtr<volScalarField> pField;
+
+            if (!pField.valid())
+            {
+
+                pField.set
+                (
+                    new volScalarField
+                    (
+                        IOobject
+                        (
+                            "d32",
+                            mesh().time().timeName(),
+                            mesh(),
+                            IOobject::NO_READ,
+                            IOobject::NO_WRITE,
+                            true
+                        ),
+                        mesh(),
+                        dimensionedScalar("zero", dimLength, 0.0)
+                    )
+                );
+            }
+            volScalarField& d32 = pField();
+            d32.checkIn();
+
+            d32 ==
+                Foam::cbrt
+                (
+                    m3/max
+                    (
+                        m2,
+                        dimensionedScalar("small", m2.dimensions(), 1e-24)
+                    )
+                   *6.0
+                   /(
+                       Foam::constant::mathematical::pi
+                      *dimensionedScalar
+                        (
+                            "rho",
+                            dimDensity,
+                            phaseDict.subDict("air").lookup("rho")
+                        )
+                    )
+                );
+
+            if (mesh().time().outputTime())
+            {
+                d32.write();
+            }
+        #};
+    }
+    fieldAverage1
+    {
+        type            fieldAverage;
+        functionObjectLibs ( "libfieldFunctionObjects.so" );
+        writeControl    writeTime;
+        timeStart       50;
+        fields
+        (
+            U.air
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+
+            U.water
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+
+            alpha.air
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+
+            p_rgh
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            d32
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+        );
+    }
+    pProbes
+    {
+        type        probes;
+        functionObjectLibs ("libsampling.so");
+        probeLocations
+        (
+            (0  0.038   0)
+            (0  0.213   0)
+            (0  0.413   0)
+        );
+
+        fields
+        (
+            p_rgh
+        );
+    }
+}
+
+
+// ************************************************************************* //

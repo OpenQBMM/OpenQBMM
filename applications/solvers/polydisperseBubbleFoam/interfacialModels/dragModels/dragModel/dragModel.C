@@ -127,7 +127,13 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::CdRe() const
                *pair_.continuous().alphas(nodej);
         }
     }
-    return tCdRe;
+    return
+        tCdRe
+       /max
+        (
+            pair_.dispersed()*pair_.continuous(),
+            pair_.dispersed().residualAlpha()
+        );
 }
 
 
@@ -156,8 +162,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
     return
         max
         (
-            pair_.dispersed().alphas(nodei)
-           *pair_.continuous().alphas(nodej),
+            pair_.dispersed().alphas(nodei),
             pair_.dispersed().residualAlpha()
         )*Ki(nodei,nodej);
 }
@@ -191,8 +196,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::dragModel::Kf
     return
         max
         (
-            fvc::interpolate(pair_.dispersed().alphas(nodei))
-           *fvc::interpolate(pair_.continuous().alphas(nodej)),
+            fvc::interpolate(pair_.dispersed().alphas(nodei)),
             pair_.dispersed().residualAlpha()
         )*fvc::interpolate(Ki(nodei,nodej));
 }

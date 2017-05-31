@@ -57,7 +57,7 @@ Foam::turbulentDispersionModels::Davidson::Davidson
 )
 :
     turbulentDispersionModel(dict, pair),
-    Cdis_("Cdis", dimless, dict)
+    residualRe_("residualRe", dimless, dict)
 {}
 
 
@@ -88,17 +88,28 @@ Foam::turbulentDispersionModels::Davidson::D
             )
         );
 
+    volScalarField Cdis =
+        (4.0/3.0)
+       /(
+           sqrt(alpha1/max(alpha2, pair_.continuous().residualAlpha()))
+          *pair_.continuous().rho()/pair_.dispersed().rho()
+         + sqrt(alpha2/max(alpha1, pair_.dispersed().residualAlpha()))
+        )
+       /(drag.CdRe(nodei, nodej)/max(pair_.Re(nodei, nodej), residualRe_));
+
     return
-        Cdis_
-       *pair_.dispersed().ds(nodei)
+        0.75*Cdis
        *pair_.magUr(nodei, nodej)
        *Foam::sqrt(alpha1*alpha2)
-       *drag.Ki(nodei, nodej)
-       /Foam::max
+       *drag.CdRe(nodei, nodej)
+       *pair_.continuous().rho()
+       *pair_.continuous().nu()
+       /pair_.dispersed().ds(nodei)
+       /max
         (
-            alpha2,
+            pair_.continuous(),
             pair_.continuous().residualAlpha()
-        );
+        )*pos(pair_.dispersed().alphas(nodei) - 0.001);
 }
 
 

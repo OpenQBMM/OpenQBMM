@@ -86,7 +86,7 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModels::Zuber::Cvm
 
     return
         (1.0 + 2.0*pair_.dispersed().alphas(nodei))
-       /(max(pair_.continuous().alphas(nodei)), residualAlpha_);
+       /max(pair_.continuous().alphas(nodei), residualAlpha_);
 }
 
 
