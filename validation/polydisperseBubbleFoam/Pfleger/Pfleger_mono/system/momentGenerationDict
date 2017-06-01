@@ -25,12 +25,17 @@ boundaries
     inlet
     {
         type    fixedValue;
+        value   uniform 0;
     }
     defaultFaces
     {
         type    empty;
     }
-    default
+    walls
+    {
+        type    zeroGradient;
+    }
+    outlet
     {
         type    zeroGradient;
     }
