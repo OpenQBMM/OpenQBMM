@@ -114,8 +114,12 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::CdRe() const
     tmp<volScalarField> tCdRe;
     tCdRe =
         CdRe(0, 0)
-       *pair_.dispersed().alphas(0)
-       *pair_.continuous().alphas(0);
+       *max
+        (
+            pair_.dispersed().alphas(0)
+           *pair_.continuous().alphas(0),
+            pair_.dispersed().residualAlpha()
+        );
 
     for (label nodei = 1; nodei < nNodesi; nodei++)
     {
@@ -123,8 +127,12 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::CdRe() const
         {
             tCdRe.ref() +=
                 CdRe(nodei, nodej)
-               *pair_.dispersed().alphas(nodei)
-               *pair_.continuous().alphas(nodej);
+               *max
+                (
+                    pair_.dispersed().alphas(0)
+                   *pair_.continuous().alphas(0),
+                    pair_.dispersed().residualAlpha()
+                );
         }
     }
     return

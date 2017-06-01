@@ -100,22 +100,19 @@ int main(int argc, char *argv[])
         label nMoments = 2*nNodes;
 
         bool Radau = phaseDict.lookupOrDefault<bool>("Radau", false);
+        bool extended(phaseDict.lookupOrDefault<bool>("extended", false));
+
         if (Radau)
         {
             nNodes++;
         }
 
-        bool extended(phaseDict.lookupOrDefault<bool>("extended", true));
-        if (Radau)
-        {
-            extended = false;
-        }
         if (extended || Radau)
         {
             nMoments++;
         }
 
-        autoPtr<momentGenerationModel> mgm =
+        autoPtr<momentGenerationModel> momentGenerator =
             momentGenerationModel::New(phaseDict, nNodes, extended);
 
         PtrList<volScalarField> moments(nMoments);
@@ -172,7 +169,7 @@ int main(int argc, char *argv[])
         //  Set internal field values and initialize moments.
         {
             const dictionary& dict(phaseDict.subDict("internal"));
-            mgm().updateQuadrature(dict);
+            momentGenerator().updateQuadrature(dict);
 
 
             forAll(moments, mi)
@@ -199,7 +196,7 @@ int main(int argc, char *argv[])
                             IOobject::AUTO_WRITE
                         ),
                         mesh,
-                        mgm().moments()[mi],
+                        momentGenerator().moments()[mi],
                         bTypes
                     )
                 );
@@ -218,14 +215,14 @@ int main(int argc, char *argv[])
             {
                 dictionary dict = phaseDict.subDict(bName);
 
-                mgm().updateQuadrature(dict);
+                momentGenerator().updateQuadrature(dict);
 
                 forAll(moments, mi)
                 {
                     forAll(moments[mi].boundaryField()[bi], facei)
                     {
                         moments[mi].boundaryFieldRef()[bi][facei] =
-                            (mgm().moments()[mi]).value();
+                            (momentGenerator().moments()[mi]).value();
                     }
                 }
             }

@@ -193,14 +193,21 @@ public:
         //  Multiplies the phase-fraction gradient
         tmp<volScalarField> D(const label) const;
 
+        //- Return viscous stress matrix for phase 1
+        //  Either standard or B&G based on bubble pressure
         tmp<fvVectorMatrix> divDevRhoReff1();
+
+        //- Return viscous stress matrix for phase 2
+        //  Either standard or B&G based on bubble pressure
         tmp<fvVectorMatrix> divDevRhoReff2();
 
         //- Solve for the two-phase-fractions
         void solve();
 
+        //- Solve average transport of moments
         void averageTransport();
 
+        //- Advect moments with deviation from mean flux
         void relativeTransport();
 
         //- Correct two-phase properties other than turbulence

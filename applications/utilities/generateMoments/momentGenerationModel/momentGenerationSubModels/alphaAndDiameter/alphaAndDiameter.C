@@ -83,16 +83,24 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateQuadrature
             dict_.lookup("abscissaDimension")
         );
 
-        dictionary nodeDict(dict.subDict("node"+Foam::name(nodei)));
+        if (dict.found("node"+Foam::name(nodei)))
+        {
+            dictionary nodeDict(dict.subDict("node"+Foam::name(nodei)));
 
-        dimensionedScalar dia(nodeDict.lookup("dia"));
-        dimensionedScalar alpha(nodeDict.lookup("alpha"));
-        dimensionedScalar rho(nodeDict.lookup("rho"));
+            dimensionedScalar dia(nodeDict.lookup("dia"));
+            dimensionedScalar alpha(nodeDict.lookup("alpha"));
+            dimensionedScalar rho(nodeDict.lookup("rho"));
 
-        abscissae_[nodei] =
-            (4.0/3.0)*Foam::constant::mathematical::pi*rho*pow3(dia/2.0);
+            abscissae_[nodei] =
+                (4.0/3.0)*Foam::constant::mathematical::pi*rho*pow3(dia/2.0);
 
-        weights_[nodei] = rho*alpha/abscissae_[nodei];
+            weights_[nodei] = rho*alpha/abscissae_[nodei];
+        }
+        else
+        {
+            abscissae_[nodei].value() = 0;
+            weights_[nodei].value() = 0;
+        }
     }
     updateMoments();
 }

@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
             fluid.averageTransport();
             phi = phase1.alphaPhi() + phase2.alphaPhi();
 
-//             if (pimple.turbCorr())
+            if (pimple.turbCorr())
             {
                 fluid.correctTurbulence();
             }
