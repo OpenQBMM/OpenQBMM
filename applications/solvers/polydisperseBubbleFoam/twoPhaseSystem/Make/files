@@ -1,0 +1,18 @@
+phaseModels/phaseModel/phaseModel.C
+phaseModels/phaseModel/newPhaseModel.C
+phaseModels/pdPhaseModel/pdPhaseModel.C
+phaseModels/phaseModel/phaseModels.C
+
+BlendedInterfacialModel/blendingMethods/blendingMethod/blendingMethod.C
+BlendedInterfacialModel/blendingMethods/blendingMethod/newBlendingMethod.C
+BlendedInterfacialModel/blendingMethods/noBlending/noBlending.C
+BlendedInterfacialModel/blendingMethods/linear/linear.C
+BlendedInterfacialModel/blendingMethods/hyperbolic/hyperbolic.C
+
+phasePair/phasePairKey/phasePairKey.C
+phasePair/phasePair/phasePair.C
+phasePair/orderedPhasePair/orderedPhasePair.C
+
+twoPhaseSystem.C
+
+LIB = $(FOAM_USER_LIBBIN)/libpdPhaseSystem
