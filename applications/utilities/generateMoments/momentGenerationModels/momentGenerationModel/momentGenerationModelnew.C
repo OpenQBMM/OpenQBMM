@@ -28,7 +28,8 @@ Foam::momentGenerationModel::New
 (
     const dictionary& dict,
     const label nNodes,
-    const bool extended
+    const bool extended,
+    const bool Radau
 )
 {
     word momentGenerationModelType(dict.lookup("type"));
@@ -54,7 +55,16 @@ Foam::momentGenerationModel::New
         Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
     }
 
-    return autoPtr<momentGenerationModel>(cstrIter()(dict,nNodes,extended));
+    return autoPtr<momentGenerationModel>
+    (
+        cstrIter()
+        (
+            dict,
+            nNodes,
+            extended,
+            Radau
+        )
+    );
 }
 
 

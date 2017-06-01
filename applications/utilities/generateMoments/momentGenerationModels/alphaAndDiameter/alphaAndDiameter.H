@@ -19,17 +19,17 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::momentGenerationSubModels::none
+    Foam::momentGenerationSubModels::weightsAndAbscissae
 
 Description
-    Moments are read directly from the dictionary to create the moment fields
+    Moment generation done using volume fraction, density, and  bubble diameter
 
 SourceFiles
-    none.C
+    weightsAndAbscissae.C
 \*---------------------------------------------------------------------------*/
 
-#ifndef none_H
-#define none_H
+#ifndef alphaAndDiameter_H
+#define alphaAndDiameter_H
 
 #include "momentGenerationModel.H"
 
@@ -44,29 +44,30 @@ namespace momentGenerationSubModels
                     Class Brownian Declaration
 \*---------------------------------------------------------------------------*/
 
-class none
+class alphaAndDiameter
 :
     public momentGenerationModel
 {
 public:
 
         //- Runtime type information
-        TypeName("none");
+        TypeName("alphaAndDiameter");
 
 
     // Constructors
 
         //- Construct from components
-        none
+        alphaAndDiameter
         (
             const dictionary& dict,
             const label nNodes,
-            const bool extended = true
+            const bool extended,
+            const bool Radau
         );
 
 
     //- Destructor
-    virtual ~none();
+    virtual ~alphaAndDiameter();
 
 
     // Public member functions

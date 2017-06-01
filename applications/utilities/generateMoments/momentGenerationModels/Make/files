@@ -1,0 +1,7 @@
+momentGenerationModel/momentGenerationModel.C
+momentGenerationModel/momentGenerationModelnew.C
+
+none/none.C
+weightsAndAbscissae/weightsAndAbscissae.C
+alphaAndDiameter/alphaAndDiameter.C
+LIB = $(FOAM_USER_LIBBIN)/libmomentGenerationModels

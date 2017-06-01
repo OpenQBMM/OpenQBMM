@@ -61,7 +61,8 @@ public:
         (
             const dictionary& dict,
             const label nNodes,
-            const bool extended = true
+            const bool extended,
+            const bool Radau
         );
 
 

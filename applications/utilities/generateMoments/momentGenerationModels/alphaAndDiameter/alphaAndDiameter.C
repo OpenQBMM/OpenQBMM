@@ -21,7 +21,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
-#include "none.H"
+#include "alphaAndDiameter.H"
 #include "constants.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -31,12 +31,12 @@ namespace Foam
 {
 namespace momentGenerationSubModels
 {
-    defineTypeNameAndDebug(none, 0);
+    defineTypeNameAndDebug(alphaAndDiameter, 0);
 
     addToRunTimeSelectionTable
     (
         momentGenerationModel,
-        none,
+        alphaAndDiameter,
         dictionary
     );
 }
@@ -45,40 +45,60 @@ namespace momentGenerationSubModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::none::none
+Foam::momentGenerationSubModels::alphaAndDiameter
+::alphaAndDiameter
 (
     const dictionary& dict,
     const label nNodes,
-    const bool extended
+    const bool extended,
+    const bool Radau
 )
 :
-    momentGenerationModel(dict,nNodes,extended)
+    momentGenerationModel(dict, nNodes, extended, Radau)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::none::~none()
+Foam::momentGenerationSubModels::alphaAndDiameter
+::~alphaAndDiameter()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::none::updateQuadrature
+void Foam::momentGenerationSubModels::alphaAndDiameter::updateQuadrature
 (
     const dictionary& dict
 )
 {
-    for (label mi = 0; mi < nMoments_; mi++)
+    for (label nodei = 0; nodei < nNodes_; nodei++)
     {
-        moments_[mi] =
-        dimensionedScalar
-        (
-            "moment."+ Foam::name(mi),
-            moments_[mi].dimensions(),
-            dict.lookup("moment."+ Foam::name(mi))
-        );
+
+        if (dict.found("node"+Foam::name(nodei)))
+        {
+            dictionary nodeDict(dict.subDict("node"+Foam::name(nodei)));
+            dimensionedScalar dia(nodeDict.lookup("dia"));
+            dimensionedScalar alpha(nodeDict.lookup("alpha"));
+            dimensionedScalar rho(nodeDict.lookup("rho"));
+
+            abscissae_[nodei] =
+                (4.0/3.0)*Foam::constant::mathematical::pi*rho*pow3(dia/2.0);
+
+            weights_[nodei] = rho*alpha/abscissae_[nodei];
+
+            if (nodei == 0 && Radau_)
+            {
+                abscissae_[nodei].value() = 0;
+            }
+        }
+        else
+        {
+            abscissae_[nodei].value() = 0;
+            weights_[nodei].value() = 0;
+        }
     }
+    updateMoments();
 }
 
 

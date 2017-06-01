@@ -19,17 +19,17 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::momentGenerationSubModels::weightsAndAbscissae
+    Foam::momentGenerationSubModels::none
 
 Description
-    constructs moments from a delta function
+    Moments are read directly from the dictionary to create the moment fields
 
 SourceFiles
-    weightsAndAbscissae.C
+    none.C
 \*---------------------------------------------------------------------------*/
 
-#ifndef oneNode_H
-#define oneNode_H
+#ifndef none_H
+#define none_H
 
 #include "momentGenerationModel.H"
 
@@ -44,29 +44,30 @@ namespace momentGenerationSubModels
                     Class Brownian Declaration
 \*---------------------------------------------------------------------------*/
 
-class oneNode
+class none
 :
     public momentGenerationModel
 {
 public:
 
         //- Runtime type information
-        TypeName("oneNode");
+        TypeName("none");
 
 
     // Constructors
 
         //- Construct from components
-        oneNode
+        none
         (
             const dictionary& dict,
             const label nNodes,
-            const bool extended = true
+            const bool extended,
+            const bool Radau
         );
 
 
     //- Destructor
-    virtual ~oneNode();
+    virtual ~none();
 
 
     // Public member functions

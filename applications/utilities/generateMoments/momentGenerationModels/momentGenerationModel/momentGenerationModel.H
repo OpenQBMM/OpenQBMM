@@ -59,16 +59,28 @@ protected:
 
     // Protected data
 
+        //- Constant refrence to dictionary
         const dictionary& dict_;
 
+        //- Number of nodes
         const label nNodes_;
 
+        //- Number of moments
         const label nMoments_;
 
+        //- Does the quadrature use EQMOM
         const bool extended_;
 
+        //- Is a Radau quadrature used
+        const bool Radau_;
+
+        //- List of weights
         List<dimensionedScalar> weights_;
+
+        //- List of abscissae
         List<dimensionedScalar> abscissae_;
+
+        //- List of moments
         List<dimensionedScalar> moments_;
 
 
@@ -92,9 +104,10 @@ public:
         (
             const dictionary& dict,
             const label nNodes,
-            const bool extended
+            const bool extended,
+            const bool Radau
         ),
-        (dict,nNodes,extended)
+        (dict, nNodes, extended, Radau)
     );
 
 
@@ -105,7 +118,8 @@ public:
         (
             const dictionary&,
             const label,
-            const bool extended
+            const bool extended,
+            const bool Radau
         );
 
 
@@ -115,7 +129,8 @@ public:
         (
             const dictionary& dict,
             const label nNodes,
-            const bool extended
+            const bool extended,
+            const bool Radau
         );
 
 
@@ -126,18 +141,6 @@ public:
     // Public Functions
 
         // Access
-
-            //- Return const access to weights
-            const List<dimensionedScalar>& weights() const
-            {
-                return weights_;
-            }
-
-            //- Return const access to abscissae
-            const List<dimensionedScalar>& abscissae() const
-            {
-                return abscissae_;
-            }
 
             //- Return constant access to moments
             const List<dimensionedScalar>& moments() const

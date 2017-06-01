@@ -1,4 +1,3 @@
-
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
@@ -20,71 +19,73 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
-#include "weightsAndAbscissae.H"
-#include "addToRunTimeSelectionTable.H"
+#include "momentGenerationModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace momentGenerationSubModels
-{
-    defineTypeNameAndDebug(weightsAndAbscissae, 0);
+    defineTypeNameAndDebug(momentGenerationModel, 0);
 
-    addToRunTimeSelectionTable
-    (
-        momentGenerationModel,
-        weightsAndAbscissae,
-        dictionary
-    );
+    defineRunTimeSelectionTable(momentGenerationModel, dictionary);
 }
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::momentGenerationModel::updateMoments()
+{
+    for (label mi = 0; mi < nMoments_; mi++)
+    {
+        moments_[mi].value() = 0.0;
+
+        for (label nodei = 0; nodei < nNodes_; nodei++)
+        {
+            moments_[mi] += weights_[nodei]*pow(abscissae_[nodei], mi);
+        }
+    }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::weightsAndAbscissae
-::weightsAndAbscissae
+Foam::momentGenerationModel::momentGenerationModel
 (
     const dictionary& dict,
     const label nNodes,
-    const bool extended
+    const bool extended,
+    const bool Radau
 )
 :
-    momentGenerationModel(dict,nNodes,extended)
-{}
+    dict_(dict),
+    nNodes_((Radau) ? (nNodes):(nNodes + 1)),
+    nMoments_((extended) ? (2*nNodes + 1):(2*nNodes)),
+    extended_(extended),
+    Radau_(Radau),
+    weights_(nNodes_),
+    abscissae_(nNodes_),
+    moments_(nMoments_)
+{
+    forAll(weights_, nodei)
+    {
+        weights_[nodei].dimensions().reset(dict.lookup("weightDimension"));
+        abscissae_[nodei].dimensions().reset(dict.lookup("abscissaDimension"));
+    }
+
+    forAll(moments_, mi)
+    {
+        moments_[mi].dimensions().reset
+        (
+            (weights_[0]*pow(abscissae_[0],mi)).dimensions()
+        );
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::weightsAndAbscissae
-::~weightsAndAbscissae()
+Foam::momentGenerationModel::~momentGenerationModel()
 {}
-
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-void Foam::momentGenerationSubModels::weightsAndAbscissae::updateQuadrature
-(
-    const dictionary& dict
-)
-{
-    for (label nodei = 0; nodei < nNodes_; nodei++)
-    {
-        if (dict.found("node"+Foam::name(nodei)))
-        {
-            dictionary nodeDict(dict.subDict("node"+Foam::name(nodei)));
-            weights_[nodei] = nodeDict.lookup("weight");
-            abscissae_[nodei] = nodeDict.lookup("abscissa");
-        }
-        else
-        {
-            abscissae_[nodei].value() = 0;
-            weights_[nodei].value() = 0;
-        }
-    }
-    updateMoments();
-}
 
 
 // ************************************************************************* //

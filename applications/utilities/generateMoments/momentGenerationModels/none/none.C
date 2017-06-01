@@ -1,3 +1,5 @@
+
+
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
@@ -19,71 +21,66 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
-#include "momentGenerationModel.H"
+#include "none.H"
+#include "constants.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    defineTypeNameAndDebug(momentGenerationModel, 0);
-
-    defineRunTimeSelectionTable(momentGenerationModel, dictionary);
-}
-
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-void Foam::momentGenerationModel::updateMoments()
+namespace momentGenerationSubModels
 {
-    for (label mi = 0; mi < nMoments_; mi++)
-    {
-        moments_[mi].value() = 0.0;
+    defineTypeNameAndDebug(none, 0);
 
-        for (label nodei = 0; nodei < nNodes_; nodei++)
-        {
-            moments_[mi] += weights_[nodei]*pow(abscissae_[nodei], mi);
-        }
-    }
+    addToRunTimeSelectionTable
+    (
+        momentGenerationModel,
+        none,
+        dictionary
+    );
+}
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::momentGenerationModel::momentGenerationModel
+Foam::momentGenerationSubModels::none::none
 (
     const dictionary& dict,
     const label nNodes,
-    const bool extended
+    const bool extended,
+    const bool Radau
 )
 :
-    dict_(dict),
-    nNodes_(nNodes),
-    nMoments_((extended) ? (2*nNodes + 1):(2*nNodes)),
-    extended_(extended),
-    weights_(nNodes_),
-    abscissae_(nNodes_),
-    moments_(nMoments_)
-{
-    forAll(weights_, nodei)
-    {
-        weights_[nodei].dimensions().reset(dict.lookup("weightDimension"));
-        abscissae_[nodei].dimensions().reset(dict.lookup("abscissaDimension"));
-    }
-
-    forAll(moments_, mi)
-    {
-        moments_[mi].dimensions().reset
-        (
-            (weights_[0]*pow(abscissae_[0],mi)).dimensions()
-        );
-    }
-}
+    momentGenerationModel(dict, nNodes, extended, Radau)
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::momentGenerationModel::~momentGenerationModel()
+Foam::momentGenerationSubModels::none::~none()
 {}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::momentGenerationSubModels::none::updateQuadrature
+(
+    const dictionary& dict
+)
+{
+    for (label mi = 0; mi < nMoments_; mi++)
+    {
+        moments_[mi] =
+        dimensionedScalar
+        (
+            "moment."+ Foam::name(mi),
+            moments_[mi].dimensions(),
+            dict.lookup("moment."+ Foam::name(mi))
+        );
+    }
+}
 
 
 // ************************************************************************* //

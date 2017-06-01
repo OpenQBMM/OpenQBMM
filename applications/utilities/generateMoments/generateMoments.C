@@ -37,12 +37,6 @@ Description
 
 #include "fvCFD.H"
 #include "momentGenerationModel.H"
-#include "fvPatchFields.H"
-#include "zeroGradientFvPatchField.H"
-#include "emptyFvPatchFields.H"
-#include "wedgeFvPatchFields.H"
-#include "symmetryFvPatchFields.H"
-#include "cyclicFvPatchFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -113,58 +107,9 @@ int main(int argc, char *argv[])
         }
 
         autoPtr<momentGenerationModel> momentGenerator =
-            momentGenerationModel::New(phaseDict, nNodes, extended);
+            momentGenerationModel::New(phaseDict, nNodes, extended, Radau);
 
         PtrList<volScalarField> moments(nMoments);
-
-        // Set boundary types (same for all moments)
-        wordList bTypes
-        (
-            mesh.boundaryMesh().size(),
-            zeroGradientFvPatchScalarField::typeName
-        );
-
-        forAll(mesh.boundaryMesh(), bi)
-        {
-            word bName = mesh.boundaryMesh()[bi].name();
-            if(!boundaries.found(bName))
-            {
-                bName = "default";
-            }
-
-            word type = boundaries.subDict(bName).lookup("type");
-
-            if (type == "fixedValue")
-            {
-                bTypes[bi] = fixedValueFvPatchScalarField::typeName;
-            }
-            else if (type == "zeroGradient")
-            {
-                // Do nothing already set
-            }
-            else if (type == "empty")
-            {
-                bTypes[bi] = emptyFvPatchScalarField::typeName;
-            }
-            else if (type == "wedge")
-            {
-                bTypes[bi] =  wedgeFvPatchScalarField::typeName;
-            }
-            else if (type == "symmetry")
-            {
-                bTypes[bi] =  symmetryFvPatchScalarField::typeName;
-            }
-            else if (type == "cyclic")
-            {
-                bTypes[bi] =  cyclicFvPatchScalarField::typeName;
-            }
-            else
-            {
-                FatalErrorInFunction
-                    << "Boundary type " << type << " not known" << endl
-                    << abort(FatalError);
-            }
-        }
 
         //  Set internal field values and initialize moments.
         {
@@ -196,10 +141,15 @@ int main(int argc, char *argv[])
                             IOobject::AUTO_WRITE
                         ),
                         mesh,
-                        momentGenerator().moments()[mi],
-                        bTypes
+                        momentGenerator().moments()[mi]
                     )
                 );
+                moments[mi].boundaryFieldRef().readField
+                (
+                    moments[mi].internalField(),
+                    boundaries
+                );
+
                 Info<< "    " << moments[mi].name() << endl;
             }
         }
