@@ -30,8 +30,8 @@ boundaryField
     {
         type            inletOutlet;
         phi             phi.air;
-        inletValue      uniform 1;
-        value           uniform 1;
+        inletValue      uniform 1.0;
+        value           $internalField;
     }
     walls
     {

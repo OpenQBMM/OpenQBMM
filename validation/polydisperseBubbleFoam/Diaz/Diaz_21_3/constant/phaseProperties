@@ -20,8 +20,7 @@ phases (air water);
 air
 {
     type            polydispersePhaseModel
-    nu              1.3143e-5;
-    rho             1.4;
+    BGviscosity     true;
     residualAlpha   1e-4;
     minD            1e-4;
     maxD            1e-2;
@@ -30,8 +29,7 @@ air
 water
 {
     type            monodispersePhaseModel
-    nu              3.645e-7;
-    rho             1000;
+    BGviscosity     true;
     residualAlpha   1e-4;
     d               1e-4;
 }
@@ -89,7 +87,6 @@ drag
     (water in air)
     {
         type            SchillerNaumann;
-        A               8.0;
         residualRe      1e-3;
         residualEo      1e-3;
         residualE       1e-2;

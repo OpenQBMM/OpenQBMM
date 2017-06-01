@@ -19,8 +19,7 @@ phases (air water);
 
 air
 {
-    nu              1.3143e-5;
-    rho             1.4;
+    type            polydisperPhaseModel;
     residualAlpha   1e-4;
     minD            1e-4;
     maxD            1e-2;
@@ -28,8 +27,7 @@ air
 
 water
 {
-    nu              3.645e-7;
-    rho             1000;
+    type            monodispersePhaseModel;
     residualAlpha   1e-4;
     d               1e-4;
 }
@@ -74,7 +72,6 @@ drag
     (air in water)
     {
         type            SchillerNaumann;
-        A               8.0;
         residualRe      1e-3;
         residualEo      1e-3;
         residualE       1e-2;
@@ -87,7 +84,6 @@ drag
     (water in air)
     {
         type            SchillerNaumann;
-        A               8.0;
         residualRe      1e-3;
         residualEo      1e-3;
         residualE       1e-2;

@@ -26,7 +26,7 @@
                 (
                     fvc::surfaceSum
                     (
-                        mag(fvc::flux(phase1.Us(nodei)))
+                        mag(fvc::flux(phase1.Us(nodei)) - phi2)
                     )().primitiveField()/mesh.V().field()
                 )*runTime.deltaTValue()
             );

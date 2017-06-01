@@ -22,13 +22,13 @@ regions
         box (0 0 0) (0.5 0.45 0.1);
         fieldValues
         (
-            volScalarFieldValue moment.0.air 0
-            volScalarFieldValue moment.1.air 0
-            volScalarFieldValue moment.2.air 0
-            volScalarFieldValue moment.3.air 0
-            volScalarFieldValue moment.4.air 0
-            volScalarFieldValue moment.5.air 0
-            volScalarFieldValue moment.6.air 0
+            volScalarFieldValue alpha.air       0
+            volScalarFieldValue moment.0.air    0
+            volScalarFieldValue moment.1.air    0
+            volScalarFieldValue moment.2.air    0
+            volScalarFieldValue moment.3.air    0
+            volScalarFieldValue moment.4.air    0
+            volScalarFieldValue moment.5.air    0
         );
     }
 );
