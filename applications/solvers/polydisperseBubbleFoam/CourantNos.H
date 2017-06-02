@@ -16,7 +16,7 @@
 {
     // relative advection Courant number
     scalar UiCoNum = 0.0;
-    for (label nodei = 0; nodei < nNodes; nodei++)
+    for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
     {
         UiCoNum =
             max

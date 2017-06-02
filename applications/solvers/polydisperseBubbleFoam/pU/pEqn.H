@@ -71,7 +71,7 @@ tmp<surfaceScalarField> phiF2;
         )
     );
 
-    for (label nodei = 0; nodei < nNodes; nodei++)
+    for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
     {
         volScalarField Di = fluid.D(nodei);
 
