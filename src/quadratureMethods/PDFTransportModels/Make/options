@@ -15,7 +15,7 @@ EXE_INC = \
     -I../momentInversion/univariate/basic/lnInclude \
     -I../momentInversion/univariate/extended/lnInclude \
     -I../fieldMomentInversion/lnInclude \
-    -I../quadratureApproximation \
+    -I../quadratureApproximations/lnInclude \
     -I../momentAdvection/lnInclude
 
 LIB_LIBS = \
