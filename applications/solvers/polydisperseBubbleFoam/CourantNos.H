@@ -6,22 +6,14 @@
     (
         fvc::surfaceSum(mag(phi1 - phi2))().primitiveField()/mesh.V().field()
     )*runTime.deltaTValue();
-    scalar U1CoNum = 0.5*gMax
-    (
-        fvc::surfaceSum(mag(phi1))().primitiveField()/mesh.V().field()
-    )*runTime.deltaTValue();
-    CoNum = max(max(CoNum, UrCoNum), U1CoNum);
-}
 
-{
     // relative advection Courant number
-    scalar UiCoNum = 0.0;
     for (label nodei = 0; nodei < nNodes; nodei++)
     {
-        UiCoNum =
+        UrCoNum =
             max
             (
-                UiCoNum,
+                UrCoNum,
                 0.5*gMax
                 (
                     fvc::surfaceSum
@@ -31,7 +23,7 @@
                 )*runTime.deltaTValue()
             );
     }
-    CoNum = max(CoNum, UiCoNum);
+    CoNum = max(CoNum, UrCoNum);
 
-    Info<< "Max U." << phase1.name() << " Courant Number = " << UiCoNum << endl;
+    Info<< "Max Ur Courant Number = " << UrCoNum << endl;
 }

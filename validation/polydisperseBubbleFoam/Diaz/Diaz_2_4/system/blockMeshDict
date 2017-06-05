@@ -32,7 +32,7 @@ in2 #calc "$R";
 nWallPts    #calc "round(($w2 - $R)/$cellSize)";
 nInPts      #calc "round($dia/$cellSize)";
 nVertPts    #calc "round($h/$cellSize)";
-nDepthPts   1;//#calc "round($depth/$cellSize)";//1;
+nDepthPts   1;
 
 vertices
 (

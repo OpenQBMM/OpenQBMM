@@ -6,7 +6,7 @@ createEps()
     gnuplot<<EOF
     stats "$1" using 4 name "C" noout
 
-    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+    set terminal postscript eps enhanced color font 'Helvetica,60' linewidth 2\
         dl 8.0
     set output "Diaz3_11_9_p.eps"
     set xlabel "Time [s]"
@@ -18,7 +18,7 @@ createEps()
     set autoscale
     set xrange [0:50]
     set yrange [-20:20]
-    set key top left
+    set key top left Left box
 
     plot    "$2" using 1:2 title 'Diaz'\
                 with points pointtype 7 ps 2 linecolor rgb 'black', \
