@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,8 +25,7 @@ Class
     Foam::univariateMomentAdvection
 
 Description
-    Computes advection term for a moment set using a realizable advection
-    scheme.
+    Abstract class for the advection of a univariate moment set.
 
 SourceFiles
     univariateMomentAdvection.C
@@ -52,14 +51,24 @@ SourceFiles
 
 namespace Foam
 {
-
 /*---------------------------------------------------------------------------*\
-                Class univariateMomentAdvection Declaration
+                    Class univariateMomentAdvection Declaration
 \*---------------------------------------------------------------------------*/
 
 class univariateMomentAdvection
 {
-    // Private data
+    // Private member functions
+
+        //- Disallow default bitwise copy construct
+        univariateMomentAdvection(const univariateMomentAdvection&);
+
+        //- Disallow default bitwise assignment
+        void operator=(const univariateMomentAdvection&);
+
+
+protected:
+
+    // Protected data
 
         //- Name of the distribution associated to the quadrature approximation.
         const word name_;
@@ -73,29 +82,11 @@ class univariateMomentAdvection
         //- Advection terms for moment transport equations
         PtrList<volScalarField> divMoments_;
 
-        //- List of quadrature nodes used for moment advection
-        autoPtr<PtrList<volScalarNode>> nodes_;
-
         //- Field used to find upwind values of the owner
         surfaceScalarField own_;
 
         //- Field used to find upwind values of the neighbour
         surfaceScalarField nei_;
-
-        //- List of interpolated nodes (neighbour)
-        autoPtr<PtrList<surfaceScalarNode>> nodesNei_;
-
-        //- List of interpolated nodes (owner)
-        autoPtr<PtrList<surfaceScalarNode>> nodesOwn_;
-
-        //- List of interpolated moments (neighbour)
-        surfaceUnivariateMomentFieldSet momentsNei_;
-
-        //- List of interpolated moments (owner)
-        surfaceUnivariateMomentFieldSet momentsOwn_;
-
-        //- Flux moment inversion method
-        autoPtr<basicFieldMomentInversion> momentFieldInverter_;
 
         //- Conservative advection flux
         const surfaceScalarField phi_;
@@ -106,22 +97,36 @@ class univariateMomentAdvection
         //- Dimensions of the underlying distribution
         label nDimensions_;
 
-        //- Number of nodes used for advection
-        label nNodes_;
-
-protected:
-
-        //- Protected member functions
-        void interpolateNodes();
-
 
 public:
 
+    //- Runtime type information
+    TypeName("univariateMomentAdvection");
+
+
+    // Declare runtime construction
+
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            univariateMomentAdvection,
+            dictionary,
+            (
+                const dictionary& dict,
+                const univariateQuadratureApproximation& quadrature,
+                const surfaceScalarField& phi,
+                const word& support
+            ),
+            (dict, quadrature, phi, support)
+        );
+
+
     // Constructors
 
-        //- Construct from quadrature approximation
+        //- Construct from univariateMomentSet
         univariateMomentAdvection
         (
+            const dictionary& dict,
             const univariateQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
             const word& support
@@ -132,18 +137,25 @@ public:
     virtual ~univariateMomentAdvection();
 
 
+    // Selectors
+
+        static autoPtr<univariateMomentAdvection> New
+        (
+            const dictionary& dict,
+            const univariateQuadratureApproximation& quadrature,
+            const surfaceScalarField& phi,
+            const word& support
+        );
+
+
     // Member Functions
 
-        // Access
+        //- Return the advection term for the moment transport equation
+        inline const PtrList<volScalarField>& divMoments() const;
 
-            //- Return the advection term for the moment transport equation
-            inline const PtrList<volScalarField>& divMoments() const;
+        //- Update moment advection
+        virtual void update() = 0;
 
-
-        // Edit
-
-            //- Update advection
-            void update();
 };
 
 

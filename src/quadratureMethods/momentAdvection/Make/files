@@ -1,3 +1,5 @@
 univariateMomentAdvection/univariateMomentAdvection.C
+univariateMomentAdvection/newUnivariateMomentAdvection.C
+
 
 LIB = $(FOAM_USER_LIBBIN)/libmomentAdvection

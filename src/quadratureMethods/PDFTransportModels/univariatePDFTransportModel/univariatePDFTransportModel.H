@@ -87,7 +87,7 @@ protected:
         univariateQuadratureApproximation quadrature_;
 
         //- Moment advection
-        univariateMomentAdvection momentAdvection_;
+        autoPtr<univariateMomentAdvection>momentAdvection_;
 
     // Protected member functions
 

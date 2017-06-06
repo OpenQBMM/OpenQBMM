@@ -23,12 +23,42 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+#include "univariateMomentAdvection.H"
 
-const Foam::PtrList<Foam::volScalarField>&
-Foam::univariateMomentAdvection::divMoments() const
+// * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
+
+Foam::autoPtr<Foam::univariateMomentAdvection>
+Foam::univariateMomentAdvection::New
+(
+    const dictionary& dict,
+    const univariateQuadratureApproximation& quadrature,
+    const surfaceScalarField& phi,
+    const word& support
+)
 {
-    return divMoments_;
+    word univariateMomentAdvectionType
+    (
+        dict.lookup("univariateMomentAdvection")
+    );
+
+    Info<< "Selecting univariateMomentAdvection: "
+        << univariateMomentAdvectionType << endl;
+
+    dictionaryConstructorTable::iterator cstrIter =
+        dictionaryConstructorTablePtr_->find(univariateMomentAdvectionType);
+
+    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorInFunction
+            << "Unknown univariateMomentAdvection type "
+            << univariateMomentAdvectionType << endl << endl
+            << "Valid univariateMomentAdvection types are : " << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
+    }
+
+    return cstrIter()(dict, quadrature, phi, support);
 }
+
 
 // ************************************************************************* //

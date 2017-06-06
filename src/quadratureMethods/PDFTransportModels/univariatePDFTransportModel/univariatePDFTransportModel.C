@@ -48,9 +48,13 @@ Foam::PDFTransportModels::univariatePDFTransportModel
     quadrature_(name, mesh, support, 1),
     momentAdvection_
     (
-        quadrature_,
-        phi,
-        support
+        univariateMomentAdvection::New
+        (
+            quadrature_.subDict("momentAdvection"),
+            quadrature_,
+            phi,
+            support
+        )
     )
 {}
 
@@ -235,7 +239,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
 
 void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
 {
-    momentAdvection_.update();
+    momentAdvection_().update();
 
     // List of moment transport equations
     PtrList<fvScalarMatrix> momentEqns(quadrature_.nMoments());
@@ -251,7 +255,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             new fvScalarMatrix
             (
                 fvm::ddt(m)
-              + momentAdvection_.divMoments()[momenti]
+              + momentAdvection_().divMoments()[momenti]
               - momentDiffusion(m)
               ==
                 implicitMomentSource(m)
