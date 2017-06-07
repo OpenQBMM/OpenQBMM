@@ -25,18 +25,23 @@ boundaries
     inlet
     {
         type    fixedValue;
+        value   uniform 0;
     }
-    defaultFaces
-    {
-        type    empty;
-    }
-    default
+    outlet
     {
         type    zeroGradient;
     }
+    walls
+    {
+        type    zeroGradient;
+    }
+    frontAndBackPlanes
+    {
+        type    empty;
+    }
 }
 
-air
+particles
 {
     type                alphaAndDiameter;
     Radau               false;
@@ -45,12 +50,17 @@ air
 
     internal
     {
-
         node0
         {
-            rho rho [1 -3 0 0 0 0 0] 1.40;
-            dia dia [0 1 0 0 0 0 0] 1.0e-3;
-            alpha alpha [0 0 0 0 0 0 0] 0.33;
+            rho rho [1 -3 0 0 0 0 0] 2500;
+            dia dia [0 1 0 0 0 0 0] 3e-4;
+            alpha alpha [0 0 0 0 0 0 0] 0.55;
+        }
+        node0
+        {
+            rho rho [1 -3 0 0 0 0 0] 2500;
+            dia dia [0 1 0 0 0 0 0] 6e-4;
+            alpha alpha [0 0 0 0 0 0 0] 0.55;
         }
     }
     inlet
@@ -59,7 +69,7 @@ air
         {
             rho rho [1 -3 0 0 0 0 0] 2500;
             dia dia [0 1 0 0 0 0 0] 3e-4;
-            alpha alpha [0 0 0 0 0 0 0] 0.2;
+            alpha alpha [0 0 0 0 0 0 0] 0;
         }
     }
 }

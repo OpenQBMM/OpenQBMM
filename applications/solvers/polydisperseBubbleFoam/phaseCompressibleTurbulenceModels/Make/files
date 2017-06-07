@@ -4,6 +4,9 @@ phasePressureModel/phasePressureModel.C
 kineticTheory/kineticTheory.C
 
 kineticTheory/kineticTheoryModels/kineticTheoryModel/kineticTheoryModel.C
+kineticTheory/kineticTheoryModels/kineticTheoryModel/newKineticTheoryModel.C
+kineticTheory/kineticTheoryModels/equilibrium/equilibrium.C
+kineticTheory/kineticTheoryModels/nonEquilibrium/nonEquilibrium.C
 
 kineticTheory/kineticTheorySubModels/viscosityModel/viscosityModel/viscosityModel.C
 kineticTheory/kineticTheorySubModels/viscosityModel/viscosityModel/newViscosityModel.C

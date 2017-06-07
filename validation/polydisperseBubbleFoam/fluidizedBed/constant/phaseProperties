@@ -20,15 +20,15 @@ phases (particles gas);
 particles
 {
     type            monodispersePhaseModel;
-    residualAlpha   1e-4;
+    residualAlpha   1e-6;
     d               3e-4;
-    maxAlpha        0.62;
+    alphaMax        0.62;
 }
 
 gas
 {
     type            monodispersePhaseModel;
-    residualAlpha   1e-4;
+    residualAlpha   0;
     d               1;
 }
 

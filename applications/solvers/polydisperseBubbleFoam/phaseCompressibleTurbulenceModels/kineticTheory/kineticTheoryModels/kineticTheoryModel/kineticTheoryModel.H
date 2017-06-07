@@ -282,7 +282,7 @@ public:
         }
 
         //- Update kinetic theory quantities
-        virtual void correct();
+        virtual void correct() = 0;
 
 
     // IO functions

@@ -63,9 +63,15 @@ Foam::RASModels::kineticTheory::kineticTheory
 
     phase_(phase),
 
-    kineticTheoryModel_()
+    kineticTheoryModel_
+    (
+        kineticTheoryModel::New
+        (
+            coeffDict_,
+            phase
+        )
+    )
 {
-    kineticTheoryModel_.set(new kineticTheoryModel(coeffDict_, phase));
     if (type == typeName)
     {
         printCoeffs(type);

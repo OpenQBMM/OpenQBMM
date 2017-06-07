@@ -80,7 +80,7 @@ public:
         //- Construct from components
         nonEquilibrium
         (
-            const dictionary& dict
+            const dictionary& dict,
             const phaseModel& phase
         );
 
