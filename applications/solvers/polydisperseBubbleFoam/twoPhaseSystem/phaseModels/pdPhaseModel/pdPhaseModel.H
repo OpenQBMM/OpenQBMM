@@ -147,7 +147,7 @@ public:
         }
 
         //- Return deviation velocity for nodei
-        virtual const volVectorField& Vs(const label nodei) const
+        virtual tmp<volVectorField> Vs(const label nodei) const
         {
             return Vs_[nodei];
         }

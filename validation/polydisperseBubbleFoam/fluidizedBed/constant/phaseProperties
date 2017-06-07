@@ -15,87 +15,49 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-phases (air water);
+phases (particles gas);
 
-air
-{
-    type            polydispersePhaseModel;
-    residualAlpha   1e-4;
-    minD            1e-4;
-    maxD            1e-2;
-}
-
-water
+particles
 {
     type            monodispersePhaseModel;
     residualAlpha   1e-4;
-    d               1e-4;
+    d               3e-4;
+    maxAlpha        0.62;
 }
 
-pMin    1e3;
-pMax    1e7;
+gas
+{
+    type            monodispersePhaseModel;
+    residualAlpha   1e-4;
+    d               1;
+}
+
+pMin    10000;
 
 blending
 {
     default
     {
-        type                            linear;
-        maxFullyDispersedAlpha.air      0.3;
-        maxPartlyDispersedAlpha.air     0.5;
-        maxFullyDispersedAlpha.water    0.3;
-        maxPartlyDispersedAlpha.water   0.5;
+        type            none;
+        continuousPhase gas;
     }
 }
 
 sigma
 (
-    (air and water)   0.7
+    (particles and gas)   0
 );
 
 aspectRatio
 (
-    (air in water)
-    {
-        type            constant;
-        E0              1.0;
-    }
-
-    (water in air)
-    {
-        type            constant;
-        E0              1.0;
-    }
 );
 
 drag
 (
-    (air in water)
+    (particles in gas)
     {
-        type            SchillerNaumann;
+        type            GidaspowErgunWenYu;
         residualRe      1e-3;
-        swarmCorrection
-        {
-            type        none;
-        }
-    }
-
-    (water in air)
-    {
-        type            SchillerNaumann;
-        residualRe      1e-3;
-        swarmCorrection
-        {
-            type        none;
-        }
-    }
-
-    (air and water)
-    {
-        type            segregated;
-        residualRe      1e-3;
-        residualAlpha   1e-4;
-        m               0.5;
-        n               8;
         swarmCorrection
         {
             type        none;

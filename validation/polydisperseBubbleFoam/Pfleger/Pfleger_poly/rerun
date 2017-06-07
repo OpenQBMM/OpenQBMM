@@ -8,6 +8,7 @@ const="constant"
 system="system"
 dyn="dynamicCode"
 animation="animation"
+data="data"
 
 
 for f in *
@@ -18,6 +19,7 @@ do
          && [ $f != $const ]            \
          && [ $f != $system ]           \
          && [ $f != $animation ]        \
+         && [ $f != $data ]             \
          && [ $f != $dyn ] ; then
             rm -r $f
         fi

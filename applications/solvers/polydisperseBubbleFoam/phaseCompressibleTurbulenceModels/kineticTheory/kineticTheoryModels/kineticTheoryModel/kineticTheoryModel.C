@@ -5,6 +5,9 @@
     \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
+2017-06-05  Jeff Heylmun:   Modified to allow for use of anisotropic Gaussian
+                            model.
+-------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
 
@@ -27,34 +30,32 @@ License
 #include "twoPhaseSystem.H"
 #include "mathematicalConstants.H"
 #include "fvOptions.H"
+#include "fvm.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(kineticTheoryModel, 0);
+    defineRunTimeSelectionTable(kineticTheoryModel, dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::RASModels::kineticTheoryModel::kineticTheoryModel
+Foam::kineticTheoryModel::kineticTheoryModel
 (
-    const volScalarField& alpha,
-    const volScalarField& rho,
-    const volVectorField& U,
-    const surfaceScalarField& alphaRhoPhi,
-    const surfaceScalarField& phi,
-    const transportModel& phase,
-    const word& propertiesName,
-    const word& type
+    const dictionary& dict,
+    const phaseModel& phase
 )
 :
-    eddyViscosity
-    <
-        RASModel<EddyDiffusivity<phaseCompressibleTurbulenceModel>>
-    >
+    regIOobject
     (
-        type,
-        alpha,
-        rho,
-        U,
-        alphaRhoPhi,
-        phi,
-        phase,
-        propertiesName
+        IOobject
+        (
+            IOobject::groupName(typeName, phase.name()),
+            phase.db().time().timeName(),
+            phase.mesh()
+        )
     ),
 
     phase_(phase),
@@ -63,59 +64,59 @@ Foam::RASModels::kineticTheoryModel::kineticTheoryModel
     (
         kineticTheoryModels::viscosityModel::New
         (
-            coeffDict_
+            dict
         )
     ),
     conductivityModel_
     (
         kineticTheoryModels::conductivityModel::New
         (
-            coeffDict_
+            dict
         )
     ),
     radialModel_
     (
         kineticTheoryModels::radialModel::New
         (
-            coeffDict_
+            dict
         )
     ),
     granularPressureModel_
     (
         kineticTheoryModels::granularPressureModel::New
         (
-            coeffDict_
+            dict
         )
     ),
     frictionalStressModel_
     (
         kineticTheoryModels::frictionalStressModel::New
         (
-            coeffDict_
+            dict
         )
     ),
 
-    equilibrium_(coeffDict_.lookup("equilibrium")),
-    e_("e", dimless, coeffDict_),
-    alphaMax_("alphaMax", dimless, coeffDict_),
+    equilibrium_(dict.lookup("equilibrium")),
+    e_("e", dimless, dict),
+    alphaMax_("alphaMax", dimless, dict),
     alphaMinFriction_
     (
         "alphaMinFriction",
         dimless,
-        coeffDict_
+        dict
     ),
     residualAlpha_
     (
         "residualAlpha",
         dimless,
-        coeffDict_
+        dict
     ),
 
     maxNut_
     (
         "maxNut",
         dimensionSet(0,2,-1,0,0),
-        coeffDict_.lookupOrDefault<scalar>("maxNut",1000)
+        dict.lookupOrDefault<scalar>("maxNut", 1000)
     ),
 
     Theta_
@@ -123,12 +124,12 @@ Foam::RASModels::kineticTheoryModel::kineticTheoryModel
         IOobject
         (
             IOobject::groupName("Theta", phase.name()),
-            U.time().timeName(),
-            U.mesh(),
+            phase.time().timeName(),
+            phase.mesh(),
             IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
-        U.mesh()
+        phase.mesh()
     ),
 
     lambda_
@@ -136,26 +137,26 @@ Foam::RASModels::kineticTheoryModel::kineticTheoryModel
         IOobject
         (
             IOobject::groupName("lambda", phase.name()),
-            U.time().timeName(),
-            U.mesh(),
+            phase.time().timeName(),
+            phase.mesh(),
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        U.mesh(),
+        phase.mesh(),
         dimensionedScalar("zero", dimensionSet(0, 2, -1, 0, 0), 0.0)
     ),
 
-    gs0_
+    g0_
     (
         IOobject
         (
-            IOobject::groupName("gs0", phase.name()),
-            U.time().timeName(),
-            U.mesh(),
+            IOobject::groupName("g0", phase.name()),
+            phase.time().timeName(),
+            phase.mesh(),
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        U.mesh(),
+        phase.mesh(),
         dimensionedScalar("zero", dimensionSet(0, 0, 0, 0, 0), 0.0)
     ),
 
@@ -164,13 +165,27 @@ Foam::RASModels::kineticTheoryModel::kineticTheoryModel
         IOobject
         (
             IOobject::groupName("kappa", phase.name()),
-            U.time().timeName(),
-            U.mesh(),
+            phase.time().timeName(),
+            phase.mesh(),
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        U.mesh(),
+        phase.mesh(),
         dimensionedScalar("zero", dimensionSet(1, -1, -1, 0, 0), 0.0)
+    ),
+
+    nu_
+    (
+        IOobject
+        (
+            IOobject::groupName("nu", phase.name()),
+            phase.time().timeName(),
+            phase.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        phase.mesh(),
+        dimensionedScalar("zero", dimensionSet(0, 2, -1, 0, 0), 0.0)
     ),
 
     nuFric_
@@ -178,100 +193,46 @@ Foam::RASModels::kineticTheoryModel::kineticTheoryModel
         IOobject
         (
             IOobject::groupName("nuFric", phase.name()),
-            U.time().timeName(),
-            U.mesh(),
+            phase.time().timeName(),
+            phase.mesh(),
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        U.mesh(),
+        phase.mesh(),
         dimensionedScalar("zero", dimensionSet(0, 2, -1, 0, 0), 0.0)
     )
-{
-    if (type == typeName)
-    {
-        printCoeffs(type);
-    }
-}
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::RASModels::kineticTheoryModel::~kineticTheoryModel()
+Foam::kineticTheoryModel::~kineticTheoryModel()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-bool Foam::RASModels::kineticTheoryModel::read()
+Foam::tmp<Foam::volScalarField> Foam::kineticTheoryModel::nuEff() const
 {
-    if
-    (
-        eddyViscosity
-        <
-            RASModel<EddyDiffusivity<phaseCompressibleTurbulenceModel>>
-        >::read()
-    )
-    {
-        coeffDict().lookup("equilibrium") >> equilibrium_;
-        e_.readIfPresent(coeffDict());
-        alphaMax_.readIfPresent(coeffDict());
-        alphaMinFriction_.readIfPresent(coeffDict());
+    return nu_ + nuFric_;
+}
 
-        viscosityModel_->read();
-        conductivityModel_->read();
-        radialModel_->read();
-        granularPressureModel_->read();
-        frictionalStressModel_->read();
 
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+Foam::tmp<Foam::scalarField>
+Foam::kineticTheoryModel::nuEff(const label patchi) const
+{
+    return nu_.boundaryField()[patchi] + nuFric_.boundaryField()[patchi];
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::kineticTheoryModel::g0Prime() const
+{
+    return radialModel_->g0prime(phase_, alphaMinFriction_, alphaMax_);
 }
 
 
 Foam::tmp<Foam::volScalarField>
-Foam::RASModels::kineticTheoryModel::k() const
-{
-    NotImplemented;
-    return nut_;
-}
-
-
-Foam::tmp<Foam::volScalarField>
-Foam::RASModels::kineticTheoryModel::epsilon() const
-{
-    NotImplemented;
-    return nut_;
-}
-
-
-Foam::tmp<Foam::volSymmTensorField>
-Foam::RASModels::kineticTheoryModel::R() const
-{
-    return tmp<volSymmTensorField>
-    (
-        new volSymmTensorField
-        (
-            IOobject
-            (
-                IOobject::groupName("R", U_.group()),
-                runTime_.timeName(),
-                mesh_,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-          - (nut_)*dev(twoSymm(fvc::grad(U_)))
-          - (lambda_*fvc::div(phi_))*symmTensor::I
-        )
-    );
-}
-
-
-Foam::tmp<Foam::volScalarField>
-Foam::RASModels::kineticTheoryModel::pPrime() const
+Foam::kineticTheoryModel::pPrime() const
 {
     const volScalarField& rho = phase_.rho();
 
@@ -280,9 +241,9 @@ Foam::RASModels::kineticTheoryModel::pPrime() const
         Theta_
        *granularPressureModel_->granularPressureCoeffPrime
         (
-            alpha_,
-            radialModel_->g0(alpha_, alphaMinFriction_, alphaMax_),
-            radialModel_->g0prime(alpha_, alphaMinFriction_, alphaMax_),
+            phase_,
+            radialModel_->g0(phase_, alphaMinFriction_, alphaMax_),
+            radialModel_->g0prime(phase_, alphaMinFriction_, alphaMax_),
             rho,
             e_
         )
@@ -310,61 +271,19 @@ Foam::RASModels::kineticTheoryModel::pPrime() const
 
 
 Foam::tmp<Foam::surfaceScalarField>
-Foam::RASModels::kineticTheoryModel::pPrimef() const
+Foam::kineticTheoryModel::pPrimef() const
 {
     return fvc::interpolate(pPrime());
 }
 
 
-Foam::tmp<Foam::volSymmTensorField>
-Foam::RASModels::kineticTheoryModel::devRhoReff() const
-{
-    return tmp<volSymmTensorField>
-    (
-        new volSymmTensorField
-        (
-            IOobject
-            (
-                IOobject::groupName("devRhoReff", U_.group()),
-                runTime_.timeName(),
-                mesh_,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-          - (rho_*nut_)
-           *dev(twoSymm(fvc::grad(U_)))
-          - ((rho_*lambda_)*fvc::div(phi_))*symmTensor::I
-        )
-    );
-}
-
-
-Foam::tmp<Foam::fvVectorMatrix>
-Foam::RASModels::kineticTheoryModel::divDevRhoReff
-(
-    volVectorField& U
-) const
-{
-    return
-    (
-      - fvm::laplacian(rho_*nut_, U)
-      - fvc::div
-        (
-            (rho_*nut_)*dev2(T(fvc::grad(U)))
-          + ((rho_*lambda_)*fvc::div(phi_))
-           *dimensioned<symmTensor>("I", dimless, symmTensor::I)
-        )
-    );
-}
-
-
-void Foam::RASModels::kineticTheoryModel::correct()
+void Foam::kineticTheoryModel::correct()
 {
     // Local references
-    volScalarField alpha(max(alpha_, scalar(0)));
+    volScalarField alpha(max(phase_, scalar(0)));
     const volScalarField& rho = phase_.rho();
-    const surfaceScalarField& alphaRhoPhi = alphaRhoPhi_;
-    const volVectorField& U = U_;
+    const surfaceScalarField& alphaRhoPhi = phase_.alphaRhoPhi();
+    const volVectorField& U = phase_.U();
     const volVectorField& Uc_ =
         refCast<const twoPhaseSystem>(phase_.fluid()).otherPhase(phase_).U();
 
@@ -375,27 +294,27 @@ void Foam::RASModels::kineticTheoryModel::correct()
     tmp<volScalarField> tda(phase_.d());
     const volScalarField& da = tda();
 
-    tmp<volTensorField> tgradU(fvc::grad(U_));
+    tmp<volTensorField> tgradU(fvc::grad(U));
     const volTensorField& gradU(tgradU());
     volSymmTensorField D(symm(gradU));
 
     // Calculating the radial distribution function
-    gs0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
+    g0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
 
     if (!equilibrium_)
     {
         // Particle viscosity (Table 3.2, p.47)
-        nut_ = viscosityModel_->nu(alpha, Theta_, gs0_, rho, da, e_);
+        nu_ = viscosityModel_->nu(alpha, Theta_, g0_, rho, da, e_);
 
         volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
 
         // Bulk viscosity  p. 45 (Lun et al. 1984).
-        lambda_ = (4.0/3.0)*sqr(alpha)*da*gs0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
+        lambda_ = (4.0/3.0)*sqr(alpha)*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
 
         // Stress tensor, Definitions, Table 3.1, p. 43
         volSymmTensorField tau
         (
-            rho*(2.0*nut_*D + (lambda_ - (2.0/3.0)*nut_)*tr(D)*I)
+            rho*(2.0*nu_*D + (lambda_ - (2.0/3.0)*nu_)*tr(D)*I)
         );
 
         // Dissipation (Eq. 3.24, p.50)
@@ -404,7 +323,7 @@ void Foam::RASModels::kineticTheoryModel::correct()
             "gammaCoeff",
             12.0*(1.0 - sqr(e_))
            *max(sqr(alpha), residualAlpha_)
-           *rho*gs0_*(1.0/da)*ThetaSqrt/sqrtPi
+           *rho*g0_*(1.0/da)*ThetaSqrt/sqrtPi
         );
 
         // Drag
@@ -431,16 +350,16 @@ void Foam::RASModels::kineticTheoryModel::correct()
             granularPressureModel_->granularPressureCoeff
             (
                 alpha,
-                gs0_,
+                g0_,
                 rho,
                 e_
             )
         );
 
         // 'thermal' conductivity (Table 3.3, p. 49)
-        kappa_ = conductivityModel_->kappa(alpha, Theta_, gs0_, rho, da, e_);
+        kappa_ = conductivityModel_->kappa(alpha, Theta_, g0_, rho, da, e_);
 
-        fv::options& fvOptions(fv::options::New(mesh_));
+        fv::options& fvOptions(fv::options::New(phase_.mesh()));
 
         // Construct the granular temperature equation (Eq. 3.20, p. 44)
         // NB. note that there are two typos in Eq. 3.20:
@@ -473,31 +392,31 @@ void Foam::RASModels::kineticTheoryModel::correct()
     {
         // Equilibrium => dissipation == production
         // Eq. 4.14, p.82
-        volScalarField K1("K1", 2.0*(1.0 + e_)*rho*gs0_);
+        volScalarField K1("K1", 2.0*(1.0 + e_)*rho*g0_);
         volScalarField K3
         (
             "K3",
             0.5*da*rho*
             (
                 (sqrtPi/(3.0*(3.0 - e_)))
-               *(1.0 + 0.4*(1.0 + e_)*(3.0*e_ - 1.0)*alpha*gs0_)
-               +1.6*alpha*gs0_*(1.0 + e_)/sqrtPi
+               *(1.0 + 0.4*(1.0 + e_)*(3.0*e_ - 1.0)*alpha*g0_)
+               +1.6*alpha*g0_*(1.0 + e_)/sqrtPi
             )
         );
 
         volScalarField K2
         (
             "K2",
-            4.0*da*rho*(1.0 + e_)*alpha*gs0_/(3.0*sqrtPi) - 2.0*K3/3.0
+            4.0*da*rho*(1.0 + e_)*alpha*g0_/(3.0*sqrtPi) - 2.0*K3/3.0
         );
 
-        volScalarField K4("K4", 12.0*(1.0 - sqr(e_))*rho*gs0_/(da*sqrtPi));
+        volScalarField K4("K4", 12.0*(1.0 - sqr(e_))*rho*g0_/(da*sqrtPi));
 
         volScalarField trD
         (
             "trD",
             alpha/(alpha + residualAlpha_)
-           *fvc::div(phi_)
+           *fvc::div(phase_.phi())
         );
         volScalarField tr2D("tr2D", sqr(trD));
         volScalarField trD2("trD2", tr(D & D));
@@ -520,7 +439,7 @@ void Foam::RASModels::kineticTheoryModel::correct()
            /(2.0*max(alpha, residualAlpha_)*K4)
         );
 
-        kappa_ = conductivityModel_->kappa(alpha, Theta_, gs0_, rho, da, e_);
+        kappa_ = conductivityModel_->kappa(alpha, Theta_, g0_, rho, da, e_);
     }
 
     Theta_.max(0);
@@ -528,12 +447,12 @@ void Foam::RASModels::kineticTheoryModel::correct()
 
     {
         // particle viscosity (Table 3.2, p.47)
-        nut_ = viscosityModel_->nu(alpha, Theta_, gs0_, rho, da, e_);
+        nu_ = viscosityModel_->nu(alpha, Theta_, g0_, rho, da, e_);
 
         volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
 
         // Bulk viscosity  p. 45 (Lun et al. 1984).
-        lambda_ = (4.0/3.0)*sqr(alpha)*da*gs0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
+        lambda_ = (4.0/3.0)*sqr(alpha)*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
 
         // Frictional pressure
         volScalarField pf
@@ -555,19 +474,17 @@ void Foam::RASModels::kineticTheoryModel::correct()
             D
         );
 
-        // Limit viscosity and add frictional viscosity
-        nut_.min(maxNut_);
-        nuFric_ = min(nuFric_, maxNut_ - nut_);
-        nut_ += nuFric_;
+        // Limit viscosity
+        nu_.min(maxNut_);
+        nuFric_ = min(nuFric_, maxNut_ - nu_);
     }
 
     if (debug)
     {
         Info<< typeName << ':' << nl
             << "    max(Theta) = " << max(Theta_).value() << nl
-            << "    max(nut) = " << max(nut_).value() << endl;
+            << "    max(nu) = " << max(nu_).value() << endl;
     }
 }
-
 
 // ************************************************************************* //

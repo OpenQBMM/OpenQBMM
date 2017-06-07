@@ -14,6 +14,7 @@ EXE_INC = \
     -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
     -I../../../../src/quadratureMethods/quadratureApproximation \
     -I../../../../src/quadratureMethods/monoKineticQuadratureApproximation/lnInclude \
+    -I../../../../src/quadratureMethods/hermiteQuadrature/lnInclude \
     -I../../../../src/Vandermonde/lnInclude \
     -I../twoPhaseSystem/lnInclude \
     -I../interfacialModels/lnInclude \
@@ -32,6 +33,7 @@ LIB_LIBS = \
     -lmomentSet \
     -lfieldMomentInversion \
     -lmonoKineticQuadratureApproximation \
+    -lhermiteQuadrature \
     -lvandermonde \
     -lpdPhaseSystem \
     -lpdEulerianInterfacialModels

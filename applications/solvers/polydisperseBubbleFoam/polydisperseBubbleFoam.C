@@ -96,8 +96,8 @@ int main(int argc, char *argv[])
                 #include "contErrs.H"
 
                 #include "pU/DDtU.H"
-
                 #include "pU/UEqns.H"
+
                 #include "pU/pEqn.H"
             }
 

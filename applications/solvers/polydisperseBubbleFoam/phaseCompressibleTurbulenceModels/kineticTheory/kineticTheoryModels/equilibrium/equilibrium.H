@@ -76,10 +76,10 @@ class kineticTheoryModel
         RASModel<EddyDiffusivity<phaseCompressibleTurbulenceModel>>
     >
 {
-    // Private data
+protected:
+    // Protected data
 
         // Input Fields
-
             const phaseModel& phase_;
 
 

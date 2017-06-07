@@ -13,7 +13,14 @@ volVectorField& U1 = phase1.U();
 volVectorField& U2 = phase2.U();
 
 const label nNodes = phase1.nNodes();
+bool AG =
+(
+    phase1.turbulence().type() == "AGkineticTheoryModel"
+  ? true
+  : false
+);
 
+Info<< phase1.turbulence().type() <<endl;
 volScalarField& p = phase1.thermo().p();
 
 // Pressure
