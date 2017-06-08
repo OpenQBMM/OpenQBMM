@@ -100,6 +100,7 @@ Foam::twoPhaseSystem::twoPhaseSystem
     ),
 
     nNodes_(phase1_->nNodes()),
+    AG_(lookupOrDefault<bool>("AG", false)),
 
     dgdt_
     (
@@ -676,6 +677,72 @@ void Foam::twoPhaseSystem::solve()
 
     word alphaScheme("div(phi," + alpha1.name() + ')');
     word alpharScheme("div(phir," + alpha1.name() + ')');
+
+    if (AG_)
+    {
+        word alphaScheme("div(phi.particles,alpha.particles)");
+        const volScalarField& h2Fn
+        (
+            mesh_.lookupObject<volScalarField>("h2Fn")
+        );
+        const volScalarField& rAU1
+        (
+            mesh_.lookupObject<volScalarField>
+            (
+                IOobject::groupName("rAU", phase1_->name())
+            )
+        );
+        surfaceScalarField h2Fnf = fvc::interpolate(h2Fn);
+
+        tmp<surfaceScalarField> pPrimeByA =
+            h2Fnf*fvc::interpolate(rAU1*phase1_->turbulence().pPrime());
+
+        surfaceScalarField phi1S =  phi1*h2Fnf;
+    /*
+        surfaceScalarField alphaPhic1
+        (
+            fvc::flux
+            (
+                phi1S,
+                alphap,
+                alphaScheme
+            )
+        );
+
+        explicitSolve(alphap,alphaPhic1,mesh.time().deltaTValue());
+    */
+
+        fvScalarMatrix alpha1Eqn(alpha1, alpha1.dimensions()*dimVol/dimTime);
+        for (int acorr=0; acorr<nAlphaCorr; acorr++)
+        {
+            alpha1Eqn =
+            (
+                fvm::ddt(alpha1)
+//               - fvc::ddt(alpha1)
+              + fvm::div(phi1S, alpha1, alphaScheme)
+              - fvm::laplacian
+                (
+                    fvc::interpolate(max(alpha1, 0.0))*pPrimeByA(),
+                    alpha1
+                )
+            );
+
+            alpha1Eqn.relax();
+            alpha1Eqn.solve();
+        }
+
+        phase1_->alphaPhi() = alpha1Eqn.flux();
+        alpha1.max(0);
+        alpha2 = scalar(1) - alpha1;
+
+        Info<< alpha1.name()
+            << "  Average = "<< alpha1.weightedAverage(mesh_.V()).value()
+            << "  Min = " << min(alpha1).value()
+            << "  Max = " << max(alpha1).value()
+            << endl;
+
+        return;
+    }
 
     alpha1.correctBoundaryConditions();
 

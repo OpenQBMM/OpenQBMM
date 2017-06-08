@@ -82,6 +82,12 @@ Foam::kineticTheoryModels::nonEquilibrium::~nonEquilibrium()
 
 void Foam::kineticTheoryModels::nonEquilibrium::correct()
 {
+    if (!correct_)
+    {
+        correct_ = true;
+        return;
+    }
+
     // Local references
     volScalarField alpha(max(phase_, scalar(0)));
     const volScalarField& rho = phase_.rho();
@@ -207,46 +213,10 @@ void Foam::kineticTheoryModels::nonEquilibrium::correct()
     Theta_.max(0);
     Theta_.min(100);
 
-    {
-        // particle viscosity (Table 3.2, p.47)
-        nu_ = viscosityModel_->nu(alpha, Theta_, g0_, rho, da, e_);
-
-        volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
-
-        // Bulk viscosity  p. 45 (Lun et al. 1984).
-        lambda_ = (4.0/3.0)*sqr(alpha)*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
-
-        // Frictional pressure
-        volScalarField pf
-        (
-            frictionalStressModel_->frictionalPressure
-            (
-                phase_,
-                alphaMinFriction_,
-                alphaMax_
-            )
-        );
-
-        nuFric_ = frictionalStressModel_->nu
-        (
-            phase_,
-            alphaMinFriction_,
-            alphaMax_,
-            pf/rho,
-            D
-        );
-
-        // Limit viscosity and add frictional viscosity
-        nu_.min(maxNut_);
-        nuFric_ = min(nuFric_, maxNut_ - nu_);
-        nu_ += nuFric_;
-    }
-
     if (debug)
     {
         Info<< typeName << ':' << nl
-            << "    max(Theta) = " << max(Theta_).value() << nl
-            << "    max(nut) = " << max(nu_).value() << endl;
+            << "    max(Theta) = " << max(Theta_).value() << endl;
     }
 }
 

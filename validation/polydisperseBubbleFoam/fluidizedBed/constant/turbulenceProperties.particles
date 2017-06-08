@@ -41,6 +41,8 @@ RAS
             granularPressureModel   Lun;
             frictionalStressModel   JohnsonJackson;
             radialModel             SinclairJackson;
+            h2FnMethod              alphaG0;
+            h2FnParaPow             2;
 
             JohnsonJacksonCoeffs
             {

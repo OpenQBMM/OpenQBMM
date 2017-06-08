@@ -2,7 +2,7 @@
  *  =========                 |
  *  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
  *   \\    /   O peration     |
- *    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+ *    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
  *     \\/     M anipUgation  |
  * -------------------------------------------------------------------------------
  * License
@@ -22,17 +22,17 @@
  *    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Class
- *    Foam::anisotropicGaussianModel
+ *    Foam::AGmomentTransportModel
  *
  * Description
  *
  * SourceFiles
- *    anisotropicGaussianModel.C
+ *    AGmomentTransportModel.C
  *
  * \*---------------------------------------------------------------------------*/
 
-#ifndef anisotropicGaussianModel_H
-#define anisotropicGaussianModel_H
+#ifndef AGmomentTransportModel_H
+#define AGmomentTransportModel_H
 
 #include "scalar.H"
 #include "vector.H"
@@ -43,27 +43,24 @@
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#define RungeKutta2 false
-
 namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
- *               Class anisotropicGaussianModel Declaration
+ *               Class AGmomentTransportModel Declaration
  * \*---------------------------------------------------------------------------*/
 
-class anisotropicGaussianModel
+class AGmomentTransportModel
 {
 
     private:
-		
-        //- Reference to the mesh
-        const Switch AGmodel_;
 
-		const Switch cellInv_; 
-		// if it is false, moment inversion is done at cell face, introplation is needed.		
-		
+		const Switch cellInv_;
+		// if it is false, moment inversion is done at cell face, introplation is needed.
+
         const fvMesh& mesh_;
+
+        const phaseModel& phase_;
 
         volScalarField& alphap_;
 
@@ -72,38 +69,38 @@ class anisotropicGaussianModel
         volScalarField& Theta_;
 
         volSymmTensorField& Sigma_;
-        
-        volSymmTensorField  Pp_;    
 
-        hermiteQuadrature    hq_;
+        volSymmTensorField Pp_;
 
-        const scalarList&    hqWeigs_;
+        hermiteQuadrature hq_;
 
-        vectorList&    hqAbsc_;
+        const scalarList& hqWeigs_;
+
+        vectorList& hqAbsc_;
 
         const scalar ew_;
-        
+
         const scalar phiw_;
 
-        PtrList<surfaceScalarField>  	ownnei_;
-        
-        surfaceScalarField 		F0_;
+        PtrList<surfaceScalarField> ownnei_;
 
-        surfaceVectorField 		F1_;
+        surfaceScalarField F0_;
 
-        surfaceSymmTensorField 	F2_;
+        surfaceVectorField F1_;
 
-        volVectorField             pDxyz_;
-        
+        surfaceSymmTensorField F2_;
+
+        volVectorField pDxyz_;
+
         void calcMomentFluxes
         (
             const surfaceScalarField& h1f
         );
 
         //- Disallow defaUgt bitwise copy construct
-        anisotropicGaussianModel(const anisotropicGaussianModel&);
+        AGmomentTransportModel(const AGmomentTransportModel&);
         //- Disallow defaUgt bitwise assignment
-        void operator=(const anisotropicGaussianModel&);
+        void operator=(const AGmomentTransportModel&);
 
 
     public:
@@ -112,28 +109,23 @@ class anisotropicGaussianModel
         // Constructors
 
         //- Construct from components
-        anisotropicGaussianModel
+        AGmomentTransportModel
         (
             const fvMesh& mesh,
             const dictionary& dict,
-			phaseModel&         particles,
+			const phaseModel& phase,
             volScalarField& Theta,
             volSymmTensorField& Sigma
         );
 
 
         //- Destructor
-        virtual    ~anisotropicGaussianModel();
+        virtual ~AGmomentTransportModel();
 
         void solve
         (
             const surfaceScalarField& h2f
         );
-
-        const Switch& AGmodel()
-        {
-            return AGmodel_;
-        };
 
 	    scalar maxUxDx();
 

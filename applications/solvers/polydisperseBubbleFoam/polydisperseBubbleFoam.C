@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
     #include "createControl.H"
     #include "createFields.H"
     #include "createFieldRefs.H"
+    #include "createFvOptions.H"
     #include "createTimeControls.H"
     #include "CourantNos.H"
     #include "setInitialDeltaT.H"
@@ -82,10 +83,17 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         {
-            // Transport moments with velocities relative to the mean gas
-            // velocity
-            fluid.relativeTransport();
-            phi = phase1.alphaPhi() + phase2.alphaPhi();
+            if (nNodes > 1)
+            {
+                // Transport moments with velocities relative to the mean gas
+                // velocity
+                fluid.relativeTransport();
+                phi = phase1.alphaPhi() + phase2.alphaPhi();
+            }
+//             if (pimple.turbCorr())
+            {
+                fluid.correctTurbulence();
+            }
 
             // Solve for mean phase velocities and gas volume fraction
             while (pimple.loop())
@@ -101,11 +109,14 @@ int main(int argc, char *argv[])
                 #include "pU/pEqn.H"
             }
 
-            // Transport moments with mean gas velocity
-            fluid.averageTransport();
-            phi = phase1.alphaPhi() + phase2.alphaPhi();
+            if (nNodes > 1)
+            {
+                // Transport moments with mean gas velocity
+                fluid.averageTransport();
+                phi = phase1.alphaPhi() + phase2.alphaPhi();
+            }
 
-            if (pimple.turbCorr())
+//             if (pimple.turbCorr())
             {
                 fluid.correctTurbulence();
             }

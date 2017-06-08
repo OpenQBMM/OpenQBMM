@@ -45,11 +45,11 @@ timePrecision   6;
 
 runTimeModifiable on;
 
-adjustTimeStep  yes;
+adjustTimeStep  no;
 
 maxCo           0.5;
 
-maxDeltaT       1e-03;
+maxDeltaT       1e-04;
 
 functions
 {

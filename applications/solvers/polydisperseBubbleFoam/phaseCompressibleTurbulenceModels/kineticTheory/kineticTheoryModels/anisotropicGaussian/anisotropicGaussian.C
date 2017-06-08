@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2014 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,133 +23,50 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "kineticTheoryModel.H"
-#include "mathematicalConstants.H"
+#include "anisotropicGaussian.H"
+#include "PhaseCompressibleTurbulenceModel.H"
+#include "twoPhaseSystem.H"
+#include "dragModel.H"
 #include "fvm.H"
 #include "fvc.H"
+#include "fvOptions.H"
+#include "addToRunTimeSelectionTable.H"
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-Foam::kineticTheoryModel::kineticTheoryModel
-(
-    const dictionary dict,
-    const phaseModel& phase
-)
-:
-    kineticTheoryModel(dict, phase),
-    mesh_(mesh),
-    particles_(particles),
-    gas_(gas),
-
-    eta_(0.5*(1+e_)),
-    alphap_(particles_),
-
-    kappa_
-    (
-       IOobject
-       (
-           IOobject::groupName("kappa", particles_.name()),
-           mesh_.time().timeName(),
-           mesh_,
-           IOobject::NO_READ,
-           IOobject::NO_WRITE
-       ),
-       mesh_,
-       dimensionedScalar("zero", dimensionSet(0, 2, -1, 0, 0), 0.0)
-    ),
-    ppfr_
-    (
-       IOobject
-       (
-           IOobject::groupName("ppfr", particles_.name()),
-           mesh_.time().timeName(),
-           mesh_,
-           IOobject::NO_READ,
-           IOobject::NO_WRITE
-       ),
-       mesh_,
-       dimensionedScalar("zero", dimensionSet(0, 2, -2, 0, 0), 0.0)
-    ),
-
-    h2Fn_
-    (
-        IOobject
-        (
-            "h2Fn",
-            runTime.timeName(),
-            mesh,
-           IOobject::NO_READ,
-           IOobject::AUTO_WRITE
-       ),
-       mesh,
-       1.0
-    ),
-
-    Sigma_
-    (
-       IOobject
-       (
-           IOobject::groupName("Sigma", particles_.name()),
-           mesh_.time().timeName(),
-           mesh_,
-           IOobject::MUST_READ,
-           IOobject::AUTO_WRITE
-       ),
-       mesh_
-    ),
-    diluteAGmodel_(mesh, *this, particles, Theta_, Sigma_),
-    h2FnMethod_(this->lookup("h2FnMethod")),
-    h2FnParaPow_(readLabel(this->lookup("h2FnParaPow")))
-
+namespace Foam
 {
-
-    g0_ = radialModel_->g0(alphap_, alphaMinFriction_, alphaMax_);
-
-    lambda_ =
-        (8.0/3.0)/sqrt(constant::mathematical::pi)
-       *particles_.d()*eta_*sqr(alphap_)*gs0_*sqrt(Theta_);
-
-    ppfr_ = frictionalStressModel_->frictionalPressure(alphap_);
-
-
+namespace kineticTheoryModels
+{
+    defineTypeNameAndDebug(anisotropicGaussian, 0);
+    addToRunTimeSelectionTable
+    (
+        kineticTheoryModel,
+        anisotropicGaussian,
+        dictionary
+    );
+}
 }
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * * //
 
-Foam::kineticTheoryModel::~kineticTheoryModel()
-{}
-
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-Foam::tmp<Foam::volScalarField>
-Foam::kineticTheoryModel::pPrime() const
-{
-
-    return  (h2Fn_ + 4.0*alphap_*eta_*(2.0*radialModel_->g0(alphap_, alphaMinFriction_, alphaMax_)
-			+ radialModel_->g0prime(alphap_, alphaMinFriction_, alphaMax_)*alphap_))*Theta_
-            + frictionalStressModel_->frictionalPressurePrime(alphap_);
-
-}
-
-
-void Foam::kineticTheoryModel::updateh2Fn()
+void Foam::kineticTheoryModels::anisotropicGaussian::updateh2Fn()
 {
 
     const dimensionedScalar smallPpk("small",dimensionSet(0, 2, -2, 0, 0), SMALL);
 
-    gs0_ = radialModel_->g0(alphap_, alphaMinFriction_, alphaMax_);
+    g0_ = radialModel_->g0(phase_, alphaMinFriction_, alphaMax_);
 
     // This calculates the h2 function for the dense regime transport.
     if(h2FnMethod_.match("alphaG0"))
     {
-        h2Fn_ = 1.0 - 1.0/(1.0 + sqr(alphap_)*pow(gs0_,h2FnParaPow_));
+        h2Fn_ = 1.0 - 1.0/(1.0 + sqr(phase_)*pow(g0_,h2FnParaPow_));
     }
     else if(h2FnMethod_.match("particlePressure"))
     {
-        volScalarField ppk(max(alphap_*Theta_,smallPpk));
-        volScalarField pps(4.0*eta_*alphap_*gs0_*ppk + ppfr_);
+        volScalarField ppk(max(phase_*Theta_,smallPpk));
+        volScalarField pps(4.0*eta_*phase_*g0_*ppk + ppfr_);
         h2Fn_ = pow(pps/(pps + ppk),h2FnParaPow_);
     }
     else
@@ -163,181 +80,382 @@ void Foam::kineticTheoryModel::updateh2Fn()
 }
 
 
-void Foam::kineticTheoryModel::solveDilute(const surfaceScalarField& h2f)
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
+(
+    const dictionary& dict,
+    const phaseModel& phase
+)
+:
+    kineticTheoryModel(dict, phase),
+    alphaTheta_
+    (
+        "alphaTheta",
+        dimensionSet(0, 0, 0, 0, 0),
+        dict.lookup("alphaTheta")
+    ),
+    eta_(0.5*(1+e_)),
+    ppfr_
+    (
+       IOobject
+       (
+           IOobject::groupName("ppfr", phase_.name()),
+           phase.mesh().time().timeName(),
+           phase.mesh(),
+           IOobject::NO_READ,
+           IOobject::NO_WRITE
+       ),
+       phase.mesh(),
+       dimensionedScalar("zero", dimensionSet(1, -1, -2, 0, 0), 0.0)
+    ),
+
+    h2Fn_
+    (
+        IOobject
+        (
+            "h2Fn",
+            phase.mesh().time().timeName(),
+            phase.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+       ),
+       phase.mesh(),
+       1.0
+    ),
+
+    Sigma_
+    (
+        IOobject
+        (
+            IOobject::groupName("Sigma", phase.name()),
+            phase.mesh().time().timeName(),
+            phase.mesh(),
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        2.0*nu_*dev(twoSymm(fvc::grad(phase_.U()))),
+        Theta_.boundaryField().types()
+    ),
+    AGtransport_(phase.mesh(), dict, phase, Theta_, Sigma_),
+    h2FnMethod_(dict.lookup("h2FnMethod")),
+    h2FnParaPow_(readScalar(dict.lookup("h2FnParaPow", 2)))
 {
-    if(diluteAGmodel_.AGmodel() && (h2FnParaPow_>0))  diluteAGmodel_.solve(h2f);
+    lambda_ =
+        (8.0/3.0)/sqrt(constant::mathematical::pi)
+       *phase_.d()*eta_*sqr(phase_)*g0_*sqrt(Theta_);
+
+    ppfr_ =
+        frictionalStressModel_->frictionalPressure
+        (
+            phase_,
+            alphaMinFriction_,
+            alphaMax_
+        );
 }
 
 
-void Foam::kineticTheoryModel::updateViscosity()
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::kineticTheoryModels::anisotropicGaussian::~anisotropicGaussian()
+{}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::kineticTheoryModels::anisotropicGaussian::updateViscosities()
 {
 
     // Local references
     const dimensionedScalar smallRT("small",dimensionSet(0, 0, -1, 0, 0), SMALL);
-    const dimensionedScalar& rho = phase_.rho();
-    const dimensionedScalar& da = phase_.d();
+    volScalarField alpha = max(phase_, scalar(0));
+    const volScalarField& rho = phase_.rho();
+    const volScalarField& da = phase_.d();
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
 
-    volScalarField alphaSqr(sqr(alphap_));
+    volScalarField alphaSqr(sqr(alpha));
     volScalarField thetaSqrt(sqrt(Theta_));
-    volScalarField Kd = phase_.fluid().drag(phase_).K();
+    volScalarField Kd
+    (
+        refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()
+    );
 
-    g0_ = radialModel_->g0(alphap_, alphaMinFriction_, alphaMax_);
+    g0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
 
     // bulk viscosity
-    lambda_ = (8.0/3.0)/sqrtPi*da*eta_*alphaSqr*gs0_*thetaSqrt;
+    lambda_ = (8.0/3.0)/sqrtPi*da*eta_*alphaSqr*g0_*thetaSqrt;
 
     volScalarField rTaupAlpha("rTaupAlpha", Kd/rho + smallRT );
-    volScalarField rTaucAlpha("rTaucAlpha", (6.0/sqrtPi/da)*gs0_*max(alphaSqr, residualAlpha_)*thetaSqrt);
+    volScalarField rTaucAlpha
+    (
+        "rTaucAlpha",
+        (6.0/sqrtPi/da)*g0_*max(alphaSqr, residualAlpha_)*thetaSqrt
+    );
 
     // Particle viscosity
-    nu_ =  0.5*alphaSqr*(1.0 + (8.0/5.0)*eta_*(3*eta_ - 2.0)*alphap_*gs0_)
-            *(h2Fn_ + (8.0/5.0)*eta_*alphap_*gs0_)*Theta_/(rTaupAlpha + eta_*(2.0-eta_)*rTaucAlpha) + (3.0/5.0)*lambda_;
+    nu_ =
+        0.5*alphaSqr*(1.0 + (8.0/5.0)*eta_*(3*eta_ - 2.0)*alpha*g0_)
+       *(h2Fn_ + (8.0/5.0)*eta_*alpha*g0_)
+       *Theta_/(rTaupAlpha + eta_*(2.0-eta_)*rTaucAlpha)
+      + (3.0/5.0)*lambda_;
 
     // Frictional pressure
-    ppfr_ = frictionalStressModel_->frictionalPressure(alphap_);
+    ppfr_ = frictionalStressModel_->frictionalPressure
+    (
+        phase_,
+        alphaMinFriction_,
+        alphaMax_
+    );
 
-    tmp<volTensorField> tgradU(fvc::grad(particles_.U()));
-    const volTensorField& gradU(tgradU());
-    volSymmTensorField D(symm(gradU));  // D = 0.5*(gradU + gradU^T)
-    volSymmTensorField Sp(D - (1.0/3.0)*tr(D)*I);
+    nuFric_ = frictionalStressModel_->nu
+    (
+        phase_,
+        alphaMinFriction_,
+        alphaMax_,
+        ppfr_/rho,
+        symm(fvc::grad(phase_.U()))
+    );
+
+    // Limit viscosity and add frictional viscosity
+    nu_.min(maxNut_);
+    nuFric_ = min(nuFric_, maxNut_ - nu_);
 }
 
 
-void Foam::kineticTheoryModel::solveDense
-(
-    const volScalarField& K,
-    const volScalarField& particleContinuityErr
-)
+void Foam::kineticTheoryModels::anisotropicGaussian::correct()
 {
-
-    // Local references
-    const dimensionedScalar smallRT("small",dimensionSet(0, 0, -1, 0, 0), SMALL);
-    const dimensionedScalar& rho = particles_.rho();
-    const surfaceScalarField& alphaPhi = particles_.alphaPhi();
-    const dimensionedScalar& da = particles_.d();
-    const scalar sqrtPi = sqrt(constant::mathematical::pi);
-
-    // Particle Strain-rate tensor
-    tmp<volTensorField> tgradU(fvc::grad(particles_.U()));
-    const volTensorField& gradU(tgradU());
-    volSymmTensorField D(symm(gradU));  // D = 0.5*(gradU + gradU^T)
-    volSymmTensorField Sp(D - (1.0/3.0)*tr(D)*I);
-
-    gs0_ = radialModel_->g0(alphap_, alphaMinFriction_, alphaMax_);
-
-    volScalarField alphaSqr(sqr(alphap_));
-
-    volScalarField thetaSqrt(sqrt(Theta_));
-
-    // bulk viscosity
-    lambda_ = (8.0/3.0)/sqrtPi*da*eta_*alphaSqr*gs0_*thetaSqrt;
-
-    // particle pressure, move bulk viscosity part to tau
-    volScalarField  PsCoeff = alphap_*(h2Fn_ + 4.0*eta_*alphap_*gs0_);
-
-    volScalarField rTaupAlpha("rTaupAlpha", K/rho + smallRT );
-
-    volScalarField rTaucAlphaCoeff((6.0/sqrtPi/da)*gs0_*max(alphaSqr, residualAlpha_));
-    volScalarField rTaucAlpha("rTaucAlpha", rTaucAlphaCoeff*thetaSqrt);
-
-    // Particle viscosity
-    volScalarField nutCoeff
-    (
-        0.5*alphaSqr*(1.0 + (8.0/5.0)*eta_*(3*eta_ - 2.0)*alphap_*gs0_)
-        *h2Fn_*( 1.0 + (8.0/5.0)*eta_*alphap_*gs0_)
-    );
-
-    nut_ = nutCoeff*Theta_/(rTaupAlpha + eta_*(2.0-eta_)*rTaucAlpha) + (3.0/5.0)*lambda_;
-
-    volSymmTensorField tau(2.0*nut_*Sp + lambda_*tr(D)*I);
-
-    // 'thermal' conductivity
-    volScalarField kappaCoeff
-    (
-        2.5*alphaSqr*(1.0 + (12.0/5.0)*sqr(eta_)*(4.0*eta_ - 3.0)*alphap_*gs0_)
-        *h2Fn_*(1.0 + (12.0/5.0)*eta_*alphap_*gs0_)
-    );
-    kappa_ = kappaCoeff*Theta_/(3.0*rTaupAlpha + 4.0*eta_*(41.0-33.0*eta_)*rTaucAlpha) + (3.0/2.0)*lambda_ ;
-
-    if (diluteAGmodel_.AGmodel() )
+    if (!correct_)
     {
-        // update collisional pressure
-        volScalarField ppc(4.0*eta_*alphaSqr*gs0_*Theta_ - lambda_*tr(D)) ;
+        updateh2Fn();
+        surfaceScalarField h2Fnf = fvc::interpolate(h2Fn_);
 
-        volSymmTensorField S2flux(2.0*((h2Fn_*alphap_*Theta_ + ppc)*Sp - nut_*( twoSymm(Sp & gradU) - (2.0/3.0)*(Sp && gradU)*I)));
+        AGtransport_.solve(h2Fnf);
+
+        surfaceScalarField& phi =
+            phase_.mesh().lookupObjectRef<surfaceScalarField>
+            (
+                IOobject::groupName("phi", phase_.name())
+            );
+        phi = fvc::flux(phase_.U());
+        correct_ = true;
+    }
+    else
+    {
+        // Local references
+        volScalarField alpha = max(phase_, scalar(0));
+        const volScalarField& rho = phase_.rho();
+        const surfaceScalarField& alphaRhoPhi = phase_.alphaRhoPhi();
+        const volVectorField& U = phase_.U();
+        const volVectorField& Uc = phase_.fluid().otherPhase(phase_).U();
+        const volScalarField& da = phase_.d();
+
+        volScalarField alphaSqr(sqr(alpha));
+        volScalarField thetaSqrt(sqrt(Theta_));
+
+        // Particle Strain-rate tensor
+        tmp<volTensorField> tgradU(fvc::grad(phase_.U()));
+        const volTensorField& gradU(tgradU());
+        volSymmTensorField D(symm(gradU));
+        volSymmTensorField Sp(D - (1.0/3.0)*tr(D)*I);
+
+        // Drag
+        volScalarField beta
+        (
+            refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()
+        );
+
+        // Constants
+        const scalar sqrtPi = sqrt(constant::mathematical::pi);
+        dimensionedScalar ThetaSmall("ThetaSmall", Theta_.dimensions(), 1.0e-6);
+        dimensionedScalar ThetaSmallSqrt(sqrt(ThetaSmall));
+        const dimensionedScalar smallRT
+        (
+            "small",
+            dimensionSet(0, 0, -1, 0, 0),
+            SMALL
+        );
+
+        // Calculating the radial distribution function
+        g0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
+
+        volScalarField rTaupAlpha("rTaupAlpha", beta/rho + smallRT );
+
+        volScalarField rTaucAlphaCoeff
+        (
+            (6.0/sqrtPi/da)*g0_*max(alphaSqr, phase_.residualAlpha())
+        );
+
+        volScalarField rTaucAlpha("rTaucAlpha", rTaucAlphaCoeff*thetaSqrt);
+
+        // Particle viscosity
+        volScalarField nutCoeff
+        (
+            0.5*alphaSqr*(1.0 + (8.0/5.0)*eta_*(3*eta_ - 2.0)*alpha*g0_)
+            *h2Fn_*( 1.0 + (8.0/5.0)*eta_*alpha*g0_)
+        );
+
+        // 'thermal' conductivity
+        volScalarField kappaCoeff
+        (
+            2.5*alphaSqr*(1.0 + (12.0/5.0)*sqr(eta_)
+           *(4.0*eta_ - 3.0)*alpha*g0_)
+           *h2Fn_*(1.0 + (12.0/5.0)*eta_*alpha*g0_)
+        );
+        kappa_ =
+            kappaCoeff*Theta_
+           /(3.0*rTaupAlpha + 4.0*eta_*(41.0-33.0*eta_)*rTaucAlpha)
+          + (3.0/2.0)*lambda_;
+
+
+        // update collisional pressure
+        volScalarField ppc(4.0*eta_*alphaSqr*g0_*Theta_ - lambda_*tr(D));
+
+        nu_ =
+            nutCoeff*Theta_/(rTaupAlpha + eta_*(2.0-eta_)*rTaucAlpha)
+          + (3.0/5.0)*lambda_;
+
+        // Stress tensor, Definitions, Table 3.1, p. 43
+        volSymmTensorField tau(rho*(2.0*nu_*Sp + lambda_*tr(D)*I));
+
+        volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
+
+        // Bulk viscosity  p. 45 (Lun et al. 1984).
+        lambda_ = (4.0/3.0)*sqr(alpha)*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
+
+//         // Stress tensor, Definitions, Table 3.1, p. 43
+//         volSymmTensorField tau
+//         (
+//             rho*(2.0*nu_*D + (lambda_ - (2.0/3.0)*nu_)*tr(D)*I)
+//         );
+
+        // Dissipation (Eq. 3.24, p.50)
+        volScalarField gammaCoeff
+        (
+            "gammaCoeff",
+            12.0*(1.0 - sqr(e_))
+            *max(sqr(alpha), residualAlpha_)
+            *rho*g0_*(1.0/da)*ThetaSqrt/sqrtPi
+        );
+
+        // Eq. 3.25, p. 50 Js = J1 - J2
+        volScalarField J1("J1", 3.0*beta);
+        volScalarField J2
+        (
+            "J2",
+            0.25*sqr(beta)*da*magSqr(U - Uc)
+            /(
+                max(alpha, residualAlpha_)*rho
+                *sqrtPi*(ThetaSqrt + ThetaSmallSqrt)
+            )
+        );
+
+        // particle pressure, move bulk viscosity part to tau
+        volScalarField  PsCoeff = alpha*(h2Fn_ + 4.0*eta_*alpha*g0_);
+//         // particle pressure - coefficient in front of Theta (Eq. 3.22, p. 45)
+//         volScalarField PsCoeff
+//         (
+//             granularPressureModel_->granularPressureCoeff
+//             (
+//                 alpha,
+//                 g0_,
+//                 rho,
+//                 e_
+//             )
+//         );
+
+        // 'thermal' conductivity (Table 3.3, p. 49)
+        kappa_ = conductivityModel_->kappa(alpha, Theta_, g0_, rho, da, e_);
+
+        fv::options& fvOptions(fv::options::New(phase_.fluid().mesh()));
+        const PhaseCompressibleTurbulenceModel<phaseModel>&
+            particleTurbulenceModel =
+                U.db().lookupObject<PhaseCompressibleTurbulenceModel<phaseModel> >
+                (
+                    IOobject::groupName
+                    (
+                        turbulenceModel::propertiesName,
+                        phase_.name()
+                    )
+                );
+
+        // Construct the granular temperature equation (Eq. 3.20, p. 44)
+        // NB. note that there are two typos in Eq. 3.20:
+        //     Ps should be without grad
+        //     the laplacian has the wrong sign
+        fvScalarMatrix ThetaEqn
+        (
+            1.5*
+            (
+                fvm::ddt(alpha, rho, Theta_)
+              + fvm::div(alphaRhoPhi, Theta_)
+              - fvc::Sp(fvc::ddt(alpha, rho) + fvc::div(alphaRhoPhi), Theta_)
+            )
+          - fvm::laplacian
+            (
+                kappa_ + rho*particleTurbulenceModel.nut()/alphaTheta_,
+                Theta_,
+                "laplacian(kappa,Theta)"
+            )
+         ==
+          - fvm::SuSp((PsCoeff*I) && gradU, Theta_)
+          + (tau && gradU)
+          + fvm::Sp(-gammaCoeff, Theta_)
+          + fvm::Sp(-J1, Theta_)
+          + fvm::Sp(J2/(Theta_ + ThetaSmall), Theta_)
+          + alpha*rho*particleTurbulenceModel.epsilon()
+
+          + fvOptions(alpha, rho, Theta_)
+        );
+
+        ThetaEqn.relax();
+        fvOptions.constrain(ThetaEqn);
+        ThetaEqn.solve();
+        fvOptions.correct(Theta_);
+
+        Theta_.max(0);
+        Theta_.min(100);
+
+        volSymmTensorField S2flux
+        (
+            (
+                ppc*Sp
+              - nu_*alpha*rho
+               *(
+                   twoSymm(Sp & gradU)
+                 - (2.0/3.0)*(Sp && gradU)*I
+                )
+            )*2.0
+        );
 
         fvSymmTensorMatrix SigmaEqn
         (
-            fvm::ddt(alphap_, Sigma_)
-            + fvm::div(alphaPhi, Sigma_)
-            - fvc::Sp(particleContinuityErr, Sigma_)
-
-            - fvm::laplacian(2.0/3.0*kappa_, Sigma_)
-            ==
+            fvm::ddt(alpha, rho, Sigma_)
+          + fvm::div(alphaRhoPhi*fvc::interpolate(h2Fn_), Sigma_)
+          - fvc::Sp(fvc::ddt(alpha, rho) + fvc::div(alphaRhoPhi), Sigma_)
+          - fvm::laplacian(2.0/3.0*kappa_, Sigma_)
+         ==
             S2flux
-            + fvm::Sp(-(2.0*rTaupAlpha + (3.0-e_)*(1.0+e_)/2.0*rTaucAlpha),Sigma_)
+          - fvm::Sp
+            (
+                (
+                    2.0*rTaupAlpha
+                  + (3.0-e_)*(1.0+e_)/2.0*rTaucAlpha
+                )*alpha*rho,
+                Sigma_
+            )
 
         );
 
         SigmaEqn.relax();
         SigmaEqn.solve();
 
-        Sigma_.correctBoundaryConditions();
-
+        if (debug)
+        {
+            Info<< typeName << ':' << nl
+                << "    max(Theta) = " << max(Theta_).value() << nl
+                << "    max(Sigma) = " << max(mag(Sigma_)).value() << endl;
+        }
     }
-
-    // Construct the granular temperature equation
-    fvScalarMatrix ThetaEqn
-    (
-
-        fvm::ddt(alphap_, Theta_)
-        + fvm::div(alphaPhi, Theta_)
-        - fvc::Sp(particleContinuityErr, Theta_)
-
-        - fvm::laplacian(2.0/3.0*kappa_, Theta_)
-
-        ==
-
-        fvm::SuSp(- 2.0/3.0*((PsCoeff*I) && gradU), Theta_)
-        + 2.0/3.0*( tau && gradU)
-        + fvm::Sp(- (2.0*rTaupAlpha + (1.0 - sqr(e_))*rTaucAlpha), Theta_)
-    );
-
-    ThetaEqn.relax();
-    ThetaEqn.solve();
-
-    Theta_.max(0);
-    Theta_.min(100);
-
-    Theta_.correctBoundaryConditions();
-
-    thetaSqrt = sqrt(Theta_);
-
-    // update bulk viscosity
-    lambda_ = (8.0/3.0)/sqrtPi*da*eta_*alphaSqr*gs0_*thetaSqrt;
-
-    // update Particle viscosity
-    nut_ = nutCoeff*Theta_/(rTaupAlpha + eta_*(2.0-eta_)*rTaucAlphaCoeff*thetaSqrt) + (3.0/5.0)*lambda_;
-
-    // Frictional pressure
-    ppfr_ = frictionalStressModel_->frictionalPressure(alphap_);
-
-    // Add frictional shear viscosity
-    nut_ += frictionalStressModel_->nu(alphap_,ppfr_,Sp);
-
-    // Limit viscosity
-    nut_.min(100);
-
-    if (debug)
-    {
-        Info<< "    max(Theta) = " << max(Theta_).value() << nl
-            << "    min(Theta) = " << min(Theta_).value() << nl
-            << "    max(nut) = " << max(nut_).value() << endl;
-    }
-
-    return ;
-
 }
 
 

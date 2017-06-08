@@ -199,8 +199,13 @@ Foam::kineticTheoryModel::kineticTheoryModel
         ),
         phase.mesh(),
         dimensionedScalar("zero", dimensionSet(0, 2, -1, 0, 0), 0.0)
-    )
-{}
+    ),
+    correct_(false)
+{
+    g0_ = radialModel_->g0(phase_, alphaMinFriction_, alphaMax_);
+
+    updateViscosities();
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -210,6 +215,51 @@ Foam::kineticTheoryModel::~kineticTheoryModel()
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::kineticTheoryModel::updateViscosities()
+{
+    // particle viscosity (Table 3.2, p.47)
+    nu_ = viscosityModel_->nu
+    (
+        phase_,
+        Theta_,
+        g0_,
+        phase_.rho(),
+        phase_.d(),
+        e_
+    );
+    volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
+
+    // Bulk viscosity  p. 45 (Lun et al. 1984).
+    lambda_ =
+        (4.0/3.0)*sqr(phase_)*phase_.d()*g0_*(1.0 + e_)
+       *sqrt(Theta_/Foam::constant::mathematical::pi);
+
+    // Frictional pressure
+    volScalarField pf
+    (
+        frictionalStressModel_->frictionalPressure
+        (
+            phase_,
+            alphaMinFriction_,
+            alphaMax_
+        )
+    );
+
+    nuFric_ = frictionalStressModel_->nu
+    (
+        phase_,
+        alphaMinFriction_,
+        alphaMax_,
+        pf/phase_.rho(),
+        symm(fvc::grad(phase_.U()))
+    );
+
+    // Limit viscosity and add frictional viscosity
+    nu_.min(maxNut_);
+    nuFric_ = min(nuFric_, maxNut_ - nu_);
+}
+
 
 Foam::tmp<Foam::volScalarField> Foam::kineticTheoryModel::nuEff() const
 {

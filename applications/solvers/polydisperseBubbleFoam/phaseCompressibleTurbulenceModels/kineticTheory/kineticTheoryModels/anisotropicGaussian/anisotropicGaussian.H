@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2014 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,191 +22,100 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::kineticTheoryModel
+    Foam::anisotropicGaussian
 
 Description
 
 
 SourceFiles
-    kineticTheoryModel.C
+    anisotropicGaussian.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef kineticTheoryModel_H
-#define kineticTheoryModel_H
+#ifndef anisotropicGaussian_H
+#define anisotropicGaussian_H
 
 #include "fvMatrix.H"
 #include "phaseModel.H"
 #include "dragModel.H"
 #include "frictionalStressModel.H"
 #include "radialModel.H"
-#include "anisotropicGaussianModel.H"
+#include "AGmomentTransportModel.H"
+#include "kineticTheoryModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+namespace kineticTheoryModels
+{
 
 /*---------------------------------------------------------------------------*\
-                           Class kineticTheoryModel Declaration
+                           Class anisotropicGaussian Declaration
 \*---------------------------------------------------------------------------*/
 
-class kineticTheoryModel
-    :
-    public IOdictionary
+class anisotropicGaussian
+:
+    public kineticTheoryModel
 {
-        // Private data
+    // Private data
 
-        // Input Fields
-        const fvMesh& mesh_;
+        dimensionedScalar alphaTheta_;
 
-        phaseModel& particles_;
-
-        const phaseModel& gas_;
-        
-        // Kinetic Theory Model coefficients
-
-        //- Coefficient of restitution
-        dimensionedScalar e_;
-        
         dimensionedScalar eta_;
 
-        //- Maximum packing phase-fraction
-        dimensionedScalar alphaMax_;
-
-        //- Min value for which the frictional stresses are zero
-        dimensionedScalar alphaMinFriction_;
-        
-        //- Residual phase fraction
-        dimensionedScalar residualAlpha_;
-        
-        // Sub-models
-        //- Run-time selected frictional stress model
-        autoPtr<kineticTheoryModels::frictionalStressModel>
-        frictionalStressModel_;
-       
-        //- Run-time selected radial distribution model
-        autoPtr<kineticTheoryModels::radialModel> radialModel_;
-        
-        
-        // Kinetic Theory Model Fields
-	
-        const volScalarField& alphap_;
-        
-        //- The granular energy/temperature
-        volScalarField Theta_;
-
-		//- The particle viscosity
-        volScalarField nut_;   
-        
-        //- The granular bulk viscosity
-        volScalarField lambda_;
-
-        //- The granular radial distribution
-        volScalarField gs0_;
-
-        //- The granular "thermal" conductivity
-        volScalarField kappa_;
-        
         // Frictional pressure
         volScalarField ppfr_;
-		
-	    volScalarField&  h2Fn_;
-		        
+
+	    volScalarField  h2Fn_;
+
         volSymmTensorField Sigma_;
-		
-		anisotropicGaussianModel diluteAGmodel_;
-		
+
+		AGmomentTransportModel AGtransport_;
+
 		const word  h2FnMethod_;
-		
-		const label h2FnParaPow_;
-				
-        // Private Member Functions
 
-        //- Disallow default bitwise copy construct
-        kineticTheoryModel(const kineticTheoryModel&);
+		const scalar h2FnParaPow_;
 
-        //- Disallow default bitwise assignment
-        void operator=(const kineticTheoryModel&);
+    // Private Member Functions
+
+        //- Update flux weighting function
+        void updateh2Fn();
 
 
-    public:
+public:
 
+    //- Runtime type information
+    TypeName("anisotropicGaussian");
+
+
+    // Constructors
 
         //- Construct from components
-        kineticTheoryModel
+        anisotropicGaussian
         (
-            const fvMesh& mesh,
-            phaseModel& particles,
-            const phaseModel& gas,
-            volScalarField&  h2Fn
+            const dictionary& dict,
+            const phaseModel& phase
         );
 
 
-        //- Destructor
-        ~kineticTheoryModel();
+    //- Destructor
+    ~anisotropicGaussian();
 
-        // Member Functions
+    // Member Functions
 
-        //- Re-read model coefficients if they have changed
-        bool read();
-        
-		tmp<volScalarField> pPrime() const;
-		
-        //- Return the effective stress tensor
-        tmp<volSymmTensorField> devReff() const;
+        //- Update viscosities
+        virtual void updateViscosities();
 
-        //- Return the source term for the momentum equation
-        tmp<fvVectorMatrix> divDevReff(volVectorField& U) const;
-
-        void updateh2Fn() ;
-        
-        void updateViscosity(const volScalarField& K);
-        
-        //- Solve the kinetic theory equations and correct the viscosity
-        void solveDense
-        (
-			const volScalarField& K,
-			const volScalarField& particleContinuityErr
-		);
-        
-        void solveDilute
-        (
-			const surfaceScalarField& h2f
-        );
-		
-        volScalarField& Theta()
-        {
-            return Theta_;
-        }
-		
-		volSymmTensorField& Sigma()
-        {
-            return Sigma_;
-        }
-        
-        const Switch& AGmodel()
-        {
-            return diluteAGmodel_.AGmodel();
-        };
-
-        const scalar& alphaMax() const
-        {
-            return alphaMax_.value();
-        }
-        
-        scalar maxUxDx() 
-        {
-			return diluteAGmodel_.maxUxDx();
-		}
-
+        //- Update kinetic theory quantities
+        virtual void correct();
 
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
+} // End namespace kineticTheoryModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

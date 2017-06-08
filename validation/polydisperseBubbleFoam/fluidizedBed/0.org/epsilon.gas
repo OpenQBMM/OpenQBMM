@@ -29,7 +29,7 @@ boundaryField
     outlet
     {
         type               inletOutlet;
-        phi                phi.air;
+        phi                phi.gas;
         inletValue         $internalField;
         value              $internalField;
     }

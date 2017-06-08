@@ -2,7 +2,7 @@
  *  =========                 |
  *  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
  *   \\    /   O peration     |
- *    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+ *    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
  *     \\/     M anipUgation  |
  * -------------------------------------------------------------------------------
  * License
@@ -24,43 +24,49 @@
  * \*---------------------------------------------------------------------------*/
 
 
-#include "anisotropicGaussianModel.H"
+#include "AGmomentTransportModel.H"
 #include "fvc.H"
 #include "fixedValueFvPatchFields.H"
 #include "wallFvPatch.H"
 #include "emptyFvPatch.H"
 #include "coupledFvPatch.H"
 
-using namespace  Foam::constant;
-using namespace  Foam::constant::mathematical;
-
-namespace Foam
-{
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-anisotropicGaussianModel::anisotropicGaussianModel
+Foam::AGmomentTransportModel::AGmomentTransportModel
 (
     const fvMesh& mesh,
     const dictionary& dict,
-	phaseModel&         particles,
+	const phaseModel& phase,
     volScalarField& Theta,
     volSymmTensorField& Sigma
 )
 	:
-	AGmodel_(dict.lookupOrDefault("AGmodel", true)),
 	cellInv_(dict.lookupOrDefault("cellInv", true)),
 	mesh_(mesh),
-	alphap_(particles),
-	Up_(particles.U()),
+	phase_(phase),
+	alphap_
+	(
+        mesh.lookupObjectRef<volScalarField>
+        (
+            IOobject::groupName("alpha", phase.name())
+        )
+    ),
+	Up_
+	(
+        mesh.lookupObjectRef<volVectorField>
+        (
+            IOobject::groupName("U", phase.name())
+        )
+    ),
 	Theta_(Theta),
 	Sigma_(Sigma),
 	Pp_
 	(
 	    IOobject
 	    (
-           IOobject::groupName("Pp", particles.name()),
+            IOobject::groupName("Pp", phase.name()),
 	        mesh_.time().timeName(),
 	        mesh_,
 	        IOobject::NO_READ,
@@ -69,7 +75,7 @@ anisotropicGaussianModel::anisotropicGaussianModel
 	    Theta_*symmTensor::I - Sigma_,
 	    Sigma_.boundaryField().types()
 	),
-	hq_(3,dict.lookupOrDefault("nHerNodePerDim", 4)),
+	hq_(3, dict.lookupOrDefault("nHerNodePerDim", 4)),
 	hqWeigs_(hq_.hermiteWeights()),
 	hqAbsc_(hq_.hermiteAbscissas()),
 	ew_(dict.lookupOrDefault("wallRestitutionCoefficient", 1.0)),
@@ -176,17 +182,14 @@ anisotropicGaussianModel::anisotropicGaussianModel
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::anisotropicGaussianModel::~anisotropicGaussianModel()
+Foam::AGmomentTransportModel::~AGmomentTransportModel()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-scalar  anisotropicGaussianModel::maxUxDx()
+Foam::scalar  Foam::AGmomentTransportModel::maxUxDx()
 {
-
-    if(!AGmodel_) return 0.0;
-
     scalar maxUxDx = 0.0;
     tmp<volScalarField>  tVv;
 
@@ -206,11 +209,10 @@ scalar  anisotropicGaussianModel::maxUxDx()
 	tVv.clear();
 
     return maxUxDx;
-
 }
 
 
-void anisotropicGaussianModel::solve
+void Foam::AGmomentTransportModel::solve
 (
     const surfaceScalarField& h2f
 )
@@ -223,8 +225,6 @@ void anisotropicGaussianModel::solve
 
 	Pp_ = Theta_*symmTensor::I - Sigma_;
 	Pp_.correctBoundaryConditions();
-
-#if RungeKutta2
 
 	volScalarField       M0_old(alphap_);
 	volVectorField       M1_old(alphap_*Up_);
@@ -251,28 +251,6 @@ void anisotropicGaussianModel::solve
 	M1 = M1_old - fvc::surfaceIntegrate(F1_)*deltaT;
 	M2 = M2_old - fvc::surfaceIntegrate(F2_)*deltaT;
 
-#else
-
-	calcMomentFluxes(h1f);
-
-	volScalarField M0
-	(
-        "M0",
-        alphap_ - fvc::surfaceIntegrate(F0_)*deltaT
-    );
-	volVectorField M1
-	(
-        "M1",
-        alphap_*Up_ - fvc::surfaceIntegrate(F1_)*deltaT
-    );
-	volSymmTensorField M2
-	(
-        "M2",
-        alphap_*(Pp_ + sqr(Up_)) - fvc::surfaceIntegrate(F2_)*deltaT
-    );
-
-#endif
-
 	M0.max(SMALL);
 	alphap_ = M0;
 	Up_ = M1/M0;
@@ -298,12 +276,11 @@ void anisotropicGaussianModel::solve
 	Theta_.correctBoundaryConditions();
 	Sigma_.correctBoundaryConditions();
 
-	return ;
-
+	return;
 }
 
 
-void anisotropicGaussianModel::calcMomentFluxes
+void Foam::AGmomentTransportModel::calcMomentFluxes
 (
     const surfaceScalarField& h1f
 )
@@ -672,11 +649,8 @@ void anisotropicGaussianModel::calcMomentFluxes
 		}
 	}
 
-	return ;
-
+	return;
 }
 
-
-}
 
 // ************************************************************************* //

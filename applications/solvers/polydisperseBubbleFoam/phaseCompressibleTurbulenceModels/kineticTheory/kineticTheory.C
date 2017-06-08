@@ -110,16 +110,54 @@ bool Foam::RASModels::kineticTheory::read()
 Foam::tmp<Foam::volScalarField>
 Foam::RASModels::kineticTheory::k() const
 {
-    NotImplemented;
-    return nut_;
+    return tmp<Foam::volScalarField>
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "k",
+                this->runTime_.timeName(),
+                this->mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            this->mesh(),
+            dimensionedScalar
+            (
+                "k",
+                dimensionSet(0, 2, -2, 0, 0, 0, 0),
+                0.0
+            )
+        )
+    );
 }
 
 
 Foam::tmp<Foam::volScalarField>
 Foam::RASModels::kineticTheory::epsilon() const
 {
-    NotImplemented;
-    return nut_;
+    return tmp<Foam::volScalarField>
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "epsilon",
+                this->runTime_.timeName(),
+                this->mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            this->mesh(),
+            dimensionedScalar
+            (
+                "epsilon",
+                dimensionSet(0, 2, -3, 0, 0, 0, 0),
+                0.0
+            )
+        )
+    );
 }
 
 
@@ -205,7 +243,13 @@ Foam::RASModels::kineticTheory::divDevRhoReff
 void Foam::RASModels::kineticTheory::correct()
 {
     kineticTheoryModel_->correct();
+    kineticTheoryModel_->updateViscosities();
     nut_ = kineticTheoryModel_->nuEff();
+
+    if (debug)
+    {
+        Info<< "    max(nuEff) = " << max(nut_).value() << endl;
+    }
 }
 
 

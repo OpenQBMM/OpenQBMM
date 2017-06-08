@@ -150,11 +150,10 @@ protected:
             //- The frictional viscosity
             volScalarField nuFric_;
 
-
-    // Private Member Functions
-
-        void correctNut()
-        {}
+            //- Bool to determin if correct is called
+            //  Used to that dilute transport is done on the first call,
+            //  and dense on the second for AG
+            bool correct_;
 
 
 public:
@@ -280,6 +279,9 @@ public:
         {
             return alphaMax_;
         }
+
+        //- Update nu and nuEff quantities
+        virtual void updateViscosities();
 
         //- Update kinetic theory quantities
         virtual void correct() = 0;
