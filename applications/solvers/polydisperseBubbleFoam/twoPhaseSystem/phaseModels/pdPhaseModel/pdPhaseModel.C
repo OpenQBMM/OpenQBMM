@@ -56,6 +56,13 @@ Foam::pdPhaseModel::pdPhaseModel
     maxD_("maxD", dimLength, phaseDict_),
     minD_("minD", dimLength, phaseDict_)
 {
+    if (nNodes_ == 1)
+    {
+        FatalErrorInFunction
+            << "Polydisperse phase model selected, but only one node " << nl
+            << "is used. Please use monodispersePhaseModel instead." << endl
+            << exit(FatalError);
+    }
     wordList phiTypes
     (
         U_.boundaryField().size(),
