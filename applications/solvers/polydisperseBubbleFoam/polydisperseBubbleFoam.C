@@ -102,18 +102,18 @@ int main(int argc, char *argv[])
 
                 #include "pU/UEqns.H"
                 #include "pU/pEqn.H"
-            }
 
-            if (phase1.nNodes() > 1)
-            {
-                // Transport moments with mean gas velocity
-                fluid.averageTransport();
-                phi = phase1.alphaPhi() + phase2.alphaPhi();
-            }
-            
-            if (pimple.turbCorr())
-            {
-                fluid.correctTurbulence();
+                if (pimple.turbCorr())
+                {
+                    if (phase1.nNodes() > 1)
+                    {
+                        // Transport moments with mean gas velocity
+                        fluid.averageTransport();
+                        phi = phase1.alphaPhi() + phase2.alphaPhi();
+                    }
+
+                    fluid.correctTurbulence();
+                }
             }
         }
 
