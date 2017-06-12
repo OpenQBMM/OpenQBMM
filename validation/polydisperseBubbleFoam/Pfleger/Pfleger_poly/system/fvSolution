@@ -22,7 +22,7 @@ solvers
         solver          GAMG;
         preconditioner  DIC;
         nAlphaCorr      2;
-        nAlphaSubCycles 2;
+        nAlphaSubCycles 1;
     }
     p_rgh
     {
@@ -122,7 +122,6 @@ relaxationFactors
     equations
     {
         p_rgh       0.3;
-        U           0.7;
     }
 }
 

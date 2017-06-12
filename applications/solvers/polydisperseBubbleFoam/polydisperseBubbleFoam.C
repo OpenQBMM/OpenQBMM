@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
     #include "createControl.H"
     #include "createFields.H"
     #include "createFieldRefs.H"
+    #include "createFvOptions.H"
     #include "createTimeControls.H"
     #include "CourantNos.H"
     #include "setInitialDeltaT.H"
@@ -90,6 +91,13 @@ int main(int argc, char *argv[])
                 phi = phase1.alphaPhi() + phase2.alphaPhi();
             }
 
+            if (fluid.AG())
+            {
+                // Solve dilute transport of particles
+                // (uses switch to determin if dense or dilute is solved)
+                fluid.correctTurbulence();
+            }
+
             // Solve for mean phase velocities and gas volume fraction
             while (pimple.loop())
             {
@@ -99,8 +107,8 @@ int main(int argc, char *argv[])
                 #include "contErrs.H"
 
                 #include "pU/DDtU.H"
-
                 #include "pU/UEqns.H"
+
                 #include "pU/pEqn.H"
 
                 if (pimple.turbCorr())
@@ -112,6 +120,7 @@ int main(int argc, char *argv[])
                         phi = phase1.alphaPhi() + phase2.alphaPhi();
                     }
 
+                    // Solve dense using kinetic theory
                     fluid.correctTurbulence();
                 }
             }

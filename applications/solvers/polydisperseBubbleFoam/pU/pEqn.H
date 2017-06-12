@@ -1,8 +1,7 @@
 surfaceScalarField alphaf1("alphaf1", fvc::interpolate(alpha1));
 surfaceScalarField alphaf2("alphaf2", scalar(1) - alphaf1);
-volScalarField rAU1
+rAU1 =
 (
-    "rAU.air",
     1.0
    /(
         U1Eqn.A()
@@ -11,9 +10,8 @@ volScalarField rAU1
     )
 );
 
-volScalarField rAU2
+rAU2 =
 (
-    "rAU.water",
     1.0
    /(
         U2Eqn.A()
@@ -333,6 +331,12 @@ while (pimple.correct())
             fvc::div(phiHbyA)
           - fvm::laplacian(rAUf, p_rgh)
         );
+
+        if (fluid.AG())
+        {
+            //
+            pEqnIncomp -= fvc::ddt(rho1, alpha1);
+        }
 
         solve
         (

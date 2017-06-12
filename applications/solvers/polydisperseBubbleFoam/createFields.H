@@ -12,8 +12,6 @@ volScalarField& alpha1 = phase1;
 volVectorField& U1 = phase1.U();
 volVectorField& U2 = phase2.U();
 
-//const label nNodes = phase1.nNodes();
-
 volScalarField& p = phase1.thermo().p();
 
 // Pressure
@@ -79,6 +77,33 @@ volScalarField dpdt
     dimensionedScalar("dpdt", p.dimensions()/dimTime, 0)
 );
 
+volScalarField rAU1
+(
+    IOobject
+    (
+        IOobject::groupName("rAU", phase1.name()),
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("0", dimTime/dimDensity, 0.0)
+);
+
+volScalarField rAU2
+(
+    IOobject
+    (
+        IOobject::groupName("rAU", phase2.name()),
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("0", dimTime/dimDensity, 0.0)
+);
 
 Info<< "Creating field kinetic energy K\n" << endl;
 volScalarField K1(IOobject::groupName("K", phase1.name()), 0.5*magSqr(U1));

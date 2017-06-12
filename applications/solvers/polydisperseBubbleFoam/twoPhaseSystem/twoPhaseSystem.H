@@ -87,6 +87,9 @@ class twoPhaseSystem
         //- Number of nodes in the dispersed phase
         label nNodes_;
 
+        //- Bool if phase 1 uses anisotropic Gaussian model
+        bool AG_;
+
         //- Dilatation term
         volScalarField dgdt_;
 
@@ -262,6 +265,12 @@ public:
 
             //- Return non-const access to the dispersion diffusivity
             inline tmp<surfaceScalarField>& pPrimeByA();
+
+            //- Return true if AG model is used
+            bool AG() const
+            {
+                return AG_;
+            }
 };
 
 

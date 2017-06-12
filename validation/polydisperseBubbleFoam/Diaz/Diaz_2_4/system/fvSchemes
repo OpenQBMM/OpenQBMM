@@ -77,7 +77,6 @@ snGradSchemes
 wallDist
 {
     method meshWave;
-    nRequired   yes;
 }
 
 

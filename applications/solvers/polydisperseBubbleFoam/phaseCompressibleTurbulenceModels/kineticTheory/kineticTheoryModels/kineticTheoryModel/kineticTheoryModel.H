@@ -45,24 +45,22 @@ SourceFiles
 #ifndef kineticTheoryModel_H
 #define kineticTheoryModel_H
 
-#include "RASModel.H"
-#include "eddyViscosity.H"
-#include "phaseCompressibleTurbulenceModel.H"
-#include "EddyDiffusivity.H"
+#include "dictionary.H"
+#include "volFields.H"
+#include "dimensionedTypes.H"
 #include "phaseModel.H"
-#include "dragModel.H"
 #include "viscosityModel.H"
 #include "conductivityModel.H"
 #include "radialModel.H"
 #include "granularPressureModel.H"
 #include "frictionalStressModel.H"
+#include "runTimeSelectionTables.H"
+#include "fvc.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
-{
-namespace RASModels
 {
 
 /*---------------------------------------------------------------------------*\
@@ -71,15 +69,23 @@ namespace RASModels
 
 class kineticTheoryModel
 :
-    public eddyViscosity
-    <
-        RASModel<EddyDiffusivity<phaseCompressibleTurbulenceModel>>
-    >
+    public regIOobject
 {
-    // Private data
+    // Private Data
 
-        // Input Fields
+    // Private memeber functions
 
+        //- Disallow default bitwise copy construct
+        kineticTheoryModel(const kineticTheoryModel&);
+
+        //- Disallow default bitwise assignment
+        void operator=(const kineticTheoryModel&);
+
+
+protected:
+    // Protected data
+
+            // Refrence to phase model
             const phaseModel& phase_;
 
 
@@ -133,31 +139,41 @@ class kineticTheoryModel
             volScalarField lambda_;
 
             //- The granular radial distribution
-            volScalarField gs0_;
+            volScalarField g0_;
 
             //- The granular "thermal" conductivity
             volScalarField kappa_;
 
+            //- The particle viscosity
+            volScalarField nu_;
+
             //- The frictional viscosity
             volScalarField nuFric_;
 
-
-    // Private Member Functions
-
-        void correctNut()
-        {}
-
-        //- Disallow default bitwise copy construct
-        kineticTheoryModel(const kineticTheoryModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const kineticTheoryModel&);
+            //- Bool to determin if correct is called
+            //  Used to that dilute transport is done on the first call,
+            //  and dense on the second for AG
+            bool correct_;
 
 
 public:
 
     //- Runtime type information
-    TypeName("kineticTheory");
+    TypeName("kineticTheoryModel");
+
+
+    // Declare runtime constructor selection table
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        kineticTheoryModel,
+        dictionary,
+        (
+            const dictionary& dict,
+            const phaseModel& phase
+        ),
+        (dict, phase)
+    );
 
 
     // Constructors
@@ -165,14 +181,18 @@ public:
         //- Construct from components
         kineticTheoryModel
         (
-            const volScalarField& alpha,
-            const volScalarField& rho,
-            const volVectorField& U,
-            const surfaceScalarField& alphaRhoPhi,
-            const surfaceScalarField& phi,
-            const phaseModel& transport,
-            const word& propertiesName = turbulenceModel::propertiesName,
-            const word& type = typeName
+            const dictionary& dict,
+            const phaseModel& phase
+        );
+
+
+    // Selectors
+
+        //- Select null constructed
+        static autoPtr<kineticTheoryModel> New
+        (
+            const dictionary& dict,
+            const phaseModel& phase
         );
 
 
@@ -182,29 +202,66 @@ public:
 
     // Member Functions
 
-        //- Re-read model coefficients if they have changed
-        virtual bool read();
-
-        //- Return the effective viscosity
-        virtual tmp<volScalarField> nuEff() const
+        //- Return the granular temperature
+        virtual const volScalarField& Theta() const
         {
-            return this->nut();
+            return Theta_;
         }
 
-        //- Return the effective viscosity on patch
-        virtual tmp<scalarField> nuEff(const label patchi) const
+        //- Return the granular temperature on a patch
+        virtual const scalarField& ThetaPatch(const label patchi) const
         {
-            return this->nut(patchi);
+            return Theta_.boundaryField()[patchi];
         }
 
-        //- Return the turbulence kinetic energy
-        virtual tmp<volScalarField> k() const;
+        //- Return the granular viscosity
+        virtual const volScalarField& nu() const
+        {
+            return nu_;
+        }
 
-        //- Return the turbulence kinetic energy dissipation rate
-        virtual tmp<volScalarField> epsilon() const;
+        //- Return the granular viscosity on a patch
+        virtual const scalarField& nuPatch(const label patchi) const
+        {
+            return nu_.boundaryField()[patchi];
+        }
 
-        //- Return the Reynolds stress tensor
-        virtual tmp<volSymmTensorField> R() const;
+        //- Return the effective viscosity (granular + frictional)
+        virtual tmp<volScalarField> nuEff() const;
+
+        //- Return the granular bulk viscosity
+        virtual const volScalarField& lambda() const
+        {
+            return lambda_;
+        }
+
+        //- Return the granular "thermal" conductivity
+        virtual const volScalarField& kappa() const
+        {
+            return kappa_;
+        }
+
+        //- Return the granular "thermal" conductivity on a patch
+        virtual const scalarField& kappaPatch(const label patchi) const
+        {
+            return kappa_.boundaryField()[patchi];
+        }
+
+        //- Return the radial distribution
+        virtual const volScalarField& g0() const
+        {
+            return g0_;
+        }
+
+        //- Return the radial distribution on a patch
+        virtual const scalarField& g0Patch(const label patchi) const
+        {
+            return g0_.boundaryField()[patchi];
+        }
+
+        //- Return the radial distribution derivative w.r.t. the particulate
+        //  particulate phase fraction
+        virtual tmp<volScalarField> g0Prime() const;
 
         //- Return the phase-pressure'
         // (derivative of phase-pressure w.r.t. phase-fraction)
@@ -214,21 +271,37 @@ public:
         // (derivative of phase-pressure w.r.t. phase-fraction)
         virtual tmp<surfaceScalarField> pPrimef() const;
 
-        //- Return the effective stress tensor
-        virtual tmp<volSymmTensorField> devRhoReff() const;
+        //- Return the maximum value of the phase fraction
+        virtual const dimensionedScalar& alphaMax() const
+        {
+            return alphaMax_;
+        }
 
-        //- Return the source term for the momentum equation
-        virtual tmp<fvVectorMatrix> divDevRhoReff(volVectorField& U) const;
+        //- Update kinetic theory quantities
+        virtual void correct() = 0;
 
-        //- Solve the kinetic theory equations and correct the viscosity
-        virtual void correct();
+
+    // IO functions
+
+        //- Read
+        virtual bool read()
+        {
+            return true;
+        }
+
+        //- Write
+        virtual bool writeData(Ostream& os) const
+        {
+            return os.good();
+        }
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace RASModels
+
 } // End namespace Foam
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

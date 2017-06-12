@@ -5,7 +5,7 @@ createEps()
     gnuplot<<EOF
     stats "$1" using 4 name "C" noout
 
-    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+    set terminal postscript eps enhanced color font 'Helvetica,60' linewidth 2\
         dl 8.0
     set output "Diaz3_2_4_p.eps"
     set xlabel "Time [s]"
@@ -16,8 +16,8 @@ createEps()
     set size 2,2
     set autoscale
     set xrange [0:50]
-    set yrange [-5:5]
-    set key top left
+    set yrange [-5:7]
+    set key left top Left box
 
     plot    "$2" using 1:2 title 'Diaz'\
                 with points pointtype 7 ps 2 linecolor rgb 'black', \
@@ -35,7 +35,7 @@ fi
 
 #set case Direcory names
 caseDir=$(pwd)
-pProbesDir="$caseDir/postProcessing/pProbes/0"
+pProbesDir="$caseDir/postProcessing/pProbes/15"
 validationDir="$caseDir/../validation/experiments"
 
 #Set files
