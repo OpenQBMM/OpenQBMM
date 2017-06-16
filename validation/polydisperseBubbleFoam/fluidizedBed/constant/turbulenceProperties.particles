@@ -28,7 +28,7 @@ RAS
     {
         kineticTheoryModel      anisotropicGaussian;
 
-        anisotropicGaussianCoeffs
+        kineticTheoryCoeffs
         {
             alphaTheta              1.0;
             e                       0.8;

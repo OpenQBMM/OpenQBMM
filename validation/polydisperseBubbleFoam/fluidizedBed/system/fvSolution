@@ -36,8 +36,16 @@ solvers
     {
         solver          GAMG;
         smoother        DIC;
-        tolerance       1e-8;
-        relTol          0;
+        preconditioner  DIC;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 10;
+        agglomerator    faceAreaPair;
+        mergeLevels     2;
+        tolerance       1e-10;
+        maxIter         1000;
     }
 
     p_rghFinal
@@ -85,6 +93,7 @@ solvers
 
 PIMPLE
 {
+    nAlphaCorr      2;
     nOuterCorrectors 3;
     nCorrectors      1;
     nNonOrthogonalCorrectors 0;

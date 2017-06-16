@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     twoPhaseEulerFoam;
+application     denseAGFoam;
 
 startFrom       startTime;
 
@@ -49,9 +49,9 @@ adjustTimeStep  no;
 
 maxCo           0.5;
 
-maxDeltaT       1e-04;
+maxDeltaT       1e-03;
 
-functions
+functions0
 {
     fieldAverage1
     {
