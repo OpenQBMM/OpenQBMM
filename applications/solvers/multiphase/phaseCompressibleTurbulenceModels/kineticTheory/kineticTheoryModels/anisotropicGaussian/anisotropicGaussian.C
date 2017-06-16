@@ -403,6 +403,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
 
 void Foam::kineticTheoryModels::anisotropicGaussian::transportMoments()
 {
+    Info<< "Transporting moments" << endl;
     updateh2Fn();
     surfaceScalarField h2Fnf = fvc::interpolate(h2Fn_);
 

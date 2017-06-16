@@ -281,7 +281,7 @@ public:
         //- Max time-step
         virtual scalar maxUxDx() const
         {
-            return 0.0;
+            return HUGE;
         }
 
 
