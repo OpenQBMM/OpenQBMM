@@ -284,6 +284,27 @@ public:
             return HUGE;
         }
 
+        virtual tmp<volScalarField> h2Fn() const
+        {
+            return tmp<volScalarField>
+            (
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "h2Fn",
+                        phase_.mesh().time().timeName(),
+                        phase_.mesh(),
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE,
+                        false
+                    ),
+                    phase_.mesh(),
+                    dimensionedScalar("0", dimless, 0.0)
+                )
+            );
+        }
+
 
     // IO functions
 

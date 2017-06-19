@@ -28,7 +28,7 @@ particles
 gas
 {
     type            monodispersePhaseModel;
-    residualAlpha   0;
+    residualAlpha   1e-4;
     d               1;
 }
 

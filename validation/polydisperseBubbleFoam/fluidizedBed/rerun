@@ -30,4 +30,5 @@ mkdir 0
 cp 0.org/* 0/
 
 setFields
-denseAGFoam
+decomposePar
+mpirun -np 4 denseAGFoam -parallel

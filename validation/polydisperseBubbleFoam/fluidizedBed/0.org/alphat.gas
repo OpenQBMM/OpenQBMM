@@ -39,7 +39,7 @@ boundaryField
         value           $internalField;
     }
 
-    defaultFaces
+    frontAndBackPlanes
     {
         type            empty;
     }

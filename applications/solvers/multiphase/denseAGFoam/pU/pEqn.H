@@ -81,9 +81,9 @@ tmp<surfaceScalarField> phiF2;
 
         // Cache the net diffusivity for implicit diffusion treatment in the
         // phase-fraction equation
-        if (implicitPhasePressure)
+//         if (implicitPhasePressure)
         {
-            fluid.pPrimeByA().ref() += (Df1 + Df2);
+            fluid.pPrimeByA().ref() += fvc::interpolate(h2Fn)*(Df1 + Df2);
         }
 
         // Size dependent volume fraction
@@ -403,7 +403,15 @@ while (pimple.correct())
                 U = alpha1*(Us1 + D1*U2) + alpha2*(Us2 + D2*U1);
                 volVectorField Ur(((1 - D2)*Us1 - (1 - D1)*Us2)/(1 - D1*D2));
 
-                U1 = U + alpha2*Ur;
+                U1 =
+                    U
+                  + alpha2*Ur
+                  - fvc::reconstruct
+                    (
+                        fluid.pPrimeByA()()*fvc::snGrad(alpha1, "bounded")
+                       *mesh.magSf()
+                    );
+
                 U1.correctBoundaryConditions();
 //                 fvOptions.correct(U1);
 
@@ -415,7 +423,6 @@ while (pimple.correct())
             }
         }
     }
-    phi1S = phi1 + phig1;
 
     // Update and limit the static pressure
     p = max(p_rgh + rho*gh, pMin);

@@ -95,14 +95,17 @@ int main(int argc, char *argv[])
         #include "readTimeControls.H"
         #include "CourantNos.H"
         #include "setDeltaT.H"
-        runTime.setDeltaT
-        (
-            min
+        if (adjustTimeStep)
+        {
+            runTime.setDeltaT
             (
-                runTime.deltaT(),
-                AGmodel.maxUxDx()*runTime.deltaT()
-            )
-        );
+                min
+                (
+                    runTime.deltaT(),
+                    AGmodel.maxUxDx()*runTime.deltaT()
+                )
+            );
+        }
 
         runTime++;
 
@@ -119,7 +122,23 @@ int main(int argc, char *argv[])
         {
             #include "contErrs.H"
 
-			#include "alphaEqn.H"
+            {
+                phi1 =
+                    fvc::interpolate(h2Fn)
+                   *(
+                        phi1
+                      - fluid.pPrimeByA()*fvc::snGrad(alpha1, "bounded")
+                       *mesh.magSf()
+                    );
+
+                phi =
+                    fvc::interpolate(alpha1)*phi1
+                  + fvc::interpolate(alpha2)*phi2;
+
+                fluid.solve();
+                  //#include "alphaEqn.H"
+            }
+
 			#include "pU/UEqns.H"
 
             #include "pU/pEqn.H"

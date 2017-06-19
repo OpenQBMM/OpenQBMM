@@ -123,4 +123,22 @@ volScalarField ddtAlpha1Dilute
     dimensionedScalar("zero", dimensionSet(0, 0, -1, 0, 0), 0.0)
 );
 
-surfaceScalarField phi1S(phase1.phi());
+fluid.pPrimeByA() = tmp<surfaceScalarField>
+(
+    new surfaceScalarField
+    (
+        IOobject
+        (
+            "pPrimeByA",
+            runTime.timeName(),
+            mesh
+        ),
+        mesh,
+        dimensionedScalar
+        (
+            "0",
+            dimensionSet(0, 2, -1, 0, 0),
+            0.0
+        )
+    )
+);

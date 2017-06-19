@@ -219,7 +219,9 @@ void Foam::kineticTheoryModels::anisotropicGaussian::updateViscosities()
 
     // Limit viscosity and add frictional viscosity
     nu_.min(maxNut_);
+    nu_.max(1e-10);
     nuFric_ = min(nuFric_, maxNut_ - nu_);
+    nuFric_.max(1e-10);
 }
 
 

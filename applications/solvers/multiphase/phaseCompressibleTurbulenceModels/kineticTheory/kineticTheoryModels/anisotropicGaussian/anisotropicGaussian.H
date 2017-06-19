@@ -116,6 +116,11 @@ public:
         //- Max time-step
         virtual scalar maxUxDx() const;
 
+        virtual tmp<volScalarField> h2Fn() const
+        {
+            return h2Fn_;
+        }
+
 };
 
 
