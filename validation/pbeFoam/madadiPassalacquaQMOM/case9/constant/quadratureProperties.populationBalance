@@ -24,12 +24,7 @@ basicMomentInversion
 
 momentAdvection
 {
-    univariateMomentAdvection   firstOrderKinetic;
-
-    basicMomentInversion
-    {
-        univariateMomentInversion Gauss;
-    }
+    univariateMomentAdvection   noAdvection;
 }
 
 moments
