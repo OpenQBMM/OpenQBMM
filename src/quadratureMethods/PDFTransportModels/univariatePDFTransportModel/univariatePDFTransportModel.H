@@ -106,13 +106,6 @@ protected:
         //- Calculate explicit source terms with realizable ODE solver
         virtual void explicitMomentSource();
 
-
-//         //- Convect moments in phase space
-//         virtual tmp<volScalarField> phaseSpaceConvection
-//         (
-//             const volUnivariateMoment& moment
-//         ) = 0;
-
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (

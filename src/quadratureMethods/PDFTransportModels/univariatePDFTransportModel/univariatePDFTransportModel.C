@@ -259,8 +259,6 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
               - momentDiffusion(m)
               ==
                 implicitMomentSource(m)
-              //+ explicitMomentSource(m)
-              //+ phaseSpaceConvection(m)
             )
         );
     }
