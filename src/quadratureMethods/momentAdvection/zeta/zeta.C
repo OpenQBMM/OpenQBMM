@@ -392,7 +392,8 @@ void Foam::zeta::updateMomentFieldsFromZetas
 
             for (label mi = 0; mi < nMoments_; mi++)
             {
-                mf[mi].boundaryFieldRef()[patchi][facei] = m0f.boundaryField()[patchi][facei]*mFace[mi];
+                mf[mi].boundaryFieldRef()[patchi][facei]
+                    = m0f.boundaryField()[patchi][facei]*mFace[mi];
             }
         }
     }
