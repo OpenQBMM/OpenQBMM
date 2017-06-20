@@ -140,6 +140,9 @@ public:
             //- Returns a const reference to the quadrature approximation
             inline const univariateQuadratureApproximation& quadrature() const;
 
+            //- Return the maximum Courant number ensuring moment realizability
+            inline scalar realizableCo();
+
         //-Edit
 
             //- Solve univariate PDF transport equation

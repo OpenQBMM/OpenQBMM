@@ -153,6 +153,9 @@ public:
         //- Return the advection term for the moment transport equation
         inline const PtrList<volScalarField>& divMoments() const;
 
+        //- Return the maximum Courant number ensuring moment realizability
+        virtual scalar realizableCo() = 0;
+
         //- Update moment advection
         virtual void update() = 0;
 

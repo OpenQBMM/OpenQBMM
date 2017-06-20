@@ -121,6 +121,9 @@ public:
 
     // Member Functions
 
+        //- Return the maximum Courant number ensuring moment realizability
+        virtual scalar realizableCo() = 0;
+
         //- Solve population balance equation
         virtual void solve() = 0;
 

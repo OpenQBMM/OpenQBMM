@@ -74,8 +74,6 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
     support_(support),
     nDimensions_(1)
 {
-    Info << "Hell0" << endl;
-
     forAll(divMoments_, momenti)
     {
         divMoments_.set

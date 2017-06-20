@@ -27,7 +27,8 @@ gradSchemes
 
 divSchemes
 {
-    default         Gauss upwind;
+    default         none;
+
     div(phi,U)      Gauss upwind;
     div(phi,h)      Gauss upwind;
     div(phi,e)      Gauss upwind;
@@ -41,6 +42,7 @@ divSchemes
     div((rho*R))    Gauss linear;
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
     div(((rho*(thermo:mu|thermo:rho))*dev2(T(grad(U))))) Gauss linear;
+    div(((rho*(thermo:mu|rho))*dev2(T(grad(U))))) Gauss linear;
     div(phi,moment) Gauss upwind;
 }
 
@@ -53,7 +55,7 @@ interpolationSchemes
 {
     default         linear;
 
-    "interpolate\(moment.*\)" upwind phi;
+    "interpolate\(moment.*\)" linear;
 
     reconstruct(U)          upwind;
     reconstruct(weight)     upwind;

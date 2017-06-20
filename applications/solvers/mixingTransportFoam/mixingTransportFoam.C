@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     #include "createRadiationModel.H"
     #include "initContinuityErrs.H"
     #include "createTimeControls.H"
-    #include "compressibleCourantNo.H"
+    #include "CourantNos.H"
     #include "setInitialDeltaT.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     while (runTime.run())
     {
         #include "createTimeControls.H"
-        #include "compressibleCourantNo.H"
+        #include "CourantNos.H"
         #include "setDeltaT.H"
 
         runTime++;

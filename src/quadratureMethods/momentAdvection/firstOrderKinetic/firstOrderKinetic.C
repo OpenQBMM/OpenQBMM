@@ -220,6 +220,13 @@ void Foam::firstOrderKinetic::interpolateNodes()
     }
 }
 
+Foam::scalar Foam::firstOrderKinetic::realizableCo()
+{
+    // Returning 1 because the restriction of this scheme is the same CFL
+    // condition of the main scheme.
+    return 1.0;
+}
+
 void Foam::firstOrderKinetic::update()
 {
     momentFieldInverter_().invert(moments_, nodes_());

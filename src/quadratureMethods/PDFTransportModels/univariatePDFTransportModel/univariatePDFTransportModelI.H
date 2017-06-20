@@ -31,5 +31,10 @@ Foam::PDFTransportModels::univariatePDFTransportModel::quadrature() const
     return quadrature_;
 }
 
+Foam::scalar
+Foam::PDFTransportModels::univariatePDFTransportModel::realizableCo()
+{
+    return momentAdvection_().realizableCo();
+}
 
 // ************************************************************************* //

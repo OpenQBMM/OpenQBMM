@@ -69,4 +69,9 @@ void Foam::mixingModels::noMixing::solve()
     return;
 }
 
+Foam::scalar Foam::mixingModels::noMixing::realizableCo()
+{
+    return 1.0;
+}
+
 // ************************************************************************* //

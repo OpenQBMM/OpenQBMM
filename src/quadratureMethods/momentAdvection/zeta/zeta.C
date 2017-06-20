@@ -56,7 +56,8 @@ Foam::zeta::zeta
     zetasNei_(nZetas_),
     zetasOwn_(nZetas_),
     momentsNei_(nMoments_),
-    momentsOwn_(nMoments_)
+    momentsOwn_(nMoments_),
+    phi_(phi)
 {
     // Populating zeta_k fields and interpolated zeta_k fields
     forAll(zetas_, zetai)
@@ -260,6 +261,33 @@ void Foam::zeta::computeZetaFields()
             }
         }
     }
+}
+
+Foam::scalar Foam::zeta::realizableCo()
+{
+    const fvMesh& mesh(phi_.mesh());
+    const labelList& own = mesh.faceOwner();
+    const labelList& nei = mesh.faceNeighbour();
+
+    scalarField internalCo(mesh.nCells(), 0.0);
+
+    for (label facei = 0; facei < mesh.nInternalFaces(); facei++)
+    {
+        if (phi_[facei] > 0)
+        {
+            internalCo[own[facei]] += 1;
+        }
+        else if (phi_[facei] < 0)
+        {
+            internalCo[nei[facei]] += 1;
+        }
+    }
+
+    internalCo = 1.0/(internalCo + 1.0);
+
+    Info << internalCo << endl;
+
+    return min(gMin(internalCo), 1.0/3.0);
 }
 
 void Foam::zeta::update()

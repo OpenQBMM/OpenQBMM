@@ -72,6 +72,9 @@ class zeta
         //- List of interpolated moments (owner)
         PtrList<surfaceScalarField> momentsOwn_;
 
+        //- Face velocity
+        const surfaceScalarField& phi_;
+
 
     // Private member functions
 
@@ -119,6 +122,9 @@ public:
 
 
     // Public member functions
+
+        //- Return the maximum Courant number ensuring moment realizability
+        virtual scalar realizableCo();
 
         //- Update moment advection
         virtual void update();

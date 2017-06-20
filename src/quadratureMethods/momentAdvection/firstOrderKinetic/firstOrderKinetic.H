@@ -106,6 +106,9 @@ public:
 
     // Public member functions
 
+        //- Return the maximum Courant number ensuring moment realizability
+        virtual scalar realizableCo();
+
         //- Update moment advection
         virtual void update();
 };

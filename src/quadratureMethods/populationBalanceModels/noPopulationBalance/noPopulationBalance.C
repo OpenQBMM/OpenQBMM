@@ -64,6 +64,13 @@ Foam::populationBalanceModels::noPopulationBalance::~noPopulationBalance()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+Foam::scalar
+Foam::populationBalanceModels::noPopulationBalance::realizableCo
+()
+{
+    return 1.0;
+}
+
 void Foam::populationBalanceModels::noPopulationBalance::solve()
 {
     return;

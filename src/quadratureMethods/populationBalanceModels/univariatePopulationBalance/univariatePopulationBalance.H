@@ -176,6 +176,9 @@ public:
 
     // Member Functions
 
+        //- Return the maximum Courant number ensuring moment realizability
+        scalar realizableCo();
+
         //- Solve population balance equation
         void solve();
 };

@@ -385,6 +385,13 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
             + phaseSpaceConvection(momentOrder, celli);
 }
 
+Foam::scalar Foam::PDFTransportModels::populationBalanceModels
+::univariatePopulationBalance::realizableCo
+()
+{
+    return univariatePDFTransportModel::realizableCo();
+}
+
 void Foam::PDFTransportModels::populationBalanceModels
 ::univariatePopulationBalance::solve
 ()
