@@ -69,11 +69,15 @@ Foam::zeta::zeta
             (
                 IOobject
                 (
-                    IOobject::groupName(name_, "zeta") + Foam::name(zetai),
+                    IOobject::groupName
+                    (
+                        IOobject::groupName("zeta", Foam::name(zetai)),
+                        name_
+                    ),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
+                    IOobject::NO_WRITE
                 ),
                 phi.mesh(),
                 dimensionedScalar("zero", dimless, 0.0)
