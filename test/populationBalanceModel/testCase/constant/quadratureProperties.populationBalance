@@ -29,7 +29,7 @@ extendedMomentInversion
 
 momentAdvection
 {
-    univariateMomentAdvection zeta;
+    univariateMomentAdvection firstOrderKinetic;
 
     basicMomentInversion
     {

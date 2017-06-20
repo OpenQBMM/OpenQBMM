@@ -34,6 +34,8 @@ extendedMomentInversion
 
 momentAdvection
 {
+    univariateMomentAdvection   firstOrderKinetic;
+
     basicMomentInversion
     {
         univariateMomentInversion GaussRadau;
@@ -51,10 +53,8 @@ moments
 
 nodes
 (
-    node0
-    {}
-    node1
-    {}
+    node0{}
+    node1{}
 );
 
 // ************************************************************************* //

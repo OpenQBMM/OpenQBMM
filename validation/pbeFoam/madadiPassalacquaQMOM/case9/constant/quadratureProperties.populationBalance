@@ -24,6 +24,8 @@ basicMomentInversion
 
 momentAdvection
 {
+    univariateMomentAdvection   firstOrderKinetic;
+
     basicMomentInversion
     {
         univariateMomentInversion Gauss;
