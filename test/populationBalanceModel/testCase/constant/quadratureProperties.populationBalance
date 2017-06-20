@@ -29,6 +29,8 @@ extendedMomentInversion
 
 momentAdvection
 {
+    univariateMomentAdvection zeta;
+
     basicMomentInversion
     {
         univariateMomentInversion GaussRadau;

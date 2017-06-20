@@ -1,5 +1,7 @@
 univariateMomentAdvection/univariateMomentAdvection.C
 univariateMomentAdvection/newUnivariateMomentAdvection.C
 
+firstOrderKinetic/firstOrderKinetic.C
+zeta/zeta.C
 
 LIB = $(FOAM_USER_LIBBIN)/libmomentAdvection

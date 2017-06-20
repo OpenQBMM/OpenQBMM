@@ -25,6 +25,47 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+const Foam::scalarList&
+Foam::univariateMomentSet::alphaRecurrence() const
+{
+    return alpha_;
+}
+
+Foam::scalarList& Foam::univariateMomentSet::alphaRecurrence()
+{
+    return alpha_;
+}
+
+const Foam::scalarList& Foam::univariateMomentSet::betaRecurrence() const
+{
+    return beta_;
+}
+
+Foam::scalarList& Foam::univariateMomentSet::betaRecurrence()
+{
+    return beta_;
+}
+
+Foam::label Foam::univariateMomentSet::negativeZeta()
+{
+    return negativeZeta_;
+}
+
+// const Foam::scalarList& Foam::univariateMomentSet::zetas() const
+// {
+//     return zeta_;
+// }
+
+Foam::scalarList& Foam::univariateMomentSet::zetas()
+{
+    if (!realizabilityChecked_)
+    {
+        checkRealizability(false);
+    }
+
+    return zeta_;
+}
+
 bool Foam::univariateMomentSet::isDegenerate()
 {
     // Checking if moments of order higher than zero are null

@@ -38,12 +38,16 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default         linear;
+    default         none;
+
+    flux(U)         linear;
 
     "interpolate\(moment.*\)" linear;
 
     interpolate(U)          linear;
 
+    reconstruct(m0)         Minmod;
+    reconstruct(zeta)       Minmod;
     reconstruct(U)          upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;

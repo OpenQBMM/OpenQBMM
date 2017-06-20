@@ -186,8 +186,6 @@ Foam::firstOrderKinetic::~firstOrderKinetic()
 
 void Foam::firstOrderKinetic::interpolateNodes()
 {
-
-
     const PtrList<volScalarNode>& nodes = nodes_();
     PtrList<surfaceScalarNode>& nodesNei = nodesNei_();
     PtrList<surfaceScalarNode>& nodesOwn = nodesOwn_();

@@ -87,7 +87,7 @@ protected:
         univariateQuadratureApproximation quadrature_;
 
         //- Moment advection
-        autoPtr<univariateMomentAdvection>momentAdvection_;
+        autoPtr<univariateMomentAdvection> momentAdvection_;
 
     // Protected member functions
 
@@ -120,8 +120,6 @@ protected:
             label& celli
         ) = 0;
 
-//         //- Solve source terms in a cell using realizable ODE solver
-//         void realizableSourceSolve(const label& celli);
 
 public:
 
