@@ -69,12 +69,6 @@ Foam::kineticTheoryModels::equilibrium::~equilibrium()
 
 void Foam::kineticTheoryModels::equilibrium::correct()
 {
-    if (!correct_)
-    {
-        correct_ = true;
-        return;
-    }
-
     // Local references
     volScalarField alpha(max(phase_, scalar(0)));
     const volScalarField& rho = phase_.rho();

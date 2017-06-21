@@ -141,11 +141,6 @@ protected:
             //- The frictional viscosity
             volScalarField nuFric_;
 
-            //- Bool to determin if correct is called
-            //  Used to that dilute transport is done on the first call,
-            //  and dense on the second for AG
-            bool correct_;
-
 
 public:
 
@@ -282,6 +277,13 @@ public:
         virtual scalar maxUxDx() const
         {
             return HUGE;
+        }
+
+        //- Return fraction to be used for hydrodynamic flux
+        virtual tmp<surfaceScalarField>
+        hydrodynamicScalef(const surfaceScalarField& phi) const
+        {
+            return phi;
         }
 
 

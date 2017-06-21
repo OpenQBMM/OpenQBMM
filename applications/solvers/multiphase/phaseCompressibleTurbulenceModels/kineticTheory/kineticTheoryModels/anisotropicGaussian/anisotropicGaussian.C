@@ -95,7 +95,7 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
         dimensionSet(0, 0, 0, 0, 0),
         dict.lookup("alphaTheta")
     ),
-    eta_(0.5*(1+e_)),
+    eta_(0.5*(1.0 + e_)),
     ppfr_
     (
        IOobject
@@ -141,7 +141,6 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
     h2FnMethod_(dict.lookup("h2FnMethod")),
     h2FnParaPow_(readScalar(dict.lookup("h2FnParaPow", 2)))
 {
-    kappa_.dimensions().reset(kappa_.dimensions()/dimDensity);
     lambda_ =
         (8.0/3.0)/sqrt(constant::mathematical::pi)
        *phase_.d()*eta_*sqr(phase_)*g0_*sqrt(Theta_);
@@ -197,7 +196,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::updateViscosities()
     nu_ =
         0.5*alphaSqr*(1.0 + (8.0/5.0)*eta_*(3*eta_ - 2.0)*alpha*g0_)
        *(h2Fn_ + (8.0/5.0)*eta_*alpha*g0_)
-       *Theta_/(rTaupAlpha + eta_*(2.0-eta_)*rTaucAlpha)
+       *Theta_/(rTaupAlpha + eta_*(2.0 - eta_)*rTaucAlpha)
       + (3.0/5.0)*lambda_;
 
     // Frictional pressure
@@ -225,172 +224,224 @@ void Foam::kineticTheoryModels::anisotropicGaussian::updateViscosities()
 
 void Foam::kineticTheoryModels::anisotropicGaussian::correct()
 {
-    // Constants
-    const scalar sqrtPi = sqrt(constant::mathematical::pi);
-    const dimensionedScalar smallRT
-    (
-        "small",
-        dimensionSet(0, 0, -1, 0, 0),
-        SMALL
-    );
-
-    // Refrences
-    const volScalarField& alpha = phase_;
+    // Local references
+    volScalarField alpha(max(phase_, scalar(0)));
     const volScalarField& rho = phase_.rho();
-    const surfaceScalarField& alphaPhi = phase_.alphaPhi();
+    const surfaceScalarField& alphaRhoPhi = phase_.alphaRhoPhi();
+    const volVectorField& U = phase_.U();
+    const volVectorField& Uc = phase_.fluid().otherPhase(phase_).U();
+
+    const scalar sqrtPi = sqrt(constant::mathematical::pi);
+    dimensionedScalar ThetaSmall("ThetaSmall", Theta_.dimensions(), 1.0e-6);
+    dimensionedScalar ThetaSmallSqrt(sqrt(ThetaSmall));
+
     const volScalarField& da = phase_.d();
 
-
-    // Particle Strain-rate tensor
-    tmp<volTensorField> tgradU(fvc::grad(phase_.U()));
+    tmp<volTensorField> tgradU(fvc::grad(U));
     const volTensorField& gradU(tgradU());
     volSymmTensorField D(symm(gradU));
     volSymmTensorField Sp(D - (1.0/3.0)*tr(D)*I);
 
-    volScalarField alphaSqr(sqr(alpha));
-    volScalarField thetaSqrt(sqrt(Theta_));
-
+    // Calculating the radial distribution function
     g0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
 
-    // bulk viscosity
-    lambda_ = (8.0/3.0)/sqrtPi*da*eta_*alphaSqr*g0_*thetaSqrt;
+    // Particle viscosity (Table 3.2, p.47)
+    nu_ = viscosityModel_->nu(alpha, Theta_, g0_, rho, da, e_);
 
-    // particle pressure, move bulk viscosity part to tau
-    volScalarField  PsCoeff = alpha*(h2Fn_ + 4.0*eta_*alpha*g0_);
-    volScalarField rTaupAlpha
-    (
-        "rTaupAlpha",
-        phase_.fluid().Kd()/rho + smallRT
-    );
-    volScalarField rTaucAlphaCoeff
-    (
-        (6.0/sqrtPi/da)*g0_*max(alphaSqr, residualAlpha_)
-    );
-    volScalarField rTaucAlpha("rTaucAlpha", rTaucAlphaCoeff*thetaSqrt);
+    volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
 
-    // Particle viscosity
-    volScalarField nutCoeff
+    // Bulk viscosity  p. 45 (Lun et al. 1984).
+    lambda_ = (4.0/3.0)*sqr(alpha)*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
+
+    // Stress tensor, Definitions, Table 3.1, p. 43
+    volSymmTensorField tau
     (
-        0.5*alphaSqr*(1.0 + (8.0/5.0)*eta_*(3*eta_ - 2.0)*alpha*g0_)
-       *h2Fn_*(1.0 + (8.0/5.0)*eta_*alpha*g0_)
+        rho*(2.0*nu_*D + (lambda_ - (2.0/3.0)*nu_)*tr(D)*I)
     );
 
-    nu_ =
-        nutCoeff*Theta_/(rTaupAlpha + eta_*(2.0 - eta_)*rTaucAlpha)
-      + (3.0/5.0)*lambda_;
-
-    volSymmTensorField tau(2.0*nu_*Sp + lambda_*tr(D)*I);
-
-    // 'thermal' conductivity
-    volScalarField kappaCoeff
+    // Dissipation (Eq. 3.24, p.50)
+    volScalarField gammaCoeff
     (
-        2.5*alphaSqr
-       *(
-            1.0
-          + (12.0/5.0)*sqr(eta_)*(4.0*eta_ - 3.0)*alpha*g0_
+        "gammaCoeff",
+        12.0*(1.0 - sqr(e_))
+        *max(sqr(alpha), residualAlpha_)
+        *rho*g0_*(1.0/da)*ThetaSqrt/sqrtPi
+    );
+
+    // Drag
+    volScalarField beta
+    (
+        refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()
+    );
+
+    // Eq. 3.25, p. 50 Js = J1 - J2
+    volScalarField J1("J1", 3.0*beta);
+    volScalarField J2
+    (
+        "J2",
+        0.25*sqr(beta)*da*magSqr(U - Uc)
+        /(
+            max(alpha, residualAlpha_)*rho
+            *sqrtPi*(ThetaSqrt + ThetaSmallSqrt)
         )
-       *h2Fn_*(1.0 + (12.0/5.0)*eta_*alpha*g0_)
     );
-    kappa_ =
-        kappaCoeff*Theta_
-       /(
-            3.0*rTaupAlpha
-          + 4.0*eta_*(41.0-33.0*eta_)*rTaucAlpha
-        )
-      + (3.0/2.0)*lambda_ ;
 
-    // update collisional pressure
-    volScalarField ppc(4.0*eta_*alphaSqr*g0_*Theta_ - lambda_*tr(D)) ;
-
-    volSymmTensorField S2flux
+    // particle pressure - coefficient in front of Theta (Eq. 3.22, p. 45)
+    volScalarField PsCoeff
     (
+        granularPressureModel_->granularPressureCoeff
         (
-            (h2Fn_*alpha*Theta_ + ppc)*Sp
-          - nu_*(twoSymm(Sp & gradU) - (2.0/3.0)*(Sp && gradU)*I)
-        )*2.0
-    );
-    volScalarField particleContinuityErr
-    (
-        fvc::ddt(alpha)
-      + fvc::div(alphaPhi)
-    );
-
-    fvSymmTensorMatrix SigmaEqn
-    (
-        fvm::ddt(alpha, Sigma_)
-      + fvm::div(alphaPhi, Sigma_)
-      - fvc::Sp(particleContinuityErr, Sigma_)
-      - fvm::laplacian(2.0/3.0*kappa_, Sigma_)
-     ==
-        S2flux
-      + fvm::Sp
-        (
-          - (2.0*rTaupAlpha + (3.0 - e_)*(1.0 + e_)/2.0*rTaucAlpha),
-            Sigma_
+            alpha,
+            g0_,
+            rho,
+            e_
         )
-
     );
 
-    SigmaEqn.relax();
-    SigmaEqn.solve();
+    // 'thermal' conductivity (Table 3.3, p. 49)
+    kappa_ = conductivityModel_->kappa(alpha, Theta_, g0_, rho, da, e_);
 
-    // Construct the granular temperature equation
+    fv::options& fvOptions(fv::options::New(phase_.fluid().mesh()));
+    const PhaseCompressibleTurbulenceModel<phaseModel>&
+        particleTurbulenceModel =
+            U.db().lookupObject<PhaseCompressibleTurbulenceModel<phaseModel> >
+            (
+                IOobject::groupName
+                (
+                    turbulenceModel::propertiesName,
+                    phase_.name()
+                )
+            );
+
+    // Solve Sigma equation (2nd order moments)
+    Info<<"solving Sigma"<<endl;
+    {
+        volSymmTensorField S2flux
+        (
+            "S2flux",
+            2.0
+           *(
+                h2Fn_*alpha*rho*Theta_
+              + 4.0*rho*eta_*sqr(alpha)*g0_*Theta_
+              - rho*lambda_*tr(D)
+            )*Sp
+          - 2.0*rho*alpha*nu_
+           *(
+               twoSymm(Sp & gradU)
+             - (2.0/3.0)*(Sp && gradU)*I
+            )
+        );
+
+        volScalarField rTauc
+        (
+            "rTauc",
+            6.0*ThetaSqrt*alpha*rho*g0_/(da*sqrtPi)
+        );
+
+        fvSymmTensorMatrix SigmaEqn
+        (
+            fvm::ddt(alpha, rho, Sigma_)
+          + fvm::div
+            (
+                hydrodynamicScalef(alphaRhoPhi),
+                Sigma_,
+                "div(" + alphaRhoPhi.name() + "," + Sigma_.name() + ")")
+          - fvc::Sp
+            (
+                fvc::ddt(alpha, rho)
+              + fvc::div(alphaRhoPhi),
+                Sigma_
+            )
+          - fvm::laplacian
+            (
+                kappa_, //+ rho*particleTurbulenceModel.nut()/alphaTheta_,
+                Sigma_,
+                "laplacian(kappa,Sigma)"
+            )
+         ==
+            S2flux
+          - fvm::Sp
+            (
+                2.0*beta + (3.0 - e_)*(1.0 + e_)/2.0*rTauc,
+                Sigma_
+            )
+        );
+
+        SigmaEqn.relax();
+        SigmaEqn.solve();
+    }
+
+    Info<<"solving Theta"<<endl;
+    // Construct the granular temperature equation (Eq. 3.20, p. 44)
+    // NB. note that there are two typos in Eq. 3.20:
+    //     Ps should be without grad
+    //     the laplacian has the wrong sign
     fvScalarMatrix ThetaEqn
     (
-
-        fvm::ddt(alpha, Theta_)
-      + fvm::div(alphaPhi, Theta_)
-      - fvc::Sp(particleContinuityErr, Theta_)
-      - fvm::laplacian(2.0/3.0*kappa_, Theta_)
-     ==
-        fvm::SuSp(-2.0/3.0*((PsCoeff*I) && gradU), Theta_)
-      + 2.0/3.0*(tau && gradU)
-      + fvm::Sp
+        1.5*
         (
-          - (2.0*rTaupAlpha + (1.0 - sqr(e_))*rTaucAlpha),
-            Theta_
+            fvm::ddt(alpha, rho, Theta_)
+          + fvm::div(alphaRhoPhi, Theta_)
+          - fvc::Sp(fvc::ddt(alpha, rho) + fvc::div(alphaRhoPhi), Theta_)
         )
+      - fvm::laplacian
+        (
+            kappa_ + rho*particleTurbulenceModel.nut()/alphaTheta_,
+            Theta_,
+            "laplacian(kappa,Theta)"
+        )
+     ==
+      - fvm::SuSp((PsCoeff*I) && gradU, Theta_)
+      + (tau && gradU)
+      + fvm::Sp(-gammaCoeff, Theta_)
+      + fvm::Sp(-J1, Theta_)
+      + fvm::Sp(J2/(Theta_ + ThetaSmall), Theta_)
+      + alpha*rho*particleTurbulenceModel.epsilon()
+
+      + fvOptions(alpha, rho, Theta_)
     );
 
     ThetaEqn.relax();
+    fvOptions.constrain(ThetaEqn);
     ThetaEqn.solve();
+    fvOptions.correct(Theta_);
 
     Theta_.max(0);
     Theta_.min(100);
 
-    Theta_.correctBoundaryConditions();
+    {
+        // particle viscosity (Table 3.2, p.47)
+        nu_ = viscosityModel_->nu(alpha, Theta_, g0_, rho, da, e_);
 
-    thetaSqrt = sqrt(Theta_);
+        volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
 
-    // update bulk viscosity
-    lambda_ = (8.0/3.0)/sqrtPi*da*eta_*alphaSqr*g0_*thetaSqrt;
+        // Bulk viscosity  p. 45 (Lun et al. 1984).
+        lambda_ = (4.0/3.0)*sqr(alpha)*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
 
-    // update Particle viscosity
-    nu_ =
-        nutCoeff*Theta_
-       /(
-            rTaupAlpha
-          + eta_*(2.0-eta_)*rTaucAlphaCoeff*thetaSqrt
-        )
-      + (3.0/5.0)*lambda_;
+        // Frictional pressure
+        volScalarField pf
+        (
+            frictionalStressModel_->frictionalPressure
+            (
+                phase_,
+                alphaMinFriction_,
+                alphaMax_
+            )
+        );
 
-    // Frictional pressure
-    volScalarField ppfr = frictionalStressModel_->frictionalPressure
-    (
-        phase_,
-        alphaMinFriction_,
-        alphaMax_
-    );
+        nuFric_ = frictionalStressModel_->nu
+        (
+            phase_,
+            alphaMinFriction_,
+            alphaMax_,
+            pf/rho,
+            D
+        );
 
-    // Update frictional shear viscosity
-    nuFric_ = frictionalStressModel_->nu
-    (
-        phase_,
-        alphaMinFriction_,
-        alphaMax_,
-        ppfr/rho,
-        Sp
-    );
+        // Limit viscosity and add frictional viscosity
+        nu_.min(maxNut_);
+        nuFric_ = min(nuFric_, maxNut_ - nu_);
+    }
 
     if (debug)
     {
@@ -415,7 +466,6 @@ void Foam::kineticTheoryModels::anisotropicGaussian::transportMoments()
             IOobject::groupName("phi", phase_.name())
         );
     phi = fvc::flux(phase_.U());
-    correct_ = true;
 }
 
 

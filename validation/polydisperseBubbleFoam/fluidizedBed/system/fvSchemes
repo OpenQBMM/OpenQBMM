@@ -39,8 +39,8 @@ divSchemes
     "div\(alphaRhoPhi.*,K.*\)"      Gauss limitedLinear 1;
     "div\(alphaPhi.*,p\)"           Gauss limitedLinear 1;
 
-    "div\(alphaPhi.*,Theta.*\)" Gauss limitedLinear 1;
-    "div\(alphaPhi.*,Sigma.*\)" Gauss limitedLinear 1;
+    "div\(alphaRhoPhi.*,Theta.*\)" Gauss limitedLinear 1;
+    "div\(alphaRhoPhi.*,Sigma.*\)" Gauss limitedLinear 1;
     div(Sigma2)                 Gauss linear;
     div(((alpha.gas*thermo:rho.gas)*R2)) Gauss linear;
 

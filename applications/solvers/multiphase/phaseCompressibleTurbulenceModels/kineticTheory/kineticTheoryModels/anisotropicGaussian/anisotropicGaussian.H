@@ -116,6 +116,13 @@ public:
         //- Max time-step
         virtual scalar maxUxDx() const;
 
+        //- Return fraction to be used for hydrodynamic flux
+        virtual tmp<surfaceScalarField>
+        hydrodynamicScalef(const surfaceScalarField& phi) const
+        {
+            return phi*fvc::interpolate(h2Fn_);
+        }
+
 };
 
 
