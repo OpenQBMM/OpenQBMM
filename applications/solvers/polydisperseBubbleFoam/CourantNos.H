@@ -8,7 +8,7 @@
     )*runTime.deltaTValue();
 
     // relative advection Courant number
-    for (label nodei = 0; nodei < nNodes; nodei++)
+    for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
     {
         UrCoNum =
             max
