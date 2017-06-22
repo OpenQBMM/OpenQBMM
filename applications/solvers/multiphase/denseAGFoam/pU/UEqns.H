@@ -17,8 +17,6 @@ volScalarField Kd(fluid.Kd());
 //         nu2Eff += phase1.turbulence().nu()*(pow(alpha2, -2.8) - 1.0);
 //     }
 
-    nu2Eff *= alpha2;
-
     volTensorField gradU2(fvc::grad(U2));
     volSymmTensorField Sigma2
     (

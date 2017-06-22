@@ -55,14 +55,7 @@ Foam::kineticTheoryModel::New
     }
 
     return
-        autoPtr<kineticTheoryModel>
-        (
-            cstrIter()
-            (
-                dict.subDict("kineticTheoryCoeffs"),
-                phase
-            )
-        );
+        autoPtr<kineticTheoryModel>(cstrIter()(dict, phase));
 }
 
 

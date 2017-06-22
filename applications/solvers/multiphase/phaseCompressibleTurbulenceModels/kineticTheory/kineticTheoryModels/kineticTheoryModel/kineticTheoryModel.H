@@ -286,6 +286,13 @@ public:
             return phi;
         }
 
+        //- Return fraction to be used for hydrodynamic velocity
+        virtual tmp<volVectorField>
+        hydrodynamicScale(const volVectorField& U) const
+        {
+            return U;
+        }
+
 
     // IO functions
 

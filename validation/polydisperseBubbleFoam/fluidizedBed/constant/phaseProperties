@@ -28,7 +28,7 @@ particles
 gas
 {
     type            monodispersePhaseModel;
-    residualAlpha   0;
+    residualAlpha   1e-6;
     d               1;
 }
 
@@ -63,6 +63,15 @@ drag
             type        none;
         }
     }
+//     (gas in particles)
+//     {
+//         type            SchillerNaumann;
+//         residualRe      1e-3;
+//         swarmCorrection
+//         {
+//             type        none;
+//         }
+//     }
 );
 // AG true;
 

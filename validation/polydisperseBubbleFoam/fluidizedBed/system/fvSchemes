@@ -39,9 +39,9 @@ divSchemes
     "div\(alphaRhoPhi.*,K.*\)"      Gauss limitedLinear 1;
     "div\(alphaPhi.*,p\)"           Gauss limitedLinear 1;
 
-    "div\(alphaRhoPhi.*,Theta.*\)" Gauss limitedLinear 1;
-    "div\(alphaRhoPhi.*,Sigma.*\)" Gauss limitedLinear 1;
-    div(Sigma2)                 Gauss linear;
+    "div\(alphaRhoPhi.*,Theta.*\)"  Gauss limitedLinear 1;
+    "div\(alphaRhoPhi.*,Sigma.*\)"  Gauss limitedLinear 1;
+    div(Sigma2)                     Gauss linear;
     div(((alpha.gas*thermo:rho.gas)*R2)) Gauss linear;
 
     "div\(alphaRhoPhi.*,(k|epsilon).*\)"  Gauss limitedLinear 1;
@@ -53,8 +53,8 @@ divSchemes
 
 laplacianSchemes
 {
-    default     Gauss linear uncorrected;
-    bounded     Gauss linear uncorrected;
+    default     Gauss linear corrected;
+    bounded     Gauss linear corrected;
 }
 
 interpolationSchemes
@@ -64,8 +64,8 @@ interpolationSchemes
 
 snGradSchemes
 {
-    default     uncorrected;
-    bounded     uncorrected;
+    default     corrected;
+    bounded     corrected;
 }
 
 // ************************************************************************* //

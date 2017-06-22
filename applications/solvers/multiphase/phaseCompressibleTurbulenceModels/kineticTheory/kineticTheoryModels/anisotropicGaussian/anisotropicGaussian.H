@@ -62,6 +62,8 @@ class anisotropicGaussian
 
         dimensionedScalar alphaTheta_;
 
+        dimensionedScalar alphaSigma_;
+
         dimensionedScalar eta_;
 
         // Frictional pressure
@@ -121,6 +123,13 @@ public:
         hydrodynamicScalef(const surfaceScalarField& phi) const
         {
             return phi*fvc::interpolate(h2Fn_);
+        }
+
+        //- Return fraction to be used for hydrodynamic velocity
+        virtual tmp<volVectorField>
+        hydrodynamicScale(const volVectorField& U) const
+        {
+            return U*h2Fn_;
         }
 
 };

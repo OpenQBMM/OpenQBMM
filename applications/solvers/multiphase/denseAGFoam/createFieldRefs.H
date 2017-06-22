@@ -20,7 +20,6 @@ volScalarField& rho2 = thermo2.rho();
 const volScalarField& psi2 = thermo2.psi();
 
 // AG refrences
-const volScalarField& h2Fn = mesh.lookupObject<volScalarField>("h2Fn");
 kineticTheoryModel& AGmodel =
     mesh.lookupObjectRef<kineticTheoryModel>
     (

@@ -81,9 +81,9 @@ tmp<surfaceScalarField> phiF2;
 
         // Cache the net diffusivity for implicit diffusion treatment in the
         // phase-fraction equation
-        if (implicitPhasePressure)
+//         if (implicitPhasePressure)
         {
-            fluid.pPrimeByA().ref() += (Df1 + Df2);
+            fluid.pPrimeByA().ref() += AGmodel.hydrodynamicScalef(Df1 + Df2);
         }
 
         // Size dependent volume fraction
@@ -228,7 +228,11 @@ while (pimple.correct())
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        alphaf1*(phiHbyA1 + rAUKd1*MRF.absolute(phi2))
+        alphaf1
+       *(
+            AGmodel.hydrodynamicScalef(phiHbyA1)
+          + rAUKd1*MRF.absolute(phi2)
+        )
       + alphaf2*(phiHbyA2 + rAUKd2*MRF.absolute(phi1))
     );
     MRF.makeRelative(phiHbyA);
@@ -323,7 +327,7 @@ while (pimple.correct())
     volScalarField p_rgh_0(p_rgh);
 
     // Update the pressure BCs to ensure flux consistency
-    U = h2Fn*alpha1*U1 + alpha2*U2;
+    U = AGmodel.hydrodynamicScale(alpha1*U1) + alpha2*U2;
     constrainPressure(p, U, phiHbyA, rAUf);
 
     while (pimple.correctNonOrthogonal())
@@ -403,7 +407,15 @@ while (pimple.correct())
                 U = alpha1*(Us1 + D1*U2) + alpha2*(Us2 + D2*U1);
                 volVectorField Ur(((1 - D2)*Us1 - (1 - D1)*Us2)/(1 - D1*D2));
 
-                U1 = U + alpha2*Ur;
+                U1 =
+                    U
+                  + alpha2*Ur
+                  - fvc::reconstruct
+                    (
+                        fluid.pPrimeByA()()*fvc::snGrad(alpha1, "bounded")
+                       *mesh.magSf()
+                    );
+
                 U1.correctBoundaryConditions();
 //                 fvOptions.correct(U1);
 
@@ -415,7 +427,6 @@ while (pimple.correct())
             }
         }
     }
-    phi1S = phi1 + phig1;
 
     // Update and limit the static pressure
     p = max(p_rgh + rho*gh, pMin);

@@ -95,6 +95,12 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
         dimensionSet(0, 0, 0, 0, 0),
         dict.lookup("alphaTheta")
     ),
+    alphaSigma_
+    (
+        "alphaSigma",
+        dimensionSet(0, 0, 0, 0, 0),
+        dict.lookup("alphaSigma")
+    ),
     eta_(0.5*(1.0 + e_)),
     ppfr_
     (
@@ -174,8 +180,8 @@ void Foam::kineticTheoryModels::anisotropicGaussian::updateViscosities()
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
 
     volScalarField alphaSqr(sqr(alpha));
-    volScalarField thetaSqrt(sqrt(Theta_));
-    volScalarField Kd
+    volScalarField ThetaSqrt(sqrt(Theta_));
+    volScalarField beta
     (
         refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()
     );
@@ -183,21 +189,30 @@ void Foam::kineticTheoryModels::anisotropicGaussian::updateViscosities()
     g0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
 
     // bulk viscosity
-    lambda_ = (8.0/3.0)/sqrtPi*da*eta_*alphaSqr*g0_*thetaSqrt;
+    lambda_ = (8.0/3.0)/sqrtPi*da*eta_*alphaSqr*g0_*ThetaSqrt;
 
-    volScalarField rTaupAlpha("rTaupAlpha", Kd/rho + smallRT );
-    volScalarField rTaucAlpha
+    volScalarField rTauc
     (
-        "rTaucAlpha",
-        (6.0/sqrtPi/da)*g0_*max(alphaSqr, residualAlpha_)*thetaSqrt
+        "rTauc",
+        6.0*ThetaSqrt*alpha*rho*g0_/(da*sqrtPi)
     );
 
     // Particle viscosity
     nu_ =
-        0.5*alphaSqr*(1.0 + (8.0/5.0)*eta_*(3*eta_ - 2.0)*alpha*g0_)
-       *(h2Fn_ + (8.0/5.0)*eta_*alpha*g0_)
-       *Theta_/(rTaupAlpha + eta_*(2.0 - eta_)*rTaucAlpha)
-      + (3.0/5.0)*lambda_;
+        (
+            1.0 +  8.0/5.0*eta_*alpha*g0_
+        )*h2Fn_
+       *(
+            Theta_
+           /(
+                beta
+              + rTauc*eta_*(2.0 - eta_)
+            )*(1.0 + 8.0/5.0*eta_*(3.0*eta_ - 2.0)*alpha*g0_)
+        )
+      + 3.0/5.0
+       *(
+            8.0/3.0*eta_*alpha*g0_*da*ThetaSqrt/sqrtPi
+        );
 
     // Frictional pressure
     ppfr_ = frictionalStressModel_->frictionalPressure
@@ -218,7 +233,9 @@ void Foam::kineticTheoryModels::anisotropicGaussian::updateViscosities()
 
     // Limit viscosity and add frictional viscosity
     nu_.min(maxNut_);
+    nu_.max(1e-10);
     nuFric_ = min(nuFric_, maxNut_ - nu_);
+    nuFric_.max(1e-10);
 }
 
 
@@ -314,7 +331,6 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
             );
 
     // Solve Sigma equation (2nd order moments)
-    Info<<"solving Sigma"<<endl;
     {
         volSymmTensorField S2flux
         (
@@ -345,7 +361,8 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
             (
                 hydrodynamicScalef(alphaRhoPhi),
                 Sigma_,
-                "div(" + alphaRhoPhi.name() + "," + Sigma_.name() + ")")
+                "div(" + alphaRhoPhi.name() + "," + Sigma_.name() + ")"
+            )
           - fvc::Sp
             (
                 fvc::ddt(alpha, rho)
@@ -354,7 +371,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
             )
           - fvm::laplacian
             (
-                kappa_, //+ rho*particleTurbulenceModel.nut()/alphaTheta_,
+                kappa_ + rho*particleTurbulenceModel.nut()/alphaSigma_,
                 Sigma_,
                 "laplacian(kappa,Sigma)"
             )
@@ -371,7 +388,6 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
         SigmaEqn.solve();
     }
 
-    Info<<"solving Theta"<<endl;
     // Construct the granular temperature equation (Eq. 3.20, p. 44)
     // NB. note that there are two typos in Eq. 3.20:
     //     Ps should be without grad

@@ -95,14 +95,17 @@ int main(int argc, char *argv[])
         #include "readTimeControls.H"
         #include "CourantNos.H"
         #include "setDeltaT.H"
-        runTime.setDeltaT
-        (
-            min
+        if (adjustTimeStep)
+        {
+            runTime.setDeltaT
             (
-                runTime.deltaT(),
-                AGmodel.maxUxDx()*runTime.deltaT()
-            )
-        );
+                min
+                (
+                    runTime.deltaT(),
+                    AGmodel.maxUxDx()*runTime.deltaT()
+                )
+            );
+        }
 
         runTime++;
 
@@ -111,7 +114,6 @@ int main(int argc, char *argv[])
         AGmodel.transportMoments();
         alpha2 = 1.0 - alpha1;
         ddtAlpha1Dilute = fvc::ddt(alpha1);
-        surfaceScalarField h2Fnf("h2Fnf", fvc::interpolate(h2Fn));
 
 
         // --- Pressure-velocity PIMPLE corrector loop
@@ -119,7 +121,25 @@ int main(int argc, char *argv[])
         {
             #include "contErrs.H"
 
-			#include "alphaEqn.H"
+            {
+                phi1 = AGmodel.hydrodynamicScalef(phi1);
+                alphaPhi1 = fvc::interpolate(alpha1)*phi1;
+                alphaRhoPhi1 = phase1.alphaPhi()*fvc::interpolate(rho1);
+
+                phi =
+                    fvc::interpolate(alpha1)*phi1
+                  + fvc::interpolate(alpha2)*phi2;
+
+                fluid.pPrimeByA().ref() =
+                    AGmodel.hydrodynamicScalef
+                    (
+                        fluid.pPrimeByA()()
+                    );
+
+                fluid.solve();
+                  //#include "alphaEqn.H"
+            }
+
 			#include "pU/UEqns.H"
 
             #include "pU/pEqn.H"
