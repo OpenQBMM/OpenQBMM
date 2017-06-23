@@ -169,76 +169,6 @@ Foam::kineticTheoryModels::anisotropicGaussian::~anisotropicGaussian()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::kineticTheoryModels::anisotropicGaussian::updateViscosities()
-{
-
-    // Local references
-    const dimensionedScalar smallRT("small",dimensionSet(0, 0, -1, 0, 0), SMALL);
-    volScalarField alpha = max(phase_, scalar(0));
-    const volScalarField& rho = phase_.rho();
-    const volScalarField& da = phase_.d();
-    const scalar sqrtPi = sqrt(constant::mathematical::pi);
-
-    volScalarField alphaSqr(sqr(alpha));
-    volScalarField ThetaSqrt(sqrt(Theta_));
-    volScalarField beta
-    (
-        refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()
-    );
-
-    g0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
-
-    // bulk viscosity
-    lambda_ = (8.0/3.0)/sqrtPi*da*eta_*alphaSqr*g0_*ThetaSqrt;
-
-    volScalarField rTauc
-    (
-        "rTauc",
-        6.0*ThetaSqrt*alpha*rho*g0_/(da*sqrtPi)
-    );
-
-    // Particle viscosity
-    nu_ =
-        (
-            1.0 +  8.0/5.0*eta_*alpha*g0_
-        )*h2Fn_
-       *(
-            Theta_
-           /(
-                beta
-              + rTauc*eta_*(2.0 - eta_)
-            )*(1.0 + 8.0/5.0*eta_*(3.0*eta_ - 2.0)*alpha*g0_)
-        )
-      + 3.0/5.0
-       *(
-            8.0/3.0*eta_*alpha*g0_*da*ThetaSqrt/sqrtPi
-        );
-
-    // Frictional pressure
-    ppfr_ = frictionalStressModel_->frictionalPressure
-    (
-        phase_,
-        alphaMinFriction_,
-        alphaMax_
-    );
-
-    nuFric_ = frictionalStressModel_->nu
-    (
-        phase_,
-        alphaMinFriction_,
-        alphaMax_,
-        ppfr_/rho,
-        symm(fvc::grad(phase_.U()))
-    );
-
-    // Limit viscosity and add frictional viscosity
-    nu_.min(maxNut_);
-    nu_.max(1e-10);
-    nuFric_ = min(nuFric_, maxNut_ - nu_);
-    nuFric_.max(1e-10);
-}
-
-
 void Foam::kineticTheoryModels::anisotropicGaussian::correct()
 {
     // Local references
@@ -262,26 +192,18 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
     // Calculating the radial distribution function
     g0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
 
-    // Particle viscosity (Table 3.2, p.47)
-    nu_ = viscosityModel_->nu(alpha, Theta_, g0_, rho, da, e_);
-
     volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
+    volScalarField alphaSqr("alphaSqr", sqr(alpha));
 
     // Bulk viscosity  p. 45 (Lun et al. 1984).
-    lambda_ = (4.0/3.0)*sqr(alpha)*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
-
-    // Stress tensor, Definitions, Table 3.1, p. 43
-    volSymmTensorField tau
-    (
-        rho*(2.0*nu_*D + (lambda_ - (2.0/3.0)*nu_)*tr(D)*I)
-    );
+    lambda_ = (4.0/3.0)*alphaSqr*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
 
     // Dissipation (Eq. 3.24, p.50)
     volScalarField gammaCoeff
     (
         "gammaCoeff",
         12.0*(1.0 - sqr(e_))
-        *max(sqr(alpha), residualAlpha_)
+        *max(alphaSqr, residualAlpha_)
         *rho*g0_*(1.0/da)*ThetaSqrt/sqrtPi
     );
 
@@ -289,6 +211,18 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
     volScalarField beta
     (
         refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()
+    );
+
+    volScalarField rTaup
+    (
+        "rTaup",
+        beta/rho
+    );
+
+    volScalarField rTauc
+    (
+        "rTauc",
+        6.0*ThetaSqrt*max(alpha, residualAlpha_)*g0_/(da*sqrtPi)
     );
 
     // Eq. 3.25, p. 50 Js = J1 - J2
@@ -303,20 +237,55 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
         )
     );
 
-    // particle pressure - coefficient in front of Theta (Eq. 3.22, p. 45)
-    volScalarField PsCoeff
+//     // particle pressure - coefficient in front of Theta (Eq. 3.22, p. 45)
+//     volScalarField PsCoeff
+//     (
+//         granularPressureModel_->granularPressureCoeff
+//         (
+//             alpha,
+//             g0_,
+//             rho,
+//             e_
+//         )
+//     );
+//
+//     // Particle viscosity (Table 3.2, p.47)
+//     nu_ = viscosityModel_->nu(alpha, Theta_, g0_, rho, da, e_);
+//
+//
+//     // 'thermal' conductivity (Table 3.3, p. 49)
+//     kappa_ = conductivityModel_->kappa(alpha, Theta_, g0_, rho, da, e_);
+
+    // particle pressure, move bulk viscosity part to tau
+    volScalarField  PsCoeff = rho*alpha*(h2Fn_ + 4.0*eta_*alpha*g0_);
+
+    volScalarField nupb
     (
-        granularPressureModel_->granularPressureCoeff
-        (
-            alpha,
-            g0_,
-            rho,
-            e_
-        )
+        "nupb",
+        8.0/3.0*alpha*g0_*da*ThetaSqrt/sqrtPi
     );
 
-    // 'thermal' conductivity (Table 3.3, p. 49)
-    kappa_ = conductivityModel_->kappa(alpha, Theta_, g0_, rho, da, e_);
+    // Particle viscosity
+    nu_ =
+        (1.0 + 8.0/5.0*alpha*g0_)*h2Fn_
+       *0.5*Theta_/(rTaup + eta_*(2.0 - eta_)*rTauc)
+       *(1.0 + 8.0/5.0*eta_*(3.0*eta_ - 2.0)*alpha*g0_)
+      + 3.0/5.0*nupb;
+
+      // Stress tensor, Definitions, Table 3.1, p. 43
+    volSymmTensorField tau
+    (
+        rho*(2.0*nu_*D + (lambda_ - (2.0/3.0)*nu_)*tr(D)*I)
+    );
+
+    // 'thermal' conductivity
+    kappa_ =
+    (
+        (1.0 + 12.0/5.0*eta_*alpha*g0_)*h2Fn_
+       *5.0/2.0*Theta_/(3.0*rTaup + 4.0*eta_*(41.0 - 33.0*eta_)*rTauc)
+       *(1.0 + 12.0/5.0*sqr(eta_)*(4.0*eta_ - 3.0)*alpha*g0_)
+      + 3.0/2.0*nupb
+    )*rho;
 
     fv::options& fvOptions(fv::options::New(phase_.fluid().mesh()));
     const PhaseCompressibleTurbulenceModel<phaseModel>&
@@ -338,7 +307,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
             2.0
            *(
                 h2Fn_*alpha*rho*Theta_
-              + 4.0*rho*eta_*sqr(alpha)*g0_*Theta_
+              + 4.0*rho*eta_*alphaSqr*g0_*Theta_
               - rho*lambda_*tr(D)
             )*Sp
           - 2.0*rho*alpha*nu_
@@ -346,12 +315,6 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
                twoSymm(Sp & gradU)
              - (2.0/3.0)*(Sp && gradU)*I
             )
-        );
-
-        volScalarField rTauc
-        (
-            "rTauc",
-            6.0*ThetaSqrt*alpha*rho*g0_/(da*sqrtPi)
         );
 
         fvSymmTensorMatrix SigmaEqn
@@ -379,7 +342,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
             S2flux
           - fvm::Sp
             (
-                2.0*beta + (3.0 - e_)*(1.0 + e_)/2.0*rTauc,
+                alpha*(2.0*beta + (3.0 - e_)*(1.0 + e_)/2.0*rTauc*rho),
                 Sigma_
             )
         );
@@ -425,24 +388,23 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
     Theta_.max(0);
     Theta_.min(100);
 
+    ThetaSqrt = sqrt(Theta_);
+
     {
-        // particle viscosity (Table 3.2, p.47)
-        nu_ = viscosityModel_->nu(alpha, Theta_, g0_, rho, da, e_);
-
-        volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
-
         // Bulk viscosity  p. 45 (Lun et al. 1984).
-        lambda_ = (4.0/3.0)*sqr(alpha)*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
+        lambda_ = (4.0/3.0)*alphaSqr*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
+
+        // particle viscosity (Table 3.2, p.47)
+        nu_ =
+            0.5*Theta_/(rTaup + eta_*(2.0 - eta_)*rTauc)
+           *(1.0 + 8.0/5.0*eta_*(3.0*eta_ - 2.0)*alpha*g0_);
 
         // Frictional pressure
-        volScalarField pf
+        ppfr_ = frictionalStressModel_->frictionalPressure
         (
-            frictionalStressModel_->frictionalPressure
-            (
-                phase_,
-                alphaMinFriction_,
-                alphaMax_
-            )
+            phase_,
+            alphaMinFriction_,
+            alphaMax_
         );
 
         nuFric_ = frictionalStressModel_->nu
@@ -450,7 +412,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
             phase_,
             alphaMinFriction_,
             alphaMax_,
-            pf/rho,
+            ppfr_/rho,
             D
         );
 

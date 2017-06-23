@@ -17,22 +17,27 @@ volScalarField Kd(fluid.Kd());
 //         nu2Eff += phase1.turbulence().nu()*(pow(alpha2, -2.8) - 1.0);
 //     }
 
-    volTensorField gradU2(fvc::grad(U2));
     volSymmTensorField Sigma2
     (
         "Sigma2",
-        nu2Eff*(twoSymm(gradU2) - (2.0/3.0)*tr(gradU2)*I)
+        nu2Eff*dev(twoSymm(fvc::grad(U2)))
     );
-    volTensorField R2("R2",nu2Eff*gradU2 - Sigma2);
 
     U1Eqn =
         (
-            fvm::ddt(alpha1, rho1, U1) + fvm::div(alphaRhoPhi1, U1)
+            fvm::ddt(alpha1, rho1, U1)
+          + fvm::div
+            (
+                AGmodel.hydrodynamicScalef(alphaRhoPhi1),
+                U1,
+                "div(" + alphaRhoPhi1.name() + "," + U1.name() +")"
+            )
           - fvm::Sp(contErr1, U1)
           + MRF.DDt(alpha1*rho1, U1)
+
           + fluid.divDevRhoReff1()
          ==
-            rho2*alpha1*fvc::div(Sigma2)
+            alpha1*rho2/rho1*fvc::div(phase1.turbulence().devRhoReff())
           + fvOptions(alpha1, rho1, U1)
         );
 
@@ -48,8 +53,7 @@ volScalarField Kd(fluid.Kd());
           - fvm::Sp(contErr2, U2)
           + MRF.DDt(alpha2*rho2, U2)
 
-          - fvm::laplacian(alpha2*rho2*nu2Eff, U2)
-          + fvc::div(alpha2*rho2*R2)
+          + fluid.divDevRhoReff2()
          ==
             fvOptions(alpha2, rho2, U2)
         );

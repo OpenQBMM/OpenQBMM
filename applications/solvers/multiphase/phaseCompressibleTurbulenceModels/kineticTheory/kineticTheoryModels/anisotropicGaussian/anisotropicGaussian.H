@@ -106,9 +106,6 @@ public:
 
     // Member Functions
 
-        //- Update viscosities
-        virtual void updateViscosities();
-
         //- Update kinetic theory quantities
         virtual void correct();
 
