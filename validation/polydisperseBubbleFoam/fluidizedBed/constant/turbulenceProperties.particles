@@ -30,7 +30,7 @@ RAS
 
         alphaTheta              1.0;
         alphaSigma              1.0;
-        e                       0.9;
+        e                       0.8;
         alphaMax                0.62;
         alphaMinFriction        0.5;
         residualAlpha           1e-4;

@@ -113,36 +113,37 @@ int main(int argc, char *argv[])
 
         AGmodel.transportMoments();
         alpha2 = 1.0 - alpha1;
-        ddtAlpha1Dilute = fvc::ddt(alpha1);
 
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
             #include "contErrs.H"
-
             {
-                phi1 = AGmodel.hydrodynamicScalef(phi1);
+                surfaceScalarField phiOld = phi1;
+
+                surfaceScalarField pPrimeByA = fluid.pPrimeByA()();
+                phi1 = AGmodel.hydrodynamicScalef
+                (
+                    phi1
+                  + pPrimeByA*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
+                );
+
                 alphaPhi1 = fvc::interpolate(alpha1)*phi1;
                 alphaRhoPhi1 = phase1.alphaPhi()*fvc::interpolate(rho1);
 
-                phi =
-                    fvc::interpolate(alpha1)*phi1
-                  + fvc::interpolate(alpha2)*phi2;
-
                 fluid.pPrimeByA().ref() =
-                    AGmodel.hydrodynamicScalef
-                    (
-                        fluid.pPrimeByA()()
-                    );
+                    AGmodel.hydrodynamicScalef(pPrimeByA);
 
                 fluid.solve();
-                  //#include "alphaEqn.H"
+                fluid.correct();
+
+                phi1 = phiOld;
             }
 
 			#include "pU/UEqns.H"
-
             #include "pU/pEqn.H"
+            #include "pU/DDtU.H"
 
             if (pimple.turbCorr())
             {

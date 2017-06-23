@@ -111,18 +111,6 @@ volScalarField K2(IOobject::groupName("K", phase2.name()), 0.5*magSqr(U2));
 
 #include "createMRF.H"
 
-volScalarField ddtAlpha1Dilute
-(
-    IOobject
-    (
-        "ddtAG",
-        runTime.timeName(),
-        mesh
-    ),
-    mesh,
-    dimensionedScalar("zero", dimensionSet(0, 0, -1, 0, 0), 0.0)
-);
-
 fluid.pPrimeByA() = tmp<surfaceScalarField>
 (
     new surfaceScalarField

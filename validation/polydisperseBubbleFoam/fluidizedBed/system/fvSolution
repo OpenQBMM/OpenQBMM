@@ -25,8 +25,8 @@ solvers
         smoothLimiter   0.1;
 
         implicitPhasePressure yes;
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
+        solver          GAMG;
+        smoother        DIC;
         tolerance       1e-9;
         relTol          0;
         minIter         1;
@@ -36,7 +36,6 @@ solvers
     {
         solver          GAMG;
         smoother        DIC;
-        preconditioner  DIC;
         nPreSweeps      0;
         nPostSweeps     2;
         nFinestSweeps   2;

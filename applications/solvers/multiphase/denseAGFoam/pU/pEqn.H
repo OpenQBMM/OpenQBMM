@@ -1,7 +1,9 @@
 surfaceScalarField alphaf1("alphaf1", fvc::interpolate(alpha1));
 surfaceScalarField alphaf2("alphaf2", scalar(1) - alphaf1);
-rAU1 =
+
+volScalarField rAU1
 (
+    IOobject::groupName("rAU", phase1.name()),
     1.0
    /(
         U1Eqn.A()
@@ -9,9 +11,9 @@ rAU1 =
        *rho1/runTime.deltaT()
     )
 );
-
-rAU2 =
+volScalarField rAU2
 (
+    IOobject::groupName("rAU", phase2.name()),
     1.0
    /(
         U2Eqn.A()
@@ -19,20 +21,48 @@ rAU2 =
        *rho2/runTime.deltaT()
     )
 );
-Info<< "pEqn: " << endl;
+
 surfaceScalarField alpharAUf1
 (
     fvc::interpolate(max(alpha1, phase1.residualAlpha())*rAU1)
 );
-
 surfaceScalarField alpharAUf2
 (
     fvc::interpolate(max(alpha2, phase2.residualAlpha())*rAU2)
 );
 
+// Turbulent diffusion, particle-pressure, lift and wall-lubrication fluxes
 tmp<surfaceScalarField> phiF1;
 tmp<surfaceScalarField> phiF2;
 {
+    // Turbulent-dispersion diffusivity
+//     volScalarField D(fluid.D());
+
+    // Phase-1 turbulent dispersion and particle-pressure flux
+    surfaceScalarField Df1
+    (
+        fvc::interpolate
+        (
+            rAU1*(phase1.turbulence().pPrime())
+        )
+    );
+
+    // Phase-2 turbulent dispersion and particle-pressure flux
+    surfaceScalarField Df2
+    (
+        fvc::interpolate
+        (
+            rAU2*(phase2.turbulence().pPrime())
+        )
+    );
+
+    // Cache the net diffusivity for implicit diffusion treatment in the
+    // phase-fraction equation
+    if (implicitPhasePressure)
+    {
+        fluid.pPrimeByA() = Df1 + Df2;
+    }
+
     // Lift and wall-lubrication forces
     volVectorField F(fluid.F());
 
@@ -40,63 +70,12 @@ tmp<surfaceScalarField> phiF2;
     surfaceScalarField snGradAlpha1(fvc::snGrad(alpha1)*mesh.magSf());
 
     // Phase-1 dispersion, lift and wall-lubrication flux
-    phiF1 = fvc::flux(rAU1*F);
+    phiF1 = Df1*snGradAlpha1 + fvc::flux(rAU1*F);
 
     // Phase-1 dispersion, lift and wall-lubrication flux
-    phiF2 = - fvc::flux(rAU2*F);
-
-    volScalarField pPrime1(phase1.turbulence().pPrime());
-    volScalarField pPrime2(phase2.turbulence().pPrime());
-
-    // Set pPrimeByA to zero so that size dependent dispersion can be summed
-    fluid.pPrimeByA() = tmp<surfaceScalarField>
-    (
-        new surfaceScalarField
-        (
-            IOobject
-            (
-                "pPrimeByA",
-                runTime.timeName(),
-                mesh
-            ),
-            mesh,
-            dimensionedScalar
-            (
-                "0",
-                pPrime1.dimensions()*rAU1.dimensions(),
-                0.0
-            )
-        )
-    );
-
-    for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
-    {
-        volScalarField Di = fluid.D(nodei);
-
-        // Phase-1 turbulent dispersion and particle-pressure flux
-        surfaceScalarField Df1(fvc::interpolate(rAU1*(Di + pPrime1)));
-
-        // Phase-2 turbulent dispersion and particle-pressure flux
-        surfaceScalarField Df2(fvc::interpolate(rAU2*(Di + pPrime2)));
-
-        // Cache the net diffusivity for implicit diffusion treatment in the
-        // phase-fraction equation
-//         if (implicitPhasePressure)
-        {
-            fluid.pPrimeByA().ref() += AGmodel.hydrodynamicScalef(Df1 + Df2);
-        }
-
-        // Size dependent volume fraction
-        surfaceScalarField snGradAlpha1
-        (
-            fvc::snGrad(phase1.alphas(nodei))*mesh.magSf()
-        );
-
-        // Add size dependent dispersion contribution to phiF
-        phiF1.ref() += fvc::interpolate(rAU1*Di)*snGradAlpha1;
-        phiF2.ref() -= fvc::interpolate(rAU2*Di)*snGradAlpha1;
-    }
+    phiF2 = - Df2*snGradAlpha1 - fvc::flux(rAU2*F);
 }
+
 
 // --- Pressure corrector loop
 while (pimple.correct())
@@ -166,8 +145,8 @@ while (pimple.correct())
 
     // ddtPhiCorr filter -- only apply in pure(ish) phases
     surfaceScalarField alphaf1Bar(fvc::interpolate(fvc::average(alphaf1)));
-    surfaceScalarField phiCorrCoeff1(pos(alphaf1Bar - 0.99));
-    surfaceScalarField phiCorrCoeff2(pos(0.01 - alphaf1Bar));
+    surfaceScalarField phiCorrCoeff1(pos0(alphaf1Bar - 0.99));
+    surfaceScalarField phiCorrCoeff2(pos0(0.01 - alphaf1Bar));
 
     {
         surfaceScalarField::Boundary& phiCorrCoeff1Bf =
@@ -228,11 +207,7 @@ while (pimple.correct())
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        alphaf1
-       *(
-            AGmodel.hydrodynamicScalef(phiHbyA1)
-          + rAUKd1*MRF.absolute(phi2)
-        )
+        alphaf1*(phiHbyA1 + rAUKd1*MRF.absolute(phi2))
       + alphaf2*(phiHbyA2 + rAUKd2*MRF.absolute(phi1))
     );
     MRF.makeRelative(phiHbyA);
@@ -326,18 +301,14 @@ while (pimple.correct())
     // Cache p prior to solve for density update
     volScalarField p_rgh_0(p_rgh);
 
-    // Update the pressure BCs to ensure flux consistency
-    U = AGmodel.hydrodynamicScale(alpha1*U1) + alpha2*U2;
-    constrainPressure(p, U, phiHbyA, rAUf);
-
+    // Iterate over the pressure equation to correct for non-orthogonality
     while (pimple.correctNonOrthogonal())
     {
+        // Construct the transport part of the pressure equation
         fvScalarMatrix pEqnIncomp
         (
             fvc::div(phiHbyA)
           - fvm::laplacian(rAUf, p_rgh)
-        ==
-            ddtAlpha1Dilute
         );
 
         solve
@@ -407,21 +378,13 @@ while (pimple.correct())
                 U = alpha1*(Us1 + D1*U2) + alpha2*(Us2 + D2*U1);
                 volVectorField Ur(((1 - D2)*Us1 - (1 - D1)*Us2)/(1 - D1*D2));
 
-                U1 =
-                    U
-                  + alpha2*Ur
-                  - fvc::reconstruct
-                    (
-                        fluid.pPrimeByA()()*fvc::snGrad(alpha1, "bounded")
-                       *mesh.magSf()
-                    );
-
+                U1 = U + alpha2*Ur;
                 U1.correctBoundaryConditions();
-//                 fvOptions.correct(U1);
+                fvOptions.correct(U1);
 
                 U2 = U - alpha1*Ur;
                 U2.correctBoundaryConditions();
-//                 fvOptions.correct(U2);
+                fvOptions.correct(U2);
 
                 U = fluid.U();
             }
