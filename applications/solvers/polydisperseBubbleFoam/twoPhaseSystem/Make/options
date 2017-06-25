@@ -14,7 +14,7 @@ EXE_INC = \
     -I../../../../src/quadratureMethods/quadratureNode \
     -I../../../../src/quadratureMethods/moments \
     -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I../../../../src/quadratureMethods/quadratureApproximation \
+    -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
     -I../../../../src/quadratureMethods/monoKineticQuadratureApproximation/lnInclude \
     -I../../../../src/Vandermonde/lnInclude
 
@@ -26,5 +26,5 @@ EXE_LIBS = \
     -lspecie \
     -lmomentSet \
     -lfieldMomentInversion \
-    -lmonoKineticQuadratureApproximation \
+    -lquadratureApproximation \
     -lvandermonde

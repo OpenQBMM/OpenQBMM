@@ -77,7 +77,7 @@ Foam::populationBalanceSubModels::breakupKernels::constantBreakup::Kb
     const label& celli
 ) const
 {
-    return Cb_.value()*pos(abscissa - minAbscissa_.value());
+    return Cb_.value()*pos0(abscissa - minAbscissa_.value());
 }
 
 // ************************************************************************* //

@@ -76,10 +76,10 @@ Foam::aspectRatioModels::VakhrushevEfremov::E
     volScalarField Ta(pair_.Ta(nodei,nodej));
 
     return
-        neg(Ta - scalar(1))*scalar(1)
-      + pos(Ta - scalar(1))*neg(Ta - scalar(39.8))
+        neg0(Ta - scalar(1))*scalar(1)
+      + pos0(Ta - scalar(1))*neg0(Ta - scalar(39.8))
        *pow3(0.81 + 0.206*tanh(1.6 - 2*log10(max(Ta, scalar(1)))))
-      + pos(Ta - scalar(39.8))*0.24;
+      + pos0(Ta - scalar(39.8))*0.24;
 }
 
 

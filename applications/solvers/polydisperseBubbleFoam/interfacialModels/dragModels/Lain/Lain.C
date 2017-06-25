@@ -71,10 +71,10 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::Lain::CdRe
     volScalarField Re(pair_.Re(nodei,nodej));
 
     return
-        neg(Re - 1.5)*16.0
-      + pos(Re - 1.5)*neg(Re - 80.0)*14.9*pow(Re, 0.22)
-      + pos(Re - 80.0)*neg(Re - 1500.0)*48*(1.0 - 2.21/sqrt(max(Re, SMALL)))
-      + pos(Re - 1500.0)*2.61*Re;
+        neg0(Re - 1.5)*16.0
+      + pos0(Re - 1.5)*neg0(Re - 80.0)*14.9*pow(Re, 0.22)
+      + pos0(Re - 80.0)*neg0(Re - 1500.0)*48*(1.0 - 2.21/sqrt(max(Re, SMALL)))
+      + pos0(Re - 1500.0)*2.61*Re;
 }
 
 
