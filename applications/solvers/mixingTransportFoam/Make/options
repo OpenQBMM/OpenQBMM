@@ -13,7 +13,7 @@ EXE_INC = \
     -I$../../../../src/quadratureMethods/quadratureNode \
     -I$../../../../src/quadratureMethods/moments \
     -I$../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I$../../../../src/quadratureMethods/quadratureApproximation \
+    -I$../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
     -I$../../../../src/quadratureMethods/momentAdvection/lnInclude \
     -I$../../../../src/quadratureMethods/mixingModels/lnInclude
 
