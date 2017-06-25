@@ -24,7 +24,7 @@
     {
         surfaceScalarField phib =
             fvc::flux(Us[nodeI])
-           *neg0(residualAlpha - fvc::interpolate(alphas[nodeI]));
+           *neg(residualAlpha - fvc::interpolate(alphas[nodeI]));
         maxPhi = max(mag(phib), maxPhi);
     }
     rDeltaT.ref() = max

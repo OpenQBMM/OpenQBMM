@@ -79,7 +79,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::SyamlalOBrien::CdRe
     volScalarField A(pow(alpha2, 4.14));
     volScalarField B
     (
-        neg0(alpha2 - 0.85)*(0.8*pow(alpha2, 1.28))
+        neg(alpha2 - 0.85)*(0.8*pow(alpha2, 1.28))
       + pos0(alpha2 - 0.85)*(pow(alpha2, 2.65))
     );
     volScalarField Re(pair_.Re(nodei,nodej));
