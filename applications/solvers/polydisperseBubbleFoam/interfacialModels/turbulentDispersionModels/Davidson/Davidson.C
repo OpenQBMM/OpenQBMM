@@ -109,7 +109,7 @@ Foam::turbulentDispersionModels::Davidson::D
         (
             pair_.continuous(),
             pair_.continuous().residualAlpha()
-        )*pos(pair_.dispersed().alphas(nodei) - 0.001);
+        )*pos0(pair_.dispersed().alphas(nodei) - 0.001);
 }
 
 

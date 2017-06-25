@@ -116,7 +116,7 @@ Foam::turbulentDispersionModels::Panicker::D
        *pair_.continuous().rho()
        *sqr(pair_.continuous().nu()/d)
        *pair_.Re(nodei, nodej)
-       *pos(pair_.dispersed().alphas(nodei) - 0.001)
+       *pos0(pair_.dispersed().alphas(nodei) - 0.001)
        *alpha1*(1 - a*alpha1 + b*sqr(alpha1));
 }
 

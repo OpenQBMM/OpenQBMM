@@ -267,7 +267,7 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
         this->refValue() = 0.0;
 
         this->refGrad() =
-            pos(alpha - SMALL)
+            pos0(alpha - SMALL)
            *constant::mathematical::pi
            *specularityCoefficient_.value()
            *alpha

@@ -78,8 +78,8 @@ Foam::populationBalanceSubModels::growthModels::constantGrowth::Kg
     const scalar& abscissa
 ) const
 {
-    return Cg_.value()*pos(-abscissa + maxAbscissa_.value())
-            *pos(abscissa - minAbscissa_.value());
+    return Cg_.value()*pos0(-abscissa + maxAbscissa_.value())
+            *pos0(abscissa - minAbscissa_.value());
 }
 
 // ************************************************************************* //

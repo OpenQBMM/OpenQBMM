@@ -83,9 +83,9 @@ Foam::wallLubricationModels::TomiyamaWallLubrication::Fi
 
     return
         (
-            pos(Eo - 1.0)*neg(Eo - 5.0)*exp(-0.933*Eo + 0.179)
-          + pos(Eo - 5.0)*neg(Eo - 33.0)*(0.00599*Eo - 0.0187)
-          + pos(Eo - 33.0)*0.179
+            pos0(Eo - 1.0)*neg0(Eo - 5.0)*exp(-0.933*Eo + 0.179)
+          + pos0(Eo - 5.0)*neg0(Eo - 33.0)*(0.00599*Eo - 0.0187)
+          + pos0(Eo - 33.0)*0.179
         )
        *0.5
        *pair_.dispersed().ds(nodei)

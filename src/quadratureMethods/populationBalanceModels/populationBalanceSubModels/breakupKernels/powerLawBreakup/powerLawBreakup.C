@@ -78,7 +78,7 @@ Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup::Kb
     const label& celli
 ) const
 {
-    return Cb_.value()*pos(abscissa - minAbscissa_.value())
+    return Cb_.value()*pos0(abscissa - minAbscissa_.value())
             *pow(abscissa, abscissaExponent_);
 }
 
