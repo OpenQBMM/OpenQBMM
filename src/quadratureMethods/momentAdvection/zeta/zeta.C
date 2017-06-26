@@ -289,7 +289,7 @@ Foam::scalar Foam::zeta::realizableCo()
 
     internalCo = 1.0/(internalCo + 1.0);
 
-    return min(gMin(internalCo), 1.0/3.0);
+    return gMin(internalCo);
 }
 
 void Foam::zeta::update()
