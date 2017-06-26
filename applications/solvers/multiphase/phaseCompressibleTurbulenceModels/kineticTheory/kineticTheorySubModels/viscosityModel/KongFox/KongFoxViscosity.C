@@ -67,31 +67,21 @@ Foam::tmp<Foam::volScalarField> Foam::kineticTheoryModels::KongFox::nu
 {
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
     const dimensionedScalar eta = 0.5*(1.0 + e);
-    const volScalarField& h2Fn =
-        alpha1.mesh().lookupObject<volScalarField>("h2Fn");
 
     // Drag
     volScalarField beta
     (
         refCast<const twoPhaseSystem>(alpha1.fluid()).drag(alpha1).K()
     );
-
-    volScalarField rTaup("rTaup", beta/rho1);
-
     volScalarField rTauc
     (
         "rTauc",
         6.0*sqrt(Theta)*max(alpha1, alpha1.residualAlpha())*g0/(da*sqrtPi)
     );
 
-    volScalarField nupb ("nupb", 8.0/3.0*alpha1*g0*da*sqrt(Theta)/sqrtPi);
-
     return
-        (1.0 + 8.0/5.0*alpha1*g0)*h2Fn
-       *0.5*Theta/(rTaup + eta*(2.0 - eta)*rTauc)
-       *(1.0 + 8.0/5.0*eta*(3.0*eta - 2.0)*alpha1*g0)
-      + 3.0/5.0*nupb;
+        0.5*Theta/(beta/rho1 + eta*(2.0 - eta)*rTauc)
+       *(1.0 + 8.0/5.0*eta*(3.0*eta - 2.0)*alpha1*g0);
 }
-
 
 // ************************************************************************* //

@@ -56,5 +56,4 @@ Foam::kineticTheoryModels::viscosityModel::viscosityModel
 Foam::kineticTheoryModels::viscosityModel::~viscosityModel()
 {}
 
-
 // ************************************************************************* //

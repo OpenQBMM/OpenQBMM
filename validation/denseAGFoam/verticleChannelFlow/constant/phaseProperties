@@ -22,13 +22,13 @@ particles
     type            monodispersePhaseModel;
     residualAlpha   1e-6;
     d               3e-4;
-    alphaMax        0.62;
+    alphaMax        0.63;
 }
 
 gas
 {
     type            monodispersePhaseModel;
-    residualAlpha   0;
+    residualAlpha   1e-10;
     d               1;
 }
 

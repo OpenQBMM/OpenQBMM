@@ -228,13 +228,17 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
         )
     );
 
-    // Particle viscosity (Table 3.2, p.47)
-    nu_ = viscosityModel_->nu(phase_, Theta_, g0_, rho, da, e_);
+    // Particle viscosity
+    nu_ = (1.0 + 8.0/5.0*eta_*alpha*g0_)*max(h2Fn_, residualAlpha_)
+       *viscosityModel_->nu(phase_, Theta_, g0_, rho, da, e_)
+      + 0.6*lambda_;
 
-    // 'thermal' conductivity (Table 3.3, p. 49)
-    kappa_ = conductivityModel_->kappa(phase_, Theta_, g0_, rho, da, e_);
+    // 'thermal' conductivity
+    kappa_ = (1.0 + 12.0/5.0*eta_*alpha*g0_)*max(h2Fn_, residualAlpha_)
+       *conductivityModel_->kappa(phase_, Theta_, g0_, rho, da, e_)
+      + 1.5*lambda_*rho;
 
-      // Stress tensor, Definitions, Table 3.1, p. 43
+    // Stress tensor, Definitions, Table 3.1, p. 43
     volSymmTensorField tau
     (
         rho*(2.0*nu_*D + (lambda_ - (2.0/3.0)*nu_)*tr(D)*I)
@@ -254,6 +258,8 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
 
     // Solve Sigma equation (2nd order moments)
     {
+        nu_ += nuFric_;
+
         volSymmTensorField S2flux
         (
             "S2flux",
@@ -288,7 +294,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
             )
           - fvm::laplacian
             (
-                kappa_,// + rho*particleTurbulenceModel.nut()/alphaSigma_,
+                kappa_ + rho*particleTurbulenceModel.nut()/alphaSigma_,
                 Sigma_,
                 "laplacian(kappa,Sigma)"
             )
@@ -320,7 +326,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
         )
       - fvm::laplacian
         (
-            kappa_, //+ rho*particleTurbulenceModel.nut()/alphaTheta_,
+            kappa_ + rho*particleTurbulenceModel.nut()/alphaTheta_,
             Theta_,
             "laplacian(kappa,Theta)"
         )

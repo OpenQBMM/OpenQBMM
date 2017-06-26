@@ -26,7 +26,7 @@ RAS
 
     kineticTheoryCoeffs
     {
-        kineticTheoryModel      anisotropicGaussian;
+        kineticTheoryModel      nonEquilibrium;
 
         alphaTheta              1.0;
         alphaSigma              1.0;

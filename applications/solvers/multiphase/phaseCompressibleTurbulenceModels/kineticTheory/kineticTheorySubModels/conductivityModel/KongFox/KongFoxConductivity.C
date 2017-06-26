@@ -98,14 +98,10 @@ Foam::kineticTheoryModels::conductivityModels::KongFox::kappa
         6.0*sqrt(Theta)*max(alpha1, alpha1.residualAlpha())*g0/(da*sqrtPi)
     );
 
-    volScalarField nupb ("nupb", 8.0/3.0*alpha1*g0*da*sqrt(Theta)/sqrtPi);
-
     return rho1*
     (
-        (1.0 + 12.0/5.0*eta*alpha1*g0)*h2Fn
-       *5.0/2.0*Theta/(3.0*rTaup + 4.0*eta*(41.0 - 33.0*eta)*rTauc)
+        5.0/2.0*Theta/(3.0*rTaup + 4.0*eta*(41.0 - 33.0*eta)*rTauc)
        *(1.0 + 12.0/5.0*sqr(eta)*(4.0*eta - 3.0)*alpha1*g0)
-      + 3.0/2.0*nupb
     );
 
 }

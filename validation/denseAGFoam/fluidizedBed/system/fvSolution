@@ -43,7 +43,7 @@ solvers
         nCellsInCoarsestLevel 10;
         agglomerator    faceAreaPair;
         mergeLevels     2;
-        tolerance       1e-8;
+        tolerance       1e-10;
         maxIter         1000;
     }
 
@@ -112,7 +112,7 @@ relaxationFactors
 {
     equations
     {
-        ".*"            1;
+        p_rgh           1;
     }
 }
 

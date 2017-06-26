@@ -19,7 +19,7 @@ regions
 (
     boxToCell
     {
-        box ( 0 0.5 -0.1 ) ( 0.15 1.0 0.1 );
+        box ( 0 0.5 -0.1 ) ( 0.15 1.5 0.1 );
         fieldValues
         (
             volScalarFieldValue alpha.particles     0
