@@ -91,7 +91,7 @@ Foam::dragModels::IshiiZuber::CdRe
     volScalarField CdRe
     (
         pos0(1000 - ReM)*24.0*(scalar(1) + 0.15*pow(ReM, 0.687))
-      + neg0(1000 - ReM)*0.44*ReM
+      + neg(1000 - ReM)*0.44*ReM
     );
 
     volScalarField F
@@ -107,7 +107,7 @@ Foam::dragModels::IshiiZuber::CdRe
     return
         pos0(CdReEllipse - CdRe)
        *min(CdReEllipse, Re*sqr(1 - pair_.dispersed().alphas(nodej))*2.66667)
-      + neg0(CdReEllipse - CdRe)*CdRe;
+      + neg(CdReEllipse - CdRe)*CdRe;
 }
 
 

@@ -72,7 +72,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::SchillerNaumann::CdRe
     volScalarField Re(pair_.Re(nodei,nodej));
 
     return
-        neg0(Re - 1000)*24.0*(1.0 + 0.15*pow(Re, 0.687))
+        neg(Re - 1000)*24.0*(1.0 + 0.15*pow(Re, 0.687))
       + pos0(Re - 1000)*0.44*max(Re, residualRe_);
 }
 
