@@ -26,6 +26,7 @@ momentumSource
         fieldNames      (U.gas);
         Ubar            (0 0.5 0);
         alphaName       alpha.gas;
+        relaxation      0.2;                    // Optional relaxation factor
     }
 }
 

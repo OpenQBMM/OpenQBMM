@@ -19,15 +19,15 @@ solvers
 {
     "alpha.*"
     {
-        nAlphaCorr      2;
-        nAlphaSubCycles 3;
+        nAlphaCorr      1;
+        nAlphaSubCycles 2;
 
         smoothLimiter   0.1;
 
         implicitPhasePressure yes;
         solver          GAMG;
         smoother        DIC;
-        tolerance       1e-9;
+        tolerance       1e-09;
         relTol          0;
         minIter         1;
     }
@@ -43,7 +43,7 @@ solvers
         nCellsInCoarsestLevel 10;
         agglomerator    faceAreaPair;
         mergeLevels     2;
-        tolerance       1e-10;
+        tolerance       1e-8;
         maxIter         1000;
     }
 
@@ -57,7 +57,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-5;
+        tolerance       1e-6;
         relTol          0;
         minIter         1;
     }
@@ -66,15 +66,15 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-6;
+        tolerance       1e-5;
         relTol          0;
         minIter         1;
     }
 
     "(Theta.*|Sigma.*)"
     {
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
+        solver          PBiCGStab;
+        preconditioner  DILU;
         tolerance       1e-5;
         relTol          0;
         minIter         1;
@@ -92,18 +92,18 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors            3;
+    nOuterCorrectors            15;
     nCorrectors                 2;
     nNonOrthogonalCorrectors    0;
     pRefCell    0;
     pRefValue   1e5;
 
-    residuals
+    residualControl
     {
         p_rgh
         {
-            tolerance           1e-3;
-            relTol              0;
+            tolerance 1e-4;
+            relTol    0;
         }
     }
 }

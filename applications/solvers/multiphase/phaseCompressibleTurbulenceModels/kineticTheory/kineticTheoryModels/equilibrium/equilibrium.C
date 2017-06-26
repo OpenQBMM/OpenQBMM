@@ -130,14 +130,14 @@ void Foam::kineticTheoryModels::equilibrium::correct()
         /(2.0*max(alpha, residualAlpha_)*K4)
     );
 
-    kappa_ = conductivityModel_->kappa(alpha, Theta_, g0_, rho, da, e_);
+    kappa_ = conductivityModel_->kappa(phase_, Theta_, g0_, rho, da, e_);
 
     Theta_.max(0);
     Theta_.min(100);
 
     {
         // particle viscosity (Table 3.2, p.47)
-        nu_ = viscosityModel_->nu(alpha, Theta_, g0_, rho, da, e_);
+        nu_ = viscosityModel_->nu(phase_, Theta_, g0_, rho, da, e_);
 
         volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
 

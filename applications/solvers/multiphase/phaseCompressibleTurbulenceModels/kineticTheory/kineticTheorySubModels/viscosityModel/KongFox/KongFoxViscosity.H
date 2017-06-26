@@ -2,8 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2017 OpenFOAM Foundation
-     \\/     M anipulation  |
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2017-06-26 Jeff Heylmun:    Changed alpha to phase so that twoPhaseSystem can
                             be accessed
@@ -25,17 +24,17 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::noneViscosity
+    Foam::KongFox
 
 Description
 
 SourceFiles
-    noneViscosity.C
+    KongFoxviscosity.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef noneViscosity_H
-#define noneViscosity_H
+#ifndef KongFox_H
+#define KongFox_H
 
 #include "viscosityModel.H"
 
@@ -47,10 +46,10 @@ namespace kineticTheoryModels
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class noneViscosity Declaration
+                           Class KongFoxViscosity Declaration
 \*---------------------------------------------------------------------------*/
 
-class noneViscosity
+class KongFox
 :
     public viscosityModel
 {
@@ -58,17 +57,17 @@ class noneViscosity
 public:
 
     //- Runtime type information
-    TypeName("none");
+    TypeName("KongFox");
 
 
     // Constructors
 
         //- Construct from components
-        noneViscosity(const dictionary& dict);
+        KongFox(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~noneViscosity();
+    virtual ~KongFox();
 
 
     // Member functions

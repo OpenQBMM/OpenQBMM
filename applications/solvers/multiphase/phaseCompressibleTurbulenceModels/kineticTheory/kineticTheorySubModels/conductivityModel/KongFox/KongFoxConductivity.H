@@ -2,11 +2,8 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2017 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
      \\/     M anipulation  |
--------------------------------------------------------------------------------
-2017-06-26 Jeff Heylmun:    Changed alpha to phase so that twoPhaseSystem can
-                            be accessed
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,19 +22,19 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::noneViscosity
+    Foam::kineticTheoryModels::conductivityModels::KongFox
 
 Description
 
 SourceFiles
-    noneViscosity.C
+    KongFox.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef noneViscosity_H
-#define noneViscosity_H
+#ifndef KongFox_H
+#define KongFox_H
 
-#include "viscosityModel.H"
+#include "conductivityModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -45,35 +42,37 @@ namespace Foam
 {
 namespace kineticTheoryModels
 {
+namespace conductivityModels
+{
 
 /*---------------------------------------------------------------------------*\
-                           Class noneViscosity Declaration
+                           Class KongFox Declaration
 \*---------------------------------------------------------------------------*/
 
-class noneViscosity
+class KongFox
 :
-    public viscosityModel
+    public conductivityModel
 {
 
 public:
 
     //- Runtime type information
-    TypeName("none");
+    TypeName("KongFox");
 
 
     // Constructors
 
         //- Construct from components
-        noneViscosity(const dictionary& dict);
+        KongFox(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~noneViscosity();
+    virtual ~KongFox();
 
 
-    // Member functions
+    // Member Functions
 
-        tmp<volScalarField> nu
+        tmp<volScalarField> kappa
         (
             const phaseModel& alpha1,
             const volScalarField& Theta,
@@ -87,6 +86,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace conductivityModels
 } // End namespace kineticTheoryModels
 } // End namespace Foam
 

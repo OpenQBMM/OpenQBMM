@@ -2,8 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2015 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2017 OpenFOAM Foundation
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+2017-06-26 Jeff Heylmun:    Changed alpha to phase so that twoPhaseSystem can
+                            be accessed
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -70,7 +73,7 @@ Foam::kineticTheoryModels::conductivityModels::Gidaspow::~Gidaspow()
 Foam::tmp<Foam::volScalarField>
 Foam::kineticTheoryModels::conductivityModels::Gidaspow::kappa
 (
-    const volScalarField& alpha1,
+    const phaseModel& alpha1,
     const volScalarField& Theta,
     const volScalarField& g0,
     const volScalarField& rho1,

@@ -2,11 +2,8 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2017 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
      \\/     M anipulation  |
--------------------------------------------------------------------------------
-2017-06-26 Jeff Heylmun:    Changed alpha to phase so that twoPhaseSystem can
-                            be accessed
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -26,8 +23,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "SyamlalViscosity.H"
+#include "KongFoxViscosity.H"
 #include "mathematicalConstants.H"
+#include "twoPhaseSystem.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -36,21 +34,14 @@ namespace Foam
 {
 namespace kineticTheoryModels
 {
-namespace viscosityModels
-{
-    defineTypeNameAndDebug(Syamlal, 0);
-    addToRunTimeSelectionTable(viscosityModel, Syamlal, dictionary);
+    defineTypeNameAndDebug(KongFox, 0);
+    addToRunTimeSelectionTable(viscosityModel, KongFox, dictionary);
 }
 }
-}
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::kineticTheoryModels::viscosityModels::Syamlal::Syamlal
-(
-    const dictionary& dict
-)
+Foam::kineticTheoryModels::KongFox::KongFox(const dictionary& dict)
 :
     viscosityModel(dict)
 {}
@@ -58,14 +49,13 @@ Foam::kineticTheoryModels::viscosityModels::Syamlal::Syamlal
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::kineticTheoryModels::viscosityModels::Syamlal::~Syamlal()
+Foam::kineticTheoryModels::KongFox::~KongFox()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
-Foam::kineticTheoryModels::viscosityModels::Syamlal::nu
+Foam::tmp<Foam::volScalarField> Foam::kineticTheoryModels::KongFox::nu
 (
     const phaseModel& alpha1,
     const volScalarField& Theta,
@@ -76,13 +66,31 @@ Foam::kineticTheoryModels::viscosityModels::Syamlal::nu
 ) const
 {
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
+    const dimensionedScalar eta = 0.5*(1.0 + e);
+    const volScalarField& h2Fn =
+        alpha1.mesh().lookupObject<volScalarField>("h2Fn");
 
-    return da*sqrt(Theta)*
+    // Drag
+    volScalarField beta
     (
-        (4.0/5.0)*sqr(alpha1)*g0*(1.0 + e)/sqrtPi
-      + (1.0/15.0)*sqrtPi*g0*(1.0 + e)*(3.0*e - 1.0)*sqr(alpha1)/(3.0 - e)
-      + (1.0/6.0)*alpha1*sqrtPi/(3.0 - e)
+        refCast<const twoPhaseSystem>(alpha1.fluid()).drag(alpha1).K()
     );
+
+    volScalarField rTaup("rTaup", beta/rho1);
+
+    volScalarField rTauc
+    (
+        "rTauc",
+        6.0*sqrt(Theta)*max(alpha1, alpha1.residualAlpha())*g0/(da*sqrtPi)
+    );
+
+    volScalarField nupb ("nupb", 8.0/3.0*alpha1*g0*da*sqrt(Theta)/sqrtPi);
+
+    return
+        (1.0 + 8.0/5.0*alpha1*g0)*h2Fn
+       *0.5*Theta/(rTaup + eta*(2.0 - eta)*rTauc)
+       *(1.0 + 8.0/5.0*eta*(3.0*eta - 2.0)*alpha1*g0)
+      + 3.0/5.0*nupb;
 }
 
 
