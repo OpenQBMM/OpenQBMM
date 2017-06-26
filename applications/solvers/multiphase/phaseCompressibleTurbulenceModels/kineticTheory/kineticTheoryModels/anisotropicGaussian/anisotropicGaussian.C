@@ -53,30 +53,17 @@ namespace kineticTheoryModels
 
 void Foam::kineticTheoryModels::anisotropicGaussian::updateh2Fn()
 {
-
-    const dimensionedScalar smallPpk("small",dimensionSet(0, 2, -2, 0, 0), SMALL);
-
     g0_ = radialModel_->g0(phase_, alphaMinFriction_, alphaMax_);
-
-    // This calculates the h2 function for the dense regime transport.
-    if(h2FnMethod_.match("alphaG0"))
-    {
-        h2Fn_ = 1.0 - 1.0/(1.0 + sqr(phase_)*pow(g0_,h2FnParaPow_));
-    }
-    else if(h2FnMethod_.match("particlePressure"))
-    {
-        volScalarField ppk(max(phase_*Theta_,smallPpk));
-        volScalarField pps(4.0*eta_*phase_*g0_*ppk + ppfr_);
-        h2Fn_ = pow(pps/(pps + ppk),h2FnParaPow_);
-    }
-    else
-    {
-        FatalErrorIn("kineticTheoryModel::updateh2Fn: invalid h2FnMethod") << abort(FatalError);
-    }
-
-    h2Fn_.correctBoundaryConditions();
-
-    return;
+    h2Fn_ == h2Function_->h2
+    (
+        phase_,
+        Theta_,
+        g0_,
+        phase_.rho(),
+        phase_.d(),
+        ppfr_,
+        e_
+    );
 }
 
 
@@ -116,6 +103,7 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
        dimensionedScalar("zero", dimensionSet(1, -1, -2, 0, 0), 0.0)
     ),
 
+    h2Function_(fluxSplittingFunction::New(dict)),
     h2Fn_
     (
         IOobject
@@ -143,9 +131,7 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
         2.0*nu_*dev(twoSymm(fvc::grad(phase_.U()))),
         Theta_.boundaryField().types()
     ),
-    AGtransport_(phase.mesh(), dict, phase, Theta_, Sigma_),
-    h2FnMethod_(dict.lookup("h2FnMethod")),
-    h2FnParaPow_(readScalar(dict.lookup("h2FnParaPow", 2)))
+    AGtransport_(phase.mesh(), dict, phase, Theta_, Sigma_)
 {
     lambda_ =
         (8.0/3.0)/sqrt(constant::mathematical::pi)
@@ -287,6 +273,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
         fvSymmTensorMatrix SigmaEqn
         (
             fvm::ddt(alpha, rho, Sigma_)
+          - fvc::ddt(alpha, rho, Sigma_)
           + fvm::div
             (
                 hydrodynamicScalef(alphaRhoPhi),
@@ -301,7 +288,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
             )
           - fvm::laplacian
             (
-                kappa_ + rho*particleTurbulenceModel.nut()/alphaSigma_,
+                kappa_,// + rho*particleTurbulenceModel.nut()/alphaSigma_,
                 Sigma_,
                 "laplacian(kappa,Sigma)"
             )
@@ -327,12 +314,13 @@ void Foam::kineticTheoryModels::anisotropicGaussian::correct()
         1.5*
         (
             fvm::ddt(alpha, rho, Theta_)
+          - fvc::ddt(alpha, rho, Theta_)
           + fvm::div(alphaRhoPhi, Theta_)
           - fvc::Sp(fvc::ddt(alpha, rho) + fvc::div(alphaRhoPhi), Theta_)
         )
       - fvm::laplacian
         (
-            kappa_ + rho*particleTurbulenceModel.nut()/alphaTheta_,
+            kappa_, //+ rho*particleTurbulenceModel.nut()/alphaTheta_,
             Theta_,
             "laplacian(kappa,Theta)"
         )
@@ -404,10 +392,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::transportMoments()
     AGtransport_.solve(h2Fnf);
 
     surfaceScalarField& phi =
-        phase_.mesh().lookupObjectRef<surfaceScalarField>
-        (
-            IOobject::groupName("phi", phase_.name())
-        );
+        phase_.mesh().lookupObjectRef<surfaceScalarField>(phase_.phi().name());
     phi = fvc::flux(phase_.U());
 }
 

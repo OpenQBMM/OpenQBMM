@@ -42,6 +42,7 @@ SourceFiles
 #include "radialModel.H"
 #include "AGmomentTransportModel.H"
 #include "kineticTheoryModel.H"
+#include "fluxSplittingFunction.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -64,20 +65,24 @@ class anisotropicGaussian
 
         dimensionedScalar alphaSigma_;
 
+        //- Modified coefficient of restitution
         dimensionedScalar eta_;
 
         // Frictional pressure
         volScalarField ppfr_;
 
+        //- function to calculate flux splitting function
+        autoPtr<fluxSplittingFunction> h2Function_;
+
+        //- Switching function
 	    volScalarField  h2Fn_;
 
+        //- Second order velocity moment tensor
         volSymmTensorField Sigma_;
 
+        //- Moment transport model
 		AGmomentTransportModel AGtransport_;
 
-		const word  h2FnMethod_;
-
-		const scalar h2FnParaPow_;
 
     // Private Member Functions
 
