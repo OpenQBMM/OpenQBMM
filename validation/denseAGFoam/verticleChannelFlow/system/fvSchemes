@@ -41,7 +41,7 @@ divSchemes
 
     "div\(alphaRhoPhi.*,Theta.*\)"  Gauss limitedLinear 1;
     "div\(alphaRhoPhi.*,Sigma.*\)"  Gauss limitedLinear 1;
-    "div\(Sigma.*\)"                     Gauss linear;
+    "div\(devRhoReff.*\)"                     Gauss linear;
     div(((alpha.gas*thermo:rho.gas)*R2)) Gauss linear;
 
     "div\(alphaRhoPhi.*,(k|epsilon).*\)"  Gauss limitedLinear 1;
@@ -60,6 +60,7 @@ laplacianSchemes
 interpolationSchemes
 {
     default     linear;
+    "interpolate(hFn)"    upwind;
 }
 
 snGradSchemes
@@ -68,4 +69,10 @@ snGradSchemes
     bounded     corrected;
 }
 
+fluxRequired
+{
+    default     no;
+    p           ;
+    alpha.particles;
+}
 // ************************************************************************* //

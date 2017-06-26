@@ -41,7 +41,7 @@ RAS
         frictionalStressModel   JohnsonJackson;
         radialModel             SinclairJackson;
         h2FnMethod              alphaG0;
-        h2FnParaPow             2;
+        h2FnParaPow             4;
 
         JohnsonJacksonCoeffs
         {
@@ -52,14 +52,6 @@ RAS
             alphaDeltaMin           0.05;
         }
     }
-
-    phasePressureCoeffs
-    {
-        preAlphaExp     500;
-        expMax          1000;
-        alphaMax        0.62;
-        g0              1000;
-}
 }
 
 // ************************************************************************* //

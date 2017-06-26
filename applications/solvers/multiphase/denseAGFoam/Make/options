@@ -19,7 +19,8 @@ EXE_INC = \
     -I../../../../src/Vandermonde/lnInclude \
     -I../twoPhaseSystem/lnInclude \
     -I../phaseCompressibleTurbulenceModels/lnInclude \
-    -I../interfacialModels/lnInclude
+    -I../interfacialModels/lnInclude \
+    -I../../../utilities/phaseMeanVelocityForce/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
@@ -40,5 +41,6 @@ EXE_LIBS = \
     -lincompressibleTransportModels \
     -lfiniteVolume \
     -lfvOptions \
+    -lfvOptionPhaseMeanVelocityForce_denseAGFoam \
     -lmeshTools \
     -lsampling

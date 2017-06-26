@@ -23,7 +23,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         2;
+endTime         3;
 
 deltaT          2e-4;
 
@@ -51,7 +51,7 @@ maxCo           0.2;
 
 maxDeltaT       0.001;
 
-functions0
+functions
 {
     fieldAverage1
     {
