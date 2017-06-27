@@ -30,22 +30,20 @@ momentumSource
     }
 }
 
-/*
 
-momentumSource
-{
-	    type            meanVelocityForce;
-        active          on;            //on/off switch
+// momentumSource
+// {
+// 	    type            meanVelocityForce;
+//         active          on;            //on/off switch
+//
+//         meanVelocityForceCoeffs
+//         {
+//             selectionMode   all;                    // Apply force to all cells
+//             fields      (U.gas);                    // Name of velocity field
+//             Ubar            (0 0.5 0);             // Desired mean velocity
+//             relaxation      0.2;                    // Optional relaxation factor
+//         }
+// }
 
-        meanVelocityForceCoeffs
-        {
-            selectionMode   all;                    // Apply force to all cells
-            fieldNames      (U.gas);                    // Name of velocity field
-            Ubar            (0 0.5 0);             // Desired mean velocity
-            relaxation      0.2;                    // Optional relaxation factor
-        }
-}
-
-*/
 
 // ************************************************************************* //

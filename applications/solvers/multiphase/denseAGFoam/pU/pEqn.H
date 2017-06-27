@@ -309,6 +309,8 @@ while (pimple.correct())
         (
             fvc::div(phiHbyA)
           - fvm::laplacian(rAUf, p_rgh)
+         ==
+            ddtAlpha1Dilute
         );
 
         solve

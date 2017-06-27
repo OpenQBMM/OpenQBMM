@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         AGmodel.transportMoments();
+        volScalarField ddtAlpha1Dilute(fvc::ddt(alpha1));
         alpha2 = 1.0 - alpha1;
 
 
@@ -119,6 +120,7 @@ int main(int argc, char *argv[])
         while (pimple.loop())
         {
             #include "contErrs.H"
+            surfaceScalarField phi1Tmp = phi1;
             {
                 surfaceScalarField phiOld = phi1;
 

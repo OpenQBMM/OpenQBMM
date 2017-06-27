@@ -89,9 +89,11 @@ Foam::kineticTheoryModels::conductivityModels::KongFox::kappa
     (
         refCast<const twoPhaseSystem>(alpha1.fluid()).drag(alpha1).K()
     );
-
-    volScalarField rTaup("rTaup", beta/rho1);
-
+    volScalarField rTaup
+    (
+        "rTaup",
+        max(alpha1.fluid().otherPhase(alpha1), alpha1.residualAlpha())/rho1
+    );
     volScalarField rTauc
     (
         "rTauc",

@@ -31,7 +31,7 @@ writeControl    adjustableRunTime;
 
 writeInterval   0.01;
 
-purgeWrite      0;
+purgeWrite      100;
 
 writeFormat     ascii;
 
@@ -47,17 +47,18 @@ runTimeModifiable on;
 
 adjustTimeStep  yes;
 
-maxCo           0.5;
+maxCo           0.2;
 
-maxDeltaT       0.01;
+maxDeltaT       0.0002;
 
-functions0
+functions
 {
     fieldAverage1
     {
         type            fieldAverage;
         libs            ("libfieldFunctionObjects.so");
         writeControl    writeTime;
+        timeStart       1;
         fields
         (
             U.particles
@@ -82,6 +83,12 @@ functions0
             }
 
             p
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            Theta.particles
             {
                  mean        on;
                  prime2Mean  off;

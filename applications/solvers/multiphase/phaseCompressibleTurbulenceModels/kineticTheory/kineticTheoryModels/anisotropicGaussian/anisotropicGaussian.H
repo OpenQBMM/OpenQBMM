@@ -131,7 +131,7 @@ public:
         virtual tmp<volVectorField>
         hydrodynamicScale(const volVectorField& U) const
         {
-            return U*h2Fn_;
+            return U*max(h2Fn_, phase_.residualAlpha());
         }
 
 };

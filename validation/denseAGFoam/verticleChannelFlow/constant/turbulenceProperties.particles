@@ -26,7 +26,7 @@ RAS
 
     kineticTheoryCoeffs
     {
-        kineticTheoryModel      nonEquilibrium;
+        kineticTheoryModel      anisotropicGaussian;
 
         alphaTheta              1.0;
         alphaSigma              1.0;
@@ -35,9 +35,9 @@ RAS
         alphaMinFriction        0.5;
         residualAlpha           1e-4;
 
-        viscosityModel          Gidaspow;
-        conductivityModel       Gidaspow;
-        granularPressureModel   Lun;
+        viscosityModel          KongFox;
+        conductivityModel       KongFox;
+        granularPressureModel   KongFox;
         frictionalStressModel   JohnsonJackson;
         radialModel             CarnahanStarling;
         fluxSplittingFunction   particlePressure;

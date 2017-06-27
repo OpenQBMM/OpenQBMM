@@ -41,7 +41,7 @@ RAS
         frictionalStressModel   JohnsonJackson;
         radialModel             SinclairJackson;
         fluxSplittingFunction   particlePressure;
-        h2FluxPow               1;
+        h2FluxPow               4;
 
         JohnsonJacksonCoeffs
         {
