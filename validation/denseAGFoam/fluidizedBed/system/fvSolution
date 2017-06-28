@@ -19,7 +19,7 @@ solvers
 {
     "alpha.*"
     {
-        nAlphaCorr      1;
+        nAlphaCorr      2;
         nAlphaSubCycles 2;
 
         smoothLimiter   0.1;
@@ -27,7 +27,7 @@ solvers
         implicitPhasePressure yes;
         solver          GAMG;
         smoother        DIC;
-        tolerance       1e-09;
+        tolerance       1e-10;
         relTol          0;
         minIter         1;
     }
@@ -102,7 +102,7 @@ PIMPLE
     {
         p_rgh
         {
-            tolerance 1e-4;
+            tolerance 1e-5;
             relTol    0;
         }
     }

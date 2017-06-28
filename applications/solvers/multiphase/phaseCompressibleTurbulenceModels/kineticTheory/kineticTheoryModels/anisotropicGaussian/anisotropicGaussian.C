@@ -129,7 +129,6 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::
 template<class baseModel>
 void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::correct()
 {
-
     // Local references
     volScalarField alpha(max(this->phase_, scalar(0)));
     const volScalarField& rho = this->phase_.rho();

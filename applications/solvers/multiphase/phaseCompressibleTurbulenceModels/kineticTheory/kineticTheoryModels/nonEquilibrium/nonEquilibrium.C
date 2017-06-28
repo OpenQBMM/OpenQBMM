@@ -200,8 +200,7 @@ void Foam::kineticTheoryModels::nonEquilibrium::correct()
 
     if (debug)
     {
-        Info<< typeName << ':' << nl
-            << "    max(Theta) = " << max(Theta_).value() << endl;
+        Info<< "    max(Theta) = " << max(Theta_).value() << endl;
     }
 }
 

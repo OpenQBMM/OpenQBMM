@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
                 surfaceScalarField pPrimeByA = fluid.pPrimeByA()();
                 phi1 = AGmodel.hydrodynamicScalef
                 (
-                    phi1
+                    1.0*phi1
 //                   + pPrimeByA*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
                 );
 
