@@ -241,7 +241,9 @@ Foam::RASModels::kineticTheory::divDevRhoReff
 
 void Foam::RASModels::kineticTheory::correct()
 {
+    kineticTheoryModel_->update();
     kineticTheoryModel_->correct();
+    kineticTheoryModel_->update();
     nut_ = kineticTheoryModel_->nuEff();
 
     if (debug)

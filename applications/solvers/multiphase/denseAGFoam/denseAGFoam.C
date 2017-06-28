@@ -112,23 +112,26 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         AGmodel.transportMoments();
-        volScalarField ddtAlpha1Dilute(fvc::ddt(alpha1));
+
+        //  Update alpha2 and set ddt(alpha1)
         alpha2 = 1.0 - alpha1;
+        volScalarField ddtAlpha1Dilute(fvc::ddt(alpha1));
 
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
             #include "contErrs.H"
-            surfaceScalarField phi1Tmp = phi1;
             {
+                //  Store old phi1 so that the dense flux is used to compute
+                //  the volume fraction transport
                 surfaceScalarField phiOld = phi1;
 
                 surfaceScalarField pPrimeByA = fluid.pPrimeByA()();
                 phi1 = AGmodel.hydrodynamicScalef
                 (
                     phi1
-                  + pPrimeByA*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
+//                   + pPrimeByA*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
                 );
 
                 alphaPhi1 = fvc::interpolate(alpha1)*phi1;

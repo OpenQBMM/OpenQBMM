@@ -63,7 +63,7 @@ class nonEquilibrium
 :
     public kineticTheoryModel
 {
-    // Private data
+    // Protected data
 
         // Granular energy Prandtl number
         dimensionedScalar alphaTheta_;

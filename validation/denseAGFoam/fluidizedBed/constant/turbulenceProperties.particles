@@ -35,12 +35,12 @@ RAS
         alphaMinFriction        0.5;
         residualAlpha           1e-4;
 
-        viscosityModel          Gidaspow;
+        viscosityModel          KongFox;
         conductivityModel       KongFox;
         granularPressureModel   KongFox;
         frictionalStressModel   JohnsonJackson;
         radialModel             SinclairJackson;
-        fluxSplittingFunction   particlePressure;
+        fluxSplittingFunction   alphaG0;
         h2FluxPow               4;
 
         JohnsonJacksonCoeffs

@@ -21,6 +21,11 @@ particles
 {
     type            monodispersePhaseModel;
     residualAlpha   1e-6;
+    diameterModel   constant;
+    constantCoeffs
+    {
+        d           3e-4;
+    }
     d               3e-4;
     alphaMax        0.63;
 }
@@ -29,6 +34,11 @@ gas
 {
     type            monodispersePhaseModel;
     residualAlpha   1e-10;
+    diameterModel   constant;
+    constantCoeffs
+    {
+        d           1;
+    }
     d               1;
 }
 
@@ -82,5 +92,9 @@ wallLubrication
 );
 
 bubblePressure
+(
+);
+
+heatTransfer
 (
 );

@@ -81,18 +81,20 @@ Foam::kineticTheoryModels::conductivityModels::KongFox::kappa
 {
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
     const dimensionedScalar eta = 0.5*(1.0 + e);
-    const volScalarField& h2Fn =
-        alpha1.mesh().lookupObject<volScalarField>("h2Fn");
 
     // Drag
     volScalarField beta
     (
-        refCast<const twoPhaseSystem>(alpha1.fluid()).drag(alpha1).K()
+        refCast<const twoPhaseSystem>(alpha1.fluid()).drag(alpha1).Ki()
     );
     volScalarField rTaup
     (
         "rTaup",
-        max(alpha1.fluid().otherPhase(alpha1), alpha1.residualAlpha())/rho1
+        max
+        (
+            alpha1.fluid().otherPhase(alpha1),
+            alpha1.residualAlpha()
+        )*beta/rho1
     );
     volScalarField rTauc
     (

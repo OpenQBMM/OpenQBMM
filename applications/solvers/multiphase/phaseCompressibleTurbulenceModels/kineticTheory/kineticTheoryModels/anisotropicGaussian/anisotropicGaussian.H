@@ -54,10 +54,10 @@ namespace kineticTheoryModels
 /*---------------------------------------------------------------------------*\
                            Class anisotropicGaussian Declaration
 \*---------------------------------------------------------------------------*/
-
+template<class baseModel>
 class anisotropicGaussian
 :
-    public kineticTheoryModel
+    public baseModel
 {
     // Private data
 
@@ -67,9 +67,6 @@ class anisotropicGaussian
 
         //- Modified coefficient of restitution
         dimensionedScalar eta_;
-
-        // Frictional pressure
-        volScalarField ppfr_;
 
         //- function to calculate flux splitting function
         autoPtr<fluxSplittingFunction> h2Function_;
@@ -94,7 +91,6 @@ public:
 
     //- Runtime type information
     TypeName("anisotropicGaussian");
-
 
     // Constructors
 
@@ -122,18 +118,11 @@ public:
 
         //- Return fraction to be used for hydrodynamic flux
         virtual tmp<surfaceScalarField>
-        hydrodynamicScalef(const surfaceScalarField& phi) const
-        {
-            return phi*fvc::interpolate(h2Fn_);
-        }
+        hydrodynamicScalef(const surfaceScalarField& phi) const;
 
         //- Return fraction to be used for hydrodynamic velocity
         virtual tmp<volVectorField>
-        hydrodynamicScale(const volVectorField& U) const
-        {
-            return U*max(h2Fn_, phase_.residualAlpha());
-        }
-
+        hydrodynamicScale(const volVectorField& U) const;
 };
 
 
@@ -141,6 +130,12 @@ public:
 
 } // End namespace kineticTheoryModels
 } // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#ifdef NoRepository
+    #include "anisotropicGaussian.C"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

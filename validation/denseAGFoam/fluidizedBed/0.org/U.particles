@@ -27,8 +27,9 @@ boundaryField
     }
     outlet
     {
-        type               fixedValue;
-        value               uniform (0 0 0);
+        type               pressureInletOutletVelocity;
+        phi                phi.particles;
+        value              $internalField;
     }
     inlet
     {

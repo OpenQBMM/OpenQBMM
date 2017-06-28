@@ -71,12 +71,16 @@ Foam::tmp<Foam::volScalarField> Foam::kineticTheoryModels::KongFox::nu
     // Drag
     volScalarField beta
     (
-        refCast<const twoPhaseSystem>(alpha1.fluid()).drag(alpha1).Ki(0,0)
+        refCast<const twoPhaseSystem>(alpha1.fluid()).drag(alpha1).Ki()
     );
-     volScalarField rTaup
+    volScalarField rTaup
     (
         "rTaup",
-        max(alpha1.fluid().otherPhase(alpha1), alpha1.residualAlpha())/rho1
+        max
+        (
+            alpha1.fluid().otherPhase(alpha1),
+            alpha1.residualAlpha()
+        )*beta/rho1
     );
     volScalarField rTauc
     (

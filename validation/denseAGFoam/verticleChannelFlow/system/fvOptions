@@ -15,35 +15,35 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-momentumSource
-{
-	type            phaseIncompressibleMeanVelocityForce;
-    active          on;            //on/off switch
-
-    phaseIncompressibleMeanVelocityForceCoeffs
-    {
-        selectionMode   all;
-        fieldNames      (U.gas);
-        Ubar            (0 0.5 0);
-        alphaName       alpha.gas;
-        relaxation      0.2;                    // Optional relaxation factor
-    }
-}
-
-
 // momentumSource
 // {
-// 	    type            meanVelocityForce;
-//         active          on;            //on/off switch
+// 	type            phaseIncompressibleMeanVelocityForce;
+//     active          on;            //on/off switch
 //
-//         meanVelocityForceCoeffs
-//         {
-//             selectionMode   all;                    // Apply force to all cells
-//             fields      (U.gas);                    // Name of velocity field
-//             Ubar            (0 0.5 0);             // Desired mean velocity
-//             relaxation      0.2;                    // Optional relaxation factor
-//         }
+//     phaseIncompressibleMeanVelocityForceCoeffs
+//     {
+//         selectionMode   all;
+//         fieldNames      (U.gas);
+//         Ubar            (0 0.5 0);
+//         alphaName       alpha.gas;
+//         relaxation      0.2;                    // Optional relaxation factor
+//     }
 // }
+
+
+momentumSource
+{
+	    type            meanVelocityForce;
+        active          on;            //on/off switch
+
+        meanVelocityForceCoeffs
+        {
+            selectionMode   all;                // Apply force to all cells
+            fields          (U.gas);            // Name of velocity field
+            Ubar            (0 0.5 0);          // Desired mean velocity
+            relaxation      0.2;                // Optional relaxation factor
+        }
+}
 
 
 // ************************************************************************* //

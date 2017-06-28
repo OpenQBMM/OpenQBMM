@@ -276,7 +276,12 @@ void Foam::AGmomentTransportModel::solve
 	Theta_.correctBoundaryConditions();
 	Sigma_.correctBoundaryConditions();
 
-	return;
+	surfaceScalarField& phip =
+        mesh_.lookupObjectRef<surfaceScalarField>
+        (
+            IOobject::groupName("phi", phase_.name())
+        );
+    phip = fvc::flux(Up_);
 }
 
 

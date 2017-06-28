@@ -130,50 +130,13 @@ void Foam::kineticTheoryModels::equilibrium::correct()
         /(2.0*max(alpha, residualAlpha_)*K4)
     );
 
-    kappa_ = conductivityModel_->kappa(phase_, Theta_, g0_, rho, da, e_);
-
     Theta_.max(0);
     Theta_.min(100);
-
-    {
-        // particle viscosity (Table 3.2, p.47)
-        nu_ = viscosityModel_->nu(phase_, Theta_, g0_, rho, da, e_);
-
-        volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
-
-        // Bulk viscosity  p. 45 (Lun et al. 1984).
-        lambda_ = (4.0/3.0)*sqr(alpha)*da*g0_*(1.0 + e_)*ThetaSqrt/sqrtPi;
-
-        // Frictional pressure
-        volScalarField pf
-        (
-            frictionalStressModel_->frictionalPressure
-            (
-                phase_,
-                alphaMinFriction_,
-                alphaMax_
-            )
-        );
-
-        nuFric_ = frictionalStressModel_->nu
-        (
-            phase_,
-            alphaMinFriction_,
-            alphaMax_,
-            pf/rho,
-            D
-        );
-
-        // Limit viscosity and add frictional viscosity
-        nu_.min(maxNut_);
-        nuFric_ = min(nuFric_, maxNut_ - nu_);
-    }
 
     if (debug)
     {
         Info<< typeName << ':' << nl
-            << "    max(Theta) = " << max(Theta_).value() << nl
-            << "    max(nut) = " << max(nu_).value() << endl;
+            << "    max(Theta) = " << max(Theta_).value() << endl;
     }
 }
 

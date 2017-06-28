@@ -293,6 +293,9 @@ public:
             return U;
         }
 
+        //- Update viscosity and conductivity
+        void update();
+
 
     // IO functions
 

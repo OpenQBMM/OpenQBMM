@@ -276,4 +276,47 @@ Foam::kineticTheoryModel::pPrimef() const
 }
 
 
+void Foam::kineticTheoryModel::update()
+{
+    // particle viscosity (Table 3.2, p.47)
+    nu_ = viscosityModel_->nu
+    (
+        phase_,
+        Theta_,
+        g0_,
+        phase_.rho(),
+        phase_.d(),
+        e_
+    );
+
+    // Bulk viscosity  p. 45 (Lun et al. 1984).
+    lambda_ =
+        (4.0/3.0)*sqr(phase_)*phase_.d()*g0_*(1.0 + e_)
+       *sqrt(Theta_/constant::mathematical::pi);
+
+    nuFric_ = frictionalStressModel_->nu
+    (
+        phase_,
+        alphaMinFriction_,
+        alphaMax_,
+        frictionalStressModel_->frictionalPressure
+        (
+            phase_,
+            alphaMinFriction_,
+            alphaMax_
+        )/phase_.rho(),
+        symm(fvc::grad(phase_.U()))
+    );
+
+    // Limit viscosity and add frictional viscosity
+    nu_.min(maxNut_);
+    nuFric_ = min(nuFric_, maxNut_ - nu_);
+
+    if (debug)
+    {
+        Info<< "    max(nu) = " << max(nu_).value() << nl
+            << "    max(nuFric) = " << max(nuFric_).value() << endl;
+    }
+}
+
 // ************************************************************************* //

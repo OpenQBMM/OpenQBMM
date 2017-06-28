@@ -216,7 +216,11 @@ while (pimple.correct())
     surfaceScalarField rAUf
     (
         "rAUf",
-        mag(alphaf1*alpharAUf1 + alphaf2*alpharAUf2)
+        mag
+        (
+            alphaf1*alpharAUf1
+          + alphaf2*alpharAUf2
+        )
     );
 
     // Update the fixedFluxPressure BCs to ensure flux consistency
@@ -300,6 +304,10 @@ while (pimple.correct())
 
     // Cache p prior to solve for density update
     volScalarField p_rgh_0(p_rgh);
+
+    // Update the pressure BCs to ensure flux consistency
+    U = alpha1*U1 + alpha2*U2;
+    constrainPressure(p, U, phiHbyA, rAUf);
 
     // Iterate over the pressure equation to correct for non-orthogonality
     while (pimple.correctNonOrthogonal())

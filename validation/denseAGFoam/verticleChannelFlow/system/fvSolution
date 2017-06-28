@@ -68,13 +68,14 @@ solvers
         smoother        symGaussSeidel;
         tolerance       1e-5;
         relTol          0;
+        maxIter         0;
         minIter         1;
     }
 
     "(Theta.*|Sigma.*)"
     {
-        solver          PBiCGStab;
-        preconditioner  DILU;
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
         tolerance       1e-6;
         relTol          0;
         minIter         1;
@@ -92,20 +93,20 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors            5;
-    nCorrectors                 2;
+    nOuterCorrectors            3;
+    nCorrectors                 1;
     nNonOrthogonalCorrectors    0;
     pRefCell    0;
     pRefValue   1e5;
 
-    residualControl
-    {
-        p_rgh
-        {
-            tolerance 1e-4;
-            relTol    0;
-        }
-    }
+//     residualControl
+//     {
+//         p_rgh
+//         {
+//             tolerance 1e-3;
+//             relTol    0;
+//         }
+//     }
 }
 
 relaxationFactors

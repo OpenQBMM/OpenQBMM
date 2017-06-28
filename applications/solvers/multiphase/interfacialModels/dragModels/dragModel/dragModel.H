@@ -145,6 +145,9 @@ public:
         //    ddt(alpha2*rho2*U2) + ... = ... alphad*K*(U2-U1)
         virtual tmp<volScalarField> Ki(const label, const label) const;
 
+        //- Return total phase intensive drag coefficient
+        virtual tmp<volScalarField> Ki() const;
+
         //- Return the drag coefficient K
         //  used in the momentum equations
         //    ddt(alpha1*rho1*U1) + ... = ... K*(U1-U2)

@@ -75,18 +75,31 @@ Foam::virtualMassModel::~virtualMassModel()
 
 Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Cvm() const
 {
+    const fvMesh& mesh(this->pair_.phase1().mesh());
     label nNodesi = pair_.dispersed().nNodes();
     label nNodesj = pair_.continuous().nNodes();
 
-    tmp<volScalarField> tCvm;
-    tCvm =
-        Cvm(0, 0)
-       *pair_.dispersed().alphas(0)
-       *pair_.continuous().alphas(0);
+    tmp<volScalarField> tCvm
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "totalCvm",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh,
+            dimensionedScalar("0", dimless, 0.0)
+        )
+    );
 
-    for (label nodei = 1; nodei < nNodesi; nodei++)
+    for (label nodei = 0; nodei < nNodesi; nodei++)
     {
-        for (label nodej = 1; nodej < nNodesj; nodej++)
+        for (label nodej = 0; nodej < nNodesj; nodej++)
         {
             tCvm.ref() +=
                 Cvm(nodei, nodej)

@@ -161,6 +161,48 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::Ki
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::dragModel::Ki() const
+{
+    const fvMesh& mesh(this->pair_.phase1().mesh());
+    label nNodesi = pair_.dispersed().nNodes();
+    label nNodesj = pair_.continuous().nNodes();
+
+    tmp<volScalarField> tKdi
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "totalKdi",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh,
+            dimensionedScalar("0", dimK, 0.0)
+        )
+    );
+
+    for (label nodei = 0; nodei < nNodesi; nodei++)
+    {
+        for (label nodej = 0; nodej < nNodesj; nodej++)
+        {
+            tKdi.ref() +=
+                K(nodei, nodej)
+               *max(pair_.continuous(), pair_.continuous().residualAlpha());
+        }
+    }
+    tKdi.ref() /= max
+    (
+        pair_.dispersed()*pair_.continuous(),
+        pair_.dispersed().residualAlpha()
+    );
+    return tKdi;
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::dragModel::K
 (
     const label nodei,
@@ -178,15 +220,31 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
 
 Foam::tmp<Foam::volScalarField> Foam::dragModel::K() const
 {
+    const fvMesh& mesh(this->pair_.phase1().mesh());
     label nNodesi = pair_.dispersed().nNodes();
     label nNodesj = pair_.continuous().nNodes();
 
-    tmp<volScalarField> tKd;
-    tKd = K(0, 0);
+    tmp<volScalarField> tKd
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "totalKd",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh,
+            dimensionedScalar("0", dimK, 0.0)
+        )
+    );
 
-    for (label nodei = 1; nodei < nNodesi; nodei++)
+    for (label nodei = 0; nodei < nNodesi; nodei++)
     {
-        for (label nodej = 1; nodej < nNodesj; nodej++)
+        for (label nodej = 0; nodej < nNodesj; nodej++)
         {
             tKd.ref() += K(nodei, nodej);
         }
