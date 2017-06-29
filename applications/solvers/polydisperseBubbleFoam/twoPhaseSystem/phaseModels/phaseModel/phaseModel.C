@@ -268,10 +268,25 @@ Foam::phaseModel::turbulence() const
 }
 
 
-const Foam::volVectorField& Foam::phaseModel::Vs(const label nodei) const
+Foam::tmp<Foam::volVectorField> Foam::phaseModel::Vs(const label nodei) const
 {
-    NotImplemented;
-    return U_;
+    return tmp<volVectorField>
+    (
+        new volVectorField
+        (
+            IOobject
+            (
+                "Zero",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedVector("0", dimVelocity, Zero)
+        )
+    );
 }
 
 

@@ -373,7 +373,7 @@ public:
         }
 
         //- Deviation of velocity nodei from the mean
-        virtual const volVectorField& Vs(const label nodei) const;
+        virtual tmp<volVectorField> Vs(const label nodei) const;
 
         //- Constant access to the volumetric flux
         const surfaceScalarField& phi() const
