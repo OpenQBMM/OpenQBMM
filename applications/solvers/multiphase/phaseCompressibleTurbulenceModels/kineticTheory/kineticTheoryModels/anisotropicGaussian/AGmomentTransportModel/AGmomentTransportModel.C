@@ -226,15 +226,15 @@ void Foam::AGmomentTransportModel::solve
 	Pp_ = Theta_*symmTensor::I - Sigma_;
 	Pp_.correctBoundaryConditions();
 
-	volScalarField       M0_old(alphap_);
-	volVectorField       M1_old(alphap_*Up_);
-	volSymmTensorField   M2_old(alphap_*(Pp_ + sqr(Up_)));
+	volScalarField M0_old(alphap_);
+	volVectorField M1_old(alphap_*Up_);
+	volSymmTensorField M2_old(alphap_*(Pp_ + sqr(Up_)));
 
 	calcMomentFluxes(h1f);
 
-	volScalarField       M0("M0", M0_old - 0.5*fvc::surfaceIntegrate(F0_)*deltaT);
-	volVectorField       M1("M1", M1_old - 0.5*fvc::surfaceIntegrate(F1_)*deltaT);
-	volSymmTensorField   M2("M2", M2_old - 0.5*fvc::surfaceIntegrate(F2_)*deltaT);
+	volScalarField M0("M0", M0_old - 0.5*fvc::surfaceIntegrate(F0_)*deltaT);
+	volVectorField M1("M1", M1_old - 0.5*fvc::surfaceIntegrate(F1_)*deltaT);
+	volSymmTensorField M2("M2", M2_old - 0.5*fvc::surfaceIntegrate(F2_)*deltaT);
 
 	M0.max(SMALL);
 	alphap_ = M0;

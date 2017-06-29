@@ -28,7 +28,7 @@ volScalarField Kd(fluid.Kd());
             fvm::ddt(alpha1, rho1, U1)
           + fvm::div
             (
-                alphaRhoPhi1,
+                AGmodel.hydrodynamicScalef(alphaRhoPhi1),
                 U1,
                 "div(" + alphaRhoPhi1.name() + "," + U1.name() +")"
             )

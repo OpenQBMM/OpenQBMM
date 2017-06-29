@@ -124,19 +124,20 @@ void Foam::kineticTheoryModels::equilibrium::correct()
         *(2.0*K3*trD2 + K2*tr2D)
     );
 
-    Theta_ = sqr
-    (
-        (l1 + sqrt(l2 + l3))
-        /(2.0*max(alpha, residualAlpha_)*K4)
-    );
+    Theta_ +=
+        sqr
+        (
+            (l1 + sqrt(l2 + l3))
+            /(2.0*max(alpha, residualAlpha_)*K4)
+        );
+
 
     Theta_.max(0);
     Theta_.min(100);
 
     if (debug)
     {
-        Info<< typeName << ':' << nl
-            << "    max(Theta) = " << max(Theta_).value() << endl;
+        Info<< "    max(Theta) = " << max(Theta_).value() << endl;
     }
 }
 

@@ -294,6 +294,17 @@ void Foam::kineticTheoryModel::update()
         (4.0/3.0)*sqr(phase_)*phase_.d()*g0_*(1.0 + e_)
        *sqrt(Theta_/constant::mathematical::pi);
 
+       // 'thermal' conductivity
+    kappa_ = conductivityModel_->kappa
+    (
+        phase_,
+        Theta_,
+        g0_,
+        phase_.rho(),
+        phase_.d(),
+        e_
+    );
+
     nuFric_ = frictionalStressModel_->nu
     (
         phase_,

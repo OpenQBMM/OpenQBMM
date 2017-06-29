@@ -103,6 +103,13 @@ granularPressureCoeffPrime
 ) const
 {
     const dimensionedScalar eta = 0.5*(1.0 + e);
+    if (!alpha1.mesh().foundObject<volScalarField>("h2Fn"))
+    {
+        FatalErrorInFunction
+            << "Anisotropic Gaussian must be used with " << typeName_
+            << " model."
+            << exit(FatalError);
+    }
     const volScalarField& h2Fn =
         alpha1.mesh().lookupObject<volScalarField>("h2Fn");
 

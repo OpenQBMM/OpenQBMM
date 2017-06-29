@@ -1,9 +1,8 @@
 surfaceScalarField alphaf1("alphaf1", fvc::interpolate(alpha1));
 surfaceScalarField alphaf2("alphaf2", scalar(1) - alphaf1);
 
-volScalarField rAU1
+rAU1 =
 (
-    IOobject::groupName("rAU", phase1.name()),
     1.0
    /(
         U1Eqn.A()
@@ -11,9 +10,8 @@ volScalarField rAU1
        *rho1/runTime.deltaT()
     )
 );
-volScalarField rAU2
+rAU2 =
 (
-    IOobject::groupName("rAU", phase2.name()),
     1.0
    /(
         U2Eqn.A()
@@ -207,7 +205,10 @@ while (pimple.correct())
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        alphaf1*(phiHbyA1 + rAUKd1*MRF.absolute(phi2))
+        AGmodel.hydrodynamicScalef
+        (
+            alphaf1*(phiHbyA1 + rAUKd1*MRF.absolute(phi2))
+        )
       + alphaf2*(phiHbyA2 + rAUKd2*MRF.absolute(phi1))
     );
     MRF.makeRelative(phiHbyA);
@@ -218,7 +219,7 @@ while (pimple.correct())
         "rAUf",
         mag
         (
-            alphaf1*alpharAUf1
+            AGmodel.hydrodynamicScalef(alphaf1*alpharAUf1)
           + alphaf2*alpharAUf2
         )
     );
@@ -304,10 +305,6 @@ while (pimple.correct())
 
     // Cache p prior to solve for density update
     volScalarField p_rgh_0(p_rgh);
-
-    // Update the pressure BCs to ensure flux consistency
-    U = alpha1*U1 + alpha2*U2;
-    constrainPressure(p, U, phiHbyA, rAUf);
 
     // Iterate over the pressure equation to correct for non-orthogonality
     while (pimple.correctNonOrthogonal())

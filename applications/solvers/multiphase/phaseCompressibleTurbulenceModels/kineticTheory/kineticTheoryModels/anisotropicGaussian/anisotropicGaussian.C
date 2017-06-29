@@ -43,7 +43,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::updateh2Fn()
         this->alphaMinFriction_,
         this->alphaMax_
     );
-    h2Fn_ == h2Function_->h2
+    h2Fn_ = h2Function_->h2
     (
         this->phase_,
         this->Theta_,
@@ -58,6 +58,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::updateh2Fn()
         ),
         this->e_
     );
+    h2Fn_.max(this->residualAlpha_);
 }
 
 
@@ -173,30 +174,10 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::correct()
     );
 
     // Particle viscosity
-    this->nu_ = (1.0 + 8.0/5.0*eta_*alpha*this->g0_)
-       *max(h2Fn_, this->residualAlpha_)*this->viscosityModel_->nu
-        (
-            this->phase_,
-            this->Theta_,
-            this->g0_,
-            rho,
-            da,
-            this->e_
-        )
-      + 0.6*this->lambda_;
+    this->nu_ *= h2Fn_;
 
     // 'thermal' conductivity
-    this->kappa_ = (1.0 + 12.0/5.0*eta_*alpha*this->g0_)
-       *max(h2Fn_, this->residualAlpha_)*this->conductivityModel_->kappa
-        (
-            this->phase_,
-            this->Theta_,
-            this->g0_,
-            rho,
-            da,
-            this->e_
-        )
-      + 1.5*this->lambda_*rho;
+    this->kappa_ *= h2Fn_;
 
     // particle pressure - coefficient in front of Theta (Eq. 3.22, p. 45)
     volScalarField PsCoeff
@@ -279,7 +260,6 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::correct()
         fvOptions.correct(Sigma_);
     }
 
-    this->nu_ += this->nuFric_;
     baseModel::correct();
 
     if (debug)
@@ -334,7 +314,7 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::hydrodynamicScale
     const volVectorField& U
 ) const
 {
-    return U*max(h2Fn_, this->phase_.residualAlpha());
+    return U*h2Fn_;
 }
 
 
