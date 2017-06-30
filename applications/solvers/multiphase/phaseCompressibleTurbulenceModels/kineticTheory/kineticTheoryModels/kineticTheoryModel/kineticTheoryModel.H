@@ -194,6 +194,9 @@ public:
             return Theta_;
         }
 
+        //- Return granular stress tensor
+        virtual tmp<volSymmTensorField> Sigma() const;
+
         //- Return the granular temperature on a patch
         virtual const scalarField& ThetaPatch(const label patchi) const
         {

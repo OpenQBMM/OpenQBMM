@@ -8,6 +8,14 @@ fvVectorMatrix U1Eqn(U1, rho1.dimensions()*U1.dimensions()*dimVol/dimTime);
 fvVectorMatrix U2Eqn(U2, rho2.dimensions()*U2.dimensions()*dimVol/dimTime);
 
 volScalarField Kd(fluid.Kd());
+// volScalarField Kdi("Kdi", fluid.drag(phase1).Ki(0,0));
+// volScalarField CdRe("CdRe", fluid.drag(phase1).CdRe(0,0));
+// if (runTime.outputTime())
+// {
+//     Kd.write();
+//     Kdi.write();
+//     CdRe.write();
+// }
 {
 
 

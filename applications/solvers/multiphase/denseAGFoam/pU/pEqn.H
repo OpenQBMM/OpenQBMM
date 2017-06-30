@@ -205,9 +205,9 @@ while (pimple.correct())
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        AGmodel.hydrodynamicScalef
         (
-            alphaf1*(phiHbyA1 + rAUKd1*MRF.absolute(phi2))
+            alphaf1*(AGmodel.hydrodynamicScalef(phiHbyA1)
+          + rAUKd1*MRF.absolute(phi2))
         )
       + alphaf2*(phiHbyA2 + rAUKd2*MRF.absolute(phi1))
     );

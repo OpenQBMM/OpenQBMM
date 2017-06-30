@@ -216,6 +216,13 @@ Foam::kineticTheoryModel::~kineticTheoryModel()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+Foam::tmp<Foam::volSymmTensorField> Foam::kineticTheoryModel::Sigma() const
+{
+    tmp<volTensorField> gradU(fvc::grad(phase_.U()));
+    return nu_*(twoSymm(gradU()) - (2.0/3.0)*tr(gradU())*I);
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::kineticTheoryModel::nuEff() const
 {
     tmp<volScalarField> nuEff(nu_ + nuFric_);

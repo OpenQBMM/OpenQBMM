@@ -26,11 +26,12 @@
 
 #include "AGmomentTransportModel.H"
 #include "fvc.H"
+#include "fvm.H"
 #include "fixedValueFvPatchFields.H"
 #include "wallFvPatch.H"
 #include "emptyFvPatch.H"
 #include "coupledFvPatch.H"
-
+#include "twoPhaseSystem.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -118,7 +119,12 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
 	        IOobject::NO_WRITE
 	    ),
 	    mesh_,
-	    dimensionedSymmTensor("zero", pow(dimVelocity,2)*dimVol/dimTime, symmTensor::zero)
+	    dimensionedSymmTensor
+	    (
+            "zero",
+            pow(dimVelocity,2)*dimVol/dimTime,
+            symmTensor::zero
+        )
 	),
     pDxyz_
 	(
@@ -132,7 +138,7 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
 		vector::zero
 	)
 {
-	if( !cellInv_)
+	if (!cellInv_)
 	{
 		forAll(ownnei_,i)
 		{
@@ -168,16 +174,26 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
 		labelList pLabels(cc.labels(ff));
 		pointField pLocal(pLabels.size(), vector::zero);
 
-		forAll(pLabels, pointi) pLocal[pointi] = pp[pLabels[pointi]];
+		forAll(pLabels, pointi)
+        {
+            pLocal[pointi] = pp[pLabels[pointi]];
+        }
 
-		pDxyz_[celli][0] = Foam::max(pLocal & vector(1,0,0)) - Foam::min(pLocal & vector(1,0,0));
-		pDxyz_[celli][1] = Foam::max(pLocal & vector(0,1,0)) - Foam::min(pLocal & vector(0,1,0));
-		pDxyz_[celli][2] = Foam::max(pLocal & vector(0,0,1)) - Foam::min(pLocal & vector(0,0,1));
+		pDxyz_[celli][0] =
+            Foam::max(pLocal & vector(1,0,0))
+          - Foam::min(pLocal & vector(1,0,0));
+		pDxyz_[celli][1] =
+            Foam::max(pLocal & vector(0,1,0))
+          - Foam::min(pLocal & vector(0,1,0));
+		pDxyz_[celli][2] =
+            Foam::max(pLocal & vector(0,0,1))
+          - Foam::min(pLocal & vector(0,0,1));
 	}
 
-	forAll(mesh_.boundary(), patchi) pDxyz_.boundaryFieldRef()[patchi] == vector(1,1,1);
-
-
+	forAll(mesh_.boundary(), patchi)
+    {
+        pDxyz_.boundaryFieldRef()[patchi] == vector(1,1,1);
+    }
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -193,18 +209,24 @@ Foam::scalar  Foam::AGmomentTransportModel::maxUxDx() const
     scalar maxUxDx = 0.0;
     tmp<volScalarField>  tVv;
 
-	tVv = (mag(Up_.component(vector::X)) + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::XX)))
-		  /pDxyz_.component(vector::X);
+	tVv =
+        (mag(Up_.component(vector::X))
+      + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::XX)))
+       /pDxyz_.component(vector::X);
 	maxUxDx = gMax(tVv());
 	tVv.clear();
 
-	tVv = (mag(Up_.component(vector::Y)) + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::YY)))
-		  /pDxyz_.component(vector::Y);
+	tVv =
+        (mag(Up_.component(vector::Y))
+      + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::YY)))
+       /pDxyz_.component(vector::Y);
 	maxUxDx = max(maxUxDx, gMax(tVv()));
 	tVv.clear();
 
-	tVv = (mag(Up_.component(vector::Z)) + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::ZZ)))
-		  /pDxyz_.component(vector::Z);
+	tVv =
+        (mag(Up_.component(vector::Z))
+      + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::ZZ)))
+       /pDxyz_.component(vector::Z);
 	maxUxDx = max(maxUxDx, gMax(tVv()));
 	tVv.clear();
 
@@ -217,71 +239,98 @@ void Foam::AGmomentTransportModel::solve
     const surfaceScalarField& h2f
 )
 {
-
-	const dimensionedScalar& deltaT = mesh_.time().deltaT();
-
 	tmp<surfaceScalarField> th1f(1.0 - h2f);
 	const surfaceScalarField& h1f = th1f();
 
 	Pp_ = Theta_*symmTensor::I - Sigma_;
 	Pp_.correctBoundaryConditions();
 
-	volScalarField M0_old(alphap_);
-	volVectorField M1_old(alphap_*Up_);
-	volSymmTensorField M2_old(alphap_*(Pp_ + sqr(Up_)));
+	calcMomentFluxes(h1f);
+
+	volScalarField m0
+	(
+        IOobject::groupName("moment.0", phase_.name()),
+        alphap_
+    );
+    volVectorField m1
+	(
+        IOobject::groupName("moment.1", phase_.name()),
+        alphap_*Up_
+    );
+    volSymmTensorField m2
+	(
+        IOobject::groupName("moment.2", phase_.name()),
+        alphap_*(Pp_ + sqr(Up_))
+    );
+
+    volScalarField m0Old(m0);
+	volVectorField m1Old(m1);
+	volSymmTensorField m2Old(m2);
+
+    const dimensionedScalar& deltaT = mesh_.time().deltaT();
+
+    m0 = m0Old - 0.5*fvc::surfaceIntegrate(F0_)*deltaT;
+    m1 = m1Old - 0.5*fvc::surfaceIntegrate(F1_)*deltaT;
+    m2 = m2Old - 0.5*fvc::surfaceIntegrate(F2_)*deltaT;
+
+	m0.max(SMALL);
+	alphap_ = m0;
+    alphap_.correctBoundaryConditions();
+
+	Up_ = m1/m0;
+    Up_.correctBoundaryConditions();
+
+	Pp_ = m2/m0 - sqr(Up_);
+    Pp_.correctBoundaryConditions();
 
 	calcMomentFluxes(h1f);
 
-	volScalarField M0("M0", M0_old - 0.5*fvc::surfaceIntegrate(F0_)*deltaT);
-	volVectorField M1("M1", M1_old - 0.5*fvc::surfaceIntegrate(F1_)*deltaT);
-	volSymmTensorField M2("M2", M2_old - 0.5*fvc::surfaceIntegrate(F2_)*deltaT);
-
-	M0.max(SMALL);
-	alphap_ = M0;
-	Up_ = M1/M0;
-	Pp_ = M2/M0 - sqr(Up_);
-
-	alphap_.correctBoundaryConditions();
-	Up_.correctBoundaryConditions();
-	Pp_.correctBoundaryConditions();
-
-	calcMomentFluxes(h1f);
-
-	M0 = M0_old - fvc::surfaceIntegrate(F0_)*deltaT;
-	M1 = M1_old - fvc::surfaceIntegrate(F1_)*deltaT;
-	M2 = M2_old - fvc::surfaceIntegrate(F2_)*deltaT;
-
-	M0.max(SMALL);
-	alphap_ = M0;
-	Up_ = M1/M0;
-	Pp_ = M2/M0 - sqr(Up_);
-
-	forAll(Pp_,i)
 	{
-		if(Pp_[i].xx() < SMALL) Pp_[i].xx() = SMALL;
-		if(Pp_[i].yy() < SMALL) Pp_[i].yy() = SMALL;
-		if(Pp_[i].zz() < SMALL) Pp_[i].zz() = SMALL;
-	}
+        m0 = m0Old - fvc::surfaceIntegrate(F0_)*deltaT;
+        m0.correctBoundaryConditions();
 
-	alphap_.correctBoundaryConditions();
-	Up_.correctBoundaryConditions();
-	Pp_.correctBoundaryConditions();
+        volScalarField taup =
+            phase_.fluid().drag(phase_).Ki(0,0)/phase_.rho()*deltaT;
+        const volVectorField& Uc = phase_.fluid().otherPhase(phase_).U();
 
-	Theta_ = 1.0/3.0*tr(Pp_);
-	Sigma_ = Theta_*symmTensor::I - Pp_;
+        m1 = (m1Old - fvc::surfaceIntegrate(F1_)*deltaT + taup*alphap_*Uc)
+           /(1.0 + taup);
+        m1.correctBoundaryConditions();
 
-	Theta_.max(0);
-	Theta_.min(100);
+        m2 = m2Old - fvc::surfaceIntegrate(F2_)*deltaT;
+        m2.correctBoundaryConditions();
+    }
 
-	Theta_.correctBoundaryConditions();
-	Sigma_.correctBoundaryConditions();
 
-	surfaceScalarField& phip =
+	m0.max(SMALL);
+	alphap_ = m0;
+    alphap_.correctBoundaryConditions();
+
+	Up_ = m1/m0;
+    Up_.correctBoundaryConditions();
+    surfaceScalarField& phip =
         mesh_.lookupObjectRef<surfaceScalarField>
         (
             IOobject::groupName("phi", phase_.name())
         );
     phip = fvc::flux(Up_);
+
+	Pp_ = m2/m0 - sqr(Up_);
+    forAll(Pp_,i)
+	{
+		if(Pp_[i].xx() < SMALL) Pp_[i].xx() = SMALL;
+		if(Pp_[i].yy() < SMALL) Pp_[i].yy() = SMALL;
+		if(Pp_[i].zz() < SMALL) Pp_[i].zz() = SMALL;
+	}
+    Pp_.correctBoundaryConditions();
+
+	Theta_ = 1.0/3.0*tr(Pp_);
+	Theta_.max(0);
+	Theta_.min(100);
+	Theta_.correctBoundaryConditions();
+
+    Sigma_ = Theta_*symmTensor::I - Pp_;
+	Sigma_.correctBoundaryConditions();
 }
 
 
@@ -477,7 +526,8 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 		forAll(ownnei_,di)
 		{
 
-			surfaceScalarField alphaf(fvc::interpolate(alphap_,ownnei_[di], "alphap"));
+			surfaceScalarField alphaf
+			(fvc::interpolate(alphap_,ownnei_[di], "alphap"));
 			surfaceVectorField Upf(fvc::interpolate(Up_,ownnei_[di],"Up"));
 			surfaceSymmTensorField Ppf(fvc::interpolate(Pp_,ownnei_[di],"Pp"));
 

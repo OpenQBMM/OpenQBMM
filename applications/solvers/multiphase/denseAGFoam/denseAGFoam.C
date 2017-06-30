@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
         //  Update alpha2 and set ddt(alpha1)
         alpha2 = 1.0 - alpha1;
         volScalarField ddtAlpha1Dilute(fvc::ddt(alpha1));
+        volVectorField ddtU1Dilute(fvc::ddt(alpha1, rho1, U1));
 
 
         // --- Pressure-velocity PIMPLE corrector loop
@@ -130,8 +131,8 @@ int main(int argc, char *argv[])
                 surfaceScalarField pPrimeByA = fluid.pPrimeByA()();
                 phi1 = AGmodel.hydrodynamicScalef
                 (
-                    1.0*phi1
-//                   + pPrimeByA*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
+                    phi1
+                  + pPrimeByA*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
                 );
 
                 alphaPhi1 = fvc::interpolate(alpha1)*phi1;

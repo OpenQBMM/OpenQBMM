@@ -128,6 +128,14 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class baseModel>
+Foam::tmp<Foam::volSymmTensorField>
+Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::Sigma() const
+{
+    return Sigma_;
+}
+
+
+template<class baseModel>
 void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::correct()
 {
     // Local references

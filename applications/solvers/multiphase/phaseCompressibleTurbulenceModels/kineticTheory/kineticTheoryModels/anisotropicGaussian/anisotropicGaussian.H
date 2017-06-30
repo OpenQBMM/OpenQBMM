@@ -105,6 +105,12 @@ public:
     //- Destructor
     ~anisotropicGaussian();
 
+    // Return functions
+
+        //- Return granular stress tensor
+        virtual tmp<volSymmTensorField> Sigma() const;
+
+
     // Member Functions
 
         //- Update kinetic theory quantities
