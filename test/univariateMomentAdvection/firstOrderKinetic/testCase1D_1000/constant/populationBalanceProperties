@@ -63,6 +63,7 @@ univariateCoeffs
 
     odeCoeffs
     {
+        solveODESource off;
         ATol    1.0e-8;
         RTol    1.0e-4;
         fac     0.9;

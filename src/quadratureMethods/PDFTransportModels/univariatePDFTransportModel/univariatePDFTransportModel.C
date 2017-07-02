@@ -39,6 +39,10 @@ Foam::PDFTransportModels::univariatePDFTransportModel
 :
     PDFTransportModel(name, dict, mesh),
     name_(name),
+    solveODESource_
+    (
+        dict.subDict("odeCoeffs").lookupOrDefault("solveODESource", true)
+    ),
     ATol_(readScalar(dict.subDict("odeCoeffs").lookup("ATol"))),
     RTol_(readScalar(dict.subDict("odeCoeffs").lookup("RTol"))),
     fac_(readScalar(dict.subDict("odeCoeffs").lookup("fac"))),
@@ -263,13 +267,20 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
         );
     }
 
-    //explicitMomentSource();
+    if (solveODESource_)
+    {
+        explicitMomentSource();
+    }
 
     forAll (momentEqns, mEqni)
     {
         volUnivariateMoment& m = quadrature_.moments()[mEqni];
 
-        momentEqns[mEqni] -= fvc::ddt(m);
+        if (solveODESource_)
+        {
+            momentEqns[mEqni] -= fvc::ddt(m);
+        }
+
         momentEqns[mEqni].relax();
         momentEqns[mEqni].solve();
     }

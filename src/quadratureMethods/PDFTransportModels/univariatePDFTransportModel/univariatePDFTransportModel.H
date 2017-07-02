@@ -60,6 +60,8 @@ class univariatePDFTransportModel
         //- Name of the univariatePDFTransportModel
         const word name_;
 
+        Switch solveODESource_;
+
         //- Absolute tolerance for realizable ODE solver
         scalar ATol_;
 
