@@ -27,6 +27,15 @@ Class
 Description
     Second-order univariate moment advection with zeta kinetic scheme.
 
+    References
+    \verbatim
+        "Realizable second-order finite-volume schemes for the advection of
+        moment sets of the particle size distribution"
+        F Laurent, T. T. Nguyen
+        Journal of Computational Physics
+        Volume 337, Pages 309-338, 2017
+    \endverbatim
+
 SourceFiles
     zeta.C
     zetaI.H
