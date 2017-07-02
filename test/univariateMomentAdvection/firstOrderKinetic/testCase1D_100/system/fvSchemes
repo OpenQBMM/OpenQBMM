@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         leastSquares;
+    default         Gauss linear;
 }
 
 divSchemes
@@ -39,11 +39,11 @@ interpolationSchemes
 {
     default         linear;
 
-    "interpolate\(moment.*\)" linear;
+    "interpolate\(moment.*\)" upwind phi;
 
-    reconstruct(m0)         Minmod;
-    reconstruct(zeta)       Minmod;
-    reconstruct(U)          Minmod;
+    reconstruct(m0)         upwind;
+    reconstruct(zeta)       upwind;
+    reconstruct(U)          upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;
     reconstruct(sigma)      upwind;
@@ -51,7 +51,7 @@ interpolationSchemes
 
 snGradSchemes
 {
-    default         corrected;
+    default         uncorrected;
 }
 
 fluxRequired

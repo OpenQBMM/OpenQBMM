@@ -208,6 +208,18 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 
+    if ((*this)[0] < SMALL && !fatalErrorOnFailedRealizabilityTest)
+    {
+        realizabilityChecked_ = true;
+        negativeZeta_ = 0;
+        nRealizableMoments_ = 0;
+        fullyRealizable_ = false;
+        subsetRealizable_ = false;
+        onMomentSpaceBoundary_ = false;
+
+        return;
+    }
+
     // Check for the degenerate case where only m0 is defined
     if (nMoments_ <= 1)
     {

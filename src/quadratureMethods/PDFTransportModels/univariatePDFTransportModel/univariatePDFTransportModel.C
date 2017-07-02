@@ -263,7 +263,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
         );
     }
 
-    explicitMomentSource();
+    //explicitMomentSource();
 
     forAll (momentEqns, mEqni)
     {

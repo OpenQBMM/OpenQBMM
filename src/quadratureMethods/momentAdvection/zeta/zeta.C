@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "zeta.H"
+#include "upwind.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -51,12 +52,32 @@ Foam::zeta::zeta
 )
 :
     univariateMomentAdvection(dict, quadrature, phi, support),
+    m0_(moments_[0]),
+    m0Own_
+    (
+        "m0Own",
+        fvc::interpolate(m0_, own_, "reconstruct(m0)")
+    ),
+    m0Nei_
+    (
+        "m0Nei",
+        fvc::interpolate(m0_, nei_, "reconstruct(m0)")
+    ),
     nZetas_(nMoments_ - 1),
     zetas_(nZetas_),
     zetasNei_(nZetas_),
     zetasOwn_(nZetas_),
+    zetasUpwindNei_(nZetas_),
+    zetasUpwindOwn_(nZetas_),
+    zetasCorrNei_(nZetas_),
+    zetasCorrOwn_(nZetas_),
     momentsNei_(nMoments_),
     momentsOwn_(nMoments_),
+    nFacesOutgoingFlux_(m0_.mesh().nCells(), 0),
+    nRealizableMoments_(m0_.mesh().nCells(), 0),
+    nRealizableMomentsStar_(m0_.mesh().nCells(), 0),
+    limiters_(nZetas_),
+    cellLimiters_(nZetas_),
     phi_(phi)
 {
     // Populating zeta_k fields and interpolated zeta_k fields
@@ -119,6 +140,114 @@ Foam::zeta::zeta
                 dimensionedScalar("zero", dimless, 0.0)
             )
         );
+
+        zetasUpwindNei_.set
+        (
+            zetai,
+            new surfaceScalarField
+            (
+                IOobject
+                (
+                    "zetaUpwindNei" + Foam::name(zetai),
+                    phi.mesh().time().timeName(),
+                    phi.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                phi.mesh(),
+                dimensionedScalar("zero", dimless, 0.0)
+            )
+        );
+
+        zetasUpwindOwn_.set
+        (
+            zetai,
+            new surfaceScalarField
+            (
+                IOobject
+                (
+                    "zetaUpwindOwn" + Foam::name(zetai),
+                    phi.mesh().time().timeName(),
+                    phi.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                phi.mesh(),
+                dimensionedScalar("zero", dimless, 0.0)
+            )
+        );
+
+        zetasCorrNei_.set
+        (
+            zetai,
+            new surfaceScalarField
+            (
+                IOobject
+                (
+                    "zetaCorrNei" + Foam::name(zetai),
+                    phi.mesh().time().timeName(),
+                    phi.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                phi.mesh(),
+                dimensionedScalar("zero", dimless, 0.0)
+            )
+        );
+
+        zetasCorrOwn_.set
+        (
+            zetai,
+            new surfaceScalarField
+            (
+                IOobject
+                (
+                    "zetaCorrOwn" + Foam::name(zetai),
+                    phi.mesh().time().timeName(),
+                    phi.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                phi.mesh(),
+                dimensionedScalar("zero", dimless, 0.0)
+            )
+        );
+
+        limiters_.set
+        (
+            zetai,
+            new surfaceScalarField
+            (
+                IOobject
+                (
+                    "zetaLimiters" + Foam::name(zetai),
+                    phi.mesh().time().timeName(),
+                    phi.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                phi.mesh(),
+                dimensionedScalar("zero", dimless, 1.0)
+            )
+        );
+
+        cellLimiters_.set
+        (
+            zetai,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "zetaCellLimiters" + Foam::name(zetai),
+                    phi.mesh().time().timeName(),
+                    phi.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                phi.mesh(),
+                dimensionedScalar("zero", dimless, 1.0)
+            )
+        );
     }
 
     // Setting face values of moments
@@ -155,8 +284,11 @@ Foam::zeta::~zeta()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::zeta::interpolateZetas()
+void Foam::zeta::interpolateFields()
 {
+    m0Own_ = fvc::interpolate(moments_[0], own_, "reconstruct(m0)");
+    m0Nei_ = fvc::interpolate(moments_[0], nei_, "reconstruct(m0)");
+
     forAll(zetas_, zetai)
     {
         zetasNei_[zetai] =
@@ -164,13 +296,23 @@ void Foam::zeta::interpolateZetas()
 
         zetasOwn_[zetai] =
             fvc::interpolate(zetas_[zetai], own_, "reconstruct(zeta)");
+
+        zetasUpwindNei_[zetai] =
+            upwind<scalar>(zetas_[zetai].mesh(), nei_).flux(zetas_[zetai]);
+
+        zetasUpwindOwn_[zetai] =
+            upwind<scalar>(zetas_[zetai].mesh(), own_).flux(zetas_[zetai]);
+
+        zetasCorrNei_[zetai] = zetasNei_[zetai] - zetasUpwindNei_[zetai];
+        zetasCorrOwn_[zetai] = zetasOwn_[zetai] - zetasUpwindOwn_[zetai];
     }
 }
 
 void Foam::zeta::zetaToMoments
 (
     const scalarList& zetaf,
-    scalarList& mf
+    scalarList& mf,
+    scalar m0
 )
 {
     scalarSquareMatrix S(nMoments_, 0.0);
@@ -211,14 +353,22 @@ void Foam::zeta::zetaToMoments
             mf[i] += prod[i - 2*j]*sqr(S[j][i - j]);
         }
     }
+
+    if (m0 != 1.0)
+    {
+        for (label mi = 0; mi < nMoments_; mi++)
+        {
+            mf[mi] *= m0;
+        }
+    }
 }
 
 void Foam::zeta::computeZetaFields()
 {
     // Cell-center values
-    forAll(moments_[0], celli)
+    forAll(m0_, celli)
     {
-        if (moments_[0][celli] >= SMALL)
+        if (m0_[celli] >= SMALL)
         {
             univariateMomentSet m(nMoments_, support_);
 
@@ -227,11 +377,22 @@ void Foam::zeta::computeZetaFields()
                 m[mi] = moments_[mi][celli];
             }
 
+            nRealizableMoments_[celli] = m.nRealizableMoments();
+
             scalarList zetas(m.zetas());
 
             for (label zetai = 0; zetai < nZetas_; zetai++)
             {
                 zetas_[zetai][celli] = zetas[zetai];
+
+                if (zetas_[zetai][celli] > 1.0e-7)
+                {
+                    zetas_[zetai][celli] = zetas[zetai];
+                }
+                else
+                {
+                    zetas_[zetai][celli] = 0.0;
+                }
             }
         }
     }
@@ -245,7 +406,7 @@ void Foam::zeta::computeZetaFields()
 
         forAll(m0Patch, facei)
         {
-            if (moments_[0].boundaryField()[patchi][facei] >= SMALL)
+            if (m0_.boundaryField()[patchi][facei] >= SMALL)
             {
                 univariateMomentSet m(nMoments_, support_);
 
@@ -264,6 +425,311 @@ void Foam::zeta::computeZetaFields()
                 }
             }
         }
+    }
+}
+
+void Foam::zeta::countFacesWithOutgoingFlux()
+{
+    const fvMesh& mesh(phi_.mesh());
+    const labelList& own = mesh.faceOwner();
+    const labelList& nei = mesh.faceNeighbour();
+
+    nFacesOutgoingFlux_ = 0;
+
+    // Counting internal faces with outgoing flux
+    for (label facei = 0; facei < mesh.nInternalFaces(); facei++)
+    {
+        if (phi_[facei] > 0)
+        {
+            nFacesOutgoingFlux_[own[facei]] += 1;
+        }
+        else if (phi_[facei] < 0)
+        {
+            nFacesOutgoingFlux_[nei[facei]] += 1;
+        }
+    }
+
+    // Adding boundary faces with outgoing flux
+    const surfaceScalarField::Boundary& phiBf = phi_.boundaryField();
+
+    forAll(phiBf, patchi)
+    {
+        const fvsPatchScalarField& phiPf = phiBf[patchi];
+        const labelList& pFaceCells = mesh.boundary()[patchi].faceCells();
+
+        forAll(phiPf, pFacei)
+        {
+            if (phiPf[pFacei] > 0)
+            {
+                nFacesOutgoingFlux_[pFaceCells[pFacei]] += 1;
+            }
+        }
+    }
+}
+
+void Foam::zeta::limitZetas()
+{
+    const labelUList& owner = phi_.mesh().owner();
+    const labelUList& neighb = phi_.mesh().neighbour();
+    const scalarField& phiIf = phi_;
+    const surfaceScalarField::Boundary& phiBf = phi_.boundaryField();
+    const label nCells = phi_.mesh().nCells();
+    const label nInternalFaces = phi_.mesh().nInternalFaces();
+
+    countFacesWithOutgoingFlux();
+
+    forAll(cellLimiters_, li)
+    {
+        forAll(cellLimiters_[0], celli)
+        {
+            cellLimiters_[li][celli] = 1.0;
+        }
+    }
+
+    // First check on m* to identify cells in need of additional limitation
+    scalarRectangularMatrix mPluses(nMoments_, nCells, 0.0);
+
+    // Find m+ (moments reconstructed on cell faces with outgoing flux)
+    for (label facei = 0; facei < nInternalFaces; facei++)
+    {
+        const label own = owner[facei];
+        const label nei = neighb[facei];
+
+        if (phi_[facei] > 0.0)
+        {
+            for (label mi = 0; mi < nMoments_; mi++)
+            {
+                mPluses[mi][own] += momentsOwn_[mi][facei];
+            }
+        }
+        else
+        {
+            for (label mi = 0; mi < nMoments_; mi++)
+            {
+                mPluses[mi][nei] += momentsNei_[mi][facei];
+            }
+        }
+    }
+
+    // Adding boundary faces with outgoing flux
+    forAll(phiBf, patchi)
+    {
+        const fvsPatchScalarField& phiPf = phiBf[patchi];
+
+        const labelList& pFaceCells
+            = phi_.mesh().boundary()[patchi].faceCells();
+
+        forAll(phiPf, pFacei)
+        {
+            if (phiPf[pFacei] > 0)
+            {
+                for (label mi = 0; mi < nMoments_; mi++)
+                {
+                    mPluses[mi][pFaceCells[pFacei]] += momentsOwn_[mi][pFacei];
+                }
+            }
+        }
+    }
+
+    // Compute m* and find how many moments are realizable
+    univariateMomentSet mStar(nMoments_, support_);
+
+    forAll(m0_, celli)
+    {
+        if (m0_[celli] > 0)
+        {
+            for (label mi = 0; mi < nMoments_; mi++)
+            {
+                mStar[mi]
+                    = scalar(nFacesOutgoingFlux_[celli] + 1)
+                    *moments_[mi][celli] - mPluses[mi][celli];
+            }
+
+            nRealizableMomentsStar_[celli] = mStar.nRealizableMoments();
+        }
+        else
+        {
+            nRealizableMomentsStar_[celli] = nRealizableMoments_[celli];
+        }
+    }
+
+    // In each cell where the the number of realizable m* is less than the
+    // number of realizable m, limitation is attempted
+    const cellList& mCells(phi_.mesh().cells());
+
+    forAll(m0_, celli)
+    {
+        if (nRealizableMomentsStar_[celli] < nRealizableMoments_[celli])
+        {
+            const cell& mCell(mCells[celli]);
+
+            // Start search for the zetas to limit
+            for (label p = 0; p < nRealizableMoments_[celli] - 1; p++)
+            {
+                scalarList mPlus(nMoments_, 0.0);
+
+                // Check if zeta_p needs limiting by evaluating m* with
+                // zeta_k, k > p from constant reconstruction
+
+                // Update mPlus for a face to update m*
+                forAll(mCell, fi)
+                {
+                    const label facei = mCell[fi];
+
+                    if (phi_.mesh().isInternalFace(facei))
+                    {
+                        if (phi_[facei] > 0)
+                        {
+                            scalarList zOwn(nZetas_, 0.0);
+                            scalarList mOwn(nMoments_, 0.0);
+
+                            for (label zi = 0; zi <= p; zi++)
+                            {
+                                zOwn[zi] = zetasOwn_[zi][facei];
+                            }
+
+                            for (label zi = p + 1; zi < nZetas_; zi++)
+                            {
+                                zOwn[zi] = zetasUpwindOwn_[zi][facei];
+                            }
+
+                            zetaToMoments(zOwn, mOwn, m0Own_[facei]);
+
+                            for (label mi = 0; mi < nMoments_; mi++)
+                            {
+                                mPlus[mi] += mOwn[mi];
+                            }
+                        }
+                    }
+                }
+
+                // Compute m*
+                for (label mi = 0; mi < nMoments_; mi++)
+                {
+                    mStar[mi]
+                        = scalar(nFacesOutgoingFlux_[celli] + 1)
+                          *moments_[mi][celli] - mPlus[mi];
+                }
+
+                nRealizableMomentsStar_[celli]
+                    = mStar.nRealizableMoments(false);
+
+                // Check if zeta_p needs limitation
+                if (nRealizableMomentsStar_[celli] < nRealizableMoments_[celli])
+                {
+                    mPlus = 0;
+
+                    // Limit zeta_p
+                    forAll(mCell, fi)
+                    {
+                        const label facei = mCell[fi];
+
+                        if (phi_.mesh().isInternalFace(facei))
+                        {
+                            if (phi_[facei] > 0)
+                            {
+                                zetasOwn_[p][facei]
+                                    = zetasUpwindOwn_[p][facei]
+                                    + 0.5*(zetasCorrOwn_[p][facei]);
+
+                                cellLimiters_[p][celli] = 0.5;
+
+                                scalarList zOwn(nZetas_);
+                                scalarList mOwn(nMoments_, 0.0);
+
+                                for (label zi = 0; zi < p; zi++)
+                                {
+                                    zOwn[zi] = zetasOwn_[zi][facei];
+                                }
+
+                                zOwn[p] = zetasOwn_[p][facei];
+
+                                for (label zi = p + 1; zi < nZetas_; zi++)
+                                {
+                                    zOwn[zi] = zetasUpwindOwn_[zi][facei];
+                                }
+
+                                zetaToMoments(zOwn, mOwn, m0Own_[facei]);
+
+                                for (label mi = 0; mi < nMoments_; mi++)
+                                {
+                                    mPlus[mi] += mOwn[mi];
+                                }
+                            }
+                        }
+                    }
+
+                    // Compute m*
+                    for (label mi = 0; mi < nMoments_; mi++)
+                    {
+                        mStar[mi]
+                            = scalar(nFacesOutgoingFlux_[celli] + 1)
+                              *moments_[mi][celli] - mPlus[mi];
+                    }
+
+                    nRealizableMomentsStar_[celli]
+                        = mStar.nRealizableMoments(false);
+
+                    if
+                    (
+                        nRealizableMomentsStar_[celli]
+                      < nRealizableMoments_[celli]
+                    )
+                    {
+                        cellLimiters_[p][celli] = 0.0;
+                    }
+                }
+            }
+        }
+    }
+
+    // Setting limiters on internal faces based on cell limiters
+    forAll(phiIf, facei)
+    {
+        const label own = owner[facei];
+        const label nei = neighb[facei];
+
+        if (phi_[facei] > 0)
+        {
+            for (label zi = 0; zi < nZetas_; zi++)
+            {
+                limiters_[zi][facei] = cellLimiters_[zi][own];
+            }
+        }
+        else
+        {
+            for (label zi = 0; zi < nZetas_; zi++)
+            {
+                limiters_[zi][facei] = cellLimiters_[zi][nei];
+            }
+        }
+    }
+
+    // Setting limiters on boundary faces
+    forAll(phiBf, patchi)
+    {
+        const fvsPatchScalarField& phiPf = phiBf[patchi];
+
+        const labelList& pFaceCells
+            = phi_.mesh().boundary()[patchi].faceCells();
+
+        forAll(phiPf, pFacei)
+        {
+            if (phiPf[pFacei] > 0)
+            {
+                for (label zi = 0; zi < nZetas_; zi++)
+                {
+                    limiters_[zi][pFacei]
+                        = cellLimiters_[zi][pFaceCells[pFacei]];
+                }
+            }
+        }
+    }
+
+    for(label zi = 1; zi < nZetas_; zi++)
+    {
+        zetasOwn_[zi] = zetasUpwindOwn_[zi] + limiters_[zi]*zetasCorrOwn_[zi];
+        zetasNei_[zi] = zetasUpwindNei_[zi] + limiters_[zi]*zetasCorrNei_[zi];
     }
 }
 
@@ -294,28 +760,22 @@ Foam::scalar Foam::zeta::realizableCo()
 
 void Foam::zeta::update()
 {
-    // Reconstructing zero-order moment on cell faces (standard min-mod).
-    surfaceScalarField m0Own
-    (
-        "m0Own",
-        fvc::interpolate(moments_[0], own_, "reconstruct(m0)")
-    );
-
-    surfaceScalarField m0Nei
-    (
-        "m0Nei",
-        fvc::interpolate(moments_[0], nei_, "reconstruct(m0)")
-    );
-
     // Compute zeta fields
     computeZetaFields();
 
     // Reconstructing zeta_k on cell faces
-    interpolateZetas();
+    interpolateFields();
 
     // Recompute moments at sides of cell faces
-    updateMomentFieldsFromZetas(m0Nei, zetasNei_, momentsNei_);
-    updateMomentFieldsFromZetas(m0Own, zetasOwn_, momentsOwn_);
+    updateMomentFieldsFromZetas(m0Nei_, zetasNei_, momentsNei_);
+    updateMomentFieldsFromZetas(m0Own_, zetasOwn_, momentsOwn_);
+
+    // Apply additional limitation to zeta_k if needed
+    limitZetas();
+
+    // Recompute moments at sides of cell faces
+    updateMomentFieldsFromZetas(m0Nei_, zetasNei_, momentsNei_);
+    updateMomentFieldsFromZetas(m0Own_, zetasOwn_, momentsOwn_);
 
     // Calculate moment advection term
     dimensionedScalar zeroPhi("zero", phi_.dimensions(), 0.0);
@@ -367,11 +827,11 @@ void Foam::zeta::updateMomentFieldsFromZetas
         }
 
         scalarList mFace(nMoments_, 0.0);
-        zetaToMoments(zf, mFace);
+        zetaToMoments(zf, mFace, m0f[facei]);
 
         for (label mi = 0; mi < nMoments_; mi++)
         {
-            mf[mi][facei] = m0f[facei]*mFace[mi];
+            mf[mi][facei] = mFace[mi];
         }
     }
 
@@ -392,12 +852,11 @@ void Foam::zeta::updateMomentFieldsFromZetas
             }
 
             scalarList mFace(nMoments_, 0.0);
-            zetaToMoments(zf, mFace);
+            zetaToMoments(zf, mFace, m0f.boundaryField()[patchi][facei]);
 
             for (label mi = 0; mi < nMoments_; mi++)
             {
-                mf[mi].boundaryFieldRef()[patchi][facei]
-                    = m0f.boundaryField()[patchi][facei]*mFace[mi];
+                mf[mi].boundaryFieldRef()[patchi][facei] = mFace[mi];
             }
         }
     }

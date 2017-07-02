@@ -54,6 +54,15 @@ class zeta
 {
     // Private data
 
+        //- Reference to zero-order moment field
+        const volScalarField& m0_;
+
+        //- Reconstructed m0 (owner)
+        surfaceScalarField m0Own_;
+
+        //- Reconstructed m0 (neighbour)
+        surfaceScalarField m0Nei_;
+
         //- Number of zeta_k values
         label nZetas_;
 
@@ -66,11 +75,38 @@ class zeta
         //- List of interpolated nodes (owner)
         PtrList<surfaceScalarField> zetasOwn_;
 
+        //- List of interpolated zeta_k values (neighbour)
+        PtrList<surfaceScalarField> zetasUpwindNei_;
+
+        //- List of interpolated nodes (owner)
+        PtrList<surfaceScalarField> zetasUpwindOwn_;
+
+        //- List of interpolated zeta_k values (neighbour)
+        PtrList<surfaceScalarField> zetasCorrNei_;
+
+        //- List of interpolated nodes (owner)
+        PtrList<surfaceScalarField> zetasCorrOwn_;
+
         //- List of interpolated moments (neighbour)
         PtrList<surfaceScalarField> momentsNei_;
 
         //- List of interpolated moments (owner)
         PtrList<surfaceScalarField> momentsOwn_;
+
+        //- Field to store the number of faces with outgoing flux per each cell
+        labelField nFacesOutgoingFlux_;
+
+        //- Field to store the number of realizable moments in each cell
+        labelField nRealizableMoments_;
+
+        //- Field to store the number of realizable m* in each cell
+        labelField nRealizableMomentsStar_;
+
+        //- List of limiters for zeta_k
+        PtrList<surfaceScalarField> limiters_;
+
+        //- List of cell limiters
+        PtrList<volScalarField> cellLimiters_;
 
         //- Face velocity
         const surfaceScalarField& phi_;
@@ -89,14 +125,30 @@ class zeta
             PtrList<surfaceScalarField>& mf
         );
 
-        //- Compute n + 1 moments from n values of zeta_k assuming m0 = 1.
-        void zetaToMoments(const scalarList& zetaf, scalarList& mf);
+        //- Compute n + 1 moments from n values of zeta_k
+        void zetaToMoments
+        (
+            const scalarList& zetaf,
+            scalarList& mf,
+            scalar m0 = 1.0
+        );
 
 
 protected:
 
-        //- Protected member functions
-        void interpolateZetas();
+    // Protected member functions
+
+        //- Calculates the number of cells with outgoing flux
+        void countFacesWithOutgoingFlux();
+
+        //- Computes the limiter used for additional limitation
+        void limiter();
+
+        //- Reconstructs zeta_k
+        void interpolateFields();
+
+        //- Applies additional limitation to zeta_k, if needed
+        void limitZetas();
 
 
 public:

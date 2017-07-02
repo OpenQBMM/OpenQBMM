@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
     while (simple.loop())
     {
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        Info<< "\nTime = " << runTime.timeName() << nl << endl;
 
         populationBalance->solve();
 
