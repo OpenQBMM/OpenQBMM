@@ -1,4 +1,0 @@
-monoKineticQuadratureApproximation.C
-
-
-LIB = $(FOAM_USER_LIBBIN)/libmonoKineticQuadratureApproximation

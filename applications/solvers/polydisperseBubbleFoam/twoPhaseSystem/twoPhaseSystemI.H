@@ -25,37 +25,37 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-inline const Foam::fvMesh& Foam::twoPhaseSystem::mesh() const
+const Foam::fvMesh& Foam::twoPhaseSystem::mesh() const
 {
     return mesh_;
 }
 
 
-inline const Foam::phaseModel& Foam::twoPhaseSystem::phase1() const
+const Foam::phaseModel& Foam::twoPhaseSystem::phase1() const
 {
     return phase1_();
 }
 
 
-inline Foam::phaseModel& Foam::twoPhaseSystem::phase1()
+Foam::phaseModel& Foam::twoPhaseSystem::phase1()
 {
     return phase1_();
 }
 
 
-inline const Foam::phaseModel& Foam::twoPhaseSystem::phase2() const
+const Foam::phaseModel& Foam::twoPhaseSystem::phase2() const
 {
     return phase2_();
 }
 
 
-inline Foam::phaseModel& Foam::twoPhaseSystem::phase2()
+Foam::phaseModel& Foam::twoPhaseSystem::phase2()
 {
     return phase2_();
 }
 
 
-inline const Foam::phaseModel& Foam::twoPhaseSystem::otherPhase
+const Foam::phaseModel& Foam::twoPhaseSystem::otherPhase
 (
     const phaseModel& phase
 ) const
@@ -71,34 +71,54 @@ inline const Foam::phaseModel& Foam::twoPhaseSystem::otherPhase
 }
 
 
-inline const Foam::surfaceScalarField& Foam::twoPhaseSystem::phi() const
+const Foam::surfaceScalarField& Foam::twoPhaseSystem::phi() const
 {
     return phi_;
 }
 
 
-inline Foam::surfaceScalarField& Foam::twoPhaseSystem::phi()
+Foam::surfaceScalarField& Foam::twoPhaseSystem::phi()
 {
     return phi_;
 }
 
 
-inline const Foam::volScalarField& Foam::twoPhaseSystem::dgdt() const
+const Foam::volScalarField& Foam::twoPhaseSystem::dgdt() const
 {
     return dgdt_;
 }
 
 
-inline Foam::volScalarField& Foam::twoPhaseSystem::dgdt()
+Foam::volScalarField& Foam::twoPhaseSystem::dgdt()
 {
     return dgdt_;
 }
 
 
-inline Foam::tmp<Foam::surfaceScalarField>& Foam::twoPhaseSystem::pPrimeByA()
+Foam::tmp<Foam::surfaceScalarField>& Foam::twoPhaseSystem::pPrimeByA()
 {
     return pPrimeByA_;
 }
 
+
+const Foam::populationBalanceSubModels::aggregationKernel&
+Foam::twoPhaseSystem::coalesence() const
+{
+    return coalesenceKernel_();
+}
+
+
+const Foam::populationBalanceSubModels::breakupKernel&
+Foam::twoPhaseSystem::breakup() const
+{
+    return breakupKernel_();
+}
+
+
+const Foam::populationBalanceSubModels::daughterDistribution&
+Foam::twoPhaseSystem::daughterDistribution() const
+{
+    return daughterDistribution_();
+}
 
 // ************************************************************************* //

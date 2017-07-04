@@ -59,5 +59,8 @@ aspectRatioModels/Wellek/Wellek.C
 
 wallDependentModel/wallDependentModel.C
 
+coalesenceKernels/CoulaloglouAndTavlarides/CoulaloglouAndTavlarides.C
+
+breakupKernels/Alopaeus/Alopaeus.C
 
 LIB = $(FOAM_USER_LIBBIN)/libpdEulerianInterfacialModels

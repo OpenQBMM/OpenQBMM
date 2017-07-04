@@ -6,7 +6,7 @@ EXE_INC = \
     -I../momentSets/lnInclude \
     -I../momentInversion/univariate/basic/lnInclude \
     -I../fieldMomentInversion/lnInclude \
-    -I../quadratureApproximation
+    -I../quadratureApproximations/lnInclude \
 
 LIB_LIBS = \
     -lfiniteVolume \
@@ -14,5 +14,6 @@ LIB_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lmomentSets \
     -lmomentInversion \
-    -lfieldMomentInversion
+    -lfieldMomentInversion \
+    -lquadratureApproximation
 
