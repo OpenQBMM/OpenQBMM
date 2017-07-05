@@ -102,7 +102,6 @@ Foam::scalar Foam::pdPhaseModel::coalesenceSource
                     )*fluid_.coalesence().Ka
                     (
                         ds_[pNode1i][celli], ds_[pNode2i][celli], celli
-//                         pAbscissa1[celli], pAbscissa2[celli], celli
                     )
                 );
         }
@@ -683,35 +682,12 @@ void Foam::pdPhaseModel::solveBreakupCoalesence()
 
     Info << "Solving source terms in realizable ODE solver." << endl;
 
-    if (!ode_)
+//     if (!ode_)
     {
-        PtrList<volScalarField> srcs(nMoments);
-        forAll(moments, mi)
-        {
-            srcs.set
-            (
-                mi,
-                new volScalarField
-                (
-                    IOobject
-                    (
-                        IOobject::groupName("src", Foam::name(mi)),
-                        fluid_.mesh().time().timeName(),
-                        fluid_.mesh()
-                    ),
-                    fluid_.mesh(),
-                    dimensionedScalar("0", moments[mi].dimensions(), 0.0)
-                )
-            );
-        }
-
         forAll(moments[0], celli)
-         {
+        {
             forAll(moments, mi)
             {
-                srcs[mi][celli] = breakupSource(mi, celli)
-                  + coalesenceSource(mi, celli);
-
                 moments[mi][celli] = moments[mi][celli]
                   + globalDt
                    *(
@@ -719,206 +695,198 @@ void Foam::pdPhaseModel::solveBreakupCoalesence()
                       + coalesenceSource(mi, celli)
                     );
             }
-         }
-         if (fluid_.mesh().time().outputTime())
-         {
-             forAll(moments, mi)
-             {
-                 srcs[mi].write();
-             }
         }
     }
 
-    else
-    {
-        forAll(moments[0], celli)
-        {
-            // Storing old moments to recover from failed step
-
-            scalarList oldMoments(nMoments, 0.0);
-
-            forAll(oldMoments, mi)
-            {
-                oldMoments[mi] = moments[mi].oldTime()[celli];
-            }
-
-            //- Local time
-            scalar localT = 0.0;
-
-            // Initialize the local step
-            scalar localDt = globalDt/100;
-
-            // Initialize RK parameters
-            scalarList k1(nMoments, 0.0);
-            scalarList k2(nMoments, 0.0);
-            scalarList k3(nMoments, 0.0);
-
-            // Flag to indicate if the time step is complete
-            bool timeComplete = false;
-
-            // Check realizability of intermediate moment sets
-            bool realizableUpdate1 = true;//false;
-            bool realizableUpdate2 = true;//false;
-            bool realizableUpdate3 = true;//false;
-
-            scalarList momentsSecondStep(nMoments, 0.0);
-
-            while(!timeComplete)
-            {
-                do
-                {
-                    // First intermediate update
-                    forAll(oldMoments, mi)
-                    {
-                        k1[mi] = localDt
-                           *(
-                                breakupSource(mi, celli)
-                              + coalesenceSource(mi, celli)
-                            );
-                        moments[mi][celli] = oldMoments[mi] + k1[mi];
-                    }
-
-                    realizableUpdate1 =
-                            quadrature_.updateLocalQuadrature(celli, false);
-
-                    quadrature_.updateLocalMoments(celli);
-
-                    // Second moment update
-                    forAll(oldMoments, mi)
-                    {
-                        k2[mi] = localDt
-                        *(
-                                breakupSource(mi, celli)
-                            + coalesenceSource(mi, celli)
-                            );
-                        moments[mi][celli] =
-                            oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
-
-                        momentsSecondStep[mi] = moments[mi][celli];
-                    }
-
-                    realizableUpdate2 =
-                            quadrature_.updateLocalQuadrature(celli, false);
-
-                    quadrature_.updateLocalMoments(celli);
-
-                    // Third moment update
-                    forAll(oldMoments, mi)
-                    {
-                        k3[mi] = localDt
-                        *(
-                                breakupSource(mi, celli)
-                            + coalesenceSource(mi, celli)
-                            );
-                        moments[mi][celli] =
-                            oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
-                    }
-
-                    realizableUpdate3 =
-                            quadrature_.updateLocalQuadrature(celli, false);
-
-                    quadrature_.updateLocalMoments(celli);
-
-                    if
-                    (
-                        !realizableUpdate1
-                    || !realizableUpdate2
-                    || !realizableUpdate3
-                    )
-                    {
-                        Info << "Not realizable" << endl;
-
-                        forAll(oldMoments, mi)
-                        {
-                            moments[mi][celli] = oldMoments[mi];
-                        }
-
-                        localDt /= 2.0;
-
-                        if (localDt < minLocalDt_)
-                        {
-                            FatalErrorInFunction
-                                << "Reached minimum local step in realizable ODE"
-                                << nl
-                                << "    solver. Cannot ensure realizability." << nl
-                                << abort(FatalError);
-                        }
-                    }
-                }
-                while
-                (
-                    !realizableUpdate1
-                || !realizableUpdate2
-                || !realizableUpdate3
-                );
-
-                scalar error = 0.0;
-
-                for(label mi = 0; mi < nMoments; mi++)
-                {
-                    scalar scalei =
-                        ATol_
-                    + Foam::max
-                        (
-                            mag(momentsSecondStep[mi]), mag(oldMoments[mi])
-                        )*RTol_;
-
-                        error +=
-                        sqr
-                        (
-                            (momentsSecondStep[mi] - moments[mi][celli])/scalei
-                        );
-                }
-
-                error = Foam::max(sqrt(error/nMoments), SMALL);
-
-                if (error < 1)
-                {
-                    localDt *=
-                        Foam::min
-                        (
-                            facMax_,
-                            Foam::max(facMin_, fac_/pow(error, 1.0/3.0))
-                        );
-
-                    scalar maxLocalDt = Foam::max(globalDt - localT, 0.0);
-                    localDt = Foam::min(maxLocalDt, localDt);
-
-                    forAll(oldMoments, mi)
-                    {
-                        oldMoments[mi] = moments[mi][celli];
-                    }
-
-                    if (localDt == 0.0)
-                    {
-                        timeComplete = true;
-                        localT = 0.0;
-                        break;
-                    }
-
-                    localT += localDt;
-                }
-                else
-                {
-                    localDt *=
-                        Foam::min
-                        (
-                            1.0,
-                            Foam::max
-                            (
-                                facMin_,
-                                fac_/pow(Foam::max(error, SMALL), 1.0/3.0)
-                            )
-                        );
-
-                    forAll(oldMoments, mi)
-                    {
-                        moments[mi][celli] = oldMoments[mi];
-                    }
-                }
-            }
-        }
-    }
+//     else
+//     {
+//         forAll(moments[0], celli)
+//         {
+//             // Storing old moments to recover from failed step
+//             scalarList oldMoments(nMoments, 0.0);
+//
+//             forAll(oldMoments, mi)
+//             {
+//                 oldMoments[mi] = moments[mi].oldTime()[celli];
+//             }
+//
+//             //- Local time
+//             scalar localT = 0.0;
+//
+//             // Initialize the local step
+//             scalar localDt = globalDt/100;
+//
+//             // Initialize RK parameters
+//             scalarList k1(nMoments, 0.0);
+//             scalarList k2(nMoments, 0.0);
+//             scalarList k3(nMoments, 0.0);
+//
+//             // Flag to indicate if the time step is complete
+//             bool timeComplete = false;
+//
+//             // Check realizability of intermediate moment sets
+//             bool realizableUpdate1 = false;
+//             bool realizableUpdate2 = false;
+//             bool realizableUpdate3 = false;
+//
+//             scalarList momentsSecondStep(nMoments, 0.0);
+//
+//             while(!timeComplete)
+//             {
+//                 do
+//                 {
+//                     // First intermediate update
+//                     forAll(oldMoments, mi)
+//                     {
+//                         k1[mi] = localDt
+//                            *(
+//                                 breakupSource(mi, celli)
+//                               + coalesenceSource(mi, celli)
+//                             );
+//                         moments[mi][celli] = oldMoments[mi] + k1[mi];
+//                     }
+//
+//                     realizableUpdate1 =
+//                             quadrature_.updateLocalQuadrature(celli, false);
+//
+//                     quadrature_.updateLocalMoments(celli);
+//
+//                     // Second moment update
+//                     forAll(oldMoments, mi)
+//                     {
+//                         k2[mi] = localDt
+//                         *(
+//                                 breakupSource(mi, celli)
+//                             + coalesenceSource(mi, celli)
+//                             );
+//                         moments[mi][celli] =
+//                             oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
+//
+//                         momentsSecondStep[mi] = moments[mi][celli];
+//                     }
+//
+//                     realizableUpdate2 =
+//                             quadrature_.updateLocalQuadrature(celli, false);
+//
+//                     quadrature_.updateLocalMoments(celli);
+//
+//                     // Third moment update
+//                     forAll(oldMoments, mi)
+//                     {
+//                         k3[mi] = localDt
+//                         *(
+//                                 breakupSource(mi, celli)
+//                             + coalesenceSource(mi, celli)
+//                             );
+//                         moments[mi][celli] =
+//                             oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
+//                     }
+//
+//                     realizableUpdate3 =
+//                             quadrature_.updateLocalQuadrature(celli, false);
+//
+//                     quadrature_.updateLocalMoments(celli);
+//
+//                     if
+//                     (
+//                         !realizableUpdate1
+//                     || !realizableUpdate2
+//                     || !realizableUpdate3
+//                     )
+//                     {
+//                         Info << "Not realizable" << endl;
+//
+//                         forAll(oldMoments, mi)
+//                         {
+//                             moments[mi][celli] = oldMoments[mi];
+//                         }
+//
+//                         localDt /= 2.0;
+//
+//                         if (localDt < minLocalDt_)
+//                         {
+//                             FatalErrorInFunction
+//                                 << "Reached minimum local step in realizable ODE"
+//                                 << nl
+//                                 << "    solver. Cannot ensure realizability." << nl
+//                                 << abort(FatalError);
+//                         }
+//                     }
+//                 }
+//                 while
+//                 (
+//                     !realizableUpdate1
+//                 || !realizableUpdate2
+//                 || !realizableUpdate3
+//                 );
+//
+//                 scalar error = 0.0;
+//
+//                 for(label mi = 0; mi < nMoments; mi++)
+//                 {
+//                     scalar scalei =
+//                         ATol_
+//                     + Foam::max
+//                         (
+//                             mag(momentsSecondStep[mi]), mag(oldMoments[mi])
+//                         )*RTol_;
+//
+//                         error +=
+//                         sqr
+//                         (
+//                             (momentsSecondStep[mi] - moments[mi][celli])/scalei
+//                         );
+//                 }
+//
+//                 error = Foam::max(sqrt(error/nMoments), SMALL);
+//
+//                 if (error < 1)
+//                 {
+//                     localDt *=
+//                         Foam::min
+//                         (
+//                             facMax_,
+//                             Foam::max(facMin_, fac_/pow(error, 1.0/3.0))
+//                         );
+//
+//                     scalar maxLocalDt = Foam::max(globalDt - localT, 0.0);
+//                     localDt = Foam::min(maxLocalDt, localDt);
+//
+//                     forAll(oldMoments, mi)
+//                     {
+//                         oldMoments[mi] = moments[mi][celli];
+//                     }
+//
+//                     if (localDt == 0.0)
+//                     {
+//                         timeComplete = true;
+//                         localT = 0.0;
+//                         break;
+//                     }
+//
+//                     localT += localDt;
+//                 }
+//                 else
+//                 {
+//                     localDt *=
+//                         Foam::min
+//                         (
+//                             1.0,
+//                             Foam::max
+//                             (
+//                                 facMin_,
+//                                 fac_/pow(Foam::max(error, SMALL), 1.0/3.0)
+//                             )
+//                         );
+//
+//                     forAll(oldMoments, mi)
+//                     {
+//                         moments[mi][celli] = oldMoments[mi];
+//                     }
+//                 }
+//             }
+//         }
+//     }
 }
 
 
