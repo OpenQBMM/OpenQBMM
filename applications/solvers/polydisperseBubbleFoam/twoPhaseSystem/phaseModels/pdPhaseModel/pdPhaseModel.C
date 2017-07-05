@@ -85,6 +85,8 @@ Foam::scalar Foam::pdPhaseModel::coalesenceSource
             const volScalarField& pWeight2 = node2.primaryWeight();
             const volScalarField& pAbscissa2 = node2.primaryAbscissa();
 
+            //- Diameter is used to calculate the coalesence kernel in place
+            //  of the abscissa
             cSource +=
                 pWeight1[celli]*
                 (
@@ -128,14 +130,14 @@ Foam::scalar Foam::pdPhaseModel::breakupSource
     {
         const volScalarNode& node = nodes[pNodei];
 
+        //- Diameter is used to calculate the breakup kernel in place
+        //  of the abscissa
         bSource += node.primaryWeight()[celli]
            *fluid_.breakup().Kb(ds_[pNodei][celli], celli)
-//            *fluid_.breakup().Kb(node.primaryAbscissa()[celli], celli)
            *(
                 fluid_.daughterDistribution().mD              //Birth
                 (
                     momentOrder,
-//                     ds_[pNodei][celli]
                     node.primaryAbscissa()[celli]
                 )
               - pow(node.primaryAbscissa()[celli], momentOrder)   //Death
