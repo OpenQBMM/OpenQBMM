@@ -28,6 +28,6 @@ mkdir 0
 cp 0.org/* 0/
 generateMoments
 setFields
-decomposePar
-# polydisperseBubbleFoam
-mpirun -np 4 polydisperseBubbleFoam -parallel
+#decomposePar
+ polydisperseBubbleFoam
+#mpirun -np 4 polydisperseBubbleFoam -parallel

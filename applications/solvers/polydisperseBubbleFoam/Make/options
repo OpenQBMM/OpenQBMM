@@ -14,7 +14,7 @@ EXE_INC = \
     -I../../../src/quadratureMethods/moments \
     -I../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
     -I../../../src/quadratureMethods/quadratureApproximations/lnInclude \
-    -I../../../src/quadratureMethods/monoKineticQuadratureApproximation/lnInclude \
+    -I../../../src/quadratureMethods/populationBalanceModels/lnInclude \
     -I../../../src/Vandermonde/lnInclude \
     -ItwoPhaseSystem/lnInclude \
     -IphaseCompressibleTurbulenceModels/lnInclude \
@@ -36,6 +36,7 @@ EXE_LIBS = \
     -lextendedMomentInversion \
     -lfieldMomentInversion \
     -lquadratureApproximation \
+    -lpopulationBalance \
     -lvandermonde \
     -lpdPhaseSystem \
     -lpdPhaseCompressibleTurbulenceModels \

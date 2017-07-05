@@ -37,6 +37,7 @@ SourceFiles
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
 #include "quadratureApproximation.H"
+#include "monoKineticQuadratureApproximation.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

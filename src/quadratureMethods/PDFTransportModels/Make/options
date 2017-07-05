@@ -34,5 +34,6 @@ LIB_LIBS = \
     -lmomentInversion \
     -lextendedMomentInversion \
     -lfieldMomentInversion \
+    -lquadratureApproximation \
     -lmomentAdvection
 

@@ -429,6 +429,12 @@ public:
             return;
         }
 
+        //- Solve change in size moments based on breakup and coalesence
+        virtual void solveBreakupCoalesence()
+        {
+            return;
+        }
+
         //- Read phaseProperties dictionary
         virtual bool read(const dictionary& phaseProperties)
         {

@@ -632,11 +632,8 @@ void Foam::monoKineticQuadratureApproximation::updateVelocities()
     }
 }
 
-void Foam::monoKineticQuadratureApproximation::updateAllMoments()
+void Foam::monoKineticQuadratureApproximation::updateVelocityMoments()
 {
-    // Update size moments
-    updateMoments();
-
     // Update velocity moments
     forAll(velocityMoments_, mi)
     {
@@ -674,4 +671,13 @@ void Foam::monoKineticQuadratureApproximation::updateAllMoments()
 }
 
 
+
+void Foam::monoKineticQuadratureApproximation::updateAllMoments()
+{
+    // Update size moments
+    updateMoments();
+
+    // Update velocity moments
+    updateVelocityMoments();
+}
 // ************************************************************************* //

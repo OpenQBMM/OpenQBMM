@@ -148,13 +148,16 @@ public:
             //- Update node velocities on fixed-value boundaries
             void updateBoundaryVelocities();
 
-            //- Recalculate the quadrature nodes from the moments
-            void updateAllQuadrature();
-
             //- Recalculate the velocity abscissae from the velocity moments
             void updateVelocities();
 
+            //- Recalculate the quadrature nodes from the moments
+            void updateAllQuadrature();
+
             //- Recalculate the moments from the quadrature nodes
+            void updateVelocityMoments();
+
+            //- Recalculate all moments from the quadrature nodes
             void updateAllMoments();
 };
 
