@@ -14,10 +14,10 @@ before_install:
     - sudo apt-get update -qq
     - sudo apt-get install -qq openfoam${OF_VERS}
     - sudo apt-get install -qq vera++
-    - foamVersion
 
 install:
     - source /opt/openfoam${OF_VERS}/etc/bashrc
+    - foamVersion
     - ./Allwmake
 
 before_script:
