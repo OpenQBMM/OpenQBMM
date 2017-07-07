@@ -63,7 +63,7 @@ quadratureApproximation
     nMoments_(moments_.size()),
     nSecondaryNodes_
     (
-        (*this).lookupOrDefault<label>("nSecondaryNodes", nMoments_ + 1)
+        lookupOrDefault<label>("nSecondaryNodes", nMoments_ + 1)
     ),
     support_(support),
     momentFieldInverter_

@@ -506,10 +506,15 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             "tauC",
             (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE
         );
+
         tauC.dimensions().reset(inv(dimTime));
-        volScalarField alphaRhoi =
+
+        volScalarField alphaRhoi
+        (
+            "alphaRhoi",
             quadrature_.nodes()[nodei].primaryAbscissa()
-           *quadrature_.nodes()[nodei].primaryWeight();
+           *quadrature_.nodes()[nodei].primaryWeight()
+        );
 
         // Solve for velocities using acceleration terms
         fvVectorMatrix UsEqn

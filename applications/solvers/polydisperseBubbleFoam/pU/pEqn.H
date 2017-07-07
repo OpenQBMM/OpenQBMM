@@ -73,7 +73,7 @@ tmp<surfaceScalarField> phiF2;
 
     for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
     {
-        volScalarField Di = fluid.D(nodei);
+        volScalarField Di(fluid.D(nodei));
 
         // Phase-1 turbulent dispersion and particle-pressure flux
         surfaceScalarField Df1(fvc::interpolate(rAU1*(Di + pPrime1)));

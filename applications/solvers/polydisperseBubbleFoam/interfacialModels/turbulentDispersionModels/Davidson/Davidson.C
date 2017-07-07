@@ -88,14 +88,16 @@ Foam::turbulentDispersionModels::Davidson::D
             )
         );
 
-    volScalarField Cdis =
+    volScalarField Cdis
+    (
         (4.0/3.0)
        /(
            sqrt(alpha1/max(alpha2, pair_.continuous().residualAlpha()))
           *pair_.continuous().rho()/pair_.dispersed().rho()
          + sqrt(alpha2/max(alpha1, pair_.dispersed().residualAlpha()))
         )
-       /(drag.CdRe(nodei, nodej)/max(pair_.Re(nodei, nodej), residualRe_));
+       /(drag.CdRe(nodei, nodej)/max(pair_.Re(nodei, nodej), residualRe_))
+    );
 
     return
         0.75*Cdis
