@@ -17,7 +17,7 @@ before_install:
 
 install:
     - source /opt/openfoam${OF_VERS}/etc/bashrc
-    - foamVersion
+    - simpleFoam -help
     - ./Allwmake
 
 before_script:
