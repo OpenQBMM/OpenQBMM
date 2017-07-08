@@ -1,4 +1,3 @@
-
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
@@ -61,7 +60,6 @@ int main(int argc, char *argv[])
     );
 
     List<word> phases(phaseDicts.lookup("phases"));
-
     const dictionary& boundaries(phaseDicts.subDict("boundaries"));
 
     for (label phasei = 0; phasei < phases.size(); phasei++)
@@ -73,6 +71,7 @@ int main(int argc, char *argv[])
 
         // Read number of noes from quadratureProperties.phase
         label nNodes;
+
         IOdictionary quadratureDict
         (
             IOobject
@@ -89,10 +88,9 @@ int main(int argc, char *argv[])
             )
         );
 
-        nNodes =
-            HashTable<dictionary>(quadratureDict.lookup("nodes")).size();
-        label nMoments = 2*nNodes;
+        nNodes = HashTable<dictionary>(quadratureDict.lookup("nodes")).size();
 
+        label nMoments = 2*nNodes;
         bool Radau = phaseDict.lookupOrDefault<bool>("Radau", false);
         bool extended(phaseDict.lookupOrDefault<bool>("extended", false));
 
@@ -106,16 +104,16 @@ int main(int argc, char *argv[])
             nMoments++;
         }
 
-        autoPtr<momentGenerationModel> momentGenerator =
-            momentGenerationModel::New(phaseDict, nNodes, extended, Radau);
+        autoPtr<momentGenerationModel> momentGenerator
+            = momentGenerationModel::New(phaseDict, nNodes, extended, Radau);
 
         PtrList<volScalarField> moments(nMoments);
 
         //  Set internal field values and initialize moments.
         {
             const dictionary& dict(phaseDict.subDict("internal"));
-            momentGenerator().updateQuadrature(dict);
 
+            momentGenerator().updateQuadrature(dict);
 
             forAll(moments, mi)
             {
@@ -144,6 +142,7 @@ int main(int argc, char *argv[])
                         momentGenerator().moments()[mi]
                     )
                 );
+
                 moments[mi].boundaryFieldRef().readField
                 (
                     moments[mi].internalField(),
@@ -157,10 +156,12 @@ int main(int argc, char *argv[])
         forAll(mesh.boundaryMesh(), bi)
         {
             word bName = mesh.boundaryMesh()[bi].name();
+
             if(!phaseDict.found(bName))
             {
                 bName = "default";
             }
+
             if (moments[0].boundaryField()[bi].fixesValue())
             {
                 dictionary dict = phaseDict.subDict(bName);
@@ -171,8 +172,8 @@ int main(int argc, char *argv[])
                 {
                     forAll(moments[mi].boundaryField()[bi], facei)
                     {
-                        moments[mi].boundaryFieldRef()[bi][facei] =
-                            (momentGenerator().moments()[mi]).value();
+                        moments[mi].boundaryFieldRef()[bi][facei]
+                            = (momentGenerator().moments()[mi]).value();
                     }
                 }
             }
@@ -184,9 +185,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    Info<< "done" << endl;
+    Info<< "End" << endl;
+
     return 0;
 }
-
-
-

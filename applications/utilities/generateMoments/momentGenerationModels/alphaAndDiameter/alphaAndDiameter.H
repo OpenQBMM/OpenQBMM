@@ -22,10 +22,11 @@ Class
     Foam::momentGenerationSubModels::weightsAndAbscissae
 
 Description
-    Moment generation done using volume fraction, density, and  bubble diameter
+    Moment generation done using volume fraction, density, and  bubble diameter.
 
 SourceFiles
     weightsAndAbscissae.C
+
 \*---------------------------------------------------------------------------*/
 
 #ifndef alphaAndDiameter_H
@@ -41,7 +42,7 @@ namespace momentGenerationSubModels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class Brownian Declaration
+                    Class alphaAndDiameter Declaration
 \*---------------------------------------------------------------------------*/
 
 class alphaAndDiameter
