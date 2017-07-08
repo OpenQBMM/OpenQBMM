@@ -26,6 +26,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "IOobject.H"
 #include "phaseModel.H"
 #include "twoPhaseSystem.H"
 #include "fvMatrix.H"
@@ -153,7 +154,7 @@ Foam::phaseModel::phaseModel
         IOobject::NO_READ
     );
 
-    if (phiHeader.typeHeaderOk<surfaceScalarField>(true))//headerOk())
+    if (phiHeader.typeHeaderOk<surfaceScalarField>(true))
     {
         Info<< "Reading face flux field " << phiName << endl;
 
