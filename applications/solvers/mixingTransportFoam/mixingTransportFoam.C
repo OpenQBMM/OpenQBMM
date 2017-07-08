@@ -54,7 +54,6 @@ int main(int argc, char *argv[])
     #include "readGravitationalAcceleration.H"
     #include "createFields.H"
     #include "createRadiationModel.H"
-    #include "initContinuityErrs.H"
     #include "createTimeControls.H"
     #include "CourantNos.H"
     #include "setInitialDeltaT.H"
