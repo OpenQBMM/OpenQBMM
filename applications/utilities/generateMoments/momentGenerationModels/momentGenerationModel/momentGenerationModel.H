@@ -1,4 +1,4 @@
- /*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
@@ -76,7 +76,7 @@ protected:
         const bool extended_;
 
         //- Is a Radau quadrature used
-        const bool Radau_;
+        const bool radau_;
 
         //- List of weights
         List<dimensionedScalar> weights_;
@@ -109,9 +109,9 @@ public:
             const dictionary& dict,
             const label nNodes,
             const bool extended,
-            const bool Radau
+            const bool radau
         ),
-        (dict, nNodes, extended, Radau)
+        (dict, nNodes, extended, radau)
     );
 
 
@@ -123,7 +123,7 @@ public:
             const dictionary&,
             const label,
             const bool extended,
-            const bool Radau
+            const bool radau
         );
 
 
@@ -134,7 +134,7 @@ public:
             const dictionary& dict,
             const label nNodes,
             const bool extended,
-            const bool Radau
+            const bool radau
         );
 
 

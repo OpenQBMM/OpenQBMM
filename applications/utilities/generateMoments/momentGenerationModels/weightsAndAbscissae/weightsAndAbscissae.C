@@ -52,10 +52,10 @@ Foam::momentGenerationSubModels::weightsAndAbscissae
     const dictionary& dict,
     const label nNodes,
     const bool extended,
-    const bool Radau
+    const bool radau
 )
 :
-    momentGenerationModel(dict, nNodes, extended, Radau)
+    momentGenerationModel(dict, nNodes, extended, radau)
 {}
 
 
@@ -75,10 +75,10 @@ void Foam::momentGenerationSubModels::weightsAndAbscissae::updateQuadrature
 {
     for (label nodei = 0; nodei < nNodes_; nodei++)
     {
-        if (dict.found("node"+Foam::name(nodei)))
+        if (dict.found("node" + Foam::name(nodei)))
         {
             dictionary nodeDict(dict.subDict("node" + Foam::name(nodei)));
-            if (nodei == 0 && Radau_)
+            if (nodei == 0 && radau_)
             {
                 abscissae_[nodei].value() = 0.0;
             }

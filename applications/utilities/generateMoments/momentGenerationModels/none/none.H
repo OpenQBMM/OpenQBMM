@@ -45,7 +45,7 @@ namespace momentGenerationSubModels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class none Declaration
+                        Class none Declaration
 \*---------------------------------------------------------------------------*/
 
 class none
@@ -66,7 +66,7 @@ public:
             const dictionary& dict,
             const label nNodes,
             const bool extended,
-            const bool Radau
+            const bool radau
         );
 
 

@@ -57,14 +57,14 @@ Foam::momentGenerationModel::momentGenerationModel
     const dictionary& dict,
     const label nNodes,
     const bool extended,
-    const bool Radau
+    const bool radau
 )
 :
     dict_(dict),
-    nNodes_((Radau) ? (nNodes):(nNodes + 1)),
+    nNodes_((radau) ? (nNodes):(nNodes + 1)),
     nMoments_((extended) ? (2*nNodes + 1):(2*nNodes)),
     extended_(extended),
-    Radau_(Radau),
+    radau_(radau),
     weights_(nNodes_),
     abscissae_(nNodes_),
     moments_(nMoments_)

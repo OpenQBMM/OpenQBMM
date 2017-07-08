@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
         Info<< "Creating moments for phase: " << phaseName << endl;
 
-        // Read number of noes from quadratureProperties.phase
+        // Read number of nodes from quadratureProperties.phase
         label nNodes;
 
         IOdictionary quadratureDict
@@ -91,21 +91,21 @@ int main(int argc, char *argv[])
         nNodes = HashTable<dictionary>(quadratureDict.lookup("nodes")).size();
 
         label nMoments = 2*nNodes;
-        bool Radau = phaseDict.lookupOrDefault<bool>("Radau", false);
+        bool radau = phaseDict.lookupOrDefault<bool>("Radau", false);
         bool extended(phaseDict.lookupOrDefault<bool>("extended", false));
 
-        if (Radau)
+        if (radau)
         {
             nNodes++;
         }
 
-        if (extended || Radau)
+        if (extended || radau)
         {
             nMoments++;
         }
 
         autoPtr<momentGenerationModel> momentGenerator
-            = momentGenerationModel::New(phaseDict, nNodes, extended, Radau);
+            = momentGenerationModel::New(phaseDict, nNodes, extended, radau);
 
         PtrList<volScalarField> moments(nMoments);
 
