@@ -29,6 +29,12 @@
         )
     );
 
+    Switch timeDependentVelocity
+        = populationBalanceProperties.lookupOrDefault<bool>
+            ("timeDependentVelocity", false);
+
+    #include "timeDependentVelocity.H"
+
     autoPtr<populationBalanceModel> populationBalance
     (
         populationBalanceModel::New

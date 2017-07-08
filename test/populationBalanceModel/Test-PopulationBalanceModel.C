@@ -55,6 +55,11 @@ int main(int argc, char *argv[])
     {
         Info<< "\nTime = " << runTime.timeName() << nl << endl;
 
+        if (timeDependentVelocity)
+        {
+            #include "timeDependentVelocity.H"
+        }
+
         populationBalance->solve();
 
         runTime.write();
