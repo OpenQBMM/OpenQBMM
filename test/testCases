@@ -29,6 +29,9 @@
     Example of use of the populationBalanceModel class.
 
 * univariateMomentInversion
+    Test cases to verify moment advection schemes.
+
+* univariateMomentInversion
     Example of use of the univariateMomentInversion class.
 
 * univariateMomentSet
