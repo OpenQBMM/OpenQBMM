@@ -26,7 +26,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "IOobject.H"
 #include "phaseModel.H"
 #include "twoPhaseSystem.H"
 #include "fvMatrix.H"
