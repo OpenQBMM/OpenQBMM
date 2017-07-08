@@ -133,7 +133,6 @@ public:
             return ds_[nodei];
         }
 
-
         //- Return the velocity for nodei
         virtual const volVectorField& Us(const label nodei) const
         {

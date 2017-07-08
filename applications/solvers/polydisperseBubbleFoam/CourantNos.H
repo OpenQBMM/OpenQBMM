@@ -23,6 +23,7 @@
                 )*runTime.deltaTValue()
             );
     }
+
     CoNum = max(CoNum, UrCoNum);
 
     Info<< "Max Ur Courant Number = " << UrCoNum << endl;
