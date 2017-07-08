@@ -1,0 +1,82 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      populationaBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+populationBalanceModel univariate;
+
+timeDependentVelocity true;
+
+univariateCoeffs
+{
+    aggregation off;
+
+    aggregationKernel
+    {
+        aggregationKernel constant;
+    }
+
+    breakup off;
+
+    breakupKernel
+    {
+        breakupKernel constant;
+    }
+
+    daughterDistribution
+    {
+        daughterDistribution symmetricFragmentation;
+    }
+
+    diffusionModel
+    {
+        diffusionModel  none;
+        gammaLam        gammaLam l[ 1 -1 -1 0 0 0 0 ] 0.0001;
+        Sc              0.7;
+    }
+
+    growth off;
+
+    growthModel
+    {
+        growthModel     constant;
+        minAbscissa     minAbscissa [0 1 0 0 0 0 0] 0.0;
+        maxAbscissa     maxAbscissa [0 1 0 0 0 0 0] 1e15;
+
+        Cg              Cg [0 3 -1 0 0 0 0 ] 1.0;
+    }
+
+    nucleationModel
+    {
+        nucleationModel  none;
+    }
+
+    odeCoeffs
+    {
+        solveODESource off;
+        ATol    1.0e-8;
+        RTol    1.0e-4;
+        fac     0.9;
+        facMin  0.5;
+        facMax  2.0;
+        minLocalDt 1.0e-5;
+    }
+}
+
+
+
+
+
+// ************************************************************************* //

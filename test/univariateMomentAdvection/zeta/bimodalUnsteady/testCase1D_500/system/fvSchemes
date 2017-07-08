@@ -9,41 +9,56 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       polyBoundaryMesh;
-    location    "constant/polyMesh";
-    object      boundary;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-3
-(
-    left
-    {
-        type            cyclic;
-        inGroups        1(cyclic);
-        nFaces          1;
-        startFace       99;
-        matchTolerance  0.0001;
-        transform       unknown;
-        neighbourPatch  right;
-    }
-    right
-    {
-        type            cyclic;
-        inGroups        1(cyclic);
-        nFaces          1;
-        startFace       100;
-        matchTolerance  0.0001;
-        transform       unknown;
-        neighbourPatch  left;
-    }
-    frontAndBack
-    {
-        type            empty;
-        inGroups        1(empty);
-        nFaces          400;
-        startFace       101;
-    }
-)
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+}
+
+laplacianSchemes
+{
+    default         none;
+}
+
+interpolationSchemes
+{
+    default         linear;
+
+    "interpolate\(moment.*\)" upwind phi;
+
+    reconstruct(m0)         Minmod;
+    reconstruct(zeta)       Minmod;
+    reconstruct(U)          upwind;
+    reconstruct(weight)     upwind;
+    reconstruct(abscissa)   upwind;
+    reconstruct(sigma)      upwind;
+}
+
+snGradSchemes
+{
+    default         uncorrected;
+}
+
+fluxRequired
+{
+    default         no;
+    T               ;
+}
+
 
 // ************************************************************************* //
