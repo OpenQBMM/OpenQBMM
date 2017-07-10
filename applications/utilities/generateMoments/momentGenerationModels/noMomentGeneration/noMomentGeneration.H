@@ -22,13 +22,13 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::momentGenerationSubModels::none
+    Foam::momentGenerationSubModels::noMomentGeneration
 
 Description
     Moments are read directly from the dictionary to create the moment fields
 
 SourceFiles
-    none.C
+    noMomentGeneration.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -45,23 +45,23 @@ namespace momentGenerationSubModels
 {
 
 /*---------------------------------------------------------------------------*\
-                        Class none Declaration
+                        Class noMomentGeneration Declaration
 \*---------------------------------------------------------------------------*/
 
-class none
+class noMomentGeneration
 :
     public momentGenerationModel
 {
 public:
 
         //- Runtime type information
-        TypeName("none");
+        TypeName("noMomentGeneration");
 
 
     // Constructors
 
         //- Construct from components
-        none
+        noMomentGeneration
         (
             const dictionary& dict,
             const label nNodes,
@@ -71,7 +71,7 @@ public:
 
 
     //- Destructor
-    virtual ~none();
+    virtual ~noMomentGeneration();
 
 
     // Public member functions

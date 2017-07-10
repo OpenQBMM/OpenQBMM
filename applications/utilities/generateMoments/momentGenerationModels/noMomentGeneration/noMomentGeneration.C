@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "none.H"
+#include "noMomentGeneration.H"
 #include "constants.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -33,12 +33,12 @@ namespace Foam
 {
 namespace momentGenerationSubModels
 {
-    defineTypeNameAndDebug(none, 0);
+    defineTypeNameAndDebug(noMomentGeneration, 0);
 
     addToRunTimeSelectionTable
     (
         momentGenerationModel,
-        none,
+        noMomentGeneration,
         dictionary
     );
 }
@@ -47,7 +47,7 @@ namespace momentGenerationSubModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::none::none
+Foam::momentGenerationSubModels::noMomentGeneration::noMomentGeneration
 (
     const dictionary& dict,
     const label nNodes,
@@ -61,13 +61,13 @@ Foam::momentGenerationSubModels::none::none
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::none::~none()
+Foam::momentGenerationSubModels::noMomentGeneration::~noMomentGeneration()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::none::updateQuadrature
+void Foam::momentGenerationSubModels::noMomentGeneration::updateQuadrature
 (
     const dictionary& dict
 )
