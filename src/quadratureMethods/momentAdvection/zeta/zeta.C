@@ -726,7 +726,7 @@ void Foam::zeta::limitZetas()
         }
     }
 
-    for(label zi = 1; zi < nZetas_; zi++)
+    for (label zi = 1; zi < nZetas_; zi++)
     {
         zetasOwn_[zi] = zetasUpwindOwn_[zi] + limiters_[zi]*zetasCorrOwn_[zi];
         zetasNei_[zi] = zetasUpwindNei_[zi] + limiters_[zi]*zetasCorrNei_[zi];

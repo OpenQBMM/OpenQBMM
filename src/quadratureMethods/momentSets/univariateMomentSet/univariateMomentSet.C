@@ -188,7 +188,7 @@ void Foam::univariateMomentSet::checkRealizability
     // If the zero-order moment is negative, exit immediately.
     if ((*this)[0] < 0.0)
     {
-        if(fatalErrorOnFailedRealizabilityTest)
+        if (fatalErrorOnFailedRealizabilityTest)
         {
             FatalErrorInFunction
                 << "The zero-order moment is negative." << nl

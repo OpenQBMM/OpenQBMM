@@ -206,7 +206,7 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
         for (label i = 0; i < nNodes_[ai]; i++)
         {
             pos[ai] = i;
-            cycleAlphaCM(dimi,dimj,ai+1,pos);
+            cycleAlphaCM(dimi, dimj, ai+1, pos);
         }
         return;
     }
@@ -229,21 +229,24 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
 
             if (dimj == 0)
             {
-                labelList posM(nDims_,0);
+                labelList posM(nDims_, 0);
+
                 for (label mi = 0; mi < pos.size(); mi++)
                 {
                     posM[mi] = pos[mi];
                 }
-                Yold(i,0) = moments_(posM);
+
+                Yold(i, 0) = moments_(posM);
             }
             else
             {
-                Yold(i,0) =
+                Yold(i, 0) =
                     conditionalMoments_[dimi][dimj - 1](pos);
             }
         }
 
         labelList posVR(max(1, dimj), 0);
+
         if (dimj != 0)
         {
             for (label i = 0; i < posVR.size(); i++)
@@ -257,7 +260,7 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
         for (label i = 0; i < nNodes_[dimj]; i++)
         {
             pos[dimj] = i;
-            conditionalMoments_[dimi][dimj](pos) = Ynew(i,0);
+            conditionalMoments_[dimi][dimj](pos) = Ynew(i, 0);
         }
     }
 }
@@ -275,7 +278,7 @@ void Foam::conditionalMomentInversion::setVR
         {
             pos[ai] = i;
 
-            setVR(dimi,pos,ai + 1);
+            setVR(dimi, pos, ai + 1);
         }
     }
     else
@@ -298,9 +301,7 @@ void Foam::conditionalMomentInversion::setVR
         }
 
         Vandermonde V(x);
-
         scalarSquareMatrix invV(V.inv());
-
         labelList posVR(max(1, dimi), 0);
 
         if (dimi > 0)
@@ -375,7 +376,7 @@ void Foam::conditionalMomentInversion::reset()
             {
                 for (label j = 0; j < nNodes_[dimi]; j++)
                 {
-                    invVR_[dimi][ai](i,j) = 0.0;
+                    invVR_[dimi][ai](i, j) = 0.0;
                 }
             }
         }
