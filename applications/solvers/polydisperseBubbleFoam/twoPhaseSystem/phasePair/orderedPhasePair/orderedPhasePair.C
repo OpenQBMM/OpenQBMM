@@ -96,7 +96,7 @@ Foam::tmp<Foam::volScalarField> Foam::orderedPhasePair::E
             << exit(FatalError);
     }
 
-    return aspectRatio_->E(nodei,nodej);
+    return aspectRatio_->E(nodei, nodej);
 }
 
 
