@@ -111,7 +111,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
 
         scalarList momentsSecondStep(nMoments, 0.0);
 
-        while(!timeComplete)
+        while (!timeComplete)
         {
             do
             {
@@ -189,7 +189,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
 
             scalar error = 0.0;
 
-            for(label mi = 0; mi < nMoments; mi++)
+            for (label mi = 0; mi < nMoments; mi++)
             {
                 scalar scalei =
                         ATol_

@@ -69,7 +69,7 @@ Foam::tmp<Foam::volScalarField> Foam::liftModels::LegendreMagnaudet::Cl
     const label nodej
 ) const
 {
-    volScalarField Re(max(pair_.Re(nodei,nodej), residualRe_));
+    volScalarField Re(max(pair_.Re(nodei, nodej), residualRe_));
 
     volScalarField Sr
     (

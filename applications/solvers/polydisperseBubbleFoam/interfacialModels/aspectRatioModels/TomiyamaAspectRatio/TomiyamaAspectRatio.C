@@ -75,7 +75,7 @@ Foam::aspectRatioModels::TomiyamaAspectRatio::E
 ) const
 {
     return
-        VakhrushevEfremov::E(nodei,nodej)
+        VakhrushevEfremov::E(nodei, nodej)
        *max
        (
            scalar(1) - 0.35*yWall()/pair_.dispersed().ds(nodei),

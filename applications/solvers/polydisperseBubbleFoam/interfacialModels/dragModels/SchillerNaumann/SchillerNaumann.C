@@ -69,7 +69,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::SchillerNaumann::CdRe
     const label nodej
 ) const
 {
-    volScalarField Re(pair_.Re(nodei,nodej));
+    volScalarField Re(pair_.Re(nodei, nodej));
 
     return
         neg(Re - 1000)*24.0*(1.0 + 0.15*pow(Re, 0.687))

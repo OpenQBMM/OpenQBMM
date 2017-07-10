@@ -153,8 +153,8 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::Ki
 {
     return
         0.75
-       *CdRe(nodei,nodej)
-       *swarmCorrection_->Cs(nodei,nodej)
+       *CdRe(nodei, nodej)
+       *swarmCorrection_->Cs(nodei, nodej)
        *pair_.continuous().rho()
        *pair_.continuous().nu()
        /sqr(pair_.dispersed().ds(nodei));
@@ -172,7 +172,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
         (
             pair_.dispersed().alphas(nodei),
             pair_.dispersed().residualAlpha()
-        )*Ki(nodei,nodej);
+        )*Ki(nodei, nodej);
 }
 
 
@@ -206,7 +206,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::dragModel::Kf
         (
             fvc::interpolate(pair_.dispersed().alphas(nodei)),
             pair_.dispersed().residualAlpha()
-        )*fvc::interpolate(Ki(nodei,nodej));
+        )*fvc::interpolate(Ki(nodei, nodej));
 }
 
 

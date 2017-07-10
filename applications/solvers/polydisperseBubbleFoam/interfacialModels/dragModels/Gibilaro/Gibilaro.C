@@ -79,7 +79,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::Gibilaro::CdRe
 
     return
         (4/3)
-       *(17.3/alpha2 + 0.336*pair_.Re(nodei,nodej))
+       *(17.3/alpha2 + 0.336*pair_.Re(nodei, nodej))
        *max
         (
             pair_.continuous().alphas(nodej),

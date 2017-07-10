@@ -73,12 +73,10 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModels::Lamb::Cvm
     const label nodej
 ) const
 {
-    volScalarField E(min(max(pair_.E(nodei,nodej), SMALL), 1 - SMALL));
+    volScalarField E(min(max(pair_.E(nodei, nodej), SMALL), 1 - SMALL));
     volScalarField rtOmEsq(sqrt(1 - sqr(E)));
 
-    return
-        (rtOmEsq - E*acos(E))
-       /(E*acos(E) - sqr(E)*rtOmEsq);
+    return (rtOmEsq - E*acos(E))/(E*acos(E) - sqr(E)*rtOmEsq);
 }
 
 

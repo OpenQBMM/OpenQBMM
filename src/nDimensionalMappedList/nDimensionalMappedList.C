@@ -131,7 +131,7 @@ Foam::label Foam::nDimensionalMappedList<mappedType>::nDimensionalListLength
 {
     label product = 1;
 
-    for(label nodei = 0; nodei < nDimensions; nodei++)
+    for (label nodei = 0; nodei < nDimensions; nodei++)
     {
         product *= nNodes[nodei];
     }

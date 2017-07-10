@@ -82,7 +82,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::Ergun::CdRe
                 pair_.continuous().residualAlpha()
             )
           + 1.75
-           *pair_.Re(nodei,nodej)
+           *pair_.Re(nodei, nodej)
         );
 }
 

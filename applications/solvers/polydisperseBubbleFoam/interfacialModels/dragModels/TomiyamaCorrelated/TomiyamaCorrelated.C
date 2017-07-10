@@ -71,8 +71,8 @@ Foam::dragModels::TomiyamaCorrelated::CdRe
     const label nodej
 ) const
 {
-    volScalarField Re(pair_.Re(nodei,nodej));
-    volScalarField Eo(pair_.Eo(nodei,nodej));
+    volScalarField Re(pair_.Re(nodei, nodej));
+    volScalarField Eo(pair_.Eo(nodei, nodej));
 
     return
         max

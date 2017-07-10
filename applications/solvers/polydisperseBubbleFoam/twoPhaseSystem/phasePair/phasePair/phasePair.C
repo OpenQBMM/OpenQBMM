@@ -141,7 +141,7 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::Re
     const label nodei, const label nodej
 ) const
 {
-    return magUr(nodei,nodej)*dispersed().ds(nodei)/continuous().nu();
+    return magUr(nodei, nodej)*dispersed().ds(nodei)/continuous().nu();
 }
 
 
@@ -165,7 +165,7 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::EoH1
         EoH
         (
             dispersed().ds(nodei)
-           *cbrt(1 + 0.163*pow(Eo(nodei,nodej), 0.757))
+           *cbrt(1.0 + 0.163*pow(Eo(nodei, nodej), 0.757))
         );
 }
 
@@ -176,12 +176,7 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::EoH2
     const label nodej
 ) const
 {
-    return
-        EoH
-        (
-            dispersed().ds(nodei)
-           /cbrt(E(nodei,nodej))
-        );
+    return EoH(dispersed().ds(nodei)/cbrt(E(nodei, nodej)));
 }
 
 
@@ -200,7 +195,7 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::Ta
     const label nodej
 ) const
 {
-    return Re(nodei,nodej)*pow(Mo(), 0.23);
+    return Re(nodei, nodej)*pow(Mo(), 0.23);
 }
 
 

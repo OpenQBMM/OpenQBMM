@@ -128,6 +128,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
         dimensionedScalar("L", dimLength, 0),
         zeroGradientFvPatchField<scalar>::typeName
     );
+
     L.primitiveFieldRef() = cbrt(mesh.V());
     L.correctBoundaryConditions();
 
@@ -140,6 +141,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
             pair_.phase1().residualAlpha() + pair_.phase2().residualAlpha()
         )
     );
+
     volScalarField magGradI
     (
         max

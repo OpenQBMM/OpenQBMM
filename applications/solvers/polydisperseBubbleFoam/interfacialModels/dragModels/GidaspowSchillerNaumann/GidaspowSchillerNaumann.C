@@ -79,7 +79,7 @@ Foam::dragModels::GidaspowSchillerNaumann::CdRe
         )
     );
 
-    volScalarField Re(alpha2*pair_.Re(nodei,nodej));
+    volScalarField Re(alpha2*pair_.Re(nodei, nodej));
 
     volScalarField CdsRe
     (

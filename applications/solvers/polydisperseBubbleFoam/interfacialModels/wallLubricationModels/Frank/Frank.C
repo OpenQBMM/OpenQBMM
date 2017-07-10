@@ -75,12 +75,12 @@ Foam::tmp<Foam::volVectorField> Foam::wallLubricationModels::Frank::Fi
     const label nodej
 ) const
 {
-    volVectorField Ur(pair_.Ur(nodei,nodej));
+    volVectorField Ur(pair_.Ur(nodei, nodej));
 
     const volVectorField& n(nWall());
     const volScalarField& y(yWall());
 
-    volScalarField Eo(pair_.Eo(nodei,nodej));
+    volScalarField Eo(pair_.Eo(nodei, nodej));
     volScalarField yTilde(y/(Cwc_*pair_.dispersed().ds(nodei)));
 
     return zeroGradWalls

@@ -74,12 +74,12 @@ Foam::wallLubricationModels::TomiyamaWallLubrication::Fi
     const label nodej
 ) const
 {
-    volVectorField Ur(pair_.Ur(nodei,nodej));
+    volVectorField Ur(pair_.Ur(nodei, nodej));
 
     const volVectorField& n(nWall());
     const volScalarField& y(yWall());
 
-    volScalarField Eo(pair_.Eo(nodei,nodej));
+    volScalarField Eo(pair_.Eo(nodei, nodej));
 
     return
         (

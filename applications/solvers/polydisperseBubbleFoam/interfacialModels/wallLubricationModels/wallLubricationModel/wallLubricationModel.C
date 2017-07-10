@@ -94,7 +94,7 @@ Foam::tmp<Foam::volVectorField> Foam::wallLubricationModel::F
     const label nodej
 ) const
 {
-    return pair_.dispersed().alphas(nodei)*Fi(nodei,nodej);
+    return pair_.dispersed().alphas(nodei)*Fi(nodei, nodej);
 }
 
 
@@ -106,7 +106,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::wallLubricationModel::Ff
 {
     return
         fvc::interpolate(pair_.dispersed().alphas(nodei))
-       *fvc::flux(Fi(nodei,nodej));
+        *fvc::flux(Fi(nodei, nodej));
 }
 
 // ************************************************************************* //

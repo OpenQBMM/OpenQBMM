@@ -74,7 +74,7 @@ Foam::tmp<Foam::volVectorField> Foam::wallLubricationModels::Antal::Fi
     const label nodej
 ) const
 {
-    volVectorField Ur(pair_.Ur(nodei,nodej));
+    volVectorField Ur(pair_.Ur(nodei, nodej));
 
     const volVectorField& n(nWall());
 
