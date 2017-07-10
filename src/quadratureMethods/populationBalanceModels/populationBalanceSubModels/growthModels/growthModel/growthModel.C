@@ -50,8 +50,8 @@ Foam::populationBalanceSubModels::growthModel::growthModel
     (
         dict.lookupOrDefault
         (
-            "Cg", 
-            dimensionedScalar("one", inv(dimTime), 1.0)  
+            "Cg",
+            dimensionedScalar("one", inv(dimTime), 1.0)
         )
     )
 {}

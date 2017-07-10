@@ -60,7 +60,6 @@ Foam::populationBalanceSubModels::aggregationKernels::sumAggregation
 {}
 
 
-
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::populationBalanceSubModels::aggregationKernels::sumAggregation

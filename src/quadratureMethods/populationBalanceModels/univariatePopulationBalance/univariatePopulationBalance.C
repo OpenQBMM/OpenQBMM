@@ -150,23 +150,23 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
                 const volScalarField& pAbscissa2 = node2.primaryAbscissa();
 
                 aSource +=
-                        pWeight1[celli]*
+                    pWeight1[celli]*
+                    (
+                        pWeight2[celli]*
                         (
-                            pWeight2[celli]*
+                            0.5*pow // Birth
                             (
-                                0.5*pow // Birth
-                                (
-                                    pow3(pAbscissa1[celli])
-                                  + pow3(pAbscissa2[celli]),
-                                    momentOrder/3.0
-                                )
-                                - pow(pAbscissa1[celli], momentOrder)
-                            )*aggregationKernel_->Ka
-                                (
-                                    pAbscissa1[celli], pAbscissa2[celli], celli
-                                )
-                        );
-                }
+                                pow3(pAbscissa1[celli])
+                              + pow3(pAbscissa2[celli]),
+                                momentOrder/3.0
+                            )
+                            - pow(pAbscissa1[celli], momentOrder)
+                        )*aggregationKernel_->Ka
+                            (
+                                pAbscissa1[celli], pAbscissa2[celli], celli
+                            )
+                    );
+            }
         }
 
         return aSource;

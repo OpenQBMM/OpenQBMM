@@ -62,7 +62,8 @@ Foam::populationBalanceSubModels::nucleationModels::noNucleation::noNucleation
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::nucleationModels::noNucleation::~noNucleation()
+Foam::populationBalanceSubModels::nucleationModels::noNucleation
+::~noNucleation()
 {}
 
 

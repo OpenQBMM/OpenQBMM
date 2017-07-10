@@ -160,13 +160,16 @@ int main(int argc, char *argv[])
 
             for (label mi = 1; mi < nMoments; mi++)
             {
-                moments[mi][celli] = moments[mi - 1][celli]*(alpha + scalar(mi - 1))
-                    /(alpha + beta + scalar(mi - 1));
+                moments[mi][celli] = moments[mi - 1][celli]
+                    *(alpha + scalar(mi - 1))/(alpha + beta + scalar(mi - 1));
             }
 
             scalar coeffLeft
-                = 0.5*(1.0 + Foam::tanh(Foam::tan(Foam::constant::mathematical::pi
-                *(2.0*x - 0.5))));
+                = 0.5*
+                (
+                    1.0 + Foam::tanh(Foam::tan(Foam::constant::mathematical::pi
+                    *(2.0*x - 0.5)))
+                );
 
             scalar coeffRight =
                 0.5*(1.0 + Foam::tanh(Foam::tan(Foam::constant::mathematical::pi

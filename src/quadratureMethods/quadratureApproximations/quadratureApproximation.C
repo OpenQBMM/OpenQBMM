@@ -145,7 +145,7 @@ bool Foam::quadratureApproximation<momentFieldSetType, nodeType>
         moments_, nodes_(), celli, false
     );
 
-    if(!realizable && fatalErrorOnFailedRealizabilityTest)
+    if (!realizable && fatalErrorOnFailedRealizabilityTest)
     {
         return realizable;
     }
