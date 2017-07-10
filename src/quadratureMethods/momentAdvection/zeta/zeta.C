@@ -545,7 +545,7 @@ void Foam::zeta::limitZetas()
                     *moments_[mi][celli] - mPluses[mi][celli];
             }
 
-            nRealizableMomentsStar_[celli] = mStar.nRealizableMoments();
+            nRealizableMomentsStar_[celli] = mStar.nRealizableMoments(false);
         }
         else
         {
