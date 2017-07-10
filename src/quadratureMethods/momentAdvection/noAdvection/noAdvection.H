@@ -52,16 +52,6 @@ class noAdvection
 :
     public univariateMomentAdvection
 {
-    // Private member functions
-
-        //- Compute n + 1 moments from n values of zeta_k assumingm0 = 1.
-        void noAdvectionToMoments
-        (
-            const scalarList& noAdvectionf,
-            scalarList& mf
-        );
-
-
 public:
 
     //- Runtime type information
