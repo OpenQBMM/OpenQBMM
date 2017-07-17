@@ -33,7 +33,10 @@
         = populationBalanceProperties.lookupOrDefault<bool>
             ("timeDependentVelocity", false);
 
-    #include "timeDependentVelocity.H"
+    if (timeDependentVelocity)
+    {
+        #include "timeDependentVelocity.H"
+    }
 
     autoPtr<populationBalanceModel> populationBalance
     (
