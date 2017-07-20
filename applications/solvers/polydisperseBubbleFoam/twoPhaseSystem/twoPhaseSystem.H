@@ -45,7 +45,7 @@ SourceFiles
 #include "dragModel.H"
 #include "fvMatrix.H"
 
-#include "aggregationKernel.H"
+#include "coalesenceKernel.H"
 #include "breakupKernel.H"
 #include "daughterDistribution.H"
 
@@ -79,7 +79,7 @@ class twoPhaseSystem
 
         //- Population balance properties
         IOdictionary pbeDict_;
-        
+
         //- Total volumetric flux
         surfaceScalarField phi_;
 
@@ -135,8 +135,7 @@ class twoPhaseSystem
             bubblePressure_;
 
         //- Coalesence kernel
-        autoPtr<populationBalanceSubModels::aggregationKernel>
-            coalesenceKernel_;
+        autoPtr<populationBalanceSubModels::coalesenceKernel> coalesenceKernel_;
 
         //- Breakup kernel
         autoPtr<populationBalanceSubModels::breakupKernel> breakupKernel_;
@@ -244,6 +243,9 @@ public:
             //- Return the virtual mass model for the given phase
             const virtualMassModel& virtualMass(const phaseModel& phase) const;
 
+            //- Return gravitational acceleration
+            const dimensionedVector& g() const;
+
             //- Return the surface tension coefficient
             const dimensionedScalar& sigma() const;
 
@@ -265,6 +267,9 @@ public:
             //- Return the phase not given as an argument
             inline const phaseModel& otherPhase(const phaseModel& phase) const;
 
+            //- Return phase pair
+            inline const phasePait& pair() const;
+
             //- Return the mixture flux
             inline const surfaceScalarField& phi() const;
 
@@ -281,7 +286,7 @@ public:
             inline tmp<surfaceScalarField>& pPrimeByA();
 
             //- Return the coalesence kernel
-            inline const populationBalanceSubModels::aggregationKernel&
+            inline const populationBalanceSubModels::coalesenceKernel&
             coalesence() const;
 
             //- Return the breakup kernel

@@ -299,11 +299,12 @@ Foam::twoPhaseSystem::twoPhaseSystem
     );
 
     coalesenceKernel_ =
-        Foam::populationBalanceSubModels::aggregationKernel::New
+        new Foam::populationBalanceSubModels::coalesenceKernel
         (
             pbeDict_.subDict("coalesenceKernel"),
             mesh_
         );
+
     breakupKernel_ =
         Foam::populationBalanceSubModels::breakupKernel::New
         (
@@ -1004,6 +1005,12 @@ const Foam::virtualMassModel&
 Foam::twoPhaseSystem::virtualMass(const phaseModel& phase) const
 {
     return virtualMass_->phaseModel(phase);
+}
+
+
+const Foam::dimensionedVector& Foam::twoPhaseSystem::g() const
+{
+    return g_;
 }
 
 

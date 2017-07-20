@@ -42,7 +42,7 @@ SourceFiles
 #include "phaseModel.H"
 #include "quadratureApproximations.H"
 
-#include "aggregationKernel.H"
+#include "coalesenceKernel.H"
 #include "breakupKernel.H"
 #include "daughterDistribution.H"
 
@@ -64,32 +64,11 @@ class pdPhaseModel
         //- Refrence to population balance properties dictionary
         const IOdictionary& pbeDict_;
 
-        //- Switch of ode solver
-        Switch ode_;
-        
         //- Switch for coalesence
         Switch coalesence_;
 
         //- Switch for breakup
         Switch breakup_;
-
-        //- Absolute tolerance for realizable ODE solver
-        scalar ATol_;
-
-        //- Relative tolerance for realizable ODE solver
-        scalar RTol_;
-
-        //- Time-step change factor
-        scalar fac_;
-
-        //- Minimum time-step change factor
-        scalar facMin_;
-
-        //- Maximum time-step change factor
-        scalar facMax_;
-
-        //- Minimum local step in realizable ODE solver
-        label minLocalDt_;
 
         //- QuadratureApproximation
         monoKineticQuadratureApproximation quadrature_;
@@ -126,13 +105,10 @@ class pdPhaseModel
         void updateVelocity();
 
         //- Coalesence source
-        scalar coalesenceSource(const label& momentOrder, const label& celli);
+        tmp<volScalarField> coalesenceSource(const label& momentOrder);
 
         //- Breakup source
-        scalar breakupSource(const label& momentOrder, const label& celli);
-
-        //- Update size moments based on source terms
-        void explicitMomentSource();
+        tmp<volScalarField> breakupSource(const label& momentOrder);
 
 
 public:
@@ -203,9 +179,6 @@ public:
 
         //- Average transport of moments
         virtual void averageTransport(const PtrList<fvVectorMatrix>& AEqns);
-
-        //- Solve change in size moments based on breakup and coalesence
-        virtual void solveBreakupCoalesence();
 };
 
 

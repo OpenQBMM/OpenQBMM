@@ -33,13 +33,13 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace aggregationKernels
+namespace coalesenceEffeciencyKernels
 {
     defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
 
     addToRunTimeSelectionTable
     (
-        aggregationKernel,
+        coalesenceEffeciencyKernel,
         CoulaloglouAndTavlarides,
         dictionary
     );
@@ -50,51 +50,53 @@ namespace aggregationKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels::CoulaloglouAndTavlarides
-::CoulaloglouAndTavlarides
+Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
+CoulaloglouAndTavlarides::CoulaloglouAndTavlarides
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    aggregationKernel(dict, mesh),
+    coalesenceEffeciencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    Ceff_(dict.lookup("Ceff")),
-    sigma_(fluid_.sigma()),
-    rho_(fluid_.phase2().rho()),
-    mu_(fluid_.phase2().mu()),
-    epsilon_(fluid_.phase2().turbulence().epsilon()())
+    Ceff_(dict.lookup("Ceff"))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels::CoulaloglouAndTavlarides
-::~CoulaloglouAndTavlarides()
+Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
+CoulaloglouAndTavlarides::~CoulaloglouAndTavlarides()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar
-Foam::populationBalanceSubModels::aggregationKernels::
-CoulaloglouAndTavlarides::Ka
+Foam::tmp<Foam::volScalarField>
+Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
+CoulaloglouAndTavlarides::Pc
 (
-    const scalar& abscissa1,
-    const scalar& abscissa2,
-    const label& celli
+    const volScalarField& d1,
+    const volScalarField& d2
 ) const
 {
+    const volScalarField& rho = fluid_.phase2().rho();
+    tmp<volScalarField> nu = fluid_.phase2().nu();
+    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
+    const dimensionedScalar& sigma = fluid_.sigma();
+
     return
-        Ca_.value()*cbrt(epsilon_[celli])*sqr(abscissa1 + abscissa2)
-       *sqrt(pow(abscissa1, 2.0/3.0) + pow(abscissa2, 2.0/3.0))
-       *Foam::exp
+        Foam::exp
         (
-          - Ceff_.value()
+          - Ceff_
            *sqrt
             (
-                rho_[celli]*mu_[celli]*epsilon_[celli]/sqr(sigma_.value())
-               *pow4(abscissa1*abscissa2/max(abscissa1 + abscissa2, SMALL))
+                nu*epsilon*sqr(rho/sigma)
+               *pow4
+                (
+                    d1*d2
+                   /max(d1 + d2, dimensionedScalar("zero", dimLength, SMALL))
+                )
             )
         );
 }

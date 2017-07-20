@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,21 +22,22 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::breakupKernels::
-    Alopaeus
+    Foam::populationBalanceSubModels::aggregationKernels::
+    PrinceAndBlanch
 
 Description
-    Turbulent breakup kernel supplemented for bubbles in turbulent
-    flows.
+    Brownian aggregation kernel supplemented for particles in turbulent
+    flows in conditions when the particle size is smaller than the local
+    Kolmogorov scale.
 
     \f[
-        K_b = Cb \epsilon_f^{1/3} \text{erfc}
+        \omega = C_a \epsilon_f^{1/3}(\xi_i^{2/3} + \xi_j^{2/3})
+            \text{exp}
             \left(
-                \sqrt{
-                    C_1 \frac{\sigma}{\rho_f \epsilon_f^{2/3} \xi^{5/3}}
-                  + C_2 \frac{\mu_f}
-                    {\sqrt{rho_f \rho_b} \epsilon_f^{1/3} \xi^{4/3}}
-                }
+              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
+                \left(
+                    \frac{\xi_i^{1/3} \xi_j^{1/3}}{\xi_i^{1/3} + \xi_j^{1/3}}
+                \right)
             \right)
     \f]
 
@@ -45,29 +46,29 @@ Description
     \vartable
         \sigma      |  Surface tension
         \rho_f      |  Density of liquid phase [kg/m3]
-        \rho_b      |  Density of bubble phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
         \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
-        \xi         |  Abscissa of bubble [m]
+        \xi_i       |  Abscissa of bubble i [m]
+        \xi_j       |  Abscissa of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "Numerical solution of moment-transformed population balance equation with fixed quadrature points"
-        Ville Alopaeus and Marko Laakkonen and Juhani Aittamaa
+        "Description of interaction processes in agitated liquid-liquid dis[ersions"
+        C Coulaloglou, L Tavlarides
         Chemical Engineering Science
-        Volume 61, Pages 4919-4929, 2006
+        Volume 32, Pages 1289-1297, 1977
     \endverbatim
 
 SourceFiles
-    Alopaeus.C
+    PrinceAndBlanch.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Alopaeus_H
-#define Alopaeus_H
+#ifndef PrinceAndBlanch_H
+#define PrinceAndBlanch_H
 
-#include "breakupKernel.H"
+#include "coalesenceFrequencyKernel.H"
 #include "twoPhaseSystem.H"
 #include "phaseModel.H"
 #include "PhaseCompressibleTurbulenceModel.H"
@@ -78,51 +79,42 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace breakupKernels
+namespace coalesenceFrequencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class Alopaeus Declaration
+                    Class PrinceAndBlanch Declaration
 \*---------------------------------------------------------------------------*/
 
-class Alopaeus
+class PrinceAndBlanch
 :
-    public breakupKernel
+    public coalesenceFrequencyKernel
 {
     // Private data
 
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
-        //- Coefficients
-        dimensionedScalar C1_;
-        dimensionedScalar C2_;
+        //- Switch for turbulence driven coalesence
+        Switch turbulent_;
 
-        //- Bubble density field
-        const volScalarField& rho1_;
+        //- Switch for buoyancy drive coalesence
+        Switch buoyant_;
 
-        //- Liquid density field
-        const volScalarField& rho2_;
+        //- Switch for laminar shear driven coalesence
+        Switch LS_;
 
-        //- Liquid viscosity field
-        const volScalarField& mu_;
-
-        //- Liquid turbulent dissipation rate field
-        const volScalarField& epsilon_;
-
-        //- Surface tension
-        dimensionedScalar sigma_;
 
 public:
 
         //- Runtime type information
-        TypeName("Alopaeus");
+        TypeName("PrinceAndBlanch");
 
 
     // Constructors
 
         //- Construct from components
-        Alopaeus
+        PrinceAndBlanch
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -130,16 +122,16 @@ public:
 
 
     //- Destructor
-    virtual ~Alopaeus();
+    virtual ~PrinceAndBlanch();
 
 
     // Member Functions
 
         //- Aggregation kernel
-        virtual scalar Kb
+        virtual tmp<volScalarField> omega
         (
-            const scalar& abscissa,
-            const label& celli
+            const volScalarField& d1,
+            const volScalarField& d2
         ) const;
 
 };
@@ -147,7 +139,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coalesenceKernels
+} // End namespace coalesenceFrequencyKernels
 } // End namespace populationBalanceSubModels
 } // End namespace Foam
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -31,25 +31,15 @@ Description
     Kolmogorov scale.
 
     \f[
-        K_a = C_a \epsilon_f^{1/3}(\xi_i^{2/3} + \xi_j^{2/3})
-            \text{exp}
-            \left(
-              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
-                \left(
-                    \frac{\xi_i^{1/3} \xi_j^{1/3}}{\xi_i^{1/3} + \xi_j^{1/3}}
-                \right)
-            \right)
+        \omega = \epsilon_f^{1/3}(d_i^{2/3} + d_j^{2/3})
     \f]
 
     where
 
     \vartable
-        \sigma      |  Surface tension
-        \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
-        \xi_i       |  Abscissa of bubble i [m]
-        \xi_j       |  Abscissa of bubble j [m]
+        d_i         |  Diameter of bubble i [m]
+        d_j         |  Diameter of bubble j [m]
     \endvartable
 
     References
@@ -68,7 +58,7 @@ SourceFiles
 #ifndef CoulaloglouAndTavlarides_H
 #define CoulaloglouAndTavlarides_H
 
-#include "aggregationKernel.H"
+#include "coalesenceFrequencyKernel.H"
 #include "twoPhaseSystem.H"
 #include "phaseModel.H"
 #include "PhaseCompressibleTurbulenceModel.H"
@@ -79,7 +69,7 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace aggregationKernels
+namespace coalesenceFrequencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
@@ -88,24 +78,12 @@ namespace aggregationKernels
 
 class CoulaloglouAndTavlarides
 :
-    public aggregationKernel
+    public coalesenceFrequencyKernel
 {
     // Private data
 
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
-
-        //- Efficiency coefficient
-        dimensionedScalar Ceff_;
-
-        //- Surface tension
-        dimensionedScalar sigma_;
-
-        //- Density field
-        const volScalarField& rho_;
-
-        //- Viscosity field
-        const volScalarField& mu_;
 
         //- Turbulent dissipation rate field
         const volScalarField& epsilon_;
@@ -133,11 +111,10 @@ public:
     // Member Functions
 
         //- Aggregation kernel
-        virtual scalar Ka
+        virtual tmp<volScalarField> omega
         (
-            const scalar& abscissa1,
-            const scalar& abscissa2,
-            const label& celli
+            const volScalarField& d1,
+            const volScalarField& d2
         ) const;
 
 };
@@ -145,7 +122,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace aggregationKernels
+} // End namespace coalesenceFrequencyKernels
 } // End namespace populationBalanceSubModels
 } // End namespace Foam
 

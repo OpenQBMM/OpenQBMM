@@ -70,6 +70,10 @@ const Foam::phaseModel& Foam::twoPhaseSystem::otherPhase
     }
 }
 
+const Foam:: phasePair& Foam::twoPhaseSystem::pair() const
+{
+    return pair_();
+}
 
 const Foam::surfaceScalarField& Foam::twoPhaseSystem::phi() const
 {
@@ -101,7 +105,7 @@ Foam::tmp<Foam::surfaceScalarField>& Foam::twoPhaseSystem::pPrimeByA()
 }
 
 
-const Foam::populationBalanceSubModels::aggregationKernel&
+const Foam::populationBalanceSubModels::coalesenceKernel&
 Foam::twoPhaseSystem::coalesence() const
 {
     return coalesenceKernel_();

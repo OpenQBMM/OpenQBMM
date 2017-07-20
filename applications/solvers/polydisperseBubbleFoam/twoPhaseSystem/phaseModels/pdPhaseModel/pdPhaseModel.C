@@ -58,13 +58,33 @@ void Foam::pdPhaseModel::updateVelocity()
 }
 
 
-Foam::scalar Foam::pdPhaseModel::coalesenceSource
+Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalesenceSource
 (
-    const label& momentOrder,
-    const label& celli
+    const label& momentOrder
 )
 {
-    scalar cSource = 0.0;
+    tmp<volScalarField> cSource
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "cSource",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedScalar
+            (
+                "0",
+                quadrature_.moments()[momentOrder].dimensions()/dimTime,
+                0.0
+            )
+        )
+    );
 
     if (!coalesence_)
     {
@@ -87,21 +107,21 @@ Foam::scalar Foam::pdPhaseModel::coalesenceSource
 
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa
-            cSource +=
-                pWeight1[celli]*
+            cSource.ref() +=
+                pWeight1*
                 (
-                    pWeight2[celli]*
+                    pWeight2*
                     (
                         0.5*pow // Birth
                         (
-                            pow3(pAbscissa1[celli])
-                          + pow3(pAbscissa2[celli]),
+                            pow3(pAbscissa1)
+                          + pow3(pAbscissa2),
                             momentOrder/3.0
                         )
-                      - pow(pAbscissa1[celli], momentOrder)
+                      - pow(pAbscissa1, momentOrder)
                     )*fluid_.coalesence().Ka
                     (
-                        ds_[pNode1i][celli], ds_[pNode2i][celli], celli
+                        ds_[pNode1i], ds_[pNode2i]
                     )
                 );
         }
@@ -110,13 +130,33 @@ Foam::scalar Foam::pdPhaseModel::coalesenceSource
 }
 
 
-Foam::scalar Foam::pdPhaseModel::breakupSource
+Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
 (
-    const label& momentOrder,
-    const label& celli
+    const label& momentOrder
 )
 {
-    scalar bSource = 0.0;
+    tmp<volScalarField> bSource
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "bSource",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedScalar
+            (
+                "0",
+                quadrature_.moments()[momentOrder].dimensions()/dimTime,
+                0.0
+            )
+        )
+    );
 
     if (!breakup_)
     {
@@ -125,22 +165,26 @@ Foam::scalar Foam::pdPhaseModel::breakupSource
 
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
-    forAll(nodes, pNodei)
+    forAll(bSource(), celli)
     {
-        const volScalarNode& node = nodes[pNodei];
+        forAll(nodes, pNodei)
+        {
+            const volScalarNode& node = nodes[pNodei];
 
-        //- Diameter is used to calculate the breakup kernel in place
-        //  of the abscissa
-        bSource += node.primaryWeight()[celli]
-           *fluid_.breakup().Kb(ds_[pNodei][celli], celli)
-           *(
-                fluid_.daughterDistribution().mD              //Birth
-                (
-                    momentOrder,
-                    node.primaryAbscissa()[celli]
-                )
-              - pow(node.primaryAbscissa()[celli], momentOrder)   //Death
-            );
+            //- Diameter is used to calculate the breakup kernel in place
+            //  of the abscissa
+            bSource.ref()[celli] = bSource()[celli]
+              + node.primaryWeight()[celli]
+               *fluid_.breakup().Kb(ds_[pNodei][celli], celli)
+               *(
+                    fluid_.daughterDistribution().mD              //Birth
+                    (
+                        momentOrder,
+                        node.primaryAbscissa()[celli]
+                    )
+                  - pow(node.primaryAbscissa()[celli], momentOrder)   //Death
+                );
+        }
     }
 
     return bSource;
@@ -158,17 +202,11 @@ Foam::pdPhaseModel::pdPhaseModel
 :
     phaseModel(fluid,phaseProperties,phaseName),
     pbeDict_
-    (fluid.mesh().lookupObject<IOdictionary>("populationBalanceProperties")),
-    ode_(pbeDict_.lookup("ode")),
+    (
+        fluid.mesh().lookupObject<IOdictionary>("populationBalanceProperties")
+    ),
     coalesence_(pbeDict_.lookup("coalesence")),
     breakup_(pbeDict_.lookup("breakup")),
-    ATol_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("ATol"))),
-    RTol_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("RTol"))),
-    fac_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("fac"))),
-    facMin_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("facMin"))),
-    facMax_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("facMax"))),
-    minLocalDt_
-    (readScalar(pbeDict_.subDict("odeCoeffs").lookup("minLocalDt"))),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
     nNodes_(quadrature_.nodes().size()),
     nMoments_(quadrature_.nMoments()),
@@ -501,7 +539,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
 
     quadrature_.interpolateNodes();
-    PtrList<fvScalarMatrix> mEqns(quadrature_.moments().size());
 
     forAll(quadrature_.moments(), mEqni)
     {
@@ -549,22 +586,16 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         }
 
         // Solve average size moment transport
-        mEqns.set
+        fvScalarMatrix mEqn
         (
-            mEqni,
             fvm::ddt(m)
           - fvc::ddt(m)
           + meanDivUbMp
+          + breakupSource(mEqni)
+          + coalesenceSource(mEqni)
         );
-    }
-    solveBreakupCoalesence();
-
-    forAll(quadrature_.moments(), mEqni)
-    {
-        volScalarField& m = quadrature_.moments()[mEqni];
-        mEqns[mEqni] -= fvc::ddt(m);
-        mEqns[mEqni].relax();
-        mEqns[mEqni].solve();
+        mEqn.relax();
+        mEqn.solve();
     }
 
 
@@ -671,222 +702,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
     {
         Vs_[nodei] = Us_[nodei] - U_;
     }
-}
-
-
-void Foam::pdPhaseModel::solveBreakupCoalesence()
-{
-    volUnivariateMomentFieldSet& moments(quadrature_.moments());
-    label nMoments = quadrature_.nMoments();
-    scalar globalDt = fluid_.mesh().time().deltaT().value();
-
-    Info << "Solving source terms in realizable ODE solver." << endl;
-
-//     if (!ode_)
-    {
-        forAll(moments[0], celli)
-        {
-            forAll(moments, mi)
-            {
-                moments[mi][celli] = moments[mi][celli]
-                  + globalDt
-                   *(
-                        breakupSource(mi, celli)
-                      + coalesenceSource(mi, celli)
-                    );
-            }
-        }
-    }
-
-//     else
-//     {
-//         forAll(moments[0], celli)
-//         {
-//             // Storing old moments to recover from failed step
-//             scalarList oldMoments(nMoments, 0.0);
-//
-//             forAll(oldMoments, mi)
-//             {
-//                 oldMoments[mi] = moments[mi].oldTime()[celli];
-//             }
-//
-//             //- Local time
-//             scalar localT = 0.0;
-//
-//             // Initialize the local step
-//             scalar localDt = globalDt/100;
-//
-//             // Initialize RK parameters
-//             scalarList k1(nMoments, 0.0);
-//             scalarList k2(nMoments, 0.0);
-//             scalarList k3(nMoments, 0.0);
-//
-//             // Flag to indicate if the time step is complete
-//             bool timeComplete = false;
-//
-//             // Check realizability of intermediate moment sets
-//             bool realizableUpdate1 = false;
-//             bool realizableUpdate2 = false;
-//             bool realizableUpdate3 = false;
-//
-//             scalarList momentsSecondStep(nMoments, 0.0);
-//
-//             while(!timeComplete)
-//             {
-//                 do
-//                 {
-//                     // First intermediate update
-//                     forAll(oldMoments, mi)
-//                     {
-//                         k1[mi] = localDt
-//                            *(
-//                                 breakupSource(mi, celli)
-//                               + coalesenceSource(mi, celli)
-//                             );
-//                         moments[mi][celli] = oldMoments[mi] + k1[mi];
-//                     }
-//
-//                     realizableUpdate1 =
-//                             quadrature_.updateLocalQuadrature(celli, false);
-//
-//                     quadrature_.updateLocalMoments(celli);
-//
-//                     // Second moment update
-//                     forAll(oldMoments, mi)
-//                     {
-//                         k2[mi] = localDt
-//                         *(
-//                                 breakupSource(mi, celli)
-//                             + coalesenceSource(mi, celli)
-//                             );
-//                         moments[mi][celli] =
-//                             oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
-//
-//                         momentsSecondStep[mi] = moments[mi][celli];
-//                     }
-//
-//                     realizableUpdate2 =
-//                             quadrature_.updateLocalQuadrature(celli, false);
-//
-//                     quadrature_.updateLocalMoments(celli);
-//
-//                     // Third moment update
-//                     forAll(oldMoments, mi)
-//                     {
-//                         k3[mi] = localDt
-//                         *(
-//                                 breakupSource(mi, celli)
-//                             + coalesenceSource(mi, celli)
-//                             );
-//                         moments[mi][celli] =
-//                             oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
-//                     }
-//
-//                     realizableUpdate3 =
-//                             quadrature_.updateLocalQuadrature(celli, false);
-//
-//                     quadrature_.updateLocalMoments(celli);
-//
-//                     if
-//                     (
-//                         !realizableUpdate1
-//                     || !realizableUpdate2
-//                     || !realizableUpdate3
-//                     )
-//                     {
-//                         Info << "Not realizable" << endl;
-//
-//                         forAll(oldMoments, mi)
-//                         {
-//                             moments[mi][celli] = oldMoments[mi];
-//                         }
-//
-//                         localDt /= 2.0;
-//
-//                         if (localDt < minLocalDt_)
-//                         {
-//                             FatalErrorInFunction
-//                                 << "Reached minimum local step in realizable ODE"
-//                                 << nl
-//                                 << "    solver. Cannot ensure realizability." << nl
-//                                 << abort(FatalError);
-//                         }
-//                     }
-//                 }
-//                 while
-//                 (
-//                     !realizableUpdate1
-//                 || !realizableUpdate2
-//                 || !realizableUpdate3
-//                 );
-//
-//                 scalar error = 0.0;
-//
-//                 for(label mi = 0; mi < nMoments; mi++)
-//                 {
-//                     scalar scalei =
-//                         ATol_
-//                     + Foam::max
-//                         (
-//                             mag(momentsSecondStep[mi]), mag(oldMoments[mi])
-//                         )*RTol_;
-//
-//                         error +=
-//                         sqr
-//                         (
-//                             (momentsSecondStep[mi] - moments[mi][celli])/scalei
-//                         );
-//                 }
-//
-//                 error = Foam::max(sqrt(error/nMoments), SMALL);
-//
-//                 if (error < 1)
-//                 {
-//                     localDt *=
-//                         Foam::min
-//                         (
-//                             facMax_,
-//                             Foam::max(facMin_, fac_/pow(error, 1.0/3.0))
-//                         );
-//
-//                     scalar maxLocalDt = Foam::max(globalDt - localT, 0.0);
-//                     localDt = Foam::min(maxLocalDt, localDt);
-//
-//                     forAll(oldMoments, mi)
-//                     {
-//                         oldMoments[mi] = moments[mi][celli];
-//                     }
-//
-//                     if (localDt == 0.0)
-//                     {
-//                         timeComplete = true;
-//                         localT = 0.0;
-//                         break;
-//                     }
-//
-//                     localT += localDt;
-//                 }
-//                 else
-//                 {
-//                     localDt *=
-//                         Foam::min
-//                         (
-//                             1.0,
-//                             Foam::max
-//                             (
-//                                 facMin_,
-//                                 fac_/pow(Foam::max(error, SMALL), 1.0/3.0)
-//                             )
-//                         );
-//
-//                     forAll(oldMoments, mi)
-//                     {
-//                         moments[mi][celli] = oldMoments[mi];
-//                     }
-//                 }
-//             }
-//         }
-//     }
 }
 
 
