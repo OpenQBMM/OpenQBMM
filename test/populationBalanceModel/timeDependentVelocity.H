@@ -11,4 +11,5 @@
     }
 
     phi = fvc::flux(U);
+    U.write();
 }

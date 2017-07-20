@@ -38,6 +38,15 @@
         #include "timeDependentVelocity.H"
     }
 
+    Switch TaylorGreenVelocity
+        = populationBalanceProperties.lookupOrDefault<bool>
+            ("TaylorGreenVelocity", false);
+
+    if (TaylorGreenVelocity)
+    {
+        #include "TaylorGreenVelocity.H"
+    }
+
     autoPtr<populationBalanceModel> populationBalance
     (
         populationBalanceModel::New
