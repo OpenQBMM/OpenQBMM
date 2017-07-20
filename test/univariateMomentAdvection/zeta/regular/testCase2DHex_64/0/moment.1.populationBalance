@@ -29,6 +29,14 @@ boundaryField
     {
         type            cyclic;
     }
+    top
+    {
+        type            cyclic;
+    }
+    bottom
+    {
+        type            cyclic;
+    }
     frontAndBack
     {
         type            empty;
