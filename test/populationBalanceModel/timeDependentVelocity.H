@@ -10,6 +10,7 @@
         U[celli] = vector((1.0 - x)/(1.0 + time), 0, 0);
     }
 
-    phi = fvc::flux(U);
+    U.correctBoundaryConditions();
     U.write();
+    phi = fvc::flux(U);
 }

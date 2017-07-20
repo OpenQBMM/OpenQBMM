@@ -16,6 +16,7 @@
             );
     }
 
-    phi = fvc::flux(U);
+    U.correctBoundaryConditions();
     U.write();
+    phi = fvc::flux(U);
 }
