@@ -92,8 +92,8 @@ private:
         //- Dynamic viscosity
         const volScalarField& mu_;
 
-        //- Kinematic viscosity
-        const volScalarField& nu_;
+        //- Density
+        const volScalarField& rho_;
 
 
 public:
@@ -122,7 +122,7 @@ public:
         virtual scalar Kb
         (
             const scalar& abscissa,
-            const label& celli
+            const label celli
         ) const;
 
 };

@@ -75,7 +75,7 @@ differentialForceAggregation::Ka
 (
     const scalar& abscissa1,
     const scalar& abscissa2,
-    const label& celli
+    const label celli
 ) const
 {
     return Ca_.value()*sqr(abscissa1 + abscissa2)

@@ -82,7 +82,7 @@ Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup::Kb
 (
     const scalar& abscissa,
-    const label& celli
+    const label celli
 ) const
 {
     return Cb_.value()*pos0(abscissa - minAbscissa_.value())

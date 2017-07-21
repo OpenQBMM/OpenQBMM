@@ -94,7 +94,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
         scalar localT = 0.0;
 
         // Initialize the local step
-        scalar localDt = globalDt/100;
+        scalar localDt = globalDt/100.0;
 
         // Initialize RK parameters
         scalarList k1(nMoments, 0.0);

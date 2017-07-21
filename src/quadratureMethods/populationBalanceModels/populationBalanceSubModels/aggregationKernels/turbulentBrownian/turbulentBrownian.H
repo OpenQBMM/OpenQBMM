@@ -103,8 +103,8 @@ class turbulentBrownian
         //- Temperature field
         const volScalarField& T_;
 
-        //- Kinematic viscosity field
-        const volScalarField& nu_;
+        //- Density field
+        const volScalarField& rho_;
 
         //- Dynamic viscosity field
         const volScalarField& mu_;
@@ -140,7 +140,7 @@ public:
         (
             const scalar& abscissa1,
             const scalar& abscissa2,
-            const label& celli
+            const label celli
         ) const;
 
 };
