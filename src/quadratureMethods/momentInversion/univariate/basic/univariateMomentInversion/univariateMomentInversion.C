@@ -43,6 +43,7 @@ Foam::univariateMomentInversion::univariateMomentInversion
     const dictionary& dict
 )
 :
+    smallM0_(dict.lookupOrDefault("smallM0", 1.0e-12)),
     nInvertibleMoments_(),
     nNodes_(),
     abscissae_(),
@@ -106,7 +107,7 @@ void Foam::univariateMomentInversion::invert
         return;
     }
 
-    if (moments[0] < SMALL)
+    if (moments[0] < smallM0_)
     {
         nNodes_ = 0;
 
