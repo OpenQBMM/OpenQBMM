@@ -45,7 +45,7 @@ Foam::populationBalanceSubModels::coalesenceKernel::coalesenceKernel
         )
     ),
     frequency_(coalesenceFrequencyKernel::New(dict, mesh)),
-    effeciency_(coalesenceEffeciencyKernel::New(dict, mesh))
+    efficiency_(coalesenceEfficiencyKernel::New(dict, mesh))
 {}
 
 
@@ -67,7 +67,7 @@ Foam::populationBalanceSubModels::coalesenceKernel::Ka
     return
         Ca_
        *frequency_->omega(abscissa1, abscissa2)
-       *effeciency_->Pc(abscissa1, abscissa2);
+       *efficiency_->Pc(abscissa1, abscissa2);
 }
 
 

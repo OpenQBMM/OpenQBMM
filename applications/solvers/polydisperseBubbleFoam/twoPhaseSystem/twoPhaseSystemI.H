@@ -70,10 +70,23 @@ const Foam::phaseModel& Foam::twoPhaseSystem::otherPhase
     }
 }
 
-const Foam:: phasePair& Foam::twoPhaseSystem::pair() const
+const Foam::phasePair& Foam::twoPhaseSystem::pair() const
 {
     return pair_();
 }
+
+
+const Foam::orderedPhasePair& Foam::twoPhaseSystem::pair1In2() const
+{
+    return pair1In2_();
+}
+
+
+const Foam::orderedPhasePair& Foam::twoPhaseSystem::pair2In1() const
+{
+    return pair2In1_();
+}
+
 
 const Foam::surfaceScalarField& Foam::twoPhaseSystem::phi() const
 {

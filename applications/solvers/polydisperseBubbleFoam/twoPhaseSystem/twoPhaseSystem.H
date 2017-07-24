@@ -267,8 +267,14 @@ public:
             //- Return the phase not given as an argument
             inline const phaseModel& otherPhase(const phaseModel& phase) const;
 
-            //- Return phase pair
-            inline const phasePait& pair() const;
+            //- Return unordered phase pair
+            inline const phasePair& pair() const;
+
+            //- Return phase 1 in phase 2 pair
+            inline const orderedPhasePair& pair1In2() const;
+
+            //- Return phase 2 in phase 1 pair
+            inline const orderedPhasePair& pair2In1() const;
 
             //- Return the mixture flux
             inline const surfaceScalarField& phi() const;

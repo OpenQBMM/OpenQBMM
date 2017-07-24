@@ -23,37 +23,40 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "coalesenceEffeciencyKernel.H"
+#include "coalesenceEfficiencyKernel.H"
 
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::populationBalanceSubModels::coalesenceEffeciencyKernel>
-Foam::populationBalanceSubModels::coalesenceEffeciencyKernel::New
+namespace Foam
+{
+namespace populationBalanceSubModels
+{
+    defineTypeNameAndDebug(coalesenceEfficiencyKernel, 0);
+
+    defineRunTimeSelectionTable(coalesenceEfficiencyKernel, dictionary);
+}
+}
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernel::
+coalesenceEfficiencyKernel
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
-{
-    word coalesenceEffeciencyKernelType(dict.lookup("coalesenceEffeciencyKernel"));
+:
+    dict_(dict),
+    mesh_(mesh)
+{}
 
-    Info<< "Selecting coalesenceEffeciencyKernel "
-        << coalesenceEffeciencyKernelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(coalesenceEffeciencyKernelType);
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-    if (cstrIter == dictionaryConstructorTablePtr_->end())
-    {
-        FatalErrorInFunction
-            << "Unknown coalesenceEffeciencyKernelType type "
-            << coalesenceEffeciencyKernelType << endl << endl
-            << "Valid coalesenceEffeciencyKernelType types are :" << endl
-            << dictionaryConstructorTablePtr_->sortedToc()
-            << abort(FatalError);
-    }
-
-    return autoPtr<coalesenceEffeciencyKernel>(cstrIter()(dict, mesh));
-}
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernel::
+~coalesenceEfficiencyKernel()
+{}
 
 
 // ************************************************************************* //

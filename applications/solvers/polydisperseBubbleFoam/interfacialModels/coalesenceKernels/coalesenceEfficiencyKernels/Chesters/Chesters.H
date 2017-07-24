@@ -22,11 +22,11 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
-    CoulaloglouAndTavlarides
+    Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
+    Chesters
 
 Description
-    Brownian coalesenceEffeciency kernel supplemented for particles in turbulent
+    Brownian coalesenceEfficiency kernel supplemented for particles in turbulent
     flows in conditions when the particle size is smaller than the local
     Kolmogorov scale.
 
@@ -61,14 +61,14 @@ Description
     \endverbatim
 
 SourceFiles
-    CoulaloglouAndTavlarides.C
+    Chesters.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef CoulaloglouAndTavlarides_H
-#define CoulaloglouAndTavlarides_H
+#ifndef Chesters_H
+#define Chesters_H
 
-#include "coalesenceEffeciencyKernel.H"
+#include "coalesenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
 #include "phaseModel.H"
 #include "PhaseCompressibleTurbulenceModel.H"
@@ -79,16 +79,16 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace coalesenceEffeciencyKernels
+namespace coalesenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class CoulaloglouAndTavlarides Declaration
+                    Class Chesters Declaration
 \*---------------------------------------------------------------------------*/
 
-class CoulaloglouAndTavlarides
+class Chesters
 :
-    public coalesenceEffeciencyKernel
+    public coalesenceEfficiencyKernel
 {
     // Private data
 
@@ -98,17 +98,23 @@ class CoulaloglouAndTavlarides
         //- Efficiency coefficient
         dimensionedScalar Ceff_;
 
+        //- Reynolds number exponent
+        dimensionedScalar ReExp_;
+
+        //- Webber number exponent
+        dimensionedScalar WeExp_;
+
 
 public:
 
         //- Runtime type information
-        TypeName("CoulaloglouAndTavlarides");
+        TypeName("Chesters");
 
 
     // Constructors
 
         //- Construct from components
-        CoulaloglouAndTavlarides
+        Chesters
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -116,7 +122,7 @@ public:
 
 
     //- Destructor
-    virtual ~CoulaloglouAndTavlarides();
+    virtual ~Chesters();
 
 
     // Member Functions
@@ -133,7 +139,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coalesenceEffeciencyKernels
+} // End namespace coalesenceEfficiencyKernels
 } // End namespace populationBalanceSubModels
 } // End namespace Foam
 

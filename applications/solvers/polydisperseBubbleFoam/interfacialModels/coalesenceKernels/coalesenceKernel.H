@@ -39,7 +39,7 @@ SourceFiles
 #include "volFields.H"
 #include "dimensionedTypes.H"
 #include "coalesenceFrequencyKernel.H"
-#include "coalesenceEffeciencyKernel.H"
+#include "coalesenceEfficiencyKernel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -78,7 +78,7 @@ class coalesenceKernel
         autoPtr<coalesenceFrequencyKernel> frequency_;
 
         //- Coalesence effeciency model
-        autoPtr<coalesenceEffeciencyKernel> effeciency_;
+        autoPtr<coalesenceEfficiencyKernel> efficiency_;
 
 
 public:

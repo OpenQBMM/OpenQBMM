@@ -113,6 +113,9 @@ public:
             const label,
             const label
         ) const = 0;
+
+        //- Mean aspect ratio
+        virtual tmp<volScalarField> E() const = 0;
 };
 
 

@@ -22,23 +22,24 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::coalesenceEffeciencyKernel
+    Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
+    constant
 
 Description
-    Abstract class for coalesence effeciency kernels.
+    Constant coalesence efficiency
 
 SourceFiles
-    coalesenceEffeciencyKernel.C
+    constant.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef coalesenceEffeciencyKernel_H
-#define coalesenceEffeciencyKernel_H
+#ifndef constant_H
+#define constant_H
 
-#include "dictionary.H"
-#include "volFields.H"
-#include "dimensionedTypes.H"
-#include "runTimeSelectionTables.H"
+#include "coalesenceEfficiencyKernel.H"
+#include "twoPhaseSystem.H"
+#include "phaseModel.H"
+#include "PhaseCompressibleTurbulenceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,65 +47,36 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
+namespace coalesenceEfficiencyKernels
+{
 
 /*---------------------------------------------------------------------------*\
-                    Class coalesenceEffeciencyKernel Declaration
+                    Class constant Declaration
 \*---------------------------------------------------------------------------*/
 
-class coalesenceEffeciencyKernel
+class constant
+:
+    public coalesenceEfficiencyKernel
 {
-    // Private member functions
+    // Private data
 
-        //- Disallow default bitwise copy construct
-        coalesenceEffeciencyKernel(const coalesenceEffeciencyKernel&);
+        //- Refrence to two phase system
+        const twoPhaseSystem& fluid_;
 
-        //- Disallow default bitwise assignment
-        void operator=(const coalesenceEffeciencyKernel&);
-
-
-protected:
-
-    // Protected data
-
-        //- Dictionary
-        const dictionary& dict_;
-
-        //- Mesh
-        const fvMesh& mesh_;
+        //- Efficiency coefficient
+        dimensionedScalar Ceff_;
 
 
 public:
 
-    //- Runtime type information
-    TypeName("coalesenceEffeciencyKernel");
-
-    // Declare runtime constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        coalesenceEffeciencyKernel,
-        dictionary,
-        (
-            const dictionary& dict,
-            const fvMesh& mesh
-        ),
-        (dict, mesh)
-    );
+        //- Runtime type information
+        TypeName("constant");
 
 
     // Constructors
 
         //- Construct from components
-        coalesenceEffeciencyKernel
-        (
-            const dictionary& dict,
-            const fvMesh& mesh
-        );
-
-
-    // Selectors
-
-        static autoPtr<coalesenceEffeciencyKernel> New
+        constant
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -112,7 +84,7 @@ public:
 
 
     //- Destructor
-    virtual ~coalesenceEffeciencyKernel();
+    virtual ~constant();
 
 
     // Member Functions
@@ -120,14 +92,16 @@ public:
         //- Aggregation kernel
         virtual tmp<volScalarField> Pc
         (
-            const volScalarField& d1,
-            const volScalarField& d2
-        ) const = 0;
+            const volScalarField& abscissa1,
+            const volScalarField& abscissa2
+        ) const;
+
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace coalesenceEfficiencyKernels
 } // End namespace populationBalanceSubModels
 } // End namespace Foam
 

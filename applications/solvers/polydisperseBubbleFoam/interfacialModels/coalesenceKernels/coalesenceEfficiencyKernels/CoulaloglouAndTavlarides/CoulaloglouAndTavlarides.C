@@ -33,13 +33,13 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace coalesenceEffeciencyKernels
+namespace coalesenceEfficiencyKernels
 {
     defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
 
     addToRunTimeSelectionTable
     (
-        coalesenceEffeciencyKernel,
+        coalesenceEfficiencyKernel,
         CoulaloglouAndTavlarides,
         dictionary
     );
@@ -50,14 +50,14 @@ namespace coalesenceEffeciencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
 CoulaloglouAndTavlarides::CoulaloglouAndTavlarides
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalesenceEffeciencyKernel(dict, mesh),
+    coalesenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
     Ceff_(dict.lookup("Ceff"))
 {}
@@ -65,7 +65,7 @@ CoulaloglouAndTavlarides::CoulaloglouAndTavlarides
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
 CoulaloglouAndTavlarides::~CoulaloglouAndTavlarides()
 {}
 
@@ -73,7 +73,7 @@ CoulaloglouAndTavlarides::~CoulaloglouAndTavlarides()
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
 CoulaloglouAndTavlarides::Pc
 (
     const volScalarField& d1,

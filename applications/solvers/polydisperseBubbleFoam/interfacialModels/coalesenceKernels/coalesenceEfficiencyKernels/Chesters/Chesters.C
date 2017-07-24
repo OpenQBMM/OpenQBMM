@@ -34,13 +34,13 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace coalesenceEffeciencyKernels
+namespace coalesenceEfficiencyKernels
 {
     defineTypeNameAndDebug(Chesters, 0);
 
     addToRunTimeSelectionTable
     (
-        coalesenceEffeciencyKernel,
+        coalesenceEfficiencyKernel,
         Chesters,
         dictionary
     );
@@ -51,22 +51,24 @@ namespace coalesenceEffeciencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
 Chesters::Chesters
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalesenceEffeciencyKernel(dict, mesh),
+    coalesenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    Ceff_(dict.lookup("Ceff"))
+    Ceff_(dict.lookup("Ceff")),
+    ReExp_(dict.lookup("ReExp")),
+    WeExp_(dict.lookup("WeExp"))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
 Chesters::~Chesters()
 {}
 
@@ -74,30 +76,27 @@ Chesters::~Chesters()
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
 Chesters::Pc
 (
     const volScalarField& d1,
     const volScalarField& d2
 ) const
 {
-    const phasePair& pair = fluid_.pair();
+    const phasePair& pair = fluid_.pair1In2();
     volScalarField We = pair.We();
-    const dimensionedScalar& sigma = fluid_.sigma();
+    volScalarField xi = d1/d2;
+    volScalarField theta =
+        Ceff_
+       *pow(max(pair.Re(), SMALL), ReExp_)
+       *pow(max(We, SMALL), WeExp_);
 
     return
         Foam::exp
         (
-          - Ceff_
-           *sqrt
-            (
-                nu*epsilon*sqr(rho/sigma)
-               *pow4
-                (
-                    d1*d2
-                   /max(d1 + d2, dimensionedScalar("zero", dimLength, SMALL))
-                )
-            )
+          - theta*sqrt(We)
+           *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
+           /(sqrt(fluid_.phase1().rho()/fluid_.phase2().rho())*pow3(1.0 + xi))
         );
 }
 

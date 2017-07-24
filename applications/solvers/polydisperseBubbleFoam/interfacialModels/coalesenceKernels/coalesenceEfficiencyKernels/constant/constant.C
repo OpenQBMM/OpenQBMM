@@ -2,13 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
--------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is derivative work of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -25,76 +23,80 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "TomiyamaAspectRatio.H"
-#include "phasePair.H"
+#include "constant.H"
 #include "addToRunTimeSelectionTable.H"
+#include "fundamentalConstants.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace aspectRatioModels
+namespace populationBalanceSubModels
 {
-    defineTypeNameAndDebug(TomiyamaAspectRatio, 0);
+namespace coalesenceEfficiencyKernels
+{
+    defineTypeNameAndDebug(constant, 0);
+
     addToRunTimeSelectionTable
     (
-        aspectRatioModel,
-        TomiyamaAspectRatio,
+        coalesenceEfficiencyKernel,
+        constant,
         dictionary
     );
+}
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::aspectRatioModels::TomiyamaAspectRatio::TomiyamaAspectRatio
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
+constant::constant
 (
     const dictionary& dict,
-    const phasePair& pair
+    const fvMesh& mesh
 )
 :
-    VakhrushevEfremov(dict, pair),
-    wallDependentModel(pair.phase1().mesh())
+    coalesenceEfficiencyKernel(dict, mesh),
+    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    Ceff_(dict.lookup("Ceff"))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::aspectRatioModels::TomiyamaAspectRatio::~TomiyamaAspectRatio()
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
+constant::~constant()
 {}
 
 
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::aspectRatioModels::TomiyamaAspectRatio::E
+Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
+constant::Pc
 (
-    const label nodei,
-    const label nodej
+    const volScalarField& d1,
+    const volScalarField& d2
 ) const
 {
-    return
-        VakhrushevEfremov::E(nodei,nodej)
-       *max
-       (
-           scalar(1) - 0.35*yWall()/pair_.dispersed().ds(nodei),
-           scalar(0.65)
-       );
+    return tmp<volScalarField>
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "Pc",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            Ceff_
+        )
+    );
 }
-
-
-Foam::tmp<Foam::volScalarField>
-Foam::aspectRatioModels::TomiyamaAspectRatio::E() const
-{
-    return
-        VakhrushevEfremov::E()
-       *max
-       (
-           scalar(1) - 0.35*yWall()/pair_.dispersed().d(),
-           scalar(0.65)
-       );
-}
-
 
 // ************************************************************************* //

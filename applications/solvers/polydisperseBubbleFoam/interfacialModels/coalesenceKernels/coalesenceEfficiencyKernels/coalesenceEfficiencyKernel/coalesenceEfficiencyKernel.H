@@ -22,56 +22,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::coalesenceEffeciencyKernels::
-    Chesters
+    Foam::populationBalanceSubModels::coalesenceEfficiencyKernel
 
 Description
-    Brownian coalesenceEffeciency kernel supplemented for particles in turbulent
-    flows in conditions when the particle size is smaller than the local
-    Kolmogorov scale.
-
-    \f[
-        P_c =
-            \text{exp}
-            \left(
-              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
-                \left(
-                    \frac{\xi_i^{1/3} \xi_j^{1/3}}{\xi_i^{1/3} + \xi_j^{1/3}}
-                \right)
-            \right)
-    \f]
-
-    where
-
-    \vartable
-        \sigma      |  Surface tension
-        \rho_f      |  Density of liquid phase [kg/m3]
-        \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
-        \xi_i       |  Abscissa of bubble i [m]
-        \xi_j       |  Abscissa of bubble j [m]
-    \endvartable
-
-    References
-    \verbatim
-        "Description of interaction processes in agitated liquid-liquid dis[ersions"
-        C Coulaloglou, L Tavlarides
-        Chemical Engineering Science
-        Volume 32, Pages 1289-1297, 1977
-    \endverbatim
+    Abstract class for coalesence effeciency kernels.
 
 SourceFiles
-    Chesters.C
+    coalesenceEfficiencyKernel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Chesters_H
-#define Chesters_H
+#ifndef coalesenceEfficiencyKernel_H
+#define coalesenceEfficiencyKernel_H
 
-#include "coalesenceEffeciencyKernel.H"
-#include "twoPhaseSystem.H"
-#include "phaseModel.H"
-#include "PhaseCompressibleTurbulenceModel.H"
+#include "dictionary.H"
+#include "volFields.H"
+#include "dimensionedTypes.H"
+#include "runTimeSelectionTables.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -79,42 +46,65 @@ namespace Foam
 {
 namespace populationBalanceSubModels
 {
-namespace coalesenceEffeciencyKernels
-{
 
 /*---------------------------------------------------------------------------*\
-                    Class Chesters Declaration
+                    Class coalesenceEfficiencyKernel Declaration
 \*---------------------------------------------------------------------------*/
 
-class Chesters
-:
-    public coalesenceEffeciencyKernel
+class coalesenceEfficiencyKernel
 {
-    // Private data
+    // Private member functions
 
-        //- Refrence to two phase system
-        const twoPhaseSystem& fluid_;
+        //- Disallow default bitwise copy construct
+        coalesenceEfficiencyKernel(const coalesenceEfficiencyKernel&);
 
-        //- Efficiency coefficient
-        dimensionedScalar Ceff_;
+        //- Disallow default bitwise assignment
+        void operator=(const coalesenceEfficiencyKernel&);
 
-        //- Reynolds number exponent
-        dimensionedScalar ReExp_;
 
-        //- Webber number exponent
-        dimensionedScalar WeExp_;
+protected:
+
+    // Protected data
+
+        //- Dictionary
+        const dictionary& dict_;
+
+        //- Mesh
+        const fvMesh& mesh_;
 
 
 public:
 
-        //- Runtime type information
-        TypeName("Chesters");
+    //- Runtime type information
+    TypeName("coalesenceEfficiencyKernel");
+
+    // Declare runtime constructor selection table
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        coalesenceEfficiencyKernel,
+        dictionary,
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        ),
+        (dict, mesh)
+    );
 
 
     // Constructors
 
         //- Construct from components
-        Chesters
+        coalesenceEfficiencyKernel
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
+
+
+    // Selectors
+
+        static autoPtr<coalesenceEfficiencyKernel> New
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -122,7 +112,7 @@ public:
 
 
     //- Destructor
-    virtual ~Chesters();
+    virtual ~coalesenceEfficiencyKernel();
 
 
     // Member Functions
@@ -130,16 +120,14 @@ public:
         //- Aggregation kernel
         virtual tmp<volScalarField> Pc
         (
-            const volScalarField& abscissa1,
-            const volScalarField& abscissa2
-        ) const;
-
+            const volScalarField& d1,
+            const volScalarField& d2
+        ) const = 0;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coalesenceEffeciencyKernels
 } // End namespace populationBalanceSubModels
 } // End namespace Foam
 

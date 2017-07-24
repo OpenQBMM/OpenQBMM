@@ -123,20 +123,44 @@ public:
         //- Relative velocity magnitude
         tmp<volScalarField> magUr(const label nodei, const label nodej) const;
 
+        //- Relative velocity magnitude
+        tmp<volScalarField> magUr() const;
+
         //- Relative velocity
         tmp<volVectorField> Ur(const label nodei, const label nodej) const;
+
+        //- Mean relative velocity
+        tmp<volVectorField> Ur() const;
 
         //- Reynolds number
         tmp<volScalarField> Re(const label nodei, const label nodej) const;
 
+        //- Mean Reynolds number
+        tmp<volScalarField> Re() const;
+
+        //- Weber number
+        tmp<volScalarField> We(const label nodei, const label nodej) const;
+
+        //- Mean Weber number
+        tmp<volScalarField> We() const;
+
         //- Eotvos number
         tmp<volScalarField> Eo(const label nodei, const label nodej) const;
+
+        //- Mean Eotvos number
+        tmp<volScalarField> Eo() const;
 
         //- Eotvos number based on hydraulic diameter type 1
         tmp<volScalarField> EoH1(const label nodei, const label nodej) const;
 
+        //- Mean Eotvos number based on hydraulic diameter type 1
+        tmp<volScalarField> EoH1() const;
+
         //- Eotvos number based on hydraulic diameter type 2
         tmp<volScalarField> EoH2(const label nodei, const label nodej) const;
+
+        //- Mean Eotvos number based on hydraulic diameter type 2
+        tmp<volScalarField> EoH2() const;
 
         //- Morton Number
         tmp<volScalarField> Mo() const;
@@ -144,8 +168,14 @@ public:
         //- Takahashi Number
         tmp<volScalarField> Ta(const label nodei, const label nodej) const;
 
+        //- Mean Takahashi Number
+        tmp<volScalarField> Ta() const;
+
         //- Aspect ratio
         virtual tmp<volScalarField> E(const label nodei, const label nodej) const;
+
+        //- Mean Aspect ratio
+        virtual tmp<volScalarField> E() const;
 
         // Access
 
