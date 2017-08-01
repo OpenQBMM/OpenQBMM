@@ -30,9 +30,9 @@ LIB_LIBS = \
     -lfiniteVolume \
     -lfvOptions \
     -lmeshTools \
-    -lmomentSet \
+    -lmomentSets \
     -lfieldMomentInversion \
-    -lmonoKineticQuadratureApproximation \
+    -lquadratureApproximation \
     -lhermiteQuadrature \
     -lvandermonde \
     -lpdPhaseSystem \
