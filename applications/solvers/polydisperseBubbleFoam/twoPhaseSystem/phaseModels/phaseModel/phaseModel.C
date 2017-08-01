@@ -153,7 +153,7 @@ Foam::phaseModel::phaseModel
         IOobject::NO_READ
     );
 
-    if (phiHeader.headerOk())
+    if (typeHeaderOk<surfaceScalarField>(true))
     {
         Info<< "Reading face flux field " << phiName << endl;
 

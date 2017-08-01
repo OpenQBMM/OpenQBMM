@@ -29,7 +29,7 @@ LIB_LIBS = \
     -lfiniteVolume \
     -lfvOptions \
     -lmeshTools \
-    -lmomentSet \
+    -lmomentSets \
     -lfieldMomentInversion \
     -lquadratureApproximation \
     -lpopulationBalance \
