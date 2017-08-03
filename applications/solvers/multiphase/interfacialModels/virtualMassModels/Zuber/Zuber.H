@@ -96,6 +96,9 @@ public:
 
         //- Virtual mass coefficient
         virtual tmp<volScalarField> Cvm(const label, const label) const;
+
+        //- Mean virtual mass coefficient
+        virtual tmp<volScalarField> Cvm() const;
 };
 
 

@@ -87,4 +87,24 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::Ergun::CdRe
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::dragModels::Ergun::CdRe() const
+{
+    return
+        (4.0/3.0)
+       *(
+            150
+           *max
+            (
+                scalar(1) - pair_.continuous(),
+                pair_.continuous().residualAlpha()
+            )/max
+            (
+                pair_.continuous(),
+                pair_.continuous().residualAlpha()
+            )
+          + 1.75
+           *pair_.Re()
+        );
+}
+
 // ************************************************************************* //

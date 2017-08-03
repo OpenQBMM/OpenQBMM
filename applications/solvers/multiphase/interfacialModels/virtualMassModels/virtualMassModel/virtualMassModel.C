@@ -73,52 +73,6 @@ Foam::virtualMassModel::~virtualMassModel()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Cvm() const
-{
-    const fvMesh& mesh(this->pair_.phase1().mesh());
-    label nNodesi = pair_.dispersed().nNodes();
-    label nNodesj = pair_.continuous().nNodes();
-
-    tmp<volScalarField> tCvm
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "totalCvm",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            mesh,
-            dimensionedScalar("0", dimless, 0.0)
-        )
-    );
-
-    for (label nodei = 0; nodei < nNodesi; nodei++)
-    {
-        for (label nodej = 0; nodej < nNodesj; nodej++)
-        {
-            tCvm.ref() +=
-                Cvm(nodei, nodej)
-               *pair_.dispersed().alphas(nodei)
-               *pair_.continuous().alphas(nodej);
-        }
-    }
-
-    tCvm.ref() /=
-        max
-        (
-            pair_.dispersed()*pair_.continuous(),
-            pair_.dispersed().residualAlpha()
-        );
-
-    return tCvm;
-}
-
-
 Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Ki
 (
     const label nodei,
@@ -126,6 +80,11 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Ki
 ) const
 {
     return Cvm(nodei,nodej)*pair_.continuous().rho();
+}
+
+Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Ki() const
+{
+    return Cvm()*pair_.continuous().rho();
 }
 
 
@@ -139,6 +98,12 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::K
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::K() const
+{
+    return pair_.dispersed()*Ki();
+}
+
+
 Foam::tmp<Foam::surfaceScalarField> Foam::virtualMassModel::Kf
 (
     const label nodei,
@@ -148,6 +113,12 @@ Foam::tmp<Foam::surfaceScalarField> Foam::virtualMassModel::Kf
     return
         fvc::interpolate(pair_.dispersed().alphas(nodei))
        *fvc::interpolate(Ki(nodei, nodej));
+}
+
+
+Foam::tmp<Foam::surfaceScalarField> Foam::virtualMassModel::Kf() const
+{
+    return fvc::interpolate(pair_.dispersed())*fvc::interpolate(Ki());
 }
 
 

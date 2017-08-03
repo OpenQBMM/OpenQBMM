@@ -90,4 +90,13 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModels::Zuber::Cvm
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::virtualMassModels::Zuber::Cvm() const
+{
+
+    return
+        (1.0 + 2.0*pair_.dispersed())
+       /max(pair_.continuous(), residualAlpha_);
+}
+
+
 // ************************************************************************* //

@@ -96,7 +96,7 @@ Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::Alopaeus::Kb
 (
     const scalar& abscissa,
-    const label& celli
+    const label celli
 ) const
 {
     return

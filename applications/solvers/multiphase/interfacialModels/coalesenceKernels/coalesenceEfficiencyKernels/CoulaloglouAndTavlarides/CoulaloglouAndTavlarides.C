@@ -60,7 +60,9 @@ CoulaloglouAndTavlarides::CoulaloglouAndTavlarides
     coalesenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
     Ceff_(dict.lookup("Ceff"))
-{}
+{
+    Ceff_.dimensions().reset(inv(dimLength));
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -81,7 +83,6 @@ CoulaloglouAndTavlarides::Pc
 ) const
 {
     const volScalarField& rho = fluid_.phase2().rho();
-    tmp<volScalarField> nu = fluid_.phase2().nu();
     const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
     const dimensionedScalar& sigma = fluid_.sigma();
 
@@ -91,7 +92,7 @@ CoulaloglouAndTavlarides::Pc
           - Ceff_
            *sqrt
             (
-                nu*epsilon*sqr(rho/sigma)
+                fluid_.phase2().nu()*epsilon*sqr(rho/sigma)
                *pow4
                 (
                     d1*d2

@@ -11,6 +11,15 @@ EXE_INC = \
     -I../twoPhaseSystem/lnInclude
 
 LIB_LIBS = \
+    -lincompressibleTransportModels \
+    -lcompressibleTransportModels \
+    -lfluidThermophysicalModels \
+    -lspecie \
+    -lturbulenceModels \
+    -lincompressibleTurbulenceModels \
+    -lcompressibleTurbulenceModels \
+    -lfiniteVolume \
+    -lmeshTools \
     -L$(FOAM_USER_LIBBIN) \
     -lpdPhaseSystem \
     -lcompressibleTransportModels \

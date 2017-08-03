@@ -77,6 +77,13 @@ Foam::virtualMassModels::constantVirtualMassCoefficient::Cvm
     const label nodej
 ) const
 {
+    return Cvm();
+}
+
+
+Foam::tmp<Foam::volScalarField>
+Foam::virtualMassModels::constantVirtualMassCoefficient::Cvm() const
+{
     const fvMesh& mesh(this->pair_.phase1().mesh());
 
     return tmp<volScalarField>

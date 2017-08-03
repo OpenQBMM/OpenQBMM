@@ -106,45 +106,6 @@ Foam::dragModel::~dragModel()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> Foam::dragModel::CdRe() const
-{
-    label nNodesi = pair_.dispersed().nNodes();
-    label nNodesj = pair_.continuous().nNodes();
-
-    tmp<volScalarField> tCdRe;
-    tCdRe =
-        CdRe(0, 0)
-       *max
-        (
-            pair_.dispersed().alphas(0)
-           *pair_.continuous().alphas(0),
-            pair_.dispersed().residualAlpha()
-        );
-
-    for (label nodei = 1; nodei < nNodesi; nodei++)
-    {
-        for (label nodej = 1; nodej < nNodesj; nodej++)
-        {
-            tCdRe.ref() +=
-                CdRe(nodei, nodej)
-               *max
-                (
-                    pair_.dispersed().alphas(0)
-                   *pair_.continuous().alphas(0),
-                    pair_.dispersed().residualAlpha()
-                );
-        }
-    }
-    return
-        tCdRe
-       /max
-        (
-            pair_.dispersed()*pair_.continuous(),
-            pair_.dispersed().residualAlpha()
-        );
-}
-
-
 Foam::tmp<Foam::volScalarField> Foam::dragModel::Ki
 (
     const label nodei,
@@ -163,43 +124,13 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::Ki
 
 Foam::tmp<Foam::volScalarField> Foam::dragModel::Ki() const
 {
-    const fvMesh& mesh(this->pair_.phase1().mesh());
-    label nNodesi = pair_.dispersed().nNodes();
-    label nNodesj = pair_.continuous().nNodes();
-
-    tmp<volScalarField> tKdi
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "totalKdi",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            mesh,
-            dimensionedScalar("0", dimK, 0.0)
-        )
-    );
-
-    for (label nodei = 0; nodei < nNodesi; nodei++)
-    {
-        for (label nodej = 0; nodej < nNodesj; nodej++)
-        {
-            tKdi.ref() +=
-                K(nodei, nodej)
-               *max(pair_.continuous(), pair_.continuous().residualAlpha());
-        }
-    }
-    tKdi.ref() /= max
-    (
-        pair_.dispersed()*pair_.continuous(),
-        pair_.dispersed().residualAlpha()
-    );
-    return tKdi;
+    return
+        0.75
+       *CdRe()
+       *swarmCorrection_->Cs()
+       *pair_.continuous().rho()
+       *pair_.continuous().nu()
+       /sqr(pair_.dispersed().d());
 }
 
 
@@ -220,36 +151,12 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
 
 Foam::tmp<Foam::volScalarField> Foam::dragModel::K() const
 {
-    const fvMesh& mesh(this->pair_.phase1().mesh());
-    label nNodesi = pair_.dispersed().nNodes();
-    label nNodesj = pair_.continuous().nNodes();
-
-    tmp<volScalarField> tKd
-    (
-        new volScalarField
+    return
+        max
         (
-            IOobject
-            (
-                "totalKd",
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            mesh,
-            dimensionedScalar("0", dimK, 0.0)
-        )
-    );
-
-    for (label nodei = 0; nodei < nNodesi; nodei++)
-    {
-        for (label nodej = 0; nodej < nNodesj; nodej++)
-        {
-            tKd.ref() += K(nodei, nodej);
-        }
-    }
-    return tKd;
+            pair_.dispersed(),
+            pair_.dispersed().residualAlpha()
+        )*Ki();
 }
 
 
@@ -265,6 +172,17 @@ Foam::tmp<Foam::surfaceScalarField> Foam::dragModel::Kf
             fvc::interpolate(pair_.dispersed().alphas(nodei)),
             pair_.dispersed().residualAlpha()
         )*fvc::interpolate(Ki(nodei, nodej));
+}
+
+
+Foam::tmp<Foam::surfaceScalarField> Foam::dragModel::Kf() const
+{
+    return
+        max
+        (
+            fvc::interpolate(pair_.dispersed()),
+            pair_.dispersed().residualAlpha()
+        )*fvc::interpolate(Ki());
 }
 
 

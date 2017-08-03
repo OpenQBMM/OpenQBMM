@@ -77,20 +77,34 @@ Foam::dragModels::TomiyamaCorrelated::CdRe
     return
         max
         (
-//             A_
-//            *min
-//             (
-//                 (1 + 0.15*pow(Re, 0.687)),
-//                 scalar(3)
-//             ),
-            max
+            A_
+           *min
             (
-                24.0*(1 + 0.15*pow(Re, 0.687)),
-                0.44*Re
+                (1 + 0.15*pow(Re, 0.687)),
+                scalar(3)
             ),
             8*Eo*Re/(3*Eo + 12)
         );
+}
 
+
+Foam::tmp<Foam::volScalarField>
+Foam::dragModels::TomiyamaCorrelated::CdRe() const
+{
+    volScalarField Re(pair_.Re());
+    volScalarField Eo(pair_.Eo());
+
+    return
+        max
+        (
+            A_
+           *min
+            (
+                (1 + 0.15*pow(Re, 0.687)),
+                scalar(3)
+            ),
+            8*Eo*Re/(3*Eo + 12)
+);
 }
 
 

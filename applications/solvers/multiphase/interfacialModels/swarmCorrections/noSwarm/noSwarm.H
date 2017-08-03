@@ -80,6 +80,9 @@ public:
 
         //- Swarm correction coefficient
         tmp<volScalarField> Cs(const label, const label) const;
+
+        //- Mean swarm correction coefficient
+        tmp<volScalarField> Cs() const;
 };
 
 

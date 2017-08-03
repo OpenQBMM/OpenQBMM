@@ -137,7 +137,7 @@ public:
         virtual tmp<volScalarField> CdRe(const label, const label) const = 0;
 
         //- Drag coefficient
-        virtual tmp<volScalarField> CdRe() const;
+        virtual tmp<volScalarField> CdRe() const = 0;
 
         //- Return the phase-intensive drag coefficient Ki
         //  used in the momentum equations
@@ -160,6 +160,10 @@ public:
         //- Return the drag coefficient Kf
         //  used in the face-momentum equations
         virtual tmp<surfaceScalarField> Kf(const label, const label) const;
+
+        //- Return the mean drag coefficient Kf
+        //  used in the face-momentum equations
+        virtual tmp<surfaceScalarField> Kf() const;
 
         //- Dummy write for regIOobject
         bool writeData(Ostream& os) const;

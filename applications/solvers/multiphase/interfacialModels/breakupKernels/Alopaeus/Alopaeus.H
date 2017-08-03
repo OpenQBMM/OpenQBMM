@@ -135,11 +135,11 @@ public:
 
     // Member Functions
 
-        //- Aggregation kernel
+        //- Breakup kernel
         virtual scalar Kb
         (
             const scalar& abscissa,
-            const label& celli
+            const label celli
         ) const;
 
 };
@@ -147,7 +147,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coalesenceKernels
+} // End namespace breakupKernels
 } // End namespace populationBalanceSubModels
 } // End namespace Foam
 

@@ -179,6 +179,88 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K() const
+{
+    const fvMesh& mesh(pair_.phase1().mesh());
+
+    volScalarField alpha1(pair_.phase1());
+    volScalarField alpha2(pair_.phase2());
+
+    tmp<volScalarField> trho1(pair_.phase1().rho());
+    tmp<volScalarField> trho2(pair_.phase2().rho());
+
+    tmp<volScalarField> tnu1(pair_.phase1().nu());
+    tmp<volScalarField> tnu2(pair_.phase2().nu());
+
+    const volScalarField& rho1(trho1());
+    const volScalarField& rho2(trho2());
+
+    const volScalarField& nu1(tnu1());
+    const volScalarField& nu2(tnu2());
+
+    volScalarField L
+    (
+        IOobject
+        (
+            "L",
+            mesh.time().timeName(),
+            mesh
+        ),
+        mesh,
+        dimensionedScalar("L", dimLength, 0),
+        zeroGradientFvPatchField<scalar>::typeName
+    );
+
+    L.primitiveFieldRef() = cbrt(mesh.V());
+    L.correctBoundaryConditions();
+
+    volScalarField I
+    (
+        alpha1
+       /max
+        (
+            alpha1 + alpha2,
+            pair_.phase1().residualAlpha() + pair_.phase2().residualAlpha()
+        )
+    );
+
+    volScalarField magGradI
+    (
+        max
+        (
+            mag(fvc::grad(I)),
+            (pair_.phase1().residualAlpha() + pair_.phase2().residualAlpha())/L
+        )
+    );
+
+    volScalarField muI
+    (
+        rho1*nu1*rho2*nu2
+       /(rho1*nu1 + rho2*nu2)
+    );
+
+    volScalarField muAlphaI
+    (
+        alpha1*rho1*nu1*alpha2*rho2*nu2
+       /(
+            max(alpha1, pair_.phase1().residualAlpha())*rho1*nu1
+          + max(alpha2, pair_.phase2().residualAlpha())*rho2*nu2
+        )
+    );
+
+    volScalarField ReI
+    (
+        pair_.rho()
+       *pair_.magUr()
+       /(magGradI*muI)
+    );
+
+    volScalarField lambda(m_*ReI + n_*muAlphaI/muI);
+
+    return lambda*sqr(magGradI)*muI;
+}
+
+
 Foam::tmp<Foam::surfaceScalarField> Foam::dragModels::segregated::Kf
 (
     const label nodei,
@@ -186,6 +268,12 @@ Foam::tmp<Foam::surfaceScalarField> Foam::dragModels::segregated::Kf
 ) const
 {
     return fvc::interpolate(K(nodei, nodej));
+}
+
+
+Foam::tmp<Foam::surfaceScalarField> Foam::dragModels::segregated::Kf() const
+{
+    return fvc::interpolate(K());
 }
 
 

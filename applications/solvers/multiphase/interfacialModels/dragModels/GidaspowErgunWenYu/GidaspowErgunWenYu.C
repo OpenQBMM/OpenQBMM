@@ -95,4 +95,11 @@ Foam::dragModels::GidaspowErgunWenYu::CdRe
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::dragModels::GidaspowErgunWenYu::CdRe() const
+{
+    return
+        pos0(pair_.continuous() - 0.8)*WenYu_->CdRe()
+      + neg(pair_.continuous() - 0.8)*Ergun_->CdRe();
+}
 // ************************************************************************* //

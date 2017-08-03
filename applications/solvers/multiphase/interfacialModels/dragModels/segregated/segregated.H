@@ -105,8 +105,14 @@ public:
         //- The drag function used in the momentum equation
         virtual tmp<volScalarField> K(const label, const label) const;
 
+        //- The mean drag function used in the momentum equation
+        virtual tmp<volScalarField> K() const;
+
         //- The drag function Kf used in the face-momentum equations
         virtual tmp<surfaceScalarField> Kf(const label, const label) const;
+
+        //- The mean drag function Kf used in the face-momentum equations
+        virtual tmp<surfaceScalarField> Kf() const;
 };
 
 

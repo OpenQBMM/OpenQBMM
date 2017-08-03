@@ -80,4 +80,13 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModels::Lamb::Cvm
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::virtualMassModels::Lamb::Cvm() const
+{
+    volScalarField E(min(max(pair_.E(), SMALL), 1 - SMALL));
+    volScalarField rtOmEsq(sqrt(1 - sqr(E)));
+
+    return (rtOmEsq - E*acos(E))/(E*acos(E) - sqr(E)*rtOmEsq);
+}
+
+
 // ************************************************************************* //

@@ -111,4 +111,49 @@ Foam::dragModels::IshiiZuber::CdRe
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::dragModels::IshiiZuber::CdRe() const
+{
+    volScalarField Re(pair_.Re());
+    volScalarField Eo(pair_.Eo());
+
+    volScalarField mud(pair_.dispersed().mu());
+    volScalarField muc(pair_.continuous().mu());
+
+    volScalarField muStar((mud + 0.4*muc)/(mud + muc));
+
+    volScalarField muMix
+    (
+        muc
+       *pow
+        (
+            max(1 - pair_.dispersed(),
+            scalar(1e-3)), -2.5*muStar
+        )
+    );
+
+    volScalarField ReM(Re*muc/muMix);
+    volScalarField CdRe
+    (
+        pos0(1000 - ReM)*24.0*(scalar(1) + 0.15*pow(ReM, 0.687))
+      + neg(1000 - ReM)*0.44*ReM
+    );
+
+    volScalarField F
+    (
+        (muc/muMix)*sqrt(1 - pair_.dispersed())
+    );
+    F.max(1e-3);
+
+    volScalarField Ealpha((1 + 17.67*pow(F, 0.8571428))/(18.67*F));
+
+    volScalarField CdReEllipse(Ealpha*0.6666*sqrt(Eo)*Re);
+
+    return
+        pos0(CdReEllipse - CdRe)
+       *min(CdReEllipse, Re*sqr(1 - pair_.dispersed())*2.66667)
+      + neg(CdReEllipse - CdRe)*CdRe;
+}
+
+
 // ************************************************************************* //

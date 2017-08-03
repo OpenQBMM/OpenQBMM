@@ -102,6 +102,9 @@ public:
 
         //- Drag coefficient
         virtual tmp<volScalarField> CdRe(const label, const label) const;
+
+        //- Mean drag coefficient
+        virtual tmp<volScalarField> CdRe() const;
 };
 
 
