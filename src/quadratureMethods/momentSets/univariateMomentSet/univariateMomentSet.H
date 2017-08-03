@@ -60,6 +60,9 @@ class univariateMomentSet
         //- Beta coefficients of the recurrence relation
         scalarList beta_;
 
+        //- Zeta values to check moment realizability
+        scalarList zeta_;
+
         //- Position of first negative zeta
         label negativeZeta_;
 
@@ -133,16 +136,22 @@ public:
     // Member Functions
 
         //- Returns alpha coefficients of the recurrence relation
-        const scalarList& alphaRecurrence() const;
+        inline const scalarList& alphaRecurrence() const;
 
         //- Returns alpha coefficients of the recurrence relation
-        scalarList& alphaRecurrence();
+        inline scalarList& alphaRecurrence();
 
         //- Returns beta coefficients of the recurrence relation
-        const scalarList& betaRecurrence() const;
+        inline const scalarList& betaRecurrence() const;
 
         //- Returns beta coefficients of the recurrence relation
-        scalarList& betaRecurrence();
+        inline scalarList& betaRecurrence();
+
+//         //- Returns zeta_k values for the moment set
+//         inline const scalarList& zetas() const;
+
+        //- Returns zeta_k values for the moment set
+        inline scalarList& zetas();
 
         //- Returns degenerate status of the moment set
         inline bool isDegenerate();
@@ -171,16 +180,18 @@ public:
             bool fatalErrorOnFailedRealizabilityTest = true
         );
 
+        inline labelListList makeUnivariateMomentOrders
+        (
+            const label nMoments
+        );
+
         //- Return the number of realizable moments
         inline label nRealizableMoments
         (
             bool fatalErrorOnFailedRealizabilityTest = true
         );
 
-        inline labelListList makeUnivariateMomentOrders
-        (
-            const label nMoments
-        );
+        inline label negativeZeta();
 
         //- Update moments from the corresponding quadrature
         virtual void update

@@ -144,6 +144,12 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::cellMomentSource
     return 0.0;
 }
 
+Foam::scalar Foam::PDFTransportModels::mixingModels::turbulentMixing::realizableCo
+()
+{
+    return univariatePDFTransportModel::realizableCo();
+}
+
 void Foam::PDFTransportModels::mixingModels::turbulentMixing::solve
 ()
 {

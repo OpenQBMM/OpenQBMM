@@ -75,7 +75,7 @@ Foam::tmp<Foam::volScalarField> Foam::liftModels::TomiyamaLift::Cl
     );
 
     return
-        neg(EoH - scalar(4))*min(0.288*tanh(0.121*pair_.Re(nodei,nodej)), f)
+        neg(EoH - scalar(4))*min(0.288*tanh(0.121*pair_.Re(nodei, nodej)), f)
       + pos0(EoH - scalar(4))*neg(EoH - scalar(10.7))*f
       + pos0(EoH - scalar(10.7))*(-0.288);
 }

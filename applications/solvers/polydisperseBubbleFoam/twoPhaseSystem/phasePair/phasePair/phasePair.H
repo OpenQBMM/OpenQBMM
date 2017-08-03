@@ -145,7 +145,11 @@ public:
         tmp<volScalarField> Ta(const label nodei, const label nodej) const;
 
         //- Aspect ratio
-        virtual tmp<volScalarField> E(const label nodei, const label nodej) const;
+        virtual tmp<volScalarField> E
+        (
+            const label nodei,
+            const label nodej
+        ) const;
 
         // Access
 

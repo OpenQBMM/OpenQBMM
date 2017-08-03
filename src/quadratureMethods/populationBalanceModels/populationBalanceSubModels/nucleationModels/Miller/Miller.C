@@ -90,7 +90,7 @@ Foam::scalar
 Foam::populationBalanceSubModels::nucleationModels::Miller::nucleationSource
 (
     const label& momentOrder,
-    const label& celli
+    const label celli
 ) const
 {
     scalar NA = Foam::constant::physicoChemical::NA.value();

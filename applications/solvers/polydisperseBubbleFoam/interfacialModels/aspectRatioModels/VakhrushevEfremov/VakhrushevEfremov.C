@@ -73,7 +73,7 @@ Foam::aspectRatioModels::VakhrushevEfremov::E
     const label nodej
 ) const
 {
-    volScalarField Ta(pair_.Ta(nodei,nodej));
+    volScalarField Ta(pair_.Ta(nodei, nodej));
 
     return
         neg(Ta - scalar(1))*scalar(1)

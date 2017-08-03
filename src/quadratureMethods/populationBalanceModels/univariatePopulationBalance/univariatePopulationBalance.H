@@ -141,12 +141,6 @@ class univariatePopulationBalance
             const label& celli
         );
 
-//         //- Calculate explicit source terms
-//         virtual tmp<volScalarField> explicitMomentSource
-//         (
-//             const volUnivariateMoment& moment
-//         );
-
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
@@ -181,6 +175,9 @@ public:
     virtual ~univariatePopulationBalance();
 
     // Member Functions
+
+        //- Return the maximum Courant number ensuring moment realizability
+        scalar realizableCo();
 
         //- Solve population balance equation
         void solve();

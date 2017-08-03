@@ -39,6 +39,10 @@ Foam::PDFTransportModels::univariatePDFTransportModel
 :
     PDFTransportModel(name, dict, mesh),
     name_(name),
+    solveODESource_
+    (
+        dict.subDict("odeCoeffs").lookupOrDefault("solveODESource", true)
+    ),
     ATol_(readScalar(dict.subDict("odeCoeffs").lookup("ATol"))),
     RTol_(readScalar(dict.subDict("odeCoeffs").lookup("RTol"))),
     fac_(readScalar(dict.subDict("odeCoeffs").lookup("fac"))),
@@ -48,9 +52,13 @@ Foam::PDFTransportModels::univariatePDFTransportModel
     quadrature_(name, mesh, support, 1),
     momentAdvection_
     (
-        quadrature_,
-        phi,
-        support
+        univariateMomentAdvection::New
+        (
+            quadrature_.subDict("momentAdvection"),
+            quadrature_,
+            phi,
+            support
+        )
     )
 {}
 
@@ -86,7 +94,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
         scalar localT = 0.0;
 
         // Initialize the local step
-        scalar localDt = globalDt/100;
+        scalar localDt = globalDt/100.0;
 
         // Initialize RK parameters
         scalarList k1(nMoments, 0.0);
@@ -103,7 +111,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
 
         scalarList momentsSecondStep(nMoments, 0.0);
 
-        while(!timeComplete)
+        while (!timeComplete)
         {
             do
             {
@@ -181,7 +189,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
 
             scalar error = 0.0;
 
-            for(label mi = 0; mi < nMoments; mi++)
+            for (label mi = 0; mi < nMoments; mi++)
             {
                 scalar scalei =
                         ATol_
@@ -235,7 +243,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
 
 void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
 {
-    momentAdvection_.update();
+    momentAdvection_().update();
 
     // List of moment transport equations
     PtrList<fvScalarMatrix> momentEqns(quadrature_.nMoments());
@@ -251,23 +259,28 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             new fvScalarMatrix
             (
                 fvm::ddt(m)
-              + momentAdvection_.divMoments()[momenti]
+              + momentAdvection_().divMoments()[momenti]
               - momentDiffusion(m)
               ==
                 implicitMomentSource(m)
-              //+ explicitMomentSource(m)
-              //+ phaseSpaceConvection(m)
             )
         );
     }
 
-    explicitMomentSource();
+    if (solveODESource_)
+    {
+        explicitMomentSource();
+    }
 
     forAll (momentEqns, mEqni)
     {
         volUnivariateMoment& m = quadrature_.moments()[mEqni];
 
-        momentEqns[mEqni] -= fvc::ddt(m);
+        if (solveODESource_)
+        {
+            momentEqns[mEqni] -= fvc::ddt(m);
+        }
+
         momentEqns[mEqni].relax();
         momentEqns[mEqni].solve();
     }

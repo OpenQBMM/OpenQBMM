@@ -60,6 +60,8 @@ class univariatePDFTransportModel
         //- Name of the univariatePDFTransportModel
         const word name_;
 
+        Switch solveODESource_;
+
         //- Absolute tolerance for realizable ODE solver
         scalar ATol_;
 
@@ -87,7 +89,7 @@ protected:
         univariateQuadratureApproximation quadrature_;
 
         //- Moment advection
-        univariateMomentAdvection momentAdvection_;
+        autoPtr<univariateMomentAdvection> momentAdvection_;
 
     // Protected member functions
 
@@ -106,13 +108,6 @@ protected:
         //- Calculate explicit source terms with realizable ODE solver
         virtual void explicitMomentSource();
 
-
-//         //- Convect moments in phase space
-//         virtual tmp<volScalarField> phaseSpaceConvection
-//         (
-//             const volUnivariateMoment& moment
-//         ) = 0;
-
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
@@ -120,8 +115,6 @@ protected:
             label& celli
         ) = 0;
 
-//         //- Solve source terms in a cell using realizable ODE solver
-//         void realizableSourceSolve(const label& celli);
 
 public:
 
@@ -148,6 +141,9 @@ public:
 
             //- Returns a const reference to the quadrature approximation
             inline const univariateQuadratureApproximation& quadrature() const;
+
+            //- Return the maximum Courant number ensuring moment realizability
+            inline scalar realizableCo();
 
         //-Edit
 

@@ -150,23 +150,23 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
                 const volScalarField& pAbscissa2 = node2.primaryAbscissa();
 
                 aSource +=
-                        pWeight1[celli]*
+                    pWeight1[celli]*
+                    (
+                        pWeight2[celli]*
                         (
-                            pWeight2[celli]*
+                            0.5*pow // Birth
                             (
-                                0.5*pow // Birth
-                                (
-                                    pow3(pAbscissa1[celli])
-                                  + pow3(pAbscissa2[celli]),
-                                    momentOrder/3.0
-                                )
-                                - pow(pAbscissa1[celli], momentOrder)
-                            )*aggregationKernel_->Ka
-                                (
-                                    pAbscissa1[celli], pAbscissa2[celli], celli
-                                )
-                        );
-                }
+                                pow3(pAbscissa1[celli])
+                              + pow3(pAbscissa2[celli]),
+                                momentOrder/3.0
+                            )
+                            - pow(pAbscissa1[celli], momentOrder)
+                        )*aggregationKernel_->Ka
+                            (
+                                pAbscissa1[celli], pAbscissa2[celli], celli
+                            )
+                    );
+            }
         }
 
         return aSource;
@@ -349,35 +349,6 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return gSource;
 }
 
-// Foam::tmp<Foam::volScalarField>
-// Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
-// ::explicitMomentSource
-// (
-//     const volUnivariateMoment& moment
-// )
-// {
-//     tmp<volScalarField> expSource
-//     (
-//         new volScalarField
-//         (
-//             IOobject
-//             (
-//                 "expSource",
-//                 phi_.mesh().time().timeName(),
-//                 phi_.mesh(),
-//                 IOobject::NO_READ,
-//                 IOobject::NO_WRITE,
-//                 false
-//             ),
-//             phi_.mesh(),
-//             dimensionedScalar("zero", moment.dimensions()/dimTime, 0.0)
-//         )
-//     );
-//
-//     return expSource;
-// }
-
-
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::implicitMomentSource
@@ -412,6 +383,13 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
             + breakupSource(momentOrder, celli)
             + nucleationModel_->nucleationSource(momentOrder, celli)
             + phaseSpaceConvection(momentOrder, celli);
+}
+
+Foam::scalar Foam::PDFTransportModels::populationBalanceModels
+::univariatePopulationBalance::realizableCo
+()
+{
+    return univariatePDFTransportModel::realizableCo();
 }
 
 void Foam::PDFTransportModels::populationBalanceModels

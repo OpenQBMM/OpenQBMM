@@ -69,10 +69,10 @@ Foam::tmp<Foam::volVectorField> Foam::liftModel::Fi
 ) const
 {
     return
-        Cl(nodei,nodej)
+        Cl(nodei, nodej)
        *pair_.continuous().rho()
        *(
-            pair_.Ur(nodei,nodej) ^ fvc::curl(pair_.continuous().Us(nodej))
+            pair_.Ur(nodei, nodej) ^ fvc::curl(pair_.continuous().Us(nodej))
         );
 }
 
@@ -83,7 +83,7 @@ Foam::tmp<Foam::volVectorField> Foam::liftModel::F
     const label nodej
 ) const
 {
-    return pair_.dispersed().alphas(nodei)*Fi(nodei,nodej);
+    return pair_.dispersed().alphas(nodei)*Fi(nodei, nodej);
 }
 
 
@@ -95,7 +95,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::liftModel::Ff
 {
     return
         fvc::interpolate(pair_.dispersed().alphas(nodei))
-       *fvc::flux(Fi(nodei,nodej));
+       *fvc::flux(Fi(nodei, nodej));
 }
 
 

@@ -63,7 +63,7 @@ quadratureApproximation
     nMoments_(moments_.size()),
     nSecondaryNodes_
     (
-        (*this).lookupOrDefault<label>("nSecondaryNodes", nMoments_ + 1)
+        lookupOrDefault<label>("nSecondaryNodes", nMoments_ + 1)
     ),
     support_(support),
     momentFieldInverter_
@@ -145,7 +145,7 @@ bool Foam::quadratureApproximation<momentFieldSetType, nodeType>
         moments_, nodes_(), celli, false
     );
 
-    if(!realizable && fatalErrorOnFailedRealizabilityTest)
+    if (!realizable && fatalErrorOnFailedRealizabilityTest)
     {
         return realizable;
     }

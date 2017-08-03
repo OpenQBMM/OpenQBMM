@@ -67,7 +67,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
         )
     ),
     T_(flThermo_.T()),
-    nu_(flTurb_.nu()),
+    rho_(flThermo_.rho()),
     mu_(flThermo_.mu()),
     epsilon_(flTurb_.epsilon())
 {}
@@ -87,14 +87,14 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
 (
     const scalar& abscissa1,
     const scalar& abscissa2,
-    const label& celli
+    const label celli
 ) const
 {
     return 2.0*Foam::constant::physicoChemical::k.value()*T_[celli]
         *sqr(abscissa1 + abscissa2)/(3.0*mu_[celli]
         *max(abscissa1*abscissa2, SMALL)) + 4.0/3.0*pow3(abscissa1 + abscissa2)
-        *sqrt(3.0*Foam::constant::mathematical::pi*epsilon_[celli]
-        /(10.0*nu_[celli]));
+        *sqrt(3.0*Foam::constant::mathematical::pi*epsilon_[1]
+        /(10.0*mu_[celli]/rho_[celli]));
 }
 
 // ************************************************************************* //

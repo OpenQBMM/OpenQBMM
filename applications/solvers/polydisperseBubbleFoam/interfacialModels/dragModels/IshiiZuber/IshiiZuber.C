@@ -69,8 +69,8 @@ Foam::dragModels::IshiiZuber::CdRe
     const label nodej
 ) const
 {
-    volScalarField Re(pair_.Re(nodei,nodej));
-    volScalarField Eo(pair_.Eo(nodei,nodej));
+    volScalarField Re(pair_.Re(nodei, nodej));
+    volScalarField Eo(pair_.Eo(nodei, nodej));
 
     volScalarField mud(pair_.dispersed().mu());
     volScalarField muc(pair_.continuous().mu());

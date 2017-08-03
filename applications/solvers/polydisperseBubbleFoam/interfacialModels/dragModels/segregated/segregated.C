@@ -128,6 +128,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
         dimensionedScalar("L", dimLength, 0),
         zeroGradientFvPatchField<scalar>::typeName
     );
+
     L.primitiveFieldRef() = cbrt(mesh.V());
     L.correctBoundaryConditions();
 
@@ -140,6 +141,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
             pair_.phase1().residualAlpha() + pair_.phase2().residualAlpha()
         )
     );
+
     volScalarField magGradI
     (
         max
@@ -154,6 +156,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
         rho1*nu1*rho2*nu2
        /(rho1*nu1 + rho2*nu2)
     );
+
     volScalarField muAlphaI
     (
         alpha1*rho1*nu1*alpha2*rho2*nu2
@@ -166,7 +169,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
     volScalarField ReI
     (
         pair_.rho()
-       *pair_.magUr(nodei,nodej)
+       *pair_.magUr(nodei, nodej)
        /(magGradI*muI)
     );
 
@@ -182,7 +185,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::dragModels::segregated::Kf
     const label nodej
 ) const
 {
-    return fvc::interpolate(K(nodei,nodej));
+    return fvc::interpolate(K(nodei, nodej));
 }
 
 

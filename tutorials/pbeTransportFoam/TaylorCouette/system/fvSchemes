@@ -37,7 +37,7 @@ divSchemes
     div(phi,R) bounded Gauss limitedLinear 0.2;
     div(phi,Ekp)    bounded Gauss limitedLinear 0.2;
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
-    div(((rho*(thermo:mu|thermo:rho))*dev2(T(grad(U))))) Gauss linear;
+    div(((rho*(thermo:mu|rho))*dev2(T(grad(U))))) Gauss linear;
     div((rho*R))    Gauss linear;
     div(phi,moment) Gauss upwind;
 }

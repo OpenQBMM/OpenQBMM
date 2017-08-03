@@ -231,10 +231,10 @@ int main(int argc, char *argv[])
                                 for (label kk = 0; kk < nNodes[3]; kk++)
                                 {
                                     sum += w[0](i)*w[1](i, j)*w[2](i, j, k)
-                                        *w[3](i,j,k,kk)
+                                        *w[3](i, j, k, kk)
                                         *pow(x[0](i), l)*pow(x[1](i, j), m)
                                         *pow(x[2](i, j, k), n)
-                                        *pow(x[3](i, j, k, kk),nn);
+                                        *pow(x[3](i, j, k, kk), nn);
                                 }
                             }
                         }
@@ -317,7 +317,7 @@ int main(int argc, char *argv[])
                                 for (label kk = 0; kk < nNodesP[3]; kk++)
                                 {
                                     sum += weights[0](i)*weights[1](i, j)
-                                        *weights[2](i,j,k)
+                                        *weights[2](i, j, k)
                                         *weights[3](i, j, k, kk)
                                         *pow(abscissae[0](i), l)
                                         *pow(abscissae[1](i, j), m)

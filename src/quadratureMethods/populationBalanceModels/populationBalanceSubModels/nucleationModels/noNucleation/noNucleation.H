@@ -80,7 +80,7 @@ public:
         virtual scalar nucleationSource
         (
             const label& momentOrder,
-            const label& celli
+            const label celli
         ) const;
 };
 

@@ -90,8 +90,8 @@ Foam::dragModels::GidaspowErgunWenYu::CdRe
 ) const
 {
     return
-        pos0(pair_.continuous().alphas(nodej) - 0.8)*WenYu_->CdRe(nodei,nodej)
-      + neg(pair_.continuous().alphas(nodej) - 0.8)*Ergun_->CdRe(nodei,nodej);
+        pos0(pair_.continuous().alphas(nodej) - 0.8)*WenYu_->CdRe(nodei, nodej)
+      + neg(pair_.continuous().alphas(nodej) - 0.8)*Ergun_->CdRe(nodei, nodej);
 }
 
 

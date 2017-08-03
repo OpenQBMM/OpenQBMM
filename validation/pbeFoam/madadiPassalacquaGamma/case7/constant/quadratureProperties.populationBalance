@@ -34,10 +34,7 @@ extendedMomentInversion
 
 momentAdvection
 {
-    basicMomentInversion
-    {
-        univariateMomentInversion GaussRadau;
-    }
+    univariateMomentAdvection   noAdvection;
 }
 
 moments

@@ -62,7 +62,8 @@ Foam::populationBalanceSubModels::nucleationModels::noNucleation::noNucleation
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::nucleationModels::noNucleation::~noNucleation()
+Foam::populationBalanceSubModels::nucleationModels::noNucleation
+::~noNucleation()
 {}
 
 
@@ -73,7 +74,7 @@ Foam::populationBalanceSubModels::nucleationModels::noNucleation
 ::nucleationSource
 (
     const label& momentOrder,
-    const label& celli
+    const label celli
 ) const
 {
     return 0.0;

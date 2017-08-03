@@ -51,6 +51,11 @@ namespace Foam
 
 class univariateMomentInversion
 {
+    // Private data
+
+        scalar smallM0_;
+
+
     // Private member functions
 
         //- Disallow default bitwise copy construct

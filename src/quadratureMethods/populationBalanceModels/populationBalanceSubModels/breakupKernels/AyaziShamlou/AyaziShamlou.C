@@ -71,7 +71,7 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
     ),
     epsilon_(flTurb_.epsilon()),
     mu_(flThermo_.mu()),
-    nu_(flTurb_.nu())
+    rho_(flThermo_.rho())
 {}
 
 
@@ -87,7 +87,7 @@ Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
 (
     const scalar& abscissa,
-    const label& celli
+    const label celli
 ) const
 {
     // Interparticle force
@@ -106,7 +106,7 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     scalar sigma = 9.0*kc*phiL*F/(8.0*sqr(primarySize_.value())
             *Foam::constant::mathematical::pi);
 
-    scalar epsilonByNu = epsilon_[celli]/nu_[celli];
+    scalar epsilonByNu = epsilon_[celli]*rho_[celli]/mu_[celli];
 
     scalar tau = mu_[celli]*sqrt(epsilonByNu);
 

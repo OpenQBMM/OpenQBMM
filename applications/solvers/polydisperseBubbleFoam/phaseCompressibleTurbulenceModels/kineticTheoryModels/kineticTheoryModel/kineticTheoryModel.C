@@ -114,8 +114,8 @@ Foam::RASModels::kineticTheoryModel::kineticTheoryModel
     maxNut_
     (
         "maxNut",
-        dimensionSet(0,2,-1,0,0),
-        coeffDict_.lookupOrDefault<scalar>("maxNut",1000)
+        dimensionSet(0, 2, -1, 0, 0),
+        coeffDict_.lookupOrDefault<scalar>("maxNut", 1000)
     ),
 
     Theta_

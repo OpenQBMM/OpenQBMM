@@ -79,14 +79,20 @@ private:
         //- Exponent of the abscissa
         scalar sizeExp_;
 
+        //- Thermo model
+        const fluidThermo& flThermo_;
+
         //- Turbulence model
         const compressible::turbulenceModel& flTurb_;
 
         //- Turbulent dissipation rate
         const volScalarField& epsilon_;
 
-        //- Kinematic viscosity
-        const volScalarField& nu_;
+        //- Dynamic viscosity
+        const volScalarField& mu_;
+
+        //- Density
+        const volScalarField& rho_;
 
 public:
 
@@ -114,7 +120,7 @@ public:
         virtual scalar Kb
         (
             const scalar& abscissa,
-            const label& celli
+            const label celli
         ) const;
 
 };

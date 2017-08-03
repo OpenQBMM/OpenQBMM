@@ -48,7 +48,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
     (
         mesh_.lookupObject<volVectorField>
         (
-            IOobject::groupName("U",name_)
+            IOobject::groupName("U", name_)
         )
     ),
     nNodes_(nodes_().size()),
@@ -616,7 +616,8 @@ void Foam::monoKineticQuadratureApproximation::updateVelocities()
             }
         }
 
-        // Set nodes with very small bubble mass or number to mean bubble velocity
+        // Set nodes with very small bubble mass or number to mean bubble
+        // velocity
         for (label nodei = 0; nodei < nNodes_; nodei++)
         {
             if (!nonZeroNodes[nodei])

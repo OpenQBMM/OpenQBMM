@@ -164,17 +164,17 @@ Foam::BlendedInterfacialModel<modelType>::K
 
     if (model_.valid())
     {
-        x.ref() += model_->K(nodei,nodej)*(f1() - f2());
+        x.ref() += model_->K(nodei, nodej)*(f1() - f2());
     }
 
     if (model1In2_.valid())
     {
-        x.ref() += model1In2_->K(nodei,nodej)*(1 - f1);
+        x.ref() += model1In2_->K(nodei, nodej)*(1 - f1);
     }
 
     if (model2In1_.valid())
     {
-        x.ref() += model2In1_->K(nodej,nodei)*f2;
+        x.ref() += model2In1_->K(nodej, nodei)*f2;
     }
 
     if
@@ -236,17 +236,17 @@ Foam::BlendedInterfacialModel<modelType>::Kf
 
     if (model_.valid())
     {
-        x.ref() += model_->Kf(nodei,nodej)*(f1() - f2());
+        x.ref() += model_->Kf(nodei, nodej)*(f1() - f2());
     }
 
     if (model1In2_.valid())
     {
-        x.ref() += model1In2_->Kf(nodei,nodej)*(1 - f1);
+        x.ref() += model1In2_->Kf(nodei, nodej)*(1 - f1);
     }
 
     if (model2In1_.valid())
     {
-        x.ref() += model2In1_->Kf(nodej,nodei)*f2;
+        x.ref() += model2In1_->Kf(nodej, nodei)*f2;
     }
 
     if
@@ -303,17 +303,17 @@ Foam::BlendedInterfacialModel<modelType>::F
 
     if (model_.valid())
     {
-        x.ref() += model_->F(nodei,nodej)*(f1() - f2());
+        x.ref() += model_->F(nodei, nodej)*(f1() - f2());
     }
 
     if (model1In2_.valid())
     {
-        x.ref() += model1In2_->F(nodei,nodej)*(1 - f1);
+        x.ref() += model1In2_->F(nodei, nodej)*(1 - f1);
     }
 
     if (model2In1_.valid())
     {
-        x.ref() -= model2In1_->F(nodej,nodei)*f2; // note : subtraction
+        x.ref() -= model2In1_->F(nodej, nodei)*f2; // note : subtraction
     }
 
     if
@@ -375,17 +375,17 @@ Foam::BlendedInterfacialModel<modelType>::Ff
 
     if (model_.valid())
     {
-        x.ref() += model_->Ff(nodei,nodej)*(f1() - f2());
+        x.ref() += model_->Ff(nodei, nodej)*(f1() - f2());
     }
 
     if (model1In2_.valid())
     {
-        x.ref() += model1In2_->Ff(nodei,nodej)*(1 - f1);
+        x.ref() += model1In2_->Ff(nodei, nodej)*(1 - f1);
     }
 
     if (model2In1_.valid())
     {
-        x.ref() -= model2In1_->Ff(nodej,nodei)*f2; // note : subtraction
+        x.ref() -= model2In1_->Ff(nodej, nodei)*f2; // note : subtraction
     }
 
     if
@@ -441,17 +441,17 @@ Foam::BlendedInterfacialModel<modelType>::D
 
     if (model_.valid())
     {
-        x.ref() += model_->D(nodei,nodej)*(f1() - f2());
+        x.ref() += model_->D(nodei, nodej)*(f1() - f2());
     }
 
     if (model1In2_.valid())
     {
-        x.ref() += model1In2_->D(nodei,nodej)*(1 - f1);
+        x.ref() += model1In2_->D(nodei, nodej)*(1 - f1);
     }
 
     if (model2In1_.valid())
     {
-        x.ref() += model2In1_->D(nodej,nodei)*f2;
+        x.ref() += model2In1_->D(nodej, nodei)*f2;
     }
 
     if

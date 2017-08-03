@@ -141,7 +141,7 @@ Foam::phaseModel::phaseModel
             )
         )
     ),
-    BGviscosity_(phaseDict_.lookupOrDefault("BGviscosity",false))
+    BGviscosity_(phaseDict_.lookupOrDefault("BGviscosity", false))
 {
     const word phiName = IOobject::groupName("phi", name_);
 
@@ -153,7 +153,7 @@ Foam::phaseModel::phaseModel
         IOobject::NO_READ
     );
 
-    if (phiHeader.headerOk())
+    if (phiHeader.typeHeaderOk<surfaceScalarField>(true))
     {
         Info<< "Reading face flux field " << phiName << endl;
 
@@ -250,7 +250,7 @@ const Foam::phaseModel& Foam::phaseModel::otherPhase() const
 
 void Foam::phaseModel::correct()
 {
-    return ;
+    return;
 }
 
 

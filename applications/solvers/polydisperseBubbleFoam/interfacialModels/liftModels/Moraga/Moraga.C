@@ -68,7 +68,7 @@ Foam::tmp<Foam::volScalarField> Foam::liftModels::Moraga::Cl
     const label nodej
 ) const
 {
-    volScalarField Re(pair_.Re(nodei,nodej));
+    volScalarField Re(pair_.Re(nodei, nodej));
 
     volScalarField sqrSr
     (

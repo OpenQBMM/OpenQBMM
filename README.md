@@ -11,7 +11,7 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2016 OpenQBMM developers.
+  Copyright (C) 2014-2017 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 ```

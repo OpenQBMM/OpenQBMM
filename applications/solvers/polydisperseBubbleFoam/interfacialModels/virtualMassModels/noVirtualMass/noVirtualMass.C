@@ -119,7 +119,7 @@ Foam::virtualMassModels::noVirtualMass::K
     const label nodej
 ) const
 {
-    return Cvm(nodei,nodej)*dimensionedScalar("zero", dimDensity, 0);
+    return Cvm(nodei, nodej)*dimensionedScalar("zero", dimDensity, 0);
 }
 
 

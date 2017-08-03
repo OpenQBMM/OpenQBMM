@@ -72,8 +72,8 @@ Foam::dragModels::TomiyamaAnalytic::CdRe
     const label nodej
 ) const
 {
-    volScalarField Eo(max(pair_.Eo(nodei,nodej), residualEo_));
-    volScalarField E(max(pair_.E(nodei,nodej), residualE_));
+    volScalarField Eo(max(pair_.Eo(nodei, nodej), residualEo_));
+    volScalarField E(max(pair_.E(nodei, nodej), residualE_));
 
     volScalarField OmEsq(max(scalar(1) - sqr(E), sqr(residualE_)));
     volScalarField rtOmEsq(sqrt(OmEsq));
@@ -88,7 +88,7 @@ Foam::dragModels::TomiyamaAnalytic::CdRe
           + 16*pow(E, 4.0/3.0)
         )
        /sqr(F)
-       *max(pair_.Re(nodei,nodej), residualRe_);
+       *max(pair_.Re(nodei, nodej), residualRe_);
 }
 
 

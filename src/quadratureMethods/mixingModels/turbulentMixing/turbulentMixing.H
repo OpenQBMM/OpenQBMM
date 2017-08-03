@@ -126,6 +126,9 @@ public:
 
     // Member Functions
 
+        //- Return the maximum Courant number ensuring moment realizability
+        scalar realizableCo();
+
         //- Solve mixing model
         void solve();
 };

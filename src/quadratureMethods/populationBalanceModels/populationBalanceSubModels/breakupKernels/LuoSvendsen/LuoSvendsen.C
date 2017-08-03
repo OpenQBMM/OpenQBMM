@@ -61,6 +61,7 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen
     epsilonExp_(readScalar(dict.lookup("epsilonExp"))),
     nuExp_(readScalar(dict.lookup("nuExp"))),
     sizeExp_(readScalar(dict.lookup("sizeExp"))),
+    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
     flTurb_
     (
         mesh_.lookupObject<compressible::turbulenceModel>
@@ -69,7 +70,8 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen
         )
     ),
     epsilon_(flTurb_.epsilon()),
-    nu_(flTurb_.nu())
+    mu_(flThermo_.mu()),
+    rho_(flThermo_.rho())
 {}
 
 
@@ -85,11 +87,11 @@ Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::Kb
 (
     const scalar& abscissa,
-    const label& celli
+    const label celli
 ) const
 {
     return Cb_.value()*pow(epsilon_[celli], epsilonExp_)
-        *pow(nu_[celli], nuExp_)*pow(abscissa, sizeExp_);
+        *pow(mu_[celli]/rho_[celli], nuExp_)*pow(abscissa, sizeExp_);
 }
 
 // ************************************************************************* //

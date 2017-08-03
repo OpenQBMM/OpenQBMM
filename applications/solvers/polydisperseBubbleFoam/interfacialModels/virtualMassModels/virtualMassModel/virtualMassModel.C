@@ -79,6 +79,7 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Cvm() const
     label nNodesj = pair_.continuous().nNodes();
 
     tmp<volScalarField> tCvm;
+
     tCvm =
         Cvm(0, 0)
        *pair_.dispersed().alphas(0)
@@ -94,12 +95,14 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Cvm() const
                *pair_.continuous().alphas(nodej);
         }
     }
+
     tCvm.ref() /=
         max
         (
             pair_.dispersed()*pair_.continuous(),
             pair_.dispersed().residualAlpha()
         );
+
     return tCvm;
 }
 
@@ -120,9 +123,7 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::K
     const label nodej
 ) const
 {
-    return
-        pair_.dispersed().alphas(nodei)
-       *Ki(nodei,nodej);
+    return pair_.dispersed().alphas(nodei)*Ki(nodei,nodej);
 }
 
 
@@ -134,7 +135,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::virtualMassModel::Kf
 {
     return
         fvc::interpolate(pair_.dispersed().alphas(nodei))
-       *fvc::interpolate(Ki(nodei,nodej));
+       *fvc::interpolate(Ki(nodei, nodej));
 }
 
 
