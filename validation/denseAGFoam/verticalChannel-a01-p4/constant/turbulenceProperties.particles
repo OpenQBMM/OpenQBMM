@@ -1,0 +1,59 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      turbulenceProperties.particles;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  RAS;
+
+RAS
+{
+    RASModel kineticTheory;
+
+    turbulence      on;
+    printCoeffs     on;
+
+    kineticTheoryCoeffs
+    {
+        kineticTheoryModel          nonEquilibriumAG;
+
+        alphaTheta                  1.0;
+        alphaSigma                  1.0;
+        e                           0.9;
+        alphaMax                    0.63;
+        alphaMinFriction            0.55;
+
+        viscosityModel              KongFox;
+        conductivityModel           KongFox;
+        granularPressureModel       KongFox;
+        radialModel                 SinclairJackson;
+        frictionalStressModel       JohnsonJackson;
+
+        JohnsonJacksonCoeffs
+        {
+            Fr                      0.05;
+            eta                     2;
+            p                       5;
+            phi                     0.25;
+            alphaDeltaMin           0.03;
+        }
+
+        residualAlpha               1e-4;
+        nHerNodePerDim				6;
+        fluxSplittingFunction   	particlePressure;
+        h2FluxPow					4;
+    }
+}
+
+// ************************************************************************* //
