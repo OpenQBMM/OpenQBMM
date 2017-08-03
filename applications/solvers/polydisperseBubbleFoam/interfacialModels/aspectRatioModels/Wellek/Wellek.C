@@ -77,4 +77,11 @@ Foam::aspectRatioModels::Wellek::E
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::aspectRatioModels::Wellek::E() const
+{
+    return scalar(1)/(scalar(1) + 0.163*pow(pair_.Eo(), 0.757));
+}
+
+
 // ************************************************************************* //

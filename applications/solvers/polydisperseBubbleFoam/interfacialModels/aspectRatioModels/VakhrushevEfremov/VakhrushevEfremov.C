@@ -83,4 +83,17 @@ Foam::aspectRatioModels::VakhrushevEfremov::E
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::aspectRatioModels::VakhrushevEfremov::E() const
+{
+    volScalarField Ta(pair_.Ta());
+
+    return
+        neg(Ta - scalar(1))*scalar(1)
+      + pos0(Ta - scalar(1))*neg(Ta - scalar(39.8))
+       *pow3(0.81 + 0.206*tanh(1.6 - 2*log10(max(Ta, scalar(1)))))
+      + pos0(Ta - scalar(39.8))*0.24;
+}
+
+
 // ************************************************************************* //

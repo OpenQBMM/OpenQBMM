@@ -1,0 +1,133 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is derivative work of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "PrinceAndBlanch.H"
+#include "addToRunTimeSelectionTable.H"
+#include "fundamentalConstants.H"
+#include "fvc.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace populationBalanceSubModels
+{
+namespace coalesenceFrequencyKernels
+{
+    defineTypeNameAndDebug(PrinceAndBlanch, 0);
+
+    addToRunTimeSelectionTable
+    (
+        coalesenceFrequencyKernel,
+        PrinceAndBlanch,
+        dictionary
+    );
+}
+}
+}
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::populationBalanceSubModels::coalesenceFrequencyKernels::
+PrinceAndBlanch::PrinceAndBlanch
+(
+    const dictionary& dict,
+    const fvMesh& mesh
+)
+:
+    coalesenceFrequencyKernel(dict, mesh),
+    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    turbulent_(dict.lookupOrDefault("turbulentCoalesence", false)),
+    buoyant_(dict.lookupOrDefault("buoyantCoalesence", true)),
+    LS_(dict.lookupOrDefault("laminarShearCoalesence", true))
+{}
+
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::populationBalanceSubModels::coalesenceFrequencyKernels::
+PrinceAndBlanch::~PrinceAndBlanch()
+{}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+Foam::tmp<Foam::volScalarField>
+Foam::populationBalanceSubModels::coalesenceFrequencyKernels::
+PrinceAndBlanch::omega
+(
+    const volScalarField& d1,
+    const volScalarField& d2
+) const
+{
+    tmp<volScalarField> tmpFreqSrc
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "freqSrc",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedScalar("0", dimensionSet(0, 3, -1, 0, 0), 0.0)
+        )
+    );
+    volScalarField& freqSrc = tmpFreqSrc.ref();
+
+    const volScalarField& rho = fluid_.phase2().rho();
+    const dimensionedScalar& sigma = fluid_.sigma();
+    dimensionedScalar g = mag(fluid_.g());
+
+    if (turbulent_)
+    {
+        freqSrc == freqSrc
+          + 0.089*constant::mathematical::pi*sqr(d1 + d2)
+           *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
+           *cbrt(fluid_.phase2().turbulence().epsilon());
+    }
+    if (buoyant_)
+    {
+        freqSrc == freqSrc
+          + constant::mathematical::pi*sqr(d1 + d2)
+           *(
+               sqrt(2.14*sigma/(d1*rho) + 0.5*g*d1)
+             - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
+            );
+    }
+    if (LS_)
+    {
+        freqSrc == freqSrc
+          + 2.0/3.0*pow3(d1 + d2)*mag(fvc::grad(fluid_.phase2().U()));
+    }
+    return tmpFreqSrc;
+}
+
+// ************************************************************************* //

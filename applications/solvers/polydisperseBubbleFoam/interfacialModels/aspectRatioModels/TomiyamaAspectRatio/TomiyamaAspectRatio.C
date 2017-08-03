@@ -84,4 +84,17 @@ Foam::aspectRatioModels::TomiyamaAspectRatio::E
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::aspectRatioModels::TomiyamaAspectRatio::E() const
+{
+    return
+        VakhrushevEfremov::E()
+       *max
+       (
+           scalar(1) - 0.35*yWall()/pair_.dispersed().d(),
+           scalar(0.65)
+       );
+}
+
+
 // ************************************************************************* //

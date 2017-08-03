@@ -14,5 +14,6 @@ LIB_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lmomentSets \
     -lmomentInversion \
-    -lfieldMomentInversion
+    -lfieldMomentInversion \
+    -lquadratureApproximation
 

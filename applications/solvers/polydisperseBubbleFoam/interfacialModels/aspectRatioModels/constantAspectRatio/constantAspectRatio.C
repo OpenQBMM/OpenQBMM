@@ -74,6 +74,12 @@ Foam::aspectRatioModels::constantAspectRatio::E
     const label nodej
 ) const
 {
+    return this->E();
+}
+
+Foam::tmp<Foam::volScalarField>
+Foam::aspectRatioModels::constantAspectRatio::E() const
+{
     const fvMesh& mesh(this->pair_.phase1().mesh());
 
     return

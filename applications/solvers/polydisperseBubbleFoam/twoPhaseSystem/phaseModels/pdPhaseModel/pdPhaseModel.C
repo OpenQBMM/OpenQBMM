@@ -34,6 +34,161 @@ License
 #include "fixedValueFvsPatchFields.H"
 #include "slipFvPatchFields.H"
 #include "partialSlipFvPatchFields.H"
+#include "momentFieldSets.H"
+
+
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+void Foam::pdPhaseModel::updateVelocity()
+{
+    // Correct mean velocity using the new velocity moments
+    U_ =
+        quadrature_.velocityMoments()[1]
+       /Foam::max
+        (
+            quadrature_.moments()[1],
+            residualAlpha_*rho()
+        );
+
+    U_.correctBoundaryConditions();
+    phiPtr_() = fvc::flux(U_);
+    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
+    correctInflowOutflow(alphaPhi_);
+    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalesenceSource
+(
+    const label& momentOrder
+)
+{
+    tmp<volScalarField> cSource
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "cSource",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedScalar
+            (
+                "0",
+                quadrature_.moments()[momentOrder].dimensions()/dimTime,
+                0.0
+            )
+        )
+    );
+
+    if (!coalesence_)
+    {
+        return cSource;
+    }
+
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
+
+    forAll(nodes, pNode1i)
+    {
+        const volScalarNode& node1 = nodes[pNode1i];
+        const volScalarField& pWeight1 = node1.primaryWeight();
+        const volScalarField& pAbscissa1 = node1.primaryAbscissa();
+
+        forAll(nodes, pNode2i)
+        {
+            const volScalarNode& node2 = nodes[pNode2i];
+            const volScalarField& pWeight2 = node2.primaryWeight();
+            const volScalarField& pAbscissa2 = node2.primaryAbscissa();
+
+            //- Diameter is used to calculate the coalesence kernel in place
+            //  of the abscissa
+            cSource.ref() +=
+                pWeight1*
+                (
+                    pWeight2*
+                    (
+                        0.5*pow // Birth
+                        (
+                            pow3(pAbscissa1)
+                          + pow3(pAbscissa2),
+                            momentOrder/3.0
+                        )
+                      - pow(pAbscissa1, momentOrder)
+                    )*fluid_.coalesence().Ka
+                    (
+                        ds_[pNode1i], ds_[pNode2i]
+                    )
+                );
+        }
+    }
+    return cSource;
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
+(
+    const label& momentOrder
+)
+{
+    tmp<volScalarField> bSource
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "bSource",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedScalar
+            (
+                "0",
+                quadrature_.moments()[momentOrder].dimensions()/dimTime,
+                0.0
+            )
+        )
+    );
+
+    if (!breakup_)
+    {
+        return bSource;
+    }
+
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
+
+    forAll(bSource(), celli)
+    {
+        forAll(nodes, pNodei)
+        {
+            const volScalarNode& node = nodes[pNodei];
+
+            //- Diameter is used to calculate the breakup kernel in place
+            //  of the abscissa
+            bSource.ref()[celli] = bSource()[celli]
+              + node.primaryWeight()[celli]
+               *fluid_.breakup().Kb(ds_[pNodei][celli], celli)
+               *(
+                    fluid_.daughterDistribution().mD              //Birth
+                    (
+                        momentOrder,
+                        node.primaryAbscissa()[celli]
+                    )
+                  - pow(node.primaryAbscissa()[celli], momentOrder)   //Death
+                );
+        }
+    }
+
+    return bSource;
+}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -46,6 +201,12 @@ Foam::pdPhaseModel::pdPhaseModel
 )
 :
     phaseModel(fluid,phaseProperties,phaseName),
+    pbeDict_
+    (
+        fluid.mesh().lookupObject<IOdictionary>("populationBalanceProperties")
+    ),
+    coalesence_(pbeDict_.lookup("coalesence")),
+    breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
     nNodes_(quadrature_.nodes().size()),
     nMoments_(quadrature_.nMoments()),
@@ -56,6 +217,13 @@ Foam::pdPhaseModel::pdPhaseModel
     maxD_("maxD", dimLength, phaseDict_),
     minD_("minD", dimLength, phaseDict_)
 {
+    if (nNodes_ == 1)
+    {
+        FatalErrorInFunction
+            << "Polydisperse phase model selected, but only one node " << nl
+            << "is used. Please use monodispersePhaseModel instead." << endl
+            << exit(FatalError);
+    }
     wordList phiTypes
     (
         U_.boundaryField().size(),
@@ -89,7 +257,7 @@ Foam::pdPhaseModel::pdPhaseModel
                         "alpha",
                         IOobject::groupName
                         (
-                            name_,
+                            phaseModel::name_,
                             Foam::name(nodei)
                         )
                     ),
@@ -115,7 +283,7 @@ Foam::pdPhaseModel::pdPhaseModel
                         "V",
                         IOobject::groupName
                         (
-                            name_,
+                            phaseModel::name_,
                             Foam::name(nodei)
                         )
                     ),
@@ -141,7 +309,7 @@ Foam::pdPhaseModel::pdPhaseModel
                         "d",
                         IOobject::groupName
                         (
-                            name_,
+                            phaseModel::name_,
                             Foam::name(nodei)
                         )
                     ),
@@ -151,15 +319,13 @@ Foam::pdPhaseModel::pdPhaseModel
                     IOobject::AUTO_WRITE
                 ),
                 fluid.mesh(),
-                dimensionedScalar("zerod", dimLength, 0.0)
+                minD_
             )
         );
     }
 
     // Set alpha value based on moments
-    *this == quadrature_.moments()[1]/rho();
-
-    correct();
+    volScalarField(*this) == quadrature_.moments()[1]/rho();
 }
 
 
@@ -367,6 +533,7 @@ void Foam::pdPhaseModel::relativeTransport()
         quadrature_.updateAllQuadrature();
         this->updateVelocity();
     }
+    correct();
 }
 
 void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
@@ -430,8 +597,9 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             fvm::ddt(m)
           - fvc::ddt(m)
           + meanDivUbMp
+          + breakupSource(mEqni)
+          + coalesenceSource(mEqni)
         );
-
         mEqn.relax();
         mEqn.solve();
     }
@@ -546,24 +714,5 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         Vs_[nodei] = Us_[nodei] - U_;
     }
 }
-
-void Foam::pdPhaseModel::updateVelocity()
-{
-    // Correct mean velocity using the new velocity moments
-    U_ =
-        quadrature_.velocityMoments()[1]
-       /Foam::max
-        (
-            quadrature_.moments()[1],
-            residualAlpha_*rho()
-        );
-
-    U_.correctBoundaryConditions();
-    phiPtr_() = fvc::flux(U_);
-    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
-    correctInflowOutflow(alphaPhi_);
-    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
-}
-
 
 // ************************************************************************* //

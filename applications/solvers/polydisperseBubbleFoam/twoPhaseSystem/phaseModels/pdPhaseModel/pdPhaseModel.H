@@ -40,7 +40,11 @@ SourceFiles
 #include "dimensionedScalar.H"
 #include "volFields.H"
 #include "phaseModel.H"
-#include "monoKineticQuadratureApproximation.H"
+#include "quadratureApproximations.H"
+
+#include "coalesenceKernel.H"
+#include "breakupKernel.H"
+#include "daughterDistribution.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -56,6 +60,15 @@ class pdPhaseModel
     public phaseModel
 {
     // Private data
+
+        //- Refrence to population balance properties dictionary
+        const IOdictionary& pbeDict_;
+
+        //- Switch for coalesence
+        Switch coalesence_;
+
+        //- Switch for breakup
+        Switch breakup_;
 
         //- QuadratureApproximation
         monoKineticQuadratureApproximation quadrature_;
@@ -90,6 +103,12 @@ class pdPhaseModel
 
         //- Update moments
         void updateVelocity();
+
+        //- Coalesence source
+        tmp<volScalarField> coalesenceSource(const label& momentOrder);
+
+        //- Breakup source
+        tmp<volScalarField> breakupSource(const label& momentOrder);
 
 
 public:

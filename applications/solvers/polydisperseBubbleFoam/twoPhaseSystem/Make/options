@@ -16,7 +16,7 @@ EXE_INC = \
     -I../../../../src/quadratureMethods/moments \
     -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
     -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
-    -I../../../../src/quadratureMethods/monoKineticQuadratureApproximation/lnInclude \
+    -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
     -I../../../../src/Vandermonde/lnInclude
 
 EXE_LIBS = \
@@ -28,4 +28,5 @@ EXE_LIBS = \
     -lmomentSet \
     -lfieldMomentInversion \
     -lquadratureApproximation \
+    -lpopulationBalance \
     -lvandermonde

@@ -99,5 +99,16 @@ Foam::tmp<Foam::volScalarField> Foam::orderedPhasePair::E
     return aspectRatio_->E(nodei, nodej);
 }
 
+Foam::tmp<Foam::volScalarField> Foam::orderedPhasePair::E() const
+{
+    if (!aspectRatio_.valid())
+    {
+        FatalErrorInFunction
+            << "Aspect ratio model not specified for " << *this << "."
+            << exit(FatalError);
+    }
+
+    return aspectRatio_->E();
+}
 
 // ************************************************************************* //

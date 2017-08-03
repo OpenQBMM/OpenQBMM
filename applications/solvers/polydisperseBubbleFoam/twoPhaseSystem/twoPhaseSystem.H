@@ -45,6 +45,11 @@ SourceFiles
 #include "dragModel.H"
 #include "fvMatrix.H"
 
+#include "coalesenceKernel.H"
+#include "breakupKernel.H"
+#include "daughterDistribution.H"
+
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -71,6 +76,9 @@ class twoPhaseSystem
 
         //- Reference to the mesh
         const fvMesh& mesh_;
+
+        //- Population balance properties
+        IOdictionary pbeDict_;
 
         //- Total volumetric flux
         surfaceScalarField phi_;
@@ -126,6 +134,14 @@ class twoPhaseSystem
         autoPtr<BlendedInterfacialModel<bubblePressureModel>>
             bubblePressure_;
 
+        //- Coalesence kernel
+        autoPtr<populationBalanceSubModels::coalesenceKernel> coalesenceKernel_;
+
+        //- Breakup kernel
+        autoPtr<populationBalanceSubModels::breakupKernel> breakupKernel_;
+
+        //- Daughter distribution
+        autoPtr<populationBalanceSubModels::daughterDistribution> daughterDistribution_;
 
     // Private member functions
 
@@ -227,6 +243,9 @@ public:
             //- Return the virtual mass model for the given phase
             const virtualMassModel& virtualMass(const phaseModel& phase) const;
 
+            //- Return gravitational acceleration
+            const dimensionedVector& g() const;
+
             //- Return the surface tension coefficient
             const dimensionedScalar& sigma() const;
 
@@ -248,6 +267,15 @@ public:
             //- Return the phase not given as an argument
             inline const phaseModel& otherPhase(const phaseModel& phase) const;
 
+            //- Return unordered phase pair
+            inline const phasePair& pair() const;
+
+            //- Return phase 1 in phase 2 pair
+            inline const orderedPhasePair& pair1In2() const;
+
+            //- Return phase 2 in phase 1 pair
+            inline const orderedPhasePair& pair2In1() const;
+
             //- Return the mixture flux
             inline const surfaceScalarField& phi() const;
 
@@ -262,6 +290,18 @@ public:
 
             //- Return non-const access to the dispersion diffusivity
             inline tmp<surfaceScalarField>& pPrimeByA();
+
+            //- Return the coalesence kernel
+            inline const populationBalanceSubModels::coalesenceKernel&
+            coalesence() const;
+
+            //- Return the breakup kernel
+            inline const populationBalanceSubModels::breakupKernel&
+            breakup() const;
+
+            //- Return the coalesence kernel
+            inline const populationBalanceSubModels::daughterDistribution&
+            daughterDistribution() const;
 };
 
 

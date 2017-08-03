@@ -126,6 +126,12 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::magUr
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::phasePair::magUr() const
+{
+    return mag(phase1().U() - phase2().U());
+}
+
+
 Foam::tmp<Foam::volVectorField> Foam::phasePair::Ur
 (
     const label nodei,
@@ -133,6 +139,12 @@ Foam::tmp<Foam::volVectorField> Foam::phasePair::Ur
 ) const
 {
     return dispersed().Us(nodei) - continuous().Us(nodej);
+}
+
+
+Foam::tmp<Foam::volVectorField> Foam::phasePair::Ur() const
+{
+    return dispersed().U() - continuous().U();
 }
 
 
@@ -145,6 +157,27 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::Re
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::phasePair::Re() const
+{
+    return magUr()*dispersed().d()/continuous().nu();
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::phasePair::We
+(
+    const label nodei, const label nodej
+) const
+{
+    return sqr(magUr(nodei,nodej))*dispersed().ds(nodei)*continuous().rho()/sigma_;
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::phasePair::We() const
+{
+    return sqr(magUr())*dispersed().d()*continuous().rho()/sigma_;
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::phasePair::Eo
 (
     const label nodei,
@@ -152,6 +185,12 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::Eo
 ) const
 {
     return EoH(dispersed().ds(nodei));
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::phasePair::Eo() const
+{
+    return EoH(dispersed().d());
 }
 
 
@@ -170,6 +209,17 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::EoH1
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::phasePair::EoH1() const
+{
+    return
+        EoH
+        (
+            dispersed().d()
+           *cbrt(1 + 0.163*pow(Eo(), 0.757))
+        );
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::phasePair::EoH2
 (
     const label nodei,
@@ -177,6 +227,12 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::EoH2
 ) const
 {
     return EoH(dispersed().ds(nodei)/cbrt(E(nodei, nodej)));
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::phasePair::EoH2() const
+{
+    return EoH(dispersed().d()/cbrt(E()));
 }
 
 
@@ -199,6 +255,12 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::Ta
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::phasePair::Ta() const
+{
+    return Re()*pow(Mo(), 0.23);
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::phasePair::E
 (
     const label nodei,
@@ -212,5 +274,14 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::E
     return phase1();
 }
 
+
+Foam::tmp<Foam::volScalarField> Foam::phasePair::E() const
+{
+    FatalErrorInFunction
+        << "Requested aspect ratio of the dispersed phase in an unordered pair"
+        << exit(FatalError);
+
+    return phase1();
+}
 
 // ************************************************************************* //

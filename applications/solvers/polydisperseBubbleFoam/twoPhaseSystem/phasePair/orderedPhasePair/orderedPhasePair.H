@@ -96,6 +96,9 @@ public:
             const label nodei,
             const label nodej
         ) const;
+
+        //- Mean aspect ratio
+        virtual tmp<volScalarField> E() const;
 };
 
 
