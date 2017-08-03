@@ -73,8 +73,6 @@ drag
     {
         type            SchillerNaumann;
         residualRe      1e-3;
-        residualEo      1e-3;
-        residualE       1e-2;
         swarmCorrection
         {
             type        none;
@@ -85,8 +83,6 @@ drag
     {
         type            SchillerNaumann;
         residualRe      1e-3;
-        residualEo      1e-3;
-        residualE       1e-2;
         swarmCorrection
         {
             type        none;
@@ -114,17 +110,6 @@ turbulentDispersion
 
 virtualMass
 (
-    (air in water)
-    {
-        type            constantCoefficient;
-        Cvm             0.5;
-    }
-
-    (water in air)
-    {
-        type            constantCoefficient;
-        Cvm             0.5;
-    }
 );
 
 lift
