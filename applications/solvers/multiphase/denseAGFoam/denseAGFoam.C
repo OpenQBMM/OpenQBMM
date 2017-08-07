@@ -22,9 +22,13 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    twoPhaseEulerFoam
+    denseAGFoam
 
 Description
+    Uses a normal distribution of velocities in the dilute regime for more
+    accurate transport. The 0th, 1st, and 2nd order velocity moments are used
+    for transport. A switching function is also used to calculate the
+    importance of dense and dilute solutions.
 
 \*---------------------------------------------------------------------------*/
 
