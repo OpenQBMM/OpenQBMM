@@ -212,6 +212,10 @@ public:
         //  Multiplies the phase-fraction gradient
         tmp<volScalarField> D(const label) const;
 
+        //- Return the mean turbulent diffusivity
+        //  Multiplies the phase-fraction gradient
+        tmp<volScalarField> D() const;
+
         //- Return viscous stress matrix for phase 1
         //  Either standard or B&G based on bubble pressure
         tmp<fvVectorMatrix> divDevRhoReff1();

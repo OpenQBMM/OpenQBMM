@@ -69,9 +69,9 @@ tmp<surfaceScalarField> phiF2;
         )
     );
 
-    for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
+//     for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
     {
-        volScalarField Di(fluid.D(nodei));
+        volScalarField Di(fluid.D());
 
         // Phase-1 turbulent dispersion and particle-pressure flux
         surfaceScalarField Df1(fvc::interpolate(rAU1*(Di + pPrime1)));
@@ -89,7 +89,7 @@ tmp<surfaceScalarField> phiF2;
         // Size dependent volume fraction
         surfaceScalarField snGradAlpha1
         (
-            fvc::snGrad(phase1.alphas(nodei))*mesh.magSf()
+            fvc::snGrad(phase1)*mesh.magSf()
         );
 
         // Add size dependent dispersion contribution to phiF

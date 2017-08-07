@@ -24,11 +24,11 @@ RAS
     turbulence      on;
     printCoeffs     on;
 
-//     mixtureKEpsilonCoeffs
-//     {
-//         Cp  0;
-//         C3  0;
-//     }
+    mixtureKEpsilonCoeffs
+    {
+        Cp  0;
+        C3  0;
+    }
 }
 
 // ************************************************************************* //

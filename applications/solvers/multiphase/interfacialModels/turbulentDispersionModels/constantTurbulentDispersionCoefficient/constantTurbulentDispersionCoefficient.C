@@ -71,12 +71,27 @@ Foam::turbulentDispersionModels::constantTurbulentDispersionCoefficient::
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::turbulentDispersionModels::constantTurbulentDispersionCoefficient::
-D(const label nodei, const label nodej) const
+Foam::turbulentDispersionModels::constantTurbulentDispersionCoefficient::D
+(
+    const label nodei,
+    const label nodej
+) const
 {
     return
         Ctd_
        *pair_.dispersed().alphas(nodei)
+       *pair_.continuous().rho()
+       *pair_.continuous().turbulence().k();
+}
+
+
+Foam::tmp<Foam::volScalarField>
+Foam::turbulentDispersionModels::
+constantTurbulentDispersionCoefficient::D() const
+{
+    return
+        Ctd_
+       *pair_.dispersed()
        *pair_.continuous().rho()
        *pair_.continuous().turbulence().k();
 }

@@ -74,6 +74,13 @@ Foam::turbulentDispersionModels::noTurbulentDispersion::D
     const label nodej
 ) const
 {
+    return D();
+}
+
+
+Foam::tmp<Foam::volScalarField>
+Foam::turbulentDispersionModels::noTurbulentDispersion::D() const
+{
     const fvMesh& mesh(this->pair_.phase1().mesh());
 
     return tmp<volScalarField>
@@ -103,6 +110,13 @@ Foam::turbulentDispersionModels::noTurbulentDispersion::F
     const label nodej
 ) const
 {
+    return F();
+}
+
+
+Foam::tmp<Foam::volVectorField>
+Foam::turbulentDispersionModels::noTurbulentDispersion::F() const
+{
     const fvMesh& mesh(this->pair_.phase1().mesh());
 
     return
@@ -121,5 +135,4 @@ Foam::turbulentDispersionModels::noTurbulentDispersion::F
             )
         );
 }
-
 // ************************************************************************* //

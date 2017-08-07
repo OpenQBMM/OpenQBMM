@@ -111,7 +111,38 @@ Foam::turbulentDispersionModels::Burns::D
            1.0
          + pair_.dispersed().alphas(nodei)
           /max(pair_.continuous(), residualAlpha_)
-    );
+        );
+}
+
+
+Foam::tmp<Foam::volScalarField>
+Foam::turbulentDispersionModels::Burns::D() const
+{
+    const fvMesh& mesh(pair_.phase1().mesh());
+    const dragModel&
+        drag
+        (
+            mesh.lookupObject<dragModel>
+            (
+                IOobject::groupName(dragModel::typeName, pair_.name())
+            )
+        );
+
+    return
+        0.75
+       *drag.CdRe()
+       *pair_.continuous().nu()
+       *pair_.continuous().turbulence().nut()
+       /(
+            sigma_
+           *sqr(pair_.dispersed().d())
+        )
+       *pair_.continuous().rho()
+       *(
+           1.0
+         + pair_.dispersed()
+          /max(pair_.continuous(), residualAlpha_)
+        );
 }
 
 

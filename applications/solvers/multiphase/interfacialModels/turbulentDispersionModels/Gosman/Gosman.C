@@ -101,4 +101,31 @@ Foam::turbulentDispersionModels::Gosman::D
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::turbulentDispersionModels::Gosman::D() const
+{
+    const fvMesh& mesh(pair_.phase1().mesh());
+    const dragModel&
+        drag
+        (
+            mesh.lookupObject<dragModel>
+            (
+                IOobject::groupName(dragModel::typeName, pair_.name())
+            )
+        );
+
+    return
+        0.75
+       *drag.CdRe()
+       *pair_.dispersed()
+       *pair_.continuous().nu()
+       *pair_.continuous().turbulence().nut()
+       /(
+            sigma_
+           *sqr(pair_.dispersed().d())
+        )
+       *pair_.continuous().rho();
+}
+
+
 // ************************************************************************* //

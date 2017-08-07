@@ -75,11 +75,17 @@ Foam::turbulentDispersionModels::LopezDeBertodano::D
     const label nodej
 ) const
 {
+    return D();
+}
+
+
+Foam::tmp<Foam::volScalarField>
+Foam::turbulentDispersionModels::LopezDeBertodano::D() const
+{
     return
         Ctd_
        *pair_.continuous().rho()
        *pair_.continuous().turbulence().k();
 }
-
 
 // ************************************************************************* //

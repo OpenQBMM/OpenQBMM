@@ -97,6 +97,10 @@ public:
         //- Turbulent diffusivity
         //  multiplying the gradient of the phase-fraction
         virtual tmp<volScalarField> D(const label, const label) const;
+
+        //- Mean turbulent diffusivity
+        //  multiplying the gradient of the phase-fraction
+        virtual tmp<volScalarField> D() const;
 };
 
 

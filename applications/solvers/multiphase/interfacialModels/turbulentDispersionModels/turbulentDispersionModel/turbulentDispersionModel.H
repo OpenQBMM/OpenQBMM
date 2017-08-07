@@ -120,8 +120,15 @@ public:
         //  multiplying the gradient of the phase-fraction
         virtual tmp<volScalarField> D(const label, const label) const = 0;
 
+        //- Mean turbulent diffusivity
+        //  multiplying the gradient of the phase-fraction
+        virtual tmp<volScalarField> D() const = 0;
+
         //- Turbulent dispersion force
         virtual tmp<volVectorField> F(const label, const label) const;
+
+        //- Mean turbulent dispersion force
+        virtual tmp<volVectorField> F() const;
 };
 
 

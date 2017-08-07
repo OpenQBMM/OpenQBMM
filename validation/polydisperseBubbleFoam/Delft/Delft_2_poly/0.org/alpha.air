@@ -24,13 +24,13 @@ boundaryField
     inlet
     {
         type            fixedValue;
-        value           uniform 0.2;
+        value           uniform 0.5;
     }
     outlet
     {
         type            inletOutlet;
         phi             phi.air;
-        inletValue      uniform 0;
+        inletValue      uniform 1.0;
     }
     walls
     {

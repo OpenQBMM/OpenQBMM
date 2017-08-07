@@ -130,6 +130,9 @@ public:
             const label
         ) const;
 
+        //- Return the mean blended force coefficient
+        tmp<volScalarField> K() const;
+
 
         //- Return the face blended force coefficient
         tmp<surfaceScalarField> Kf
@@ -138,6 +141,8 @@ public:
             const label
         ) const;
 
+        //- Return the mean face blended force coefficient
+        tmp<surfaceScalarField> Kf() const;
 
         //- Return the blended force
         template<class Type>
@@ -147,12 +152,19 @@ public:
             const label
         ) const;
 
+        //- Return the mean blended force
+        template<class Type>
+        tmp<GeometricField<Type, fvPatchField, volMesh>> F() const;
+
         //- Return the face blended force
         tmp<surfaceScalarField> Ff
         (
             const label,
             const label
         ) const;
+
+        //- Return the mean face blended force
+        tmp<surfaceScalarField> Ff() const;
 
 
         //- Return the blended diffusivity
@@ -161,6 +173,9 @@ public:
             const label,
             const label
         ) const;
+
+        //- Return the mean blended diffusivity
+        tmp<volScalarField> D() const;
 };
 
 

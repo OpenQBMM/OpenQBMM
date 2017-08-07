@@ -121,4 +121,33 @@ Foam::turbulentDispersionModels::Panicker::D
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::turbulentDispersionModels::Panicker::D() const
+{
+    const fvMesh& mesh(pair_.phase1().mesh());
+    const volScalarField& alpha1 = pair_.dispersed();
+    const volScalarField& d = pair_.dispersed().d();
+    const dragModel&
+        drag
+        (
+            mesh.lookupObject<dragModel>
+            (
+                IOobject::groupName(dragModel::typeName, pair_.name())
+            )
+        );
+
+    scalar b = 0.5;
+    scalar a = 1 + b - (1/3);
+    return
+        0.75
+       *drag.CdRe()
+       *Cdis_
+       *pair_.continuous().rho()
+       *sqr(pair_.continuous().nu()/d)
+       *pair_.Re()
+       *pos0(pair_.dispersed() - 0.001)
+       *alpha1*(1 - a*alpha1 + b*sqr(alpha1));
+}
+
+
 // ************************************************************************* //

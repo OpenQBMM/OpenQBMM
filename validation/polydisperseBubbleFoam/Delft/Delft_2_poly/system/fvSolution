@@ -21,8 +21,8 @@ solvers
     {
         solver          GAMG;
         smoother        DIC;
-        nAlphaCorr      2;
-        nAlphaSubCycles 1;
+        nAlphaCorr      1;
+        nAlphaSubCycles 2;
     }
     p_rgh
     {
@@ -48,10 +48,10 @@ solvers
 
     "U.air.*"
     {
-        solver          PBiCGStab;
+        solver          PBiCG;
         preconditioner  DILU;
         smoother        DIC;
-        tolerance       1e-8;
+        tolerance       1e-10;
         relTol          0;
     }
 
@@ -110,7 +110,7 @@ PIMPLE
     {
         p_rgh
         {
-            tolerance 1e-4;
+            tolerance 1e-5;
             relTol    0;
         }
     }
@@ -120,7 +120,7 @@ relaxationFactors
 {
     equations
     {
-        p_rgh        0.3;
+        p_rgh        1.0;
     }
 }
 

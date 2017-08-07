@@ -71,4 +71,12 @@ Foam::turbulentDispersionModel::F
     return D(nodei, nodej)*fvc::grad(pair_.dispersed().alphas(nodei));
 }
 
+
+Foam::tmp<Foam::volVectorField>
+Foam::turbulentDispersionModel::F() const
+{
+    return D()*fvc::grad(pair_.dispersed());
+}
+
+
 // ************************************************************************* //

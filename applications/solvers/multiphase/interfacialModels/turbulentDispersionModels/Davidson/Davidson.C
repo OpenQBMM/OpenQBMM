@@ -115,4 +115,46 @@ Foam::turbulentDispersionModels::Davidson::D
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::turbulentDispersionModels::Davidson::D() const
+{
+    const fvMesh& mesh(pair_.phase1().mesh());
+    const volScalarField& alpha1 = pair_.dispersed();
+    const volScalarField& alpha2 = pair_.continuous();
+    const dragModel&
+        drag
+        (
+            mesh.lookupObject<dragModel>
+            (
+                IOobject::groupName(dragModel::typeName, pair_.name())
+            )
+        );
+
+    volScalarField Cdis
+    (
+        (4.0/3.0)
+       /(
+           sqrt(alpha1/max(alpha2, pair_.continuous().residualAlpha()))
+          *pair_.continuous().rho()/pair_.dispersed().rho()
+         + sqrt(alpha2/max(alpha1, pair_.dispersed().residualAlpha()))
+        )
+       /(drag.CdRe()/max(pair_.Re(), residualRe_))
+    );
+
+    return
+        0.75*Cdis
+       *pair_.magUr()
+       *Foam::sqrt(alpha1*alpha2)
+       *drag.CdRe()
+       *pair_.continuous().rho()
+       *pair_.continuous().nu()
+       /pair_.dispersed().d()
+       /max
+        (
+            pair_.continuous(),
+            pair_.continuous().residualAlpha()
+        )*pos0(pair_.dispersed() - 0.001);
+}
+
+
 // ************************************************************************* //

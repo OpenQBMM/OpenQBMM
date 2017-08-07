@@ -110,10 +110,6 @@ makeLESModel(continuousGasKEqn);
 makeTurbulenceModel
 (phaseModelPhaseCompressibleTurbulenceModel, RAS, kineticTheory);
 
-// #include "anisotropicGaussianModel.H"
-// makeTurbulenceModel
-// (phaseModelPhaseCompressibleTurbulenceModel, RAS, anisotropicGaussianModel);
-
 #include "phasePressureModel.H"
 makeTurbulenceModel
 (phaseModelPhaseCompressibleTurbulenceModel, RAS, phasePressureModel);
