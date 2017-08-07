@@ -8,14 +8,6 @@ fvVectorMatrix U1Eqn(U1, rho1.dimensions()*U1.dimensions()*dimVol/dimTime);
 fvVectorMatrix U2Eqn(U2, rho2.dimensions()*U2.dimensions()*dimVol/dimTime);
 
 volScalarField Kd(fluid.Kd());
-// volScalarField Kdi("Kdi", fluid.drag(phase1).Ki(0,0));
-// volScalarField CdRe("CdRe", fluid.drag(phase1).CdRe(0,0));
-// if (runTime.outputTime())
-// {
-//     Kd.write();
-//     Kdi.write();
-//     CdRe.write();
-// }
 {
 
 
@@ -37,6 +29,7 @@ volScalarField Kd(fluid.Kd());
           + fvm::div
             (
                 AGmodel.hydrodynamicScalef(alphaRhoPhi1),
+//                 alphaRhoPhi1,
                 U1,
                 "div(" + alphaRhoPhi1.name() + "," + U1.name() +")"
             )
@@ -45,7 +38,7 @@ volScalarField Kd(fluid.Kd());
 
           + fluid.divDevRhoReff1()
          ==
-            alpha1*rho2/rho1*fvc::div(phase1.turbulence().devRhoReff())
+            alpha1*rho2/rho1*fvc::div(phase2.turbulence().devRhoReff())
           + fvOptions(alpha1, rho1, U1)
         );
 

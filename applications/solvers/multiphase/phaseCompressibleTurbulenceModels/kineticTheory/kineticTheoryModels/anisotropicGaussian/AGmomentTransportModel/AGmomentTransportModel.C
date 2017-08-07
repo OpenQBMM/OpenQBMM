@@ -289,8 +289,9 @@ void Foam::AGmomentTransportModel::solve
         m0 = m0Old - fvc::surfaceIntegrate(F0_)*deltaT;
         m0.correctBoundaryConditions();
 
-        volScalarField taup =
-            phase_.fluid().drag(phase_).Ki(0,0)/phase_.rho()*deltaT;
+        volScalarField taup = pos0(0.01 - alphap_)
+           *phase_.fluid().drag(phase_).Ki(0,0)/phase_.rho()*deltaT;
+
         const volVectorField& Uc = phase_.fluid().otherPhase(phase_).U();
 
         m1 = (m1Old - fvc::surfaceIntegrate(F1_)*deltaT + taup*alphap_*Uc)
