@@ -197,7 +197,10 @@ while (pimple.correct())
     );
 
     // Face-drag coefficients
-    surfaceScalarField rAUKd1(fvc::interpolate(rAU1*Kd));
+    surfaceScalarField rAUKd1
+    (
+        AGmodel.hydrodynamicScalef(fvc::interpolate(rAU1*Kd))
+    );
     surfaceScalarField rAUKd2(fvc::interpolate(rAU2*Kd));
 
     // Construct the mean predicted flux

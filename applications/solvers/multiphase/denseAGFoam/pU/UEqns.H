@@ -9,7 +9,7 @@ fvVectorMatrix U2Eqn(U2, rho2.dimensions()*U2.dimensions()*dimVol/dimTime);
 
 volScalarField Kd(fluid.Kd());
 {
-
+    const volScalarField& h2Fn = mesh.lookupObject<volScalarField>("h2Fn");
 
     volScalarField nu2Eff(phase2.turbulence().nuEff());
 //     if(cluterInducedViscosity)
@@ -43,7 +43,7 @@ volScalarField Kd(fluid.Kd());
         );
 
     U1Eqn.relax();
-    U1Eqn += fvm::Sp(Kd, U1);
+    U1Eqn += fvm::Sp(Kd*h2Fn, U1);
     fvOptions.constrain(U1Eqn);
 
 
