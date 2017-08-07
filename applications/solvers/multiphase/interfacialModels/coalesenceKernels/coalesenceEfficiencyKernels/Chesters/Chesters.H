@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -26,38 +26,41 @@ Class
     Chesters
 
 Description
-    Brownian coalesenceEfficiency kernel supplemented for particles in turbulent
-    flows in conditions when the particle size is smaller than the local
-    Kolmogorov scale.
+    Coaelescence efficieny kernel based on the interaction time of bubble.
+    Only valid for bubbles of equal sizes.
 
     \f[
         P_c =
             \text{exp}
-            \left(
-              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
-                \left(
-                    \frac{\xi_i^{1/3} \xi_j^{1/3}}{\xi_i^{1/3} + \xi_j^{1/3}}
-                \right)
-            \right)
+            (
+            - \frac{\theta \sqrt{We} \sqrt{0.75 (1.0 + \xi^2) (1.0 + \xi^3)}}
+              {\sqrt{\rho_b/rho_f}*(1.0 + \xi)^3}
+            );
+        \xi = \frac{d_i}{d_j}
+        \theta = x Re^{y} \text{We}^{z}
     \f]
 
     where
 
     \vartable
-        \sigma      |  Surface tension
         \rho_f      |  Density of liquid phase [kg/m3]
-        \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
-        \xi_i       |  Abscissa of bubble i [m]
-        \xi_j       |  Abscissa of bubble j [m]
+        \rho_b      |  Density of bubble phase [kg/m3]
+        We          |  Webber number [ ]
+        Re          |  Reynolds number [ ]
+        x           |  Efficiency cofficient [ ]
+        y           |  Reynolds number coefficient [ ]
+        z           |  Weber number coefficient [ ]
+        d_i         |  Diameter of bubble i [m]
+        d_j         |  Diamerer of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "Description of interaction processes in agitated liquid-liquid dis[ersions"
-        C Coulaloglou, L Tavlarides
-        Chemical Engineering Science
-        Volume 32, Pages 1289-1297, 1977
+        "The Modelling of coalescence processes in fluid-liquid dispersions:
+        a review of current understanding"
+        A.K. Chesters
+        Chemical Engineering Research and Design
+        Volume 69, Pages 259 - 270, 1991
     \endverbatim
 
 SourceFiles

@@ -26,38 +26,45 @@ Class
     PrinceAndBlanch
 
 Description
-    Brownian aggregation kernel supplemented for particles in turbulent
-    flows in conditions when the particle size is smaller than the local
-    Kolmogorov scale.
+    Coalesence frequency kernel based on turbulence, buoyancy, and
+    laminar shear.
 
     \f[
-        \omega = C_a \epsilon_f^{1/3}(\xi_i^{2/3} + \xi_j^{2/3})
-            \text{exp}
-            \left(
-              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
-                \left(
-                    \frac{\xi_i^{1/3} \xi_j^{1/3}}{\xi_i^{1/3} + \xi_j^{1/3}}
-                \right)
-            \right)
+        \omega_{turb} =
+            0.089 \pi (d_i + d_j)^2
+            \sqrt{d_i^{\frac{2}{3}} + d_j^{\frac{2}{3}} }
+            epsilon_f^{frac{1}{3}}
+
+        \omega_{buoyancy} =
+            \pi (d_i + d_j)^2
+            (
+               \sqrt{2.14*\sigma/(d_i \rho_f) + 0.5 \mathbf{g} d_i}
+             - \sqrt{2.14*\sigma/(d_j \rho_f) + 0.5 \mathbf{g} d_j}
+            )
+
+        \omega_{shear} =
+            \frac{2}{3} (d_i + d_j)^3 |\nabla \mathbf{U}_f|
+
     \f]
 
     where
 
     \vartable
         \sigma      |  Surface tension
+        \mathbf{U}_f|  Liquid velocity [m/s]
         \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
-        \xi_i       |  Abscissa of bubble i [m]
-        \xi_j       |  Abscissa of bubble j [m]
+        g           |  Gravitational acceleration [m/s2]
+        \d_i        |  Diameter of bubble i [m]
+        \d_j        |  Diameter of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "Description of interaction processes in agitated liquid-liquid dis[ersions"
-        C Coulaloglou, L Tavlarides
-        Chemical Engineering Science
-        Volume 32, Pages 1289-1297, 1977
+        "Bubble Coalescence and Break-up n Air-Sparged Bubble Columns"
+        M Prince and Harvey Blanch
+        AIChE Journal
+        Volume 36, Pages 1485 - 1499, 1990
     \endverbatim
 
 SourceFiles

@@ -25,7 +25,8 @@ Class
     Foam::populationBalanceSubModels::coalesenceKernel
 
 Description
-    Abstract class for coalesence kernels.
+    Class to calculate the coalescence rate for bubbles based on coalescence
+    frequency and efficiency.
 
 SourceFiles
     coalesenceKernel.C

@@ -84,12 +84,15 @@ Chesters::Pc
 ) const
 {
     const phasePair& pair = fluid_.pair1In2();
-    volScalarField We = pair.We();
-    volScalarField xi = d1/d2;
-    volScalarField theta =
+    volScalarField We(pair.We());
+    volScalarField xi(d1/d2);
+    volScalarField theta
+    (
+        "theta",
         Ceff_
        *pow(max(pair.Re(), SMALL), ReExp_)
-       *pow(max(We, SMALL), WeExp_);
+       *pow(max(We, SMALL), WeExp_)
+    );
 
     return
         Foam::exp

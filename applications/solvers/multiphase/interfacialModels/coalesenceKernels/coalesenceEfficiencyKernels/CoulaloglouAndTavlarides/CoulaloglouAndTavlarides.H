@@ -26,9 +26,7 @@ Class
     CoulaloglouAndTavlarides
 
 Description
-    Brownian coalesenceEfficiency kernel supplemented for particles in turbulent
-    flows in conditions when the particle size is smaller than the local
-    Kolmogorov scale.
+    Coalesence efficiency based on film drainage and rupture times.
 
     \f[
         P_c =
@@ -36,7 +34,7 @@ Description
             \left(
               - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
                 \left(
-                    \frac{\xi_i^{1/3} \xi_j^{1/3}}{\xi_i^{1/3} + \xi_j^{1/3}}
+                    \frac{d_i^{1/3} d_j^{1/3}}{d_i^{1/3} + d_j^{1/3}}
                 \right)
             \right)
     \f]
@@ -48,13 +46,14 @@ Description
         \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
         \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
-        \xi_i       |  Abscissa of bubble i [m]
-        \xi_j       |  Abscissa of bubble j [m]
+        d_i         |  Diameter of bubble i [m]
+        d_j         |  Diameter of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "Description of interaction processes in agitated liquid-liquid dis[ersions"
+        "Description of interaction processes in agitated liquid-liquid
+        dis[ersions"
         C Coulaloglou, L Tavlarides
         Chemical Engineering Science
         Volume 32, Pages 1289-1297, 1977
@@ -124,8 +123,8 @@ public:
         //- Aggregation kernel
         virtual tmp<volScalarField> Pc
         (
-            const volScalarField& abscissa1,
-            const volScalarField& abscissa2
+            const volScalarField& d1,
+            const volScalarField& d2
         ) const;
 
 };

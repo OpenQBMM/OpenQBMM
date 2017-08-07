@@ -26,9 +26,7 @@ Class
     CoulaloglouAndTavlarides
 
 Description
-    Brownian aggregation kernel supplemented for particles in turbulent
-    flows in conditions when the particle size is smaller than the local
-    Kolmogorov scale.
+    Coalesence frequency kernel based on kinetic theory of gasses
 
     \f[
         \omega = \epsilon_f^{1/3}(d_i^{2/3} + d_j^{2/3})
