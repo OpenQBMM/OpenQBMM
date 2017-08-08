@@ -282,16 +282,21 @@ void
 Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::transportMoments()
 {
     Info<< "Transporting moments in dilute regime" << endl;
-    updateh2Fn();
-    surfaceScalarField h2Fnf = fvc::interpolate(h2Fn_);
 
+    updateh2Fn();
+    surfaceScalarField h2Fnf(fvc::interpolate(h2Fn_));
     AGtransport_.solve(h2Fnf);
 
-    surfaceScalarField& phi =
-        h2Fn_.mesh().lookupObjectRef<surfaceScalarField>
+    const fvMesh& mesh(h2Fn_.mesh());
+
+    surfaceScalarField& phi
+    (
+        mesh.lookupObjectRef<Foam::surfaceScalarField>
         (
             this->phase_.phi().name()
-        );
+        )
+    );
+
     phi = fvc::flux(this->phase_.U());
 }
 
