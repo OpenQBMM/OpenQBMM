@@ -290,7 +290,8 @@ void Foam::AGmomentTransportModel::solve
         m0.correctBoundaryConditions();
 
         volScalarField taup =
-            fvc::average(h1f)*phase_.fluid().drag(phase_).Ki(0,0)
+            max(fvc::average(h1f), phase_.residualAlpha())
+           *phase_.fluid().drag(phase_).Ki(0,0)
            /phase_.rho()*deltaT;
 
         const volVectorField& Uc = phase_.fluid().otherPhase(phase_).U();

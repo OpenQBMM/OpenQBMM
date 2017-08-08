@@ -282,6 +282,13 @@ public:
             return HUGE;
         }
 
+        //- Scale drag coefficient by h2fn
+        virtual tmp<volScalarField>
+        hydrodynamicScale(const volScalarField& Kd) const
+        {
+            return Kd;
+        }
+
         //- Return fraction to be used for hydrodynamic flux
         virtual tmp<surfaceScalarField>
         hydrodynamicScalef(const surfaceScalarField& phi) const

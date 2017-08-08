@@ -122,11 +122,15 @@ public:
         //- Max time-step
         virtual scalar maxUxDx() const;
 
-        //- Return fraction to be used for hydrodynamic flux
+        //- Scale volScalarField by h2fn (used for drag)
+        virtual tmp<volScalarField>
+        hydrodynamicScale(const volScalarField& Kd) const;
+
+        //- Scale surfaceScalarField by h2fn
         virtual tmp<surfaceScalarField>
         hydrodynamicScalef(const surfaceScalarField& phi) const;
 
-        //- Return fraction to be used for hydrodynamic velocity
+        //- Scale volVectorField by h2fn
         virtual tmp<volVectorField>
         hydrodynamicScale(const volVectorField& U) const;
 };

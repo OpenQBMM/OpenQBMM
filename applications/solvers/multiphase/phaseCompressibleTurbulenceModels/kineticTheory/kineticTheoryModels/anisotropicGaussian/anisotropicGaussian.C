@@ -305,6 +305,17 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::maxUxDx() const
 
 
 template<class baseModel>
+Foam::tmp<Foam::volScalarField>
+Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::hydrodynamicScale
+(
+    const volScalarField& Kd
+) const
+{
+    return Kd*h2Fn_;
+}
+
+
+template<class baseModel>
 Foam::tmp<Foam::surfaceScalarField>
 Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::hydrodynamicScalef
 (
