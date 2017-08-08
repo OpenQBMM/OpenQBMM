@@ -33,5 +33,6 @@ EXE_LIBS = \
     -lmomentSets \
     -lextendedMomentInversion \
     -lfieldMomentInversion \
+    -lquadratureApproximation \
     -lmomentAdvection \
     -lmixing

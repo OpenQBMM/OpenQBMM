@@ -8,6 +8,7 @@ const="constant"
 system="system"
 dyn="dynamicCode"
 animation="animation"
+data="data"
 
 
 for f in *
@@ -18,6 +19,7 @@ do
          && [ $f != $const ]            \
          && [ $f != $system ]           \
          && [ $f != $animation ]        \
+         && [ $f != $data ]             \
          && [ $f != $dyn ] ; then
             rm -r $f
         fi
@@ -28,6 +30,6 @@ mkdir 0
 cp 0.org/* 0/
 generateMoments
 setFields
-decomposePar
-# polydisperseBubbleFoam
-mpirun -np 4 polydisperseBubbleFoam -parallel
+#decomposePar
+ polydisperseBubbleFoam
+#mpirun -np 4 polydisperseBubbleFoam -parallel
