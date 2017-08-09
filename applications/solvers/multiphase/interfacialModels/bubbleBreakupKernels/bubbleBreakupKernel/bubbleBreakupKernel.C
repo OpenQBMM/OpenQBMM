@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,64 +23,40 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CoulaloglouAndTavlarides.H"
-#include "addToRunTimeSelectionTable.H"
-#include "fundamentalConstants.H"
+#include "bubbleBreakupKernel.H"
+
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coalesenceFrequencyKernels
-{
-    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
-
-    addToRunTimeSelectionTable
-    (
-        coalesenceFrequencyKernel,
-        CoulaloglouAndTavlarides,
-        dictionary
-    );
-}
+    defineTypeNameAndDebug(bubbleBreakupKernel, 0);
+    defineRunTimeSelectionTable(bubbleBreakupKernel, dictionary);
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalesenceFrequencyKernels::CoulaloglouAndTavlarides::
-CoulaloglouAndTavlarides
+Foam::bubbleBreakupKernel::bubbleBreakupKernel
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalesenceFrequencyKernel(dict, mesh),
-    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    epsilon_(fluid_.phase2().turbulence().epsilon()())
+    dict_(dict),
+    mesh_(mesh),
+    Cb_(dict.lookup("Cb"))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalesenceFrequencyKernels::CoulaloglouAndTavlarides::
-~CoulaloglouAndTavlarides()
+Foam::bubbleBreakupKernel::~bubbleBreakupKernel()
 {}
 
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
-Foam::coalesenceFrequencyKernels::CoulaloglouAndTavlarides::omega
-(
-    const label nodei,
-    const label nodej
-) const
-{
-    const volScalarField& d1 = fluid_.phase1().ds(nodei);
-    const volScalarField& d2 = fluid_.phase1().ds(nodej);
-    return
-        cbrt(epsilon_)*sqr(d1 + d2)
-       *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
-}
+
 
 // ************************************************************************* //

@@ -31,12 +31,9 @@ License
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
 namespace coalesenceEfficiencyKernels
 {
     defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
-
     addToRunTimeSelectionTable
     (
         coalesenceEfficiencyKernel,
@@ -45,13 +42,12 @@ namespace coalesenceEfficiencyKernels
     );
 }
 }
-}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-CoulaloglouAndTavlarides::CoulaloglouAndTavlarides
+Foam::coalesenceEfficiencyKernels::CoulaloglouAndTavlarides::
+CoulaloglouAndTavlarides
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -67,21 +63,22 @@ CoulaloglouAndTavlarides::CoulaloglouAndTavlarides
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-CoulaloglouAndTavlarides::~CoulaloglouAndTavlarides()
+Foam::coalesenceEfficiencyKernels::CoulaloglouAndTavlarides::
+~CoulaloglouAndTavlarides()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-CoulaloglouAndTavlarides::Pc
+Foam::coalesenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
 (
-    const volScalarField& d1,
-    const volScalarField& d2
+    const label nodei,
+    const label nodej
 ) const
 {
+    const volScalarField& d1 = fluid_.phase1().ds(nodei);
+    const volScalarField& d2 = fluid_.phase1().ds(nodej);
     const volScalarField& rho = fluid_.phase2().rho();
     const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
     const dimensionedScalar& sigma = fluid_.sigma();

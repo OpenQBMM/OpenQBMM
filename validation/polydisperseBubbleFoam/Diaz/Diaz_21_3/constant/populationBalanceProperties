@@ -18,10 +18,10 @@ FoamFile
 
 coalesence off;
 
-coalesenceKernel
+coalescenceKernel
 {
-    coalesenceFrequencyKernel CoulaloglouAndTavlarides;
-    coalesenceEfficiencyKernel CoulaloglouAndTavlarides;
+    coalescenceFrequencyKernel CoulaloglouAndTavlarides;
+    coalescenceEfficiencyKernel CoulaloglouAndTavlarides;
 
     Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
     Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;

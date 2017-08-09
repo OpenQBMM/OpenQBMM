@@ -32,8 +32,6 @@ License
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
 namespace coalesenceFrequencyKernels
 {
     defineTypeNameAndDebug(PrinceAndBlanch, 0);
@@ -46,13 +44,11 @@ namespace coalesenceFrequencyKernels
     );
 }
 }
-}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceFrequencyKernels::
-PrinceAndBlanch::PrinceAndBlanch
+Foam::coalesenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -68,19 +64,17 @@ PrinceAndBlanch::PrinceAndBlanch
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceFrequencyKernels::
-PrinceAndBlanch::~PrinceAndBlanch()
+Foam::coalesenceFrequencyKernels::PrinceAndBlanch::~PrinceAndBlanch()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::coalesenceFrequencyKernels::
-PrinceAndBlanch::omega
+Foam::coalesenceFrequencyKernels::PrinceAndBlanch::omega
 (
-    const volScalarField& d1,
-    const volScalarField& d2
+    const label nodei,
+    const label nodej
 ) const
 {
     tmp<volScalarField> tmpFreqSrc
@@ -102,6 +96,8 @@ PrinceAndBlanch::omega
     );
     volScalarField& freqSrc = tmpFreqSrc.ref();
 
+    const volScalarField& d1 = fluid_.phase1().ds(nodei);
+    const volScalarField& d2 = fluid_.phase1().ds(nodej);
     const volScalarField& rho = fluid_.phase2().rho();
     const dimensionedScalar& sigma = fluid_.sigma();
     dimensionedScalar g = mag(fluid_.g());

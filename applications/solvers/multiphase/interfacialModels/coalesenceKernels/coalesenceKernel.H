@@ -46,8 +46,6 @@ SourceFiles
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
 
 /*---------------------------------------------------------------------------*\
                     Class coalesenceKernel Declaration
@@ -101,15 +99,14 @@ public:
         //- Coalesence kernel
         tmp<volScalarField> Ka
         (
-            const volScalarField& abscissa1,
-            const volScalarField& abscissa2
+            const label nodei,
+            const label nodej
         ) const;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace populationBalanceSubModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

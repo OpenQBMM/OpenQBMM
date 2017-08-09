@@ -31,8 +31,6 @@ License
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
 namespace coalesenceEfficiencyKernels
 {
     defineTypeNameAndDebug(constant, 0);
@@ -45,13 +43,11 @@ namespace coalesenceEfficiencyKernels
     );
 }
 }
-}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-constant::constant
+Foam::coalesenceEfficiencyKernels::constant::constant
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -65,19 +61,17 @@ constant::constant
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-constant::~constant()
+Foam::coalesenceEfficiencyKernels::constant::~constant()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-constant::Pc
+Foam::coalesenceEfficiencyKernels::constant::Pc
 (
-    const volScalarField& d1,
-    const volScalarField& d2
+    const label nodei,
+    const label nodej
 ) const
 {
     return tmp<volScalarField>

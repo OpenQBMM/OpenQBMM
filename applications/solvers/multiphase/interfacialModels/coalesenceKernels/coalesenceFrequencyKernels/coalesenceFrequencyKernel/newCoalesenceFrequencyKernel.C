@@ -27,27 +27,30 @@ License
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::populationBalanceSubModels::coalesenceFrequencyKernel>
-Foam::populationBalanceSubModels::coalesenceFrequencyKernel::New
+Foam::autoPtr<Foam::coalesenceFrequencyKernel>
+Foam::coalesenceFrequencyKernel::New
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 {
-    word coalesenceFrequencyKernelType(dict.lookup("coalesenceFrequencyKernel"));
+    word coalescenceFrequencyKernelType
+    (
+        dict.lookup("coalescenceFrequencyKernel")
+    );
 
-    Info<< "Selecting coalesenceFrequencyKernel "
-        << coalesenceFrequencyKernelType << endl;
+    Info<< "Selecting coalescenceFrequencyKernel "
+        << coalescenceFrequencyKernelType << endl;
 
     dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(coalesenceFrequencyKernelType);
+        dictionaryConstructorTablePtr_->find(coalescenceFrequencyKernelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
         FatalErrorInFunction
-            << "Unknown coalesenceFrequencyKernelType type "
-            << coalesenceFrequencyKernelType << endl << endl
-            << "Valid coalesenceFrequencyKernelType types are :" << endl
+            << "Unknown coalescenceFrequencyKernelType type "
+            << coalescenceFrequencyKernelType << endl << endl
+            << "Valid coalescenceFrequencyKernelType types are :" << endl
             << dictionaryConstructorTablePtr_->sortedToc()
             << abort(FatalError);
     }

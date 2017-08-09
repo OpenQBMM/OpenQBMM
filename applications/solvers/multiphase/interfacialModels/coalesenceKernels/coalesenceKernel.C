@@ -28,7 +28,7 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceKernel::coalesenceKernel
+Foam::coalesenceKernel::coalesenceKernel
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -51,23 +51,23 @@ Foam::populationBalanceSubModels::coalesenceKernel::coalesenceKernel
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceKernel::~coalesenceKernel()
+Foam::coalesenceKernel::~coalesenceKernel()
 {}
 
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::coalesenceKernel::Ka
+Foam::coalesenceKernel::Ka
 (
-    const volScalarField& abscissa1,
-    const volScalarField& abscissa2
+    const label nodei,
+    const label nodej
 ) const
 {
     return
         Ca_
-       *frequency_->omega(abscissa1, abscissa2)
-       *efficiency_->Pc(abscissa1, abscissa2);
+       *frequency_->omega(nodei, nodej)
+       *efficiency_->Pc(nodei, nodej);
 }
 
 

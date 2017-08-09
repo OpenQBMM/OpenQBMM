@@ -44,8 +44,6 @@ SourceFiles
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
 
 /*---------------------------------------------------------------------------*\
                     Class coalesenceFrequencyKernel Declaration
@@ -120,15 +118,14 @@ public:
         //- Aggregation kernel
         virtual tmp<volScalarField> omega
         (
-            const volScalarField& d1,
-            const volScalarField& d2
+            const label nodei,
+            const label nodej
         ) const = 0;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace populationBalanceSubModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

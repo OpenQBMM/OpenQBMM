@@ -80,8 +80,6 @@ SourceFiles
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
 namespace coalesenceEfficiencyKernels
 {
 
@@ -133,8 +131,8 @@ public:
         //- Aggregation kernel
         virtual tmp<volScalarField> Pc
         (
-            const volScalarField& abscissa1,
-            const volScalarField& abscissa2
+            const label nodei,
+            const label nodej
         ) const;
 
 };
@@ -143,7 +141,6 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace coalesenceEfficiencyKernels
-} // End namespace populationBalanceSubModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

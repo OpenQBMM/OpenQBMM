@@ -67,18 +67,14 @@ SourceFiles
 #ifndef Alopaeus_H
 #define Alopaeus_H
 
-#include "breakupKernel.H"
+#include "bubbleBreakupKernel.H"
 #include "twoPhaseSystem.H"
-#include "phaseModel.H"
-#include "PhaseCompressibleTurbulenceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
-namespace breakupKernels
+namespace bubbleBreakupKernels
 {
 
 /*---------------------------------------------------------------------------*\
@@ -87,31 +83,17 @@ namespace breakupKernels
 
 class Alopaeus
 :
-    public breakupKernel
+    public bubbleBreakupKernel
 {
     // Private data
 
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
-        //- Coefficients
+        // Model Coefficients
         dimensionedScalar C1_;
         dimensionedScalar C2_;
 
-        //- Bubble density field
-        const volScalarField& rho1_;
-
-        //- Liquid density field
-        const volScalarField& rho2_;
-
-        //- Liquid viscosity field
-        const volScalarField& mu_;
-
-        //- Liquid turbulent dissipation rate field
-        const volScalarField& epsilon_;
-
-        //- Surface tension
-        dimensionedScalar sigma_;
 
 public:
 
@@ -136,11 +118,7 @@ public:
     // Member Functions
 
         //- Breakup kernel
-        virtual scalar Kb
-        (
-            const scalar& abscissa,
-            const label celli
-        ) const;
+        virtual tmp<volScalarField> Kb(const label nodei) const;
 
 };
 
@@ -148,7 +126,6 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace breakupKernels
-} // End namespace populationBalanceSubModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

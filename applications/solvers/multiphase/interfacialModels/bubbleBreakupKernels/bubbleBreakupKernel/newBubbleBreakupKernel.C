@@ -23,36 +23,35 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "coalesenceEfficiencyKernel.H"
+#include "bubbleBreakupKernel.H"
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::coalesenceEfficiencyKernel>
-Foam::coalesenceEfficiencyKernel::New
+Foam::autoPtr<Foam::bubbleBreakupKernel> Foam::bubbleBreakupKernel::New
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 {
-    word coalescenceEfficiencyKernelType(dict.lookup("coalescenceEfficiencyKernel"));
+    word bubbleBreakupKernelType(dict.lookup("breakupKernel"));
 
-    Info<< "Selecting coalescenceEfficiencyKernel "
-        << coalescenceEfficiencyKernelType << endl;
+    Info<< "Selecting bubbleBreakupKernel "
+        << bubbleBreakupKernelType << endl;
 
     dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(coalescenceEfficiencyKernelType);
+        dictionaryConstructorTablePtr_->find(bubbleBreakupKernelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
         FatalErrorInFunction
-            << "Unknown coalescenceEfficiencyKernelType type "
-            << coalescenceEfficiencyKernelType << endl << endl
-            << "Valid coalescenceEfficiencyKernelType types are :" << endl
+            << "Unknown bubbleBreakupKernelType type "
+            << bubbleBreakupKernelType << endl << endl
+            << "Valid bubbleBreakupKernelType types are :" << endl
             << dictionaryConstructorTablePtr_->sortedToc()
             << abort(FatalError);
     }
 
-    return autoPtr<coalesenceEfficiencyKernel>(cstrIter()(dict, mesh));
+    return autoPtr<bubbleBreakupKernel>(cstrIter()(dict, mesh));
 }
 
 

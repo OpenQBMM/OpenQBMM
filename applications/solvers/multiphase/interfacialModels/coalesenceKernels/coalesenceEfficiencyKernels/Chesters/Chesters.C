@@ -32,8 +32,6 @@ License
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
 namespace coalesenceEfficiencyKernels
 {
     defineTypeNameAndDebug(Chesters, 0);
@@ -46,13 +44,11 @@ namespace coalesenceEfficiencyKernels
     );
 }
 }
-}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-Chesters::Chesters
+Foam::coalesenceEfficiencyKernels::Chesters::Chesters
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -68,22 +64,22 @@ Chesters::Chesters
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-Chesters::~Chesters()
+Foam::coalesenceEfficiencyKernels::Chesters::~Chesters()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-Chesters::Pc
+Foam::coalesenceEfficiencyKernels::Chesters::Pc
 (
-    const volScalarField& d1,
-    const volScalarField& d2
+    const label nodei,
+    const label nodej
 ) const
 {
     const phasePair& pair = fluid_.pair1In2();
+    const volScalarField& d1 = fluid_.phase1().ds(nodei);
+    const volScalarField& d2 = fluid_.phase1().ds(nodej);
     volScalarField We(pair.We());
     volScalarField xi(d1/d2);
     volScalarField theta

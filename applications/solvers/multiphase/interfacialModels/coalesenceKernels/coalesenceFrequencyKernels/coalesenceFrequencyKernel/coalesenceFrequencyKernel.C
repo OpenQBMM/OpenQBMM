@@ -29,19 +29,15 @@ License
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
     defineTypeNameAndDebug(coalesenceFrequencyKernel, 0);
 
     defineRunTimeSelectionTable(coalesenceFrequencyKernel, dictionary);
-}
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceFrequencyKernel::
-coalesenceFrequencyKernel
+Foam::coalesenceFrequencyKernel::coalesenceFrequencyKernel
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -54,8 +50,7 @@ coalesenceFrequencyKernel
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::coalesenceFrequencyKernel::
-~coalesenceFrequencyKernel()
+Foam::coalesenceFrequencyKernel::~coalesenceFrequencyKernel()
 {}
 
 

@@ -58,12 +58,12 @@ void Foam::pdPhaseModel::updateVelocity()
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalesenceSource
+Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
 (
-    const label& momentOrder
+    const label momentOrder
 )
 {
-    tmp<volScalarField> cSource
+    tmp<volScalarField> tmpCSource
     (
         new volScalarField
         (
@@ -88,9 +88,10 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalesenceSource
 
     if (!coalesence_)
     {
-        return cSource;
+        return tmpCSource;
     }
 
+    volScalarField& cSource = tmpCSource.ref();
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, pNode1i)
@@ -107,7 +108,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalesenceSource
 
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa
-            cSource.ref() +=
+            cSource +=
                 pWeight1*
                 (
                     pWeight2*
@@ -119,20 +120,17 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalesenceSource
                             momentOrder/3.0
                         )
                       - pow(pAbscissa1, momentOrder)
-                    )*fluid_.coalesence().Ka
-                    (
-                        ds_[pNode1i], ds_[pNode2i]
-                    )
+                    )*coalescenceKernel_.Ka(pNode1i, pNode2i)
                 );
         }
     }
-    return cSource;
+    return tmpCSource;
 }
 
 
 Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
 (
-    const label& momentOrder
+    const label momentOrder
 )
 {
     tmp<volScalarField> bSource
@@ -165,31 +163,70 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
 
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
-    forAll(bSource(), celli)
+    forAll(nodes, pNodei)
     {
-        forAll(nodes, pNodei)
-        {
-            const volScalarNode& node = nodes[pNodei];
+        const volScalarNode& node = nodes[pNodei];
 
-            //- Diameter is used to calculate the breakup kernel in place
-            //  of the abscissa
-            bSource.ref()[celli] = bSource()[celli]
-              + node.primaryWeight()[celli]
-               *fluid_.breakup().Kb(ds_[pNodei][celli], celli)
-               *(
-                    fluid_.daughterDistribution().mD              //Birth
-                    (
-                        momentOrder,
-                        node.primaryAbscissa()[celli]
-                    )
-                  - pow(node.primaryAbscissa()[celli], momentOrder)   //Death
-                );
-        }
+        //- Diameter is used to calculate the breakup kernel in place
+        //  of the abscissa
+        bSource.ref() +=
+            node.primaryWeight()
+           *breakupKernel_->Kb(pNodei)
+           *(
+                daughterDistribution                                //Birth
+                (
+                    momentOrder,
+                    node.primaryAbscissa()
+                )
+              - pow(node.primaryAbscissa(), momentOrder)   //Death
+            );
     }
 
     return bSource;
 }
 
+
+Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::daughterDistribution
+(
+    const label momentOrder,
+    const volScalarField& abscissa
+)
+{
+    tmp<volScalarField> tmpDaughterDist
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "daughterDist",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedScalar
+            (
+                "0",
+                pow(dimMass, momentOrder),
+                0.0
+            )
+        )
+    );
+    volScalarField& daughterDist = tmpDaughterDist.ref();
+
+    forAll(daughterDist, celli)
+    {
+        daughterDist[celli] = daughterDistribution_->mD              //Birth
+        (
+            momentOrder,
+            abscissa[celli]
+        );
+    }
+
+    return tmpDaughterDist;
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -200,12 +237,19 @@ Foam::pdPhaseModel::pdPhaseModel
     const word& phaseName
 )
 :
-    phaseModel(fluid,phaseProperties,phaseName),
+    phaseModel(fluid, phaseProperties, phaseName),
     pbeDict_
     (
-        fluid.mesh().lookupObject<IOdictionary>("populationBalanceProperties")
+        IOobject
+        (
+            "populationBalanceProperties",
+            fluid.mesh().time().constant(),
+            fluid.mesh(),
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE
+        )
     ),
-    coalesence_(pbeDict_.lookup("coalesence")),
+    coalesence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
     nNodes_(quadrature_.nodes().size()),
@@ -215,15 +259,35 @@ Foam::pdPhaseModel::pdPhaseModel
     Vs_(nNodes_),
     ds_(nNodes_),
     maxD_("maxD", dimLength, phaseDict_),
-    minD_("minD", dimLength, phaseDict_)
+    minD_("minD", dimLength, phaseDict_),
+    coalescenceKernel_
+    (
+        pbeDict_.subDict("coalescenceKernel"),
+        fluid.mesh()
+    ),
+    breakupKernel_
+    (
+        Foam::bubbleBreakupKernel::New
+        (
+            pbeDict_.subDict("breakupKernel"),
+            fluid.mesh()
+        )
+    ),
+    daughterDistribution_
+    (
+        Foam::populationBalanceSubModels::daughterDistribution::New
+        (
+            pbeDict_.subDict("daughterDistribution")
+        )
+    )
 {
-    if (nNodes_ == 1)
-    {
-        FatalErrorInFunction
-            << "Polydisperse phase model selected, but only one node " << nl
-            << "is used. Please use monodispersePhaseModel instead." << endl
-            << exit(FatalError);
-    }
+//     if (nNodes_ == 1)
+//     {
+//         FatalErrorInFunction
+//             << "Polydisperse phase model selected, but only one node " << nl
+//             << "is used. Please use monodispersePhaseModel instead." << endl
+//             << exit(FatalError);
+//     }
     wordList phiTypes
     (
         U_.boundaryField().size(),
@@ -598,7 +662,7 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
           - fvc::ddt(m)
           + meanDivUbMp
           + breakupSource(mEqni)
-          + coalesenceSource(mEqni)
+          + coalescenceSource(mEqni)
         );
         mEqn.relax();
         mEqn.solve();

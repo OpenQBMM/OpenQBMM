@@ -26,38 +26,37 @@ License
 #include "Alopaeus.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
+#include "phaseModel.H"
+#include "PhaseCompressibleTurbulenceModel.H"
+
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace populationBalanceSubModels
-{
-namespace breakupKernels
+namespace bubbleBreakupKernels
 {
     defineTypeNameAndDebug(Alopaeus, 0);
 
     addToRunTimeSelectionTable
     (
-        breakupKernel,
+        bubbleBreakupKernel,
         Alopaeus,
         dictionary
     );
-}
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::breakupKernels::Alopaeus
-::Alopaeus
+Foam::bubbleBreakupKernels::Alopaeus::Alopaeus
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    breakupKernel(dict, mesh),
+    bubbleBreakupKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
     C1_
     (
@@ -74,51 +73,43 @@ Foam::populationBalanceSubModels::breakupKernels::Alopaeus
             "C2",
             dimensionedScalar("C2", dimless, 0.01)
         )
-    ),
-    rho1_(fluid_.phase1().rho()),
-    rho2_(fluid_.phase2().rho()),
-    mu_(fluid_.phase2().mu()),
-    epsilon_(fluid_.phase2().turbulence().epsilon()()),
-    sigma_(fluid_.sigma())
+    )
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::breakupKernels::Alopaeus
-::~Alopaeus()
+Foam::bubbleBreakupKernels::Alopaeus::~Alopaeus()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar
-Foam::populationBalanceSubModels::breakupKernels::Alopaeus::Kb
-(
-    const scalar& abscissa,
-    const label celli
-) const
+Foam::tmp<Foam::volScalarField>
+Foam::bubbleBreakupKernels::Alopaeus::Kb(const label nodei) const
 {
+    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
+    const volScalarField& d = fluid_.phase1().ds(nodei);
+    const volScalarField& rho1 = fluid_.phase1().rho();
+    const volScalarField& rho2 = fluid_.phase2().rho();
+    const volScalarField& mu = fluid_.phase2().mu();
+    const dimensionedScalar& sigma = fluid_.sigma();
     return
-        Cb_.value()*cbrt(epsilon_[celli])
+        Cb_*cbrt(epsilon)
        *Foam::erfc
         (
             Foam::sqrt
             (
-                C1_.value()*sigma_.value()
+                C1_*sigma
                /max
                 (
-                    rho2_[celli]
-                   *pow(epsilon_[celli], 2.0/3.0)
-                   *pow(abscissa, 5.0/3.0),
+                    rho2*pow(epsilon, 2.0/3.0)*pow(d, 5.0/3.0),
                     1e-10
                 )
-              + C2_.value()*mu_[celli]
+              + C2_*mu
                /max
                 (
-                    sqrt(rho1_[celli]*rho2_[celli])
-                   *cbrt(epsilon_[celli])
-                   *pow(abscissa, 4.0/3.0),
+                    sqrt(rho1*rho2)*cbrt(epsilon)*pow(d, 4.0/3.0),
                     1e-10
                 )
             )

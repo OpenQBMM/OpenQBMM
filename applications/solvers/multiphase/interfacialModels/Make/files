@@ -72,6 +72,8 @@ coalesenceKernels/coalesenceEfficiencyKernels/CoulaloglouAndTavlarides/Coulalogl
 coalesenceKernels/coalesenceEfficiencyKernels/Chesters/Chesters.C
 coalesenceKernels/coalesenceEfficiencyKernels/constant/constant.C
 
-breakupKernels/Alopaeus/Alopaeus.C
+bubbleBreakupKernels/bubbleBreakupKernel/bubbleBreakupKernel.C
+bubbleBreakupKernels/bubbleBreakupKernel/newBubbleBreakupKernel.C
+bubbleBreakupKernels/Alopaeus/Alopaeus.C
 
 LIB = $(FOAM_USER_LIBBIN)/libpdEulerianInterfacialModels
