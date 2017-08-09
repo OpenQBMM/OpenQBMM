@@ -22,8 +22,8 @@ boundaryField
 {
     right
     {
-// 	    type               fixedValue;
-        type               JohnsonJacksonParticleSlip;
+	    type               fixedValue;
+//         type               JohnsonJacksonParticleSlip;
         specularityCoefficient  0.1;
         restitutionCoefficient  0.9;
         internalFrictionAngle   0.25;
@@ -31,8 +31,8 @@ boundaryField
     }
     left
     {
-// 	    type               fixedValue;
-        type               JohnsonJacksonParticleSlip;
+	    type               fixedValue;
+//         type               JohnsonJacksonParticleSlip;
         specularityCoefficient  0.1;
         restitutionCoefficient  0.9;
         internalFrictionAngle   0.25;

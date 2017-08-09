@@ -117,25 +117,4 @@ Foam::tmp<Foam::surfaceScalarField>& Foam::twoPhaseSystem::pPrimeByA()
     return pPrimeByA_;
 }
 
-
-const Foam::populationBalanceSubModels::coalesenceKernel&
-Foam::twoPhaseSystem::coalesence() const
-{
-    return coalesenceKernel_();
-}
-
-
-const Foam::populationBalanceSubModels::breakupKernel&
-Foam::twoPhaseSystem::breakup() const
-{
-    return breakupKernel_();
-}
-
-
-const Foam::populationBalanceSubModels::daughterDistribution&
-Foam::twoPhaseSystem::daughterDistribution() const
-{
-    return daughterDistribution_();
-}
-
 // ************************************************************************* //

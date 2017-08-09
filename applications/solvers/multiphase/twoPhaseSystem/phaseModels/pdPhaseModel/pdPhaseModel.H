@@ -42,8 +42,8 @@ SourceFiles
 #include "phaseModel.H"
 #include "quadratureApproximations.H"
 
-#include "coalesenceKernel.H"
-#include "breakupKernel.H"
+#include "coalescenceKernel.H"
+#include "bubbleBreakupKernel.H"
 #include "daughterDistribution.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -61,11 +61,11 @@ class pdPhaseModel
 {
     // Private data
 
-        //- Refrence to population balance properties dictionary
-        const IOdictionary& pbeDict_;
+        //- Population balance properties
+        IOdictionary pbeDict_;
 
-        //- Switch for coalesence
-        Switch coalesence_;
+        //- Switch for coalescence
+        Switch coalescence_;
 
         //- Switch for breakup
         Switch breakup_;
@@ -98,6 +98,15 @@ class pdPhaseModel
         //- Minimum diameter
         dimensionedScalar minD_;
 
+        //- Coalescence kernel
+        coalescenceKernel coalescenceKernel_;
+
+        //- Breakup kernel
+        autoPtr<bubbleBreakupKernel> breakupKernel_;
+
+        //- Daughter distribution
+        autoPtr<populationBalanceSubModels::daughterDistribution> daughterDistribution_;
+
 
     // Private member functions
 
@@ -105,10 +114,17 @@ class pdPhaseModel
         void updateVelocity();
 
         //- Coalesence source
-        tmp<volScalarField> coalesenceSource(const label& momentOrder);
+        tmp<volScalarField> coalescenceSource(const label momentOrder);
 
         //- Breakup source
-        tmp<volScalarField> breakupSource(const label& momentOrder);
+        tmp<volScalarField> breakupSource(const label momentOrder);
+
+        //- Return daughterDistribution
+        tmp<volScalarField> daughterDistribution
+        (
+            const label momentOrder,
+            const volScalarField& abscissa
+        );
 
 
 public:

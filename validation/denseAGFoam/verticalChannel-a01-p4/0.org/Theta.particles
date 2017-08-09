@@ -22,7 +22,8 @@ boundaryField
 {
     right
     {
-        type               JohnsonJacksonParticleTheta;
+//         type               JohnsonJacksonParticleTheta;
+        type zeroGradient;
         specularityCoefficient  0.1;
         restitutionCoefficient  0.9;
         internalFrictionAngle   0.25;
@@ -30,7 +31,8 @@ boundaryField
     }
     left
     {
-        type               JohnsonJacksonParticleTheta;
+//         type               JohnsonJacksonParticleTheta;
+        type zeroGradient;
         specularityCoefficient  0.1;
         restitutionCoefficient  0.9;
         internalFrictionAngle   0.25;

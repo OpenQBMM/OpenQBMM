@@ -63,18 +63,6 @@ Foam::twoPhaseSystem::twoPhaseSystem
 
     mesh_(mesh),
 
-    pbeDict_
-    (
-        IOobject
-        (
-            "populationBalanceProperties",
-            mesh.time().constant(),
-            mesh,
-            IOobject::MUST_READ_IF_MODIFIED,
-            IOobject::NO_WRITE
-        )
-    ),
-
     phi_
     (
         IOobject
@@ -126,11 +114,7 @@ Foam::twoPhaseSystem::twoPhaseSystem
         ),
         mesh,
         dimensionedScalar("dgdt", dimless/dimTime, 0)
-    ),
-
-    coalesenceKernel_(),
-    breakupKernel_(),
-    daughterDistribution_()
+    )
 {
     if (phase2_->nNodes() != 1)
     {
@@ -298,25 +282,6 @@ Foam::twoPhaseSystem::twoPhaseSystem
             pair2In1_
         )
     );
-
-    coalesenceKernel_ =
-        new Foam::populationBalanceSubModels::coalesenceKernel
-        (
-            pbeDict_.subDict("coalesenceKernel"),
-            mesh_
-        );
-
-    breakupKernel_ =
-        Foam::populationBalanceSubModels::breakupKernel::New
-        (
-            pbeDict_.subDict("breakupKernel"),
-            mesh_
-        );
-    daughterDistribution_ =
-        Foam::populationBalanceSubModels::daughterDistribution::New
-        (
-            pbeDict_.subDict("daughterDistribution")
-        );
 }
 
 
