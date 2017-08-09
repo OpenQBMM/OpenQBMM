@@ -20,8 +20,8 @@ coalesence on;
 
 coalesenceKernel
 {
-    coalesenceFrequencyKernel CoulaloglouAndTavlarides;
-    coalesenceEfficiencyKernel CoulaloglouAndTavlarides;
+    coalesenceFrequencyKernel PrinceAndBlanch;
+    coalesenceEfficiencyKernel Chesters;
 
     Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
     Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;

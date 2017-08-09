@@ -96,12 +96,12 @@ solvers
         tolerance       1e-7;
         relTol          1e-4;
         minIter         1;
-}
+    }
 }
 
 PIMPLE
 {
-    nOuterCorrectors 15;
+    nOuterCorrectors 30;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
@@ -110,7 +110,7 @@ PIMPLE
     {
         p_rgh
         {
-            tolerance 1e-5;
+            tolerance 1e-6;
             relTol    0;
         }
     }

@@ -11,24 +11,35 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      turbulenceProperties.air;
+    object      populationaBalanceProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType  RAS;
 
-RAS
+coalesence off;
+
+coalesenceKernel
 {
-    RASModel mixtureKEpsilon;
+    coalesenceFrequencyKernel PrinceAndBlanch;
+    coalesenceEfficiencyKernel constant;
 
-    turbulence      on;
-    printCoeffs     off;
+    Ca      Ca      [ 0 0 0 0 0 0 0 ]  4.6;
+    Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  0.01;
+    ReExp   ReExp   [ 0 0 0 0 0 0 0 ]  -0.732;
+    WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
+}
 
-    mixtureKEpsilonCoeffs
-    {
-        Cp  0;
-        C3  0;
-    }
+breakup off;
+
+breakupKernel
+{
+    breakupKernel constant;
+    Cb        Cb        [ 0 0 -1 0 0 0 0 ] 6.0;
+}
+
+daughterDistribution
+{
+    daughterDistribution uniform;
 }
 
 // ************************************************************************* //
