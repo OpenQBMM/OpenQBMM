@@ -9,37 +9,37 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      T.air2;
+    class       dictionary;
+    location    "constant";
+    object      populationaBalanceProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions          [0 0 0 1 0 0 0];
 
-internalField       uniform 300;
+coalesence off;
 
-boundaryField
+coalesenceKernel
 {
-    walls
-    {
-        type               zeroGradient;
-    }
-    outlet
-    {
-        type               inletOutlet;
-        phi                phi.air2;
-        inletValue         $internalField;
-        value              $internalField;
-    }
-    inlet
-    {
-        type               fixedValue;
-        value              $internalField;
-    }
-    defaultFaces
-    {
-        type    empty;
-    }
+    coalesenceFrequencyKernel PrinceAndBlanch;
+    coalesenceEfficiencyKernel constant;
+
+    Ca      Ca      [ 0 0 0 0 0 0 0 ]  4.6;
+    Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  0.01;
+    ReExp   ReExp   [ 0 0 0 0 0 0 0 ]  -0.732;
+    WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+breakup off;
+
+breakupKernel
+{
+    breakupKernel constant;
+    Cb        Cb        [ 0 0 -1 0 0 0 0 ] 6.0;
+}
+
+daughterDistribution
+{
+    daughterDistribution uniform;
+}
+
+// ************************************************************************* //

@@ -16,13 +16,15 @@ FoamFile
 
 convertToMeters .01;
 
-w       15;
+w       20;
 h       120;
 depth   5;
+dia     15;
+R       #calc "$dia/2";
 
 cellSize    0.5;
 
-nPtsWide    #calc "$w/$cellSize";
+nPtsWide    #calc "$dia/$cellSize";
 nPtsHigh    #calc "$h/$cellSize";
 nDepthPts   1;
 

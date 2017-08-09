@@ -22,7 +22,7 @@ RAS
     RASModel mixtureKEpsilon;
 
     turbulence      on;
-    printCoeffs     on;
+    printCoeffs     off;
 
     mixtureKEpsilonCoeffs
     {
