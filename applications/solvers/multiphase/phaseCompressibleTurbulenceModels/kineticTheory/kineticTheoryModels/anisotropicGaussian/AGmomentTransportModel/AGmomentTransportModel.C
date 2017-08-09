@@ -213,6 +213,7 @@ Foam::scalar  Foam::AGmomentTransportModel::maxUxDx() const
         (mag(Up_.component(vector::X))
       + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::XX)))
        /pDxyz_.component(vector::X);
+
 	maxUxDx = gMax(tVv());
 	tVv.clear();
 
@@ -220,6 +221,7 @@ Foam::scalar  Foam::AGmomentTransportModel::maxUxDx() const
         (mag(Up_.component(vector::Y))
       + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::YY)))
        /pDxyz_.component(vector::Y);
+
 	maxUxDx = max(maxUxDx, gMax(tVv()));
 	tVv.clear();
 
@@ -227,6 +229,7 @@ Foam::scalar  Foam::AGmomentTransportModel::maxUxDx() const
         (mag(Up_.component(vector::Z))
       + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::ZZ)))
        /pDxyz_.component(vector::Z);
+
 	maxUxDx = max(maxUxDx, gMax(tVv()));
 	tVv.clear();
 
@@ -252,11 +255,13 @@ void Foam::AGmomentTransportModel::solve
         IOobject::groupName("moment.0", phase_.name()),
         alphap_
     );
+
     volVectorField m1
 	(
         IOobject::groupName("moment.1", phase_.name()),
         alphap_*Up_
     );
+
     volSymmTensorField m2
 	(
         IOobject::groupName("moment.2", phase_.name()),
@@ -289,15 +294,18 @@ void Foam::AGmomentTransportModel::solve
         m0 = m0Old - fvc::surfaceIntegrate(F0_)*deltaT;
         m0.correctBoundaryConditions();
 
-        volScalarField taup =
+        volScalarField taup
+        (
             max(fvc::average(h1f), phase_.residualAlpha())
            *phase_.fluid().drag(phase_).Ki(0,0)
-           /phase_.rho()*deltaT;
+           /phase_.rho()*deltaT
+        );
 
         const volVectorField& Uc = phase_.fluid().otherPhase(phase_).U();
 
         m1 = (m1Old - fvc::surfaceIntegrate(F1_)*deltaT + taup*alphap_*Uc)
            /(1.0 + taup);
+
         m1.correctBoundaryConditions();
 
         m2 = m2Old - fvc::surfaceIntegrate(F2_)*deltaT;
@@ -311,12 +319,14 @@ void Foam::AGmomentTransportModel::solve
 
 	Up_ = m1/m0;
     Up_.correctBoundaryConditions();
+
     surfaceScalarField& phip =
         mesh_.lookupObjectRef<surfaceScalarField>
         (
             IOobject::groupName("phi", phase_.name())
         );
-    phip = fvc::flux(Up_);
+
+        phip = fvc::flux(Up_);
 
 	Pp_ = m2/m0 - sqr(Up_);
     forAll(Pp_,i)
@@ -352,7 +362,6 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 
 	if(cellInv_)
 	{
-
 		const labelUList& owner = mesh_.owner();
 
 		forAll(alphap_, celli)
@@ -364,7 +373,7 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 			scalarField hwl(alphap_[celli]*hqWeigs_);
 
 			// Loop over all the current cell faces to calculate the flux
-			forAll(cProp,locFacei)
+			forAll(cProp, locFacei)
 			{
 				const  label& facei = cProp[locFacei];
 
@@ -374,25 +383,28 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 					scalarField facePhi(hqAbsc_ & Sf[facei]);
 					// Sf is always pointing away from owner cell
 					if(celli == owner[facei])
+                    {
 						facePhi *= pos(facePhi);
+                    }
 					else
+                    {
 						facePhi *= neg(facePhi);
+                    }
 
 					scalarField wPhi(hwl*facePhi);
 
 					F0_[facei] += sum(wPhi);
 					F1_[facei] += sum(wPhi*hqAbsc_);
 					F2_[facei] += sum(wPhi*sqr(hqAbsc_));
-
 				}
 				else
 				{
-					register label patchi = mesh_.boundaryMesh().whichPatch(facei);
+					label patchi = mesh_.boundaryMesh().whichPatch(facei);
 					const fvPatch& currPatch = patches[patchi];
 
-					if ( ! isA<emptyFvPatch> ( currPatch ) )
+					if (!isA<emptyFvPatch> (currPatch))
 					{
-						register label pFacei = facei - currPatch.start();
+						label pFacei = facei - currPatch.start();
 						const vector& sf = currPatch.Sf()[pFacei];
 
 						//  outgoing flux on the wall
@@ -401,63 +413,100 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 						scalarField wPhi(hwl*facePhi);
 
 						scalar sFlux = sum(wPhi);
-						F1_.boundaryFieldRef()[patchi][pFacei] = sum(wPhi*hqAbsc_);
-						F2_.boundaryFieldRef()[patchi][pFacei] = sum(wPhi*sqr(hqAbsc_));
+						F1_.boundaryFieldRef()[patchi][pFacei] =
+                            sum(wPhi*hqAbsc_);
+
+						F2_.boundaryFieldRef()[patchi][pFacei] =
+                            sum(wPhi*sqr(hqAbsc_));
 
 						// refletion incoming flux on the wall
-						if ( isA<wallFvPatch> ( patches[patchi] ) )
+						if (isA<wallFvPatch>(patches[patchi]))
 						{
 
 							F0_.boundaryFieldRef()[patchi][pFacei] = 0.0;
 
-							//  reflection flux on the wall
+							//  Reflection flux on the wall
 							vector nf(sf/mag(sf));
-							vectorField Uw(hqAbsc_ - (1.0 + ew_)*(hqAbsc_ & nf)*nf);
-							wPhi *= -(1.0 - phiw_);
 
-							F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*Uw);
+							vectorField Uw
+							(
+                                hqAbsc_ - (1.0 + ew_)*(hqAbsc_ & nf)*nf
+                            );
+
+                            wPhi *= phiw_ - 1.0;
+
+							F1_.boundaryFieldRef()[patchi][pFacei] +=
+                                sum(wPhi*Uw);
+
 							symmTensor tFlux(sum(wPhi*sqr(Uw)));
 							F2_.boundaryFieldRef()[patchi][pFacei] += tFlux;
-
 							scalar dfls_mf = phiw_*sFlux;
 							scalar dfls_ef = phiw_*tr(tFlux);
 
-							if(dfls_mf*dfls_ef > SMALL )
+							if (dfls_mf*dfls_ef > SMALL)
 							{
+								scalarField facePhio
+								(
+                                    sf & hq_.hermiteOriginalAbscissas()
+                                );
 
-								scalarField facePhio(sf & hq_.hermiteOriginalAbscissas());
-								facePhio *= neg(facePhio);
+                                facePhio *= neg(facePhio);
 								scalarField wPhio(hwl*facePhio);
 
 								scalar sFluxo = mag(sum(wPhio));
-								scalar tFluxo = mag(sum(wPhio*magSqr(hq_.hermiteOriginalAbscissas())));
+								scalar tFluxo =
+                                    mag
+                                    (
+                                        sum
+                                        (
+                                            wPhio
+                                           *magSqr
+                                           (
+                                               hq_.hermiteOriginalAbscissas()
+                                           )
+                                        )
+                                    );
 
-								scalar sig = std::sqrt(dfls_ef*sFluxo/(dfls_mf*tFluxo));
+								scalar sig =
+                                    Foam::sqrt
+                                    (
+                                        dfls_ef*sFluxo/(dfls_mf*tFluxo)
+                                    );
+
 								scalar pp = dfls_mf/sFluxo/sig;
 
-								vectorField  Ud(sig*hq_.hermiteOriginalAbscissas());
-								scalarField  facePhid( sf & Ud );
+								vectorField Ud
+								(
+                                    sig*hq_.hermiteOriginalAbscissas()
+                                );
+
+								scalarField facePhid(sf & Ud);
 								facePhid *= neg(facePhid);
-								scalarField  wPhid(pp*hwl*facePhid);
+								scalarField wPhid(pp*hwl*facePhid);
 
-								F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhid*Ud);
-								F2_.boundaryFieldRef()[patchi][pFacei] += sum(wPhid*sqr(Ud));
+								F1_.boundaryFieldRef()[patchi][pFacei] +=
+                                    sum(wPhid*Ud);
+
+                                F2_.boundaryFieldRef()[patchi][pFacei] +=
+                                    sum(wPhid*sqr(Ud));
 							}
-
 						}
-
 					}
 				}
-
 			}
-
 		}
 
 		forAll(patches, patchi)
 		{
 			const fvPatch& currPatch = patches[patchi];
 
-			if (!(isA<wallFvPatch> ( currPatch ) || isA<emptyFvPatch> ( currPatch )) )
+			if
+            (
+                !(
+                    isA<wallFvPatch>(currPatch)
+                 || isA<emptyFvPatch>(currPatch)
+                )
+            )
 			{
 
 				const vectorField& Sfbf = currPatch.Sf();
@@ -466,28 +515,38 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 				if ( isA<coupledFvPatch> (currPatch) )
 				{
 
-					scalarField alphaNf(alphap_.boundaryField()[patchi].patchNeighbourField());
-					vectorField UpNf(Up_.boundaryField()[patchi].patchNeighbourField());
-					symmTensorField PpNf(Pp_.boundaryField()[patchi].patchNeighbourField());
+					scalarField alphaNf
+					(
+                        alphap_.boundaryField()[patchi].patchNeighbourField()
+                    );
 
-					forAll(Sfbf,pFacei)
+					vectorField UpNf
+					(
+                        Up_.boundaryField()[patchi].patchNeighbourField()
+                    );
+
+                    symmTensorField PpNf
+                    (
+                        Pp_.boundaryField()[patchi].patchNeighbourField()
+                    );
+
+					forAll(Sfbf, pFacei)
 					{
-						hq_.calcHermiteQuadrature
-						(
-						    UpNf[pFacei],
-						    PpNf[pFacei]
-						);
+						hq_.calcHermiteQuadrature(UpNf[pFacei], PpNf[pFacei]);
 
 						scalarField facePhi(Sfbf[pFacei] & hqAbsc_);
 						facePhi *= neg(facePhi);
 						scalarField wPhi(alphaNf[pFacei]*hqWeigs_*facePhi);
 
-						F0_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi);
-						F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*hqAbsc_);
-						F2_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*sqr(hqAbsc_));
+						F0_.boundaryFieldRef()[patchi][pFacei] +=
+                            sum(wPhi);
 
+                        F1_.boundaryFieldRef()[patchi][pFacei] +=
+                            sum(wPhi*hqAbsc_);
+
+                        F2_.boundaryFieldRef()[patchi][pFacei] +=
+                            sum(wPhi*sqr(hqAbsc_));
 					}
-
 				}
 				else
 				{
@@ -496,23 +555,21 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 					const vectorField& UpPf(Up_.boundaryField()[patchi]);
 					const symmTensorField& PpPf(Pp_.boundaryField()[patchi]);
 
-					forAll(Sfbf,pFacei)
+					forAll(Sfbf, pFacei)
 					{
 
-						hq_.calcHermiteQuadrature
-						(
-						    UpPf[pFacei],
-						    PpPf[pFacei]
-						);
+						hq_.calcHermiteQuadrature(UpPf[pFacei], PpPf[pFacei]);
 
 						scalarField facePhi(Sfbf[pFacei] & hqAbsc_);
 						facePhi *= neg(facePhi);
 						scalarField wPhi(alphaPf[pFacei]*hqWeigs_*facePhi);
 
 						F0_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi);
-						F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*hqAbsc_);
-						F2_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*sqr(hqAbsc_));
+						F1_.boundaryFieldRef()[patchi][pFacei] +=
+                            sum(wPhi*hqAbsc_);
 
+						F2_.boundaryFieldRef()[patchi][pFacei] +=
+                            sum(wPhi*sqr(hqAbsc_));
 					}
 				}
 			}
@@ -521,35 +578,36 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 		F0_ *= h1f;
 		F1_ *= h1f;
 		F2_ *= h1f;
-
 	}
 	else
 	{
-
-		forAll(ownnei_,di)
+		forAll(ownnei_, di)
 		{
 
 			surfaceScalarField alphaf
-			(fvc::interpolate(alphap_,ownnei_[di], "alphap"));
-			surfaceVectorField Upf(fvc::interpolate(Up_,ownnei_[di],"Up"));
-			surfaceSymmTensorField Ppf(fvc::interpolate(Pp_,ownnei_[di],"Pp"));
+			(
+                fvc::interpolate(alphap_,ownnei_[di], "alphap")
+            );
 
+			surfaceVectorField Upf(fvc::interpolate(Up_,ownnei_[di],"Up"));
+            surfaceSymmTensorField Ppf(fvc::interpolate(Pp_,ownnei_[di],"Pp"));
 			alphaf *= h1f;
 
 			forAll(F0_, facei)
 			{
-
-
-
 				hq_.calcHermiteQuadrature(Upf[facei], Ppf[facei]);
 
 				scalarField facePhi(hqAbsc_ & Sf[facei]);
 
 				// Sf is always pointing away from the owner cell to neightbor cell
 				if(di == 0 )
+                {
 					facePhi *= pos(facePhi);
+                }
 				else
+                {
 					facePhi *= neg(facePhi);
+                }
 
 				scalarField wPhi(alphaf[facei]*hqWeigs_*facePhi);
 
@@ -560,13 +618,10 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 					F1_[facei] += sum(wPhi*hqAbsc_);
 					F2_[facei] += sum(wPhi*sqr(hqAbsc_));
 				}
-
 			}
-
 
 			forAll(patches, patchi)
 			{
-
 				const fvPatch& currPatch = patches[patchi];
 				const vectorField& Sfbf = currPatch.Sf();
 
@@ -577,7 +632,6 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 				// flux from the periodic boundary
 				if ( isA<coupledFvPatch> (currPatch) )
 				{
-
 					forAll(Sfbf,pFacei)
 					{
 						hq_.calcHermiteQuadrature
@@ -588,54 +642,60 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 
 						scalarField facePhi(Sfbf[pFacei] & hqAbsc_);
 						if(di == 0 )
+                        {
 							facePhi *= pos(facePhi);
-						else
+                        }
+                        else
+                        {
 							facePhi *= neg(facePhi);
+                        }
 
 						scalarField wPhi(alphaPf[pFacei]*hqWeigs_*facePhi);
-
 						scalar sWphi(sum(wPhi));
+
 						if(sWphi != 0.0)
 						{
 							F0_.boundaryFieldRef()[patchi][pFacei] += sWphi;
-							F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*hqAbsc_);
-							F2_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*sqr(hqAbsc_));
+
+							F1_.boundaryFieldRef()[patchi][pFacei] +=
+                                sum(wPhi*hqAbsc_);
+
+                            F2_.boundaryFieldRef()[patchi][pFacei] +=
+                                sum(wPhi*sqr(hqAbsc_));
 						}
 
 					}
 
 				}
-				else if(isA<wallFvPatch> ( currPatch ) && (di == 0))
+				else if(isA<wallFvPatch>(currPatch) && (di == 0))
 				{
-					// wall boundary only need to solve once
-
+					// Wall boundary only need to be solved once
 					F0_.boundaryFieldRef()[patchi] == 0.0;
 
-					forAll(Sfbf,pFacei)
+					forAll(Sfbf, pFacei)
 					{
 						const vector& sf = Sfbf[pFacei];
 
 						scalarList hwl(alphaPf[pFacei]*hqWeigs_);
 
-						hq_.calcHermiteQuadrature
-						(
-						    UpPf[pFacei],
-						    PpPf[pFacei]
-						);
+						hq_.calcHermiteQuadrature(UpPf[pFacei], PpPf[pFacei]);
 
 						//  outgoing flux on the wall
-						scalarField facePhi( sf & hqAbsc_);
+						scalarField facePhi(sf & hqAbsc_);
 						facePhi *= pos(facePhi);
 						scalarField wPhi(hwl*facePhi);
 
 						scalar sFlux = sum(wPhi);
-						F1_.boundaryFieldRef()[patchi][pFacei] = sum(wPhi*hqAbsc_);
-						F2_.boundaryFieldRef()[patchi][pFacei] = sum(wPhi*sqr(hqAbsc_));
+						F1_.boundaryFieldRef()[patchi][pFacei] =
+                            sum(wPhi*hqAbsc_);
+
+						F2_.boundaryFieldRef()[patchi][pFacei] =
+                            sum(wPhi*sqr(hqAbsc_));
 
 						//  reflection flux on the wall
 						vector nf(sf/mag(sf));
 						vectorField Uw(hqAbsc_ - (1.0 + ew_)*(hqAbsc_ & nf)*nf);
-						wPhi *= -(1.0 - phiw_);
+						wPhi *= phiw_ - 1.0;
 
 						F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*Uw);
 						symmTensor tFlux(sum(wPhi*sqr(Uw)));
@@ -644,63 +704,82 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 						scalar dfls_mf = phiw_*sFlux;
 						scalar dfls_ef = phiw_*tr(tFlux);
 
-						if(dfls_mf*dfls_ef > SMALL )
+						if(dfls_mf*dfls_ef > SMALL)
 						{
+							scalarField facePhio
+							(
+                                sf & hq_.hermiteOriginalAbscissas()
+                            );
 
-							scalarField facePhio(sf & hq_.hermiteOriginalAbscissas());
-							facePhio *= neg(facePhio);
+                            facePhio *= neg(facePhio);
 							scalarField wPhio(hwl*facePhio);
 
 							scalar sFluxo = mag(sum(wPhio));
-							scalar tFluxo = mag(sum(wPhio*magSqr(hq_.hermiteOriginalAbscissas())));
+							scalar tFluxo =
+                                mag
+                                (
+                                    sum
+                                    (
+                                        wPhio
+                                       *magSqr(hq_.hermiteOriginalAbscissas())
+                                    )
+                                );
 
 
-							scalar sig = std::sqrt(dfls_ef*sFluxo/(dfls_mf*tFluxo));
-							scalar pp = dfls_mf/sFluxo/sig;
+							scalar sig =
+                                Foam::sqrt(dfls_ef*sFluxo/(dfls_mf*tFluxo));
+
+                            scalar pp = dfls_mf/sFluxo/sig;
 
 							vectorField  Ud(sig*hq_.hermiteOriginalAbscissas());
 							scalarField  facePhid( sf & Ud );
 							facePhid *= neg(facePhid);
 							scalarField  wPhid(pp*hwl*facePhid);
 
-							F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhid*Ud);
-							F2_.boundaryFieldRef()[patchi][pFacei] += sum(wPhid*sqr(Ud));
+							F1_.boundaryFieldRef()[patchi][pFacei] +=
+                                sum(wPhid*Ud);
+
+							F2_.boundaryFieldRef()[patchi][pFacei] +=
+                                sum(wPhid*sqr(Ud));
 						}
-
 					}
-
 				}
-				else if((!isA<emptyFvPatch>(currPatch)) && (di == 0) )
+				else if((!isA<emptyFvPatch>(currPatch)) && (di == 0))
 				{
-					// inlet/outlet boundary only need to solve once
-					// fixed value boundary condition, i.e. inlet only consider incoming flux
-					// otherwise, zeroGradient outlet type,  only consider outgoing flux
+					// Inlet/outlet boundary only need to be solved once
+					// Fixed value boundary condition, i.e. inlet only consider
+                    // incoming flux otherwise, zeroGradient outlet type,
+                    // only consider outgoing flux
 
-					bool inlet = isA<fixedValueFvPatchScalarField>(alphap_.boundaryField()[patchi]);
+					bool inlet =
+                        isA<fixedValueFvPatchScalarField>
+                        (
+                            alphap_.boundaryField()[patchi]
+                        );
 
-					forAll(Sfbf,pFacei)
+					forAll(Sfbf, pFacei)
 					{
-
-
-						hq_.calcHermiteQuadrature
-						(
-						    UpPf[pFacei],
-						    PpPf[pFacei]
-						);
+						hq_.calcHermiteQuadrature(UpPf[pFacei], PpPf[pFacei]);
 
 						scalarField facePhi(Sfbf[pFacei] & hqAbsc_);
 
 						if(inlet)
+                        {
 							facePhi *= neg(facePhi);
+                        }
 						else
+                        {
 							facePhi *= pos(facePhi);
+                        }
 
 						scalarField wPhi(alphaPf[pFacei]*hqWeigs_*facePhi);
 
 						F0_.boundaryFieldRef()[patchi][pFacei] = sum(wPhi);
-						F1_.boundaryFieldRef()[patchi][pFacei] = sum(wPhi*hqAbsc_);
-						F2_.boundaryFieldRef()[patchi][pFacei] = sum(wPhi*sqr(hqAbsc_));
+						F1_.boundaryFieldRef()[patchi][pFacei] =
+                            sum(wPhi*hqAbsc_);
 
+						F2_.boundaryFieldRef()[patchi][pFacei] =
+                            sum(wPhi*sqr(hqAbsc_));
 					}
 				}
 			}
@@ -709,6 +788,5 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 
 	return;
 }
-
 
 // ************************************************************************* //

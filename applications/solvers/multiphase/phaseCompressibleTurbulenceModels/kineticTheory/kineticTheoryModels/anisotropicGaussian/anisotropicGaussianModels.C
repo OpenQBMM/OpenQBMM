@@ -33,9 +33,9 @@ License
 
 namespace Foam
 {
-namespace kineticTheoryModels
-{
-    typedef anisotropicGaussian<equilibrium> equilibriumAG;
+    typedef kineticTheoryModels::anisotropicGaussian
+        <kineticTheoryModels::equilibrium> equilibriumAG;
+
     defineTemplateTypeNameAndDebug(equilibriumAG, 0);
 
     addNamedToRunTimeSelectionTable
@@ -46,7 +46,9 @@ namespace kineticTheoryModels
         equilibriumAG
     );
 
-    typedef  anisotropicGaussian<nonEquilibrium> nonEquilibriumAG;
+    typedef kineticTheoryModels::anisotropicGaussian
+        <kineticTheoryModels::nonEquilibrium> nonEquilibriumAG;
+
     defineTemplateTypeNameAndDebug(nonEquilibriumAG, 0);
 
     addNamedToRunTimeSelectionTable
@@ -56,7 +58,6 @@ namespace kineticTheoryModels
         dictionary,
         nonEquilibriumAG
     );
-}
 }
 
 // ************************************************************************* //
