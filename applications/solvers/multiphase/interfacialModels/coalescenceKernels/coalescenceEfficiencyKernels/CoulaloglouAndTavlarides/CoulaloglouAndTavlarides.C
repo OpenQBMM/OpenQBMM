@@ -31,12 +31,12 @@ License
 
 namespace Foam
 {
-namespace coalesenceEfficiencyKernels
+namespace coalescenceEfficiencyKernels
 {
     defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
     addToRunTimeSelectionTable
     (
-        coalesenceEfficiencyKernel,
+        coalescenceEfficiencyKernel,
         CoulaloglouAndTavlarides,
         dictionary
     );
@@ -46,14 +46,14 @@ namespace coalesenceEfficiencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalesenceEfficiencyKernels::CoulaloglouAndTavlarides::
+Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::
 CoulaloglouAndTavlarides
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalesenceEfficiencyKernel(dict, mesh),
+    coalescenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
     Ceff_(dict.lookup("Ceff"))
 {
@@ -63,7 +63,7 @@ CoulaloglouAndTavlarides
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalesenceEfficiencyKernels::CoulaloglouAndTavlarides::
+Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::
 ~CoulaloglouAndTavlarides()
 {}
 
@@ -71,7 +71,7 @@ Foam::coalesenceEfficiencyKernels::CoulaloglouAndTavlarides::
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::coalesenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
+Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
 (
     const label nodei,
     const label nodej

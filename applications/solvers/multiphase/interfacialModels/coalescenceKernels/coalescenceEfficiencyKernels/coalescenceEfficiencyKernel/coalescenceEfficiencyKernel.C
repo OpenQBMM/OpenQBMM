@@ -23,21 +23,20 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "coalesenceFrequencyKernel.H"
+#include "coalescenceEfficiencyKernel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    defineTypeNameAndDebug(coalesenceFrequencyKernel, 0);
-
-    defineRunTimeSelectionTable(coalesenceFrequencyKernel, dictionary);
+    defineTypeNameAndDebug(coalescenceEfficiencyKernel, 0);
+    defineRunTimeSelectionTable(coalescenceEfficiencyKernel, dictionary);
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalesenceFrequencyKernel::coalesenceFrequencyKernel
+Foam::coalescenceEfficiencyKernel::coalescenceEfficiencyKernel
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -50,7 +49,7 @@ Foam::coalesenceFrequencyKernel::coalesenceFrequencyKernel
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalesenceFrequencyKernel::~coalesenceFrequencyKernel()
+Foam::coalescenceEfficiencyKernel::~coalescenceEfficiencyKernel()
 {}
 
 

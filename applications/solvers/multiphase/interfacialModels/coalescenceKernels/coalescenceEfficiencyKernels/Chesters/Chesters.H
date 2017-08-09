@@ -22,60 +22,56 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::aggregationKernels::
-    PrinceAndBlanch
+    Foam::populationBalanceSubModels::coalescenceEfficiencyKernels::
+    Chesters
 
 Description
-    Coalesence frequency kernel based on turbulence, buoyancy, and
-    laminar shear.
+    Coaelescence efficieny kernel based on the interaction time of bubble.
+    Only valid for bubbles of equal sizes.
 
     \f[
-        \omega_{turb} =
-            0.089 \pi (d_i + d_j)^2
-            \sqrt{d_i^{\frac{2}{3}} + d_j^{\frac{2}{3}} }
-            epsilon_f^{frac{1}{3}}
-
-        \omega_{buoyancy} =
-            \pi (d_i + d_j)^2
+        P_c =
+            \text{exp}
             (
-               \sqrt{2.14*\sigma/(d_i \rho_f) + 0.5 \mathbf{g} d_i}
-             - \sqrt{2.14*\sigma/(d_j \rho_f) + 0.5 \mathbf{g} d_j}
-            )
-
-        \omega_{shear} =
-            \frac{2}{3} (d_i + d_j)^3 |\nabla \mathbf{U}_f|
-
+            - \frac{\theta \sqrt{We} \sqrt{0.75 (1.0 + \xi^2) (1.0 + \xi^3)}}
+              {\sqrt{\rho_b/rho_f}*(1.0 + \xi)^3}
+            );
+        \xi = \frac{d_i}{d_j}
+        \theta = x Re^{y} \text{We}^{z}
     \f]
 
     where
 
     \vartable
-        \sigma      |  Surface tension
-        \mathbf{U}_f|  Liquid velocity [m/s]
         \rho_f      |  Density of liquid phase [kg/m3]
-        \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        g           |  Gravitational acceleration [m/s2]
-        \d_i        |  Diameter of bubble i [m]
-        \d_j        |  Diameter of bubble j [m]
+        \rho_b      |  Density of bubble phase [kg/m3]
+        We          |  Webber number [ ]
+        Re          |  Reynolds number [ ]
+        x           |  Efficiency cofficient [ ]
+        y           |  Reynolds number coefficient [ ]
+        z           |  Weber number coefficient [ ]
+        d_i         |  Diameter of bubble i [m]
+        d_j         |  Diamerer of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "Bubble Coalescence and Break-up n Air-Sparged Bubble Columns"
-        M Prince and Harvey Blanch
-        AIChE Journal
-        Volume 36, Pages 1485 - 1499, 1990
+        "The Modelling of coalescence processes in fluid-liquid dispersions:
+        a review of current understanding"
+        A.K. Chesters
+        Chemical Engineering Research and Design
+        Volume 69, Pages 259 - 270, 1991
     \endverbatim
 
 SourceFiles
-    PrinceAndBlanch.C
+    Chesters.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef PrinceAndBlanch_H
-#define PrinceAndBlanch_H
+#ifndef Chesters_H
+#define Chesters_H
 
-#include "coalesenceFrequencyKernel.H"
+#include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
 #include "phaseModel.H"
 #include "PhaseCompressibleTurbulenceModel.H"
@@ -84,42 +80,42 @@ SourceFiles
 
 namespace Foam
 {
-namespace coalesenceFrequencyKernels
+namespace coalescenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class PrinceAndBlanch Declaration
+                    Class Chesters Declaration
 \*---------------------------------------------------------------------------*/
 
-class PrinceAndBlanch
+class Chesters
 :
-    public coalesenceFrequencyKernel
+    public coalescenceEfficiencyKernel
 {
     // Private data
 
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
-        //- Switch for turbulence driven coalesence
-        Switch turbulent_;
+        //- Efficiency coefficient
+        dimensionedScalar Ceff_;
 
-        //- Switch for buoyancy drive coalesence
-        Switch buoyant_;
+        //- Reynolds number exponent
+        dimensionedScalar ReExp_;
 
-        //- Switch for laminar shear driven coalesence
-        Switch LS_;
+        //- Webber number exponent
+        dimensionedScalar WeExp_;
 
 
 public:
 
         //- Runtime type information
-        TypeName("PrinceAndBlanch");
+        TypeName("Chesters");
 
 
     // Constructors
 
         //- Construct from components
-        PrinceAndBlanch
+        Chesters
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -127,13 +123,13 @@ public:
 
 
     //- Destructor
-    virtual ~PrinceAndBlanch();
+    virtual ~Chesters();
 
 
     // Member Functions
 
         //- Aggregation kernel
-        virtual tmp<volScalarField> omega
+        virtual tmp<volScalarField> Pc
         (
             const label nodei,
             const label nodej
@@ -144,7 +140,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coalesenceFrequencyKernels
+} // End namespace coalescenceEfficiencyKernels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -22,18 +22,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::coalesenceFrequencyKernel
+    Foam::populationBalanceSubModels::coalescenceFrequencyKernel
 
 Description
-    Abstract class for coalesence effeciency kernels.
+    Abstract class for coalescence effeciency kernels.
 
 SourceFiles
-    coalesenceFrequencyKernel.C
+    coalescenceFrequencyKernel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef coalesenceFrequencyKernel_H
-#define coalesenceFrequencyKernel_H
+#ifndef coalescenceFrequencyKernel_H
+#define coalescenceFrequencyKernel_H
 
 #include "dictionary.H"
 #include "volFields.H"
@@ -46,18 +46,18 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class coalesenceFrequencyKernel Declaration
+                    Class coalescenceFrequencyKernel Declaration
 \*---------------------------------------------------------------------------*/
 
-class coalesenceFrequencyKernel
+class coalescenceFrequencyKernel
 {
     // Private member functions
 
         //- Disallow default bitwise copy construct
-        coalesenceFrequencyKernel(const coalesenceFrequencyKernel&);
+        coalescenceFrequencyKernel(const coalescenceFrequencyKernel&);
 
         //- Disallow default bitwise assignment
-        void operator=(const coalesenceFrequencyKernel&);
+        void operator=(const coalescenceFrequencyKernel&);
 
 
 protected:
@@ -74,13 +74,13 @@ protected:
 public:
 
     //- Runtime type information
-    TypeName("coalesenceFrequencyKernel");
+    TypeName("coalescenceFrequencyKernel");
 
     // Declare runtime constructor selection table
     declareRunTimeSelectionTable
     (
         autoPtr,
-        coalesenceFrequencyKernel,
+        coalescenceFrequencyKernel,
         dictionary,
         (
             const dictionary& dict,
@@ -93,7 +93,7 @@ public:
     // Constructors
 
         //- Construct from components
-        coalesenceFrequencyKernel
+        coalescenceFrequencyKernel
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -102,7 +102,7 @@ public:
 
     // Selectors
 
-        static autoPtr<coalesenceFrequencyKernel> New
+        static autoPtr<coalescenceFrequencyKernel> New
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -110,7 +110,7 @@ public:
 
 
     //- Destructor
-    virtual ~coalesenceFrequencyKernel();
+    virtual ~coalescenceFrequencyKernel();
 
 
     // Member Functions

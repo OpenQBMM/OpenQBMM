@@ -23,23 +23,22 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "PrinceAndBlanch.H"
+#include "CoulaloglouAndTavlarides.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coalesenceFrequencyKernels
+namespace coalescenceFrequencyKernels
 {
-    defineTypeNameAndDebug(PrinceAndBlanch, 0);
+    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
 
     addToRunTimeSelectionTable
     (
-        coalesenceFrequencyKernel,
-        PrinceAndBlanch,
+        coalescenceFrequencyKernel,
+        CoulaloglouAndTavlarides,
         dictionary
     );
 }
@@ -48,82 +47,40 @@ namespace coalesenceFrequencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalesenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
+Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
+CoulaloglouAndTavlarides
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalesenceFrequencyKernel(dict, mesh),
+    coalescenceFrequencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    turbulent_(dict.lookupOrDefault("turbulentCoalesence", false)),
-    buoyant_(dict.lookupOrDefault("buoyantCoalesence", true)),
-    LS_(dict.lookupOrDefault("laminarShearCoalesence", true))
+    epsilon_(fluid_.phase2().turbulence().epsilon()())
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalesenceFrequencyKernels::PrinceAndBlanch::~PrinceAndBlanch()
+Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
+~CoulaloglouAndTavlarides()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::coalesenceFrequencyKernels::PrinceAndBlanch::omega
+Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
 (
     const label nodei,
     const label nodej
 ) const
 {
-    tmp<volScalarField> tmpFreqSrc
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "freqSrc",
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            fluid_.mesh(),
-            dimensionedScalar("0", dimensionSet(0, 3, -1, 0, 0), 0.0)
-        )
-    );
-    volScalarField& freqSrc = tmpFreqSrc.ref();
-
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
-    const volScalarField& rho = fluid_.phase2().rho();
-    const dimensionedScalar& sigma = fluid_.sigma();
-    dimensionedScalar g = mag(fluid_.g());
-
-    if (turbulent_)
-    {
-        freqSrc == freqSrc
-          + 0.089*constant::mathematical::pi*sqr(d1 + d2)
-           *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
-           *cbrt(fluid_.phase2().turbulence().epsilon());
-    }
-    if (buoyant_)
-    {
-        freqSrc == freqSrc
-          + constant::mathematical::pi*sqr(d1 + d2)
-           *(
-               sqrt(2.14*sigma/(d1*rho) + 0.5*g*d1)
-             - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
-            );
-    }
-    if (LS_)
-    {
-        freqSrc == freqSrc
-          + 2.0/3.0*pow3(d1 + d2)*mag(fvc::grad(fluid_.phase2().U()));
-    }
-    return tmpFreqSrc;
+    return
+        cbrt(epsilon_)*sqr(d1 + d2)
+       *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
 }
 
 // ************************************************************************* //

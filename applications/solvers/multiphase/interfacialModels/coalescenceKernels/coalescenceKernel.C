@@ -23,12 +23,12 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "coalesenceKernel.H"
+#include "coalescenceKernel.H"
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalesenceKernel::coalesenceKernel
+Foam::coalescenceKernel::coalescenceKernel
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -44,21 +44,20 @@ Foam::coalesenceKernel::coalesenceKernel
             dimensionedScalar("one", dimless, 1.0)
         )
     ),
-    frequency_(coalesenceFrequencyKernel::New(dict, mesh)),
-    efficiency_(coalesenceEfficiencyKernel::New(dict, mesh))
+    frequency_(coalescenceFrequencyKernel::New(dict, mesh)),
+    efficiency_(coalescenceEfficiencyKernel::New(dict, mesh))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalesenceKernel::~coalesenceKernel()
+Foam::coalescenceKernel::~coalescenceKernel()
 {}
 
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
-Foam::coalesenceKernel::Ka
+Foam::tmp<Foam::volScalarField> Foam::coalescenceKernel::Ka
 (
     const label nodei,
     const label nodej

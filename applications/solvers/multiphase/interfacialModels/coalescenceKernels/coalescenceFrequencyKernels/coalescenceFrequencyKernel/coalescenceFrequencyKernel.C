@@ -23,80 +23,35 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Chesters.H"
-#include "addToRunTimeSelectionTable.H"
-#include "fundamentalConstants.H"
-#include "phasePair.H"
+#include "coalescenceFrequencyKernel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coalesenceEfficiencyKernels
-{
-    defineTypeNameAndDebug(Chesters, 0);
+    defineTypeNameAndDebug(coalescenceFrequencyKernel, 0);
 
-    addToRunTimeSelectionTable
-    (
-        coalesenceEfficiencyKernel,
-        Chesters,
-        dictionary
-    );
-}
+    defineRunTimeSelectionTable(coalescenceFrequencyKernel, dictionary);
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalesenceEfficiencyKernels::Chesters::Chesters
+Foam::coalescenceFrequencyKernel::coalescenceFrequencyKernel
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalesenceEfficiencyKernel(dict, mesh),
-    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    Ceff_(dict.lookup("Ceff")),
-    ReExp_(dict.lookup("ReExp")),
-    WeExp_(dict.lookup("WeExp"))
+    dict_(dict),
+    mesh_(mesh)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalesenceEfficiencyKernels::Chesters::~Chesters()
+Foam::coalescenceFrequencyKernel::~coalescenceFrequencyKernel()
 {}
 
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-Foam::tmp<Foam::volScalarField>
-Foam::coalesenceEfficiencyKernels::Chesters::Pc
-(
-    const label nodei,
-    const label nodej
-) const
-{
-    const phasePair& pair = fluid_.pair1In2();
-    const volScalarField& d1 = fluid_.phase1().ds(nodei);
-    const volScalarField& d2 = fluid_.phase1().ds(nodej);
-    volScalarField We(pair.We());
-    volScalarField xi(d1/d2);
-    volScalarField theta
-    (
-        "theta",
-        Ceff_
-       *pow(max(pair.Re(), SMALL), ReExp_)
-       *pow(max(We, SMALL), WeExp_)
-    );
-
-    return
-        Foam::exp
-        (
-          - theta*sqrt(We)
-           *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
-           /(sqrt(fluid_.phase1().rho()/fluid_.phase2().rho())*pow3(1.0 + xi))
-        );
-}
 
 // ************************************************************************* //

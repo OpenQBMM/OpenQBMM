@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,56 +22,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::coalesenceEfficiencyKernels::
-    Chesters
+    Foam::populationBalanceSubModels::coalescenceEfficiencyKernels::
+    constant
 
 Description
-    Coaelescence efficieny kernel based on the interaction time of bubble.
-    Only valid for bubbles of equal sizes.
-
-    \f[
-        P_c =
-            \text{exp}
-            (
-            - \frac{\theta \sqrt{We} \sqrt{0.75 (1.0 + \xi^2) (1.0 + \xi^3)}}
-              {\sqrt{\rho_b/rho_f}*(1.0 + \xi)^3}
-            );
-        \xi = \frac{d_i}{d_j}
-        \theta = x Re^{y} \text{We}^{z}
-    \f]
-
-    where
-
-    \vartable
-        \rho_f      |  Density of liquid phase [kg/m3]
-        \rho_b      |  Density of bubble phase [kg/m3]
-        We          |  Webber number [ ]
-        Re          |  Reynolds number [ ]
-        x           |  Efficiency cofficient [ ]
-        y           |  Reynolds number coefficient [ ]
-        z           |  Weber number coefficient [ ]
-        d_i         |  Diameter of bubble i [m]
-        d_j         |  Diamerer of bubble j [m]
-    \endvartable
-
-    References
-    \verbatim
-        "The Modelling of coalescence processes in fluid-liquid dispersions:
-        a review of current understanding"
-        A.K. Chesters
-        Chemical Engineering Research and Design
-        Volume 69, Pages 259 - 270, 1991
-    \endverbatim
+    Constant coalescence efficiency
 
 SourceFiles
-    Chesters.C
+    constant.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Chesters_H
-#define Chesters_H
+#ifndef constant_H
+#define constant_H
 
-#include "coalesenceEfficiencyKernel.H"
+#include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
 #include "phaseModel.H"
 #include "PhaseCompressibleTurbulenceModel.H"
@@ -80,16 +45,16 @@ SourceFiles
 
 namespace Foam
 {
-namespace coalesenceEfficiencyKernels
+namespace coalescenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class Chesters Declaration
+                    Class constant Declaration
 \*---------------------------------------------------------------------------*/
 
-class Chesters
+class constant
 :
-    public coalesenceEfficiencyKernel
+    public coalescenceEfficiencyKernel
 {
     // Private data
 
@@ -99,23 +64,17 @@ class Chesters
         //- Efficiency coefficient
         dimensionedScalar Ceff_;
 
-        //- Reynolds number exponent
-        dimensionedScalar ReExp_;
-
-        //- Webber number exponent
-        dimensionedScalar WeExp_;
-
 
 public:
 
         //- Runtime type information
-        TypeName("Chesters");
+        TypeName("constant");
 
 
     // Constructors
 
         //- Construct from components
-        Chesters
+        constant
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -123,7 +82,7 @@ public:
 
 
     //- Destructor
-    virtual ~Chesters();
+    virtual ~constant();
 
 
     // Member Functions
@@ -140,7 +99,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coalesenceEfficiencyKernels
+} // End namespace coalescenceEfficiencyKernels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

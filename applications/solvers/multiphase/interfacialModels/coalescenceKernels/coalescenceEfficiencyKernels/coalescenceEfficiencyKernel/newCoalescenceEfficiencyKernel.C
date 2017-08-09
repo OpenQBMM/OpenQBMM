@@ -23,12 +23,12 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "coalesenceEfficiencyKernel.H"
+#include "coalescenceEfficiencyKernel.H"
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::coalesenceEfficiencyKernel>
-Foam::coalesenceEfficiencyKernel::New
+Foam::autoPtr<Foam::coalescenceEfficiencyKernel>
+Foam::coalescenceEfficiencyKernel::New
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -52,7 +52,7 @@ Foam::coalesenceEfficiencyKernel::New
             << abort(FatalError);
     }
 
-    return autoPtr<coalesenceEfficiencyKernel>(cstrIter()(dict, mesh));
+    return autoPtr<coalescenceEfficiencyKernel>(cstrIter()(dict, mesh));
 }
 
 

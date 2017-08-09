@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,25 +22,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::coalesenceKernel
+    Foam::populationBalanceSubModels::coalescenceEfficiencyKernel
 
 Description
-    Class to calculate the coalescence rate for bubbles based on coalescence
-    frequency and efficiency.
+    Abstract class for coalescence effeciency kernels.
 
 SourceFiles
-    coalesenceKernel.C
+    coalescenceEfficiencyKernel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef coalesenceKernel_H
-#define coalesenceKernel_H
+#ifndef coalescenceEfficiencyKernel_H
+#define coalescenceEfficiencyKernel_H
 
 #include "dictionary.H"
 #include "volFields.H"
 #include "dimensionedTypes.H"
-#include "coalesenceFrequencyKernel.H"
-#include "coalesenceEfficiencyKernel.H"
+#include "runTimeSelectionTables.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -48,21 +46,23 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class coalesenceKernel Declaration
+                    Class coalescenceEfficiencyKernel Declaration
 \*---------------------------------------------------------------------------*/
 
-class coalesenceKernel
+class coalescenceEfficiencyKernel
 {
     // Private member functions
 
         //- Disallow default bitwise copy construct
-        coalesenceKernel(const coalesenceKernel&);
+        coalescenceEfficiencyKernel(const coalescenceEfficiencyKernel&);
 
         //- Disallow default bitwise assignment
-        void operator=(const coalesenceKernel&);
+        void operator=(const coalescenceEfficiencyKernel&);
 
 
-    // Private data
+protected:
+
+    // Protected data
 
         //- Dictionary
         const dictionary& dict_;
@@ -70,38 +70,57 @@ class coalesenceKernel
         //- Mesh
         const fvMesh& mesh_;
 
-        //- Coefficient of coalesence kernel
-        const dimensionedScalar Ca_;
-
-        //- Coalesence frequency model
-        autoPtr<coalesenceFrequencyKernel> frequency_;
-
-        //- Coalesence effeciency model
-        autoPtr<coalesenceEfficiencyKernel> efficiency_;
-
 
 public:
 
-    // Constructor
-    coalesenceKernel
+    //- Runtime type information
+    TypeName("coalescenceEfficiencyKernel");
+
+    // Declare runtime constructor selection table
+    declareRunTimeSelectionTable
     (
-        const dictionary& dict,
-        const fvMesh& mesh
+        autoPtr,
+        coalescenceEfficiencyKernel,
+        dictionary,
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        ),
+        (dict, mesh)
     );
 
 
+    // Constructors
+
+        //- Construct from components
+        coalescenceEfficiencyKernel
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
+
+
+    // Selectors
+
+        static autoPtr<coalescenceEfficiencyKernel> New
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
+
+
     //- Destructor
-    virtual ~coalesenceKernel();
+    virtual ~coalescenceEfficiencyKernel();
 
 
     // Member Functions
 
-        //- Coalesence kernel
-        tmp<volScalarField> Ka
+        //- Aggregation kernel
+        virtual tmp<volScalarField> Pc
         (
             const label nodei,
             const label nodej
-        ) const;
+        ) const = 0;
 };
 
 

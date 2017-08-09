@@ -23,12 +23,12 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "coalesenceFrequencyKernel.H"
+#include "coalescenceFrequencyKernel.H"
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::coalesenceFrequencyKernel>
-Foam::coalesenceFrequencyKernel::New
+Foam::autoPtr<Foam::coalescenceFrequencyKernel>
+Foam::coalescenceFrequencyKernel::New
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -55,7 +55,7 @@ Foam::coalesenceFrequencyKernel::New
             << abort(FatalError);
     }
 
-    return autoPtr<coalesenceFrequencyKernel>(cstrIter()(dict, mesh));
+    return autoPtr<coalescenceFrequencyKernel>(cstrIter()(dict, mesh));
 }
 
 

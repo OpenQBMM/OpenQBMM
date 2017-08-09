@@ -23,34 +23,74 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "coalesenceEfficiencyKernel.H"
+#include "constant.H"
+#include "addToRunTimeSelectionTable.H"
+#include "fundamentalConstants.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    defineTypeNameAndDebug(coalesenceEfficiencyKernel, 0);
-    defineRunTimeSelectionTable(coalesenceEfficiencyKernel, dictionary);
+namespace coalescenceEfficiencyKernels
+{
+    defineTypeNameAndDebug(constant, 0);
+
+    addToRunTimeSelectionTable
+    (
+        coalescenceEfficiencyKernel,
+        constant,
+        dictionary
+    );
+}
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalesenceEfficiencyKernel::coalesenceEfficiencyKernel
+Foam::coalescenceEfficiencyKernels::constant::constant
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    dict_(dict),
-    mesh_(mesh)
+    coalescenceEfficiencyKernel(dict, mesh),
+    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    Ceff_(dict.lookup("Ceff"))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalesenceEfficiencyKernel::~coalesenceEfficiencyKernel()
+Foam::coalescenceEfficiencyKernels::constant::~constant()
 {}
 
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+Foam::tmp<Foam::volScalarField>
+Foam::coalescenceEfficiencyKernels::constant::Pc
+(
+    const label nodei,
+    const label nodej
+) const
+{
+    return tmp<volScalarField>
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "Pc",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            Ceff_
+        )
+    );
+}
 
 // ************************************************************************* //

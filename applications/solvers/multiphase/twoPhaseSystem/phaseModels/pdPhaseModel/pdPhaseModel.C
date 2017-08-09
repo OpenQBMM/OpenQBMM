@@ -86,7 +86,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
         )
     );
 
-    if (!coalesence_)
+    if (!coalescence_)
     {
         return tmpCSource;
     }
@@ -173,7 +173,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
             node.primaryWeight()
            *breakupKernel_->Kb(pNodei)
            *(
-                daughterDistribution                                //Birth
+                daughterDistribution                       //Birth
                 (
                     momentOrder,
                     node.primaryAbscissa()
@@ -249,7 +249,7 @@ Foam::pdPhaseModel::pdPhaseModel
             IOobject::NO_WRITE
         )
     ),
-    coalesence_(pbeDict_.lookup("coalescence")),
+    coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
     nNodes_(quadrature_.nodes().size()),

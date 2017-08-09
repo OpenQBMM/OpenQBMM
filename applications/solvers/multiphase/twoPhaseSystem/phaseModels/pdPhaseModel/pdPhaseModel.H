@@ -42,7 +42,7 @@ SourceFiles
 #include "phaseModel.H"
 #include "quadratureApproximations.H"
 
-#include "coalesenceKernel.H"
+#include "coalescenceKernel.H"
 #include "bubbleBreakupKernel.H"
 #include "daughterDistribution.H"
 
@@ -64,8 +64,8 @@ class pdPhaseModel
         //- Population balance properties
         IOdictionary pbeDict_;
 
-        //- Switch for coalesence
-        Switch coalesence_;
+        //- Switch for coalescence
+        Switch coalescence_;
 
         //- Switch for breakup
         Switch breakup_;
@@ -98,8 +98,8 @@ class pdPhaseModel
         //- Minimum diameter
         dimensionedScalar minD_;
 
-        //- Coalesence kernel
-        coalesenceKernel coalescenceKernel_;
+        //- Coalescence kernel
+        coalescenceKernel coalescenceKernel_;
 
         //- Breakup kernel
         autoPtr<bubbleBreakupKernel> breakupKernel_;

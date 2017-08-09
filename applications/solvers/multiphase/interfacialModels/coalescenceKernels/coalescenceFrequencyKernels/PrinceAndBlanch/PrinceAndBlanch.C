@@ -23,22 +23,23 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "constant.H"
+#include "PrinceAndBlanch.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
+#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coalesenceEfficiencyKernels
+namespace coalescenceFrequencyKernels
 {
-    defineTypeNameAndDebug(constant, 0);
+    defineTypeNameAndDebug(PrinceAndBlanch, 0);
 
     addToRunTimeSelectionTable
     (
-        coalesenceEfficiencyKernel,
-        constant,
+        coalescenceFrequencyKernel,
+        PrinceAndBlanch,
         dictionary
     );
 }
@@ -47,40 +48,42 @@ namespace coalesenceEfficiencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalesenceEfficiencyKernels::constant::constant
+Foam::coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalesenceEfficiencyKernel(dict, mesh),
+    coalescenceFrequencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    Ceff_(dict.lookup("Ceff"))
+    turbulent_(dict.lookupOrDefault("turbulentCoalesence", false)),
+    buoyant_(dict.lookupOrDefault("buoyantCoalesence", true)),
+    LS_(dict.lookupOrDefault("laminarShearCoalesence", true))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalesenceEfficiencyKernels::constant::~constant()
+Foam::coalescenceFrequencyKernels::PrinceAndBlanch::~PrinceAndBlanch()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::coalesenceEfficiencyKernels::constant::Pc
+Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
 (
     const label nodei,
     const label nodej
 ) const
 {
-    return tmp<volScalarField>
+    tmp<volScalarField> tmpFreqSrc
     (
         new volScalarField
         (
             IOobject
             (
-                "Pc",
+                "freqSrc",
                 fluid_.mesh().time().timeName(),
                 fluid_.mesh(),
                 IOobject::NO_READ,
@@ -88,9 +91,39 @@ Foam::coalesenceEfficiencyKernels::constant::Pc
                 false
             ),
             fluid_.mesh(),
-            Ceff_
+            dimensionedScalar("0", dimensionSet(0, 3, -1, 0, 0), 0.0)
         )
     );
+    volScalarField& freqSrc = tmpFreqSrc.ref();
+
+    const volScalarField& d1 = fluid_.phase1().ds(nodei);
+    const volScalarField& d2 = fluid_.phase1().ds(nodej);
+    const volScalarField& rho = fluid_.phase2().rho();
+    const dimensionedScalar& sigma = fluid_.sigma();
+    dimensionedScalar g = mag(fluid_.g());
+
+    if (turbulent_)
+    {
+        freqSrc == freqSrc
+          + 0.089*constant::mathematical::pi*sqr(d1 + d2)
+           *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
+           *cbrt(fluid_.phase2().turbulence().epsilon());
+    }
+    if (buoyant_)
+    {
+        freqSrc == freqSrc
+          + constant::mathematical::pi*sqr(d1 + d2)
+           *(
+               sqrt(2.14*sigma/(d1*rho) + 0.5*g*d1)
+             - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
+            );
+    }
+    if (LS_)
+    {
+        freqSrc == freqSrc
+          + 2.0/3.0*pow3(d1 + d2)*mag(fvc::grad(fluid_.phase2().U()));
+    }
+    return tmpFreqSrc;
 }
 
 // ************************************************************************* //
