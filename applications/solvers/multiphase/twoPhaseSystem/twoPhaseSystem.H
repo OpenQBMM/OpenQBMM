@@ -161,25 +161,25 @@ public:
         tmp<volScalarField> Kd(const label) const;
 
         //- Return the drag coefficient
-        tmp<volScalarField> Kd() const;
+        tmp<volScalarField> Kd(const bool sum = false) const;
 
         //- Return the face drag coefficient
         tmp<surfaceScalarField> Kdf(const label) const;
 
         //- Return the face drag coefficient
-        tmp<surfaceScalarField> Kdf() const;
+        tmp<surfaceScalarField> Kdf(const bool sum = false) const;
 
         //- Return the virtual mass coefficient
         tmp<volScalarField> Vm(const label) const;
 
         //- Return the virtual mass coefficient
-        tmp<volScalarField> Vm() const;
+        tmp<volScalarField> Vm(const bool sum = false) const;
 
         //- Return the face virtual mass coefficient
         tmp<surfaceScalarField> Vmf(const label) const;
 
         //- Return the face virtual mass coefficient
-        tmp<surfaceScalarField> Vmf() const;
+        tmp<surfaceScalarField> Vmf(const bool sum = false) const;
 
         //- Return the combined force (lift + wall-lubrication)
         tmp<volVectorField> F(const label) const;

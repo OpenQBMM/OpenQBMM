@@ -43,7 +43,7 @@ validationDir="$caseDir/../validation/experiments"
 pProbes="$pProbesDir/p_rgh"
 pProbes_modified="$pProbesDir/p_rgh_modified"
 pProbes_modified_tmp="$pProbesDir/p_rgh_modified_tmp"
-exp="$validationDir/experiments_11_9_data"
+exp="$validationDir/experiments_7_1_data"
 
 touch $pProbes_modified_tmp
 begin=$( grep -wn -m1 "$1" $pProbes | awk '{ print $1 }' | sed 's/:/ /' )

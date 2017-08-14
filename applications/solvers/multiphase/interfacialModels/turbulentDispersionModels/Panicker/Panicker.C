@@ -116,7 +116,7 @@ Foam::turbulentDispersionModels::Panicker::D
        *pair_.continuous().rho()
        *sqr(pair_.continuous().nu()/d)
        *pair_.Re(nodei, nodej)
-       *pos0(pair_.dispersed().alphas(nodei) - 0.001)
+       *pos0(alpha1 - 0.001)
        *alpha1*(1 - a*alpha1 + b*sqr(alpha1));
 }
 
@@ -145,7 +145,7 @@ Foam::turbulentDispersionModels::Panicker::D() const
        *pair_.continuous().rho()
        *sqr(pair_.continuous().nu()/d)
        *pair_.Re()
-       *pos0(pair_.dispersed() - 0.001)
+       *pos0(alpha1 - 0.001)
        *alpha1*(1 - a*alpha1 + b*sqr(alpha1));
 }
 
