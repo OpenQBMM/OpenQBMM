@@ -685,6 +685,7 @@ Foam::tmp<Foam::fvVectorMatrix> Foam::twoPhaseSystem::divDevRhoReff2()
                 )*phase1_().d()
                *mag(phase1_().U() - phase2_().U())
                *sqrt(phase1_()*phase2_())
+               *pos0(phase2_() - 0.1)
             )
         );
 
