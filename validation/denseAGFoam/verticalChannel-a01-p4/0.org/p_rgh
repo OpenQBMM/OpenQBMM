@@ -40,11 +40,11 @@ boundaryField
     }
     front
     {
-		type            	cyclic;
+		type            	empty;
     }
     back
     {
-		type            	cyclic;
+		type            	empty;
     }
 }
 

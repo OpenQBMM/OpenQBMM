@@ -250,6 +250,24 @@ void Foam::RASModels::kineticTheory::correct()
     tmp<volTensorField> tgradU(fvc::grad(U));
     const volTensorField& gradU(tgradU());
 
+    surfaceScalarField& phi =
+        phase_.mesh().lookupObjectRef<surfaceScalarField>
+        (
+            IOobject::groupName("phi", phase_.name())
+        );
+    surfaceScalarField& alphaRhoPhi =
+        phase_.mesh().lookupObjectRef<surfaceScalarField>
+        (
+            IOobject::groupName("alphaRhoPhi", phase_.name())
+        );
+
+    surfaceScalarField phiOld = phase_.phi();
+    surfaceScalarField alphaRhoPhiOld = phase_.alphaRhoPhi();
+
+    phi = kineticTheoryModel_->hydrodynamicScalef(phase_.phi());
+    alphaRhoPhi =
+        kineticTheoryModel_->hydrodynamicScalef(phase_.alphaRhoPhi());
+
     kineticTheoryModel_->solve
     (
         refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()(),
@@ -258,6 +276,9 @@ void Foam::RASModels::kineticTheory::correct()
         symm(gradU)()
 
     );
+
+    phi = phiOld;
+    alphaRhoPhi = alphaRhoPhiOld;
 
     kineticTheoryModel_->update();
     nut_ = kineticTheoryModel_->nuEff();

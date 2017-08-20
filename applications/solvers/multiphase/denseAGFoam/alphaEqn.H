@@ -89,7 +89,7 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
             alpha1,
             alphaScheme
         )
-        + fvc::flux
+      + fvc::flux
         (
             -fvc::flux(-phir, scalar(1) - alpha1, alpharScheme),
             alpha1,

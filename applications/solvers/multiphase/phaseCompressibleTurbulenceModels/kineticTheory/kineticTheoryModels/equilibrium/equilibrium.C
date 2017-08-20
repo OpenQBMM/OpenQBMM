@@ -107,7 +107,7 @@ void Foam::kineticTheoryModels::equilibrium::solve
     (
         "trD",
         alpha/(alpha + residualAlpha_)
-        *fvc::div(phase_.phi())
+       *fvc::div(phase_.phi())
     );
     volScalarField tr2D("tr2D", sqr(trD));
     volScalarField trD2("trD2", tr(D & D));

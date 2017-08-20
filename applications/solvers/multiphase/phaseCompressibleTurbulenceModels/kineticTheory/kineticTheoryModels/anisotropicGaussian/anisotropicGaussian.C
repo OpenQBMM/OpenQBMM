@@ -230,7 +230,10 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
             S2flux
           - fvm::Sp
             (
-                alpha*(2.0*beta + (3.0 - this->e_)*(1.0 + this->e_)/2.0*rTauc*rho),
+                alpha
+               *(
+                   2.0*beta + (3.0 - this->e_)*(1.0 + this->e_)/2.0*rTauc*rho
+                ),
                 Sigma_
             )
           + fvOptions(alpha, rho, Sigma_)
