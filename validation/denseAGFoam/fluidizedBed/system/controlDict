@@ -17,7 +17,7 @@ FoamFile
 
 application     denseAGFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 
@@ -45,7 +45,7 @@ timePrecision   6;
 
 runTimeModifiable on;
 
-adjustTimeStep  no;
+adjustTimeStep  yes;
 
 maxCo           0.2;
 

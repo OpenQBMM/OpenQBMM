@@ -197,10 +197,7 @@ while (pimple.correct())
     );
 
     // Face-drag coefficients
-    surfaceScalarField rAUKd1
-    (
-        AGmodel.hydrodynamicScalef(fvc::interpolate(rAU1*Kd))
-    );
+    surfaceScalarField rAUKd1(fvc::interpolate(rAU1*Kd));
     surfaceScalarField rAUKd2(fvc::interpolate(rAU2*Kd));
 
     // Construct the mean predicted flux
@@ -209,7 +206,7 @@ while (pimple.correct())
     (
         "phiHbyA",
         (
-            alphaf1*(AGmodel.hydrodynamicScalef(phiHbyA1)
+            alphaf1*(/*AGmodel.hydrodynamicScalef*/(phiHbyA1)
           + rAUKd1*MRF.absolute(phi2))
         )
       + alphaf2*(phiHbyA2 + rAUKd2*MRF.absolute(phi1))
@@ -222,7 +219,7 @@ while (pimple.correct())
         "rAUf",
         mag
         (
-            AGmodel.hydrodynamicScalef(alphaf1*alpharAUf1)
+            /*AGmodel.hydrodynamicScalef*/(alphaf1*alpharAUf1)
           + alphaf2*alpharAUf2
         )
     );
@@ -318,7 +315,7 @@ while (pimple.correct())
             fvc::div(phiHbyA)
           - fvm::laplacian(rAUf, p_rgh)
          ==
-            ddtAlpha1Dilute
+            ddtAlphaDilute
         );
 
         solve

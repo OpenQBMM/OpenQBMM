@@ -270,7 +270,13 @@ public:
     // Update functions
 
         //- Update kinetic theory quantities (turbulent correct)
-        virtual void correct() = 0;
+        virtual void solve
+        (
+            const volScalarField& beta,
+            const volScalarField& alpha,
+            const volTensorField& gradU,
+            const volSymmTensorField D
+        ) = 0;
 
         //- Transport moments
         virtual void transportMoments()

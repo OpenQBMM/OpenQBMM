@@ -26,7 +26,7 @@ RAS
 
     kineticTheoryCoeffs
     {
-        kineticTheoryModel          nonEquilibriumAG;
+        kineticTheoryModel          equilibriumAG;
 
         alphaTheta                  1.0;
         alphaSigma                  1.0;
@@ -34,7 +34,7 @@ RAS
         alphaMax                    0.63;
         alphaMinFriction            0.55;
 
-        viscosityModel              KongFox;
+        viscosityModel              Gidaspow;
         conductivityModel           KongFox;
         granularPressureModel       KongFox;
         radialModel                 SinclairJackson;

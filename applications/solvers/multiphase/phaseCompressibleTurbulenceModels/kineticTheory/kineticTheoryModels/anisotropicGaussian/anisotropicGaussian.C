@@ -136,40 +136,26 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::Sigma() const
 
 
 template<class baseModel>
-void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::correct()
+void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
+(
+    const volScalarField& beta,
+    const volScalarField& alpha,
+    const volTensorField& gradU,
+    const volSymmTensorField D
+)
 {
     // Local references
-    volScalarField alpha(max(this->phase_, scalar(0)));
     const volScalarField& rho = this->phase_.rho();
     const surfaceScalarField& alphaRhoPhi = this->phase_.alphaRhoPhi();
     const volVectorField& U = this->phase_.U();
 
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
-    dimensionedScalar ThetaSmall
-    (
-        "ThetaSmall",
-        this->Theta_.dimensions(),
-        1.0e-6
-    );
-    dimensionedScalar ThetaSmallSqrt(sqrt(ThetaSmall));
 
     const volScalarField& da = this->phase_.d();
-
-    tmp<volTensorField> tgradU(fvc::grad(U));
-    const volTensorField& gradU(tgradU());
-    volSymmTensorField D(symm(gradU));
     volSymmTensorField Sp(D - (1.0/3.0)*tr(D)*I);
 
-    volScalarField ThetaSqrt("sqrtTheta", sqrt(this->Theta_));
 
     // Drag
-    volScalarField beta
-    (
-        refCast<const twoPhaseSystem>
-        (
-            this->phase_.fluid()
-        ).drag(this->phase_).K()
-    );
     volScalarField rTauc
     (
         "rTauc",
@@ -187,17 +173,6 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::correct()
     // 'thermal' conductivity
     this->kappa_ *= h2Fn_;
 
-    // particle pressure - coefficient in front of Theta (Eq. 3.22, p. 45)
-    volScalarField PsCoeff
-    (
-        this->granularPressureModel_->granularPressureCoeff
-        (
-            alpha,
-            this->g0_,
-            rho,
-            this->e_
-        )
-    );
 
     fv::options& fvOptions(fv::options::New(this->phase_.fluid().mesh()));
     const PhaseCompressibleTurbulenceModel<phaseModel>&
@@ -268,7 +243,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::correct()
         fvOptions.correct(Sigma_);
     }
 
-    baseModel::correct();
+    baseModel::solve(beta, alpha, gradU, D);
 
     if (debug)
     {

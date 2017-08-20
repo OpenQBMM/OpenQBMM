@@ -30,13 +30,14 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (56 200 40)
+    hex (0 1 2 3 4 5 6 7) (56 200 1)//(56 200 40)
     simpleGrading
     (
         (
             (   0.0621352389 0.107142857143 5)    // 20% y-dir, 30% cells, expansion = 4
             (   0.8757295222 0.785714285714 1)    // 60% y-dir, 40% cells, expansion = 1
-            (   0.0621352389 0.107142857143 0.2)  // 20% y-dir, 30% cells, expansion = 0.25 (1/4)
+            1
+            //(   0.0621352389 0.107142857143 0.2)  // 20% y-dir, 30% cells, expansion = 0.25 (1/4)
         )
 	    1                  // y-direction expansion ratio
         1                  // z-direction expansion ratio
@@ -51,56 +52,56 @@ boundary
 (
     bottom
     {
-	type            cyclic;
-	neighbourPatch  top;
-	faces
-	(
-	(1 5 4 0)
-	);
+        type            cyclic;
+        neighbourPatch  top;
+        faces
+        (
+            (1 5 4 0)
+        );
     }
     top
     {
-	type            cyclic;
-	neighbourPatch  bottom;
-	faces
-	(
-	(3 7 6 2)
-	);
+        type            cyclic;
+        neighbourPatch  bottom;
+        faces
+        (
+            (3 7 6 2)
+        );
     }
     left
     {
-	type            wall;
-	faces
-	(
-	(0 4 7 3)
-	);
+        type            wall;
+        faces
+        (
+            (0 4 7 3)
+        );
     }
     right
     {
-	type            wall;
-	faces
-	(
-	(2 6 5 1)
-	);
+        type            wall;
+        faces
+        (
+            (2 6 5 1)
+        );
     }
 
     front
     {
-        type            cyclic;
-	neighbourPatch  back;
-	faces
-	(
-	  (0 3 2 1)
-	);
+        type            empty;
+        neighbourPatch  back;
+        faces
+        (
+            (0 3 2 1)
+        );
     }
     back
     {
-      type           cyclic;
-      neighbourPatch  front;
-      faces
-      (
-	(4 5 6 7)
-      );
+        type           empty;
+        neighbourPatch  front;
+        faces
+        (
+            (4 5 6 7)
+        );
     }
 );
 

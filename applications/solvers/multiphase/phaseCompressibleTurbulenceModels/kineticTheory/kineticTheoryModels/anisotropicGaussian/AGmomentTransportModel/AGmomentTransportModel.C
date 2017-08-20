@@ -303,8 +303,11 @@ void Foam::AGmomentTransportModel::solve
 
         const volVectorField& Uc = phase_.fluid().otherPhase(phase_).U();
 
-        m1 = (m1Old - fvc::surfaceIntegrate(F1_)*deltaT + taup*alphap_*Uc)
-           /(1.0 + taup);
+        m1 =
+        (
+            m1Old - fvc::surfaceIntegrate(F1_)*deltaT
+//           + taup*alphap_*Uc
+        );///(1.0 + taup);
 
         m1.correctBoundaryConditions();
 
@@ -319,14 +322,6 @@ void Foam::AGmomentTransportModel::solve
 
 	Up_ = m1/m0;
     Up_.correctBoundaryConditions();
-
-    surfaceScalarField& phip =
-        mesh_.lookupObjectRef<surfaceScalarField>
-        (
-            IOobject::groupName("phi", phase_.name())
-        );
-
-        phip = fvc::flux(Up_);
 
 	Pp_ = m2/m0 - sqr(Up_);
     forAll(Pp_,i)
