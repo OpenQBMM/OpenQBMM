@@ -59,7 +59,7 @@ solvers
     {
         solver          smoothSolver;
         preconditioner  symGaussSeidel;
-        tolerance       1e-8;
+        tolerance       1e-6;
         relTol          0;
         minIter         1;
     }
@@ -93,15 +93,15 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-7;
-        relTol          1e-4;
+        tolerance       1e-8;
+        relTol          0;
         minIter         1;
     }
 }
 
 PIMPLE
 {
-    nOuterCorrectors 30;
+    nOuterCorrectors 25;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
@@ -120,7 +120,8 @@ relaxationFactors
 {
     equations
     {
-        p_rgh        1.0;
+        p_rgh        0.3;
+        "U.air.*"    0.7;
     }
 }
 

@@ -88,32 +88,33 @@ Foam::bubbleBreakupKernels::Alopaeus::~Alopaeus()
 Foam::tmp<Foam::volScalarField>
 Foam::bubbleBreakupKernels::Alopaeus::Kb(const label nodei) const
 {
-    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
+    volScalarField epsilon
+    (
+        "epsilon",
+        fluid_.phase2().turbulence().epsilon()
+    );
+    epsilon.max(SMALL);
+
     const volScalarField& d = fluid_.phase1().ds(nodei);
     const volScalarField& rho1 = fluid_.phase1().rho();
     const volScalarField& rho2 = fluid_.phase2().rho();
     const volScalarField& mu = fluid_.phase2().mu();
     const dimensionedScalar& sigma = fluid_.sigma();
-    return
+
+    tmp<volScalarField> breakupSource =
         Cb_*cbrt(epsilon)
        *Foam::erfc
         (
             Foam::sqrt
             (
                 C1_*sigma
-               /max
-                (
-                    rho2*pow(epsilon, 2.0/3.0)*pow(d, 5.0/3.0),
-                    1e-10
-                )
+               /(rho2*pow(epsilon, 2.0/3.0)*pow(d, 5.0/3.0))
               + C2_*mu
-               /max
-                (
-                    sqrt(rho1*rho2)*cbrt(epsilon)*pow(d, 4.0/3.0),
-                    1e-10
-                )
+               /(sqrt(rho1*rho2)*cbrt(epsilon)*pow(d, 4.0/3.0))
             )
         );
+    breakupSource.ref().dimensions().reset(inv(dimTime));
+    return breakupSource;
 }
 
 // ************************************************************************* //

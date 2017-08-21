@@ -1,60 +1,191 @@
+const dictionary& alphaControls = mesh.solverDict
+(
+    alpha1.name()
+);
+
+volScalarField& dgdt = fluid.dgdt();
+
+surfaceScalarField phiOld = phi1;
+
+phi1 = AGmodel.hydrodynamicScalef(phi1);
+
+alphaPhi1 = fvc::interpolate(alpha1)*phi1;
+alphaRhoPhi1 = phase1.alphaPhi()*fvc::interpolate(rho1);
+
+fluid.pPrimeByA().ref() = AGmodel.hydrodynamicScalef(fluid.pPrimeByA());
+
+label nAlphaSubCycles(readLabel(alphaControls.lookup("nAlphaSubCycles")));
+label nAlphaCorr(readLabel(alphaControls.lookup("nAlphaCorr")));
+
+word alphaScheme("div(phi," + alpha1.name() + ')');
+word alpharScheme("div(phir," + alpha1.name() + ')');
+
+alpha1.correctBoundaryConditions();
+
+surfaceScalarField phic("phic", phi);
+surfaceScalarField phir("phir", phi1 - phi2);
+
+tmp<surfaceScalarField> alpha1alpha2f;
+
+if (fluid.pPrimeByA().valid())
 {
-    word alphaScheme("div(phi," + alpha1.name() + ')');
-    const dictionary& alphaControls = mesh.solverDict
+    alpha1alpha2f =
+        fvc::interpolate(max(alpha1, scalar(0)))
+       *fvc::interpolate(max(alpha2, scalar(0)));
+
+    surfaceScalarField phiP
     (
-        alpha1.name()
+        fluid.pPrimeByA()()*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
     );
 
-    label nAlphaCorr(readLabel(alphaControls.lookup("nAlphaCorr")));
+    phir += phiP;
+}
 
-    surfaceScalarField alpha1f("alpha1f", fvc::interpolate(alpha1));
-/*
+for (int acorr=0; acorr<nAlphaCorr; acorr++)
+{
+    volScalarField::Internal Sp
+    (
+        IOobject
+        (
+            "Sp",
+            runTime.timeName(),
+            mesh
+        ),
+        mesh,
+        dimensionedScalar("Sp", dgdt.dimensions(), 0.0)
+    );
+
+    volScalarField::Internal Su
+    (
+        IOobject
+        (
+            "Su",
+            runTime.timeName(),
+            mesh
+        ),
+        // Divergence term is handled explicitly to be
+        // consistent with the explicit transport solution
+        fvc::div(phi)*min(alpha1, scalar(1))
+    );
+
+    forAll(dgdt, celli)
+    {
+        if (dgdt[celli] > 0.0)
+        {
+            Sp[celli] -= dgdt[celli]/max(1.0 - alpha1[celli], 1e-4);
+            Su[celli] += dgdt[celli]/max(1.0 - alpha1[celli], 1e-4);
+        }
+        else if (dgdt[celli] < 0.0)
+        {
+            Sp[celli] += dgdt[celli]/max(alpha1[celli], 1e-4);
+        }
+    }
+
     surfaceScalarField alphaPhic1
     (
         fvc::flux
         (
-            h2Fnf*phipS,
-            alphap,
+            phic,
+            alpha1,
             alphaScheme
+        )
+      + fvc::flux
+        (
+            -fvc::flux(-phir, scalar(1) - alpha1, alpharScheme),
+            alpha1,
+            alpharScheme
         )
     );
 
-    explicitSolve(alphap,alphaPhic1,mesh.time().deltaTValue());
-*/
+    phase1.correctInflowOutflow(alphaPhic1);
 
-
-    fvScalarMatrix alphaEqn(alpha1, alpha1.dimensions()*dimVol/dimTime);
-    for (int acorr=0; acorr<nAlphaCorr; acorr++)
+    if (nAlphaSubCycles > 1)
     {
-
-		alpha1f = fvc::interpolate(max(alpha1, scalar(0)));
-
-        alphaEqn =
+        for
         (
-            fvm::ddt(alpha1)
-          - fvc::ddt(alphap)
-          + fvm::div(phi1, alpha1, alphaScheme)
-          - fvm::laplacian(alpha1f*fluid.pPrimeByA()(), alpha1)
+            subCycle<volScalarField> alphaSubCycle(alpha1, nAlphaSubCycles);
+           !(++alphaSubCycle).end();
+        )
+        {
+            surfaceScalarField alphaPhic10(alphaPhic1);
+
+            MULES::explicitSolve
+            (
+                geometricOneField(),
+                alpha1,
+                phi,
+                alphaPhic10,
+                (alphaSubCycle.index()*Sp)(),
+                (Su - (alphaSubCycle.index() - 1)*Sp*alpha1)(),
+                phase1.alphaMax(),
+                0
+            );
+
+            if (alphaSubCycle.index() == 1)
+            {
+                alphaPhi1 = alphaPhic10;
+            }
+            else
+            {
+                alphaPhi1 += alphaPhic10;
+            }
+        }
+
+        alphaPhi1 /= nAlphaSubCycles;
+    }
+    else
+    {
+        MULES::explicitSolve
+        (
+            geometricOneField(),
+            alpha1,
+            phi,
+            alphaPhic1,
+            Sp,
+            Su,
+            phase1.alphaMax(),
+            0
         );
 
-        alphaEqn.relax();
-        alphaEqn.solve();
+        alphaPhi1 = alphaPhic1;
     }
 
-    phase1.alphaPhi() = alphaEqn.flux();
+    if (fluid.pPrimeByA().valid())
+    {
+        fvScalarMatrix alpha1Eqn
+        (
+            fvm::ddt(alpha1) - fvc::ddt(alpha1)
+          - ddtAlphaDilute
+          - fvm::laplacian
+            (
+                alpha1alpha2f()*fluid.pPrimeByA()(),
+                alpha1,
+                "bounded"
+            )
+        );
 
-   	alpha1.max(0);
+        alpha1Eqn.relax();
+        alpha1Eqn.solve();
+
+        alphaPhi1 += alpha1Eqn.flux();
+    }
+
+    alphaRhoPhi1 =
+        fvc::interpolate(rho1)*alphaPhi1;
+
+    alphaPhi2 = phi - alphaPhi1;
+    phase2.correctInflowOutflow(alphaPhi2);
+    alphaRhoPhi2 = fvc::interpolate(rho2)*alphaPhi2;
+
+    Info<< alpha1.name() << " volume fraction = "
+        << alpha1.weightedAverage(mesh.V()).value()
+        << "  Min(" << alpha1.name() << ") = " << min(alpha1).value()
+        << "  Max(" << alpha1.name() << ") = " << max(alpha1).value()
+        << endl;
+
+    // Ensure the phase-fractions are bounded
+    alpha1.max(0);
+    alpha1.min(1);
 
     alpha2 = scalar(1) - alpha1;
-    phase2.alphaPhi() = fvc::interpolate(alpha2)*phi2;
-    phase2.alphaRhoPhi() = phase2.alphaPhi()*fvc::interpolate(rho2);
-
-    Info<< alpha1.name()
-    << "  Average = "<< alpha1.weightedAverage(mesh.V()).value()
-    << "  Min = " << min(alpha1).value()
-    << "  Max = " << max(alpha1).value()
-    << endl;
-
-    ddtAlpha1Dilute = fvc::ddt(alpha1);
-
 }

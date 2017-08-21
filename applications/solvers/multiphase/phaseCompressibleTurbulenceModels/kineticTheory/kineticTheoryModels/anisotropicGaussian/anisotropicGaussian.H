@@ -114,7 +114,13 @@ public:
     // Member Functions
 
         //- Update kinetic theory quantities
-        virtual void correct();
+        virtual void solve
+        (
+            const volScalarField& beta,
+            const volScalarField& alpha,
+            const volTensorField& gradU,
+            const volSymmTensorField D
+        );
 
         //- Trasport moments;
         virtual void transportMoments();

@@ -80,10 +80,15 @@ Foam::kineticTheoryModels::nonEquilibrium::~nonEquilibrium()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::kineticTheoryModels::nonEquilibrium::correct()
+void Foam::kineticTheoryModels::nonEquilibrium::solve
+(
+    const volScalarField& beta,
+    const volScalarField& alpha,
+    const volTensorField& gradU,
+    const volSymmTensorField D
+)
 {
     // Local references
-    volScalarField alpha(max(phase_, scalar(0)));
     const volScalarField& rho = phase_.rho();
     const surfaceScalarField& alphaRhoPhi = phase_.alphaRhoPhi();
     const volVectorField& U = phase_.U();
@@ -94,13 +99,6 @@ void Foam::kineticTheoryModels::nonEquilibrium::correct()
     dimensionedScalar ThetaSmallSqrt(sqrt(ThetaSmall));
 
     const volScalarField& da = phase_.d();
-
-    tmp<volTensorField> tgradU(fvc::grad(U));
-    const volTensorField& gradU(tgradU());
-    volSymmTensorField D(symm(gradU));
-
-    // Calculating the radial distribution function
-    g0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
 
     volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
 
@@ -117,12 +115,6 @@ void Foam::kineticTheoryModels::nonEquilibrium::correct()
         12.0*(1.0 - sqr(e_))
         *max(sqr(alpha), residualAlpha_)
         *rho*g0_*(1.0/da)*ThetaSqrt/sqrtPi
-    );
-
-    // Drag
-    volScalarField beta
-    (
-        refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()
     );
 
     // Eq. 3.25, p. 50 Js = J1 - J2

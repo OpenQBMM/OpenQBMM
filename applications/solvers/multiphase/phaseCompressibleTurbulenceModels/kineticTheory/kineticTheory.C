@@ -242,7 +242,44 @@ Foam::RASModels::kineticTheory::divDevRhoReff
 void Foam::RASModels::kineticTheory::correct()
 {
     kineticTheoryModel_->update();
-    kineticTheoryModel_->correct();
+
+     // Local references
+    volScalarField alpha(max(phase_, scalar(0)));
+    const volVectorField& U = phase_.U();
+
+    tmp<volTensorField> tgradU(fvc::grad(U));
+    const volTensorField& gradU(tgradU());
+
+    surfaceScalarField& phi =
+        phase_.mesh().lookupObjectRef<surfaceScalarField>
+        (
+            IOobject::groupName("phi", phase_.name())
+        );
+    surfaceScalarField& alphaRhoPhi =
+        phase_.mesh().lookupObjectRef<surfaceScalarField>
+        (
+            IOobject::groupName("alphaRhoPhi", phase_.name())
+        );
+
+    surfaceScalarField phiOld = phase_.phi();
+    surfaceScalarField alphaRhoPhiOld = phase_.alphaRhoPhi();
+
+    phi = kineticTheoryModel_->hydrodynamicScalef(phase_.phi());
+    alphaRhoPhi =
+        kineticTheoryModel_->hydrodynamicScalef(phase_.alphaRhoPhi());
+
+    kineticTheoryModel_->solve
+    (
+        refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()(),
+        alpha,
+        gradU,
+        symm(gradU)()
+
+    );
+
+    phi = phiOld;
+    alphaRhoPhi = alphaRhoPhiOld;
+
     kineticTheoryModel_->update();
     nut_ = kineticTheoryModel_->nuEff();
 

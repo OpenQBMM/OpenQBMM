@@ -92,7 +92,13 @@ public:
     // Member Functions
 
         //- Solve the kinetic theory equations
-        virtual void correct();
+        virtual void solve
+        (
+            const volScalarField& beta,
+            const volScalarField& alpha,
+            const volTensorField& gradU,
+            const volSymmTensorField D
+        );
 };
 
 

@@ -75,6 +75,8 @@ Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
     const label nodej
 ) const
 {
+    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
+
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
 

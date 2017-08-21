@@ -44,6 +44,8 @@ Description
 #include "wallFvPatch.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#include "MULES.H"
+#include "subCycle.H"
 /*
 void explicitSolve
 (
@@ -118,38 +120,23 @@ int main(int argc, char *argv[])
         AGmodel.transportMoments();
 
         //  Update alpha2 and set ddt(alpha1)
-        alpha2 = 1.0 - alpha1;
-        volScalarField ddtAlpha1Dilute(fvc::ddt(alpha1));
-        volVectorField ddtU1Dilute(fvc::ddt(alpha1, rho1, U1));
+        volScalarField ddtAlphaDilute(fvc::ddt(alpha1));
+        volVectorField ddtAlphaRhoUDilute(fvc::ddt(alpha1, rho1, U1));
 
+        alpha1 = alpha1.oldTime();
+        U1 = U1.oldTime();
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+            phi1 = AGmodel.hydrodynamicScalef(phi1);
+            alphaPhi1 = AGmodel.hydrodynamicScalef(alphaPhi1);
+            alphaRhoPhi1 = AGmodel.hydrodynamicScalef(alphaRhoPhi1);
+
             #include "contErrs.H"
-            {
-                //  Store old phi1 so that the dense flux is used to compute
-                //  the volume fraction transport
-                surfaceScalarField phiOld = phi1;
 
-                surfaceScalarField pPrimeByA = fluid.pPrimeByA()();
-                phi1 = AGmodel.hydrodynamicScalef
-                (
-                    phi1
-                  + pPrimeByA*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
-                );
-
-                alphaPhi1 = fvc::interpolate(alpha1)*phi1;
-                alphaRhoPhi1 = phase1.alphaPhi()*fvc::interpolate(rho1);
-
-                fluid.pPrimeByA().ref() =
-                    AGmodel.hydrodynamicScalef(pPrimeByA);
-
-                fluid.solve();
-                fluid.correct();
-
-                phi1 = phiOld;
-            }
+            #include "alphaEqn.H"
+            fluid.correct();
 
 			#include "pU/UEqns.H"
             #include "pU/pEqn.H"

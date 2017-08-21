@@ -285,6 +285,13 @@ Foam::kineticTheoryModel::pPrimef() const
 
 void Foam::kineticTheoryModel::update()
 {
+    g0_ = radialModel_->g0
+    (
+        max(phase_, scalar(0)),
+        alphaMinFriction_,
+        phase_.alphaMax()
+    );
+
     // particle viscosity (Table 3.2, p.47)
     nu_ = viscosityModel_->nu
     (
