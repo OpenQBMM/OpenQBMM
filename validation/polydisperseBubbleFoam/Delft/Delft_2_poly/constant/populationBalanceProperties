@@ -20,8 +20,8 @@ coalescence on;
 
 coalescenceKernel
 {
-    coalescenceFrequencyKernel PrinceAndBlanch;
-    coalescenceEfficiencyKernel Chesters;
+    coalescenceFrequencyKernel CoulaloglouAndTavlarides;
+    coalescenceEfficiencyKernel CoulaloglouAndTavlarides;
 
     Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
     Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;
@@ -29,7 +29,7 @@ coalescenceKernel
     WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
 }
 
-breakup off;
+breakup on;
 
 breakupKernel
 {

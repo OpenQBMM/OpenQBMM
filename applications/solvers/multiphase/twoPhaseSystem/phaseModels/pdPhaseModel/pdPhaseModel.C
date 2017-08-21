@@ -94,33 +94,104 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
     volScalarField& cSource = tmpCSource.ref();
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
-    forAll(nodes, pNode1i)
+    forAll(nodes, nodei)
     {
-        const volScalarNode& node1 = nodes[pNode1i];
-        const volScalarField& pWeight1 = node1.primaryWeight();
-        const volScalarField& pAbscissa1 = node1.primaryAbscissa();
+        const volScalarNode& node1 = nodes[nodei];
+        const volScalarField& weight1 = node1.primaryWeight();
+        const volScalarField& abscissa1 = node1.primaryAbscissa();
 
-        forAll(nodes, pNode2i)
+        forAll(nodes, nodej)
         {
-            const volScalarNode& node2 = nodes[pNode2i];
-            const volScalarField& pWeight2 = node2.primaryWeight();
-            const volScalarField& pAbscissa2 = node2.primaryAbscissa();
+            const volScalarNode& node2 = nodes[nodej];
+            const volScalarField& weight2 = node2.primaryWeight();
+            const volScalarField& abscissa2 = node2.primaryAbscissa();
 
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa
             cSource +=
-                pWeight1*
-                (
-                    pWeight2*
-                    (
+                weight1
+               *(
+                    weight2
+                   *(
                         0.5*pow // Birth
                         (
-                            pow3(pAbscissa1)
-                          + pow3(pAbscissa2),
+                            pow3(abscissa1)
+                          + pow3(abscissa2),
                             momentOrder/3.0
                         )
-                      - pow(pAbscissa1, momentOrder)
-                    )*coalescenceKernel_.Ka(pNode1i, pNode2i)
+                      - pow(abscissa1, momentOrder)
+                    )*coalescenceKernel_.Ka(nodei, nodej)
+                );
+        }
+    }
+    return tmpCSource;
+}
+
+
+Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::coalescenceSourceU
+(
+    const label momentOrder
+)
+{
+    tmp<volVectorField> tmpCSource
+    (
+        new volVectorField
+        (
+            IOobject
+            (
+                "cSource",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedVector
+            (
+                "0",
+                quadrature_.velocityMoments()[momentOrder].dimensions()/dimTime,
+                Zero
+            )
+        )
+    );
+
+    if (!coalescence_)
+    {
+        return tmpCSource;
+    }
+
+    volVectorField& cSource = tmpCSource.ref();
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
+
+    forAll(nodes, nodei)
+    {
+        const volScalarNode& node1 = nodes[nodei];
+        const volScalarField& weight1 = node1.primaryWeight();
+        const volScalarField& abscissa1 = node1.primaryAbscissa();
+
+        forAll(nodes, nodej)
+        {
+            const volScalarNode& node2 = nodes[nodej];
+            const volScalarField& weight2 = node2.primaryWeight();
+            const volScalarField& abscissa2 = node2.primaryAbscissa();
+
+            //- Diameter is used to calculate the coalesence kernel in place
+            //  of the abscissa
+            cSource +=
+                weight1
+               *Us_[nodei]
+               *(
+                    weight2
+                   *(
+                        0.5*pow // Birth
+                        (
+                            pow3(abscissa1)
+                          + pow3(abscissa2),
+                            momentOrder/3.0
+                        )
+                      - pow(abscissa1, momentOrder)
+                    )*coalescenceKernel_.Ka(nodei, nodej)
                 );
         }
     }
@@ -163,15 +234,74 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
 
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
-    forAll(nodes, pNodei)
+    forAll(nodes, nodei)
     {
-        const volScalarNode& node = nodes[pNodei];
+        const volScalarNode& node = nodes[nodei];
 
         //- Diameter is used to calculate the breakup kernel in place
         //  of the abscissa
         bSource.ref() +=
             node.primaryWeight()
-           *breakupKernel_->Kb(pNodei)
+           *breakupKernel_->Kb(nodei)
+           *(
+                daughterDistribution                       //Birth
+                (
+                    momentOrder,
+                    node.primaryAbscissa()
+                )
+              - pow(node.primaryAbscissa(), momentOrder)   //Death
+            );
+    }
+
+    return bSource;
+}
+
+
+Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::breakupSourceU
+(
+    const label momentOrder
+)
+{
+    tmp<volVectorField> bSource
+    (
+        new volVectorField
+        (
+            IOobject
+            (
+                "bSource",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedVector
+            (
+                "0",
+                quadrature_.velocityMoments()[momentOrder].dimensions()/dimTime,
+                Zero
+            )
+        )
+    );
+
+    if (!breakup_)
+    {
+        return bSource;
+    }
+
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
+
+    forAll(nodes, nodei)
+    {
+        const volScalarNode& node = nodes[nodei];
+
+        //- Diameter is used to calculate the breakup kernel in place
+        //  of the abscissa
+        bSource.ref() +=
+            Us_[nodei]
+           *node.primaryWeight()
+           *breakupKernel_->Kb(nodei)
            *(
                 daughterDistribution                       //Birth
                 (
@@ -530,6 +660,8 @@ void Foam::pdPhaseModel::relativeTransport()
 
             mEqn.relax();
             mEqn.solve();
+
+            m.max(0);
         }
 
         forAll(quadrature_.velocityMoments(), mEqni)
@@ -666,6 +798,8 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         );
         mEqn.relax();
         mEqn.solve();
+
+        m.max(0);
     }
 
     forAll(quadrature_.velocityMoments(), mEqni)
@@ -721,6 +855,9 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             fvm::ddt(Up)
           - fvc::ddt(Up)
           + meanDivUbUp
+
+          + breakupSourceU(mEqni)
+          + coalescenceSourceU(mEqni)
         );
 
         UpEqn.relax();

@@ -116,8 +116,14 @@ class pdPhaseModel
         //- Coalesence source
         tmp<volScalarField> coalescenceSource(const label momentOrder);
 
+        //- Coalesence source for velocity moments
+        tmp<volVectorField> coalescenceSourceU(const label momentOrder);
+
         //- Breakup source
         tmp<volScalarField> breakupSource(const label momentOrder);
+
+        //- Breakup source for velocity moments
+        tmp<volVectorField> breakupSourceU(const label momentOrder);
 
         //- Return daughterDistribution
         tmp<volScalarField> daughterDistribution

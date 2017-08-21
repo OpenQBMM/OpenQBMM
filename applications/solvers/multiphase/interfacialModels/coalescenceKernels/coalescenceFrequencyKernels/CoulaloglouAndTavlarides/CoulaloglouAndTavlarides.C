@@ -55,8 +55,7 @@ CoulaloglouAndTavlarides
 )
 :
     coalescenceFrequencyKernel(dict, mesh),
-    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    epsilon_(fluid_.phase2().turbulence().epsilon()())
+    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties"))
 {}
 
 
@@ -76,10 +75,12 @@ Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
     const label nodej
 ) const
 {
+    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
+
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
     return
-        cbrt(epsilon_)*sqr(d1 + d2)
+        cbrt(epsilon)*sqr(d1 + d2)
        *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
 }
 

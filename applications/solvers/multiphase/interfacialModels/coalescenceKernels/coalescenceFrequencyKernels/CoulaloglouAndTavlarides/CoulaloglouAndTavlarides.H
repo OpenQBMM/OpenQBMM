@@ -81,8 +81,6 @@ class CoulaloglouAndTavlarides
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
-        //- Turbulent dissipation rate field
-        const volScalarField& epsilon_;
 
 public:
 
