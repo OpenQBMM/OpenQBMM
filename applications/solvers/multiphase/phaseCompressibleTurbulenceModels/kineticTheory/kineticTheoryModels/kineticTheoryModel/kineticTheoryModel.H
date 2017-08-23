@@ -309,6 +309,28 @@ public:
             return U;
         }
 
+        virtual tmp<volScalarField> ddtAlphaDilute() const
+        {
+            return tmp<volScalarField>
+            (
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "zero",
+                        phase_.mesh().time().timeName(),
+                        phase_.mesh(),
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE,
+                        false
+                    ),
+                    phase_.mesh(),
+                    dimensionedScalar("0", inv(dimTime), 0.0)
+                )
+            );
+        }
+
+
         //- Update viscosity and conductivity
         void update();
 

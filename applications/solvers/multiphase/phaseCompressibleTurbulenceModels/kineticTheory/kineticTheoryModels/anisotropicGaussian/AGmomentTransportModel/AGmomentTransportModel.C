@@ -136,6 +136,17 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
 		),
 		mesh_,
 		vector::zero
+	),
+    ddtAlphaDilute_
+    (
+		IOobject
+		(
+			"ddtAlphaDilute",
+			mesh_.time().timeName(),
+			mesh_
+		),
+		mesh_,
+		dimensionedScalar("0", inv(dimTime), 0.0)
 	)
 {
 	if (!cellInv_)
@@ -305,9 +316,12 @@ void Foam::AGmomentTransportModel::solve
 	m0.max(SMALL);
 	alphap_ = m0;
     alphap_.correctBoundaryConditions();
+    ddtAlphaDilute_ = fvc::ddt(alphap_);
+    alphap_.oldTime() = alphap_;
 
 	Up_ = m1/m0;
     Up_.correctBoundaryConditions();
+    Up_.oldTime() = Up_;
 
 	Pp_ = m2/m0 - sqr(Up_);
     forAll(Pp_,i)
@@ -322,6 +336,7 @@ void Foam::AGmomentTransportModel::solve
 	Theta_.max(0);
 	Theta_.min(100);
 	Theta_.correctBoundaryConditions();
+    Theta_.oldTime() = Theta_;
 
     Sigma_ = Theta_*symmTensor::I - Pp_;
 	Sigma_.correctBoundaryConditions();
@@ -532,7 +547,10 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 				else
 				{
 					// incoming flux from the inlet boundary
-					const scalarField& alphaPf(alphap_.boundaryField()[patchi]);
+					const scalarField& alphaPf
+					(
+                        alphap_.boundaryField()[patchi]
+                    );
 					const vectorField& UpPf(Up_.boundaryField()[patchi]);
 					const symmTensorField& PpPf(Pp_.boundaryField()[patchi]);
 
@@ -675,7 +693,11 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 
 						//  reflection flux on the wall
 						vector nf(sf/mag(sf));
-						vectorField Uw(hqAbsc_ - (1.0 + ew_)*(hqAbsc_ & nf)*nf);
+						vectorField Uw
+						(
+                            hqAbsc_
+                          - (1.0 + ew_)*(hqAbsc_ & nf)*nf
+                        );
 						wPhi *= phiw_ - 1.0;
 
 						F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*Uw);
@@ -712,7 +734,10 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 
                             scalar pp = dfls_mf/sFluxo/sig;
 
-							vectorField  Ud(sig*hq_.hermiteOriginalAbscissas());
+							vectorField  Ud
+							(
+                                sig*hq_.hermiteOriginalAbscissas()
+                            );
 							scalarField  facePhid( sf & Ud );
 							facePhid *= neg(facePhid);
 							scalarField  wPhid(pp*hwl*facePhid);

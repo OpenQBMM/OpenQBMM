@@ -114,25 +114,13 @@ int main(int argc, char *argv[])
         }
 
         runTime++;
-
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         AGmodel.transportMoments();
 
-        //  Update alpha2 and set ddt(alpha1)
-        volScalarField ddtAlphaDilute(fvc::ddt(alpha1));
-        volVectorField ddtAlphaRhoUDilute(fvc::ddt(alpha1, rho1, U1));
-
-        alpha1 = alpha1.oldTime();
-        U1 = U1.oldTime();
-
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            phi1 = AGmodel.hydrodynamicScalef(phi1);
-            alphaPhi1 = AGmodel.hydrodynamicScalef(alphaPhi1);
-            alphaRhoPhi1 = AGmodel.hydrodynamicScalef(alphaRhoPhi1);
-
             #include "contErrs.H"
 
             #include "alphaEqn.H"

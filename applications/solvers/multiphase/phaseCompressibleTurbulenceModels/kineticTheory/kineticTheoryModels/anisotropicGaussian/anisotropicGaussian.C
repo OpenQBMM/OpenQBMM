@@ -320,4 +320,13 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::hydrodynamicScale
 }
 
 
+template<class baseModel>
+Foam::tmp<Foam::volScalarField>
+Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::
+ddtAlphaDilute() const
+{
+    return AGtransport_.ddtAlphaDilute();
+}
+
+
 // ************************************************************************* //

@@ -9,34 +9,38 @@ fvVectorMatrix U2Eqn(U2, rho2.dimensions()*U2.dimensions()*dimVol/dimTime);
 
 volScalarField Kd(fluid.Kd());
 {
-//     volScalarField nu2Eff(phase2.turbulence().nuEff());
+    volScalarField nu2Eff(phase2.turbulence().nuEff());
 //     if(cluterInducedViscosity)
 //     {
 //         nu2Eff += phase1.turbulence().nu()*(pow(alpha2, -2.8) - 1.0);
 //     }
-//
-//     volSymmTensorField Sigma2
-//     (
-//         "Sigma2",
-//         nu2Eff*dev(twoSymm(fvc::grad(U2)))
-//     );
+
+    volSymmTensorField Sigma2
+    (
+        IOobject::groupName("Sigma", phase2.name()),
+        alpha2*nu2Eff*dev(twoSymm(fvc::grad(U2)))
+    );
 
     U1Eqn =
         (
             fvm::ddt(alpha1, rho1, U1)
-          + fvm::div(alphaRhoPhi1, U1)
-          - ddtAlphaRhoUDilute
+          + fvm::div
+            (
+                AGmodel.hydrodynamicScalef(alphaRhoPhi1),
+                U1,
+                "div(" + alphaRhoPhi1.name() + "," + U1.name() + ")"
+            )
           - fvm::Sp(contErr1, U1)
           + MRF.DDt(alpha1*rho1, U1)
 
           + fluid.divDevRhoReff1()
          ==
-            alpha1*rho2/rho1*fvc::div(phase2.turbulence().devRhoReff())
+            alpha1*rho2*fvc::div(Sigma2)
           + fvOptions(alpha1, rho1, U1)
         );
 
     U1Eqn.relax();
-    U1Eqn += fvm::Sp(AGmodel.hydrodynamicScale(Kd), U1);
+    U1Eqn += fvm::Sp(Kd, U1);
     fvOptions.constrain(U1Eqn);
 
 

@@ -68,7 +68,7 @@ solvers
         smoother        symGaussSeidel;
         tolerance       1e-5;
         relTol          0;
-        minIter         1;
+        maxIter         0;
     }
 
     "(Theta.*|Sigma.*)"

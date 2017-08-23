@@ -139,6 +139,9 @@ public:
         //- Scale volVectorField by h2fn
         virtual tmp<volVectorField>
         hydrodynamicScale(const volVectorField& U) const;
+
+        //- Return dilute alpha flux
+        virtual tmp<volScalarField> ddtAlphaDilute() const;
 };
 
 

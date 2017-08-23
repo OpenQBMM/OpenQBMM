@@ -7,12 +7,7 @@ volScalarField& dgdt = fluid.dgdt();
 
 surfaceScalarField phiOld = phi1;
 
-phi1 = AGmodel.hydrodynamicScalef(phi1);
-
-alphaPhi1 = fvc::interpolate(alpha1)*phi1;
-alphaRhoPhi1 = phase1.alphaPhi()*fvc::interpolate(rho1);
-
-fluid.pPrimeByA().ref() = AGmodel.hydrodynamicScalef(fluid.pPrimeByA());
+surfaceScalarField pPrimeByA = AGmodel.hydrodynamicScalef(fluid.pPrimeByA());
 
 label nAlphaSubCycles(readLabel(alphaControls.lookup("nAlphaSubCycles")));
 label nAlphaCorr(readLabel(alphaControls.lookup("nAlphaCorr")));
@@ -95,6 +90,12 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
             alpha1,
             alpharScheme
         )
+      - fvc::flux
+        (
+            phi1 - AGmodel.hydrodynamicScalef(phi1),
+            alpha1,
+            alpharScheme
+        )
     );
 
     phase1.correctInflowOutflow(alphaPhic1);
@@ -155,10 +156,10 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(alpha1) - fvc::ddt(alpha1)
-          - ddtAlphaDilute
+//           - ddtAlphaDilute
           - fvm::laplacian
             (
-                alpha1alpha2f()*fluid.pPrimeByA()(),
+                alpha1alpha2f()*pPrimeByA,
                 alpha1,
                 "bounded"
             )

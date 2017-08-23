@@ -206,7 +206,7 @@ while (pimple.correct())
     (
         "phiHbyA",
         (
-            alphaf1*(/*AGmodel.hydrodynamicScalef*/(phiHbyA1)
+            alphaf1*(AGmodel.hydrodynamicScalef(phiHbyA1)
           + rAUKd1*MRF.absolute(phi2))
         )
       + alphaf2*(phiHbyA2 + rAUKd2*MRF.absolute(phi1))
@@ -219,7 +219,7 @@ while (pimple.correct())
         "rAUf",
         mag
         (
-            /*AGmodel.hydrodynamicScalef*/(alphaf1*alpharAUf1)
+            AGmodel.hydrodynamicScalef(alphaf1*alpharAUf1)
           + alphaf2*alpharAUf2
         )
     );
@@ -315,7 +315,7 @@ while (pimple.correct())
             fvc::div(phiHbyA)
           - fvm::laplacian(rAUf, p_rgh)
          ==
-            ddtAlphaDilute
+            AGmodel.ddtAlphaDilute()
         );
 
         solve
