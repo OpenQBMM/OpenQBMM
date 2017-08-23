@@ -26,18 +26,18 @@ RAS
 
     kineticTheoryCoeffs
     {
-        kineticTheoryModel      equilibriumAG;
+        kineticTheoryModel      nonEquilibriumAG;
 
         alphaTheta              1.0;
         alphaSigma              1.0;
-        e                       0.8;
+        e                       0.9;
         alphaMax                0.62;
         alphaMinFriction        0.5;
         residualAlpha           1e-4;
 
         viscosityModel          KongFox;
-        conductivityModel       Gidaspow;
-        granularPressureModel   Lun;
+        conductivityModel       KongFox;
+        granularPressureModel   KongFox;
         frictionalStressModel   JohnsonJackson;
         radialModel             SinclairJackson;
         fluxSplittingFunction   alphaG0;

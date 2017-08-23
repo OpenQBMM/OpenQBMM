@@ -21,7 +21,7 @@ particles
 {
     type            monodispersePhaseModel;
     residualAlpha   1e-6;
-    d               3e-4;
+    d               2.75e-4;
     alphaMax        0.62;
 }
 
@@ -56,7 +56,7 @@ drag
 (
     (particles in gas)
     {
-        type            GidaspowErgunWenYu;
+        type            SyamlalOBrien;
         residualRe      1e-3;
         swarmCorrection
         {

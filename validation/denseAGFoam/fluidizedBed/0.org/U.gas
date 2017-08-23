@@ -16,7 +16,7 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform (0 0.25 0);
+internalField   uniform (0 0 0);
 
 boundaryField
 {
@@ -34,7 +34,7 @@ boundaryField
     inlet
     {
         type               interstitialInletVelocity;
-        inletVelocity      uniform (0 0.25 0);
+        inletVelocity      uniform (0 0.38 0);
         alpha              alpha.gas;
         value              $internalField;
     }

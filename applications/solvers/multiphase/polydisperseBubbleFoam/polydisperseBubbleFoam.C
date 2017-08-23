@@ -105,7 +105,6 @@ int main(int argc, char *argv[])
 
                 if (pimple.turbCorr())
                 {
-                    Info<<"correct"<<endl;
                     // Transport moments with mean gas velocity
                     fluid.averageTransport();
                     phi = phase1.alphaPhi() + phase2.alphaPhi();

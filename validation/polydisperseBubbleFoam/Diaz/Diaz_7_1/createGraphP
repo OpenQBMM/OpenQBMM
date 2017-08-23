@@ -17,12 +17,12 @@ createEps()
     set size 2,2
     set autoscale
     set xrange [0:50]
-    set yrange [-15:15]
+    #set yrange [-15:15]
     set key top left Left box
 
     plot    "$2" using 1:2 title 'Diaz'\
                 with points pointtype 7 ps 2 linecolor rgb 'black', \
-            "$1" using (\$1 - $3):(\$4-C_mean) every 203 title 'QBMM' \
+            "$1" using (\$1 - $3):(\$4-C_mean) every 750 title 'QBMM' \
                 with lines linetype 1 linewidth 2 linecolor rgb '#9db668'
 EOF
 }
@@ -36,25 +36,25 @@ fi
 
 #set case Direcory names
 caseDir=$(pwd)
-pProbesDir="$caseDir/postProcessing/pProbes/0"
+pProbesDir="$caseDir/postProcessing/pProbes/70"
 validationDir="$caseDir/../validation/experiments"
 
 #Set files
 pProbes="$pProbesDir/p_rgh"
-pProbes_modified="$pProbesDir/p_rgh_modified"
-pProbes_modified_tmp="$pProbesDir/p_rgh_modified_tmp"
+# pProbes_modified="$pProbesDir/p_rgh_modified"
+# pProbes_modified_tmp="$pProbesDir/p_rgh_modified_tmp"
 exp="$validationDir/experiments_7_1_data"
+#
+# touch $pProbes_modified_tmp
+# begin=$( grep -wn -m1 "$1" $pProbes | awk '{ print $1 }' | sed 's/:/ /' )
+# tail -n +$begin $pProbes >$pProbes_modified_tmp
+#
+# touch $pProbes_modified
+# endTime=$(($1+50))
+# end=$( grep -wn -m1 "$endTime" $pProbes_modified_tmp | awk '{ print $1 }' | sed 's/:/ /' )
+# head -n $end $pProbes_modified_tmp >$pProbes_modified
+# rm $pProbes_modified_tmp
 
-touch $pProbes_modified_tmp
-begin=$( grep -wn -m1 "$1" $pProbes | awk '{ print $1 }' | sed 's/:/ /' )
-tail -n +$begin $pProbes >$pProbes_modified_tmp
-
-touch $pProbes_modified
-endTime=$(($1+50))
-end=$( grep -wn -m1 "$endTime" $pProbes_modified_tmp | awk '{ print $1 }' | sed 's/:/ /' )
-head -n $end $pProbes_modified_tmp >$pProbes_modified
-rm $pProbes_modified_tmp
-
-createEps $pProbes_modified $exp $1
+createEps $pProbes $exp $1
 
 echo Done

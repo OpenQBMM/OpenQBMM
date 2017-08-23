@@ -92,7 +92,7 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors           5;
+    nOuterCorrectors           15;
     nCorrectors                 2;
     nNonOrthogonalCorrectors    0;
     pRefCell    0;
@@ -102,7 +102,7 @@ PIMPLE
     {
         p_rgh
         {
-            tolerance 1e-5;
+            tolerance 1e-3;
             relTol    0;
         }
     }

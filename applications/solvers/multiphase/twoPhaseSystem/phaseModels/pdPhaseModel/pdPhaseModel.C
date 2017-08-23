@@ -124,7 +124,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
                 );
         }
     }
-    return tmpCSource;
+    return tmpCSource*pos(0.8 - *this);
 }
 
 
@@ -195,7 +195,7 @@ Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::coalescenceSourceU
                 );
         }
     }
-    return tmpCSource;
+    return tmpCSource*pos(0.8 - *this);
 }
 
 
@@ -253,7 +253,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
             );
     }
 
-    return bSource;
+    return bSource*pos(0.8 - *this);
 }
 
 
@@ -312,7 +312,7 @@ Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::breakupSourceU
             );
     }
 
-    return bSource;
+    return bSource*pos(0.8 - *this);
 }
 
 
@@ -886,8 +886,12 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         volScalarField alphaRhoi
         (
             "alphaRhoi",
-            quadrature_.nodes()[nodei].primaryAbscissa()
-           *quadrature_.nodes()[nodei].primaryWeight()
+            Foam::max
+            (
+                quadrature_.nodes()[nodei].primaryAbscissa()
+               *quadrature_.nodes()[nodei].primaryWeight(),
+                residualAlpha_*rho()
+            )
         );
 
         // Solve for velocities using acceleration terms

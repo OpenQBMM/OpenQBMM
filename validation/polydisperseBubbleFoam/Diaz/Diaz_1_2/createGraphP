@@ -17,12 +17,12 @@ createEps()
     set size 2,2
     set autoscale
     set xrange [0:50]
-    set yrange [-5:5]
+    set yrange [-10:10]
     set key top left Left box
 
     plot    "$2" using 1:2 title 'Diaz'\
                 with points pointtype 7 ps 2 linecolor rgb 'black', \
-            "$1" using (\$1 - $3):(\$4-C_mean) every 100 title 'QBMM'\
+            "$1" using (\$1 - $3):(\$4-C_mean) every 500 title 'QBMM'\
                 with lines linetype 1 linewidth 2 linecolor rgb '#9db668'
 EOF
 }
@@ -36,7 +36,7 @@ fi
 
 #set case Direcory names
 caseDir=$(pwd)
-pProbesDir="$caseDir/postProcessing/pProbes/0"
+pProbesDir="$caseDir/postProcessing/pProbes/68"
 validationDir="$caseDir/../validation/experiments"
 
 #Set files

@@ -80,7 +80,6 @@ Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
 
-    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
     return
         cbrt(epsilon)*sqr(d1 + d2)
        *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
