@@ -340,6 +340,7 @@ void Foam::AGmomentTransportModel::solve
 
     Sigma_ = Theta_*symmTensor::I - Pp_;
 	Sigma_.correctBoundaryConditions();
+    Sigma_.oldTime() = Sigma_;
 }
 
 

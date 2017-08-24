@@ -86,13 +86,8 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
         )
       + fvc::flux
         (
-            -fvc::flux(-phir, scalar(1) - alpha1, alpharScheme),
-            alpha1,
-            alpharScheme
-        )
-      - fvc::flux
-        (
-            phi1 - AGmodel.hydrodynamicScalef(phi1),
+          - fvc::flux(-phir, scalar(1) - alpha1, alpharScheme)
+          - (phi1 - AGmodel.hydrodynamicScalef(phi1)),
             alpha1,
             alpharScheme
         )
@@ -156,7 +151,6 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(alpha1) - fvc::ddt(alpha1)
-//           - ddtAlphaDilute
           - fvm::laplacian
             (
                 alpha1alpha2f()*pPrimeByA,

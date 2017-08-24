@@ -162,7 +162,6 @@ void Foam::kineticTheoryModels::nonEquilibrium::solve
         1.5*
         (
             fvm::ddt(alpha, rho, Theta_)
-          - fvc::ddt(alpha, rho, Theta_)
           + fvm::div(alphaRhoPhi, Theta_)
           - fvc::Sp(fvc::ddt(alpha, rho) + fvc::div(alphaRhoPhi), Theta_)
         )

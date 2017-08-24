@@ -16,7 +16,7 @@ createEps()
     set size 2,2
     set autoscale
     set xrange [0:50]
-    set yrange [-5:7]
+    set yrange [-20:20]
     set key left top Left box
 
     plot    "$2" using 1:2 title 'Diaz'\
@@ -26,28 +26,40 @@ createEps()
 EOF
 }
 
-# test if gnuplot exists on the system
-if ! which gnuplot > /dev/null 2>&1
-then
-    echo "gnuplot not found - skipping graph creation" >&2
-    exit 1
-fi
-
 #set case Direcory names
 caseDir=$(pwd)
-pProbesDir="$caseDir/postProcessing/pProbes/15"
+pProbesDir="$caseDir/postProcessing/pProbes"
 validationDir="$caseDir/../validation/experiments"
 
 #Set files
-pProbes="$pProbesDir/p_rgh"
-pProbes_modified="$pProbesDir/p_rgh_modified"
+pProbes_modified="$pProbesDir/0/p_rgh_modified"
 touch $pProbes_modified
-exp="$validationDir/experiments_2_4_data"
+exp="$validationDir/experiments_1_2_data"
 
-ln=$( grep -wn -m1 "$1" $pProbes | awk '{ print $1 }' | sed 's/:/ /' )
+for d in $(ls $pProbesDir | sort -g);
+do
+    printf "\n$d"
+    if [ $d = "0" ];
+    then
+        cat "$pProbesDir/$d/p_rgh" > $pProbes_modified
+    else
+        cat "$pProbesDir/$d/p_rgh">> $pProbes_modified
+    fi
+done
+printf "\n"
 
-tail -n +$ln $pProbes >$pProbes_modified
+pProbesTmp="$pProbesDir/0/p_rghTmp"
+pProbesFinal="$pProbesDir/0/p_rghFinal"
 
-createEps $pProbes_modified $exp $1
+begin=$( grep -wn -m1 "$1" $pProbes_modified | awk '{ print $1 }' | sed 's/:/ /' )
+tail -n +$begin $pProbes_modified >$pProbesTmp
 
-echo Done
+endTime=$(($1+50))
+end=$( grep -wn -m1 "$endTime" $pProbesTmp | awk '{ print $1 }' | sed 's/:/ /' )
+head -n $end $pProbesTmp >$pProbesFinal
+
+rm $pProbesTmp
+createEps $pProbesFinal $exp $1
+
+printf "\nDone\n"
+

@@ -27,7 +27,7 @@ solvers
         implicitPhasePressure yes;
         solver          GAMG;
         smoother        DIC;
-        tolerance       1e-10;
+        tolerance       1e-12;
         relTol          0;
         minIter         1;
     }
@@ -75,7 +75,7 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-6;
+        tolerance       1e-8;
         relTol          0;
         minIter         1;
     }
@@ -84,7 +84,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-5;
+        tolerance       1e-8;
         relTol          0;
         minIter         1;
     }
@@ -92,7 +92,7 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors           15;
+    nOuterCorrectors           25;
     nCorrectors                 2;
     nNonOrthogonalCorrectors    0;
     pRefCell    0;
@@ -100,9 +100,14 @@ PIMPLE
 
     residualControl
     {
+        "alpha.*"
+        {
+            tolerance   1e-6;
+            relTol      0;
+        }
         p_rgh
         {
-            tolerance 1e-3;
+            tolerance 1e-6;
             relTol    0;
         }
     }
