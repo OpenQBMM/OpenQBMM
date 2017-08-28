@@ -61,7 +61,8 @@ laplacianSchemes
 interpolationSchemes
 {
     default     linear;
-    "interpolate(hFn)"    upwind;
+
+    h2Fn upwind;
 }
 
 snGradSchemes
@@ -73,7 +74,7 @@ snGradSchemes
 fluxRequired
 {
     default     no;
-    p           ;
+    p;
     alpha.particles;
 }
 

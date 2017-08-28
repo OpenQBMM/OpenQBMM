@@ -285,6 +285,7 @@ void Foam::AGmomentTransportModel::solve
 
     const dimensionedScalar& deltaT = mesh_.time().deltaT();
 
+    // Predictor step
     m0 = m0Old - 0.5*fvc::surfaceIntegrate(F0_)*deltaT;
     m1 = m1Old - 0.5*fvc::surfaceIntegrate(F1_)*deltaT;
     m2 = m2Old - 0.5*fvc::surfaceIntegrate(F2_)*deltaT;
@@ -301,43 +302,79 @@ void Foam::AGmomentTransportModel::solve
 
 	calcMomentFluxes(h1f);
 
-	{
-        m0 = m0Old - fvc::surfaceIntegrate(F0_)*deltaT;
-        m0.correctBoundaryConditions();
+    // Correction
+    m0 = m0Old - fvc::surfaceIntegrate(F0_)*deltaT;
+    m0.correctBoundaryConditions();
 
-        m1 = m1Old - fvc::surfaceIntegrate(F1_)*deltaT;
-        m1.correctBoundaryConditions();
+    m1 = m1Old - fvc::surfaceIntegrate(F1_)*deltaT;
+    m1.correctBoundaryConditions();
 
-        m2 = m2Old - fvc::surfaceIntegrate(F2_)*deltaT;
-        m2.correctBoundaryConditions();
-    }
+    m2 = m2Old - fvc::surfaceIntegrate(F2_)*deltaT;
+    m2.correctBoundaryConditions();
 
-
+    // Set volume fraction updated form dilute transport
 	m0.max(SMALL);
 	alphap_ = m0;
     alphap_.correctBoundaryConditions();
     ddtAlphaDilute_ = fvc::ddt(alphap_);
     alphap_.oldTime() = alphap_;
 
+    // Set velocity from dilute transport
 	Up_ = m1/m0;
     Up_.correctBoundaryConditions();
     Up_.oldTime() = Up_;
 
+    // Update fluxes
+    surfaceScalarField& phip =
+        mesh_.lookupObjectRef<surfaceScalarField>(phase_.phi().name());
+    surfaceScalarField& alphaPhip =
+        mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaPhi().name());
+    surfaceScalarField& alphaRhoPhip =
+        mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaRhoPhi().name());
+
+    phip = fvc::flux(Up_);
+    phip.oldTime() = phip;
+
+    alphaPhip = fvc::interpolate(alphap_)*phase_.phi();
+    alphaRhoPhip = fvc::interpolate(phase_.rho())*phase_.alphaPhi();
+
+    surfaceScalarField& phi =
+        mesh_.lookupObjectRef<surfaceScalarField>("phi");
+    const phaseModel& otherPhase = phase_.fluid().otherPhase(phase_);
+
+    phi =
+        fvc::interpolate(alphap_)*phip
+      + fvc::interpolate(otherPhase)*otherPhase.phi();
+
+    // Update particle pressure tensor
 	Pp_ = m2/m0 - sqr(Up_);
     forAll(Pp_,i)
 	{
-		if(Pp_[i].xx() < SMALL) Pp_[i].xx() = SMALL;
-		if(Pp_[i].yy() < SMALL) Pp_[i].yy() = SMALL;
-		if(Pp_[i].zz() < SMALL) Pp_[i].zz() = SMALL;
+		if(Pp_[i].xx() < SMALL)
+        {
+                Pp_[i].xx() = SMALL;
+        }
+
+		if(Pp_[i].yy() < SMALL)
+        {
+            Pp_[i].yy() = SMALL;
+        }
+
+		if(Pp_[i].zz() < SMALL)
+        {
+            Pp_[i].zz() = SMALL;
+        }
 	}
     Pp_.correctBoundaryConditions();
 
+    // Update granular temperature based on granular temperature
 	Theta_ = 1.0/3.0*tr(Pp_);
 	Theta_.max(0);
 	Theta_.min(100);
 	Theta_.correctBoundaryConditions();
     Theta_.oldTime() = Theta_;
 
+    // Update granular stress tensor
     Sigma_ = Theta_*symmTensor::I - Pp_;
 	Sigma_.correctBoundaryConditions();
     Sigma_.oldTime() = Sigma_;

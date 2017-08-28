@@ -19,7 +19,7 @@ phases (air water);
 
 air
 {
-    type            polydispersePhaseModel
+    type            polydispersePhaseModel;
     BGviscosity     true;
     residualAlpha   1e-4;
     minD            1e-4;

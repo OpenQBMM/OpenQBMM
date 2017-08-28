@@ -21,7 +21,7 @@ createEps()
 
     plot    "$2" using 1:2 title 'Diaz'\
                 with points pointtype 7 ps 2 linecolor rgb 'black', \
-            "$1" using (\$1 - $3):(\$4-C_mean) every 100 title 'QBMM'\
+            "$1" using (\$1 - $3):(\$4-C_mean) every 250 title 'QBMM'\
                 with lines linetype 1 linewidth 2 linecolor rgb '#9db668'
 EOF
 }
@@ -46,7 +46,6 @@ do
         cat "$pProbesDir/$d/p_rgh">> $pProbes_modified
     fi
 done
-printf "\n"
 
 pProbesTmp="$pProbesDir/0/p_rghTmp"
 pProbesFinal="$pProbesDir/0/p_rghFinal"

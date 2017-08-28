@@ -162,12 +162,22 @@ void Foam::kineticTheoryModels::nonEquilibrium::solve
         1.5*
         (
             fvm::ddt(alpha, rho, Theta_)
-          + fvm::div(alphaRhoPhi, Theta_)
-          - fvc::Sp(fvc::ddt(alpha, rho) + fvc::div(alphaRhoPhi), Theta_)
+          + fvm::div
+            (
+                this->h2f()*alphaRhoPhi,
+                Theta_,
+                "div(" + alphaRhoPhi.name() + "," + Theta_.name() + ")"
+            )
+          - fvc::Sp
+            (
+                fvc::ddt(alpha, rho)
+              + this->ddtAlphaDilute()*rho
+              + fvc::div(alphaRhoPhi), Theta_)
         )
       - fvm::laplacian
         (
-            kappa_ + rho*particleTurbulenceModel.nut()/alphaTheta_,
+            kappa_,
+//           + rho*particleTurbulenceModel.nut()/alphaTheta_,
             Theta_,
             "laplacian(kappa,Theta)"
         )

@@ -188,15 +188,21 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
 
     // Solve Sigma equation (2nd order moments)
     {
+        volScalarField Ps
+        (
+            this->granularPressureModel_->granularPressureCoeff
+            (
+                alpha,
+                this->g0_,
+                rho,
+                this->e_
+            )*this->Theta_
+        );
+
         volSymmTensorField S2flux
         (
             "S2flux",
-            2.0
-           *(
-                h2Fn_*alpha*rho*this->Theta_
-              + 4.0*rho*eta_*sqr(alpha)*this->g0_*this->Theta_
-              - rho*this->lambda_*tr(D)
-            )*Sp
+            2.0*Ps*Sp
           - 2.0*rho*alpha*this->nu_
            *(
                twoSymm(Sp & gradU)
@@ -209,19 +215,21 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
             fvm::ddt(alpha, rho, Sigma_)
           + fvm::div
             (
-                hydrodynamicScalef(alphaRhoPhi),
+                this->h2f()*alphaRhoPhi,
                 Sigma_,
                 "div(" + alphaRhoPhi.name() + "," + Sigma_.name() + ")"
             )
           - fvc::Sp
             (
                 fvc::ddt(alpha, rho)
+              + this->ddtAlphaDilute()*rho
               + fvc::div(alphaRhoPhi),
                 Sigma_
             )
           - fvm::laplacian
             (
-                this->kappa_ + rho*particleTurbulenceModel.nut()/alphaSigma_,
+                2.0/3.0*this->kappa_,
+//               + rho*particleTurbulenceModel.nut()/alphaSigma_,
                 Sigma_,
                 "laplacian(kappa,Sigma)"
             )
@@ -263,18 +271,6 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::transportMoments()
     updateh2Fn();
     surfaceScalarField h2Fnf(fvc::interpolate(h2Fn_));
     AGtransport_.solve(h2Fnf);
-
-    const fvMesh& mesh(h2Fn_.mesh());
-
-    surfaceScalarField& phi
-    (
-        mesh.lookupObjectRef<Foam::surfaceScalarField>
-        (
-            this->phase_.phi().name()
-        )
-    );
-
-    phi = fvc::flux(this->phase_.U());
 }
 
 
@@ -288,34 +284,17 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::maxUxDx() const
 
 template<class baseModel>
 Foam::tmp<Foam::volScalarField>
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::hydrodynamicScale
-(
-    const volScalarField& Kd
-) const
+Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::h2() const
 {
-    return Kd*h2Fn_;
+    return h2Fn_;
 }
 
 
 template<class baseModel>
 Foam::tmp<Foam::surfaceScalarField>
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::hydrodynamicScalef
-(
-    const surfaceScalarField& phi
-) const
+Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::h2f() const
 {
-    return phi*fvc::interpolate(h2Fn_);
-}
-
-
-template<class baseModel>
-Foam::tmp<Foam::volVectorField>
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::hydrodynamicScale
-(
-    const volVectorField& U
-) const
-{
-    return U*h2Fn_;
+    return fvc::interpolate(h2Fn_);
 }
 
 

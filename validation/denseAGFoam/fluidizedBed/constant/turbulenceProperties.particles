@@ -32,7 +32,7 @@ RAS
         alphaSigma              1.0;
         e                       0.9;
         alphaMax                0.62;
-        alphaMinFriction        0.5;
+        alphaMinFriction        0.6;
         residualAlpha           1e-4;
 
         viscosityModel          KongFox;

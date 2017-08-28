@@ -205,10 +205,7 @@ while (pimple.correct())
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        (
-            alphaf1*(AGmodel.hydrodynamicScalef(phiHbyA1)
-          + rAUKd1*MRF.absolute(phi2))
-        )
+        h2f*alphaf1*(phiHbyA1 + rAUKd1*MRF.absolute(phi2))
       + alphaf2*(phiHbyA2 + rAUKd2*MRF.absolute(phi1))
     );
     MRF.makeRelative(phiHbyA);
@@ -219,7 +216,7 @@ while (pimple.correct())
         "rAUf",
         mag
         (
-            AGmodel.hydrodynamicScalef(alphaf1*alpharAUf1)
+            h2f*alphaf1*alpharAUf1
           + alphaf2*alpharAUf2
         )
     );

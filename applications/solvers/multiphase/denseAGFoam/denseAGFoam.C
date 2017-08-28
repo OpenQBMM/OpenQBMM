@@ -121,6 +121,9 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+            tmp<surfaceScalarField> h2fTmp(AGmodel.h2f());
+            const surfaceScalarField& h2f = h2fTmp();
+
             #include "contErrs.H"
 
             #include "alphaEqn.H"

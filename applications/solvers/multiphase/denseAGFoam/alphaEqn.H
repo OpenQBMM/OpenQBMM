@@ -4,10 +4,7 @@ const dictionary& alphaControls = mesh.solverDict
 );
 
 volScalarField& dgdt = fluid.dgdt();
-
-surfaceScalarField phiOld = phi1;
-
-surfaceScalarField pPrimeByA = AGmodel.hydrodynamicScalef(fluid.pPrimeByA());
+surfaceScalarField pPrimeByA = h2f*fluid.pPrimeByA();
 
 label nAlphaSubCycles(readLabel(alphaControls.lookup("nAlphaSubCycles")));
 label nAlphaCorr(readLabel(alphaControls.lookup("nAlphaCorr")));
@@ -87,7 +84,7 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
       + fvc::flux
         (
           - fvc::flux(-phir, scalar(1) - alpha1, alpharScheme)
-          - (phi1 - AGmodel.hydrodynamicScalef(phi1)),
+          - phi1*(1.0 - h2f),
             alpha1,
             alpharScheme
         )
