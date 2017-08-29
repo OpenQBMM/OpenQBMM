@@ -411,13 +411,8 @@ Foam::pdPhaseModel::pdPhaseModel
         )
     )
 {
-//     if (nNodes_ == 1)
-//     {
-//         FatalErrorInFunction
-//             << "Polydisperse phase model selected, but only one node " << nl
-//             << "is used. Please use monodispersePhaseModel instead." << endl
-//             << exit(FatalError);
-//     }
+    this->d_.writeOpt() = IOobject::AUTO_WRITE;
+
     wordList phiTypes
     (
         U_.boundaryField().size(),
