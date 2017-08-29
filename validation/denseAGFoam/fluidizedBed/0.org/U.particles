@@ -22,23 +22,24 @@ boundaryField
 {
     walls
     {
-        type               fixedValue;
-        value              uniform (0 0 0);
+        type                fixedValue;
+        value               uniform (0 0 0);
     }
     outlet
     {
-        type               pressureInletOutletVelocity;
-        phi                phi.particles;
-        value              $internalField;
+        type                inletOutlet;
+        phi                 phi.particles;
+        inletValue          uniform (0 0 0);
+        value               $internalField;
     }
     inlet
     {
-        type               fixedValue;
-        value              uniform (0 0 0);
+        type                fixedValue;
+        value               uniform (0 0 0);
     }
     frontAndBackPlanes
     {
-        type               empty;
+        type                empty;
     }
 }
 

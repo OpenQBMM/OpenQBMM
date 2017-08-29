@@ -168,11 +168,7 @@ void Foam::kineticTheoryModels::nonEquilibrium::solve
                 Theta_,
                 "div(" + alphaRhoPhi.name() + "," + Theta_.name() + ")"
             )
-          - fvc::Sp
-            (
-                fvc::ddt(alpha, rho)
-              + this->ddtAlphaDilute()*rho
-              + fvc::div(alphaRhoPhi), Theta_)
+          - fvc::Sp(fvc::ddt(alpha, rho) + fvc::div(alphaRhoPhi), Theta_)
         )
       - fvm::laplacian
         (

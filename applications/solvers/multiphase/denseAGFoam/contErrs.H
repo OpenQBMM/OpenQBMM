@@ -2,7 +2,6 @@ volScalarField contErr1
 (
     "contErr1",
     fvc::ddt(alpha1, rho1)
-  + AGmodel.ddtAlphaDilute()*rho1
   + fvc::div(alphaRhoPhi1)
 );
 

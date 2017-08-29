@@ -34,8 +34,8 @@ solvers
 
     p_rgh
     {
-        solver          PBiCGStab;
-        preconditioner  DIC;
+        solver          GAMG;
+        smoother        DIC;
         nPreSweeps      0;
         nPostSweeps     2;
         nFinestSweeps   2;
@@ -102,12 +102,12 @@ PIMPLE
     {
         "alpha.*"
         {
-            tolerance   1e-6;
+            tolerance   1e-5;
             relTol      0;
         }
         p_rgh
         {
-            tolerance 1e-6;
+            tolerance 1e-5;
             relTol    0;
         }
     }

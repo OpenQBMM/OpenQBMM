@@ -317,12 +317,10 @@ void Foam::AGmomentTransportModel::solve
 	alphap_ = m0;
     alphap_.correctBoundaryConditions();
     ddtAlphaDilute_ = fvc::ddt(alphap_);
-    alphap_.oldTime() = alphap_;
 
     // Set velocity from dilute transport
 	Up_ = m1/m0;
     Up_.correctBoundaryConditions();
-    Up_.oldTime() = Up_;
 
     // Update fluxes
     surfaceScalarField& phip =
@@ -333,7 +331,6 @@ void Foam::AGmomentTransportModel::solve
         mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaRhoPhi().name());
 
     phip = fvc::flux(Up_);
-    phip.oldTime() = phip;
 
     alphaPhip = fvc::interpolate(alphap_)*phase_.phi();
     alphaRhoPhip = fvc::interpolate(phase_.rho())*phase_.alphaPhi();

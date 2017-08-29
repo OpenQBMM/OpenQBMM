@@ -73,6 +73,7 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
         }
     }
 
+    // Flux in standard form with the addition of subtraction of dilute flux
     surfaceScalarField alphaPhic1
     (
         fvc::flux
@@ -162,8 +163,7 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
         alphaPhi1 += alpha1Eqn.flux();
     }
 
-    alphaRhoPhi1 =
-        fvc::interpolate(rho1)*alphaPhi1;
+    alphaRhoPhi1 = fvc::interpolate(rho1)*alphaPhi1;
 
     alphaPhi2 = phi - alphaPhi1;
     phase2.correctInflowOutflow(alphaPhi2);

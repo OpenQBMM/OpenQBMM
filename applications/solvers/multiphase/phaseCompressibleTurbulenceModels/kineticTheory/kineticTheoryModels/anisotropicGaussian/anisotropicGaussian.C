@@ -168,41 +168,41 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
     );
 
     // Particle viscosity
-    this->nu_ *= h2Fn_;
+    this->nu_ *= (1.0 + 8.0/5.0*this->eta_*alpha*this->g0_)*h2Fn_;
+    this->nu_ += 3.0/5.0*this->lambda_;
 
     // 'thermal' conductivity
-    this->kappa_ *= h2Fn_;
-
+    this->kappa_ *= (1.0 + 12.0/5.0*this->eta_*alpha*this->g0_)*h2Fn_;
+    this->kappa_ += 3.0/2.0*this->lambda_*rho;
 
     fv::options& fvOptions(fv::options::New(this->phase_.fluid().mesh()));
-    const PhaseCompressibleTurbulenceModel<phaseModel>&
-        particleTurbulenceModel =
-            U.db().lookupObject<PhaseCompressibleTurbulenceModel<phaseModel> >
-            (
-                IOobject::groupName
-                (
-                    turbulenceModel::propertiesName,
-                    this->phase_.name()
-                )
-            );
+//     const PhaseCompressibleTurbulenceModel<phaseModel>&
+//         particleTurbulenceModel =
+//             U.db().lookupObject<PhaseCompressibleTurbulenceModel<phaseModel> >
+//             (
+//                 IOobject::groupName
+//                 (
+//                     turbulenceModel::propertiesName,
+//                     this->phase_.name()
+//                 )
+//             );
 
     // Solve Sigma equation (2nd order moments)
     {
-        volScalarField Ps
-        (
-            this->granularPressureModel_->granularPressureCoeff
-            (
-                alpha,
-                this->g0_,
-                rho,
-                this->e_
-            )*this->Theta_
-        );
-
         volSymmTensorField S2flux
         (
             "S2flux",
-            2.0*Ps*Sp
+            2.0*Sp
+           *(
+                this->granularPressureModel_->granularPressureCoeff
+                (
+                    alpha,
+                    this->g0_,
+                    rho,
+                    this->e_
+                )*this->Theta_
+              - rho*alpha*this->lambda_*tr(D)
+            )
           - 2.0*rho*alpha*this->nu_
            *(
                twoSymm(Sp & gradU)
@@ -222,7 +222,6 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
           - fvc::Sp
             (
                 fvc::ddt(alpha, rho)
-              + this->ddtAlphaDilute()*rho
               + fvc::div(alphaRhoPhi),
                 Sigma_
             )
@@ -269,8 +268,7 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::transportMoments()
     Info<< "Transporting moments in dilute regime" << endl;
 
     updateh2Fn();
-    surfaceScalarField h2Fnf(fvc::interpolate(h2Fn_));
-    AGtransport_.solve(h2Fnf);
+    AGtransport_.solve(this->h2f());
 }
 
 
