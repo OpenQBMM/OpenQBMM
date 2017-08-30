@@ -213,6 +213,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
         fvSymmTensorMatrix SigmaEqn
         (
             fvm::ddt(alpha, rho, Sigma_)
+          - fvc::ddt(alpha, rho, Sigma_)
           + fvm::div
             (
                 this->h2f()*alphaRhoPhi,

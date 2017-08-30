@@ -52,7 +52,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
         )
     ),
     nNodes_(nodes_().size()),
-    velocityMoments_(nNodes_),
+    velocityMoments_(max(nNodes_, 2)),
     velocityAbscissae_(nNodes_),
     nodesNei_(),
     velocitiesNei_(nNodes_),
