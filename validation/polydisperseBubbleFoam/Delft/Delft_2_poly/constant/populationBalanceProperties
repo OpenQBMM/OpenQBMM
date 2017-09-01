@@ -22,14 +22,16 @@ coalescenceKernel
 {
     coalescenceFrequencyKernel PrinceAndBlanch;
     coalescenceEfficiencyKernel Chesters;
+    laminarShearCoalescence off;
+    turbulence  off;
 
-    Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
-    Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;
+    Ca      Ca      [ 0 0 0 0 0 0 0 ]  1.0;
+    Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  4.63;
     ReExp   ReExp   [ 0 0 0 0 0 0 0 ]  -0.732;
     WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
 }
 
-breakup on;
+breakup off;
 
 breakupKernel
 {

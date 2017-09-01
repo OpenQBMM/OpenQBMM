@@ -149,6 +149,7 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(alpha1) - fvc::ddt(alpha1)
+          - AGmodel.ddtAlphaDilute()
           - fvm::laplacian
             (
                 alpha1alpha2f()*pPrimeByA,

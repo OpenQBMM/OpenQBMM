@@ -901,10 +901,6 @@ void Foam::twoPhaseSystem::relativeTransport()
 
 void Foam::twoPhaseSystem::averageTransport()
 {
-    if (nNodes_ == 1)
-    {
-        return;
-    }
     // Liquid viscous stress
     volSymmTensorField taul(phase2_->turbulence().devRhoReff());
 

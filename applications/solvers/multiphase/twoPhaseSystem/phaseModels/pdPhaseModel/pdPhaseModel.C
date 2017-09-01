@@ -124,7 +124,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
                 );
         }
     }
-    return tmpCSource*pos(0.8 - *this);
+    return tmpCSource;
 }
 
 
@@ -195,7 +195,7 @@ Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::coalescenceSourceU
                 );
         }
     }
-    return tmpCSource*pos(0.8 - *this);
+    return tmpCSource;
 }
 
 
@@ -253,7 +253,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
             );
     }
 
-    return bSource*pos(0.8 - *this);
+    return bSource;
 }
 
 
@@ -312,7 +312,7 @@ Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::breakupSourceU
             );
     }
 
-    return bSource*pos(0.8 - *this);
+    return bSource;
 }
 
 
@@ -565,11 +565,7 @@ void Foam::pdPhaseModel::correct()
                 (
                     Foam::pow
                     (
-                        Foam::max
-                        (
-                            node.primaryAbscissa(),
-                            dimensionedScalar("zero", dimMass, 0.0)
-                        )*6.0
+                        node.primaryAbscissa()*6.0
                        /(rho()*Foam::constant::mathematical::pi),
                         1.0/3.0
                     ),
@@ -578,152 +574,165 @@ void Foam::pdPhaseModel::correct()
                 maxD_
             );
 
-        d_ += alphas_[nodei]*ds_[nodei];
+        if (nNodes_ > 1)
+        {
+            d_ += alphas_[nodei]*ds_[nodei];
+        }
     }
 
-    d_ /= Foam::max((*this), residualAlpha_);
+    if (nNodes_ > 1)
+    {
+        d_ /= Foam::max((*this), residualAlpha_);
+    }
+    else
+    {
+        d_ = ds_[0];
+    }
+
     d_.max(minD_);
 }
 
 
 void Foam::pdPhaseModel::relativeTransport()
 {
+    if (nNodes_ == 1)
+    {
+        return;
+    }
+
     Info<< "Transporting moments based on relative flux" << endl;
 
     quadrature_.interpolateNodes();
-
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
 
-    // Transport moments with relative flux only if polydisperse
-    if (nNodes_ > 1)
+    // Transport moments with relative flux
+    forAll(quadrature_.moments(), mEqni)
     {
-        forAll(quadrature_.moments(), mEqni)
-        {
-            volScalarField& m = quadrature_.moments()[mEqni];
-            dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
+        volScalarField& m = quadrature_.moments()[mEqni];
+        dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
 
-            // Create total flux field so that the individual fluxes can be
-            // summed together
-            volScalarField relativeDivVp
+        // Create total flux field so that the individual fluxes can be
+        // summed together
+        volScalarField relativeDivVp
+        (
+            IOobject
             (
-                IOobject
-                (
-                    "relativeDivVp",
-                    fluid_.mesh().time().timeName(),
-                    fluid_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
+                "relativeDivVp",
+                fluid_.mesh().time().timeName(),
                 fluid_.mesh(),
-                dimensionedScalar("zero", m.dimensions()/dimTime, 0.0)
-            );
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedScalar("zero", m.dimensions()/dimTime, 0.0)
+        );
 
-            for (label nodei = 0; nodei < nNodes_; nodei++)
-            {
-                surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
+        for (label nodei = 0; nodei < nNodes_; nodei++)
+        {
+            surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
 
-                // Calculate size moment flux
-                surfaceScalarField rFluxVp
-                (
-                    nodesNei[nodei].primaryWeight()
-                   *(
-                        pow
-                        (
-                            nodesNei[nodei].primaryAbscissa(),
-                            mEqni
-                        )
-                    )*Foam::min(phiv, zeroPhi)
-                  + nodesOwn[nodei].primaryWeight()
-                   *pow
-                    (
-                        nodesOwn[nodei].primaryAbscissa(),
-                        mEqni
-                    )*Foam::max(phiv, zeroPhi)
-                );
-
-                relativeDivVp += fvc::surfaceIntegrate(rFluxVp);
-            }
-
-            // Solve relative size moment transport equation
-            fvScalarMatrix mEqn
+            // Calculate size moment flux
+            surfaceScalarField rFluxVp
             (
-                fvm::ddt(m)
-              + relativeDivVp
+                nodesNei[nodei].primaryWeight()
+               *(
+                    pow
+                    (
+                        nodesNei[nodei].primaryAbscissa(),
+                        mEqni
+                    )
+                )*Foam::min(phiv, zeroPhi)
+              + nodesOwn[nodei].primaryWeight()
+               *pow
+                (
+                    nodesOwn[nodei].primaryAbscissa(),
+                    mEqni
+                )*Foam::max(phiv, zeroPhi)
             );
 
-            mEqn.relax();
-            mEqn.solve();
-
-            m.max(0);
+            relativeDivVp += fvc::surfaceIntegrate(rFluxVp);
         }
 
-        forAll(quadrature_.velocityMoments(), mEqni)
-        {
-            volVectorField& Up = quadrature_.velocityMoments()[mEqni];
-            dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
+        // Solve relative size moment transport equation
+        fvScalarMatrix mEqn
+        (
+            fvm::ddt(m)
+          + relativeDivVp
+        );
 
-            // Create total flux field so that the individual fluxes can be
-            // summed together
-            volVectorField relativeDivPp
-            (
-                IOobject
-                (
-                    "relativeDivPp",
-                    fluid_.mesh().time().timeName(),
-                    fluid_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                fluid_.mesh(),
-                dimensionedVector("zero", Up.dimensions()/dimTime, Zero)
-            );
+        mEqn.relax();
+        mEqn.solve();
 
-            for (label nodei = 0; nodei < nNodes_; nodei++)
-            {
-                surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
-
-                // Calculate velocity moment flux
-                surfaceVectorField rFluxPp
-                (
-                    "rFluxPp",
-                    quadrature_.velocitiesNei()[nodei]
-                   *nodesNei[nodei].primaryWeight()
-                    *(
-                        pow
-                        (
-                            nodesNei[nodei].primaryAbscissa(),
-                            mEqni
-                        )
-                    )*Foam::min(phiv, zeroPhi)
-                  + quadrature_.velocitiesOwn()[nodei]
-                   *nodesOwn[nodei].primaryWeight()
-                   *pow
-                    (
-                        nodesOwn[nodei].primaryAbscissa(),
-                        mEqni
-                    )*Foam::max(phiv, zeroPhi)
-                );
-
-                relativeDivPp += fvc::surfaceIntegrate(rFluxPp);
-            }
-
-            // Solve relative velocity moment transport equation
-            fvVectorMatrix UpEqn
-            (
-                fvm::ddt(Up)
-              + relativeDivPp
-            );
-
-            UpEqn.relax();
-            UpEqn.solve();
-        }
-
-        quadrature_.updateAllQuadrature();
-        this->updateVelocity();
+        m.max(0);
     }
+
+    forAll(quadrature_.velocityMoments(), mEqni)
+    {
+        volVectorField& Up = quadrature_.velocityMoments()[mEqni];
+        dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
+
+        // Create total flux field so that the individual fluxes can be
+        // summed together
+        volVectorField relativeDivPp
+        (
+            IOobject
+            (
+                "relativeDivPp",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedVector("zero", Up.dimensions()/dimTime, Zero)
+        );
+
+        for (label nodei = 0; nodei < nNodes_; nodei++)
+        {
+            surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
+
+            // Calculate velocity moment flux
+            surfaceVectorField rFluxPp
+            (
+                "rFluxPp",
+                quadrature_.velocitiesNei()[nodei]
+               *nodesNei[nodei].primaryWeight()
+               *(
+                    pow
+                    (
+                        nodesNei[nodei].primaryAbscissa(),
+                        mEqni
+                    )
+                )*Foam::min(phiv, zeroPhi)
+              + quadrature_.velocitiesOwn()[nodei]
+               *nodesOwn[nodei].primaryWeight()
+               *pow
+                (
+                    nodesOwn[nodei].primaryAbscissa(),
+                    mEqni
+                )*Foam::max(phiv, zeroPhi)
+            );
+
+            relativeDivPp += fvc::surfaceIntegrate(rFluxPp);
+        }
+
+        // Solve relative velocity moment transport equation
+        fvVectorMatrix UpEqn
+        (
+            fvm::ddt(Up)
+          + relativeDivPp
+        );
+
+        UpEqn.relax();
+        UpEqn.solve();
+    }
+
+    quadrature_.updateAllQuadrature();
+    this->updateVelocity();
+
     correct();
 }
 
@@ -795,6 +804,18 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         mEqn.solve();
 
         m.max(0);
+    }
+
+    if(nNodes_ == 1)
+    {
+        forAll(quadrature_.velocityMoments(), mi)
+        {
+            quadrature_.velocityMoments()[mi] = U_*quadrature_.moments()[mi];
+            quadrature_.velocityMoments()[mi].correctBoundaryConditions();
+        }
+
+        quadrature_.updateQuadrature();
+        return;
     }
 
     forAll(quadrature_.velocityMoments(), mEqni)
@@ -881,11 +902,10 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         volScalarField alphaRhoi
         (
             "alphaRhoi",
-            Foam::max
+//             Foam::max
             (
                 quadrature_.nodes()[nodei].primaryAbscissa()
-               *quadrature_.nodes()[nodei].primaryWeight(),
-                residualAlpha_*rho()
+               *quadrature_.nodes()[nodei].primaryWeight()
             )
         );
 

@@ -36,7 +36,7 @@ solvers
         nCellsInCoarsestLevel 10;
         agglomerator    faceAreaPair;
         mergeLevels     2;
-        tolerance       1e-8;
+        tolerance       1e-10;
         maxIter         1000;
     }
 
@@ -50,7 +50,7 @@ solvers
     {
         solver          PBiCG;
         preconditioner  DILU;
-        tolerance       1e-6;
+        tolerance       1e-8;
         relTol          0;
         minIter         1;
     }
@@ -85,7 +85,7 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors 15;
+    nOuterCorrectors 5;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
@@ -105,7 +105,6 @@ relaxationFactors
     equations
     {
         p_rgh       0.3;
-        U           0.7;
     }
 }
 

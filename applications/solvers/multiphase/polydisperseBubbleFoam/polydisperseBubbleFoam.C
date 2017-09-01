@@ -83,13 +83,10 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         {
-            if (phase1.nNodes() > 1)
-            {
-                // Transport moments with velocities relative to the mean gas
-                // velocity
-                fluid.relativeTransport();
-                phi = phase1.alphaPhi() + phase2.alphaPhi();
-            }
+            // Transport moments with velocities relative to the mean gas
+            // velocity
+            fluid.relativeTransport();
+            phi = phase1.alphaPhi() + phase2.alphaPhi();
 
             // Solve for mean phase velocities and gas volume fraction
             while (pimple.loop())

@@ -39,11 +39,9 @@ blending
 {
     default
     {
-        type                            linear;
-        maxFullyDispersedAlpha.air      0.3;
-        maxPartlyDispersedAlpha.air     0.5;
-        maxFullyDispersedAlpha.water    0.3;
-        maxPartlyDispersedAlpha.water   0.5;
+        type                            none;
+        continuousPhase                 water;
+        dispersedPhase                  air;
     }
 }
 
@@ -54,17 +52,6 @@ sigma
 
 aspectRatio
 (
-    (air in water)
-    {
-        type            constant;
-        E0              1.0;
-    }
-
-    (water in air)
-    {
-        type            constant;
-        E0              1.0;
-    }
 );
 
 drag
@@ -80,31 +67,6 @@ drag
             type        none;
         }
     }
-
-    (water in air)
-    {
-        type            SchillerNaumann;
-        residualRe      1e-3;
-        residualEo      1e-3;
-        residualE       1e-2;
-        swarmCorrection
-        {
-            type        none;
-        }
-    }
-
-    (air and water)
-    {
-        type            segregated;
-        residualRe      1e-3;
-        residualAlpha   1e-4;
-        m               0.5;
-        n               8;
-        swarmCorrection
-        {
-            type        none;
-        }
-    }
 );
 
 
@@ -114,17 +76,6 @@ turbulentDispersion
 
 virtualMass
 (
-    (air in water)
-    {
-        type            constantCoefficient;
-        Cvm             0.5;
-    }
-
-    (water in air)
-    {
-        type            constantCoefficient;
-        Cvm             0.5;
-    }
 );
 
 lift

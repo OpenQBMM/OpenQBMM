@@ -27,7 +27,7 @@ boundaryField
     }
     outlet
     {
-        type            prghPressure;
+        type            fixedValue;
         p               $internalField;
         value           $internalField;
     }

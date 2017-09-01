@@ -23,23 +23,21 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "PrinceAndBlanch.H"
+#include "Lehr.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coalescenceFrequencyKernels
+namespace coalescenceEfficiencyKernels
 {
-    defineTypeNameAndDebug(PrinceAndBlanch, 0);
-
+    defineTypeNameAndDebug(Lehr, 0);
     addToRunTimeSelectionTable
     (
-        coalescenceFrequencyKernel,
-        PrinceAndBlanch,
+        coalescenceEfficiencyKernel,
+        Lehr,
         dictionary
     );
 }
@@ -48,82 +46,75 @@ namespace coalescenceFrequencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
+Foam::coalescenceEfficiencyKernels::Lehr::
+Lehr
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalescenceFrequencyKernel(dict, mesh),
+    coalescenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    turbulent_(dict.lookupOrDefault("turbulentCoalescence", false)),
-    buoyant_(dict.lookupOrDefault("buoyantCoalescence", true)),
-    LS_(dict.lookupOrDefault("laminarShearCoalescence", true))
+    turbulence_(dict.lookupOrDefault("turbulence", true)),
+    uCrit_
+    (
+        dimensionedScalar::lookupOrDefault
+        (
+            "uCrit",
+            dict,
+            dimVelocity,
+            0.08
+        )
+    )
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceFrequencyKernels::PrinceAndBlanch::~PrinceAndBlanch()
+Foam::coalescenceEfficiencyKernels::Lehr::
+~Lehr()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
+Foam::coalescenceEfficiencyKernels::Lehr::Pc
 (
     const label nodei,
     const label nodej
 ) const
 {
-    tmp<volScalarField> tmpFreqSrc
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "freqSrc",
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            fluid_.mesh(),
-            dimensionedScalar("0", dimensionSet(0, 3, -1, 0, 0), 0.0)
-        )
-    );
-    volScalarField& freqSrc = tmpFreqSrc.ref();
-
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
-    const volScalarField& rho = fluid_.phase2().rho();
-    const dimensionedScalar& sigma = fluid_.sigma();
-    dimensionedScalar g = mag(fluid_.g());
 
-    if (turbulent_)
+    if (turbulence_)
     {
-        freqSrc.ref() +=
-            0.089*constant::mathematical::pi*sqr(d1 + d2)
-           *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
-           *cbrt(fluid_.phase2().turbulence().epsilon());
+        return max
+        (
+            uCrit_
+           /max
+            (
+                1.414*cbrt(fluid_.phase2().turbulence().epsilon())
+               *sqrt(pow(d1, 2/3) + pow(d2, 2/3)),
+                mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
+            ),
+            1.0
+        );
     }
-    if (buoyant_)
+    else
     {
-        freqSrc.ref() +=
-            constant::mathematical::pi/4.0*sqr(d1 + d2)
-           *(
-               sqrt(2.14*sigma/(d1*rho) + 0.5*g*d1)
-             - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
-            );
+        return max
+        (
+            uCrit_
+           /max
+            (
+                mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej)),
+                dimensionedScalar("small", dimVelocity, 1e-10)
+            ),
+            1.0
+        );
     }
-    if (LS_)
-    {
-        freqSrc.ref() +=
-            2.0/3.0*pow3(d1 + d2)*mag(fvc::grad(fluid_.phase2().U()));
-    }
-    return tmpFreqSrc;
 }
 
 // ************************************************************************* //

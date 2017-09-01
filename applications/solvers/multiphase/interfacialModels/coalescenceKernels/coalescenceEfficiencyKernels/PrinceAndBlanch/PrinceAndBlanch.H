@@ -22,20 +22,19 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::breakupKernels::Alopaeus
+    Foam::coalescenceEfficiencyKernels::PrinceAndBlanch
 
 Description
-    Turbulent breakup kernel supplemented for bubbles in turbulent
-    flows.
+    Coalesence efficiency based on film drainage and rupture times.
 
     \f[
-        K_b = Cb \epsilon_f^{1/3} \text{erfc}
+        P_c =
+            \text{exp}
             \left(
-                \sqrt{
-                    C_1 \frac{\sigma}{\rho_f \epsilon_f^{2/3} \xi^{5/3}}
-                  + C_2 \frac{\mu_f}
-                    {\sqrt{rho_f \rho_b} \epsilon_f^{1/3} \xi^{4/3}}
-                }
+              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
+                \left(
+                    \frac{d_i^{1/3} d_j^{1/3}}{d_i^{1/3} + d_j^{1/3}}
+                \right)
             \right)
     \f]
 
@@ -44,66 +43,71 @@ Description
     \vartable
         \sigma      |  Surface tension
         \rho_f      |  Density of liquid phase [kg/m3]
-        \rho_b      |  Density of bubble phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
         \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
-        \xi         |  Abscissa of bubble [m]
+        d_i         |  Diameter of bubble i [m]
+        d_j         |  Diameter of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "Numerical solution of moment-transformed population balance equation with fixed quadrature points"
-        Ville Alopaeus and Marko Laakkonen and Juhani Aittamaa
+        "Description of interaction processes in agitated liquid-liquid
+        dis[ersions"
+        C Coulaloglou, L Tavlarides
         Chemical Engineering Science
-        Volume 61, Pages 4919-4929, 2006
+        Volume 32, Pages 1289-1297, 1977
     \endverbatim
 
 SourceFiles
-    Alopaeus.C
+    PrinceAndBlanch.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Alopaeus_H
-#define Alopaeus_H
+#ifndef PrinceAndBlanch_H
+#define PrinceAndBlanch_H
 
-#include "bubbleBreakupKernel.H"
+#include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
+#include "phaseModel.H"
+#include "PhaseCompressibleTurbulenceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace bubbleBreakupKernels
+namespace coalescenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class Alopaeus Declaration
+                    Class PrinceAndBlanch Declaration
 \*---------------------------------------------------------------------------*/
 
-class Alopaeus
+class PrinceAndBlanch
 :
-    public bubbleBreakupKernel
+    public coalescenceEfficiencyKernel
 {
     // Private data
 
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
-        // Model Coefficients
-        dimensionedScalar C1_;
-        dimensionedScalar C2_;
+        //- Initial film thickness
+        dimensionedScalar ho_;
+
+        //- Critical film thickness
+        dimensionedScalar hf_;
 
 
 public:
 
         //- Runtime type information
-        TypeName("Alopaeus");
+        TypeName("PrinceAndBlanch");
 
 
     // Constructors
 
         //- Construct from components
-        Alopaeus
+        PrinceAndBlanch
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -111,20 +115,24 @@ public:
 
 
     //- Destructor
-    virtual ~Alopaeus();
+    virtual ~PrinceAndBlanch();
 
 
     // Member Functions
 
-        //- Breakup kernel
-        virtual tmp<volScalarField> Kb(const label nodei) const;
+        //- Aggregation kernel
+        virtual tmp<volScalarField> Pc
+        (
+            const label nodei,
+            const label nodej
+        ) const;
 
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace breakupKernels
+} // End namespace coalescenceEfficiencyKernels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

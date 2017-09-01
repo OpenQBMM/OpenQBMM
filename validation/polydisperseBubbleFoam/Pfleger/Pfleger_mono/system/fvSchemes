@@ -51,7 +51,7 @@ interpolationSchemes
 {
     default         linear;
 
-    "interpolate\(moment.*\)" upwind phi.air;
+    "interpolate\(moment.*\)" upwind;
 
     reconstruct(U)          upwind;
     reconstruct(Us)         upwind;

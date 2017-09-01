@@ -23,23 +23,25 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Chesters.H"
+#include "LuoSvendsen.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "phasePair.H"
+#include "phaseModel.H"
+#include "PhaseCompressibleTurbulenceModel.H"
+
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coalescenceEfficiencyKernels
+namespace bubbleBreakupKernels
 {
-    defineTypeNameAndDebug(Chesters, 0);
+    defineTypeNameAndDebug(LuoSvendsen, 0);
 
     addToRunTimeSelectionTable
     (
-        coalescenceEfficiencyKernel,
-        Chesters,
+        bubbleBreakupKernel,
+        LuoSvendsen,
         dictionary
     );
 }
@@ -48,65 +50,71 @@ namespace coalescenceEfficiencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::Chesters::Chesters
+Foam::bubbleBreakupKernels::LuoSvendsen::LuoSvendsen
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalescenceEfficiencyKernel(dict, mesh),
+    bubbleBreakupKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    Ceff_(dict.lookup("Ceff")),
-    ReExp_(dict.lookup("ReExp")),
-    WeExp_(dict.lookup("WeExp"))
+    C1_
+    (
+        dict.lookupOrDefault
+        (
+            "C1",
+            dimensionedScalar("C1", dimless, 0.04)
+        )
+    ),
+    C2_
+    (
+        dict.lookupOrDefault
+        (
+            "C2",
+            dimensionedScalar("C2", dimless, 0.01)
+        )
+    )
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::Chesters::~Chesters()
+Foam::bubbleBreakupKernels::LuoSvendsen::~LuoSvendsen()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceEfficiencyKernels::Chesters::Pc
-(
-    const label nodei,
-    const label nodej
-) const
+Foam::bubbleBreakupKernels::LuoSvendsen::Kb(const label nodei) const
 {
-    const phasePair& pair = fluid_.pair1In2();
-    const phaseModel& phase1 = fluid_.phase1();
-    const phaseModel& phase2 = fluid_.phase2();
-
-    const volScalarField& di = fluid_.phase1().ds(nodei);
-    const volScalarField& dj = fluid_.phase1().ds(nodej);
-
-    volScalarField Weij
+    volScalarField epsilon
     (
-        phase2.rho()
-       *di
-       *magSqr(phase1.Us(nodei) - phase1.Us(nodej))
-       /fluid_.sigma()
+        "epsilon",
+        fluid_.phase2().turbulence().epsilon()
     );
-    volScalarField xi(di/dj);
-    volScalarField theta
-    (
-        "theta",
-        Ceff_
-       *pow(max(pair.Re(nodei, 0), SMALL), ReExp_)
-       *pow(max(pair.We(nodei, 0), SMALL), WeExp_)
-    );
+    epsilon.max(SMALL);
 
-    return
-        Foam::exp
+    const volScalarField& d = fluid_.phase1().ds(nodei);
+    const volScalarField& rho1 = fluid_.phase1().rho();
+    const volScalarField& rho2 = fluid_.phase2().rho();
+    const volScalarField& mu = fluid_.phase2().mu();
+    const dimensionedScalar& sigma = fluid_.sigma();
+
+    tmp<volScalarField> breakupSource =
+        Cb_*cbrt(epsilon)
+       *Foam::erfc
         (
-          - theta*sqrt(Weij)
-           *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
-           /(sqrt(fluid_.phase1().rho()/fluid_.phase2().rho())*pow3(1.0 + xi))
+            Foam::sqrt
+            (
+                C1_*sigma
+               /(rho2*pow(epsilon, 2.0/3.0)*pow(d, 5.0/3.0))
+              + C2_*mu
+               /(sqrt(rho1*rho2)*cbrt(epsilon)*pow(d, 4.0/3.0))
+            )
         );
+    breakupSource.ref().dimensions().reset(inv(dimTime));
+    return breakupSource;
 }
 
 // ************************************************************************* //

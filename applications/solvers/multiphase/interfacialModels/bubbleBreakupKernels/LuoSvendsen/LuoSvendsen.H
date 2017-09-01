@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::breakupKernels::Alopaeus
+    Foam::breakupKernels::LuoSvendsen
 
 Description
     Turbulent breakup kernel supplemented for bubbles in turbulent
@@ -53,18 +53,18 @@ Description
     References
     \verbatim
         "Numerical solution of moment-transformed population balance equation with fixed quadrature points"
-        Ville Alopaeus and Marko Laakkonen and Juhani Aittamaa
+        Ville LuoSvendsen and Marko Laakkonen and Juhani Aittamaa
         Chemical Engineering Science
         Volume 61, Pages 4919-4929, 2006
     \endverbatim
 
 SourceFiles
-    Alopaeus.C
+    LuoSvendsen.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Alopaeus_H
-#define Alopaeus_H
+#ifndef LuoSvendsen_H
+#define LuoSvendsen_H
 
 #include "bubbleBreakupKernel.H"
 #include "twoPhaseSystem.H"
@@ -77,10 +77,10 @@ namespace bubbleBreakupKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class Alopaeus Declaration
+                    Class LuoSvendsen Declaration
 \*---------------------------------------------------------------------------*/
 
-class Alopaeus
+class LuoSvendsen
 :
     public bubbleBreakupKernel
 {
@@ -97,13 +97,13 @@ class Alopaeus
 public:
 
         //- Runtime type information
-        TypeName("Alopaeus");
+        TypeName("LuoSvendsen");
 
 
     // Constructors
 
         //- Construct from components
-        Alopaeus
+        LuoSvendsen
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -111,7 +111,7 @@ public:
 
 
     //- Destructor
-    virtual ~Alopaeus();
+    virtual ~LuoSvendsen();
 
 
     // Member Functions
