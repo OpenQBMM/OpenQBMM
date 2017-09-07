@@ -56,7 +56,9 @@ CoulaloglouAndTavlarides
     coalescenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
     Ceff_(dict.lookup("Ceff"))
-{}
+{
+    Ceff_.dimensions().reset(inv(sqr(dimLength)));
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

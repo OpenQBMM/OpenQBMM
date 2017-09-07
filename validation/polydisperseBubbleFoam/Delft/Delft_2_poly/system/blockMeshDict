@@ -16,8 +16,8 @@ FoamFile
 
 convertToMeters .01;
 
-w       15;
-h       300;
+w       24.3;
+h       97.2;
 depth   5;
 
 //F2
@@ -30,13 +30,13 @@ depth   5;
 // x1      1.65;  x2       13.35;
 
 //F4
-x1      2.25;  x2       12.75;
+// x1      2.25;  x2       12.75;
 
 
 cellSize    0.5;
 
-nPtsWide1   #calc "round(($w - 2*$x1)/$cellSize)";
-nPtsWide2   #calc "round($x1/$cellSize)";
+// nPtsWide1   #calc "round(($w - 2*$x1)/$cellSize)";
+// nPtsWide2   #calc "round($x1/$cellSize)";
 nPtsWide    #calc "round($w/$cellSize)";
 nPtsHigh    #calc "round($h/$cellSize)";
 nDepthPts   1;

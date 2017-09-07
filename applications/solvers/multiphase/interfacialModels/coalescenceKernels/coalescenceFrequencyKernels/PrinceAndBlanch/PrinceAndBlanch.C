@@ -104,15 +104,15 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
 
     if (turbulent_)
     {
-        freqSrc.ref() +=
-            0.089*constant::mathematical::pi*sqr(d1 + d2)
+        freqSrc == freqSrc
+          + 0.089*constant::mathematical::pi*sqr(d1 + d2)
            *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
            *cbrt(fluid_.phase2().turbulence().epsilon());
     }
     if (buoyant_)
     {
-        freqSrc.ref() +=
-            constant::mathematical::pi/4.0*sqr(d1 + d2)
+        freqSrc == freqSrc
+          + constant::mathematical::pi/4.0*sqr(d1 + d2)
            *(
                sqrt(2.14*sigma/(d1*rho) + 0.5*g*d1)
              - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
@@ -120,8 +120,8 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
     }
     if (LS_)
     {
-        freqSrc.ref() +=
-            2.0/3.0*pow3(d1 + d2)*mag(fvc::grad(fluid_.phase2().U()));
+        freqSrc == freqSrc
+          + 2.0/3.0*pow3(d1 + d2)*mag(fvc::grad(fluid_.phase2().U()));
     }
     return tmpFreqSrc;
 }

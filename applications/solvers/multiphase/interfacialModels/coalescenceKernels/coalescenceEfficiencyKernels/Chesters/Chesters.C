@@ -105,7 +105,10 @@ Foam::coalescenceEfficiencyKernels::Chesters::Pc
         (
           - theta*sqrt(Weij)
            *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
-           /(sqrt(fluid_.phase1().rho()/fluid_.phase2().rho())*pow3(1.0 + xi))
+           /(
+                sqrt(fluid_.phase1().rho()/fluid_.phase2().rho() + 0.5)
+               *pow3(1.0 + xi)
+            )
         );
 }
 
