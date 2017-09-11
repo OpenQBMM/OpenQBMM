@@ -132,6 +132,9 @@ class pdPhaseModel
             const volScalarField& abscissa
         );
 
+        //- Solve ode for breakup and coalescnce
+        void solveSourceOde();
+
 
 public:
 

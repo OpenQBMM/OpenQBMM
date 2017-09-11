@@ -36,7 +36,7 @@ water
     diameterModel   constant;
     constantCoeffs
     {
-        d               1e-3;
+        d               1e-4;
     }
 
     residualAlpha   1e-4;
@@ -46,19 +46,14 @@ blending
 {
     default
     {
-        type            none;
+        type                            linear;
         continuousPhase                 water;
         dispersedPhase                  air;
 
-        maxPartlyDispersedAlpha.air     0.7;
-        maxPartlyDispersedAlpha.water   0.7;
-        maxFullyDispersedAlpha.air      0.2;
-        maxFullyDispersedAlpha.water    0.2;
-
-        minFullyContinuousAlpha.air     0.7;
-        minPartlyContinuousAlpha.air    0.5;
-        minFullyContinuousAlpha.water   0.7;
-        minPartlyContinuousAlpha.water  0.5;
+        maxFullyDispersedAlpha.air 0.3;
+        maxPartlyDispersedAlpha.air 0.5;
+        maxFullyDispersedAlpha.water 0.3;
+        maxPartlyDispersedAlpha.water 0.5;
     }
 }
 
@@ -84,7 +79,30 @@ drag
     (air in water)
     {
         type            SchillerNaumann;
-        residualRe      1e-4;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (water in air)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (air and water)
+    {
+        type            segregated;
+        residualRe      1e-3;
+        residualAlpha   1e-4;
+        m               0.5;
+        n               8;
         swarmCorrection
         {
             type        none;

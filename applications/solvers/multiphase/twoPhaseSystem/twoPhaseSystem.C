@@ -322,42 +322,35 @@ Foam::twoPhaseSystem::Kd(const label nodei) const
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::twoPhaseSystem::Kd(const bool sum) const
+Foam::tmp<Foam::volScalarField> Foam::twoPhaseSystem::Kd() const
 {
-    if (sum)
-    {
-        tmp<volScalarField> tKd
+    tmp<volScalarField> tKd
+    (
+        new volScalarField
         (
-            new volScalarField
+            IOobject
             (
-                IOobject
-                (
-                    "Kd",
-                    mesh_.time().timeName(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
+                "Kd",
+                mesh_.time().timeName(),
                 mesh_,
-                dimensionedScalar
-                (
-                    "Kd",
-                    dimDensity*dimViscosity/sqr(dimLength),
-                    0.0
-                )
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh_,
+            dimensionedScalar
+            (
+                "Kd",
+                dimDensity*dimViscosity/sqr(dimLength),
+                0.0
             )
-        );
-        for (label nodei = 0; nodei < nNodes_; nodei++)
-        {
-            tKd.ref() += Kd(nodei);
-        }
-        return tKd;
-    }
-    else
+        )
+    );
+    for (label nodei = 0; nodei < nNodes_; nodei++)
     {
-        return drag_->K();
+        tKd.ref() += Kd(nodei);
     }
+    return tKd;
 }
 
 
@@ -369,42 +362,35 @@ Foam::twoPhaseSystem::Kdf(const label nodei) const
 
 
 Foam::tmp<Foam::surfaceScalarField>
-Foam::twoPhaseSystem::Kdf(const bool sum) const
+Foam::twoPhaseSystem::Kdf() const
 {
-    if (sum)
-    {
-        tmp<surfaceScalarField> tKdf
+    tmp<surfaceScalarField> tKdf
+    (
+        new surfaceScalarField
         (
-            new surfaceScalarField
+            IOobject
             (
-                IOobject
-                (
-                    "Kd",
-                    mesh_.time().timeName(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
+                "Kd",
+                mesh_.time().timeName(),
                 mesh_,
-                dimensionedScalar
-                (
-                    "Kd",
-                    dimDensity*dimViscosity/sqr(dimLength),
-                    0.0
-                )
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh_,
+            dimensionedScalar
+            (
+                "Kd",
+                dimDensity*dimViscosity/sqr(dimLength),
+                0.0
             )
-        );
-        for (label nodei = 0; nodei < nNodes_; nodei++)
-        {
-            tKdf.ref() += Kdf(nodei);
-        }
-        return tKdf;
-    }
-    else
+        )
+    );
+    for (label nodei = 0; nodei < nNodes_; nodei++)
     {
-        return drag_->Kf();
+        tKdf.ref() += Kdf(nodei);
     }
+    return tKdf;
 }
 
 
@@ -415,42 +401,35 @@ Foam::twoPhaseSystem::Vm(const label nodei) const
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::twoPhaseSystem::Vm(const bool sum) const
+Foam::tmp<Foam::volScalarField> Foam::twoPhaseSystem::Vm() const
 {
-    if (sum)
-    {
-        tmp<volScalarField> tVm
+    tmp<volScalarField> tVm
+    (
+        new volScalarField
         (
-            new volScalarField
+            IOobject
             (
-                IOobject
-                (
-                    "Vm",
-                    mesh_.time().timeName(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
+                "Vm",
+                mesh_.time().timeName(),
                 mesh_,
-                dimensionedScalar
-                (
-                    "Vm",
-                    dimDensity,
-                    0.0
-                )
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh_,
+            dimensionedScalar
+            (
+                "Vm",
+                dimDensity,
+                0.0
             )
-        );
-        for (label nodei = 0; nodei < nNodes_; nodei++)
-        {
-            tVm.ref() += Vm(nodei);
-        }
-        return tVm;
-    }
-    else
+        )
+    );
+    for (label nodei = 0; nodei < nNodes_; nodei++)
     {
-        return virtualMass_->K();
+        tVm.ref() += Vm(nodei);
     }
+    return tVm;
 }
 
 
@@ -462,42 +441,35 @@ Foam::twoPhaseSystem::Vmf(const label nodei) const
 
 
 Foam::tmp<Foam::surfaceScalarField>
-Foam::twoPhaseSystem::Vmf(const bool sum) const
+Foam::twoPhaseSystem::Vmf() const
 {
-    if (sum)
-    {
-        tmp<surfaceScalarField> tVmf
+    tmp<surfaceScalarField> tVmf
+    (
+        new surfaceScalarField
         (
-            new surfaceScalarField
+            IOobject
             (
-                IOobject
-                (
-                    "Vmf",
-                    mesh_.time().timeName(),
-                    mesh_,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
+                "Vmf",
+                mesh_.time().timeName(),
                 mesh_,
-                dimensionedScalar
-                (
-                    "Vmf",
-                    dimDensity,
-                    0.0
-                )
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh_,
+            dimensionedScalar
+            (
+                "Vmf",
+                dimDensity,
+                0.0
             )
-        );
-        for (label nodei = 0; nodei < nNodes_; nodei++)
-        {
-            tVmf.ref() += Vmf(nodei);
-        }
-        return tVmf;
-    }
-    else
+        )
+    );
+    for (label nodei = 0; nodei < nNodes_; nodei++)
     {
-        return virtualMass_->Kf();
+        tVmf.ref() += Vmf(nodei);
     }
+    return tVmf;
 }
 
 

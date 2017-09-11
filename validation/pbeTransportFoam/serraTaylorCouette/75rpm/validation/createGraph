@@ -21,7 +21,7 @@ createEpsD43()
                 with points pointtype 7 ps 3 linecolor rgb 'black',\
             "$3" using 1:2 every 5000 title 'OpenQBMM C_{Br} = 0.6e-3'\
                 with points pointtype 7 ps 3 linecolor rgb '#9db668',\
-            "$2" using 1:2 every 3 title 'Marchisio C_{Br} = 0.6e-3'\
+            "$2" using 1:2 every 3 title 'Marchisio et al. (2003) C_{Br} = 0.6e-3'\
                 with points pointtype 5 ps 2 linecolor rgb 'blue',\
 
 EOF
