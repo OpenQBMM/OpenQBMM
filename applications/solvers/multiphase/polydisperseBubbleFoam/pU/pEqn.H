@@ -95,8 +95,8 @@ tmp<surfaceScalarField> phiF2;
         );
 
         // Add size dependent dispersion contribution to phiF
-        phiF1.ref() += fvc::interpolate(rAU1*Di)*snGradAlpha1;
-        phiF2.ref() -= fvc::interpolate(rAU2*Di)*snGradAlpha1;
+        phiF1.ref() += Df1*snGradAlpha1;
+        phiF2.ref() -= Df2*snGradAlpha1;
     }
 }
 
@@ -333,12 +333,6 @@ while (pimple.correct())
             fvc::div(phiHbyA)
           - fvm::laplacian(rAUf, p_rgh)
         );
-
-        if (fluid.AG())
-        {
-            //
-            pEqnIncomp -= fvc::ddt(rho1, alpha1);
-        }
 
         solve
         (

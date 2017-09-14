@@ -127,10 +127,6 @@ wallLubrication
 
 turbulentDispersion
 (
-//     (air in water)
-//     {
-//         type    Panicker;
-//     }
 );
 
 bubblePressure

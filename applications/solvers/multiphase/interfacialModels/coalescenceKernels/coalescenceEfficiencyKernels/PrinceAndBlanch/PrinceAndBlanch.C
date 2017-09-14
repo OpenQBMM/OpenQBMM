@@ -105,8 +105,8 @@ Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::Pc
     return
         Foam::exp
         (
-          - sqrt(rho)*pow(rij, 5/6)*cbrt(epsilon)*log(ho_/hf_)
-           /(4.0*sqrt(sigma)*pow(rij, 2/3))
+          - sqrt(rho*pow3(rij)/(16.0*sigma))*log(ho_/hf_)
+           /(pow(rij, 2.0/3.0)/pow(epsilon, 1.0/3.0))
         );
 }
 

@@ -367,6 +367,27 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::daughterDistribution
 
 void Foam::pdPhaseModel::solveSourceOde()
 {
+    if (!ode_)
+    {
+        forAll(quadrature_.moments(), mI)
+        {
+            quadrature_.moments()[mI] +=
+                U_.mesh().time().deltaT()
+               *(
+                    coalescenceSource(mI) + breakupSource(mI)
+                );
+        }
+        forAll(quadrature_.velocityMoments(), mI)
+        {
+            quadrature_.velocityMoments()[mI] +=
+                U_.mesh().time().deltaT()
+               *(
+                    coalescenceSourceU(mI) + breakupSourceU(mI)
+                );
+        }
+        return;
+    }
+
     const label nVMoments = quadrature_.velocityMoments().size();
 
     PtrList<volScalarField> k1(nMoments_);
@@ -618,6 +639,7 @@ Foam::pdPhaseModel::pdPhaseModel
             IOobject::NO_WRITE
         )
     ),
+    ode_(pbeDict_.lookupOrDefault("ode", false)),
     coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),

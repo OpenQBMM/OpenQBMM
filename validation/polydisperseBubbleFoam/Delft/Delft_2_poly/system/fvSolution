@@ -101,7 +101,7 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors 5;
+    nOuterCorrectors 25;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
