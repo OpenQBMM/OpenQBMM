@@ -17,17 +17,15 @@ FoamFile
 
 application     denseAGFoam;
 
-startFrom       latestTime;
- // startFrom       startTime;
+startFrom       startTime;
 
 startTime       0;
 
-  stopAt          endTime;
-//  stopAt          writeNow;
+stopAt          endTime;
 
 endTime         4.04;
 
-deltaT          1e-5;
+deltaT          1e-3;
 
 writeControl    adjustableRunTime;
 

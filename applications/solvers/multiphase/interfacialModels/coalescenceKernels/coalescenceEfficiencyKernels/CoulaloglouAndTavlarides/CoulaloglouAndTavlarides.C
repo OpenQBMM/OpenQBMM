@@ -57,7 +57,7 @@ CoulaloglouAndTavlarides
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
     Ceff_(dict.lookup("Ceff"))
 {
-    Ceff_.dimensions().reset(inv(dimLength));
+    Ceff_.dimensions().reset(inv(sqr(dimLength)));
 }
 
 
@@ -87,14 +87,11 @@ Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
         Foam::exp
         (
           - Ceff_
-           *sqrt
+           *fluid_.phase2().nu()*epsilon*sqr(rho/sigma)
+           *pow4
             (
-                fluid_.phase2().nu()*epsilon*sqr(rho/sigma)
-               *pow4
-                (
-                    d1*d2
-                   /max(d1 + d2, dimensionedScalar("zero", dimLength, SMALL))
-                )
+                d1*d2
+                /max(d1 + d2, dimensionedScalar("zero", dimLength, SMALL))
             )
         );
 }

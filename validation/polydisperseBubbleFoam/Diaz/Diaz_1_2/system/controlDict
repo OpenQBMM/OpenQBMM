@@ -100,6 +100,7 @@ functions
     {
         type        probes;
         functionObjectLibs ("libsampling.so");
+        startTime   0;
         probeLocations
         (
             (0  0.038   0.002)

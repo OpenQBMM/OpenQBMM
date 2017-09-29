@@ -49,12 +49,9 @@ void Foam::pdPhaseModel::updateVelocity()
             quadrature_.moments()[1],
             residualAlpha_*rho()
         );
-
     U_.correctBoundaryConditions();
+
     phiPtr_() = fvc::flux(U_);
-    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
-    correctInflowOutflow(alphaPhi_);
-    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
 }
 
 
@@ -94,37 +91,108 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
     volScalarField& cSource = tmpCSource.ref();
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
-    forAll(nodes, pNode1i)
+    forAll(nodes, nodei)
     {
-        const volScalarNode& node1 = nodes[pNode1i];
-        const volScalarField& pWeight1 = node1.primaryWeight();
-        const volScalarField& pAbscissa1 = node1.primaryAbscissa();
+        const volScalarNode& node1 = nodes[nodei];
+        const volScalarField& weight1 = node1.primaryWeight();
+        const volScalarField& abscissa1 = node1.primaryAbscissa();
 
-        forAll(nodes, pNode2i)
+        forAll(nodes, nodej)
         {
-            const volScalarNode& node2 = nodes[pNode2i];
-            const volScalarField& pWeight2 = node2.primaryWeight();
-            const volScalarField& pAbscissa2 = node2.primaryAbscissa();
+            const volScalarNode& node2 = nodes[nodej];
+            const volScalarField& weight2 = node2.primaryWeight();
+            const volScalarField& abscissa2 = node2.primaryAbscissa();
 
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa
             cSource +=
-                pWeight1*
-                (
-                    pWeight2*
-                    (
+                weight1
+               *(
+                    weight2
+                   *(
                         0.5*pow // Birth
                         (
-                            pow3(pAbscissa1)
-                          + pow3(pAbscissa2),
+                            pow3(abscissa1)
+                          + pow3(abscissa2),
                             momentOrder/3.0
                         )
-                      - pow(pAbscissa1, momentOrder)
-                    )*coalescenceKernel_.Ka(pNode1i, pNode2i)
+                      - pow(abscissa1, momentOrder)
+                    )*coalescenceKernel_.Ka(nodei, nodej)
                 );
         }
     }
-    return tmpCSource;
+    return tmpCSource*pos(0.8 - *this);
+}
+
+
+Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::coalescenceSourceU
+(
+    const label momentOrder
+)
+{
+    tmp<volVectorField> tmpCSource
+    (
+        new volVectorField
+        (
+            IOobject
+            (
+                "cSource",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedVector
+            (
+                "0",
+                quadrature_.velocityMoments()[momentOrder].dimensions()/dimTime,
+                Zero
+            )
+        )
+    );
+
+    if (!coalescence_)
+    {
+        return tmpCSource;
+    }
+
+    volVectorField& cSource = tmpCSource.ref();
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
+
+    forAll(nodes, nodei)
+    {
+        const volScalarNode& node1 = nodes[nodei];
+        const volScalarField& weight1 = node1.primaryWeight();
+        const volScalarField& abscissa1 = node1.primaryAbscissa();
+
+        forAll(nodes, nodej)
+        {
+            const volScalarNode& node2 = nodes[nodej];
+            const volScalarField& weight2 = node2.primaryWeight();
+            const volScalarField& abscissa2 = node2.primaryAbscissa();
+
+            //- Diameter is used to calculate the coalesence kernel in place
+            //  of the abscissa
+            cSource +=
+                weight1
+               *Us_[nodei]
+               *(
+                    weight2
+                   *(
+                        0.5*pow // Birth
+                        (
+                            pow3(abscissa1)
+                          + pow3(abscissa2),
+                            momentOrder/3.0
+                        )
+                      - pow(abscissa1, momentOrder)
+                    )*coalescenceKernel_.Ka(nodei, nodej)
+                );
+        }
+    }
+    return tmpCSource*pos(0.8 - *this);
 }
 
 
@@ -163,15 +231,15 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
 
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
-    forAll(nodes, pNodei)
+    forAll(nodes, nodei)
     {
-        const volScalarNode& node = nodes[pNodei];
+        const volScalarNode& node = nodes[nodei];
 
         //- Diameter is used to calculate the breakup kernel in place
         //  of the abscissa
         bSource.ref() +=
             node.primaryWeight()
-           *breakupKernel_->Kb(pNodei)
+           *breakupKernel_->Kb(nodei)
            *(
                 daughterDistribution                       //Birth
                 (
@@ -182,7 +250,66 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
             );
     }
 
-    return bSource;
+    return bSource*pos(0.8 - *this);
+}
+
+
+Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::breakupSourceU
+(
+    const label momentOrder
+)
+{
+    tmp<volVectorField> bSource
+    (
+        new volVectorField
+        (
+            IOobject
+            (
+                "bSource",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedVector
+            (
+                "0",
+                quadrature_.velocityMoments()[momentOrder].dimensions()/dimTime,
+                Zero
+            )
+        )
+    );
+
+    if (!breakup_)
+    {
+        return bSource;
+    }
+
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
+
+    forAll(nodes, nodei)
+    {
+        const volScalarNode& node = nodes[nodei];
+
+        //- Diameter is used to calculate the breakup kernel in place
+        //  of the abscissa
+        bSource.ref() +=
+            Us_[nodei]
+           *node.primaryWeight()
+           *breakupKernel_->Kb(nodei)
+           *(
+                daughterDistribution                       //Birth
+                (
+                    momentOrder,
+                    node.primaryAbscissa()
+                )
+              - pow(node.primaryAbscissa(), momentOrder)   //Death
+            );
+    }
+
+    return bSource*pos(0.8 - *this);
 }
 
 
@@ -228,6 +355,260 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::daughterDistribution
     return tmpDaughterDist;
 }
 
+
+void Foam::pdPhaseModel::solveSourceOde()
+{
+    if (!ode_)
+    {
+        forAll(quadrature_.moments(), mI)
+        {
+            quadrature_.moments()[mI] +=
+                U_.mesh().time().deltaT()
+               *(
+                    coalescenceSource(mI) + breakupSource(mI)
+                );
+        }
+        forAll(quadrature_.velocityMoments(), mI)
+        {
+            quadrature_.velocityMoments()[mI] +=
+                U_.mesh().time().deltaT()
+               *(
+                    coalescenceSourceU(mI) + breakupSourceU(mI)
+                );
+        }
+        return;
+    }
+
+    const label nVMoments = quadrature_.velocityMoments().size();
+
+    PtrList<volScalarField> k1(nMoments_);
+    PtrList<volScalarField> k2(nMoments_);
+    PtrList<volScalarField> k3(nMoments_);
+    PtrList<volScalarField> momentsOld(nMoments_);
+
+    PtrList<volVectorField> k1U(nVMoments);
+    PtrList<volVectorField> k2U(nVMoments);
+    PtrList<volVectorField> k3U(nVMoments);
+    PtrList<volVectorField> velocityMomentsOld(nVMoments);
+
+    forAll(momentsOld, mI)
+    {
+        k1.set
+        (
+            mI,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "k1",
+                    U_.mesh().time().timeName(),
+                    U_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                U_.mesh(),
+                dimensionedScalar
+                (
+                    "k1",
+                    quadrature_.moments()[mI].dimensions(),
+                    0.0
+                )
+            )
+        );
+
+        k2.set
+        (
+            mI,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "k2",
+                    U_.mesh().time().timeName(),
+                    U_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                U_.mesh(),
+                dimensionedScalar
+                (
+                    "k2",
+                    quadrature_.moments()[mI].dimensions(),
+                    0.0
+                )
+            )
+        );
+
+        k3.set
+        (
+            mI,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "k3",
+                    U_.mesh().time().timeName(),
+                    U_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                U_.mesh(),
+                dimensionedScalar
+                (
+                    "k3",
+                    quadrature_.moments()[mI].dimensions(),
+                    0.0
+                )
+            )
+        );
+
+        momentsOld.set
+        (
+            mI,
+            new volScalarField(quadrature_.moments()[mI])
+        );
+    }
+
+    forAll(velocityMomentsOld, mI)
+    {
+        k1U.set
+        (
+            mI,
+            new volVectorField
+            (
+                IOobject
+                (
+                    "k1U",
+                    U_.mesh().time().timeName(),
+                    U_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                U_.mesh(),
+                dimensionedVector
+                (
+                    "k1U",
+                    quadrature_.velocityMoments()[mI].dimensions(),
+                    Zero
+                )
+            )
+        );
+
+        k2U.set
+        (
+            mI,
+            new volVectorField
+            (
+                IOobject
+                (
+                    "k2U",
+                    U_.mesh().time().timeName(),
+                    U_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                U_.mesh(),
+                dimensionedVector
+                (
+                    "k2U",
+                    quadrature_.velocityMoments()[mI].dimensions(),
+                    Zero
+                )
+            )
+        );
+
+        k3U.set
+        (
+            mI,
+            new volVectorField
+            (
+                IOobject
+                (
+                    "k3U",
+                    U_.mesh().time().timeName(),
+                    U_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                U_.mesh(),
+                dimensionedVector
+                (
+                    "k3U",
+                    quadrature_.velocityMoments()[mI].dimensions(),
+                    Zero
+                )
+            )
+        );
+
+        velocityMomentsOld.set
+        (
+            mI,
+            new volVectorField(quadrature_.velocityMoments()[mI])
+        );
+    }
+
+    quadrature_.updateAllQuadrature();
+
+    // Read current deltaT
+    dimensionedScalar dt0 = U_.mesh().time().deltaT();
+
+
+    // Calculate k1 for all moments
+    forAll(momentsOld, mI)
+    {
+        k1[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
+        quadrature_.moments()[mI] == momentsOld[mI] + k1[mI];
+    }
+    forAll(velocityMomentsOld, mI)
+    {
+        k1U[mI] = dt0*(coalescenceSourceU(mI) + breakupSourceU(mI));
+        quadrature_.velocityMoments()[mI] == velocityMomentsOld[mI] + k1U[mI];
+    }
+    quadrature_.updateAllQuadrature();
+
+    // Calculate k2 for all moments
+    forAll(momentsOld, mI)
+    {
+        k2[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
+        quadrature_.moments()[mI] == momentsOld[mI] + (k1[mI] + k2[mI])/4.0;
+    }
+    forAll(velocityMomentsOld, mI)
+    {
+        k2U[mI] = dt0*(coalescenceSourceU(mI) + breakupSourceU(mI));
+        quadrature_.velocityMoments()[mI] ==
+            velocityMomentsOld[mI]
+          + (k1U[mI] + k2U[mI])/4.0;
+    }
+    quadrature_.updateAllQuadrature();
+
+    // calculate k3 and new moments for all moments
+    forAll(momentsOld, mI)
+    {
+        k3[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
+
+        // Second order accurate, k3 only used for error estimation
+        quadrature_.moments()[mI] ==
+            momentsOld[mI]
+          + (k1[mI] + k2[mI] + 4.0*k3[mI])/6.0;
+    }
+    forAll(velocityMomentsOld, mI)
+    {
+        k2U[mI] = dt0*(coalescenceSourceU(mI) + breakupSourceU(mI));
+        quadrature_.velocityMoments()[mI] ==
+            velocityMomentsOld[mI]
+          + (k1U[mI] + k2U[mI] + 4.0*k3U[mI])/6.0;
+    }
+    quadrature_.updateAllQuadrature();
+
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::pdPhaseModel::pdPhaseModel
@@ -249,6 +630,7 @@ Foam::pdPhaseModel::pdPhaseModel
             IOobject::NO_WRITE
         )
     ),
+    ode_(pbeDict_.lookupOrDefault("ode", false)),
     coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
@@ -281,13 +663,8 @@ Foam::pdPhaseModel::pdPhaseModel
         )
     )
 {
-//     if (nNodes_ == 1)
-//     {
-//         FatalErrorInFunction
-//             << "Polydisperse phase model selected, but only one node " << nl
-//             << "is used. Please use monodispersePhaseModel instead." << endl
-//             << exit(FatalError);
-//     }
+    this->d_.writeOpt() = IOobject::AUTO_WRITE;
+
     wordList phiTypes
     (
         U_.boundaryField().size(),
@@ -403,9 +780,17 @@ Foam::pdPhaseModel::~pdPhaseModel()
 
 void Foam::pdPhaseModel::correct()
 {
-    quadrature_.updateAllQuadrature();
-
     d_ = dimensionedScalar("zero", dimLength, 0.0);
+
+    volScalarField scale
+    (
+        (*this)
+       /Foam::max
+        (
+            quadrature_.moments()[1]/rho(),
+            residualAlpha_
+        )
+    );
 
     forAll(quadrature_.nodes(), nodei)
     {
@@ -420,16 +805,9 @@ void Foam::pdPhaseModel::correct()
         else
         {
             alphas_[nodei] =
-                Foam::max
-                (
-                    node.primaryWeight()*node.primaryAbscissa()/rho()
-                   *(*this)/Foam::max
-                    (
-                        quadrature_.moments()[1]/rho(),
-                        residualAlpha_
-                    ),
-                    dimensionedScalar("zero", dimless, 0.0)
-                );
+                node.primaryWeight()*node.primaryAbscissa()/rho()*scale;
+            alphas_[nodei].max(0);
+            alphas_[nodei].min(1);
         }
 
         //  Calculate bubble diameter based on bubble mass (abscissa)
@@ -440,11 +818,7 @@ void Foam::pdPhaseModel::correct()
                 (
                     Foam::pow
                     (
-                        Foam::max
-                        (
-                            node.primaryAbscissa(),
-                            dimensionedScalar("zero", dimMass, 0.0)
-                        )*6.0
+                        node.primaryAbscissa()*6.0
                        /(rho()*Foam::constant::mathematical::pi),
                         1.0/3.0
                     ),
@@ -453,155 +827,173 @@ void Foam::pdPhaseModel::correct()
                 maxD_
             );
 
-        d_ += alphas_[nodei]*ds_[nodei];
+        if (nNodes_ > 1)
+        {
+            d_ += alphas_[nodei]*ds_[nodei];
+        }
     }
 
-    d_ /= Foam::max((*this), residualAlpha_);
+    if (nNodes_ > 1)
+    {
+        d_ /= Foam::max((*this), residualAlpha_);
+    }
+    else
+    {
+        d_ = ds_[0];
+    }
     d_.max(minD_);
 }
 
 
 void Foam::pdPhaseModel::relativeTransport()
 {
+    if (nNodes_ == 1)
+    {
+        return;
+    }
+
     Info<< "Transporting moments based on relative flux" << endl;
 
     quadrature_.interpolateNodes();
-
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
 
-    // Transport moments with relative flux only if polydisperse
-    if (nNodes_ > 1)
+    // Transport moments with relative flux
+    forAll(quadrature_.moments(), mEqni)
     {
-        forAll(quadrature_.moments(), mEqni)
-        {
-            volScalarField& m = quadrature_.moments()[mEqni];
-            dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
+        volScalarField& m = quadrature_.moments()[mEqni];
+        dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
 
-            // Create total flux field so that the individual fluxes can be
-            // summed together
-            volScalarField relativeDivVp
+        // Create total flux field so that the individual fluxes can be
+        // summed together
+        volScalarField relativeDivVp
+        (
+            IOobject
             (
-                IOobject
-                (
-                    "relativeDivVp",
-                    fluid_.mesh().time().timeName(),
-                    fluid_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
+                "relativeDivVp",
+                fluid_.mesh().time().timeName(),
                 fluid_.mesh(),
-                dimensionedScalar("zero", m.dimensions()/dimTime, 0.0)
-            );
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedScalar("zero", m.dimensions()/dimTime, 0.0)
+        );
 
-            for (label nodei = 0; nodei < nNodes_; nodei++)
-            {
-                surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
+        for (label nodei = 0; nodei < nNodes_; nodei++)
+        {
+            surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
 
-                // Calculate size moment flux
-                surfaceScalarField rFluxVp
-                (
-                    nodesNei[nodei].primaryWeight()
-                   *(
-                        pow
-                        (
-                            nodesNei[nodei].primaryAbscissa(),
-                            mEqni
-                        )
-                    )*Foam::min(phiv, zeroPhi)
-                  + nodesOwn[nodei].primaryWeight()
-                   *pow
-                    (
-                        nodesOwn[nodei].primaryAbscissa(),
-                        mEqni
-                    )*Foam::max(phiv, zeroPhi)
-                );
-
-                relativeDivVp += fvc::surfaceIntegrate(rFluxVp);
-            }
-
-            // Solve relative size moment transport equation
-            fvScalarMatrix mEqn
+            // Calculate size moment flux
+            surfaceScalarField rFluxVp
             (
-                fvm::ddt(m)
-              + relativeDivVp
+                nodesNei[nodei].primaryWeight()
+               *(
+                    pow
+                    (
+                        nodesNei[nodei].primaryAbscissa(),
+                        mEqni
+                    )
+                )*Foam::min(phiv, zeroPhi)
+              + nodesOwn[nodei].primaryWeight()
+               *pow
+                (
+                    nodesOwn[nodei].primaryAbscissa(),
+                    mEqni
+                )*Foam::max(phiv, zeroPhi)
             );
 
-            mEqn.relax();
-            mEqn.solve();
+            relativeDivVp += fvc::surfaceIntegrate(rFluxVp);
         }
 
-        forAll(quadrature_.velocityMoments(), mEqni)
-        {
-            volVectorField& Up = quadrature_.velocityMoments()[mEqni];
-            dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
+        // Solve relative size moment transport equation
+        fvScalarMatrix mEqn
+        (
+            fvm::ddt(m)
+          + relativeDivVp
+        );
 
-            // Create total flux field so that the individual fluxes can be
-            // summed together
-            volVectorField relativeDivPp
-            (
-                IOobject
-                (
-                    "relativeDivPp",
-                    fluid_.mesh().time().timeName(),
-                    fluid_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                fluid_.mesh(),
-                dimensionedVector("zero", Up.dimensions()/dimTime, Zero)
-            );
-
-            for (label nodei = 0; nodei < nNodes_; nodei++)
-            {
-                surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
-
-                // Calculate velocity moment flux
-                surfaceVectorField rFluxPp
-                (
-                    "rFluxPp",
-                    quadrature_.velocitiesNei()[nodei]
-                   *nodesNei[nodei].primaryWeight()
-                    *(
-                        pow
-                        (
-                            nodesNei[nodei].primaryAbscissa(),
-                            mEqni
-                        )
-                    )*Foam::min(phiv, zeroPhi)
-                  + quadrature_.velocitiesOwn()[nodei]
-                   *nodesOwn[nodei].primaryWeight()
-                   *pow
-                    (
-                        nodesOwn[nodei].primaryAbscissa(),
-                        mEqni
-                    )*Foam::max(phiv, zeroPhi)
-                );
-
-                relativeDivPp += fvc::surfaceIntegrate(rFluxPp);
-            }
-
-            // Solve relative velocity moment transport equation
-            fvVectorMatrix UpEqn
-            (
-                fvm::ddt(Up)
-              + relativeDivPp
-            );
-
-            UpEqn.relax();
-            UpEqn.solve();
-        }
-
-        quadrature_.updateAllQuadrature();
-        this->updateVelocity();
+        mEqn.relax();
+        mEqn.solve();
     }
+
+    forAll(quadrature_.velocityMoments(), mEqni)
+    {
+        volVectorField& Up = quadrature_.velocityMoments()[mEqni];
+        dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
+
+        // Create total flux field so that the individual fluxes can be
+        // summed together
+        volVectorField relativeDivPp
+        (
+            IOobject
+            (
+                "relativeDivPp",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            dimensionedVector("zero", Up.dimensions()/dimTime, Zero)
+        );
+
+        for (label nodei = 0; nodei < nNodes_; nodei++)
+        {
+            surfaceScalarField phiv("phiv", fvc::flux(Vs_[nodei]));
+
+            // Calculate velocity moment flux
+            surfaceVectorField rFluxPp
+            (
+                "rFluxPp",
+                quadrature_.velocitiesNei()[nodei]
+               *nodesNei[nodei].primaryWeight()
+               *(
+                    pow
+                    (
+                        nodesNei[nodei].primaryAbscissa(),
+                        mEqni
+                    )
+                )*Foam::min(phiv, zeroPhi)
+              + quadrature_.velocitiesOwn()[nodei]
+               *nodesOwn[nodei].primaryWeight()
+               *pow
+                (
+                    nodesOwn[nodei].primaryAbscissa(),
+                    mEqni
+                )*Foam::max(phiv, zeroPhi)
+            );
+
+            relativeDivPp += fvc::surfaceIntegrate(rFluxPp);
+        }
+
+        // Solve relative velocity moment transport equation
+        fvVectorMatrix UpEqn
+        (
+            fvm::ddt(Up)
+          + relativeDivPp
+        );
+
+        UpEqn.relax();
+        UpEqn.solve();
+    }
+    quadrature_.updateAllQuadrature();
+    this->updateVelocity();
+
+    volScalarField(*this) = quadrature_.moments()[1]/rho();
+    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
+    correctInflowOutflow(alphaPhi_);
+    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
+
     correct();
 }
 
 void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 {
+    solveSourceOde();
+
     Info<< "Transporting moments with average velocity" << endl;
 
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
@@ -612,7 +1004,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
     forAll(quadrature_.moments(), mEqni)
     {
         volScalarField& m = quadrature_.moments()[mEqni];
-
         dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
 
         volScalarField meanDivUbMp
@@ -661,13 +1052,22 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             fvm::ddt(m)
           - fvc::ddt(m)
           + meanDivUbMp
-          + breakupSource(mEqni)
-          + coalescenceSource(mEqni)
         );
         mEqn.relax();
         mEqn.solve();
     }
 
+    if(nNodes_ == 1)
+    {
+        forAll(quadrature_.velocityMoments(), mi)
+        {
+            quadrature_.velocityMoments()[mi] = U_*quadrature_.moments()[mi];
+            quadrature_.velocityMoments()[mi].correctBoundaryConditions();
+        }
+
+        quadrature_.updateAllQuadrature();
+        return;
+    }
     forAll(quadrature_.velocityMoments(), mEqni)
     {
         dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
@@ -726,7 +1126,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         UpEqn.relax();
         UpEqn.solve();
     }
-
     quadrature_.updateAllQuadrature();
     correct();
 
@@ -749,14 +1148,18 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         volScalarField alphaRhoi
         (
             "alphaRhoi",
-            quadrature_.nodes()[nodei].primaryAbscissa()
-           *quadrature_.nodes()[nodei].primaryWeight()
+            Foam::max
+            (
+                quadrature_.nodes()[nodei].primaryAbscissa()
+               *quadrature_.nodes()[nodei].primaryWeight(),
+                residualAlpha_*rho()
+            )
         );
 
         // Solve for velocities using acceleration terms
         fvVectorMatrix UsEqn
         (
-            fvm::ddt(alphaRhoi, Us_[nodei])
+            alphaRhoi*fvm::ddt(Us_[nodei])
           - alphaRhoi*fvc::ddt(Us_[nodei])
           + fvm::Sp(tauC*alphaRhoi, Us_[nodei])
 
@@ -771,6 +1174,13 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 
     quadrature_.updateAllMoments();
     this->updateVelocity();
+
+    volScalarField(*this) = quadrature_.moments()[1]/rho();
+    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
+    correctInflowOutflow(alphaPhi_);
+    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
+
+    correct();
 
     // Update deviation velocity
     forAll(Vs_, nodei)

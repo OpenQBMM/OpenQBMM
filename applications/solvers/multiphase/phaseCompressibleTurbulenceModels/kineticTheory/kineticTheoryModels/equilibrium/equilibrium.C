@@ -67,19 +67,19 @@ Foam::kineticTheoryModels::equilibrium::~equilibrium()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::kineticTheoryModels::equilibrium::correct()
+void Foam::kineticTheoryModels::equilibrium::solve
+(
+    const volScalarField& beta,
+    const volScalarField& alpha,
+    const volTensorField& gradU,
+    const volSymmTensorField D
+)
 {
     // Local references
-    volScalarField alpha(max(phase_, scalar(0)));
     const volScalarField& rho = phase_.rho();
     const volScalarField& da = phase_.d();
-    const volSymmTensorField D(symm(fvc::grad(phase_.U())));
 
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
-
-    // Update the radial distribution function
-    g0_ = radialModel_->g0(alpha, alphaMinFriction_, alphaMax_);
-
 
     // Equilibrium => dissipation == production
     // Eq. 4.14, p.82
@@ -107,7 +107,7 @@ void Foam::kineticTheoryModels::equilibrium::correct()
     (
         "trD",
         alpha/(alpha + residualAlpha_)
-        *fvc::div(phase_.phi())
+       *fvc::div(phase_.phi()*this->h2f())
     );
     volScalarField tr2D("tr2D", sqr(trD));
     volScalarField trD2("trD2", tr(D & D));

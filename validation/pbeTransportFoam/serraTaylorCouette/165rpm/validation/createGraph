@@ -17,8 +17,10 @@ createEpsD43()
 
     plot    "$1" using 1:2 title 'Experiments (Serra et al., 1997)'\
                 with points pointtype 7 ps 3 linecolor rgb 'black',\
-            "$2" using 1:2 every 20 title 'OpenQBMM C_{Br} = 0.6e-3'\
-                with points linetype 2 linewidth 5 linecolor rgb '#9db668'
+            "$3" using 1:2 every 200 title 'OpenQBMM C_{Br} = 0.6e-3'\
+                with points linetype 2 linewidth 5 linecolor rgb '#9db668',\
+            "$2" using 1:2 every 3 title 'Marchisio et al. (2003) C_{Br} = 0.6e-3'\
+                with points pointtype 5 ps 2 linecolor rgb 'blue'
 EOF
 }
 
@@ -30,12 +32,12 @@ then
 fi
 
 # extract data from log file and put them in a text file for gnuplot
-cat ../log.pbeTransportFoam | grep '^Time = ' | cut -c8-15 > time.tmp
-cat ../log.pbeTransportFoam | grep 'Volume averaged normalized d43' | cut -d':' -f2 > d43.tmp
-paste time.tmp d43.tmp > volumeAveragedD43.dat
+#cat ../log.pbeTransportFoam | grep '^Time = ' | cut -c8-15 > time.tmp
+#cat ../log.pbeTransportFoam | grep 'Volume averaged normalized d43' | cut -d':' -f2 > d43.tmp
+#paste time.tmp d43.tmp > volumeAveragedD43.dat
 
 #Remove temporary files
-rm time.tmp d43.tmp
+#rm time.tmp d43.tmp
 
 # paths to data
 VALIDATIONDATAROOT=./validationData
@@ -43,5 +45,8 @@ VALIDATIONDATAROOT=./validationData
 echo "    processing d43 profile" > log.createGraphs 2>&1
 OPENQBMMM="volumeAveragedD43.dat"
 VALIDATION="$VALIDATIONDATAROOT/SerraEtAl1997_d43_165rpm.dat"
+MARCHISIO="$VALIDATIONDATAROOT/Marchisio_165_6.csv"
 
-createEpsD43 $VALIDATION $OPENQBMMM
+createEpsD43 $VALIDATION $MARCHISIO $OPENQBMMM
+
+echo Done

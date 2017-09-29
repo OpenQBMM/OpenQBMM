@@ -19,7 +19,7 @@ phases (air water);
 
 air
 {
-    type            polydisperPhaseModel;
+    type            polydispersePhaseModel;
     residualAlpha   1e-4;
     minD            1e-4;
     maxD            1e-2;
@@ -40,6 +40,9 @@ blending
     default
     {
         type                            linear;
+        continuousPhase                 water;
+        dispersedPhase                  air;
+
         maxFullyDispersedAlpha.air      0.3;
         maxPartlyDispersedAlpha.air     0.5;
         maxFullyDispersedAlpha.water    0.3;
@@ -49,22 +52,11 @@ blending
 
 sigma
 (
-    (air and water)   0.7
+    (air and water)   0.07
 );
 
 aspectRatio
 (
-    (air in water)
-    {
-        type            constant;
-        E0              1.0;
-    }
-
-    (water in air)
-    {
-        type            constant;
-        E0              1.0;
-    }
 );
 
 drag
@@ -73,8 +65,6 @@ drag
     {
         type            SchillerNaumann;
         residualRe      1e-3;
-        residualEo      1e-3;
-        residualE       1e-2;
         swarmCorrection
         {
             type        none;
@@ -85,8 +75,6 @@ drag
     {
         type            SchillerNaumann;
         residualRe      1e-3;
-        residualEo      1e-3;
-        residualE       1e-2;
         swarmCorrection
         {
             type        none;
@@ -114,17 +102,6 @@ turbulentDispersion
 
 virtualMass
 (
-    (air in water)
-    {
-        type            constantCoefficient;
-        Cvm             0.5;
-    }
-
-    (water in air)
-    {
-        type            constantCoefficient;
-        Cvm             0.5;
-    }
 );
 
 lift

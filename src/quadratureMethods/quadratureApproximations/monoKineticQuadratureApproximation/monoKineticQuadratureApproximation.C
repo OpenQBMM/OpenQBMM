@@ -52,7 +52,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
         )
     ),
     nNodes_(nodes_().size()),
-    velocityMoments_(nNodes_),
+    velocityMoments_(max(nNodes_, 2)),
     velocityAbscissae_(nNodes_),
     nodesNei_(),
     velocitiesNei_(nNodes_),
@@ -510,6 +510,11 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
     updateVelocities();
     updateBoundaryVelocities();
 
+    forAll(nodes_(), nodei)
+    {
+        velocityAbscissae_[nodei].correctBoundaryConditions();
+    }
+
     updateAllMoments();
 }
 
@@ -625,11 +630,6 @@ void Foam::monoKineticQuadratureApproximation::updateVelocities()
                 velocityAbscissae_[nodei][celli] = U_[celli];
             }
         }
-    }
-
-    forAll(nodes_(), nodei)
-    {
-        velocityAbscissae_[nodei].correctBoundaryConditions();
     }
 }
 

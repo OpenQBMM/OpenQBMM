@@ -27,15 +27,14 @@ boundaryField
     }
     outlet
     {
-        type                inletOutlet;
+        type                zeroGradient;
         phi                 phi.water;
         inletValue          uniform (0 0 0);
         value               $internalField;
     }
     walls
     {
-        type                fixedValue;
-        value               uniform (0 0 0);
+        type                noSlip;
     }
     defaultFaces
     {

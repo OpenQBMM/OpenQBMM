@@ -64,6 +64,9 @@ class pdPhaseModel
         //- Population balance properties
         IOdictionary pbeDict_;
 
+        //- Switch to turn ode on/off (off by defaul)
+        Switch ode_;
+
         //- Switch for coalescence
         Switch coalescence_;
 
@@ -116,8 +119,14 @@ class pdPhaseModel
         //- Coalesence source
         tmp<volScalarField> coalescenceSource(const label momentOrder);
 
+        //- Coalesence source for velocity moments
+        tmp<volVectorField> coalescenceSourceU(const label momentOrder);
+
         //- Breakup source
         tmp<volScalarField> breakupSource(const label momentOrder);
+
+        //- Breakup source for velocity moments
+        tmp<volVectorField> breakupSourceU(const label momentOrder);
 
         //- Return daughterDistribution
         tmp<volScalarField> daughterDistribution
@@ -125,6 +134,9 @@ class pdPhaseModel
             const label momentOrder,
             const volScalarField& abscissa
         );
+
+        //- Solve ode for breakup and coalescnce
+        void solveSourceOde();
 
 
 public:

@@ -78,24 +78,37 @@ Foam::coalescenceEfficiencyKernels::Chesters::Pc
 ) const
 {
     const phasePair& pair = fluid_.pair1In2();
-    const volScalarField& d1 = fluid_.phase1().ds(nodei);
-    const volScalarField& d2 = fluid_.phase1().ds(nodej);
-    volScalarField We(pair.We());
-    volScalarField xi(d1/d2);
+    const phaseModel& phase1 = fluid_.phase1();
+    const phaseModel& phase2 = fluid_.phase2();
+
+    const volScalarField& di = fluid_.phase1().ds(nodei);
+    const volScalarField& dj = fluid_.phase1().ds(nodej);
+
+    volScalarField Weij
+    (
+        phase2.rho()
+       *di
+       *magSqr(phase1.Us(nodei) - phase1.Us(nodej))
+       /fluid_.sigma()
+    );
+    volScalarField xi(di/dj);
     volScalarField theta
     (
         "theta",
         Ceff_
-       *pow(max(pair.Re(), SMALL), ReExp_)
-       *pow(max(We, SMALL), WeExp_)
+       *pow(max(pair.Re(nodei, 0), SMALL), ReExp_)
+       *pow(max(pair.We(nodei, 0), SMALL), WeExp_)
     );
 
     return
         Foam::exp
         (
-          - theta*sqrt(We)
+          - theta*sqrt(Weij)
            *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
-           /(sqrt(fluid_.phase1().rho()/fluid_.phase2().rho())*pow3(1.0 + xi))
+           /(
+                sqrt(fluid_.phase1().rho()/fluid_.phase2().rho() + 0.5)
+               *pow3(1.0 + xi)
+            )
         );
 }
 

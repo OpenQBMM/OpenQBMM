@@ -135,12 +135,28 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
     volScalarField I
     (
         alpha1
-       /max
+        /max
         (
             alpha1 + alpha2,
             pair_.phase1().residualAlpha() + pair_.phase2().residualAlpha()
         )
     );
+
+    if (pair_.phase2().nNodes() > 1)
+    {
+        I *=
+            max
+            (
+                alpha2,
+                pair_.phase2().residualAlpha()
+                /pair_.phase2().nNodes()
+            )
+            /max
+            (
+                pair_.phase2(),
+                pair_.phase2().residualAlpha()
+            );
+    }
 
     volScalarField magGradI
     (

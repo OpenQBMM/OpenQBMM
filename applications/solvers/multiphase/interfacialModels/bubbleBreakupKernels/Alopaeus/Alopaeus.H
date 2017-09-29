@@ -22,8 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::breakupKernels::
-    Alopaeus
+    Foam::breakupKernels::Alopaeus
 
 Description
     Turbulent breakup kernel supplemented for bubbles in turbulent

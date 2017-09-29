@@ -1,7 +1,8 @@
 volScalarField contErr1
 (
     "contErr1",
-    fvc::ddt(alpha1, rho1) + fvc::div(alphaRhoPhi1)
+    fvc::ddt(alpha1, rho1)
+  + fvc::div(alphaRhoPhi1)
 );
 
 volScalarField contErr2

@@ -19,7 +19,7 @@ dimensions      [0 0 0 0 0 0 0];
 internalField   uniform 0.1;
 
 boundaryField
-{   
+{
     right
     {
         type            zeroGradient;
@@ -38,11 +38,11 @@ boundaryField
     }
     front
     {
-		type            	cyclic;
+		type            	empty;
     }
     back
     {
-		type            	cyclic;
+		type            	empty;
     }
 }
 

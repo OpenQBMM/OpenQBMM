@@ -270,7 +270,13 @@ public:
     // Update functions
 
         //- Update kinetic theory quantities (turbulent correct)
-        virtual void correct() = 0;
+        virtual void solve
+        (
+            const volScalarField& beta,
+            const volScalarField& alpha,
+            const volTensorField& gradU,
+            const volSymmTensorField D
+        ) = 0;
 
         //- Transport moments
         virtual void transportMoments()
@@ -282,26 +288,71 @@ public:
             return HUGE;
         }
 
-        //- Scale drag coefficient by h2fn
-        virtual tmp<volScalarField>
-        hydrodynamicScale(const volScalarField& Kd) const
-        {
-            return Kd;
-        }
-
         //- Return fraction to be used for hydrodynamic flux
-        virtual tmp<surfaceScalarField>
-        hydrodynamicScalef(const surfaceScalarField& phi) const
+        virtual tmp<volScalarField> h2() const
         {
-            return phi;
+             return tmp<volScalarField>
+            (
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "one",
+                        phase_.mesh().time().timeName(),
+                        phase_.mesh(),
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE,
+                        false
+                    ),
+                    phase_.mesh(),
+                    dimensionedScalar("1", inv(dimTime), 1.0)
+                )
+            );
         }
 
-        //- Return fraction to be used for hydrodynamic velocity
-        virtual tmp<volVectorField>
-        hydrodynamicScale(const volVectorField& U) const
+        //- Return interpolated fraction to be used for hydrodynamic flux
+        virtual tmp<surfaceScalarField> h2f() const
         {
-            return U;
+             return tmp<surfaceScalarField>
+            (
+                new surfaceScalarField
+                (
+                    IOobject
+                    (
+                        "one",
+                        phase_.mesh().time().timeName(),
+                        phase_.mesh(),
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE,
+                        false
+                    ),
+                    phase_.mesh(),
+                    dimensionedScalar("1", inv(dimTime), 1.0)
+                )
+            );
         }
+
+        virtual tmp<volScalarField> ddtAlphaDilute() const
+        {
+            return tmp<volScalarField>
+            (
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "zero",
+                        phase_.mesh().time().timeName(),
+                        phase_.mesh(),
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE,
+                        false
+                    ),
+                    phase_.mesh(),
+                    dimensionedScalar("0", inv(dimTime), 0.0)
+                )
+            );
+        }
+
 
         //- Update viscosity and conductivity
         void update();

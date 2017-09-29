@@ -56,9 +56,9 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
 :
     coalescenceFrequencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    turbulent_(dict.lookupOrDefault("turbulentCoalesence", false)),
-    buoyant_(dict.lookupOrDefault("buoyantCoalesence", true)),
-    LS_(dict.lookupOrDefault("laminarShearCoalesence", true))
+    turbulent_(dict.lookupOrDefault("turbulentCoalescence", false)),
+    buoyant_(dict.lookupOrDefault("buoyantCoalescence", true)),
+    LS_(dict.lookupOrDefault("laminarShearCoalescence", true))
 {}
 
 
@@ -112,7 +112,7 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
     if (buoyant_)
     {
         freqSrc == freqSrc
-          + constant::mathematical::pi*sqr(d1 + d2)
+          + constant::mathematical::pi/4.0*sqr(d1 + d2)
            *(
                sqrt(2.14*sigma/(d1*rho) + 0.5*g*d1)
              - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
@@ -121,7 +121,11 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
     if (LS_)
     {
         freqSrc == freqSrc
-          + 2.0/3.0*pow3(d1 + d2)*mag(fvc::grad(fluid_.phase2().U()));
+          + 1.0/6.0*pow3(d1 + d2)
+           *mag
+            (
+                fvc::grad(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
+            );
     }
     return tmpFreqSrc;
 }

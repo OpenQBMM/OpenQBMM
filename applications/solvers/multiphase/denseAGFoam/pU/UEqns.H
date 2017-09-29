@@ -17,31 +17,31 @@ volScalarField Kd(fluid.Kd());
 
     volSymmTensorField Sigma2
     (
-        "Sigma2",
-        nu2Eff*dev(twoSymm(fvc::grad(U2)))
+        IOobject::groupName("Sigma", phase2.name()),
+        alpha2*nu2Eff*dev(twoSymm(fvc::grad(U2)))
     );
 
     U1Eqn =
         (
             fvm::ddt(alpha1, rho1, U1)
+          - ddtAlphaRhoU1
           + fvm::div
             (
-                AGmodel.hydrodynamicScalef(alphaRhoPhi1),
-//                 alphaRhoPhi1,
+                h2f*alphaRhoPhi1,
                 U1,
-                "div(" + alphaRhoPhi1.name() + "," + U1.name() +")"
+                "div(" + alphaRhoPhi1.name() + "," + U1.name() + ")"
             )
           - fvm::Sp(contErr1, U1)
           + MRF.DDt(alpha1*rho1, U1)
 
           + fluid.divDevRhoReff1()
          ==
-            alpha1*rho2/rho1*fvc::div(phase2.turbulence().devRhoReff())
+            alpha1*rho2*fvc::div(Sigma2)
           + fvOptions(alpha1, rho1, U1)
         );
 
     U1Eqn.relax();
-    U1Eqn += fvm::Sp(AGmodel.hydrodynamicScale(Kd), U1);
+    U1Eqn += fvm::Sp(Kd, U1);
     fvOptions.constrain(U1Eqn);
 
 

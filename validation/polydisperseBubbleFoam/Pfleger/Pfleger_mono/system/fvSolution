@@ -21,7 +21,7 @@ solvers
     {
         solver          GAMG;
         preconditioner  DIC;
-        nAlphaCorr      2;
+        nAlphaCorr      1;
         nAlphaSubCycles 2;
     }
     p_rgh
@@ -36,7 +36,7 @@ solvers
         nCellsInCoarsestLevel 10;
         agglomerator    faceAreaPair;
         mergeLevels     2;
-        tolerance       1e-8;
+        tolerance       1e-10;
         maxIter         1000;
     }
 
@@ -50,7 +50,7 @@ solvers
     {
         solver          PBiCG;
         preconditioner  DILU;
-        tolerance       1e-6;
+        tolerance       1e-8;
         relTol          0;
         minIter         1;
     }
@@ -85,8 +85,8 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors 15;
-    nCorrectors      2;
+    nOuterCorrectors 5;
+    nCorrectors      3;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
     pRefValue 1e5;
@@ -94,7 +94,7 @@ PIMPLE
     {
         p_rgh
         {
-            tolerance 1e-5;
+            tolerance 1e-4;
             relTol    0;
         }
     }
@@ -104,8 +104,7 @@ relaxationFactors
 {
     equations
     {
-        p_rgh       0.3;
-        U           0.7;
+        p_rgh       1.0;
     }
 }
 

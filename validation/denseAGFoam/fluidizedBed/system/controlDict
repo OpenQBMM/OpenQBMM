@@ -23,13 +23,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         3;
+endTime         10;
 
-deltaT          2e-4;
+deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 
-writeInterval   0.01;
+writeInterval   0.05;
 
 purgeWrite      0;
 
@@ -45,11 +45,11 @@ timePrecision   6;
 
 runTimeModifiable on;
 
-adjustTimeStep  no;
+adjustTimeStep  yes;
 
-maxCo           0.2;
+maxCo           0.1;
 
-maxDeltaT       0.001;
+maxDeltaT       0.0002;
 
 functions
 {
@@ -88,7 +88,22 @@ functions
                  base        time;
             }
         );
-}
+    }
+    pProbes
+    {
+        type        probes;
+        functionObjectLibs ("libsampling.so");
+        probeLocations
+        (
+            (0.14   0       0)
+            (0.14   0.2     0)
+        );
+
+        fields
+        (
+            p_rgh
+        );
+    }
 }
 
 

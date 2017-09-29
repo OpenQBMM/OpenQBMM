@@ -10,6 +10,7 @@ dragModels/SchillerNaumann/SchillerNaumann.C
 dragModels/SyamlalOBrien/SyamlalOBrien.C
 dragModels/TomiyamaCorrelated/TomiyamaCorrelated.C
 dragModels/TomiyamaAnalytic/TomiyamaAnalytic.C
+dragModels/Tomiyama/Tomiyama.C
 dragModels/WenYu/WenYu.C
 dragModels/IshiiZuber/IshiiZuber.C
 
@@ -71,6 +72,10 @@ coalescenceKernels/coalescenceEfficiencyKernels/coalescenceEfficiencyKernel/newC
 coalescenceKernels/coalescenceEfficiencyKernels/CoulaloglouAndTavlarides/CoulaloglouAndTavlarides.C
 coalescenceKernels/coalescenceEfficiencyKernels/Chesters/Chesters.C
 coalescenceKernels/coalescenceEfficiencyKernels/constant/constant.C
+coalescenceKernels/coalescenceEfficiencyKernels/PrinceAndBlanch/PrinceAndBlanch.C
+coalescenceKernels/coalescenceEfficiencyKernels/Lehr/Lehr.C
+
+
 
 bubbleBreakupKernels/bubbleBreakupKernel/bubbleBreakupKernel.C
 bubbleBreakupKernels/bubbleBreakupKernel/newBubbleBreakupKernel.C

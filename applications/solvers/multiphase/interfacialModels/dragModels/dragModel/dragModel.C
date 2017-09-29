@@ -140,11 +140,38 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
     const label nodej
 ) const
 {
+    if (pair_.continuous().nNodes() > 1)
+    {
+        return
+            max
+            (
+                pair_.dispersed().alphas(nodei)
+               *max
+                (
+                    pair_.continuous().alphas(nodej),
+                    pair_.continuous().residualAlpha()
+                   /pair_.continuous().nNodes()
+                )
+               /max
+                (
+                    pair_.continuous(),
+                    pair_.continuous().residualAlpha()
+                ),
+                pair_.dispersed().residualAlpha()
+               /pair_.dispersed().nNodes()
+            )*Ki(nodei, nodej);
+    }
+
     return
         max
         (
             pair_.dispersed().alphas(nodei),
             pair_.dispersed().residualAlpha()
+           /max
+            (
+                pair_.dispersed().nNodes(),
+                pair_.continuous().nNodes()
+            )
         )*Ki(nodei, nodej);
 }
 
@@ -171,6 +198,11 @@ Foam::tmp<Foam::surfaceScalarField> Foam::dragModel::Kf
         (
             fvc::interpolate(pair_.dispersed().alphas(nodei)),
             pair_.dispersed().residualAlpha()
+           /max
+            (
+                pair_.dispersed().nNodes(),
+                pair_.continuous().nNodes()
+            )
         )*fvc::interpolate(Ki(nodei, nodej));
 }
 

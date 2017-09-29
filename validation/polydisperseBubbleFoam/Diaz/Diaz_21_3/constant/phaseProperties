@@ -19,7 +19,7 @@ phases (air water);
 
 air
 {
-    type            polydispersePhaseModel
+    type            polydispersePhaseModel;
     BGviscosity     true;
     residualAlpha   1e-4;
     minD            1e-4;
@@ -28,7 +28,7 @@ air
 
 water
 {
-    type            monodispersePhaseModel
+    type            monodispersePhaseModel;
     BGviscosity     true;
     residualAlpha   1e-4;
     d               1e-4;
@@ -73,8 +73,7 @@ drag
 (
     (air in water)
     {
-        type            TomiyamaCorrelated;
-        A               8.0;
+        type            Tomiyama;
         residualRe      1e-3;
         residualEo      1e-3;
         residualE       1e-2;

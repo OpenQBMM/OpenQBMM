@@ -102,7 +102,7 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors 15;
+    nOuterCorrectors 30;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
@@ -122,7 +122,6 @@ relaxationFactors
     equations
     {
         p_rgh       0.3;
-        U           0.7;
     }
 }
 

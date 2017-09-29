@@ -242,7 +242,23 @@ Foam::RASModels::kineticTheory::divDevRhoReff
 void Foam::RASModels::kineticTheory::correct()
 {
     kineticTheoryModel_->update();
-    kineticTheoryModel_->correct();
+
+     // Local references
+    volScalarField alpha(max(phase_, scalar(0)));
+    const volVectorField& U = phase_.U();
+
+    tmp<volTensorField> tgradU(fvc::grad(U));
+    const volTensorField& gradU(tgradU());
+
+    kineticTheoryModel_->solve
+    (
+        refCast<const twoPhaseSystem>(phase_.fluid()).drag(phase_).K()(),
+        alpha,
+        gradU,
+        symm(gradU)()
+
+    );
+
     kineticTheoryModel_->update();
     nut_ = kineticTheoryModel_->nuEff();
 

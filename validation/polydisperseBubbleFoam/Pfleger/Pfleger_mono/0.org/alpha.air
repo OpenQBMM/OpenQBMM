@@ -28,10 +28,7 @@ boundaryField
     }
     outlet
     {
-        type            inletOutlet;
-        phi             phi.air;
-        inletValue      uniform 1.0;
-        value           $internalField;
+        type            zeroGradient;
     }
     walls
     {

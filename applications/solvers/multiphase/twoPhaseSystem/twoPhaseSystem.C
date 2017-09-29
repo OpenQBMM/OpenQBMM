@@ -324,7 +324,33 @@ Foam::twoPhaseSystem::Kd(const label nodei) const
 
 Foam::tmp<Foam::volScalarField> Foam::twoPhaseSystem::Kd() const
 {
-    return drag_->K();
+    tmp<volScalarField> tKd
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "Kd",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh_,
+            dimensionedScalar
+            (
+                "Kd",
+                dimDensity*dimViscosity/sqr(dimLength),
+                0.0
+            )
+        )
+    );
+    for (label nodei = 0; nodei < nNodes_; nodei++)
+    {
+        tKd.ref() += Kd(nodei);
+    }
+    return tKd;
 }
 
 
@@ -335,9 +361,36 @@ Foam::twoPhaseSystem::Kdf(const label nodei) const
 }
 
 
-Foam::tmp<Foam::surfaceScalarField> Foam::twoPhaseSystem::Kdf() const
+Foam::tmp<Foam::surfaceScalarField>
+Foam::twoPhaseSystem::Kdf() const
 {
-    return drag_->Kf();
+    tmp<surfaceScalarField> tKdf
+    (
+        new surfaceScalarField
+        (
+            IOobject
+            (
+                "Kd",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh_,
+            dimensionedScalar
+            (
+                "Kd",
+                dimDensity*dimViscosity/sqr(dimLength),
+                0.0
+            )
+        )
+    );
+    for (label nodei = 0; nodei < nNodes_; nodei++)
+    {
+        tKdf.ref() += Kdf(nodei);
+    }
+    return tKdf;
 }
 
 
@@ -350,7 +403,33 @@ Foam::twoPhaseSystem::Vm(const label nodei) const
 
 Foam::tmp<Foam::volScalarField> Foam::twoPhaseSystem::Vm() const
 {
-    return virtualMass_->K();
+    tmp<volScalarField> tVm
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "Vm",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh_,
+            dimensionedScalar
+            (
+                "Vm",
+                dimDensity,
+                0.0
+            )
+        )
+    );
+    for (label nodei = 0; nodei < nNodes_; nodei++)
+    {
+        tVm.ref() += Vm(nodei);
+    }
+    return tVm;
 }
 
 
@@ -361,9 +440,36 @@ Foam::twoPhaseSystem::Vmf(const label nodei) const
 }
 
 
-Foam::tmp<Foam::surfaceScalarField> Foam::twoPhaseSystem::Vmf() const
+Foam::tmp<Foam::surfaceScalarField>
+Foam::twoPhaseSystem::Vmf() const
 {
-    return virtualMass_->Kf();
+    tmp<surfaceScalarField> tVmf
+    (
+        new surfaceScalarField
+        (
+            IOobject
+            (
+                "Vmf",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh_,
+            dimensionedScalar
+            (
+                "Vmf",
+                dimDensity,
+                0.0
+            )
+        )
+    );
+    for (label nodei = 0; nodei < nNodes_; nodei++)
+    {
+        tVmf.ref() += Vmf(nodei);
+    }
+    return tVmf;
 }
 
 
@@ -551,6 +657,7 @@ Foam::tmp<Foam::fvVectorMatrix> Foam::twoPhaseSystem::divDevRhoReff2()
                 )*phase1_().d()
                *mag(phase1_().U() - phase2_().U())
                *sqrt(phase1_()*phase2_())
+               *pos0(phase2_() - 0.1)
             )
         );
 
@@ -766,10 +873,6 @@ void Foam::twoPhaseSystem::relativeTransport()
 
 void Foam::twoPhaseSystem::averageTransport()
 {
-    if (nNodes_ == 1)
-    {
-        return;
-    }
     // Liquid viscous stress
     volSymmTensorField taul(phase2_->turbulence().devRhoReff());
 

@@ -136,6 +136,17 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
 		),
 		mesh_,
 		vector::zero
+	),
+    ddtAlphaDilute_
+    (
+		IOobject
+		(
+			"ddtAlphaDilute",
+			mesh_.time().timeName(),
+			mesh_
+		),
+		mesh_,
+		dimensionedScalar("0", inv(dimTime), 0.0)
 	)
 {
 	if (!cellInv_)
@@ -274,6 +285,7 @@ void Foam::AGmomentTransportModel::solve
 
     const dimensionedScalar& deltaT = mesh_.time().deltaT();
 
+    // Predictor step
     m0 = m0Old - 0.5*fvc::surfaceIntegrate(F0_)*deltaT;
     m1 = m1Old - 0.5*fvc::surfaceIntegrate(F1_)*deltaT;
     m2 = m2Old - 0.5*fvc::surfaceIntegrate(F2_)*deltaT;
@@ -290,60 +302,79 @@ void Foam::AGmomentTransportModel::solve
 
 	calcMomentFluxes(h1f);
 
-	{
-        m0 = m0Old - fvc::surfaceIntegrate(F0_)*deltaT;
-        m0.correctBoundaryConditions();
+    // Correction
+    m0 = m0Old - fvc::surfaceIntegrate(F0_)*deltaT;
+    m0.correctBoundaryConditions();
 
-        volScalarField taup
-        (
-            max(fvc::average(h1f), phase_.residualAlpha())
-           *phase_.fluid().drag(phase_).Ki(0,0)
-           /phase_.rho()*deltaT
-        );
+    m1 = m1Old - fvc::surfaceIntegrate(F1_)*deltaT;
+    m1.correctBoundaryConditions();
 
-        const volVectorField& Uc = phase_.fluid().otherPhase(phase_).U();
+    m2 = m2Old - fvc::surfaceIntegrate(F2_)*deltaT;
+    m2.correctBoundaryConditions();
 
-        m1 = (m1Old - fvc::surfaceIntegrate(F1_)*deltaT + taup*alphap_*Uc)
-           /(1.0 + taup);
-
-        m1.correctBoundaryConditions();
-
-        m2 = m2Old - fvc::surfaceIntegrate(F2_)*deltaT;
-        m2.correctBoundaryConditions();
-    }
-
-
+    // Set volume fraction updated form dilute transport
 	m0.max(SMALL);
 	alphap_ = m0;
     alphap_.correctBoundaryConditions();
+    ddtAlphaDilute_ = fvc::ddt(alphap_);
 
+    // Set velocity from dilute transport
 	Up_ = m1/m0;
     Up_.correctBoundaryConditions();
 
+    // Update fluxes
     surfaceScalarField& phip =
-        mesh_.lookupObjectRef<surfaceScalarField>
-        (
-            IOobject::groupName("phi", phase_.name())
-        );
+        mesh_.lookupObjectRef<surfaceScalarField>(phase_.phi().name());
+    surfaceScalarField& alphaPhip =
+        mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaPhi().name());
+    surfaceScalarField& alphaRhoPhip =
+        mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaRhoPhi().name());
 
-        phip = fvc::flux(Up_);
+    phip = fvc::flux(Up_);
 
+    alphaPhip = fvc::interpolate(alphap_)*phase_.phi();
+    alphaRhoPhip = fvc::interpolate(phase_.rho())*phase_.alphaPhi();
+
+    surfaceScalarField& phi =
+        mesh_.lookupObjectRef<surfaceScalarField>("phi");
+    const phaseModel& otherPhase = phase_.fluid().otherPhase(phase_);
+
+    phi =
+        fvc::interpolate(alphap_)*phip
+      + fvc::interpolate(otherPhase)*otherPhase.phi();
+
+    // Update particle pressure tensor
 	Pp_ = m2/m0 - sqr(Up_);
     forAll(Pp_,i)
 	{
-		if(Pp_[i].xx() < SMALL) Pp_[i].xx() = SMALL;
-		if(Pp_[i].yy() < SMALL) Pp_[i].yy() = SMALL;
-		if(Pp_[i].zz() < SMALL) Pp_[i].zz() = SMALL;
+		if(Pp_[i].xx() < SMALL)
+        {
+                Pp_[i].xx() = SMALL;
+        }
+
+		if(Pp_[i].yy() < SMALL)
+        {
+            Pp_[i].yy() = SMALL;
+        }
+
+		if(Pp_[i].zz() < SMALL)
+        {
+            Pp_[i].zz() = SMALL;
+        }
 	}
     Pp_.correctBoundaryConditions();
 
+    // Update granular temperature based on granular temperature
 	Theta_ = 1.0/3.0*tr(Pp_);
 	Theta_.max(0);
 	Theta_.min(100);
 	Theta_.correctBoundaryConditions();
+    Theta_.oldTime() = Theta_;
 
+    // Update granular stress tensor
     Sigma_ = Theta_*symmTensor::I - Pp_;
 	Sigma_.correctBoundaryConditions();
+    Sigma_.oldTime() = Sigma_;
 }
 
 
@@ -551,7 +582,10 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 				else
 				{
 					// incoming flux from the inlet boundary
-					const scalarField& alphaPf(alphap_.boundaryField()[patchi]);
+					const scalarField& alphaPf
+					(
+                        alphap_.boundaryField()[patchi]
+                    );
 					const vectorField& UpPf(Up_.boundaryField()[patchi]);
 					const symmTensorField& PpPf(Pp_.boundaryField()[patchi]);
 
@@ -694,7 +728,11 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 
 						//  reflection flux on the wall
 						vector nf(sf/mag(sf));
-						vectorField Uw(hqAbsc_ - (1.0 + ew_)*(hqAbsc_ & nf)*nf);
+						vectorField Uw
+						(
+                            hqAbsc_
+                          - (1.0 + ew_)*(hqAbsc_ & nf)*nf
+                        );
 						wPhi *= phiw_ - 1.0;
 
 						F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*Uw);
@@ -731,7 +769,10 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
 
                             scalar pp = dfls_mf/sFluxo/sig;
 
-							vectorField  Ud(sig*hq_.hermiteOriginalAbscissas());
+							vectorField  Ud
+							(
+                                sig*hq_.hermiteOriginalAbscissas()
+                            );
 							scalarField  facePhid( sf & Ud );
 							facePhid *= neg(facePhid);
 							scalarField  wPhid(pp*hwl*facePhid);

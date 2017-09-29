@@ -22,7 +22,7 @@ air
     type            polydispersePhaseModel;
     residualAlpha   1e-4;
     minD            1e-4;
-    maxD            1.2e-2;
+    maxD            5e-3;
 }
 
 water
@@ -127,6 +127,10 @@ wallLubrication
 
 turbulentDispersion
 (
+//     (air in water)
+//     {
+//         type    Panicker;
+//     }
 );
 
 bubblePressure

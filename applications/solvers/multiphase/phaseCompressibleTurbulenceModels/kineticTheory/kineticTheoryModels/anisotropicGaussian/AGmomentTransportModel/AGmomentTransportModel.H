@@ -58,24 +58,34 @@ class AGmomentTransportModel
 		const Switch cellInv_;
 		// if it is false, moment inversion is done at cell face, introplation is needed.
 
+        //- Const refrence to mesh
         const fvMesh& mesh_;
 
+        //- Constant reference to phase model
         const phaseModel& phase_;
 
+        //- Refrence to particle volume fraction
         volScalarField& alphap_;
 
+        //- Refrence to particle velocity
         volVectorField& Up_;
 
+        //- Refrence to particle granular temperature
         volScalarField& Theta_;
 
+        //- Refrence to particle UxU
         volSymmTensorField& Sigma_;
 
+        //- Particle pressure
         volSymmTensorField Pp_;
 
+        //- Hermite quadrature
         hermiteQuadrature hq_;
 
+        //- Constant reference to quadrature weights
         const scalarList& hqWeigs_;
 
+        //- Reference to quadrature abscissae
         vectorList& hqAbsc_;
 
         const scalar ew_;
@@ -84,14 +94,25 @@ class AGmomentTransportModel
 
         PtrList<surfaceScalarField> ownnei_;
 
+        //- Zero order moment flux
         surfaceScalarField F0_;
 
+        //- First order moment flux
         surfaceVectorField F1_;
 
+        //- Second order moment flux
         surfaceSymmTensorField F2_;
 
+        //- Pressure gradient
         volVectorField pDxyz_;
 
+        //- Time derivative of volume fraction due to dilute advection
+        volScalarField ddtAlphaDilute_;
+
+
+    // Private member functions
+
+        //- Comupte moment fluxes
         void calcMomentFluxes
         (
             const surfaceScalarField& h1f
@@ -99,6 +120,7 @@ class AGmomentTransportModel
 
         //- Disallow defaUgt bitwise copy construct
         AGmomentTransportModel(const AGmomentTransportModel&);
+
         //- Disallow defaUgt bitwise assignment
         void operator=(const AGmomentTransportModel&);
 
@@ -122,10 +144,16 @@ class AGmomentTransportModel
         //- Destructor
         virtual ~AGmomentTransportModel();
 
+        //- Solve moment transport
         void solve
         (
             const surfaceScalarField& h2f
         );
+
+        const volScalarField& ddtAlphaDilute() const
+        {
+            return ddtAlphaDilute_;
+        }
 
 	    scalar maxUxDx() const;
 
