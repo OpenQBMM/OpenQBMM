@@ -17,7 +17,7 @@ FoamFile
 convertToMeters .01;
 
 w       24.3;
-h       97.2;
+h       120;
 depth   5;
 
 //F2

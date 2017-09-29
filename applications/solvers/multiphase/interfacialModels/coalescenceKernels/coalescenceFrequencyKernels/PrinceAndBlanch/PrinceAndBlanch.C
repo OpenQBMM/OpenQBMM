@@ -121,7 +121,11 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
     if (LS_)
     {
         freqSrc == freqSrc
-          + 1.0/6.0*pow3(d1 + d2)*mag(fvc::grad(fluid_.phase2().U()));
+          + 1.0/6.0*pow3(d1 + d2)
+           *mag
+            (
+                fvc::grad(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
+            );
     }
     return tmpFreqSrc;
 }

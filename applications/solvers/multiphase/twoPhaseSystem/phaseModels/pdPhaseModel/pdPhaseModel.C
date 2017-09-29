@@ -51,12 +51,6 @@ void Foam::pdPhaseModel::updateVelocity()
         );
     U_.correctBoundaryConditions();
 
-    // Use voluyme fraction from moments in dilute regions (>0.63)
-    volScalarField& alpha1 = *this;
-    alpha1 =
-        pos0(alpha1 - 0.8)*(alpha1)
-      + neg(alpha1 - 0.8)*quadrature_.moments()[1]/this->rho();
-
     phiPtr_() = fvc::flux(U_);
     alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
     correctInflowOutflow(alphaPhi_);
@@ -789,9 +783,17 @@ Foam::pdPhaseModel::~pdPhaseModel()
 
 void Foam::pdPhaseModel::correct()
 {
-    quadrature_.updateAllQuadrature();
-
     d_ = dimensionedScalar("zero", dimLength, 0.0);
+
+    volScalarField scale
+    (
+        (*this)
+       /Foam::max
+        (
+            quadrature_.moments()[1]/rho(),
+            residualAlpha_
+        )
+    );
 
     forAll(quadrature_.nodes(), nodei)
     {
@@ -806,16 +808,9 @@ void Foam::pdPhaseModel::correct()
         else
         {
             alphas_[nodei] =
-                Foam::max
-                (
-                    node.primaryWeight()*node.primaryAbscissa()/rho()
-                   *(*this)/Foam::max
-                    (
-                        quadrature_.moments()[1]/rho(),
-                        residualAlpha_
-                    ),
-                    dimensionedScalar("zero", dimless, 0.0)
-                );
+                node.primaryWeight()*node.primaryAbscissa()/rho()*scale;
+            alphas_[nodei].max(0);
+            alphas_[nodei].min(1);
         }
 
         //  Calculate bubble diameter based on bubble mass (abscissa)

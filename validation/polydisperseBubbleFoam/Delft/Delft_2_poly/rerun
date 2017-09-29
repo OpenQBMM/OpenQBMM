@@ -28,4 +28,4 @@ generateMoments
 setFields
 decomposePar
 # polydisperseBubbleFoam
-mpirun -np 4 polydisperseBubbleFoam -parallel
+mpirun -np 8 polydisperseBubbleFoam -parallel
