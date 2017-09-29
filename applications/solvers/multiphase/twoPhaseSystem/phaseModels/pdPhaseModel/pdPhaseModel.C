@@ -52,9 +52,6 @@ void Foam::pdPhaseModel::updateVelocity()
     U_.correctBoundaryConditions();
 
     phiPtr_() = fvc::flux(U_);
-    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
-    correctInflowOutflow(alphaPhi_);
-    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
 }
 
 
@@ -844,7 +841,6 @@ void Foam::pdPhaseModel::correct()
     {
         d_ = ds_[0];
     }
-
     d_.max(minD_);
 }
 
@@ -920,8 +916,6 @@ void Foam::pdPhaseModel::relativeTransport()
 
         mEqn.relax();
         mEqn.solve();
-
-        m.max(0);
     }
 
     forAll(quadrature_.velocityMoments(), mEqni)
@@ -985,9 +979,13 @@ void Foam::pdPhaseModel::relativeTransport()
         UpEqn.relax();
         UpEqn.solve();
     }
-
     quadrature_.updateAllQuadrature();
     this->updateVelocity();
+
+    volScalarField(*this) = quadrature_.moments()[1]/rho();
+    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
+    correctInflowOutflow(alphaPhi_);
+    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
 
     correct();
 }
@@ -1006,7 +1004,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
     forAll(quadrature_.moments(), mEqni)
     {
         volScalarField& m = quadrature_.moments()[mEqni];
-
         dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
 
         volScalarField meanDivUbMp
@@ -1058,8 +1055,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         );
         mEqn.relax();
         mEqn.solve();
-
-        m.max(0);
     }
 
     if(nNodes_ == 1)
@@ -1073,7 +1068,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         quadrature_.updateAllQuadrature();
         return;
     }
-
     forAll(quadrature_.velocityMoments(), mEqni)
     {
         dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
@@ -1132,7 +1126,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         UpEqn.relax();
         UpEqn.solve();
     }
-
     quadrature_.updateAllQuadrature();
     correct();
 
@@ -1181,6 +1174,13 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 
     quadrature_.updateAllMoments();
     this->updateVelocity();
+
+    volScalarField(*this) = quadrature_.moments()[1]/rho();
+    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
+    correctInflowOutflow(alphaPhi_);
+    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
+
+    correct();
 
     // Update deviation velocity
     forAll(Vs_, nodei)

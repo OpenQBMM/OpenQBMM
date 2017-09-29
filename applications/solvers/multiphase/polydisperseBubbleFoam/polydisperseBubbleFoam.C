@@ -86,6 +86,8 @@ int main(int argc, char *argv[])
             // Transport moments with velocities relative to the mean gas
             // velocity
             fluid.relativeTransport();
+            alpha2 = scalar(1) - alpha1;
+            alphaPhi2 = phi2*fvc::interpolate(alpha2);
             phi = phase1.alphaPhi() + phase2.alphaPhi();
 
             // Solve for mean phase velocities and gas volume fraction
@@ -104,6 +106,8 @@ int main(int argc, char *argv[])
                 {
                     // Transport moments with mean gas velocity
                     fluid.averageTransport();
+                    alpha2 = scalar(1) - alpha1;
+                    alphaPhi2 = phi2*fvc::interpolate(alpha2);
                     phi = phase1.alphaPhi() + phase2.alphaPhi();
 
                     fluid.correctTurbulence();
