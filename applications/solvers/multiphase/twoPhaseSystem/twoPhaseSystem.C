@@ -914,11 +914,7 @@ void Foam::twoPhaseSystem::averageTransport()
 
             // Drag
           + Kd*phase2_->U()
-          - fvm::Sp
-            (
-                Kd,
-                phase1_->Us(nodei)
-            )
+          - fvm::Sp(Kd, phase1_->Us(nodei))
 
             // Virtual Mass
           + Vm(nodei)

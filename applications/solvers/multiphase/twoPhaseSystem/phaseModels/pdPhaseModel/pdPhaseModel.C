@@ -125,77 +125,6 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
 }
 
 
-Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::coalescenceSourceU
-(
-    const label momentOrder
-)
-{
-    tmp<volVectorField> tmpCSource
-    (
-        new volVectorField
-        (
-            IOobject
-            (
-                "cSource",
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            fluid_.mesh(),
-            dimensionedVector
-            (
-                "0",
-                quadrature_.velocityMoments()[momentOrder].dimensions()/dimTime,
-                Zero
-            )
-        )
-    );
-
-    if (!coalescence_)
-    {
-        return tmpCSource;
-    }
-
-    volVectorField& cSource = tmpCSource.ref();
-    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
-
-    forAll(nodes, nodei)
-    {
-        const volScalarNode& node1 = nodes[nodei];
-        const volScalarField& weight1 = node1.primaryWeight();
-        const volScalarField& abscissa1 = node1.primaryAbscissa();
-
-        forAll(nodes, nodej)
-        {
-            const volScalarNode& node2 = nodes[nodej];
-            const volScalarField& weight2 = node2.primaryWeight();
-            const volScalarField& abscissa2 = node2.primaryAbscissa();
-
-            //- Diameter is used to calculate the coalesence kernel in place
-            //  of the abscissa
-            cSource +=
-                weight1
-               *Us_[nodei]
-               *(
-                    weight2
-                   *(
-                        0.5*pow // Birth
-                        (
-                            pow3(abscissa1)
-                          + pow3(abscissa2),
-                            momentOrder/3.0
-                        )
-                      - pow(abscissa1, momentOrder)
-                    )*coalescenceKernel_.Ka(nodei, nodej)
-                );
-        }
-    }
-    return tmpCSource*pos(0.8 - *this);
-}
-
-
 Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
 (
     const label momentOrder
@@ -239,65 +168,6 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
         //  of the abscissa
         bSource.ref() +=
             node.primaryWeight()
-           *breakupKernel_->Kb(nodei)
-           *(
-                daughterDistribution                       //Birth
-                (
-                    momentOrder,
-                    node.primaryAbscissa()
-                )
-              - pow(node.primaryAbscissa(), momentOrder)   //Death
-            );
-    }
-
-    return bSource*pos(0.8 - *this);
-}
-
-
-Foam::tmp<Foam::volVectorField> Foam::pdPhaseModel::breakupSourceU
-(
-    const label momentOrder
-)
-{
-    tmp<volVectorField> bSource
-    (
-        new volVectorField
-        (
-            IOobject
-            (
-                "bSource",
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            fluid_.mesh(),
-            dimensionedVector
-            (
-                "0",
-                quadrature_.velocityMoments()[momentOrder].dimensions()/dimTime,
-                Zero
-            )
-        )
-    );
-
-    if (!breakup_)
-    {
-        return bSource;
-    }
-
-    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
-
-    forAll(nodes, nodei)
-    {
-        const volScalarNode& node = nodes[nodei];
-
-        //- Diameter is used to calculate the breakup kernel in place
-        //  of the abscissa
-        bSource.ref() +=
-            Us_[nodei]
-           *node.primaryWeight()
            *breakupKernel_->Kb(nodei)
            *(
                 daughterDistribution                       //Birth
@@ -368,28 +238,15 @@ void Foam::pdPhaseModel::solveSourceOde()
                     coalescenceSource(mI) + breakupSource(mI)
                 );
         }
-        forAll(quadrature_.velocityMoments(), mI)
-        {
-            quadrature_.velocityMoments()[mI] +=
-                U_.mesh().time().deltaT()
-               *(
-                    coalescenceSourceU(mI) + breakupSourceU(mI)
-                );
-        }
+        quadrature_.updateAllQuadrature();
+        quadrature_.updateAllMoments();
         return;
     }
-
-    const label nVMoments = quadrature_.velocityMoments().size();
 
     PtrList<volScalarField> k1(nMoments_);
     PtrList<volScalarField> k2(nMoments_);
     PtrList<volScalarField> k3(nMoments_);
     PtrList<volScalarField> momentsOld(nMoments_);
-
-    PtrList<volVectorField> k1U(nVMoments);
-    PtrList<volVectorField> k2U(nVMoments);
-    PtrList<volVectorField> k3U(nVMoments);
-    PtrList<volVectorField> velocityMomentsOld(nVMoments);
 
     forAll(momentsOld, mI)
     {
@@ -472,87 +329,6 @@ void Foam::pdPhaseModel::solveSourceOde()
         );
     }
 
-    forAll(velocityMomentsOld, mI)
-    {
-        k1U.set
-        (
-            mI,
-            new volVectorField
-            (
-                IOobject
-                (
-                    "k1U",
-                    U_.mesh().time().timeName(),
-                    U_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                U_.mesh(),
-                dimensionedVector
-                (
-                    "k1U",
-                    quadrature_.velocityMoments()[mI].dimensions(),
-                    Zero
-                )
-            )
-        );
-
-        k2U.set
-        (
-            mI,
-            new volVectorField
-            (
-                IOobject
-                (
-                    "k2U",
-                    U_.mesh().time().timeName(),
-                    U_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                U_.mesh(),
-                dimensionedVector
-                (
-                    "k2U",
-                    quadrature_.velocityMoments()[mI].dimensions(),
-                    Zero
-                )
-            )
-        );
-
-        k3U.set
-        (
-            mI,
-            new volVectorField
-            (
-                IOobject
-                (
-                    "k3U",
-                    U_.mesh().time().timeName(),
-                    U_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                U_.mesh(),
-                dimensionedVector
-                (
-                    "k3U",
-                    quadrature_.velocityMoments()[mI].dimensions(),
-                    Zero
-                )
-            )
-        );
-
-        velocityMomentsOld.set
-        (
-            mI,
-            new volVectorField(quadrature_.velocityMoments()[mI])
-        );
-    }
-
     quadrature_.updateAllQuadrature();
 
     // Read current deltaT
@@ -565,12 +341,7 @@ void Foam::pdPhaseModel::solveSourceOde()
         k1[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
         quadrature_.moments()[mI] == momentsOld[mI] + k1[mI];
     }
-    forAll(velocityMomentsOld, mI)
-    {
-        k1U[mI] = dt0*(coalescenceSourceU(mI) + breakupSourceU(mI));
-        quadrature_.velocityMoments()[mI] == velocityMomentsOld[mI] + k1U[mI];
-    }
-    quadrature_.updateAllQuadrature();
+    quadrature_.updateQuadrature();
 
     // Calculate k2 for all moments
     forAll(momentsOld, mI)
@@ -578,14 +349,7 @@ void Foam::pdPhaseModel::solveSourceOde()
         k2[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
         quadrature_.moments()[mI] == momentsOld[mI] + (k1[mI] + k2[mI])/4.0;
     }
-    forAll(velocityMomentsOld, mI)
-    {
-        k2U[mI] = dt0*(coalescenceSourceU(mI) + breakupSourceU(mI));
-        quadrature_.velocityMoments()[mI] ==
-            velocityMomentsOld[mI]
-          + (k1U[mI] + k2U[mI])/4.0;
-    }
-    quadrature_.updateAllQuadrature();
+    quadrature_.updateQuadrature();
 
     // calculate k3 and new moments for all moments
     forAll(momentsOld, mI)
@@ -597,14 +361,13 @@ void Foam::pdPhaseModel::solveSourceOde()
             momentsOld[mI]
           + (k1[mI] + k2[mI] + 4.0*k3[mI])/6.0;
     }
-    forAll(velocityMomentsOld, mI)
-    {
-        k2U[mI] = dt0*(coalescenceSourceU(mI) + breakupSourceU(mI));
-        quadrature_.velocityMoments()[mI] ==
-            velocityMomentsOld[mI]
-          + (k1U[mI] + k2U[mI] + 4.0*k3U[mI])/6.0;
-    }
-    quadrature_.updateAllQuadrature();
+    quadrature_.updateQuadrature();
+
+    // Because velocity moments only change due to change in size abscissae
+    // from break up and coalescence, the velocity moments are simply updated
+    // to include this size change. This eliminated calculating source terms
+    // twice.
+    quadrature_.updateAllMoments();
 
 }
 

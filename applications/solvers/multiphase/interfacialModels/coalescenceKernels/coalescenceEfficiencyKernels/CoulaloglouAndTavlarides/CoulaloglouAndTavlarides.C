@@ -26,6 +26,7 @@ License
 #include "CoulaloglouAndTavlarides.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
+#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -80,7 +81,10 @@ Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
     const volScalarField& rho = fluid_.phase2().rho();
-    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
+//     const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
+    const phaseModel& phase(fluid_.phase1());
+    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
+    volScalarField epsilon(phase.nu()*(S && S));
     const dimensionedScalar& sigma = fluid_.sigma();
 
     return

@@ -19,19 +19,19 @@ application     polydisperseBubbleFoam;
 
 startFrom       latestTime;
 
-startTime       0;
+startTime       1.0;
 
 stopAt          endTime;
 
 endTime         250;
 
-deltaT          1e-3;
+deltaT          1e-5;
 
 writeControl    adjustableRunTime;
 
 writeInterval   1;
 
-purgeWrite      100;
+purgeWrite      250;
 
 writeFormat     ascii;
 
@@ -47,7 +47,7 @@ runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           0.05;
+maxCo           0.5;
 
 maxDeltaT       1;
 
@@ -57,7 +57,7 @@ functions
     {
         type            fieldAverage;
         functionObjectLibs ( "libfieldFunctionObjects.so" );
-        writeControl    writeTime;
+        outputControl   outputTime;
         timeStart       50;
         fields
         (
@@ -82,7 +82,7 @@ functions
                  base        time;
             }
 
-            p_rgh
+            p
             {
                  mean        on;
                  prime2Mean  off;
@@ -94,22 +94,6 @@ functions
                  prime2Mean  off;
                  base        time;
             }
-        );
-    }
-    pProbes
-    {
-        type        probes;
-        functionObjectLibs ("libsampling.so");
-        probeLocations
-        (
-            (0  0.038   0)
-            (0  0.213   0)
-            (0  0.413   0)
-        );
-
-        fields
-        (
-            p_rgh
         );
     }
 }

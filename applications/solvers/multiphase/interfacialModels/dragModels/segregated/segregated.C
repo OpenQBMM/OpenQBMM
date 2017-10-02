@@ -145,13 +145,8 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
     if (pair_.phase2().nNodes() > 1)
     {
         I *=
-            max
-            (
-                alpha2,
-                pair_.phase2().residualAlpha()
-                /pair_.phase2().nNodes()
-            )
-            /max
+            alpha2
+           /max
             (
                 pair_.phase2(),
                 pair_.phase2().residualAlpha()
