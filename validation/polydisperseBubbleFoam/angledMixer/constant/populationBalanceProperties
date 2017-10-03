@@ -15,12 +15,13 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+ode on;
 
-coalescence off;
+coalescence on;
 
 coalescenceKernel
 {
-    coalescenceFrequencyKernel PrinceAndBlanch;
+    coalescenceFrequencyKernel CoulaloglouAndTavlarides;
     coalescenceEfficiencyKernel CoulaloglouAndTavlarides;
 
     Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
@@ -29,7 +30,7 @@ coalescenceKernel
     WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
 }
 
-breakup off;
+breakup on;
 
 breakupKernel
 {

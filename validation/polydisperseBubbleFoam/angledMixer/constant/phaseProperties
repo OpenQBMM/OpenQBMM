@@ -20,7 +20,7 @@ phases (air water);
 air
 {
     type            polydispersePhaseModel;
-    residualAlpha   1e-6;
+    residualAlpha   1e-4;
     minD            1e-4;
     maxD            5e-2;
 }
@@ -28,7 +28,7 @@ air
 water
 {
     type            monodispersePhaseModel;
-    residualAlpha   1e-6;
+    residualAlpha   1e-4;
     d               1e-4;
 }
 
