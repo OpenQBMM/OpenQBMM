@@ -146,19 +146,13 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
             max
             (
                 pair_.dispersed().alphas(nodei)
-               *max
-                (
-                    pair_.continuous().alphas(nodej),
-                    pair_.continuous().residualAlpha()
-                   /pair_.continuous().nNodes()
-                )
+               *pair_.continuous().alphas(nodej)
                /max
                 (
                     pair_.continuous(),
                     pair_.continuous().residualAlpha()
                 ),
-                pair_.dispersed().residualAlpha()
-               /pair_.dispersed().nNodes()
+                pair_.dispersed().residualAlpha()/pair_.dispersed().nNodes()
             )*Ki(nodei, nodej);
     }
 
