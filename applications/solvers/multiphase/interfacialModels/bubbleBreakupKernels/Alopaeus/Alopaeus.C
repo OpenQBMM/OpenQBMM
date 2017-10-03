@@ -28,6 +28,7 @@ License
 #include "fundamentalConstants.H"
 #include "phaseModel.H"
 #include "PhaseCompressibleTurbulenceModel.H"
+#include "fvc.H"
 
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -88,11 +89,10 @@ Foam::bubbleBreakupKernels::Alopaeus::~Alopaeus()
 Foam::tmp<Foam::volScalarField>
 Foam::bubbleBreakupKernels::Alopaeus::Kb(const label nodei) const
 {
-    volScalarField epsilon
-    (
-        "epsilon",
-        fluid_.phase2().turbulence().epsilon()
-    );
+//     volScalarField epsilon("epsilon", fluid_.phase2().turbulence().epsilon());
+    const phaseModel& phase(fluid_.phase1());
+    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
+    volScalarField epsilon(phase.nu()*(S && S));
     epsilon.max(SMALL);
 
     const volScalarField& d = fluid_.phase1().ds(nodei);
