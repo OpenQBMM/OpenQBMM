@@ -4,7 +4,7 @@ const dictionary& alphaControls = mesh.solverDict
 );
 
 volScalarField& dgdt = fluid.dgdt();
-surfaceScalarField pPrimeByA = h2f*fluid.pPrimeByA();
+surfaceScalarField pPrimeByA(h2f*fluid.pPrimeByA());
 
 label nAlphaSubCycles(readLabel(alphaControls.lookup("nAlphaSubCycles")));
 label nAlphaCorr(readLabel(alphaControls.lookup("nAlphaCorr")));
