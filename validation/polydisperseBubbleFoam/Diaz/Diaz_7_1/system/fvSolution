@@ -81,23 +81,6 @@ solvers
         relTol          0;
         minIter         1;
     }
-
-    "e.*"
-    {
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
-        tolerance       1e-7;
-        relTol          0;
-        minIter         1;
-    }
-
-    "(k|epsilon|Theta).*"
-    {
-        solver          PBiCG;
-        preconditioner  DILU;
-        tolerance       1e-7;
-        relTol          0;
-    }
 }
 
 PIMPLE
@@ -122,7 +105,6 @@ relaxationFactors
     equations
     {
         p_rgh       0.3;
-        U           0.7;
     }
 }
 

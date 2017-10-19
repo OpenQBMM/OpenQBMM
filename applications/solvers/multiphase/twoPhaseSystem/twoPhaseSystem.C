@@ -100,7 +100,6 @@ Foam::twoPhaseSystem::twoPhaseSystem
     ),
 
     nNodes_(phase1_->nNodes()),
-    AG_(lookupOrDefault<bool>("AG", false)),
 
     dgdt_
     (
@@ -887,6 +886,8 @@ void Foam::twoPhaseSystem::averageTransport()
     PtrList<fvVectorMatrix> AEqns(nNodes_);
     for (label nodei = 0; nodei < nNodes_; nodei++)
     {
+        //  Build matrix to solve for velocity abscissae due to interfacial
+        //  forces
         AEqns.set
         (
             nodei,

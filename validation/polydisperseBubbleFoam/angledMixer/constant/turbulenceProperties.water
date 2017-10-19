@@ -32,7 +32,7 @@ RAS
 }
 LES
 {
-    LESModel NicenoKEqn;
+    LESModel Smagorinsky;
 
     turbulence      on;
     printCoeffs     on;

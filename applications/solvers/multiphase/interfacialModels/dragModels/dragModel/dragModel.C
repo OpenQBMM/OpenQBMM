@@ -142,23 +142,19 @@ Foam::tmp<Foam::volScalarField> Foam::dragModel::K
 {
     if (pair_.continuous().nNodes() > 1)
     {
+        //  Scale drag so that the sum of the drag forces from a monodisperse
+        //  phase is not counted nNodes times
         return
             max
             (
                 pair_.dispersed().alphas(nodei)
-               *max
-                (
-                    pair_.continuous().alphas(nodej),
-                    pair_.continuous().residualAlpha()
-                   /pair_.continuous().nNodes()
-                )
+               *pair_.continuous().alphas(nodej)
                /max
                 (
                     pair_.continuous(),
                     pair_.continuous().residualAlpha()
                 ),
-                pair_.dispersed().residualAlpha()
-               /pair_.dispersed().nNodes()
+                pair_.dispersed().residualAlpha()/pair_.dispersed().nNodes()
             )*Ki(nodei, nodej);
     }
 

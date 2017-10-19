@@ -32,7 +32,7 @@ RAS
 }
 LES
 {
-    LESModel continuousGasKEqn;
+    LESModel Smagorinsky;
 
     turbulence      on;
     printCoeffs     on;

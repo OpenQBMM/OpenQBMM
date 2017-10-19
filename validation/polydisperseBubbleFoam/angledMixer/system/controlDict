@@ -19,7 +19,7 @@ application     polydisperseBubbleFoam;
 
 startFrom       latestTime;
 
-startTime       1.0;
+startTime       0;
 
 stopAt          endTime;
 
@@ -47,7 +47,7 @@ runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           0.5;
+maxCo           0.1;
 
 maxDeltaT       1;
 
@@ -58,7 +58,7 @@ functions
         type            fieldAverage;
         functionObjectLibs ( "libfieldFunctionObjects.so" );
         outputControl   outputTime;
-        timeStart       50;
+        timeStart       10;
         fields
         (
             U.air

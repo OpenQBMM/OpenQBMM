@@ -104,7 +104,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
             const volScalarField& abscissa2 = node2.primaryAbscissa();
 
             //- Diameter is used to calculate the coalesence kernel in place
-            //  of the abscissa
+            //  of the abscissa, handled inside kernel
             cSource +=
                 weight1
                *(
@@ -215,7 +215,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::daughterDistribution
 
     forAll(daughterDist, celli)
     {
-        daughterDist[celli] = daughterDistribution_->mD              //Birth
+        daughterDist[celli] = daughterDistribution_->mD
         (
             momentOrder,
             abscissa[celli]
@@ -238,7 +238,7 @@ void Foam::pdPhaseModel::solveSourceOde()
                     coalescenceSource(mI) + breakupSource(mI)
                 );
         }
-        quadrature_.updateAllQuadrature();
+        quadrature_.updateQuadrature();
         quadrature_.updateAllMoments();
         return;
     }
@@ -328,8 +328,7 @@ void Foam::pdPhaseModel::solveSourceOde()
             new volScalarField(quadrature_.moments()[mI])
         );
     }
-
-    quadrature_.updateAllQuadrature();
+    quadrature_.updateQuadrature();
 
     // Read current deltaT
     dimensionedScalar dt0 = U_.mesh().time().deltaT();
@@ -397,6 +396,17 @@ Foam::pdPhaseModel::pdPhaseModel
     coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
+    ddtM1_
+    (
+        IOobject
+        (
+            IOobject::groupName("ddtM1", phaseName),
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("0", dimDensity/dimTime, 0.0)
+    ),
     nNodes_(quadrature_.nodes().size()),
     nMoments_(quadrature_.nMoments()),
     alphas_(nNodes_),
@@ -582,7 +592,8 @@ void Foam::pdPhaseModel::correct()
                     Foam::pow
                     (
                         node.primaryAbscissa()*6.0
-                       /(rho()*Foam::constant::mathematical::pi),
+                       /(rho()*Foam::constant::mathematical::pi)
+                      + dimensionedScalar("SMALL", dimVolume, SMALL),
                         1.0/3.0
                     ),
                     minD_
@@ -610,6 +621,7 @@ void Foam::pdPhaseModel::correct()
 
 void Foam::pdPhaseModel::relativeTransport()
 {
+    // Do nothing if only mean is used
     if (nNodes_ == 1)
     {
         return;
@@ -680,6 +692,7 @@ void Foam::pdPhaseModel::relativeTransport()
         mEqn.relax();
         mEqn.solve();
     }
+    ddtM1_ = fvc::ddt(quadrature_.moments()[1]);
 
     forAll(quadrature_.velocityMoments(), mEqni)
     {
@@ -744,25 +757,21 @@ void Foam::pdPhaseModel::relativeTransport()
     }
     quadrature_.updateAllQuadrature();
     this->updateVelocity();
-
-    volScalarField(*this) = quadrature_.moments()[1]/rho();
-    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
-    correctInflowOutflow(alphaPhi_);
-    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
-
     correct();
+
+    quadrature_.interpolateNodes();
 }
+
 
 void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 {
+    // Update moments based source terms for breakup and coalescence
     solveSourceOde();
 
+    // Mean moment advection
     Info<< "Transporting moments with average velocity" << endl;
-
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
-
-    quadrature_.interpolateNodes();
 
     forAll(quadrature_.moments(), mEqni)
     {
@@ -892,14 +901,14 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
     quadrature_.updateAllQuadrature();
     correct();
 
-    Info << "Solving for velocity abscissae" << endl;
-
     // Solve for velocity abscissa directly since the momentum exchange
     //  terms do not change the mass
+    Info << "Solving for velocity abscissae" << endl;
     forAll(Us_, nodei)
     {
         //  Colisional time, forces velocities towards mean in the case of
         //  high volume fractions
+        //  Could be replaced by radial distribution function
         volScalarField tauC
         (
             "tauC",
@@ -911,12 +920,8 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         volScalarField alphaRhoi
         (
             "alphaRhoi",
-            Foam::max
-            (
-                quadrature_.nodes()[nodei].primaryAbscissa()
-               *quadrature_.nodes()[nodei].primaryWeight(),
-                residualAlpha_*rho()
-            )
+            quadrature_.nodes()[nodei].primaryAbscissa()
+           *quadrature_.nodes()[nodei].primaryWeight()
         );
 
         // Solve for velocities using acceleration terms
@@ -925,7 +930,6 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             alphaRhoi*fvm::ddt(Us_[nodei])
           - alphaRhoi*fvc::ddt(Us_[nodei])
           + fvm::Sp(tauC*alphaRhoi, Us_[nodei])
-
          ==
             AEqns[nodei]
           + tauC*alphaRhoi*U_
@@ -934,15 +938,8 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         UsEqn.relax();
         UsEqn.solve();
     }
-
     quadrature_.updateAllMoments();
     this->updateVelocity();
-
-    volScalarField(*this) = quadrature_.moments()[1]/rho();
-    alphaPhi_ = phiPtr_()*fvc::interpolate(*this);
-    correctInflowOutflow(alphaPhi_);
-    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
-
     correct();
 
     // Update deviation velocity
