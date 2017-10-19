@@ -104,7 +104,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
             const volScalarField& abscissa2 = node2.primaryAbscissa();
 
             //- Diameter is used to calculate the coalesence kernel in place
-            //  of the abscissa
+            //  of the abscissa, handled inside kernel
             cSource +=
                 weight1
                *(
@@ -215,7 +215,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::daughterDistribution
 
     forAll(daughterDist, celli)
     {
-        daughterDist[celli] = daughterDistribution_->mD              //Birth
+        daughterDist[celli] = daughterDistribution_->mD
         (
             momentOrder,
             abscissa[celli]
@@ -238,7 +238,7 @@ void Foam::pdPhaseModel::solveSourceOde()
                     coalescenceSource(mI) + breakupSource(mI)
                 );
         }
-        quadrature_.updateAllQuadrature();
+        quadrature_.updateQuadrature();
         quadrature_.updateAllMoments();
         return;
     }
@@ -328,8 +328,7 @@ void Foam::pdPhaseModel::solveSourceOde()
             new volScalarField(quadrature_.moments()[mI])
         );
     }
-
-    quadrature_.updateAllQuadrature();
+    quadrature_.updateQuadrature();
 
     // Read current deltaT
     dimensionedScalar dt0 = U_.mesh().time().deltaT();
@@ -622,6 +621,7 @@ void Foam::pdPhaseModel::correct()
 
 void Foam::pdPhaseModel::relativeTransport()
 {
+    // Do nothing if only mean is used
     if (nNodes_ == 1)
     {
         return;
@@ -763,80 +763,15 @@ void Foam::pdPhaseModel::relativeTransport()
 }
 
 
-void Foam::pdPhaseModel::transportAlpha()
-{
-    const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
-    const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
-
-    volScalarField meanDivUbM1
-    (
-        IOobject
-        (
-            "meanDivUbM1",
-            fluid_.mesh().time().timeName(),
-            fluid_.mesh(),
-            IOobject::NO_READ,
-            IOobject::NO_WRITE,
-            false
-        ),
-        fluid_.mesh(),
-        dimensionedScalar("zero", dimDensity/dimTime, Zero)
-    );
-    dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
-
-    for (label nodei = 0; nodei < nNodes_; nodei++)
-    {
-        // Update average size moment flux
-        surfaceScalarField aFluxM1
-        (
-            "aFluxMp",
-            nodesNei[nodei].primaryWeight()
-           *nodesNei[nodei].primaryAbscissa()
-           *Foam::min(phiPtr_(), zeroPhi)
-
-          + nodesOwn[nodei].primaryWeight()
-           *nodesOwn[nodei].primaryAbscissa()
-           *Foam::max(phiPtr_(), zeroPhi)
-        );
-
-        meanDivUbM1 += fvc::surfaceIntegrate(aFluxM1);
-    }
-
-
-    // Solve average size moment transport
-    fvScalarMatrix m1Eqn
-    (
-        fvm::ddt(quadrature_.moments()[1])
-      - fvc::ddt(quadrature_.moments()[1])
-      + meanDivUbM1
-    );
-    m1Eqn.relax();
-    m1Eqn.solve();
-
-    volScalarField& alpha(*this);
-//     alpha = quadrature_.moments()[1]/rho();
-    alphaPhi_ = phiPtr_()*fvc::interpolate(quadrature_.moments()[1]/rho());
-    correctInflowOutflow(alphaPhi_);
-    alphaRhoPhi_ = alphaPhi_*fvc::interpolate(rho());
-}
-
-
 void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 {
-//     {
-//         volScalarField& m1 = quadrature_.moments()[1];
-//         m1 = m1.oldTime() + fluid_.mesh().time().deltaT()*ddtM1_;
-//     }
+    // Update moments based source terms for breakup and coalescence
     solveSourceOde();
 
+    // Mean moment advection
     Info<< "Transporting moments with average velocity" << endl;
-
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
-
-    //- Nodes interpolated at end or relative advection so that 1st moment
-    //  advection does not corrupt values
-//     quadrature_.interpolateNodes();
 
     forAll(quadrature_.moments(), mEqni)
     {
@@ -883,30 +818,15 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
             meanDivUbMp += fvc::surfaceIntegrate(aFluxMp);
         }
 
-//         if (mEqni == 1)
-//         {
-//             // Solve average size moment transport
-//             fvScalarMatrix mEqn
-//             (
-//                 fvm::ddt(m)
-//               - ddtM1_
-//               + meanDivUbMp
-//             );
-//             mEqn.relax();
-//             mEqn.solve();
-//         }
-//         else
-        {
-            // Solve average size moment transport
-            fvScalarMatrix mEqn
-            (
-                fvm::ddt(m)
-              - fvc::ddt(m)
-              + meanDivUbMp
-            );
-            mEqn.relax();
-            mEqn.solve();
-        }
+        // Solve average size moment transport
+        fvScalarMatrix mEqn
+        (
+            fvm::ddt(m)
+          - fvc::ddt(m)
+          + meanDivUbMp
+        );
+        mEqn.relax();
+        mEqn.solve();
     }
 
     if(nNodes_ == 1)
@@ -978,18 +898,17 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         UpEqn.relax();
         UpEqn.solve();
     }
-//     quadrature_.moments()[1] == Foam::min(quadrature_.moments()[1], rho());
     quadrature_.updateAllQuadrature();
     correct();
 
-    Info << "Solving for velocity abscissae" << endl;
-
     // Solve for velocity abscissa directly since the momentum exchange
     //  terms do not change the mass
+    Info << "Solving for velocity abscissae" << endl;
     forAll(Us_, nodei)
     {
         //  Colisional time, forces velocities towards mean in the case of
         //  high volume fractions
+        //  Could be replaced by radial distribution function
         volScalarField tauC
         (
             "tauC",

@@ -201,9 +201,6 @@ public:
         //- Relative transport of moments
         virtual void relativeTransport();
 
-        //- Average transport of first size moment
-        virtual void transportAlpha();
-
         //- Average transport of moments
         virtual void averageTransport(const PtrList<fvVectorMatrix>& AEqns);
 };

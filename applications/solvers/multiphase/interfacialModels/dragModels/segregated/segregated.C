@@ -144,6 +144,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::segregated::K
 
     if (pair_.phase2().nNodes() > 1)
     {
+        // Scale so not counted nNodes times
         I *=
             alpha2
            /max

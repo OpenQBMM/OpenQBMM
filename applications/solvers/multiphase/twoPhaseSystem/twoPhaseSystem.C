@@ -100,7 +100,6 @@ Foam::twoPhaseSystem::twoPhaseSystem
     ),
 
     nNodes_(phase1_->nNodes()),
-    AG_(lookupOrDefault<bool>("AG", false)),
 
     dgdt_
     (
@@ -676,9 +675,6 @@ Foam::tmp<Foam::fvVectorMatrix> Foam::twoPhaseSystem::divDevRhoReff2()
 
 void Foam::twoPhaseSystem::solve()
 {
-//     phase1_->transportAlpha();
-//     phi_ = phase1_->alphaPhi() + phase2_->alphaPhi();
-
     const Time& runTime = mesh_.time();
 
     volScalarField& alpha1 = phase1_();
@@ -890,6 +886,8 @@ void Foam::twoPhaseSystem::averageTransport()
     PtrList<fvVectorMatrix> AEqns(nNodes_);
     for (label nodei = 0; nodei < nNodes_; nodei++)
     {
+        //  Build matrix to solve for velocity abscissae due to interfacial
+        //  forces
         AEqns.set
         (
             nodei,

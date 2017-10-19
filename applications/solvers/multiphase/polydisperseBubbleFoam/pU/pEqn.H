@@ -71,6 +71,7 @@ tmp<surfaceScalarField> phiF2;
         )
     );
 
+    // Sum dispersion due to grad(alpha) of each class
     for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
     {
         volScalarField Di(fluid.D(nodei));
