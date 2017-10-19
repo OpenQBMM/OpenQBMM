@@ -37,14 +37,6 @@ divSchemes
 
     "div\(alphaRhoPhi.*,U.*\)"      Gauss upwind;
     "div\(phi.*,U.*\)"              Gauss upwind;
-    "div\(phi.air,moment.*\)"       Gauss upwind;
-
-    "div\(alphaRhoPhi.*,(h|e).*\)"  Gauss upwind;
-    "div\(alphaRhoPhi.*,K.*\)"      Gauss upwind;
-    "div\(alphaPhi.*,p\)"           Gauss upwind;
-
-    "div\(alphaRhoPhi.*,(k|epsilon).*\)"  Gauss upwind;
-    "div\(phim,(k|epsilon)m\)"      Gauss upwind;
 
     "div\(\(\(\(alpha.*\*thermo:rho.*\)\*nuEff.*\)\*dev2\(T\(grad\(U.*\)\)\)\)\)" Gauss linear;
 
@@ -62,11 +54,9 @@ interpolationSchemes
 
     "interpolate\(moment.*\)" upwind phi.air;
 
-    reconstruct(U)          upwind;
     reconstruct(Us)         upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;
-    reconstruct(sigma)      upwind;
 }
 
 snGradSchemes
@@ -76,7 +66,8 @@ snGradSchemes
 
 wallDist
 {
-    method meshWave;
+    method      meshWave;
+    nRequired   yes;
 }
 
 

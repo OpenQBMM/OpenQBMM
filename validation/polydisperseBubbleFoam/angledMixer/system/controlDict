@@ -58,7 +58,7 @@ functions
         type            fieldAverage;
         functionObjectLibs ( "libfieldFunctionObjects.so" );
         outputControl   outputTime;
-        timeStart       25;
+        timeStart       10;
         fields
         (
             U.air

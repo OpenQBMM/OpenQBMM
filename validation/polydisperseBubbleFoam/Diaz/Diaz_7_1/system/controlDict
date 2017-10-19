@@ -88,12 +88,6 @@ functions
                  prime2Mean  off;
                  base        time;
             }
-            d32
-            {
-                 mean        on;
-                 prime2Mean  off;
-                 base        time;
-            }
             d.air
             {
                  mean        on;

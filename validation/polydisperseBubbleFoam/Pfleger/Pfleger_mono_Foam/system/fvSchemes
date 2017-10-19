@@ -37,7 +37,6 @@ divSchemes
 
     "div\(alphaRhoPhi.*,U.*\)"      Gauss upwind;
     "div\(phi.*,U.*\)"              Gauss upwind;
-    "div\(phi.air,moment.*\)"       Gauss upwind;
 
     div((((alpha.air*rho.air)*nu.air)*dev2(T(grad(U.air))))) Gauss linear;
 }
@@ -50,14 +49,6 @@ laplacianSchemes
 interpolationSchemes
 {
     default         linear;
-
-    "interpolate\(moment.*\)" upwind phi.air;
-
-    reconstruct(U)          upwind;
-    reconstruct(Us)         upwind;
-    reconstruct(weight)     upwind;
-    reconstruct(abscissa)   upwind;
-    reconstruct(sigma)      upwind;
 }
 
 snGradSchemes
