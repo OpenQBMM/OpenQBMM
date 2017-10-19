@@ -676,6 +676,9 @@ Foam::tmp<Foam::fvVectorMatrix> Foam::twoPhaseSystem::divDevRhoReff2()
 
 void Foam::twoPhaseSystem::solve()
 {
+//     phase1_->transportAlpha();
+//     phi_ = phase1_->alphaPhi() + phase2_->alphaPhi();
+
     const Time& runTime = mesh_.time();
 
     volScalarField& alpha1 = phase1_();

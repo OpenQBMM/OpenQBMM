@@ -119,10 +119,6 @@ PIMPLE
 
 relaxationFactors
 {
-    equations
-    {
-        p_rgh       0.3;
-    }
 }
 
 

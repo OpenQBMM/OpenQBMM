@@ -423,6 +423,12 @@ public:
             return;
         }
 
+        //- Average transport of first size moment
+        virtual void transportAlpha()
+        {
+            return;
+        }
+
         //- Average transport of moments, not used in standard phase model
         virtual void averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         {
