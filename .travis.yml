@@ -26,4 +26,4 @@ before_script:
 script:
     # Should add an automated test runner script here
     # - ./Alltest
-    - ./foamStyleCheck/checkStyle
+    #- ./foamStyleCheck/checkStyle
