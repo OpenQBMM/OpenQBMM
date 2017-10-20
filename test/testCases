@@ -16,29 +16,29 @@
 
  List of verification test cases
 
+* conditionalMomentInversion
+    Example of use of the conditionalMomentInversion class.
+
 * eigenSolver
     Simple demonstration of the eigenSolver class.
 
 * extendedMomentInversion
     Example of use of the extendedMomentInversion class.
 
-* conditionalMomentInversion
-    Example of use of the conditionalMomentInversion class.
-
 * populationBalanceModel
     Example of use of the populationBalanceModel class.
 
-* univariateMomentInversion
+* univariateMomentAdvection
     Test cases to verify moment advection schemes.
 
 * univariateMomentInversion
     Example of use of the univariateMomentInversion class.
 
-* univariateMomentSet
-    Example of use of the univariateMomentSet class.
-
 * univariateQuadratureApproximation
     Example of use of the univariateQuadratureApproximation class.
+
+* univariateMomentSet
+    Example of use of the univariateMomentSet class.
 
 * Vandermonde
     Example of use of the Vandermonde class.

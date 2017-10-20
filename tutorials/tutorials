@@ -19,6 +19,10 @@
 * buoyantPbePimpleFoam
     Tutorials for buoyant solver coupled to population balance solver.
 
+* denseAGFoam
+    Tutorials for the solver for gas-particle flows using the anisotropic
+    Gaussian model.
+
 * mixingTransportFoam
     Tutorials for mixing model on steady velocity field.
 
@@ -30,3 +34,6 @@
     Tutorials for the solver for population balance equations on steady velocity
     field.
 
+* polydisperseBubblyFoam
+    Tutorials for the solver for gas-liquid systems with population balance
+    for the gas phase.
