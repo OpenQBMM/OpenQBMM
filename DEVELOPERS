@@ -25,16 +25,18 @@
  Main developers
  ---------------
 
- Name                  Role     Period          Contribution
+ Name                 Role      Period          Contribution
 
- Alberto Passalacqua   PI       2014 - Present  Main code design,
+ Alberto Passalacqua  PI        2014 - Present  Main code design,
                                                   implementation and maintenance
                                                 Models and algorithm
                                                   development
 
- Rodney O. Fox         Co-PI    2014 - Present  Theory and model development
+ Rodney O. Fox        Co-PI     2014 - Present  Theory and model development
 
- Simanta Mitra         Co-PI    2014 - Present  Code review and CS aspects
+ Simanta Mitra        Co-PI     2014 - Present  Code review and CS aspects
+
+ Bo Kong              Developer 2014 - Present Anisotropic Gaussian code
 
 
  Graduate students
@@ -50,7 +52,7 @@
 
  David Williams*        M.Eng.  2014 - 2016     Population balance kernels
 
- Ehsan Madadi*          Ph.D.   2014 - Present  Turbulence mixing models
+ Ehsan Madadi*          Ph.D.   2014 - 2017     Turbulent mixing models
                                                 Lognormal EQMOM
 
  Jeffrey Heylmun*       Ph.D.   2014 - Present  Population balance kernels
