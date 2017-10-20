@@ -34,7 +34,10 @@ Foam::coalescenceEfficiencyKernel::New
     const fvMesh& mesh
 )
 {
-    word coalescenceEfficiencyKernelType(dict.lookup("coalescenceEfficiencyKernel"));
+    word coalescenceEfficiencyKernelType
+    (
+        dict.lookup("coalescenceEfficiencyKernel")
+    );
 
     Info<< "Selecting coalescenceEfficiencyKernel "
         << coalescenceEfficiencyKernelType << endl;

@@ -111,7 +111,10 @@ class pdPhaseModel
         autoPtr<bubbleBreakupKernel> breakupKernel_;
 
         //- Daughter distribution
-        autoPtr<populationBalanceSubModels::daughterDistribution> daughterDistribution_;
+        autoPtr
+        <
+            populationBalanceSubModels::daughterDistribution
+        > daughterDistribution_;
 
 
     // Private member functions

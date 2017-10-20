@@ -57,6 +57,4 @@ Foam::bubbleBreakupKernel::~bubbleBreakupKernel()
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
-
-
 // ************************************************************************* //

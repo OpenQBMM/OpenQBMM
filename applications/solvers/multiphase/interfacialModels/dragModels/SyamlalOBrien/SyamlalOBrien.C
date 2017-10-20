@@ -72,7 +72,8 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::SyamlalOBrien::CdRe
     (
         max
         (
-            scalar(1) - pair_.dispersed().alphas(nodei), pair_.continuous().residualAlpha()
+            scalar(1) - pair_.dispersed().alphas(nodei),
+            pair_.continuous().residualAlpha()
         )
     );
 

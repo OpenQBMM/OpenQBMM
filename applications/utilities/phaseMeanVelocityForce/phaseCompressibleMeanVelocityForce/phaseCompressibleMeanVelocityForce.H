@@ -36,14 +36,14 @@ Description
     phaseCompressibleMeanVelocityForceCoeffs
     {
         selectionMode    all;                    // Apply force to all cells
-        fieldNames       (U.gas);                //  
-        alphaName	     alpha.gas;
-        rhoName  	     rho.gas;
+        fieldNames       (U.gas);                //
+        alphaName         alpha.gas;
+        rhoName           rho.gas;
         Ubar             (10.0 0 0);             // Desired mean velocity
         relaxation       0.2;                    // Optional relaxation factor
     }
     \endverbatim
-    * 
+
 SourceFiles
     phaseCompressibleMeanVelocityForce.C
 
@@ -75,14 +75,14 @@ class phaseCompressibleMeanVelocityForce
     public cellSetOption
 {
     // Private data
-      
+
         const volScalarField& alpha_;
 
         const volScalarField& rho_;
 
         //- Average velocity
         vector Ubar_;
-        
+
         //- target velocity magnitude
         scalar magUbar_;
 
@@ -91,14 +91,14 @@ class phaseCompressibleMeanVelocityForce
 
         //- Relaxation factor
         scalar relaxation_;
-        
+
         //- Pressure gradient before correction
         scalar gradP0_;
 
         //- Change in pressure gradient
         scalar dGradP_;
 
-        
+
         //- Matrix 1/A coefficients field pointer
         autoPtr<volScalarField> rAPtr_;
 
@@ -164,8 +164,8 @@ public:
             //- Read source dictionary
             virtual bool read(const dictionary& dict)
             {
-				return false;
-			}
+                return false;
+            }
 };
 
 

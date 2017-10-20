@@ -79,7 +79,7 @@ Foam::momentGenerationModel::momentGenerationModel
     {
         moments_[mi].dimensions().reset
         (
-            (weights_[0]*pow(abscissae_[0],mi)).dimensions()
+            (weights_[0]*pow(abscissae_[0], mi)).dimensions()
         );
     }
 }

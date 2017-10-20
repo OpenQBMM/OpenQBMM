@@ -67,7 +67,7 @@ Foam::tmp<Foam::volScalarField> Foam::liftModels::TomiyamaLift::Cl
     const label nodej
 ) const
 {
-    volScalarField EoH(pair_.EoH2(nodei,nodej));
+    volScalarField EoH(pair_.EoH2(nodei, nodej));
 
     volScalarField f
     (

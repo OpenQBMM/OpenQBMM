@@ -117,7 +117,7 @@ Foam::kineticTheoryModel::kineticTheoryModel
     maxNut_
     (
         "maxNut",
-        dimensionSet(0,2,-1,0,0),
+        dimensionSet(0, 2, -1, 0, 0),
         dict.lookupOrDefault<scalar>("maxNut", 1000)
     ),
 

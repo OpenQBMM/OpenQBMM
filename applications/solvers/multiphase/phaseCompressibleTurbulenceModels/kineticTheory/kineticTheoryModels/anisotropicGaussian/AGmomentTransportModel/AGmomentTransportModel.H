@@ -1,35 +1,35 @@
 /*---------------------------------------------------------------------------*\
- *  =========                 |
- *  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
- *   \\    /   O peration     |
- *    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
- *     \\/     M anipUgation  |
- * -------------------------------------------------------------------------------
- * License
- *    This file is part of OpenFOAM.
- *
- *    OpenFOAM is free software: you can redistribute it and/or modify it
- *    under the terms of the GNU General PUplic License as pUplished by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
- *
- *    OpenFOAM is distributed in the hope that it will be usefUg, but WITHOUT
- *    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- *    FITNESS FOR A PARTICUgAR PURPOSE.  See the GNU General PUplic License
- *    for more details.
- *
- *    You shoUgd have received a copy of the GNU General PUplic License
- *    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Class
- *    Foam::AGmomentTransportModel
- *
- * Description
- *
- * SourceFiles
- *    AGmomentTransportModel.C
- *
- * \*---------------------------------------------------------------------------*/
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+     \\/     M anipUgation  |
+-------------------------------------------------------------------------------
+ License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General PUplic License as pUplished by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be usefUg, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICUgAR PURPOSE.  See the GNU General PUplic License
+    for more details.
+
+    You shoUgd have received a copy of the GNU General PUplic License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+ Class
+    Foam::AGmomentTransportModel
+
+ Description
+
+ SourceFiles
+    AGmomentTransportModel.C
+
+\*---------------------------------------------------------------------------*/
 
 #ifndef AGmomentTransportModel_H
 #define AGmomentTransportModel_H
@@ -47,16 +47,15 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
- *               Class AGmomentTransportModel Declaration
- * \*---------------------------------------------------------------------------*/
+                Class AGmomentTransportModel Declaration
+\*---------------------------------------------------------------------------*/
 
 class AGmomentTransportModel
 {
+    // Private data
 
-    private:
-
+        //- Flag to indicate if inversion is done in cells
 		const Switch cellInv_;
-		// if it is false, moment inversion is done at cell face, introplation is needed.
 
         //- Const refrence to mesh
         const fvMesh& mesh_;
@@ -88,8 +87,10 @@ class AGmomentTransportModel
         //- Reference to quadrature abscissae
         vectorList& hqAbsc_;
 
+        //- Wall restitution coefficient
         const scalar ew_;
 
+        //- Wall specularity coefficient
         const scalar phiw_;
 
         PtrList<surfaceScalarField> ownnei_;
@@ -125,10 +126,9 @@ class AGmomentTransportModel
         void operator=(const AGmomentTransportModel&);
 
 
-    public:
+public:
 
-
-        // Constructors
+    // Constructors
 
         //- Construct from components
         AGmomentTransportModel
@@ -140,9 +140,11 @@ class AGmomentTransportModel
             volSymmTensorField& Sigma
         );
 
-
         //- Destructor
         virtual ~AGmomentTransportModel();
+
+
+    // Public member functions
 
         //- Solve moment transport
         void solve
@@ -150,6 +152,8 @@ class AGmomentTransportModel
             const surfaceScalarField& h2f
         );
 
+        //- Returns const access to time derivative of volume fraction in
+        //  dilute advection
         const volScalarField& ddtAlphaDilute() const
         {
             return ddtAlphaDilute_;
@@ -158,10 +162,10 @@ class AGmomentTransportModel
 	    scalar maxUxDx() const;
 
 };
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
-
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

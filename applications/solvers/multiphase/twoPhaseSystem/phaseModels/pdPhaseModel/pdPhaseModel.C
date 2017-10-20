@@ -829,7 +829,7 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         mEqn.solve();
     }
 
-    if(nNodes_ == 1)
+    if (nNodes_ == 1)
     {
         forAll(quadrature_.velocityMoments(), mi)
         {
@@ -840,6 +840,7 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         quadrature_.updateAllQuadrature();
         return;
     }
+
     forAll(quadrature_.velocityMoments(), mEqni)
     {
         dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
@@ -898,12 +899,14 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         UpEqn.relax();
         UpEqn.solve();
     }
+
     quadrature_.updateAllQuadrature();
     correct();
 
     // Solve for velocity abscissa directly since the momentum exchange
-    //  terms do not change the mass
+    // terms do not change the mass
     Info << "Solving for velocity abscissae" << endl;
+
     forAll(Us_, nodei)
     {
         //  Colisional time, forces velocities towards mean in the case of

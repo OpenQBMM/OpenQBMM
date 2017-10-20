@@ -1,25 +1,27 @@
 /*---------------------------------------------------------------------------*\
- *  hermiteQuadrature - One-dimensional moment inversion algorithm for
- *            quadrature-based moment methods
- *
- * Copyright Information
- *    Copyright (C) Bo Kong
- *
- * License
- *    This program is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
- *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *    GNU General Public License for more details.
- *
- *    You should have received a copy of the GNU General Public License
- *    along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * \*----------------------------------------------------------------------------*/
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2010-2014 Bo Kong
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is derivative work of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*----------------------------------------------------------------------------*/
 
 #include "hermiteQuadrature.H"
 #include "scalar.H"
@@ -36,99 +38,100 @@ Foam::hermiteQuadrature::hermiteQuadrature
     const label& nOrder
 )
 :
-	nDim_(nDim),
-	nOrder_(nOrder),
-	nTolNodes_(pow(nOrder_, nDim)),
-	origWei_(nTolNodes_, 0.0),
-	origAbs_(nTolNodes_, vector::zero),
-	resAbs_(nTolNodes_, vector::zero)
+    nDim_(nDim),
+    nOrder_(nOrder),
+    nTolNodes_(pow(nOrder_, nDim)),
+    origWei_(nTolNodes_, 0.0),
+    origAbs_(nTolNodes_, vector::zero),
+    resAbs_(nTolNodes_, vector::zero)
 {
 
-	if((nOrder_ <= 0))
-	{
-		FatalErrorIn("Foam::hermiteQuadrature\n" ) << "parameter(s) out of range ! " << abort(FatalError);
-	}
+    if((nOrder_ <= 0))
+    {
+        FatalErrorIn("Foam::hermiteQuadrature\n" )
+            << "parameter(s) out of range ! "
+            << abort(FatalError);
+    }
 
-	scalarRectangularMatrix ab(nOrder_,2,scalar(0));
+    scalarRectangularMatrix ab(nOrder_, 2, scalar(0));
 
-	for(label i=0; i<nOrder_; i++)
-		ab[i][1]= scalar(i);
+    for(label i = 0; i < nOrder_; i++)
+    {
+        ab[i][1]= scalar(i);
+    }
 
-	scalarSquareMatrix z(nOrder_, Zero);
+    scalarSquareMatrix z(nOrder_, Zero);
 
-	for (label i = 0; i < nOrder_ - 1; i++)
-	{
-		z[i][i] = ab[i][0];
-		z[i][i+1] = Foam::sqrt(ab[i+1][1]);
-		z[i+1][i] = z[i][i+1];
-	}
-	z[nOrder_-1][nOrder_-1] = ab[nOrder_-1][0];
+    for (label i = 0; i < nOrder_ - 1; i++)
+    {
+        z[i][i] = ab[i][0];
+        z[i][i+1] = Foam::sqrt(ab[i+1][1]);
+        z[i+1][i] = z[i][i+1];
+    }
 
-	eigenSolver zEig(z);
+    z[nOrder_-1][nOrder_-1] = ab[nOrder_-1][0];
 
-	scalarList herWei_(nOrder_,0.0);
-	scalarList herAbs_(nOrder_,0.0);
+    eigenSolver zEig(z);
 
-	forAll(herWei_,i)
-	{
-		herWei_[i] = sqr(zEig.eigenvectors()[0][i]);
-		herAbs_[i] = zEig.eigenvaluesRe()[i];
-	}
+    scalarList herWei_(nOrder_,0.0);
+    scalarList herAbs_(nOrder_,0.0);
 
-	scalar wtotal = sum(herWei_) ;
+    forAll(herWei_,i)
+    {
+        herWei_[i] = sqr(zEig.eigenvectors()[0][i]);
+        herAbs_[i] = zEig.eigenvaluesRe()[i];
+    }
 
-	forAll(herWei_,i)
-	{
-		herWei_[i] = herWei_[i]/wtotal;
-	}
+    scalar wtotal = sum(herWei_) ;
 
-	if(nDim_ == 1)
-	{
-		forAll(origWei_,i)
-		{
-			origWei_[i] = herWei_[i];
-			origAbs_[i] = vector(herAbs_[i],0,0);
-		}
-	}
+    forAll(herWei_,i)
+    {
+        herWei_[i] = herWei_[i]/wtotal;
+    }
 
-	maxAbs_ =  max(herAbs_);
+    if (nDim_ == 1)
+    {
+        forAll(origWei_,i)
+        {
+            origWei_[i] = herWei_[i];
+            origAbs_[i] = vector(herAbs_[i], 0, 0);
+        }
+    }
 
-	if(nDim_==2)
-	{
-		for(label i = 0; i < nOrder_; i++)
-		{
-			for(label j = 0; j < nOrder_; j++)
-			{
-				label p = i*nOrder_+j;
-				origWei_[p] = herWei_[i]*herWei_[j];
-				origAbs_[p] = vector(herAbs_[i],herAbs_[j],0);
+    maxAbs_ = max(herAbs_);
 
-			}
-		}
-	}
+    if (nDim_ == 2)
+    {
+        for(label i = 0; i < nOrder_; i++)
+        {
+            for(label j = 0; j < nOrder_; j++)
+            {
+                label p = i*nOrder_ + j;
+                origWei_[p] = herWei_[i]*herWei_[j];
+                origAbs_[p] = vector(herAbs_[i], herAbs_[j], 0);
 
-	if(nDim_==3)
-	{
+            }
+        }
+    }
 
-		for(label i = 0; i < nOrder_; i++)
-		{
-			for(label j = 0; j < nOrder_; j++)
-			{
-				for(label k = 0; k < nOrder_; k++)
-				{
-					label p = i*nOrder_*nOrder_+j*nOrder_ +k;
-					origWei_[p] = herWei_[i]*herWei_[j]*herWei_[k];
-					origAbs_[p] = vector(herAbs_[i],herAbs_[j],herAbs_[k]);
-				}
-			}
-		}
-	}
+    if (nDim_ == 3)
+    {
+        for(label i = 0; i < nOrder_; i++)
+        {
+            for(label j = 0; j < nOrder_; j++)
+            {
+                for(label k = 0; k < nOrder_; k++)
+                {
+                    label p = i*nOrder_*nOrder_ + j*nOrder_ + k;
+                    origWei_[p] = herWei_[i]*herWei_[j]*herWei_[k];
+                    origAbs_[p] = vector(herAbs_[i], herAbs_[j], herAbs_[k]);
+                }
+            }
+        }
+    }
 
-
-	return ;
-
+    return ;
 }
-
 
 void Foam::hermiteQuadrature::calcHermiteQuadrature
 (
@@ -136,90 +139,99 @@ void Foam::hermiteQuadrature::calcHermiteQuadrature
     const symmTensor& Pp
 )
 {
+    if (tr(Pp) > thetaLimit_)
+    {
+        tensor spM(tensor::zero);
 
-	if(tr(Pp) > thetaLimit_)
-	{
+        if( nDim_ == 3)
+        {
+            scalarSquareMatrix z(3, Zero);
 
-		tensor spM(tensor::zero);
+            z[0][0] = Pp.xx();
+            z[0][1] = Pp.xy();
+            z[0][2] = Pp.xz();
+            z[1][0] = Pp.xy();
+            z[1][1] = Pp.yy();
+            z[1][2] = Pp.yz();
+            z[2][0] = Pp.xz();
+            z[2][1] = Pp.yz();
+            z[2][2] = Pp.zz();
 
-		if(nDim_==3)
-		{
-			scalarSquareMatrix z(3, Zero);
-			z[0][0] = Pp.xx();
-			z[0][1] = Pp.xy();
-			z[0][2] = Pp.xz();
-			z[1][0] = Pp.xy();
-			z[1][1] = Pp.yy();
-			z[1][2] = Pp.yz();
-			z[2][0] = Pp.xz();
-			z[2][1] = Pp.yz();
-			z[2][2] = Pp.zz();
+            eigenSolver zEig(z);
+            const scalarDiagonalMatrix& e(zEig.eigenvaluesRe());
+            const scalarSquareMatrix& ev(zEig.eigenvectors());
 
-			eigenSolver zEig(z);
-			const scalarDiagonalMatrix&  e(zEig.eigenvaluesRe());
-			const scalarSquareMatrix&  ev(zEig.eigenvectors());
+            scalarSquareMatrix E(3, Zero);
 
-			scalarSquareMatrix E(3, Zero);
-			forAll(e,i)
-			{
-				if(e[i] >=0)
-					E[i][i] = sqrt(e[i]);
-				else
-					E[i][i] = 0.0;
-			}
+            forAll(e,i)
+            {
+                if(e[i] >= 0)
+                {
+                    E[i][i] = sqrt(e[i]);
+                }
+                else
+                {
+                    E[i][i] = 0.0;
+                }
+            }
 
-			z = Zero;
-			multiply(z,ev,E);
-			forAll(spM,i) spM[i] = z[label(i/3)][i%3];
+            z = Zero;
+            multiply(z, ev, E);
+            forAll(spM,i) spM[i] = z[label(i/3)][i % 3];
 
-		}
-		else
-		{
-			if(nDim_==2)
-			{
-				scalarSquareMatrix z(2, Zero);
-				z[0][0] = Pp.xx();
-				z[0][1] = Pp.xy();
-				z[1][0] = Pp.xy();
-				z[1][1] = Pp.yy();
+        }
+        else
+        {
+            if(nDim_==2)
+            {
+                scalarSquareMatrix z(2, Zero);
+                z[0][0] = Pp.xx();
+                z[0][1] = Pp.xy();
+                z[1][0] = Pp.xy();
+                z[1][1] = Pp.yy();
 
-				eigenSolver zEig(z);
-				const scalarDiagonalMatrix&  e(zEig.eigenvaluesRe());
-				const scalarSquareMatrix&  ev(zEig.eigenvectors());
+                eigenSolver zEig(z);
+                const scalarDiagonalMatrix& e(zEig.eigenvaluesRe());
+                const scalarSquareMatrix& ev(zEig.eigenvectors());
 
-				scalarSquareMatrix E(2,Zero);
-				forAll(e,i)
-				{
-					if(e[i] >=0)
-						E[i][i] = sqrt(e[i]);
-					else
-						E[i][i] = 0.0;
-				}
+                scalarSquareMatrix E(2,Zero);
 
-				z = Zero;
-				multiply(z,ev,E);
-				spM.xx() = z[0][0];
-				spM.xy() = z[0][1];
-				spM.yx() = z[1][0];
-				spM.yy() = z[1][1];
+                forAll(e, i)
+                {
+                    if(e[i] >=0)
+                    {
+                        E[i][i] = sqrt(e[i]);
+                    }
+                    else
+                    {
+                        E[i][i] = 0.0;
+                    }
+                }
 
-			}
-			else
-			{
-				spM.xx() = sqrt(Pp.xx());
-			}
-		}
+                z = Zero;
+                multiply(z, ev, E);
 
-		resAbs_ = (spM & origAbs_) + mu;
+                spM.xx() = z[0][0];
+                spM.xy() = z[0][1];
+                spM.yx() = z[1][0];
+                spM.yy() = z[1][1];
 
-	}
-	else
-	{
-		resAbs_ = mu ;
-	}
+            }
+            else
+            {
+                spM.xx() = sqrt(Pp.xx());
+            }
+        }
 
-	return ;
+        resAbs_ = (spM & origAbs_) + mu;
+
+    }
+    else
+    {
+        resAbs_ = mu ;
+    }
+
+    return ;
 }
-
 
 // ************************************************************************* //

@@ -168,7 +168,9 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::We
     const label nodei, const label nodej
 ) const
 {
-    return sqr(magUr(nodei,nodej))*dispersed().ds(nodei)*continuous().rho()/sigma_;
+    return
+        sqr(magUr(nodei, nodej))*dispersed().ds(nodei)
+        *continuous().rho()/sigma_;
 }
 
 

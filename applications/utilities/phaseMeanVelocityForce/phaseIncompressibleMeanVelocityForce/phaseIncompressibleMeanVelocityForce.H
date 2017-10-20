@@ -36,8 +36,8 @@ Description
     phaseIncompressibleMeanVelocityForceCoeffs
     {
         selectionMode    all;                    // Apply force to all cells
-        fieldNames       (U.gas);                //  
-        alphaName	     alpha.gas;
+        fieldNames       (U.gas);                //
+        alphaName         alpha.gas;
         Ubar             (10.0 0 0);             // Desired mean velocity
         relaxation       0.2;                    // Optional relaxation factor
     }
@@ -79,7 +79,7 @@ class phaseIncompressibleMeanVelocityForce
 
         //- Average velocity
         vector Ubar_;
-        
+
         //- target velocity magnitude
         scalar magUbar_;
 
@@ -88,7 +88,7 @@ class phaseIncompressibleMeanVelocityForce
 
         //- Relaxation factor
         scalar relaxation_;
-        
+
         //- Pressure gradient before correction
         scalar gradP0_;
 
@@ -107,7 +107,10 @@ class phaseIncompressibleMeanVelocityForce
         void update(fvMatrix<vector>& eqn);
 
         //- Disallow default bitwise copy construct
-        phaseIncompressibleMeanVelocityForce(const phaseIncompressibleMeanVelocityForce&);
+        phaseIncompressibleMeanVelocityForce
+        (
+            const phaseIncompressibleMeanVelocityForce&
+        );
 
         //- Disallow default bitwise assignment
         void operator=(const phaseIncompressibleMeanVelocityForce&);
@@ -159,8 +162,8 @@ public:
             //- Read source dictionary
             virtual bool read(const dictionary& dict)
             {
-				return false;
-			}
+                return false;
+            }
 };
 
 

@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
         {
             word bName = mesh.boundaryMesh()[bi].name();
 
-            if(!phaseDict.found(bName))
+            if (!phaseDict.found(bName))
             {
                 bName = "default";
             }

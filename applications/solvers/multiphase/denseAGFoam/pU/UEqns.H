@@ -44,7 +44,6 @@ volScalarField Kd(fluid.Kd());
     U1Eqn += fvm::Sp(Kd, U1);
     fvOptions.constrain(U1Eqn);
 
-
     U2Eqn =
         (
             fvm::ddt(alpha2, rho2, U2)

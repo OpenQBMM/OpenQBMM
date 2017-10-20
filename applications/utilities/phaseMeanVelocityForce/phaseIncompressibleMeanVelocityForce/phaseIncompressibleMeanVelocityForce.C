@@ -86,7 +86,10 @@ Foam::fv::phaseIncompressibleMeanVelocityForce::phaseIncompressibleMeanVelocityF
 )
 :
     cellSetOption(sourceName, modelType, dict, mesh),
-    alpha_(mesh.thisDb().lookupObject<volScalarField>(coeffs_.lookup("alphaName"))),
+    alpha_
+    (
+        mesh.thisDb().lookupObject<volScalarField>(coeffs_.lookup("alphaName"))
+    ),
     Ubar_(coeffs_.lookup("Ubar")),
     magUbar_(mag(Ubar_)),
     flowDir_(Ubar_/magUbar_),
@@ -130,7 +133,7 @@ void Foam::fv::phaseIncompressibleMeanVelocityForce::correct(volVectorField& U)
 
     // Integrate flow variables over cell set
     scalar magAlphaUAve = 0.0;
-    scalar alphaAve = 0.0; 
+    scalar alphaAve = 0.0;
     scalar rAUave = 0.0;
     const scalarField& cv = mesh_.V();
     forAll(cells_, i)
@@ -165,8 +168,8 @@ void Foam::fv::phaseIncompressibleMeanVelocityForce::correct(volVectorField& U)
 
     scalar gradP = gradP0_ + dGradP_;
 
-    Info<< "Pressure gradient source: uncorrected Mean Velocity Magnitude = " 
-		<< magAlphaUAve/alphaAve
+    Info<< "Pressure gradient source: uncorrected Mean Velocity Magnitude = "
+        << magAlphaUAve/alphaAve
         << ", pressure gradient = " << gradP << endl;
 
     writeProps(gradP);

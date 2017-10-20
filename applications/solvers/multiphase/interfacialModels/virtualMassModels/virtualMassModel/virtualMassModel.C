@@ -79,7 +79,7 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Ki
     const label nodej
 ) const
 {
-    return Cvm(nodei,nodej)*pair_.continuous().rho();
+    return Cvm(nodei, nodej)*pair_.continuous().rho();
 }
 
 Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::Ki() const
@@ -94,7 +94,7 @@ Foam::tmp<Foam::volScalarField> Foam::virtualMassModel::K
     const label nodej
 ) const
 {
-    return pair_.dispersed().alphas(nodei)*Ki(nodei,nodej);
+    return pair_.dispersed().alphas(nodei)*Ki(nodei, nodej);
 }
 
 

@@ -52,10 +52,10 @@ Description
 
     References
     \verbatim
-        "Numerical solution of moment-transformed population balance equation with fixed quadrature points"
-        Ville LuoSvendsen and Marko Laakkonen and Juhani Aittamaa
-        Chemical Engineering Science
-        Volume 61, Pages 4919-4929, 2006
+        "Theoretical model for drop and bubble breakup in turbulent dispersions"
+        H. Luo and H. F. Svendsen
+        AIChE Journal
+        Volume 42, Pages 1225-1233, 1996
     \endverbatim
 
 SourceFiles
@@ -77,7 +77,7 @@ namespace bubbleBreakupKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class LuoSvendsen Declaration
+                        Class LuoSvendsen Declaration
 \*---------------------------------------------------------------------------*/
 
 class LuoSvendsen

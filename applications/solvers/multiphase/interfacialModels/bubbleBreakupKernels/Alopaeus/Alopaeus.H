@@ -52,7 +52,8 @@ Description
 
     References
     \verbatim
-        "Numerical solution of moment-transformed population balance equation with fixed quadrature points"
+        "Numerical solution of moment-transformed population balance equation
+        with fixed quadrature points"
         Ville Alopaeus and Marko Laakkonen and Juhani Aittamaa
         Chemical Engineering Science
         Volume 61, Pages 4919-4929, 2006
@@ -77,7 +78,7 @@ namespace bubbleBreakupKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class Alopaeus Declaration
+                        Class Alopaeus Declaration
 \*---------------------------------------------------------------------------*/
 
 class Alopaeus
