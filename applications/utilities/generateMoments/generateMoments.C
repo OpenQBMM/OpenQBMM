@@ -26,11 +26,9 @@ Application
     field files for main solver to use as input.
 
 Description
-    Solver for a system of any number of compressible fluid phases with a
-    common pressure, but otherwise separate properties. The type of phase model
-    is run time selectable and can optionally represent multiple species and
-    in-phase reactions. The phase system is also run time selectable and can
-    optionally represent different types of momentun, heat and mass transfer.
+    Preprocessing application to eliminate the need to create fields for all
+    moments. Instead moments are consucted using inputs from
+    momentGenerationDict. Different methods can be used.
 
 \*---------------------------------------------------------------------------*/
 
@@ -143,6 +141,8 @@ int main(int argc, char *argv[])
                     )
                 );
 
+                //  Set boundaries based oboundary section
+                //  Initial values specified in the dictionary are overwritten
                 moments[mi].boundaryFieldRef().readField
                 (
                     moments[mi].internalField(),

@@ -55,7 +55,7 @@ class noMomentGeneration
 public:
 
         //- Runtime type information
-        TypeName("noMomentGeneration");
+        TypeName("moments");
 
 
     // Constructors

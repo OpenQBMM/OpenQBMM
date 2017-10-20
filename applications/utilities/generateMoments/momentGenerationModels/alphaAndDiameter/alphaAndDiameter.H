@@ -22,13 +22,13 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::momentGenerationSubModels::weightsAndAbscissae
+    Foam::momentGenerationSubModels::alphaAndDiameter
 
 Description
     Moment generation done using volume fraction, density, and bubble diameter.
 
 SourceFiles
-    weightsAndAbscissae.C
+    alphaAndDiameter.C
 
 \*---------------------------------------------------------------------------*/
 
