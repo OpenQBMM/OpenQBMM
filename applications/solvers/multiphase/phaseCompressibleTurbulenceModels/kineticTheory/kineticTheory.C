@@ -2,11 +2,10 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2017 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2017-06-05  Jeff Heylmun:   Modified to allow for use of anisotropic Gaussian
-                            model.
+2017-06-05  Jeff Heylmun:   Seperated kineticTheoryModel from eddyViscosityModel
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.

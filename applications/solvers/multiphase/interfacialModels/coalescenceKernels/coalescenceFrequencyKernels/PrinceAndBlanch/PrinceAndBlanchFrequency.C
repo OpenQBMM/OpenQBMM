@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "PrinceAndBlanch.H"
+#include "PrinceAndBlanchFrequency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
 #include "fvc.H"

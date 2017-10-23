@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "PrinceAndBlanch.H"
+#include "constantEfficiency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
 
@@ -33,11 +33,12 @@ namespace Foam
 {
 namespace coalescenceEfficiencyKernels
 {
-    defineTypeNameAndDebug(PrinceAndBlanch, 0);
+    defineTypeNameAndDebug(constant, 0);
+
     addToRunTimeSelectionTable
     (
         coalescenceEfficiencyKernel,
-        PrinceAndBlanch,
+        constant,
         dictionary
     );
 }
@@ -46,8 +47,7 @@ namespace coalescenceEfficiencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::
-PrinceAndBlanch
+Foam::coalescenceEfficiencyKernels::constant::constant
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -55,59 +55,42 @@ PrinceAndBlanch
 :
     coalescenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    ho_
-    (
-        dimensionedScalar::lookupOrDefault
-        (
-            "h0",
-            dict,
-            dimLength,
-            1e-3
-        )
-    ),
-    hf_
-    (
-        dimensionedScalar::lookupOrDefault
-        (
-            "hf",
-            dict,
-            dimLength,
-            1e-6
-        )
-    )
+    Ceff_(dict.lookup("Ceff"))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::
-~PrinceAndBlanch()
+Foam::coalescenceEfficiencyKernels::constant::~constant()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::Pc
+Foam::coalescenceEfficiencyKernels::constant::Pc
 (
     const label nodei,
     const label nodej
 ) const
 {
-    const volScalarField& d1 = fluid_.phase1().ds(nodei);
-    const volScalarField& d2 = fluid_.phase1().ds(nodej);
-    const volScalarField& rho = fluid_.phase2().rho();
-    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
-    const dimensionedScalar& sigma = fluid_.sigma();
-
-    volScalarField rij("rij", 0.5/(2.0/d1 + 2.0/d2));
-
-    return
-        Foam::exp
+    return tmp<volScalarField>
+    (
+        new volScalarField
         (
-          - sqrt(rho*pow3(rij)/(16.0*sigma))*log(ho_/hf_)
-           /(pow(rij, 2.0/3.0)/pow(epsilon, 1.0/3.0))
-        );
+            IOobject
+            (
+                "Pc",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            fluid_.mesh(),
+            Ceff_
+        )
+    );
 }
 
 // ************************************************************************* //

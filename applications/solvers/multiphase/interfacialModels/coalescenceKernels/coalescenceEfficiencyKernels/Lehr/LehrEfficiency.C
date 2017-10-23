@@ -23,10 +23,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CoulaloglouAndTavlarides.H"
+#include "LehrEfficiency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -34,11 +33,11 @@ namespace Foam
 {
 namespace coalescenceEfficiencyKernels
 {
-    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
+    defineTypeNameAndDebug(Lehr, 0);
     addToRunTimeSelectionTable
     (
         coalescenceEfficiencyKernel,
-        CoulaloglouAndTavlarides,
+        Lehr,
         dictionary
     );
 }
@@ -47,8 +46,8 @@ namespace coalescenceEfficiencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::
-CoulaloglouAndTavlarides
+Foam::coalescenceEfficiencyKernels::Lehr::
+Lehr
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -56,23 +55,31 @@ CoulaloglouAndTavlarides
 :
     coalescenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    Ceff_(dict.lookup("Ceff"))
-{
-    Ceff_.dimensions().reset(inv(sqr(dimLength)));
-}
+    turbulence_(dict.lookupOrDefault("turbulence", true)),
+    uCrit_
+    (
+        dimensionedScalar::lookupOrDefault
+        (
+            "uCrit",
+            dict,
+            dimVelocity,
+            0.08
+        )
+    )
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::
-~CoulaloglouAndTavlarides()
+Foam::coalescenceEfficiencyKernels::Lehr::
+~Lehr()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
+Foam::coalescenceEfficiencyKernels::Lehr::Pc
 (
     const label nodei,
     const label nodej
@@ -80,24 +87,34 @@ Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
 {
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
-    const volScalarField& rho = fluid_.phase2().rho();
-//     const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
-    const phaseModel& phase(fluid_.phase1());
-    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
-    volScalarField epsilon(phase.nu()*(S && S));
-    const dimensionedScalar& sigma = fluid_.sigma();
 
-    return
-        Foam::exp
+    if (turbulence_)
+    {
+        return max
         (
-          - Ceff_
-           *fluid_.phase2().nu()*epsilon*sqr(rho/sigma)
-           *pow4
+            uCrit_
+           /max
             (
-                d1*d2
-                /max(d1 + d2, dimensionedScalar("zero", dimLength, SMALL))
-            )
+                1.414*cbrt(fluid_.phase2().turbulence().epsilon())
+               *sqrt(pow(d1, 2/3) + pow(d2, 2/3)),
+                mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
+            ),
+            1.0
         );
+    }
+    else
+    {
+        return max
+        (
+            uCrit_
+           /max
+            (
+                mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej)),
+                dimensionedScalar("small", dimVelocity, 1e-10)
+            ),
+            1.0
+        );
+    }
 }
 
 // ************************************************************************* //

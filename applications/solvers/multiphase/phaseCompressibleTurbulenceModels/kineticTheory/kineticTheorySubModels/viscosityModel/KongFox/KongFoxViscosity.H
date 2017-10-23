@@ -4,9 +4,6 @@
    \\    /   O peration     |
     \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
 -------------------------------------------------------------------------------
-2017-06-26 Jeff Heylmun:    Changed alpha to phase so that twoPhaseSystem can
-                            be accessed
--------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
 

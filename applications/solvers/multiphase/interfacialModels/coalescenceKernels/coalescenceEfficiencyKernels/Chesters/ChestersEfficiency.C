@@ -2,14 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2017-05-04 Jeff Heylmun:    Modified drag coefficient calculation
-2017-05-18 Jeff Heylmun:    Added support of polydisperse phase models
--------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is derivative work of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -26,84 +23,93 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Tomiyama.H"
-#include "phasePair.H"
+#include "ChestersEfficiency.H"
 #include "addToRunTimeSelectionTable.H"
+#include "fundamentalConstants.H"
+#include "phasePair.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace dragModels
+namespace coalescenceEfficiencyKernels
 {
-    defineTypeNameAndDebug(Tomiyama, 0);
-    addToRunTimeSelectionTable(dragModel, Tomiyama, dictionary);
+    defineTypeNameAndDebug(Chesters, 0);
+
+    addToRunTimeSelectionTable
+    (
+        coalescenceEfficiencyKernel,
+        Chesters,
+        dictionary
+    );
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::dragModels::Tomiyama::Tomiyama
+Foam::coalescenceEfficiencyKernels::Chesters::Chesters
 (
     const dictionary& dict,
-    const phasePair& pair,
-    const bool registerObject
+    const fvMesh& mesh
 )
 :
-    dragModel(dict, pair, registerObject),
-    residualRe_("residualRe", dimless, dict)
+    coalescenceEfficiencyKernel(dict, mesh),
+    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    Ceff_(dict.lookup("Ceff")),
+    ReExp_(dict.lookup("ReExp")),
+    WeExp_(dict.lookup("WeExp"))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::dragModels::Tomiyama::~Tomiyama()
+Foam::coalescenceEfficiencyKernels::Chesters::~Chesters()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::dragModels::Tomiyama::CdRe
+Foam::coalescenceEfficiencyKernels::Chesters::Pc
 (
     const label nodei,
     const label nodej
 ) const
 {
-    volScalarField Re(pair_.Re(nodei, nodej));
-    volScalarField Eo(pair_.Eo(nodei, nodej));
+    const phasePair& pair = fluid_.pair1In2();
+    const phaseModel& phase1 = fluid_.phase1();
+    const phaseModel& phase2 = fluid_.phase2();
+
+    const volScalarField& di = fluid_.phase1().ds(nodei);
+    const volScalarField& dj = fluid_.phase1().ds(nodej);
+
+    volScalarField Weij
+    (
+        phase2.rho()
+       *di
+       *magSqr(phase1.Us(nodei) - phase1.Us(nodej))
+       /fluid_.sigma()
+    );
+    volScalarField xi(di/dj);
+    volScalarField theta
+    (
+        "theta",
+        Ceff_
+       *pow(max(pair.Re(nodei, 0), SMALL), ReExp_)
+       *pow(max(pair.We(nodei, 0), SMALL), WeExp_)
+    );
 
     return
-        max
+        Foam::exp
         (
-            max
-            (
-                24.0*(1 + 0.15*pow(Re, 0.687)),
-                0.44*Re
-            ),
-            8*Eo*Re/(3*Eo + 12)
+          - theta*sqrt(Weij)
+           *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
+           /(
+                sqrt(fluid_.phase1().rho()/fluid_.phase2().rho() + 0.5)
+               *pow3(1.0 + xi)
+            )
         );
 }
-
-
-Foam::tmp<Foam::volScalarField>
-Foam::dragModels::Tomiyama::CdRe() const
-{
-    volScalarField Re(pair_.Re());
-    volScalarField Eo(pair_.Eo());
-
-    return
-        max
-        (
-            max
-            (
-                24.0*(1 + 0.15*pow(Re, 0.687)),
-                0.44*Re
-            ),
-            8*Eo*Re/(3*Eo + 12)
-        );
-}
-
 
 // ************************************************************************* //

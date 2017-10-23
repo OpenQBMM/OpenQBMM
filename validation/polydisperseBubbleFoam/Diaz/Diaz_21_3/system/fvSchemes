@@ -39,7 +39,7 @@ divSchemes
     "div\(phi.*,U.*\)"              Gauss limitedLinearV 0.2;
 
 
-    "div\(\(\(\(alpha.*\*thermo:rho.*\)\*nuEff.*\)\*dev2\(T\(grad\(U.*\)\)\)\)\)" Gauss linear;
+    "div\(\(\(\(alpha.*\*thermo:rho.*\)\*nuEff.*\)\*dev2\(T\(grad\(U.*\)\)\)\)\)" Gauss limitedLinearV 0.2;
 
     div((((alpha.air*rho.air)*nu.air)*dev2(T(grad(U.air))))) Gauss linear;
 }
@@ -53,6 +53,7 @@ interpolationSchemes
 {
     default         linear;
 
+    reconstruct(Us)         Minmod;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   Minmod;
 }

@@ -23,21 +23,23 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Lehr.H"
+#include "CoulaloglouAndTavlaridesFrequency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
+#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coalescenceEfficiencyKernels
+namespace coalescenceFrequencyKernels
 {
-    defineTypeNameAndDebug(Lehr, 0);
+    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
+
     addToRunTimeSelectionTable
     (
-        coalescenceEfficiencyKernel,
-        Lehr,
+        coalescenceFrequencyKernel,
+        CoulaloglouAndTavlarides,
         dictionary
     );
 }
@@ -46,75 +48,45 @@ namespace coalescenceEfficiencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::Lehr::
-Lehr
+Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
+CoulaloglouAndTavlarides
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalescenceEfficiencyKernel(dict, mesh),
-    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    turbulence_(dict.lookupOrDefault("turbulence", true)),
-    uCrit_
-    (
-        dimensionedScalar::lookupOrDefault
-        (
-            "uCrit",
-            dict,
-            dimVelocity,
-            0.08
-        )
-    )
+    coalescenceFrequencyKernel(dict, mesh),
+    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties"))
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::Lehr::
-~Lehr()
+Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
+~CoulaloglouAndTavlarides()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceEfficiencyKernels::Lehr::Pc
+Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
 (
     const label nodei,
     const label nodej
 ) const
 {
+//     const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
+    const phaseModel& phase(fluid_.phase1());
+    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
+    volScalarField epsilon(phase.nu()*(S && S));
+
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
 
-    if (turbulence_)
-    {
-        return max
-        (
-            uCrit_
-           /max
-            (
-                1.414*cbrt(fluid_.phase2().turbulence().epsilon())
-               *sqrt(pow(d1, 2/3) + pow(d2, 2/3)),
-                mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
-            ),
-            1.0
-        );
-    }
-    else
-    {
-        return max
-        (
-            uCrit_
-           /max
-            (
-                mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej)),
-                dimensionedScalar("small", dimVelocity, 1e-10)
-            ),
-            1.0
-        );
-    }
+    return
+        cbrt(epsilon)*sqr(d1 + d2)
+       *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
 }
 
 // ************************************************************************* //

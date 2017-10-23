@@ -23,23 +23,21 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CoulaloglouAndTavlarides.H"
+#include "PrinceAndBlanchEfficiency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coalescenceFrequencyKernels
+namespace coalescenceEfficiencyKernels
 {
-    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
-
+    defineTypeNameAndDebug(PrinceAndBlanch, 0);
     addToRunTimeSelectionTable
     (
-        coalescenceFrequencyKernel,
-        CoulaloglouAndTavlarides,
+        coalescenceEfficiencyKernel,
+        PrinceAndBlanch,
         dictionary
     );
 }
@@ -48,45 +46,68 @@ namespace coalescenceFrequencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
-CoulaloglouAndTavlarides
+Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::
+PrinceAndBlanch
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalescenceFrequencyKernel(dict, mesh),
-    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties"))
+    coalescenceEfficiencyKernel(dict, mesh),
+    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    ho_
+    (
+        dimensionedScalar::lookupOrDefault
+        (
+            "h0",
+            dict,
+            dimLength,
+            1e-3
+        )
+    ),
+    hf_
+    (
+        dimensionedScalar::lookupOrDefault
+        (
+            "hf",
+            dict,
+            dimLength,
+            1e-6
+        )
+    )
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
-~CoulaloglouAndTavlarides()
+Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::
+~PrinceAndBlanch()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
+Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::Pc
 (
     const label nodei,
     const label nodej
 ) const
 {
-//     const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
-    const phaseModel& phase(fluid_.phase1());
-    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
-    volScalarField epsilon(phase.nu()*(S && S));
-
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
+    const volScalarField& rho = fluid_.phase2().rho();
+    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
+    const dimensionedScalar& sigma = fluid_.sigma();
+
+    volScalarField rij("rij", 0.5/(2.0/d1 + 2.0/d2));
 
     return
-        cbrt(epsilon)*sqr(d1 + d2)
-       *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
+        Foam::exp
+        (
+          - sqrt(rho*pow3(rij)/(16.0*sigma))*log(ho_/hf_)
+           /(pow(rij, 2.0/3.0)/pow(epsilon, 1.0/3.0))
+        );
 }
 
 // ************************************************************************* //
