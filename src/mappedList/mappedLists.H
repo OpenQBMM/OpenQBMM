@@ -21,36 +21,36 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::mappedLists
+
+Description
+
+SourceFiles
+
 \*---------------------------------------------------------------------------*/
 
+#ifndef moments_H
+#define moments_H
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+#include "mappedList.H"
 
-//- Return the total number of moments
-Foam::label Foam::conditionalMomentInversion::nMoments()
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
 {
-    return nMoments_;
-}
 
-//- Return the list of nNodes
-const Foam::labelList& Foam::conditionalMomentInversion::nNodes()
-{
-    return nNodes_;
-}
+typedef mappedList<label> mappedLabelList;
 
-//- Return mapped list of weights
-const Foam::PtrList<Foam::nDimensionalMappedPtrList< Foam::scalar>>&
-Foam::conditionalMomentInversion::weights() const
-{
-    return weights_;
-}
+typedef mappedList<scalar> mappedScalarList;
 
-//- Return mapped list of abscissae
-const Foam::PtrList< Foam::nDimensionalMappedPtrList< Foam::scalar> >&
-Foam::conditionalMomentInversion::abscissae() const
-{
-    return abscissae_;
-}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace Foam
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
 
 // ************************************************************************* //

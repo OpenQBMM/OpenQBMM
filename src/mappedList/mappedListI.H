@@ -23,34 +23,49 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-//- Return the total number of moments
-Foam::label Foam::conditionalMomentInversion::nMoments()
+template <class mappedType>
+template <typename ...ArgsT>
+mappedType& Foam::mappedList<mappedType>::operator()(ArgsT ...args)
 {
-    return nMoments_;
+    label mapIndex = calcMapIndex({args...});
+
+    return this->operator[](map_[mapIndex]);
 }
 
-//- Return the list of nNodes
-const Foam::labelList& Foam::conditionalMomentInversion::nNodes()
+template <class mappedType>
+template <typename ...ArgsT>
+const mappedType&
+Foam::mappedList<mappedType>::operator()(ArgsT ...args) const
 {
-    return nNodes_;
+    Foam::label mapIndex = calcMapIndex({args...});
+
+    return this->operator[](map_[mapIndex]);
 }
 
-//- Return mapped list of weights
-const Foam::PtrList<Foam::nDimensionalMappedPtrList< Foam::scalar>>&
-Foam::conditionalMomentInversion::weights() const
+template <class mappedType>
+const mappedType& Foam::mappedList<mappedType>::operator()
+(
+    const Foam::labelList& l
+) const
 {
-    return weights_;
+    return this->operator[](map_[listToLabel(l)]);
 }
 
-//- Return mapped list of abscissae
-const Foam::PtrList< Foam::nDimensionalMappedPtrList< Foam::scalar> >&
-Foam::conditionalMomentInversion::abscissae() const
+template <class mappedType>
+mappedType& Foam::mappedList<mappedType>::operator()
+(
+    const Foam::labelList& l
+)
 {
-    return abscissae_;
+    return this->operator[](map_[listToLabel(l)]);
 }
 
+template <class mappedType> const Foam::Map<Foam::label>&
+Foam::mappedList<mappedType>::map() const
+{
+    return map_;
+}
 
 // ************************************************************************* //

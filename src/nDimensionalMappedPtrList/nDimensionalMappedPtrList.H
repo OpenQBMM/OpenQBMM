@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::nDimensionalMappedList
+    Foam::nDimensionalMappedPtrList
 
 Description
     Stores a list, with a Map<label> that takes a label key and
@@ -41,8 +41,8 @@ Description
     The operator () is overloaded in order to hide the above mapping.
 
 SourceFiles
-    nDimensionalMappedListI.H
-    nDimensionalMappedList.C
+    nDimensionalMappedPtrListI.H
+    nDimensionalMappedPtrList.C
 
 Note
     Implementation provided by Jeffrey C. Heylmun
@@ -63,11 +63,11 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                     Class nDimensionalMappedList Declaration
+                     Class nDimensionalMappedPtrList Declaration
 \*---------------------------------------------------------------------------*/
 
 template <class mappedType>
-class nDimensionalMappedList
+class nDimensionalMappedPtrList
 :
     public PtrList<mappedType>
 {
@@ -105,10 +105,10 @@ class nDimensionalMappedList
         );
 
         //- Disallow default bitwise copy construct
-        nDimensionalMappedList(const nDimensionalMappedList&);
+        nDimensionalMappedPtrList(const nDimensionalMappedPtrList&);
 
         //- Disallow default bitwise assignment
-        void operator=(const nDimensionalMappedList&);
+        void operator=(const nDimensionalMappedPtrList&);
 
 
 public:
@@ -117,7 +117,7 @@ public:
 
         //- Construct from size, dimensions, and map
         //  The list is initialised
-        nDimensionalMappedList
+        nDimensionalMappedPtrList
         (
             const label nComponents,
             const label nDimensions,
@@ -126,19 +126,20 @@ public:
 
         //- Construct mapped list using the number of nodes in each direction,
         //  nDimensions is not necessarily equal to nNodes.size()
-        nDimensionalMappedList
+        nDimensionalMappedPtrList
         (
             const label nDimensions,
             const labelList& nNodes
         );
 
     //- Destructor
-    ~nDimensionalMappedList();
+    ~nDimensionalMappedPtrList();
 
 
     // Member Functions
 
         // Static member functions
+
             //- Convert a list of labels to a word. {1, 2, 3} -> 123
             static word listToWord(const labelList& lst);
 
@@ -255,8 +256,8 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "nDimensionalMappedListI.H"
-#   include "nDimensionalMappedList.C"
+#   include "nDimensionalMappedPtrListI.H"
+#   include "nDimensionalMappedPtrList.C"
 #endif
 
 

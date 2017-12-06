@@ -23,14 +23,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "nDimensionalMappedList.H"
+#include "nDimensionalMappedPtrList.H"
 
 
 // * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * * //
 
 template <class mappedType>
 Foam::word
-Foam::nDimensionalMappedList<mappedType>::listToWord(const labelList& lst)
+Foam::nDimensionalMappedPtrList<mappedType>::listToWord(const labelList& lst)
 {
     word w;
 
@@ -44,7 +44,7 @@ Foam::nDimensionalMappedList<mappedType>::listToWord(const labelList& lst)
 
 template <class mappedType>
 Foam::label
-Foam::nDimensionalMappedList<mappedType>::listToLabel(const labelList& lst)
+Foam::nDimensionalMappedPtrList<mappedType>::listToLabel(const labelList& lst)
 {
     label l = 0;
 
@@ -60,7 +60,7 @@ Foam::nDimensionalMappedList<mappedType>::listToLabel(const labelList& lst)
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template <class mappedType>
-Foam::nDimensionalMappedList<mappedType>::nDimensionalMappedList
+Foam::nDimensionalMappedPtrList<mappedType>::nDimensionalMappedPtrList
 (
     const label nComponents,
     const label nDimensions,
@@ -73,7 +73,7 @@ Foam::nDimensionalMappedList<mappedType>::nDimensionalMappedList
 {}
 
 template <class mappedType>
-Foam::nDimensionalMappedList<mappedType>::nDimensionalMappedList
+Foam::nDimensionalMappedPtrList<mappedType>::nDimensionalMappedPtrList
 (
     const label nDimensions,
     const labelList& nNodes
@@ -92,14 +92,14 @@ Foam::nDimensionalMappedList<mappedType>::nDimensionalMappedList
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template <class mappedType>
-Foam::nDimensionalMappedList<mappedType>::~nDimensionalMappedList()
+Foam::nDimensionalMappedPtrList<mappedType>::~nDimensionalMappedPtrList()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template <class mappedType>
-void Foam::nDimensionalMappedList<mappedType>::setMappedPositions
+void Foam::nDimensionalMappedPtrList<mappedType>::setMappedPositions
 (
     const labelList& nNodes,
     label dimi,
@@ -112,7 +112,7 @@ void Foam::nDimensionalMappedList<mappedType>::setMappedPositions
         for (label i = 0; i < nNodes[dimi]; i++)
         {
             pos[dimi] = i;
-            setMappedPositions(nNodes, dimi+1, mi, pos);
+            setMappedPositions(nNodes, dimi + 1, mi, pos);
         }
     }
     else
@@ -123,7 +123,7 @@ void Foam::nDimensionalMappedList<mappedType>::setMappedPositions
 }
 
 template <class mappedType>
-Foam::label Foam::nDimensionalMappedList<mappedType>::nDimensionalListLength
+Foam::label Foam::nDimensionalMappedPtrList<mappedType>::nDimensionalListLength
 (
     const label nDimensions,
     const labelList nNodes

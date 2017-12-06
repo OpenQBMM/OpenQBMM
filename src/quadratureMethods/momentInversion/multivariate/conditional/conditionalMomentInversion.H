@@ -53,7 +53,7 @@ SourceFiles
 #include "univariateMomentSet.H"
 #include "univariateMomentInversion.H"
 #include "Vandermonde.H"
-#include "nDimensionalMappedList.H"
+#include "nDimensionalMappedPtrList.H"
 
 namespace Foam
 {
@@ -78,19 +78,19 @@ class conditionalMomentInversion
         const List<word> support_;
 
         //- Quadratrure abscissae
-        PtrList<nDimensionalMappedList<scalar>> abscissae_;
+        PtrList<nDimensionalMappedPtrList<scalar>> abscissae_;
 
         //- Quadratrure weights
-        PtrList<nDimensionalMappedList<scalar>> weights_;
+        PtrList<nDimensionalMappedPtrList<scalar>> weights_;
 
         //- Stored moments
-        nDimensionalMappedList<scalar> moments_;
+        nDimensionalMappedPtrList<scalar> moments_;
 
         //- Stored conditional moments
-        PtrList<PtrList<nDimensionalMappedList<scalar>>> conditionalMoments_;
+        PtrList<PtrList<nDimensionalMappedPtrList<scalar>>> conditionalMoments_;
 
         //- Inverted VanderMonde matricies
-        PtrList< nDimensionalMappedList<scalarSquareMatrix>> invVR_;
+        PtrList< nDimensionalMappedPtrList<scalarSquareMatrix>> invVR_;
 
         //- Univariate moment inversion method
         autoPtr<univariateMomentInversion> momentInverter_;
@@ -156,7 +156,7 @@ public:
     // Member Functions
 
         //- Invert moments to find weights and  abscissae
-        void invert(const nDimensionalMappedList<scalar>& moments);
+        void invert(const nDimensionalMappedPtrList<scalar>& moments);
 
         //- Return number of moments
         inline label nMoments();
@@ -165,10 +165,10 @@ public:
         inline const labelList& nNodes();
 
         //- Return mapped quadrature weights for each dimension
-        inline const PtrList<nDimensionalMappedList<scalar>>& weights() const;
+        inline const PtrList<nDimensionalMappedPtrList<scalar>>& weights() const;
 
         //- Return mapped quadrature abscissae for each dimension
-        inline const PtrList<nDimensionalMappedList<scalar>>& abscissae() const;
+        inline const PtrList<nDimensionalMappedPtrList<scalar>>& abscissae() const;
 };
 
 

@@ -58,13 +58,13 @@ Foam::conditionalMomentInversion::conditionalMomentInversion
         weights_.set
         (
             dimi,
-            new nDimensionalMappedList<scalar>(dimi + 1, nNodes_)
+            new nDimensionalMappedPtrList<scalar>(dimi + 1, nNodes_)
         );
 
         abscissae_.set
         (
             dimi,
-            new nDimensionalMappedList<scalar>(dimi + 1, nNodes_)
+            new nDimensionalMappedPtrList<scalar>(dimi + 1, nNodes_)
         );
 
         forAll(abscissae_[dimi], ai)
@@ -79,7 +79,7 @@ Foam::conditionalMomentInversion::conditionalMomentInversion
         conditionalMoments_.set
         (
             dimi,
-            new PtrList<nDimensionalMappedList<scalar>>(dimi + 1)
+            new PtrList<nDimensionalMappedPtrList<scalar>>(dimi + 1)
         );
 
         nNodesCM = nNodes_;
@@ -90,7 +90,7 @@ Foam::conditionalMomentInversion::conditionalMomentInversion
             conditionalMoments_[dimi].set
             (
                 dimj,
-                new nDimensionalMappedList<scalar>(dimi + 1, nNodesCM)
+                new nDimensionalMappedPtrList<scalar>(dimi + 1, nNodesCM)
             );
 
             forAll(conditionalMoments_[dimi][dimj], ai)
@@ -105,7 +105,7 @@ Foam::conditionalMomentInversion::conditionalMomentInversion
         invVR_.set
         (
             dimi,
-            new nDimensionalMappedList<scalarSquareMatrix>(dimi, nNodes_)
+            new nDimensionalMappedPtrList<scalarSquareMatrix>(dimi, nNodes_)
         );
 
         forAll(invVR_[dimi], ai)
@@ -138,7 +138,7 @@ Foam::conditionalMomentInversion::~conditionalMomentInversion()
 
 void Foam::conditionalMomentInversion::invert
 (
-    const nDimensionalMappedList<scalar>& moments
+    const nDimensionalMappedPtrList<scalar>& moments
 )
 {
     reset();
