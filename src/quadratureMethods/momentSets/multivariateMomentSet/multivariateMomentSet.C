@@ -23,26 +23,52 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+#include "multivariateMomentSet.H"
 
-const Foam::labelListList& Foam::momentSet::momentOrders() const
-{
-    return momentOrders_;
-}
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::label Foam::momentSet::nMoments() const
-{
-    return nMoments_;
-}
+Foam::multivariateMomentSet::multivariateMomentSet
+(
+    const label nMoments,
+    const labelListList& momentOrders,
+    const word& support,
+    const scalar initValue
+)
+:
+    momentSet
+    (
+        nMoments,
+        momentOrders[0].size(),
+        momentOrders,
+        support,
+        initValue
+    )
+{}
 
-Foam::label Foam::momentSet::nDimensions() const
-{
-    return nDimensions_;
-}
+Foam::multivariateMomentSet::multivariateMomentSet
+(
+    const scalarList& m,
+    const labelListList& momentOrders,
+    const word& support
+)
+:
+    momentSet
+    (
+        m,
+        momentOrders[0].size(),
+        momentOrders,
+        support
+    )
+{}
 
-const Foam::word Foam::momentSet::support() const
-{
-    return support_;
-}
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::multivariateMomentSet::~multivariateMomentSet()
+{}
+
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
 
 // ************************************************************************* //

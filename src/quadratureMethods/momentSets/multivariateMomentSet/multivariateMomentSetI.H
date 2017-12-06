@@ -25,24 +25,9 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-const Foam::labelListList& Foam::momentSet::momentOrders() const
+const Foam::Map<Foam::label>& Foam::multivariateMomentSet::momentMap() const
 {
-    return momentOrders_;
-}
-
-Foam::label Foam::momentSet::nMoments() const
-{
-    return nMoments_;
-}
-
-Foam::label Foam::momentSet::nDimensions() const
-{
-    return nDimensions_;
-}
-
-const Foam::word Foam::momentSet::support() const
-{
-    return support_;
+    return (*this).map();
 }
 
 // ************************************************************************* //
