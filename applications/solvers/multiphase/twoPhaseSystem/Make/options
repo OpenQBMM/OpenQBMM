@@ -18,7 +18,8 @@ EXE_INC = \
     -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
     -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
     -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
-    -I../../../../src/Vandermonde/lnInclude
+    -I../../../../src/Vandermonde/lnInclude \
+    -I../../../../src/mappedList
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
