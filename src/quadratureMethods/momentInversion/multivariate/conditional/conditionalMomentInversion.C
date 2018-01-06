@@ -255,7 +255,7 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
             }
         }
 
-        scalarRectangularMatrix Ynew = Yold*invVR_[dimj](posVR);
+        scalarRectangularMatrix Ynew = invVR_[dimj](posVR)*Yold;
 
         for (label i = 0; i < nNodes_[dimj]; i++)
         {
