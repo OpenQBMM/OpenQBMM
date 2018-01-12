@@ -309,7 +309,7 @@ public:
                         false
                     ),
                     phase_.mesh(),
-                    dimensionedScalar("1", inv(dimTime), 1.0)
+                    dimensionedScalar("1", dimless, 1.0)
                 )
             );
         }
@@ -331,7 +331,7 @@ public:
                         false
                     ),
                     phase_.mesh(),
-                    dimensionedScalar("1", inv(dimTime), 1.0)
+                    dimensionedScalar("1", dimless, 1.0)
                 )
             );
         }

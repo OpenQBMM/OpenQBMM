@@ -23,13 +23,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         10;
+endTime         5;
 
 deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 
-writeInterval   0.05;
+writeInterval   0.01;
 
 purgeWrite      0;
 
@@ -49,7 +49,7 @@ adjustTimeStep  yes;
 
 maxCo           0.1;
 
-maxDeltaT       0.0002;
+maxDeltaT       0.001;
 
 functions
 {

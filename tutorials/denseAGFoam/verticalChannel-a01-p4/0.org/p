@@ -22,12 +22,12 @@ boundaryField
 {
     right
     {
-        type               calculated;
+        type               zeroGradient;
         value              $internalField;
     }
     left
     {
-        type               calculated;
+        type               zeroGradient;
         value              $internalField;
     }
     top

@@ -24,7 +24,7 @@ volScalarField Kd(fluid.Kd());
     U1Eqn =
         (
             fvm::ddt(alpha1, rho1, U1)
-          - ddtAlphaRhoU1
+//           - ddtAlphaRhoU1
           + fvm::div
             (
                 h2f*alphaRhoPhi1,
@@ -32,7 +32,7 @@ volScalarField Kd(fluid.Kd());
                 "div(" + alphaRhoPhi1.name() + "," + U1.name() + ")"
             )
           - fvm::Sp(contErr1, U1)
-          + MRF.DDt(alpha1*rho1, U1)
+//           + MRF.DDt(alpha1*rho1, U1)
 
           + fluid.divDevRhoReff1()
          ==
@@ -49,7 +49,7 @@ volScalarField Kd(fluid.Kd());
             fvm::ddt(alpha2, rho2, U2)
           + fvm::div(alphaRhoPhi2, U2)
           - fvm::Sp(contErr2, U2)
-          + MRF.DDt(alpha2*rho2, U2)
+//           + MRF.DDt(alpha2*rho2, U2)
 
           + fluid.divDevRhoReff2()
          ==

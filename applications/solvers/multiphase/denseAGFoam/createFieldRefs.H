@@ -14,10 +14,7 @@ rhoThermo& thermo1 = phase1.thermo();
 rhoThermo& thermo2 = phase2.thermo();
 
 volScalarField& rho1 = thermo1.rho();
-const volScalarField& psi1 = thermo1.psi();
-
 volScalarField& rho2 = thermo2.rho();
-const volScalarField& psi2 = thermo2.psi();
 
 // AG refrences
 kineticTheoryModel& AGmodel =

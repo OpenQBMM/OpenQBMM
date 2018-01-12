@@ -57,8 +57,6 @@ interpolationSchemes
 
     reconstruct(U)          upwind;
     reconstruct(Us)         upwind;
-    reconstruct(weight)     upwind;
-    reconstruct(abscissa)   upwind;
 }
 
 snGradSchemes

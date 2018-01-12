@@ -27,8 +27,9 @@ boundaryField
     }
     outlet
     {
-        type                pressureInletOutletVelocity;
+        type                inletOutlet;
         phi                 phi.water;
+        inletValue          $internalField;
         value               $internalField;
     }
     walls

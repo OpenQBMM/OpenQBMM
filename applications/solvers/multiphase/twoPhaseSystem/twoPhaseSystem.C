@@ -345,6 +345,7 @@ Foam::tmp<Foam::volScalarField> Foam::twoPhaseSystem::Kd() const
             )
         )
     );
+
     for (label nodei = 0; nodei < nNodes_; nodei++)
     {
         tKd.ref() += Kd(nodei);
@@ -902,7 +903,7 @@ void Foam::twoPhaseSystem::averageTransport()
         volScalarField alphaRhoi(phase1_->alphas(nodei)*phase1_->rho());
 
         //  Implicit drag term added to velocity abscissae equations
-        volScalarField Kd(this->Kd(nodei));
+        volScalarField Kd("Kd"+Foam::name(nodei),this->Kd(nodei));
 
         // Interfacial forces
         AEqns[nodei] +=

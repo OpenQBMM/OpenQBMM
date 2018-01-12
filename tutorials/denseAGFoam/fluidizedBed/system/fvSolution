@@ -19,17 +19,38 @@ solvers
 {
     "alpha.*"
     {
-        nAlphaCorr      3;
-        nAlphaSubCycles 1;
+        nAlphaCorr      2;
+        nAlphaSubCycles 2;
 
         smoothLimiter   0.1;
 
         implicitPhasePressure yes;
         solver          GAMG;
         smoother        DIC;
-        tolerance       1e-12;
+        tolerance       1e-10;
         relTol          0;
         minIter         1;
+    }
+
+    p
+    {
+        solver          GAMG;
+        smoother        DIC;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 10;
+        agglomerator    faceAreaPair;
+        mergeLevels     2;
+        tolerance       1e-12;
+        maxIter         1000;
+    }
+
+    pFinal
+    {
+        $p;
+        relTol          0;
     }
 
     p_rgh
@@ -84,7 +105,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-8;
+        tolerance       1e-5;
         relTol          0;
         minIter         1;
     }
@@ -92,7 +113,7 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors            3;
+    nOuterCorrectors            15;
     nCorrectors                 2;
     nNonOrthogonalCorrectors    0;
     pRefCell    0;
@@ -100,14 +121,9 @@ PIMPLE
 
     residualControl
     {
-        "alpha.*"
+        p
         {
-            tolerance   1e-5;
-            relTol      0;
-        }
-        p_rgh
-        {
-            tolerance 1e-5;
+            tolerance 1e-4;
             relTol    0;
         }
     }
@@ -117,7 +133,7 @@ relaxationFactors
 {
     equations
     {
-        p_rgh           0.3;
+        p           1;
     }
 }
 
