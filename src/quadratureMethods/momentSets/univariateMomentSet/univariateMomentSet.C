@@ -38,7 +38,8 @@ Foam::univariateMomentSet::univariateMomentSet
     momentSet
     (
         nMoments,
-        makeUnivariateMomentOrders(nMoments),//NullObjectRef<labelListList>(),
+        1,
+        makeUnivariateMomentOrders(nMoments),
         support,
         initValue
     ),
@@ -86,6 +87,7 @@ Foam::univariateMomentSet::univariateMomentSet
     momentSet
     (
         m,
+        1,
         makeUnivariateMomentOrders(m.size()),
         support
     ),

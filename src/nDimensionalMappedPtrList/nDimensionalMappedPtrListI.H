@@ -26,33 +26,33 @@ License
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template <class mappedType>
-mappedType& Foam::nDimensionalMappedList<mappedType>::operator()()
+mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()()
 {
     return this->operator[](map_[0]);
 }
 
 template <class mappedType>
 const mappedType&
-Foam::nDimensionalMappedList<mappedType>::operator()() const
+Foam::nDimensionalMappedPtrList<mappedType>::operator()() const
 {
     return this->operator[](map_[0]);
 }
 
 template <class mappedType>
-mappedType& Foam::nDimensionalMappedList<mappedType>::operator()(label a)
+mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()(label a)
 {
     return this->operator[](map(0, 0, 0, 0, a));
 }
 
 template <class mappedType>
 const mappedType&
-Foam::nDimensionalMappedList<mappedType>::operator()(label a) const
+Foam::nDimensionalMappedPtrList<mappedType>::operator()(label a) const
 {
     return this->operator[](map(0, 0, 0, 0, a));
 }
 
 template <class mappedType>
-mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
+mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     label a,
     label b
@@ -62,7 +62,7 @@ mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
 }
 
 template <class mappedType>
-const mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
+const mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     label a,
     label b
@@ -72,7 +72,7 @@ const mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
 }
 
 template <class mappedType>
-mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
+mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     label a,
     label b,
@@ -83,7 +83,7 @@ mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
 }
 
 template <class mappedType>
-const mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
+const mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     label a,
     label b,
@@ -94,7 +94,7 @@ const mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
 }
 
 template <class mappedType>
-mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
+mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     label a,
     label b,
@@ -106,7 +106,7 @@ mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
 }
 
 template <class mappedType>
-const mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
+const mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     label a,
     label b,
@@ -118,7 +118,7 @@ const mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
 }
 
 template <class mappedType>
-mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
+mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     label a,
     label b,
@@ -131,7 +131,7 @@ mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
 }
 
 template <class mappedType>
-const mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
+const mappedType& Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     label a,
     label b,
@@ -145,7 +145,7 @@ const mappedType& Foam::nDimensionalMappedList<mappedType>::operator()
 
 template <class mappedType>
 const mappedType&
-Foam::nDimensionalMappedList<mappedType>::operator()
+Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     const Foam::labelList& l
 ) const
@@ -155,7 +155,7 @@ Foam::nDimensionalMappedList<mappedType>::operator()
 
 template <class mappedType>
 mappedType&
-Foam::nDimensionalMappedList<mappedType>::operator()
+Foam::nDimensionalMappedPtrList<mappedType>::operator()
 (
     const Foam::labelList& l
 )
@@ -164,13 +164,13 @@ Foam::nDimensionalMappedList<mappedType>::operator()
 }
 
 template <class mappedType> const Foam::Map<Foam::label>&
-Foam::nDimensionalMappedList<mappedType>::map() const
+Foam::nDimensionalMappedPtrList<mappedType>::map() const
 {
     return map_;
 }
 
 template <class mappedType>
-Foam::label Foam::nDimensionalMappedList<mappedType>::nDimensions() const
+Foam::label Foam::nDimensionalMappedPtrList<mappedType>::nDimensions() const
 {
     return nDimensions_;
 }
