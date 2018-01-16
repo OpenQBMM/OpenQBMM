@@ -47,9 +47,9 @@ int main(int argc, char *argv[])
     #include "createFields.H"
 
     label nMoments = 10;
-    label nDims = 2;
+    label nNodes = 9;
 
-    labelListList indicies(9, labelList(2,0));
+    labelListList indicies(nNodes, labelList(2,0));
     indicies[0] = {1,1};
     indicies[1] = {2,1};
     indicies[2] = {1,2};
@@ -60,8 +60,8 @@ int main(int argc, char *argv[])
     indicies[7] = {3,2};
     indicies[8] = {3,3};
 
-    mappedList<scalar> w(9, indicies);
-    mappedList<vector> u(9, indicies);
+    mappedList<scalar> w(nNodes, indicies);
+    mappedList<vector> u(nNodes, indicies);
 
 //     for(label i = 1; i <= 3; i++)
 //     {
@@ -117,17 +117,26 @@ int main(int argc, char *argv[])
 //             }
 //         }
 //     }
-    moments(0,0) = 5.43408e-15;
-    moments(0,1) = 2.72019e-15;
-    moments(0,2) = 1.3627e-15;
-    moments(0,3) = 6.83773e-16;
-    moments(0,4) = 3.43956e-16;
-    moments(1,0) = -5.44038e-15;
-    moments(1,1) = -2.7254e-15;
-    moments(2,0) = 5.45079e-15;
-    moments(3,0) = -5.47081e-15;
-    moments(4,0) = 5.5033e-15;
-
+//     moments(0,0) = 5.43408e-15;
+//     moments(0,1) = 2.72019e-15;
+//     moments(0,2) = 1.3627e-15;
+//     moments(0,3) = 6.83773e-16;
+//     moments(0,4) = 3.43956e-16;
+//     moments(1,0) = -5.44038e-15;
+//     moments(1,1) = -2.7254e-15;
+//     moments(2,0) = 5.45079e-15;
+//     moments(3,0) = -5.47081e-15;
+//     moments(4,0) = 5.5033e-15;
+    moments(0,0) = 0.000182424;
+    moments(1,0) = 0.000181355;
+    moments(0,1) = 0.000182424;
+    moments(2,0) = 0.000182362;
+    moments(1,1) = 0.000181355;
+    moments(0,2) = 0.000182424;
+    moments(3,0) = 0.000181189;
+    moments(0,3) = 0.000182424;
+    moments(4,0) = 0.000182213;
+    moments(0,4) = 0.000182424;
 
     forAll(mIndicies, mi)
     {

@@ -1,23 +1,27 @@
 const volScalarField& m0 = moments[0];
 forAll(m0, celli)
 {
-    multivariateMomentSet m(10, mIndicies, "R");
-
-    forAll(m, mi)
+    if (m0[celli] > 1e-6)
     {
-        m[mi] = moments[mi][celli];
-    }
+        multivariateMomentSet m(10, mIndicies, "R");
+
+        forAll(m, mi)
+        {
+            m[mi] = moments[mi][celli];
+        }
+
 //     Info<<"cell " << celli << ": " << m << ", " << endl;
-    momentInverter.invert(m);
-    const mappedList<scalar>& w = momentInverter.weights();
-    const mappedList<vector>& u = momentInverter.abscissae();
+        momentInverter.invert(m);
+        const mappedList<scalar>& w = momentInverter.weights();
+        const mappedList<vector>& u = momentInverter.abscissae();
 
-//     Info<< w << nl << u << endl;
+    //     Info<< w << nl << u << endl;
 
-    forAll(w, nodei)
-    {
-        weights[nodei][celli] = w[nodei];
-        U[nodei][celli] = u[nodei];
+        forAll(w, nodei)
+        {
+            weights[nodei][celli] = w[nodei];
+            U[nodei][celli] = u[nodei];
+        }
     }
 }
 
@@ -27,21 +31,24 @@ forAll(bf, patchi)
     const fvPatchScalarField& m0Patch = bf[patchi];
     forAll(m0Patch, facei)
     {
-        multivariateMomentSet m(10, mIndicies, "R");
-
-        forAll(m, mi)
+        if (m0Patch[facei] > 1e-6)
         {
-            m[mi] = moments[mi].boundaryField()[patchi][facei];
-        }
+            multivariateMomentSet m(10, mIndicies, "R");
 
-        momentInverter.invert(m);
-        const mappedList<scalar>& w = momentInverter.weights();
-        const mappedList<vector>& u = momentInverter.abscissae();
+            forAll(m, mi)
+            {
+                m[mi] = moments[mi].boundaryField()[patchi][facei];
+            }
 
-        forAll(w, nodei)
-        {
-            weights[nodei].boundaryFieldRef()[patchi][facei] = w[nodei];
-            U[nodei].boundaryFieldRef()[patchi][facei] = u[nodei];
+            momentInverter.invert(m);
+            const mappedList<scalar>& w = momentInverter.weights();
+            const mappedList<vector>& u = momentInverter.abscissae();
+
+            forAll(w, nodei)
+            {
+                weights[nodei].boundaryFieldRef()[patchi][facei] = w[nodei];
+                U[nodei].boundaryFieldRef()[patchi][facei] = u[nodei];
+            }
         }
     }
 }

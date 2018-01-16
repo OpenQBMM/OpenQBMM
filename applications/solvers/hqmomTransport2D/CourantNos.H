@@ -11,14 +11,7 @@ forAll(U, nodei)
             (
                 fvc::surfaceSum
                 (
-                    mag
-                    (
-                        fvc::flux
-                        (
-                            U[nodei]*weights[nodei]
-                           /(weights[nodei] + SMALL)
-                        )
-                    )
+                    mag(fvc::flux(U[nodei]))
                 )().primitiveField()/mesh.V().field()
             )*runTime.deltaTValue()
         );

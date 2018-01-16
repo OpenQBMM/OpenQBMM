@@ -21,9 +21,9 @@ W       1.0;
 x1      0.1;
 x2      0.9;
 h       1.0;
-depth   .01;
+depth   0.1;
 
-cellSize    0.05;
+cellSize    0.02;
 
 nwPts       #calc "round($w/$cellSize)";
 nWPts       #calc "round(($W - 2*$w)/$cellSize)";

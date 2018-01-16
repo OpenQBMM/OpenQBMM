@@ -146,65 +146,64 @@ void Foam::hyperbolicMomentInversion::invert
     // Manage unrealizable cases
     if (centralMoments[2] < 0.0)
     {
-        if (centralMoments[2] < SMALL)
+        if (centralMoments[2] < -SMALL)
         {
             WarningInFunction
                 << "Second-order central moment is negative. C2 = "
                 << centralMoments[2]
                 << endl;
-
             for (label ci = 2; ci < nInvertibleMoments_; ci++)
             {
                 centralMoments[ci] = 0.0;
             }
         }
-        else if (realizability < 0)
+    }
+    else if (realizability < 0)
+    {
+        if (centralMoments[2] >= etaMin_)
         {
-            if (centralMoments[2] >= etaMin_)
+            scalar c2 = centralMoments[2];
+            scalar sqrC2 = sqr(c2);
+            scalar sqrtC2 = sqrt(c2);
+
+            scalar q = centralMoments[3]/(c2*sqrtC2);
+            scalar eta = centralMoments[4]/sqrC2;
+
+            if (mag(q) > SMALL)
             {
-                scalar c2 = centralMoments[2];
-                scalar sqrC2 = sqr(c2);
-                scalar sqrtC2 = sqrt(c2);
+                scalar slope = (eta - 3.0)/q;
+                scalar sqrtDet = sqrt(8.0 + sqr(slope));
 
-                scalar q = centralMoments[3]/(c2*sqrtC2);
-                scalar eta = centralMoments[4]/sqrC2;
-
-                if (mag(q) > SMALL)
+                if (q > 0.0)
                 {
-                    scalar slope = (eta - 3.0)/q;
-                    scalar sqrtDet = sqrt(8.0 + sqr(slope));
-
-                    if (q > 0.0)
-                    {
-                        q = (slope + sqrtDet)/2.0;
-                    }
-                    else
-                    {
-                        q = (slope - sqrtDet)/2.0;
-                    }
+                    q = (slope + sqrtDet)/2.0;
                 }
                 else
                 {
-                    q = 0.0;
-                }
-
-                eta = 1.0 + sqr(q);
-                centralMoments[3] = q*c2*sqrtC2;
-                centralMoments[4] = eta*sqrC2;
-
-                if (realizability < smallNegRealizability_)
-                {
-                    WarningInFunction
-                        << "Fourth-order central moment is too small."
-                        << " Realizability = " << realizability
-                        << endl;
+                    q = (slope - sqrtDet)/2.0;
                 }
             }
             else
             {
-                centralMoments[3] = 0.0;
-                centralMoments[4] = sqr(centralMoments[2]);
+                q = 0.0;
             }
+
+            eta = 1.0 + sqr(q);
+            centralMoments[3] = q*c2*sqrtC2;
+            centralMoments[4] = eta*sqrC2;
+
+            if (realizability < -smallNegRealizability_)
+            {
+                WarningInFunction
+                    << "Fourth-order central moment is too small."
+                    << " Realizability = " << realizability
+                    << endl;
+            }
+        }
+        else
+        {
+            centralMoments[3] = 0.0;
+            centralMoments[4] = sqr(centralMoments[2]);
         }
     }
 

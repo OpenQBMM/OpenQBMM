@@ -21,7 +21,7 @@ dimensionedScalar zeroPhi("zeroPhi", dimVolume/dimTime, 0.0);
 
 forAll(indicies, nodei)
 {
-    surfaceScalarField phi(fvc::flux(U[nodei]));
+//     surfaceScalarField phi(fvc::flux(U[nodei]));
     surfaceScalarField phiOwn(UOwn[nodei] & mesh.Sf());
     surfaceScalarField phiNei(UNei[nodei] & mesh.Sf());
 
@@ -47,8 +47,8 @@ forAll(indicies, nodei)
         fluxes[mi] +=
             fvc::surfaceIntegrate
             (
-                cmptOwn*max(phi, zeroPhi)
-              + cmptNei*min(phi, zeroPhi)
+                cmptOwn*max(phiOwn, zeroPhi)
+              + cmptNei*min(phiNei, zeroPhi)
             );
     }
 }

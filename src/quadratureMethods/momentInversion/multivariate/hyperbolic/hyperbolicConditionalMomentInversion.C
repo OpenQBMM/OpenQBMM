@@ -305,13 +305,6 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
     scalarList wDir2(3, 0.0);
     scalarList absDir2(3, 0.0);
 
-    // Default values of quadrature in direction 2
-    forAll(wDir2, nodei)
-    {
-        wDir2[nodei] = 0.0;
-        absDir2[nodei] = 0.0;
-    }
-
     wDir2[1] = 1.0;
 
     // Reconstruction settings
@@ -441,11 +434,8 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
     if (m000 < SMALL)
     {
-        forAll(weights_, wi)
-        {
-            weights_[wi] = m000;
-            return;
-        }
+        weights_(2,2) = m000;
+        return;
     };
 
     // Calculate normalized moments
@@ -475,23 +465,44 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
     centralMoments(2, 0, 0) -= sqrMeanU;
     centralMoments(0, 2, 0) -= sqrMeanV;
     centralMoments(0, 0, 2) -= sqrMeanW;
-    centralMoments(3, 0, 0) -= 3.0*meanU*scaledMoments(2, 0, 0)
-        - 2.0*pow3(meanU);
+    centralMoments(3, 0, 0) -=
+        (
+            3.0*meanU*scaledMoments(2, 0, 0)
+          - 2.0*pow3(meanU)
+        );
 
-    centralMoments(0, 3, 0) -= 3.0*meanV*scaledMoments(0, 2, 0)
-        - 2.0*pow3(meanV);
+    centralMoments(0, 3, 0) -=
+        (
+            3.0*meanV*scaledMoments(0, 2, 0)
+          - 2.0*pow3(meanV)
+        );
 
-    centralMoments(0, 0, 3) -= 3.0*meanW*scaledMoments(0, 0, 2)
-        - 2.0*pow3(meanW);
+    centralMoments(0, 0, 3) -=
+        (
+            3.0*meanW*scaledMoments(0, 0, 2)
+          - 2.0*pow3(meanW)
+        );
 
-    centralMoments(4, 0, 0) -= 4.0*meanU*scaledMoments(3, 0, 0)
-        - 6.0*sqrMeanU*scaledMoments(2, 0, 0) + 3.0*sqr(meanU);
+    centralMoments(4, 0, 0) -=
+        (
+            4.0*meanU*scaledMoments(3, 0, 0)
+          - 6.0*sqrMeanU*scaledMoments(2, 0, 0)
+          + 3.0*pow4(meanU)
+        );
 
-    centralMoments(0, 4, 0) -= 4.0*meanV*scaledMoments(0, 3, 0)
-        - 6.0*sqrMeanV*scaledMoments(0, 2, 0) + 3.0*sqr(meanV);
+    centralMoments(0, 4, 0) -=
+        (
+            4.0*meanV*scaledMoments(0, 3, 0)
+          - 6.0*sqrMeanV*scaledMoments(0, 2, 0)
+          + 3.0*pow4(meanV)
+        );
 
-    centralMoments(0, 0, 4) -= 4.0*meanW*scaledMoments(0, 0, 3)
-        - 6.0*sqrMeanW*scaledMoments(0, 0, 3) + 3.0*sqr(meanW);
+    centralMoments(0, 0, 4) -=
+        (
+            4.0*meanW*scaledMoments(0, 0, 3)
+          - 6.0*sqrMeanW*scaledMoments(0, 0, 2)
+          + 3.0*pow4(meanW)
+        );
 
     if (m000 < SMALL)
     {
@@ -591,11 +602,29 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
         centralMoments(0, 0, 4) = eta*sqr(c002);
     }
 
-    scalarList Vf(3, 0.0);
-    scalarSquareMatrix Wf(3, 0.0);
+    // Invert first direction
+    univariateMomentSet mDir1
+    (
+        {
+            1.0,
+            0.0,
+            centralMoments(2, 0, 0),
+            centralMoments(3, 0, 0),
+            centralMoments(4, 0, 0)
+        },
+        "R"
+    );
+    // Find univariate quadrature in first direction
+    univariateInverter_().invert(mDir1);
 
+    // Store univariate quadrature in first direction
+    scalarList wDir1(univariateInverter_().weights());
+    scalarList absDir1(univariateInverter_().abscissae());
+
+    // X direction is degenerate
     if (centralMoments(2, 0, 0) < varMin_)
     {
+        // X and y directions are degenerate
         if (centralMoments(0, 2, 0) < varMin_)
         {
             univariateMomentSet mDir3
@@ -614,17 +643,18 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
             univariateInverter_().invert(mDir3);
 
             // Store univariate quadrature in first direction
-            scalarList weightsDir3(univariateInverter_().weights());
-            scalarList abscissaeDir3(univariateInverter_().abscissae());
+            scalarList wDir3(univariateInverter_().weights());
+            scalarList absDir3(univariateInverter_().abscissae());
 
             for(label i = 1; i <= 3; i++)
             {
-                weights_(2, 2, i) = m000*weightsDir3[i - 1];
-                abscissae_(2, 2, i).z() = abscissaeDir3[i - 1] + meanW;
+                weights_(2, 2, i) = m000*wDir3[i - 1];
+                abscissae_(2, 2, i).z() = absDir3[i - 1] + meanW;
             }
 
             return;
         }
+        // Only x direction is degenerate
         else
         {
             multivariateMomentSet mDir23
@@ -645,31 +675,35 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                 "R"
             );
 
-            mappedList<scalar> weightsDir23(9, twoDimNodeIndexes_, 0.0);
-            mappedList<vector2D> abscissaeDir23
+            mappedList<scalar> wDir23(9, twoDimNodeIndexes_, 0.0);
+            mappedList<vector2D> absDir23
             (
                 9,
                 twoDimNodeIndexes_,
                 vector2D::zero
             );
 
-            invert2D(mDir23, weightsDir23, abscissaeDir23);
+            invert2D(mDir23, wDir23, absDir23);
 
             for (label j = 1; j <= 3; j++)
             {
                 for (label k = 1; k <= 3; k++)
                 {
-                    weights_(2, j, k) = m000*weightsDir23(j, k);
-                    abscissae_(2, j, k).y() =
-                        abscissaeDir23(j, k).x() + meanV;
-                    abscissae_(2, j, k).z() =
-                        abscissaeDir23(j, k).y() + meanW;
+                    weights_(2, j, k) = m000*wDir23(j, k);
+                    abscissae_(2, j, k) =
+                        vector
+                        (
+                            0.0,
+                           absDir23(j, k).x() + meanV,
+                           absDir23(j, k).y() + meanW
+                        );
                 }
             }
 
             return;
         }
     }
+    // Y direction is degenerate
     else if (centralMoments(0, 2, 0) < varMin_)
     {
         multivariateMomentSet mDir13
@@ -690,28 +724,34 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
            "R"
         );
 
-        mappedList<scalar> weightsDir13(9, twoDimNodeIndexes_, 0.0);
-        mappedList<vector2D> abscissaeDir13
+        mappedList<scalar> wDir13(9, twoDimNodeIndexes_, 0.0);
+        mappedList<vector2D> absDir13
         (
             9,
             twoDimNodeIndexes_,
             vector2D::zero
         );
 
-        invert2D(mDir13, weightsDir13, abscissaeDir13);
+        invert2D(mDir13, wDir13, absDir13);
 
         for (label i = 1; i <= 3; i++)
         {
             for (label k = 1; k <= 3; k++)
             {
-                weights_(i, 2, k) = m000*weightsDir13(i, k);
-                abscissae_(i, 2, k).x() = abscissaeDir13(i, k).x() + meanU;
-                abscissae_(i, 2, k).z() = abscissaeDir13(i, k).y() + meanW;
+                weights_(i, 2, k) = m000*wDir13(i, k);
+                abscissae_(i, 2, k) =
+                    vector
+                    (
+                        absDir13(i, k).x() + meanU,
+                        0.0,
+                        absDir13(i, k).y() + meanW
+                    );
             }
         }
 
         return;
     }
+    // X and y directions are non-degenerate
     else
     {
         multivariateMomentSet mDir12
@@ -732,7 +772,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
            "R"
         );
 
-        mappedList<scalar> weightsDir12(9, twoDimNodeIndexes_, 0.0);
+        mappedList<scalar> wDir12(9, twoDimNodeIndexes_, 0.0);
         mappedList<vector2D> abscissaeDir12
         (
             9,
@@ -740,15 +780,16 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
             vector2D::zero
         );
 
-        invert2D(mDir12, weightsDir12, abscissaeDir12);
+        invert2D(mDir12, wDir12, abscissaeDir12);
 
-        if (centralMoments(0, 0, 2) < varMin_)  // Degenerate third direction
+        // Z direction is degenerate
+        if (centralMoments(0, 0, 2) < varMin_)
         {
             for (label i = 1; i <= 3; i++)
             {
                 for (label j = 1; j <= 3; j++)
                 {
-                    weights_(i, j, 2) = m000*weightsDir12(i, j);
+                    weights_(i, j, 2) = m000*wDir12(i, j);
                     abscissae_(i, j, 2).x() = abscissaeDir12(i, j).x() + meanU;
                     abscissae_(i, j, 2).y() = abscissaeDir12(i, j).y() + meanV;
                 }
@@ -756,29 +797,9 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
             return;
         }
-        else  // All directions are non-degenerate
+        // All directions are non-degenerate
+        else
         {
-            Info<<"here"<<endl;
-            // One-dimensional inversion
-            univariateMomentSet mDir1
-            (
-                {
-                    1.0,
-                    0.0,
-                    centralMoments(2, 0, 0),
-                    centralMoments(3, 0, 0),
-                    centralMoments(4, 0, 0)
-                },
-                "R"
-            );
-
-            // Find univariate quadrature in first direction
-            univariateInverter_().invert(mDir1);
-
-            // Store univariate quadrature in first direction
-            scalarList weightsDir1(univariateInverter_().weights());
-            scalarList abscissaeDir1(univariateInverter_().abscissae());
-
             // Scale weights in directions 12
             scalar sumWeights1 = 0.0;
             scalar sumWeights2 = 0.0;
@@ -786,30 +807,206 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
             for (label i = 1; i <= 3; i++)
             {
-                sumWeights1 += weightsDir12(1, i);
-                sumWeights2 += weightsDir12(2, i);
-                sumWeights3 += weightsDir12(3, i);
+                sumWeights1 += wDir12(1, i);
+                sumWeights2 += wDir12(2, i);
+                sumWeights3 += wDir12(3, i);
             }
 
             for (label i = 1; i <= 3; i++)
             {
-                weightsDir12(1, i) /= sumWeights1;
-                weightsDir12(2, i) /= sumWeights2;
-                weightsDir12(3, i) /= sumWeights3;
+                wDir12(1, i) /= sumWeights1;
+                wDir12(2, i) /= sumWeights2;
+                wDir12(3, i) /= sumWeights3;
             }
 
             // Compute Vf reconstruction
-            forAll(Vf, vfi)
+            scalarList Vf(3, 0.0);
+            for (label i = 1; i <= 3; i++)
             {
-                Vf[0] +=
-                    weightsDir12(1, vfi + 1)*abscissaeDir12(1, vfi + 1).y();
+                Vf[0] += wDir12(1, i)*abscissaeDir12(1, i).y();
 
-                Vf[1] +=
-                    weightsDir12(2, vfi + 1)*abscissaeDir12(2, vfi + 1).y();
+                Vf[1] += wDir12(2, i)*abscissaeDir12(2, i).y();
 
-                Vf[2] +=
-                    weightsDir12(3, vfi + 1)*abscissaeDir12(3, vfi + 1).y();
+                Vf[2] += wDir12(3, i)*abscissaeDir12(3, i).y();
             }
+
+            mappedList<scalar> absDir12(9, twoDimNodeIndexes_, 0.0);
+            for (label i = 1; i <= 3; i++)
+            {
+                for (label j = 1; j <= 3; j++)
+                {
+                    absDir12(i, j) = abscissaeDir12(i, j).y() - Vf[i-1];
+                }
+            }
+
+            scalar sqrtC200 = sqrt(centralMoments(2,0,0));
+            scalar sqrtC020 = sqrt(centralMoments(0,2,0));
+            scalar sqrtC002 = sqrt(centralMoments(0,0,2));
+
+            scalarSquareMatrix W1(3, 0.0);
+            scalarSquareMatrix W2(3, 0.0);
+            scalarSquareMatrix Vp(3, 0.0);
+
+            for (label i = 1; i <= 3; i++)
+            {
+                W1(i-1, i-1) = wDir1[i-1];
+                for (label j = 1; j <= 3; j++)
+                {
+                    W2(i-1, j-1) = wDir12(i, j);
+                    Vp(i-1, j-1) = absDir12(i, j);
+                }
+            }
+
+            scalarSquareMatrix RAB = W1*W2;
+
+            //scalarSquareMatrix Vc0(3, 1.0);
+            scalarSquareMatrix Vc1(3, 0.0);
+            scalarSquareMatrix Vc2(3, 0.0);
+            scalarSquareMatrix C01(3, 0.0);
+
+            scalar A1 = 0.0;
+            scalar A2 = 0.0;
+
+            for (label i = 0; i < 3; i++)
+            {
+                C01(i, i) = RAB(i,i)*Vf[i]/c020;
+                for (label j = 0; j < 3; j++)
+                {
+                    Vc1(i, j) = absDir1[i]/sqrtC200;
+                    Vc2(i, j) = Vp(i, j)/sqrtC020;
+
+                    C01(i, j) += RAB(i,j)*Vp(i,j)/c020;
+
+                    A1 += C01(i, j)*Vc1(i, j);
+                    A2 += C01(i, j)*Vc2(i, j);
+                }
+            }
+
+            scalar c101s = centralMoments(1,0,1)/sqrtC200;
+            scalar c011s = centralMoments(0,1,1)/sqrtC020;
+
+            if (sqr(c101s) >= centralMoments(0,0,2)*(1.0 - SMALL))
+            {
+                c101s = sign(c101s)*sqrtC002;
+            }
+            else if (sqr(c011s) >= centralMoments(0,0,2)*(1.0 - SMALL))
+            {
+                scalar c110s = centralMoments(1,1,0)/(sqrtC200*sqrtC020);
+                c011s = sign(c011s)*sqrtC002;
+                c101s = c110s*c011s;
+            }
+
+            //scalar b0 = 0;
+            scalar b1 = c101s;
+            scalar b2 = 0;
+
+            if (A2 > minCorrelation_)
+            {
+                b2 = (c011s - A1*b1)/A2;
+            }
+
+            scalar sumVarDir3 = 0.0;
+            scalarSquareMatrix Wf(3, 0.0);
+
+            for (label i = 0; i < 3; i++)
+            {
+                for (label j = 0; j < 3; j++)
+                {
+                    Wf(i, j) = b1*Vc1(i, j) + b2*Vc2(i, j);// + b0*Vc0(i, j)
+                    sumVarDir3 += RAB(i, j)*sqr(Wf(i, j));
+                }
+            }
+
+            scalarList mu(5, 0.0);
+            mu[2] = max(centralMoments(0,0,2) - sumVarDir3, 0.0);
+
+            scalar q = 0;
+            scalar eta = 1;
+            if (mu[2] > etaMin_)
+            {
+                scalar sum1 = mu[2]*sqrt(mu[2]);
+                scalar sum2 = sqr(mu[2]);
+                scalar sum3 = 0.0;
+                scalar sum4 = 0.0;
+                for (label i = 01; i < 3; i++)
+                {
+                    for (label j = 0; j < 3; j++)
+                    {
+                        sum3 += RAB(i, j)*pow3(Wf(i, j));
+                        sum4 += RAB(i, j)*pow4(Wf(i, j));
+                    }
+                }
+                sum4 += 6.0*sumVarDir3*mu[2];
+
+                q = (centralMoments(0,0,3) - sum3)/sum1;
+                eta = (centralMoments(0,0,4) - sum4)/sum2;
+
+                if (eta < sqr(q) + 1)
+                {
+                    q = calcQ(q, eta);
+                    eta = sqr(q) + 1.0;
+                }
+            }
+
+            mu[3] = q*mu[2]*sqrt(mu[2]);
+            mu[4] = eta*sqr(mu[2]);
+
+            // Invert final direction
+            univariateMomentSet mDir3
+            (
+                {
+                    1.0,
+                    0.0,
+                    mu[2],
+                    mu[3],
+                    mu[4]
+                },
+                "R"
+            );
+            // Find univariate quadrature in final direction
+            univariateInverter_().invert(mDir3);
+
+            scalarList wDir3(univariateInverter_().weights());
+            scalarList absDir3(univariateInverter_().abscissae());
+
+//             // Conditional weights and abscissae
+//             mappedList<scalar> wDir123(27, threeDimNodeIndexes_, 0.0);
+//             mappedList<scalar> absDir123(27, threeDimNodeIndexes_, 0.0);
+//
+//             for (label i = 1; i <= 3; i++)
+//             {
+//                 for (label j = 1; j <= 3; j++)
+//                 {
+//                     for (label k = 1; k <= 3; k++)
+//                     {
+//                         wDir123(i, j, k) =
+//                             univariateInverter_().weights()[k-1];
+//                         absDir123(i, j, k) =
+//                             univariateInverter_().abscissae()[k-1];
+//                     }
+//                 }
+//             }
+
+            for (label i = 1; i <= 3; i++)
+            {
+                for (label j = 1; j <= 3; j++)
+                {
+                    for (label k = 1; k <= 3; k++)
+                    {
+                        weights_(i, j, k) =
+                            m000*wDir1[i-1]*wDir12(i, j)*wDir3[k-1];
+
+                        abscissae_(i, j, k) =
+                            vector
+                            (
+                                absDir1[i-1] + meanU,
+                                Vf[i-1] + absDir12(i, j) + meanV,
+                                Wf(i-1, j-1) + absDir3[k-1] + meanW
+                            );
+                    }
+                }
+            }
+
         }
     }
 }
@@ -818,13 +1015,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert
 (
     const multivariateMomentSet& moments
 )
-{
-    if (nGeometricD_ == 3)
-    {
-        invert3D(moments);
-    }
-    else if (nGeometricD_ == 2)
-    {
+{ if (nGeometricD_ == 3) { invert3D(moments); } else if (nGeometricD_ == 2) {
         mappedList<scalar> w
         (
             nNodes_,
