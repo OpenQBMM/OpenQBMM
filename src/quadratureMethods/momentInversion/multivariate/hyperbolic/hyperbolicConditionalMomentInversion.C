@@ -109,7 +109,7 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
     {3, 1, 3},
     {3, 2, 1},
     {3, 2, 2},
-    {3, 3, 2},
+    {3, 2, 3},
     {3, 3, 1},
     {3, 3, 2},
     {3, 3, 3}
@@ -126,7 +126,7 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 :
     nGeometricD_(nGeometricD),
     nDimensions_(3),
-    nMoments_(nGeometricD_ == 2 ? 10 : 23),
+    nMoments_(nGeometricD_ == 2 ? 10 : 16),
     nNodes_(nGeometricD_ == 2 ? 9 : 27),
     support_("R"),
     moments_
@@ -237,10 +237,6 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
     mappedList<vector2D>& abscissae2D
 )
 {
-    forAll(moments, mi)
-    {
-        Info<< moments[mi] <<endl;
-    }
     scalar m00 = moments(0, 0);
     label nWeights2D = weights2D.size();
 
@@ -249,8 +245,9 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
         forAll(weights2D, wi)
         {
             weights2D[wi] = m00/scalar(nWeights2D);
-            return;
+            abscissae2D[wi] = vector2D::zero;
         }
+        return;
     };
 
     // Calculate normalized moments
@@ -277,13 +274,13 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
     centralMoments(2, 0) -= sqrMeanU;
     centralMoments(1, 1) -= meanU*meanV;
     centralMoments(0, 2) -= sqrMeanV;
-    centralMoments(3, 0) -= 3.0*meanU*scaledMoments(2, 0) - 2.0*pow3(meanU);
-    centralMoments(0, 3) -= 3.0*meanV*scaledMoments(0, 2) - 2.0*pow3(meanV);
-    centralMoments(4, 0) -= 4.0*meanU*scaledMoments(3, 0)
-        - 6.0*sqrMeanU*scaledMoments(2, 0) + 3.0*sqr(sqrMeanU);
+    centralMoments(3, 0) -= (3.0*meanU*scaledMoments(2, 0) - 2.0*pow3(meanU));
+    centralMoments(0, 3) -= (3.0*meanV*scaledMoments(0, 2) - 2.0*pow3(meanV));
+    centralMoments(4, 0) -= (4.0*meanU*scaledMoments(3, 0)
+        - 6.0*sqrMeanU*scaledMoments(2, 0) + 3.0*sqr(sqrMeanU));
 
-    centralMoments(0, 4) -= 4.0*meanV*scaledMoments(0, 3)
-        - 6.0*sqrMeanV*scaledMoments(0, 2) + 3.0*sqr(sqrMeanV);
+    centralMoments(0, 4) -= (4.0*meanV*scaledMoments(0, 3)
+        - 6.0*sqrMeanV*scaledMoments(0, 2) + 3.0*sqr(sqrMeanV));
 
     // One-dimensional inversion with realizability test
     univariateMomentSet mDir1
@@ -305,15 +302,17 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
     scalarList wDir1(univariateInverter_().weights());
     scalarList absDir1(univariateInverter_().abscissae());
 
+    scalarList wDir2(3, 0.0);
+    scalarList absDir2(3, 0.0);
+
     // Default values of quadrature in direction 2
-    forAll(weights2D, wi)
+    forAll(wDir2, nodei)
     {
-        weights2D[wi] = 0.0;
-        abscissae2D[wi] = vector2D::zero;
+        wDir2[nodei] = 0.0;
+        absDir2[nodei] = 0.0;
     }
 
-    weights2D(1, 2) = 1.0;
-    weights2D(3, 2) = 1.0;
+    wDir2[1] = 1.0;
 
     // Reconstruction settings
     scalarList Vf(3, 0.0);
@@ -340,10 +339,10 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
 
         univariateInverter_().invert(mDir2);
 
-        for (label j = 1; j <= 3; j++)
+        forAll(wDir2, nodei)
         {
-            weights2D(2, j) = univariateInverter_().weights()[j-1];
-            abscissae2D(2, j).y() = univariateInverter_().abscissae()[j-1];
+            wDir2[nodei] = univariateInverter_().weights()[nodei];
+            absDir2[nodei] = univariateInverter_().abscissae()[nodei];
         }
     }
     else
@@ -408,10 +407,10 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
 
         univariateInverter_().invert(mMu);
 
-        for (label j = 1; j <= 3; j++)
+        forAll(wDir2, nodei)
         {
-            weights2D(2, j) = univariateInverter_().weights()[j-1];
-            abscissae2D(2, j).y() = univariateInverter_().abscissae()[j-1];
+            wDir2[nodei] = univariateInverter_().weights()[nodei];
+            absDir2[nodei] = univariateInverter_().abscissae()[nodei];
         }
 
     }
@@ -421,13 +420,13 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
     {
         for (label j = 1; j <= 3; j++)
         {
-            weights2D(i, j) *= m00*wDir1[i - 1];
+            weights2D(i, j) = m00*wDir1[i - 1]*wDir2[j - 1];
 
             abscissae2D(i, j) =
                 vector2D
                 (
                     absDir1[i - 1] + meanU,
-                    Vf[i - 1]*abscissae2D(i, j).y() + meanV
+                    Vf[i - 1] + absDir2[j-1] + meanV
                 );
         }
     }
@@ -638,8 +637,6 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                     centralMoments(0, 1, 1),
                     centralMoments(0, 0, 2),
                     centralMoments(0, 3, 0),
-                    centralMoments(0, 2, 1),
-                    centralMoments(0, 1, 2),
                     centralMoments(0, 0, 3),
                     centralMoments(0, 4, 0),
                     centralMoments(0, 0, 4)
@@ -663,8 +660,10 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                 for (label k = 1; k <= 3; k++)
                 {
                     weights_(2, j, k) = m000*weightsDir23(j, k);
-                    abscissae_(2, j, k).y() = abscissaeDir23(j, k).x() + meanV;
-                    abscissae_(2, j, k).z() = abscissaeDir23(j, k).y() + meanW;
+                    abscissae_(2, j, k).y() =
+                        abscissaeDir23(j, k).x() + meanV;
+                    abscissae_(2, j, k).z() =
+                        abscissaeDir23(j, k).y() + meanW;
                 }
             }
 
@@ -751,7 +750,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                 {
                     weights_(i, j, 2) = m000*weightsDir12(i, j);
                     abscissae_(i, j, 2).x() = abscissaeDir12(i, j).x() + meanU;
-                    abscissae_(i, j, 2).z() = abscissaeDir12(i, j).y() + meanV;
+                    abscissae_(i, j, 2).y() = abscissaeDir12(i, j).y() + meanV;
                 }
             }
 
@@ -759,6 +758,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
         }
         else  // All directions are non-degenerate
         {
+            Info<<"here"<<endl;
             // One-dimensional inversion
             univariateMomentSet mDir1
             (
@@ -810,8 +810,6 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                 Vf[2] +=
                     weightsDir12(3, vfi + 1)*abscissaeDir12(3, vfi + 1).y();
             }
-
-            //
         }
     }
 }
@@ -823,7 +821,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert
 {
     if (nGeometricD_ == 3)
     {
-        //invert3D(moments);
+        invert3D(moments);
     }
     else if (nGeometricD_ == 2)
     {

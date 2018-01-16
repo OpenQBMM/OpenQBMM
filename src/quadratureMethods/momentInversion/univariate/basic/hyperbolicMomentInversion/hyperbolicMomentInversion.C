@@ -123,21 +123,19 @@ void Foam::hyperbolicMomentInversion::invert
     scalar meanVelocity = normalisedMoments[1];
 
     // Compute central moments
-    scalarList centralMoments(nInvertibleMoments_, 0.0);
+    scalarList centralMoments(normalisedMoments);
 
     centralMoments[0] = 1.0;
-    centralMoments[2] = normalisedMoments[2] - sqr(meanVelocity);
+    centralMoments[2] -= sqr(meanVelocity);
 
-    centralMoments[3] =
-        normalisedMoments[3]
-      - 3.0*meanVelocity*normalisedMoments[2]
-      + 2.0*pow3(meanVelocity);
+    centralMoments[3] -=
+        3.0*meanVelocity*normalisedMoments[2]
+      - 2.0*pow3(meanVelocity);
 
-    centralMoments[4] =
-        normalisedMoments[4]
-      - 4.0*meanVelocity*normalisedMoments[3]
-      + 6.0*sqr(meanVelocity)*normalisedMoments[2]
-      - 3.0*pow4(meanVelocity);
+    centralMoments[4] -=
+        4.0*meanVelocity*normalisedMoments[3]
+      - 6.0*sqr(meanVelocity)*normalisedMoments[2]
+      + 3.0*pow4(meanVelocity);
 
     // Compute realizability condition
     scalar realizability =
@@ -281,7 +279,7 @@ void Foam::hyperbolicMomentInversion::invert
     // Rescale abscissae
     forAll(abscissae_, ai)
     {
-        abscissae_[ai] /= sqrtC2/scaleFactor;
+        abscissae_[ai] *= sqrtC2/scaleFactor;
     }
 
     forAll(weights_, wi)

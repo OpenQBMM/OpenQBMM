@@ -63,23 +63,30 @@ int main(int argc, char *argv[])
     mappedList<scalar> w(9, indicies);
     mappedList<vector> u(9, indicies);
 
-    for(label i = 1; i <= 3; i++)
-    {
-        for(label j = 1; j <= 3; j++)
-        {
-            w(i,j) = scalar(rand())/scalar(RAND_MAX);
-            u(i,j) =
-                vector
-                (
-                    scalar(rand())/scalar(RAND_MAX),
-                    scalar(rand())/scalar(RAND_MAX),
-                    0
-                )*10 - vector(5.0, 5.0, 0);
+//     for(label i = 1; i <= 3; i++)
+//     {
+//         for(label j = 1; j <= 3; j++)
+//         {
+//             w(i,j) = scalar(rand())/scalar(RAND_MAX);
+//             u(i,j) =
+//                 vector
+//                 (
+//                     0.5,//scalar(rand())/scalar(RAND_MAX),
+//                     0.5,//scalar(rand())/scalar(RAND_MAX),
+//                     0
+//                 )*10 - vector(5.0, 5.0, 0);
+//         }
+//     }
+    w(1,1) = 0; u(1,1) = vector(0,0,0);
+    w(1,2) = 0; u(1,2) = vector(0,0,0);
+    w(1,3) = 0; u(1,3) = vector(0,0,0);
+    w(2,1) = 0; u(2,1) = vector(0,0,0);
+    w(2,2) = 0; u(2,2) = vector(0,0,0);
+    w(2,3) = 0; u(2,3) = vector(0,0,0);
+    w(3,1) = 0; u(3,1) = vector(0,0,0);
+    w(3,2) = 0; u(3,2) = vector(0,0,0);
+    w(3,3) = 0; u(3,3) = vector(0,0,0);
 
-            Info<< "w("<<i<<","<<j<<"): " << w(i,j) << endl;
-            Info<< "u("<<i<<","<<j<<"): " << u(i,j) << endl;
-        }
-    }
 
     labelListList mIndicies(10, labelList(2,0));
     mIndicies[0] = {0,0};
@@ -97,23 +104,31 @@ int main(int argc, char *argv[])
 
     multivariateMomentSet moments(nMoments, mIndicies, "R");
 
-    for (label i = 1; i <= 3; i++)
-    {
-        for (label j = 1; j <= 3; j++)
-        {
-            forAll(moments, mi)
-            {
-                moments[mi] +=
-                    w(i,j)
-                   *pow(u(i,j).x(), mIndicies[mi][0])
-                   *pow
-                    (
-                        u(i,j).y(),
-                        mIndicies[mi][1]
-                   );
-            }
-        }
-    }
+//     for (label i = 1; i <= 3; i++)
+//     {
+//         for (label j = 1; j <= 3; j++)
+//         {
+//             forAll(moments, mi)
+//             {
+//                 moments[mi] +=
+//                     w(i,j)
+//                    *pow(u(i,j).x(), mIndicies[mi][0])
+//                    *pow(u(i,j).y(), mIndicies[mi][1]);
+//             }
+//         }
+//     }
+    moments(0,0) = 5.43408e-15;
+    moments(0,1) = 2.72019e-15;
+    moments(0,2) = 1.3627e-15;
+    moments(0,3) = 6.83773e-16;
+    moments(0,4) = 3.43956e-16;
+    moments(1,0) = -5.44038e-15;
+    moments(1,1) = -2.7254e-15;
+    moments(2,0) = 5.45079e-15;
+    moments(3,0) = -5.47081e-15;
+    moments(4,0) = 5.5033e-15;
+
+
     forAll(mIndicies, mi)
     {
         Info<< "moment." << mIndicies[mi][0] << mIndicies[mi][1]<<": "
@@ -135,14 +150,6 @@ int main(int argc, char *argv[])
     const mappedList<vector>& abscissae = momentInverter.abscissae();
     multivariateMomentSet momentsNew(nMoments, mIndicies, "R");
 
-    for(label i = 1; i <= 3; i++)
-    {
-        for(label j = 1; j <= 3; j++)
-        {
-            Info<< "w("<<i<<","<<j<<"): " << weights(i,j) << endl;
-            Info<< "u("<<i<<","<<j<<"): " << abscissae(i,j) << endl;
-        }
-    }
 
     for (label i = 1; i <= 3; i++)
     {
@@ -155,6 +162,8 @@ int main(int argc, char *argv[])
                    *pow(abscissae(i,j).x(), mIndicies[mi][0])
                    *pow(abscissae(i,j).y(), mIndicies[mi][1]);
             }
+            Info<<i<<j<<"-u: " << abscissae(i,j) << nl
+                    <<"w: " <<weights(i,j)<<endl;
         }
     }
 
