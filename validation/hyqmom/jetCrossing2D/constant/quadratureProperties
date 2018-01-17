@@ -20,7 +20,7 @@ basicQuadrature
     univariateMomentInversion   hyqmom;
 }
 
-minVar 1e-12;
+// minVar 1e-12;
 
 
 // ************************************************************************* //

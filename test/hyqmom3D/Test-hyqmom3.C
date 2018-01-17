@@ -80,12 +80,16 @@ int main(int argc, char *argv[])
     mappedList<scalar> w(27, indicies);
     mappedList<vector> u(27, indicies);
 
-    for(label i = 1; i <= 3; i++)
+    for (label i = 1; i <= 3; i++)
     {
         for(label j = 1; j <= 3; j++)
         {
             for(label k = 1; k <= 3; k++)
             {
+//         label i = indicies[ind][0];
+//         label j = indicies[ind][1];
+//         label k = indicies[ind][2];
+
                 w(i,j,k) = scalar(rand())/scalar(RAND_MAX);
                 u(i,j,k) =
                     vector
@@ -94,6 +98,9 @@ int main(int argc, char *argv[])
                         scalar(rand())/scalar(RAND_MAX),
                         scalar(rand())/scalar(RAND_MAX)
                     )*10 - vector(5.0, 5.0, 5.0);
+
+                Info<<i<<j<<k<<": " << w(i,j,k)
+                    <<"\t"<<u(i,j,k)<<endl;
             }
         }
     }
@@ -119,6 +126,7 @@ int main(int argc, char *argv[])
     Info<< "Original moments:" << endl;
 
     multivariateMomentSet moments(nMoments, mIndicies, "R");
+    multivariateMomentSet momentsNew(nMoments, mIndicies, "R");
 
     for (label i = 1; i <= 3; i++)
     {
@@ -152,15 +160,12 @@ int main(int argc, char *argv[])
     );
 
     Info<< "\nInverting moments" << endl;
-
     momentInverter.invert(moments);
 
     Info<< "\nReconstructed moments:" << endl;
 
     const mappedList<scalar>& weights = momentInverter.weights();
     const mappedList<vector>& abscissae = momentInverter.abscissae();
-    multivariateMomentSet momentsNew(nMoments, mIndicies, "R");
-
 
     for (label i = 1; i <= 3; i++)
     {
@@ -176,6 +181,8 @@ int main(int argc, char *argv[])
                        *pow(abscissae(i,j,k).y(), mIndicies[mi][1])
                        *pow(abscissae(i,j,k).z(), mIndicies[mi][2]);
                 }
+//                 Info<<i<<j<<k<<": " << weights(i,j,k)
+//                     <<"\t"<<abscissae(i,j,k)<<endl;
             }
         }
     }

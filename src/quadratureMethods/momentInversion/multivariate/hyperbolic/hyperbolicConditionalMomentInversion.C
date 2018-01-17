@@ -869,13 +869,13 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
             for (label i = 0; i < 3; i++)
             {
-                C01(i, i) = RAB(i,i)*Vf[i]/c020;
                 for (label j = 0; j < 3; j++)
                 {
                     Vc1(i, j) = absDir1[i]/sqrtC200;
                     Vc2(i, j) = Vp(i, j)/sqrtC020;
 
-                    C01(i, j) += RAB(i,j)*Vp(i,j)/c020;
+                    scalar VAB = (Vp(i,j) + Vf[i])/sqrtC020;
+                    C01(i, j) += RAB(i,j)*VAB;
 
                     A1 += C01(i, j)*Vc1(i, j);
                     A2 += C01(i, j)*Vc2(i, j);
@@ -907,7 +907,6 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
             scalar sumVarDir3 = 0.0;
             scalarSquareMatrix Wf(3, 0.0);
-
             for (label i = 0; i < 3; i++)
             {
                 for (label j = 0; j < 3; j++)
@@ -928,7 +927,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                 scalar sum2 = sqr(mu[2]);
                 scalar sum3 = 0.0;
                 scalar sum4 = 0.0;
-                for (label i = 01; i < 3; i++)
+                for (label i = 0; i < 3; i++)
                 {
                     for (label j = 0; j < 3; j++)
                     {
@@ -936,7 +935,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                         sum4 += RAB(i, j)*pow4(Wf(i, j));
                     }
                 }
-                sum4 += 6.0*sumVarDir3*mu[2];
+                sum4 += + 6.0*sumVarDir3*mu[2];
 
                 q = (centralMoments(0,0,3) - sum3)/sum1;
                 eta = (centralMoments(0,0,4) - sum4)/sum2;
@@ -947,7 +946,6 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                     eta = sqr(q) + 1.0;
                 }
             }
-
             mu[3] = q*mu[2]*sqrt(mu[2]);
             mu[4] = eta*sqr(mu[2]);
 
@@ -968,24 +966,6 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
             scalarList wDir3(univariateInverter_().weights());
             scalarList absDir3(univariateInverter_().abscissae());
-
-//             // Conditional weights and abscissae
-//             mappedList<scalar> wDir123(27, threeDimNodeIndexes_, 0.0);
-//             mappedList<scalar> absDir123(27, threeDimNodeIndexes_, 0.0);
-//
-//             for (label i = 1; i <= 3; i++)
-//             {
-//                 for (label j = 1; j <= 3; j++)
-//                 {
-//                     for (label k = 1; k <= 3; k++)
-//                     {
-//                         wDir123(i, j, k) =
-//                             univariateInverter_().weights()[k-1];
-//                         absDir123(i, j, k) =
-//                             univariateInverter_().abscissae()[k-1];
-//                     }
-//                 }
-//             }
 
             for (label i = 1; i <= 3; i++)
             {

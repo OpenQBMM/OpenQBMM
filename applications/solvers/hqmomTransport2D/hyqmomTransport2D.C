@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
                 solve
                 (
                     fvm::ddt(moments[mi])
-                  + 0.5*fluxes[mi]
+                  + fluxes[mi]
                 );
 
                 if (runTime.outputTime())
@@ -85,18 +85,18 @@ int main(int argc, char *argv[])
             #include "invertMoments.H"
         }
 
-        {
-            #include "computeFluxes.H"
-            forAll(moments, mi)
-            {
-                solve
-                (
-                    fvm::ddt(moments[mi])
-                  + fluxes[mi]
-                );
-            }
-            #include "invertMoments.H"
-        }
+//         {
+//             #include "computeFluxes.H"
+//             forAll(moments, mi)
+//             {
+//                 solve
+//                 (
+//                     fvm::ddt(moments[mi])
+//                   + fluxes[mi]
+//                 );
+//             }
+//             #include "invertMoments.H"
+//         }
 
         runTime.write();
 

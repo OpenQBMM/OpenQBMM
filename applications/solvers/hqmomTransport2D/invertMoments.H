@@ -1,7 +1,7 @@
 const volScalarField& m0 = moments[0];
 forAll(m0, celli)
 {
-    if (m0[celli] > 1e-6)
+//     if (m0[celli] > SMALL)
     {
         multivariateMomentSet m(10, mIndicies, "R");
 
@@ -14,8 +14,6 @@ forAll(m0, celli)
         momentInverter.invert(m);
         const mappedList<scalar>& w = momentInverter.weights();
         const mappedList<vector>& u = momentInverter.abscissae();
-
-    //     Info<< w << nl << u << endl;
 
         forAll(w, nodei)
         {
@@ -31,7 +29,7 @@ forAll(bf, patchi)
     const fvPatchScalarField& m0Patch = bf[patchi];
     forAll(m0Patch, facei)
     {
-        if (m0Patch[facei] > 1e-6)
+//         if (m0Patch[facei] > SMALL)
         {
             multivariateMomentSet m(10, mIndicies, "R");
 

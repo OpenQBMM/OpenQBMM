@@ -152,10 +152,10 @@ void Foam::hyperbolicMomentInversion::invert
                 << "Second-order central moment is negative. C2 = "
                 << centralMoments[2]
                 << endl;
-            for (label ci = 2; ci < nInvertibleMoments_; ci++)
-            {
-                centralMoments[ci] = 0.0;
-            }
+        }
+        for (label ci = 2; ci < nInvertibleMoments_; ci++)
+        {
+            centralMoments[ci] = 0.0;
         }
     }
     else if (realizability < 0)
@@ -192,11 +192,12 @@ void Foam::hyperbolicMomentInversion::invert
             centralMoments[3] = q*c2*sqrtC2;
             centralMoments[4] = eta*sqrC2;
 
-            if (realizability < -smallNegRealizability_)
+            if (realizability < smallNegRealizability_)
             {
                 WarningInFunction
                     << "Fourth-order central moment is too small."
-                    << " Realizability = " << realizability
+                    << " Realizability = " << realizability << nl
+                    << c2
                     << endl;
             }
         }
@@ -214,7 +215,7 @@ void Foam::hyperbolicMomentInversion::invert
     scalar q = 0.0;
     scalar eta = 0.0;
 
-    if (c2 > etaMin_)
+    if (c2 >= etaMin_)
     {
         q = centralMoments[3]/(c2*sqrtC2);
         eta = centralMoments[4]/sqrC2;
@@ -228,7 +229,7 @@ void Foam::hyperbolicMomentInversion::invert
     // Bind skewness
     if (sqr(q) > sqr(qMax_))
     {
-        scalar slope = (eta - 3.0);
+        scalar slope = (eta - 3.0)/q;
         q = qMax_*sign(q);
         eta = 3.0 + q*slope;
         realizability = eta - sqr(q) - 1.0;
