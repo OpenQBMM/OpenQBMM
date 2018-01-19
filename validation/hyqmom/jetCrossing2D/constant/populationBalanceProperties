@@ -15,7 +15,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
+e  0.9;
+tau tau [0 0 1 0 0 0 0] 5;
 coalescence off;
 
 coalescenceKernel

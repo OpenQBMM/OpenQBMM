@@ -32,12 +32,12 @@ boundaryField
     inlet1
     {
         type               fixedValue;
-        value              uniform 1000;
+        value              uniform 100000;
     }
     inlet2
     {
         type               fixedValue;
-        value              uniform 1000;
+        value              uniform 100000;
     }
     defaultFaces
     {

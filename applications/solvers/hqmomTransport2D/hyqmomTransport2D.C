@@ -63,6 +63,20 @@ int main(int argc, char *argv[])
         #include "readTimeControls.H"
         #include "CourantNos.H"
         #include "setDeltaT.H"
+//         runTime.setDeltaT
+//         (
+//             min
+//             (
+//                 runTime.deltaT().value(),
+//                 0.5*gMax
+//                 (
+//                     fvc::surfaceSum
+//                     (
+//                         fvc::interpolate(tau/sqrt(Theta)/10.0)
+//                     )().primitiveField()/mesh.V().field()
+//                 )*runTime.deltaTValue()
+//             )
+//         );
 
         runTime++;
 
@@ -76,11 +90,16 @@ int main(int argc, char *argv[])
                     fvm::ddt(moments[mi])
                   + fluxes[mi]
                 );
+                moments[mi].oldTime() = moments[mi];
 
-                if (runTime.outputTime())
-                {
-                    moments[mi].write();
-                }
+                #include "computeCollisions.H"
+                solve
+                (
+                    fvm::ddt(moments[mi])
+                 ==
+                    rTau*Meq[mi]
+                  - fvm::Sp(rTau, moments[mi])
+                );
             }
             #include "invertMoments.H"
         }

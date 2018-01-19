@@ -36,6 +36,20 @@ IOdictionary quadratureProperties
         IOobject::NO_WRITE
     )
 );
+IOdictionary populationBalanceProperties
+(
+    IOobject
+    (
+        "populationBalanceProperties",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::NO_WRITE
+    )
+);
+scalar e(readScalar(populationBalanceProperties.lookup("e")));
+dimensionedScalar tau(populationBalanceProperties.lookup("tau"));
+dimensionedScalar rTau = 1.0/tau;
 
 hyperbolicConditionalMomentInversion momentInverter
 (
@@ -241,6 +255,7 @@ forAll(mIndicies, mi)
         )
     );
 }
+volScalarField Theta("Theta", (moments[3] + moments[5])/3.0);
 
 #include "invertMoments.H"
 

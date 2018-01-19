@@ -57,7 +57,7 @@ Foam::hyperbolicMomentInversion::hyperbolicMomentInversion
         dict.lookupOrDefault
         (
             "smallNegRealizability",
-            1.0e-6
+            -1.0e-6
         )
     )
 {
@@ -146,7 +146,7 @@ void Foam::hyperbolicMomentInversion::invert
     // Manage unrealizable cases
     if (centralMoments[2] < 0.0)
     {
-        if (centralMoments[2] < -SMALL)
+        if (centralMoments[2] < -1e-6 && debug)
         {
             WarningInFunction
                 << "Second-order central moment is negative. C2 = "
@@ -192,12 +192,11 @@ void Foam::hyperbolicMomentInversion::invert
             centralMoments[3] = q*c2*sqrtC2;
             centralMoments[4] = eta*sqrC2;
 
-            if (realizability < smallNegRealizability_)
+            if (realizability < smallNegRealizability_ && debug)
             {
                 WarningInFunction
                     << "Fourth-order central moment is too small."
                     << " Realizability = " << realizability << nl
-                    << c2
                     << endl;
             }
         }
