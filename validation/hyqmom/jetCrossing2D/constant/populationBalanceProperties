@@ -15,32 +15,9 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-e  0.9;
-tau tau [0 0 1 0 0 0 0] 5;
-coalescence off;
+collisions  on;
+e           0.9;
+tau         tau     [0 0 1 0 0 0 0]     1.0;
 
-coalescenceKernel
-{
-    coalescenceFrequencyKernel CoulaloglouAndTavlarides;
-    coalescenceEfficiencyKernel CoulaloglouAndTavlarides;
-
-    Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
-    Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;
-    ReExp   ReExp   [ 0 0 0 0 0 0 0 ]  -0.732;
-    WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
-}
-
-breakup off;
-
-breakupKernel
-{
-    breakupKernel Alopaeus;
-    Cb        Cb        [ 0 0 -1 0 0 0 0 ] 6.0;
-}
-
-daughterDistribution
-{
-    daughterDistribution uniform;
-}
 
 // ************************************************************************* //

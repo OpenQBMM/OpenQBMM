@@ -47,6 +47,8 @@ IOdictionary populationBalanceProperties
         IOobject::NO_WRITE
     )
 );
+
+Switch collisions(populationBalanceProperties.lookup("collisions"));
 scalar e(readScalar(populationBalanceProperties.lookup("e")));
 dimensionedScalar tau(populationBalanceProperties.lookup("tau"));
 dimensionedScalar rTau = 1.0/tau;

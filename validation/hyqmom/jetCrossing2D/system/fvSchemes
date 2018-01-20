@@ -55,8 +55,8 @@ interpolationSchemes
 {
     default         linear;
 
-    reconstruct(U)          upwind;
-    reconstruct(weight)     upwind;
+    "reconstruct(U)"          upwind;
+    "reconstruct(weight)"     upwind;
 }
 
 snGradSchemes
