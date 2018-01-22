@@ -109,7 +109,7 @@ forAll(indicies, nodei)
                 runTime.timeName(),
                 mesh,
                 IOobject::NO_READ,
-                IOobject::AUTO_WRITE
+                IOobject::NO_WRITE
             ),
             mesh,
             dimensionedScalar("w" + name, dimless, 0.0)
@@ -161,7 +161,7 @@ forAll(indicies, nodei)
                 runTime.timeName(),
                 mesh,
                 IOobject::NO_READ,
-                IOobject::AUTO_WRITE
+                IOobject::NO_WRITE
             ),
             mesh,
             dimensionedVector("U." + name, dimVelocity, Zero)

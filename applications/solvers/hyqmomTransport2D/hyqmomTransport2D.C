@@ -63,26 +63,13 @@ int main(int argc, char *argv[])
         #include "readTimeControls.H"
         #include "CourantNos.H"
         #include "setDeltaT.H"
-//         runTime.setDeltaT
-//         (
-//             min
-//             (
-//                 runTime.deltaT().value(),
-//                 0.5*gMax
-//                 (
-//                     fvc::surfaceSum
-//                     (
-//                         fvc::interpolate(tau/sqrt(Theta)/10.0)
-//                     )().primitiveField()/mesh.V().field()
-//                 )*runTime.deltaTValue()
-//             )
-//         );
 
         runTime++;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
         {
             #include "computeFluxes.H"
+            #include "computeCollisions.H"
             forAll(moments, mi)
             {
                 solve
@@ -90,32 +77,24 @@ int main(int argc, char *argv[])
                     fvm::ddt(moments[mi])
                   + fluxes[mi]
                 );
-                moments[mi].oldTime() = moments[mi];
 
-                #include "computeCollisions.H"
-                solve
-                (
-                    fvm::ddt(moments[mi])
-                 ==
-                    rTau*Meq[mi]
-                  - fvm::Sp(rTau, moments[mi])
-                );
+                if (collisions)
+                {
+                    //  Set momentsOld to current values so they are
+                    //  not overwritten by collisions
+                    moments[mi].oldTime() = moments[mi];
+
+                    solve
+                    (
+                        fvm::ddt(moments[mi])
+                        ==
+                        rTau*Meq[mi]
+                        - fvm::Sp(rTau, moments[mi])
+                    );
+                }
             }
             #include "invertMoments.H"
         }
-
-//         {
-//             #include "computeFluxes.H"
-//             forAll(moments, mi)
-//             {
-//                 solve
-//                 (
-//                     fvm::ddt(moments[mi])
-//                   + fluxes[mi]
-//                 );
-//             }
-//             #include "invertMoments.H"
-//         }
 
         runTime.write();
 

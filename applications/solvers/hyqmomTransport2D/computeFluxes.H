@@ -21,7 +21,34 @@ dimensionedScalar zeroPhi("zeroPhi", dimVolume/dimTime, 0.0);
 
 forAll(indicies, nodei)
 {
-//     surfaceScalarField phi(fvc::flux(U[nodei]));
+    forAll(mesh.boundary(), patchi)
+    {
+        const fvPatch& currPatch = mesh.boundary()[patchi];
+        if (isA<wallFvPatch>(currPatch))
+        {
+            const vectorField& bfSf = mesh.Sf().boundaryField()[patchi];
+            vectorField bfNorm = bfSf/mag(bfSf);
+
+            scalarField& bfwOwn = wOwn[nodei].boundaryFieldRef()[patchi];
+            scalarField& bfwNei = wNei[nodei].boundaryFieldRef()[patchi];
+            vectorField& bfUOwn = UOwn[nodei].boundaryFieldRef()[patchi];
+            vectorField& bfUNei = UNei[nodei].boundaryFieldRef()[patchi];
+
+            forAll(currPatch, facei)
+            {
+                label faceCelli = currPatch.faceCells()[facei];
+
+                bfwOwn[facei] = weights[nodei][faceCelli];
+                bfUOwn[facei] = U[nodei][faceCelli];
+
+                bfwNei[facei] = bfwOwn[facei];
+                bfUNei[facei] = bfUOwn[facei]
+                  - 2.0*(bfUOwn[facei] & bfNorm[facei])
+                   *bfNorm[facei];
+            }
+        }
+    }
+
     surfaceScalarField phiOwn(UOwn[nodei] & mesh.Sf());
     surfaceScalarField phiNei(UNei[nodei] & mesh.Sf());
 
@@ -53,19 +80,40 @@ forAll(indicies, nodei)
     }
 }
 
-// forAll(moments[0].boundaryField(), patchi)
-// {
-//     if
-//     (
-//        !(
-//             isA<wallFvPatch>(mesh.boundary()[patchi])
-//          || isA<emptyFvPatch>(mesh.boundary()[patchi])
-//         )
-//     )
+// // AP: Fix for wall interpolation (assuming reflective walls)
+//   // This has to be generalized. At the moment it is first-order accurate
+//   // and it hard-codes the reflective BC!
+//   const fvPatchList& patches = mesh.boundary();
+//
+//   forAll(patches, patchi)
+//   {
+//       const fvPatch& currPatch = patches[patchi];
+//
+//       if (isA<wallFvPatch😠currPatch))
+//       {
+//     scalarField& wOwnw = weightOwn[nI].boundaryField()[patchi];
+//     scalarField& wNeiw = weightNei[nI].boundaryField()[patchi];
+//
+//     vectorField& aOwnw = abscissaOwn[nI].boundaryField()[patchi];
+//     vectorField& aNeiw = abscissaNei[nI].boundaryField()[patchi];
+//
+//     vectorField faceNormalVectors =
+//       mesh.Sf().boundaryField()[patchi]
+//         /mesh.magSf().boundaryField()[patchi];
+//
+//     forAll(currPatch, faceI)
 //     {
-//         forAll(fluxes, mi)
-//         {
-//             fluxes[mi].boundaryFieldRef() *= -1.0;
-//         }
+//         label faceCelli = currPatch.faceCells()[faceI];
+//
+//         wOwnw[faceI] = weight[faceCelli];
+//         aOwnw[faceI] = abscissa[faceCelli];
+//
+//         wNeiw[faceI] = wOwnw[faceI];
+//
+//         aNeiw[faceI] = aOwnw[faceI]
+//       - 2.0*(aOwnw[faceI] & faceNormalVectors[faceI])
+//       *faceNormalVectors[faceI];
 //     }
-// }
+//       }
+//   }
+//     }

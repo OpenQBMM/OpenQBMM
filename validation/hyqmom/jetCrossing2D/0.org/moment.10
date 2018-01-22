@@ -22,7 +22,7 @@ boundaryField
 {
     walls
     {
-        type                fixedValue;
+        type                zeroGradient;
         value               $internalField;
     }
     outlet
