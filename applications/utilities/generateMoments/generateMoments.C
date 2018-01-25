@@ -34,6 +34,7 @@ Description
 
 #include "fvCFD.H"
 #include "momentGenerationModel.H"
+#include "mappedPtrList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -68,8 +69,6 @@ int main(int argc, char *argv[])
         Info<< "Creating moments for phase: " << phaseName << endl;
 
         // Read number of nodes from quadratureProperties.phase
-        label nNodes;
-
         IOdictionary quadratureDict
         (
             IOobject
@@ -86,26 +85,15 @@ int main(int argc, char *argv[])
             )
         );
 
-        nNodes = HashTable<dictionary>(quadratureDict.lookup("nodes")).size();
-
-        label nMoments = 2*nNodes;
-        bool radau = phaseDict.lookupOrDefault<bool>("Radau", false);
-        bool extended(phaseDict.lookupOrDefault<bool>("extended", false));
-
-        if (radau)
-        {
-            nNodes++;
-        }
-
-        if (extended || radau)
-        {
-            nMoments++;
-        }
+        label nNodes = HashTable<dictionary>(quadratureDict.lookup("nodes")).size();
+        labelListList momentOrders = quadratureDict.lookup("moments");
+        label nMoments = momentOrders.size();
 
         autoPtr<momentGenerationModel> momentGenerator
-            = momentGenerationModel::New(phaseDict, nNodes, extended, radau);
+            = momentGenerationModel::New(phaseDict, momentOrders, nNodes);
 
-        PtrList<volScalarField> moments(nMoments);
+
+        mappedPtrList<volScalarField> moments(nMoments, momentOrders);
 
         //  Set internal field values and initialize moments.
         {
@@ -115,9 +103,10 @@ int main(int argc, char *argv[])
 
             forAll(moments, mi)
             {
+                const labelList& momentOrder= momentOrders[mi];
                 moments.set
                 (
-                    mi,
+                    momentOrder,
                     new volScalarField
                     (
                         IOobject
@@ -127,7 +116,7 @@ int main(int argc, char *argv[])
                                 "moment",
                                 IOobject::groupName
                                 (
-                                    Foam::name(mi),
+                                    mappedPtrList<scalar>::listToWord(momentOrder),
                                     phases[phasei]
                                 )
                             ),

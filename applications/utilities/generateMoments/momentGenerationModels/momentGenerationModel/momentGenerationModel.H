@@ -34,11 +34,11 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef momentGenerationModel_H
-#define momentGenerationModel_H
+#ifndef momentGeneration_H
+#define momentGeneration_H
 
 #include "dictionary.H"
-#include "List.H"
+#include "mappedLists.H"
 #include "dimensionedTypes.H"
 #include "runTimeSelectionTables.H"
 
@@ -58,6 +58,9 @@ class momentGenerationModel
         //- Disallow default bitwise assignment
         void operator=(const momentGenerationModel&);
 
+        //- Create map for velocity nodes
+        labelListList createNodeIndexes() const;
+
 
 protected:
 
@@ -66,26 +69,29 @@ protected:
         //- Constant refrence to dictionary
         const dictionary& dict_;
 
+        //- Number of dimensions in distribution
+        const label nDims_;
+
         //- Number of nodes
         const label nNodes_;
 
         //- Number of moments
         const label nMoments_;
 
-        //- Does the quadrature use EQMOM
-        const bool extended_;
+        //- Node indexes
+        labelListList nodeIndexes_;
 
-        //- Is a Radau quadrature used
-        const bool radau_;
+        //- Moment orders
+        labelListList momentOrders_;
 
         //- List of weights
-        List<dimensionedScalar> weights_;
+        List<scalar> weights_;
 
         //- List of abscissae
-        List<dimensionedScalar> abscissae_;
+        List<scalarList> abscissae_;
 
         //- List of moments
-        List<dimensionedScalar> moments_;
+        mappedList<dimensionedScalar> moments_;
 
 
     // Protected member functions
@@ -107,11 +113,10 @@ public:
         dictionary,
         (
             const dictionary& dict,
-            const label nNodes,
-            const bool extended,
-            const bool radau
+            const labelListList& momentOrders,
+            const label nNodes
         ),
-        (dict, nNodes, extended, radau)
+        (dict, momentOrders, nNodes)
     );
 
 
@@ -120,10 +125,9 @@ public:
         //- Construct from dictionary and number of nodes
         momentGenerationModel
         (
-            const dictionary&,
-            const label,
-            const bool extended,
-            const bool radau
+            const dictionary& dict,
+            const labelListList& momentsOrders,
+            const label nNodes
         );
 
 
@@ -132,9 +136,8 @@ public:
         static autoPtr<momentGenerationModel> New
         (
             const dictionary& dict,
-            const label nNodes,
-            const bool extended,
-            const bool radau
+            const labelListList& momentsOrders,
+            const label nNodes
         );
 
 
@@ -147,11 +150,10 @@ public:
         // Access
 
             //- Return constant access to moments
-            const List<dimensionedScalar>& moments() const
+            const mappedList<dimensionedScalar>& moments() const
             {
                 return moments_;
             }
-
 
         // Member Functions
 

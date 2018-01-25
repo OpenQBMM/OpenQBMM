@@ -30,9 +30,8 @@ License
 Foam::autoPtr<Foam::momentGenerationModel> Foam::momentGenerationModel::New
 (
     const dictionary& dict,
-    const label nNodes,
-    const bool extended,
-    const bool Radau
+    const labelListList& momentOrders,
+    const label nNodes
 )
 {
     word momentGenerationModelType(dict.lookup("type"));
@@ -64,9 +63,8 @@ Foam::autoPtr<Foam::momentGenerationModel> Foam::momentGenerationModel::New
         cstrIter()
         (
             dict,
-            nNodes,
-            extended,
-            Radau
+            momentOrders,
+            nNodes
         )
     );
 }

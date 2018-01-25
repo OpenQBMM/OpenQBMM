@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "alphaAndDiameter.H"
+#include "velocity.H"
 #include "constants.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -33,12 +33,12 @@ namespace Foam
 {
 namespace momentGenerationSubModels
 {
-    defineTypeNameAndDebug(alphaAndDiameter, 0);
+    defineTypeNameAndDebug(velocity, 0);
 
     addToRunTimeSelectionTable
     (
         momentGenerationModel,
-        alphaAndDiameter,
+        velocity,
         dictionary
     );
 }
@@ -47,7 +47,7 @@ namespace momentGenerationSubModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
+Foam::momentGenerationSubModels::velocity::velocity
 (
     const dictionary& dict,
     const labelListList& momentOrders,
@@ -60,13 +60,13 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::alphaAndDiameter::~alphaAndDiameter()
+Foam::momentGenerationSubModels::velocity::~velocity()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::alphaAndDiameter::updateQuadrature
+void Foam::momentGenerationSubModels::velocity::updateQuadrature
 (
     const dictionary& dict
 )
@@ -81,15 +81,21 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateQuadrature
             scalar dia(readScalar(nodeDict.lookup("dia")));
             scalar alpha(readScalar(nodeDict.lookup("alpha")));
             scalar rho(readScalar(nodeDict.lookup("rho")));
+            vector U(nodeDict.lookup("U"));
 
-            abscissae_[nodei][0]
-                = (4.0/3.0)*Foam::constant::mathematical::pi*rho*pow3(dia/2.0);
+            scalar mass =
+                (4.0/3.0)*Foam::constant::mathematical::pi*rho*pow3(dia/2.0);
 
-            weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+            weights_[nodei] = rho*alpha/mass;
+
+            forAll(abscissae_[nodei], cmpti)
+            {
+                abscissae_[nodei][cmpti] = U.component(cmpti);
+            }
         }
         else
         {
-            abscissae_[nodei] = scalarList(nodeIndexes_[nodei].size(), 0.0);
+            abscissae_[nodei] = scalarList(abscissae_[nodei].size(), 0.0);
             weights_[nodei] = 0.0;
         }
     }

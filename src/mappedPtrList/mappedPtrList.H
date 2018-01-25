@@ -51,6 +51,7 @@ SourceFiles
 
 #include "scalar.H"
 #include "PtrList.H"
+#include "labelList.H"
 #include "Map.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

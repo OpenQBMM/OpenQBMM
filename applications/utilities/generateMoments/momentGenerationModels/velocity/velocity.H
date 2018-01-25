@@ -22,18 +22,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::momentGenerationSubModels::noMomentGeneration
+    Foam::momentGenerationSubModels::velocity
 
 Description
-    Moments are read directly from the dictionary to create the moment fields
+    Moment generation done using volume fraction, density, and bubble diameter.
 
 SourceFiles
-    noMomentGeneration.C
+    velocity.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef none_H
-#define none_H
+#ifndef velocity_H
+#define velocity_H
 
 #include "momentGenerationModel.H"
 
@@ -45,32 +45,32 @@ namespace momentGenerationSubModels
 {
 
 /*---------------------------------------------------------------------------*\
-                        Class noMomentGeneration Declaration
+                    Class velocity Declaration
 \*---------------------------------------------------------------------------*/
 
-class noMomentGeneration
+class velocity
 :
     public momentGenerationModel
 {
 public:
 
         //- Runtime type information
-        TypeName("moments");
+        TypeName("velocity");
 
 
     // Constructors
 
         //- Construct from components
-        noMomentGeneration
+        velocity
         (
             const dictionary& dict,
-            const labelListList& momentOrders,
+            const labelListList& momentsOrders,
             const label nNodes
         );
 
 
     //- Destructor
-    virtual ~noMomentGeneration();
+    virtual ~velocity();
 
 
     // Public member functions

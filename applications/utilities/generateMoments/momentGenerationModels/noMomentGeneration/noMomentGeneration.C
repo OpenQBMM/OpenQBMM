@@ -50,12 +50,11 @@ namespace momentGenerationSubModels
 Foam::momentGenerationSubModels::noMomentGeneration::noMomentGeneration
 (
     const dictionary& dict,
-    const label nNodes,
-    const bool extended,
-    const bool Radau
+    const labelListList& momentOrders,
+    const label nNodes
 )
 :
-    momentGenerationModel(dict, nNodes, extended, Radau)
+    momentGenerationModel(dict, momentOrders, nNodes)
 {}
 
 
