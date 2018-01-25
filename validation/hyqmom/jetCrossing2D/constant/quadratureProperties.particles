@@ -1,0 +1,70 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fieldMomentInversion hyperbolicFieldMomentInversion;
+
+
+basicMomentInversion
+{
+    basicQuadrature
+    {
+        univariateMomentInversion   hyqmom;
+    }
+}
+
+momentAdvection
+{
+    velocityMomentAdvection   firstOrderKinetic;
+}
+
+moments
+(
+    (0 0)
+    (1 0)
+    (0 1)
+    (2 0)
+    (1 1)
+    (0 2)
+    (3 0)
+    (0 3)
+    (4 0)
+    (0 4)
+);
+
+nodes
+(
+    node00
+    {}
+    node01
+    {}
+    node02
+    {}
+    node10
+    {}
+    node11
+    {}
+    node12
+    {}
+    node20
+    {}
+    node21
+    {}
+    node22
+    {}
+);
+
+// ************************************************************************* //

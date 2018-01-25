@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -39,7 +39,7 @@ SourceFiles
 #define quadratureNode_H
 
 #include "fvMesh.H"
-#include "PtrList.H"
+#include "mappedPtrList.H"
 #include "dictionary.H"
 #include "dictionaryEntry.H"
 
@@ -82,6 +82,7 @@ class quadratureNode
 
         //- Boolean variable to identify extended nodes
         bool extended_;
+
 
 public:
 
@@ -188,6 +189,14 @@ public:
 
     //- Destructor
     virtual ~quadratureNode();
+
+    // Static data
+
+        //- List of node indexes in two dimensions
+        static const labelListList hyqmom2DimNodeIndexes;
+
+        //- List of node indexes in three dimensions
+        static const labelListList hyqmom3DimNodeIndexes;
 
 
     // Member Functions

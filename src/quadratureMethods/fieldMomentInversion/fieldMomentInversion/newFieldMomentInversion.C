@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -30,6 +30,7 @@ License
 Foam::autoPtr<Foam::fieldMomentInversion> Foam::fieldMomentInversion::New
 (
     const dictionary& dict,
+    const fvMesh& mesh,
     const label nMoments,
     const label nSecondaryNodes
 )
@@ -55,7 +56,7 @@ Foam::autoPtr<Foam::fieldMomentInversion> Foam::fieldMomentInversion::New
             << exit(FatalError);
     }
 
-    return cstrIter()(dict, nMoments, nSecondaryNodes);
+    return cstrIter()(dict, mesh, nMoments, nSecondaryNodes);
 }
 
 

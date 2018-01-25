@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -59,7 +59,7 @@ quadratureApproximation
     mesh_(mesh),
     nodes_(),
     moments_(name_, *this, mesh_, nodes_, support),
-    nDimensions_(nDimensions),
+    nDimensions_(moments_[0].cmptOrders().size()),
     nMoments_(moments_.size()),
     nSecondaryNodes_
     (
@@ -68,7 +68,7 @@ quadratureApproximation
     support_(support),
     momentFieldInverter_
     (
-        fieldMomentInversion::New((*this), nMoments_, nSecondaryNodes_)
+        fieldMomentInversion::New((*this), mesh_, nMoments_, nSecondaryNodes_)
     )
 {
     if (nSecondaryNodes_ != 0 && !momentFieldInverter_().extended())
@@ -82,9 +82,9 @@ quadratureApproximation
     }
 
     // Allocating nodes
-    nodes_ = autoPtr<PtrList<nodeType>>
+    nodes_ = autoPtr<mappedPtrList<nodeType>>
     (
-        new PtrList<nodeType>
+        new mappedPtrList<nodeType>
         (
             lookup("nodes"),
             typename nodeType::iNew

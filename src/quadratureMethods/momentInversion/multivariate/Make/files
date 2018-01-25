@@ -1,4 +1,0 @@
-#conditional/conditionalMomentInversion.C
-hyperbolic/hyperbolicConditionalMomentInversion.C
-
-LIB = $(FOAM_USER_LIBBIN)/libmultivariateInversion

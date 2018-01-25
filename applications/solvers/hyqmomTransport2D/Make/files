@@ -1,3 +1,0 @@
-hyqmomTransport2D.C
-
-EXE = $(FOAM_USER_APPBIN)/hyqmomTransport2D

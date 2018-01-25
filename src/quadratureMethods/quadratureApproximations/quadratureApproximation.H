@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -26,7 +26,7 @@ Class
 
 Description
     Provides storage for the moments and the corresponding quadrature
-    approximation of a univariate distribution function.
+    approximation of a distribution function.
     Methods to update the moments and the quadrature approximation are
     provided.
 
@@ -41,7 +41,7 @@ SourceFiles
 
 #include "fvCFD.H"
 #include "IOdictionary.H"
-#include "PtrList.H"
+#include "mappedPtrList.H"
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
@@ -53,7 +53,7 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                Class quadratureApproximation Declaration
+                Class univariateQuadratureApproximation Declaration
 \*---------------------------------------------------------------------------*/
 
 template <class momentFieldSetType, class nodeType>
@@ -71,7 +71,7 @@ protected:
         const fvMesh& mesh_;
 
         //- AutoPtr to the PtrList of quadrature nodes
-        autoPtr<PtrList<nodeType>> nodes_;
+        autoPtr<mappedPtrList<nodeType>> nodes_;
 
         //- List of moments
         momentFieldSetType moments_;
@@ -124,7 +124,7 @@ public:
             inline fieldMomentInversion& momentFieldInverter();
 
             //- Return the nodes
-            inline const PtrList<nodeType>& nodes() const;
+            inline const mappedPtrList<nodeType>& nodes() const;
 
             //- Const access to the moments
             inline const momentFieldSetType& moments() const;

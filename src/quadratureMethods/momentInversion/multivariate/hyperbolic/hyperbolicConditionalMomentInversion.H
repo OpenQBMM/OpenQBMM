@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -104,18 +104,6 @@ class hyperbolicConditionalMomentInversion
         //- Minimum value of correlation
         scalar minCorrelation_;
 
-        //- List of moment orders in two dimensions
-        static const labelListList twoDimMomentOrders_;
-
-        //- List of moment orders in three dimensions
-        static const labelListList threeDimMomentOrders_;
-
-        //- List of node indexes in two dimensions
-        static const labelListList twoDimNodeIndexes_;
-
-        //- List of node indexes in three dimensions
-        static const labelListList threeDimNodeIndexes_;
-
 
     // Private member functions
 
@@ -171,6 +159,20 @@ public:
 
     //- Destructor
     virtual ~hyperbolicConditionalMomentInversion();
+
+    // Static data
+
+        //- List of moment orders in two dimensions
+        static const labelListList twoDimMomentOrders;
+
+        //- List of moment orders in three dimensions
+        static const labelListList threeDimMomentOrders;
+
+        //- List of node indexes in two dimensions
+        static const labelListList twoDimNodeIndexes;
+
+        //- List of node indexes in three dimensions
+        static const labelListList threeDimNodeIndexes;
 
 
     // Member Functions

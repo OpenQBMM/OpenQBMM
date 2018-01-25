@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -38,6 +38,7 @@ SourceFiles
 
 #include "runTimeSelectionTables.H"
 #include "quadratureNodes.H"
+#include "multivariateMomentSet.H"
 #include "univariateMomentSet.H"
 #include "momentFieldSets.H"
 
@@ -64,6 +65,9 @@ protected:
 
     // Protected data
 
+        //- Const refrence to the mesh
+        const fvMesh& mesh_;
+
         //- Boolean flag to indicate extended type of inversion
         bool extended_;
 
@@ -83,10 +87,11 @@ public:
             dictionary,
             (
                 const dictionary& dict,
+                const fvMesh& mesh,
                 const label nMoments,
                 const label nSecondaryNodes
             ),
-            (dict, nMoments, nSecondaryNodes)
+            (dict, mesh, nMoments, nSecondaryNodes)
         );
 
 
@@ -96,6 +101,7 @@ public:
         fieldMomentInversion
         (
             const dictionary& dict,
+            const fvMesh& mesh,
             const label nMoments,
             const label nSecondaryNodes
         );
@@ -110,6 +116,7 @@ public:
         static autoPtr<fieldMomentInversion> New
         (
             const dictionary& dict,
+            const fvMesh& mesh,
             const label nMoments,
             const label nSecondaryNodes
         );
@@ -117,28 +124,56 @@ public:
 
     // Member Functions
 
-        //- Invert moments in the entire computational domain
-        virtual void invert
-        (
-            const volUnivariateMomentFieldSet& moments,
-            PtrList<volScalarNode>& nodes
-        ) = 0;
+        // Univariate moment inversions
 
-        //- Invert moments on boundaries
-        virtual void invertBoundaryMoments
-        (
-            const volUnivariateMomentFieldSet& moments,
-            PtrList<volScalarNode>& nodes
-        ) = 0;
+            //- Invert moments in the entire computational domain
+            virtual void invert
+            (
+                const volUnivariateMomentFieldSet& moments,
+                mappedPtrList<volScalarNode>& nodes
+            ) = 0;
 
-        //- Invert moments in a single cell
-        virtual bool invertLocalMoments
-        (
-            const volUnivariateMomentFieldSet& moments,
-            PtrList<volScalarNode>& nodes,
-            const label celli,
-            const bool fatalErrorOnFailedRealizabilityTest = true
-        ) = 0;
+            //- Invert moments on boundaries
+            virtual void invertBoundaryMoments
+            (
+                const volUnivariateMomentFieldSet& moments,
+                mappedPtrList<volScalarNode>& nodes
+            ) = 0;
+
+            //- Invert moments in a single cell
+            virtual bool invertLocalMoments
+            (
+                const volUnivariateMomentFieldSet& moments,
+                mappedPtrList<volScalarNode>& nodes,
+                const label celli,
+                const bool fatalErrorOnFailedRealizabilityTest = true
+            ) = 0;
+
+
+        // Multivriate moment inversions
+
+            //- Invert moments in the entire computational domain
+            virtual void invert
+            (
+                const volVectorMomentFieldSet& moments,
+                mappedPtrList<volVectorNode>& nodes
+            ) = 0;
+
+            //- Invert moments on boundaries
+            virtual void invertBoundaryMoments
+            (
+                const volVectorMomentFieldSet& moments,
+                mappedPtrList<volVectorNode>& nodes
+            ) = 0;
+
+            //- Invert moments in a single cell
+            virtual bool invertLocalMoments
+            (
+                const volVectorMomentFieldSet& moments,
+                mappedPtrList<volVectorNode>& nodes,
+                const label celli,
+                const bool fatalErrorOnFailedRealizabilityTest = true
+            ) = 0;
 
         //- Return extended type
         inline bool extended();

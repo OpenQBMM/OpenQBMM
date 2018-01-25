@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -30,7 +30,7 @@ License
 
 const Foam::labelListList
 Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
-::twoDimMomentOrders_ =
+::twoDimMomentOrders =
 {
     {0, 0},
     {1, 0},
@@ -46,7 +46,7 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 
 const Foam::labelListList
 Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
-::threeDimMomentOrders_ =
+::threeDimMomentOrders =
 {
     {0, 0, 0},
     {1, 0, 0},
@@ -69,7 +69,7 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 
 const Foam::labelListList
 Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
-::twoDimNodeIndexes_ =
+::twoDimNodeIndexes =
 {
     {1, 1},
     {1, 2},
@@ -84,7 +84,7 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 
 const Foam::labelListList
 Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
-::threeDimNodeIndexes_ =
+::threeDimNodeIndexes =
 {
     {1, 1, 1},
     {1, 1, 2},
@@ -132,17 +132,17 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
     moments_
     (
         nMoments_,
-        nGeometricD_ == 2 ? twoDimMomentOrders_ : threeDimMomentOrders_
+        nGeometricD_ == 2 ? twoDimMomentOrders : threeDimMomentOrders
     ),
     abscissae_
     (
         nNodes_,
-        nGeometricD_ == 2 ? twoDimNodeIndexes_ : threeDimNodeIndexes_
+        nGeometricD_ == 2 ? twoDimNodeIndexes : threeDimNodeIndexes
     ),
     weights_
     (
         nNodes_,
-        nGeometricD_ == 2 ? twoDimNodeIndexes_ : threeDimNodeIndexes_
+        nGeometricD_ == 2 ? twoDimNodeIndexes : threeDimNodeIndexes
     ),
     univariateInverter_
     (
@@ -671,15 +671,15 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                     centralMoments(0, 4, 0),
                     centralMoments(0, 0, 4)
                 },
-                twoDimMomentOrders_,
+                twoDimMomentOrders,
                 "R"
             );
 
-            mappedList<scalar> wDir23(9, twoDimNodeIndexes_, 0.0);
+            mappedList<scalar> wDir23(9, twoDimNodeIndexes, 0.0);
             mappedList<vector2D> absDir23
             (
                 9,
-                twoDimNodeIndexes_,
+                twoDimNodeIndexes,
                 vector2D::zero
             );
 
@@ -720,15 +720,15 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                 centralMoments(4, 0, 0),
                 centralMoments(0, 0, 4)
             },
-            twoDimMomentOrders_,
+            twoDimMomentOrders,
            "R"
         );
 
-        mappedList<scalar> wDir13(9, twoDimNodeIndexes_, 0.0);
+        mappedList<scalar> wDir13(9, twoDimNodeIndexes, 0.0);
         mappedList<vector2D> absDir13
         (
             9,
-            twoDimNodeIndexes_,
+            twoDimNodeIndexes,
             vector2D::zero
         );
 
@@ -768,15 +768,15 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                 centralMoments(4, 0, 0),
                 centralMoments(0, 4, 0)
             },
-            twoDimMomentOrders_,
+            twoDimMomentOrders,
            "R"
         );
 
-        mappedList<scalar> wDir12(9, twoDimNodeIndexes_, 0.0);
+        mappedList<scalar> wDir12(9, twoDimNodeIndexes, 0.0);
         mappedList<vector2D> abscissaeDir12
         (
             9,
-            twoDimNodeIndexes_,
+            twoDimNodeIndexes,
             vector2D::zero
         );
 
@@ -830,7 +830,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                 Vf[2] += wDir12(3, i)*abscissaeDir12(3, i).y();
             }
 
-            mappedList<scalar> absDir12(9, twoDimNodeIndexes_, 0.0);
+            mappedList<scalar> absDir12(9, twoDimNodeIndexes, 0.0);
             for (label i = 1; i <= 3; i++)
             {
                 for (label j = 1; j <= 3; j++)
@@ -995,16 +995,22 @@ void Foam::hyperbolicConditionalMomentInversion::invert
 (
     const multivariateMomentSet& moments
 )
-{ if (nGeometricD_ == 3) { invert3D(moments); } else if (nGeometricD_ == 2) {
+{
+    if (nGeometricD_ == 3)
+    {
+        invert3D(moments);
+    }
+    else if (nGeometricD_ == 2)
+    {
         mappedList<scalar> w
         (
             nNodes_,
-            twoDimNodeIndexes_
+            twoDimNodeIndexes
         );
         mappedList<vector2D> u
         (
             nNodes_,
-            twoDimNodeIndexes_
+            twoDimNodeIndexes
         );
 
         invert2D(moments, w, u);
