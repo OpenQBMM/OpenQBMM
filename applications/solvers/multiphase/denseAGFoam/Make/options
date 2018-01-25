@@ -18,6 +18,8 @@ EXE_INC = \
     -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
     -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
     -I../../../../src/Vandermonde/lnInclude \
+    -I../../../../src/mappedList \
+    -I../../../../src/mappedPtrList \
     -I../twoPhaseSystem/lnInclude \
     -I../phaseCompressibleTurbulenceModels/lnInclude \
     -I../interfacialModels/lnInclude \
