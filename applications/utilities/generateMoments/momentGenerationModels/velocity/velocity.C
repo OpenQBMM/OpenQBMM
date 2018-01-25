@@ -73,8 +73,7 @@ void Foam::momentGenerationSubModels::velocity::updateQuadrature
 {
     forAll(nodeIndexes_, nodei)
     {
-        word nodeName =
-            "node" + mappedList<scalar>::listToWord(nodeIndexes_[nodei]);
+        word nodeName = "node" + Foam::name(nodei);
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));

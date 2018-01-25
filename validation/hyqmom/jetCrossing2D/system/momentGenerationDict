@@ -76,7 +76,7 @@ particles
     }
     inlet1
     {
-        node11
+        node0
         {
             weight  1;
             abscissa (1 1);
@@ -88,7 +88,7 @@ particles
     }
     inlet2
     {
-        node11
+        node0
         {
             weight  1;
             abscissa (-1 1);

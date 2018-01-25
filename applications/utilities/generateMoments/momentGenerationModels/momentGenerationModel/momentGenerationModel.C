@@ -43,7 +43,7 @@ void Foam::momentGenerationModel::updateMoments()
         const labelList& momentOrder = momentOrders_[mi];
         moments_[mi].value() = 0.0;
 
-        for (label nodei = 0; nodei < nNodes_; nodei++)
+        forAll(abscissae_, nodei)
         {
             scalar absCmpt = 1.0;
             forAll(abscissae_[0], cmpti)
@@ -60,75 +60,6 @@ void Foam::momentGenerationModel::updateMoments()
     }
 }
 
-Foam::labelListList Foam::momentGenerationModel::createNodeIndexes() const
-{
-    labelListList nodeIndexes(0);
-    if (nDims_ == 1)
-    {
-        nodeIndexes = labelListList(nNodes_, labelList(1));
-        forAll(nodeIndexes, nodei)
-        {
-            nodeIndexes[nodei][0] = nodei;
-        }
-    }
-    else if (nDims_ == 2 && nNodes_ == 9)
-    {
-        nodeIndexes =
-        {
-            {1, 1},
-            {1, 2},
-            {1, 3},
-            {2, 1},
-            {2, 2},
-            {2, 3},
-            {3, 1},
-            {3, 2},
-            {3, 3}
-        };
-    }
-    else if (nDims_ == 3 && nNodes_ == 27)
-    {
-        nodeIndexes =
-        {
-            {1, 1, 1},
-            {1, 1, 2},
-            {1, 1, 3},
-            {1, 2, 1},
-            {1, 2, 2},
-            {1, 2, 3},
-            {1, 3, 1},
-            {1, 3, 2},
-            {1, 3, 3},
-            {2, 1, 1},
-            {2, 1, 2},
-            {2, 1, 3},
-            {2, 2, 1},
-            {2, 2, 2},
-            {2, 2, 3},
-            {2, 3, 1},
-            {2, 3, 2},
-            {2, 3, 3},
-            {3, 1, 1},
-            {3, 1, 2},
-            {3, 1, 3},
-            {3, 2, 1},
-            {3, 2, 2},
-            {3, 2, 3},
-            {3, 3, 1},
-            {3, 3, 2},
-            {3, 3, 3}
-        };
-    }
-    else
-    {
-        FatalErrorInFunction
-            << nDims_ << " dimensions and " << nNodes_
-            << " nodes does not have a default set of indicies."
-            << abort(FatalError);
-    }
-    return nodeIndexes;
-}
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -143,12 +74,6 @@ Foam::momentGenerationModel::momentGenerationModel
     nDims_(momentOrders[0].size()),
     nNodes_(nNodes),
     nMoments_(momentOrders.size()),
-    nodeIndexes_
-    (
-        dict.found("nodeIndexes")
-      ? dict.lookup("nodeIndexes")
-      : createNodeIndexes()
-    ),
     momentOrders_(momentOrders),
     weights_(nNodes_),
     abscissae_(nNodes_, scalarList(nDims_, 0.0)),

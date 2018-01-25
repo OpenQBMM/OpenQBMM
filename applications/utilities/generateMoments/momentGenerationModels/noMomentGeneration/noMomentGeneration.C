@@ -71,15 +71,10 @@ void Foam::momentGenerationSubModels::noMomentGeneration::updateQuadrature
     const dictionary& dict
 )
 {
-    for (label mi = 0; mi < nMoments_; mi++)
+    forAll(moments_, mi)
     {
         moments_[mi] =
-            dimensionedScalar
-            (
-                "moment."+ Foam::name(mi),
-                moments_[mi].dimensions(),
-                dict.lookup("moment."+ Foam::name(mi))
-            );
+            dict.lookupType<scalar>("moment." + Foam::name(mi));
     }
 }
 
