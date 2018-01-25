@@ -75,4 +75,19 @@ Foam::quadratureApproximation<momentFieldSetType, nodeType>::nMoments() const
     return nMoments_;
 }
 
+template <class momentFieldSetType, class nodeType>
+const Foam::labelListList&
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::momentOrders() const
+{
+    return momentOrders_;
+}
+
+template <class momentFieldSetType, class nodeType>
+const Foam::labelListList&
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::nodeIndexes() const
+{
+    return nodeIndexes_;
+}
+
+
 // ************************************************************************* //

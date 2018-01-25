@@ -47,23 +47,25 @@ Foam::hyperbolicFieldMomentInversion::hyperbolicFieldMomentInversion
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const label nMoments,
+    const labelListList& momentOrders,
+    const labelListList& nodeIndexes,
     const label nSecondaryNodes
 )
 :
-    fieldMomentInversion(dict, mesh, nMoments, nSecondaryNodes),
-    momentMap_
+    fieldMomentInversion
     (
-        mesh_.nGeometricD() == 2
-      ? volVectorMoment::hyqmom2DimMomentOrders
-      : volVectorMoment::hyqmom3DimMomentOrders
+        dict,
+        mesh,
+        momentOrders,
+        nodeIndexes,
+        nSecondaryNodes
     ),
     momentInverter_
     (
         new hyperbolicConditionalMomentInversion
         (
             dict.subDict("basicMomentInversion"),
-            mesh_.nGeometricD()
+            momentOrders[0].size()
         )
     )
 {}
@@ -142,15 +144,16 @@ void Foam::hyperbolicFieldMomentInversion::invertBoundaryMoments
             multivariateMomentSet momentsToInvert
             (
                 moments.size(),
-                momentMap_,
+                momentOrders_,
                 moments.support()
             );
 
             // Copying moments from a face
             forAll(momentsToInvert, momenti)
             {
-                momentsToInvert[momenti]
-                        = moments[momenti].boundaryField()[patchi][facei];
+                const labelList& momentOrder = momentOrders_[momenti];
+                momentsToInvert(momentOrder)
+                        = moments(momentOrder).boundaryField()[patchi][facei];
             }
 
             // Find quadrature
@@ -162,7 +165,8 @@ void Foam::hyperbolicFieldMomentInversion::invertBoundaryMoments
             // Copy quadrature data to boundary face
             forAll(weights, nodei)
             {
-                volVectorNode& node = nodes[nodei];
+                const labelList& nodeIndex = nodeIndexes_[nodei];
+                volVectorNode& node = nodes(nodeIndex);
 
                 volScalarField::Boundary& weightBf
                         = node.primaryWeight().boundaryFieldRef();
@@ -170,8 +174,8 @@ void Foam::hyperbolicFieldMomentInversion::invertBoundaryMoments
                 volVectorField::Boundary& abscissaBf
                         = node.primaryAbscissa().boundaryFieldRef();
 
-                weightBf[patchi][facei] = weights[nodei];
-                abscissaBf[patchi][facei] = abscissae[nodei];
+                weightBf[patchi][facei] = weights(nodeIndex);
+                abscissaBf[patchi][facei] = abscissae(nodeIndex);
             }
         }
     }
@@ -188,14 +192,15 @@ bool Foam::hyperbolicFieldMomentInversion::invertLocalMoments
     multivariateMomentSet momentsToInvert
     (
         moments.size(),
-        momentMap_,
+        momentOrders_,
         moments.support()
     );
 
     // Copying moments from cell
     forAll(momentsToInvert, momenti)
     {
-        momentsToInvert[momenti] = moments[momenti][celli];
+        const labelList& momentOrder = momentOrders_[momenti];
+        momentsToInvert(momentOrder) = moments(momentOrder)[celli];
     }
 
 //     if (!fatalErrorOnFailedRealizabilityTest)
@@ -215,10 +220,11 @@ bool Foam::hyperbolicFieldMomentInversion::invertLocalMoments
 
     forAll(weights, nodei)
     {
-        volVectorNode& node(nodes[nodei]);
+        const labelList& nodeIndex = nodeIndexes_[nodei];
+        volVectorNode& node(nodes(nodeIndex));
 
-        node.primaryWeight()[celli] = weights[nodei];
-        node.primaryAbscissa()[celli] = abscissae[nodei];
+        node.primaryWeight()[celli] = weights(nodeIndex);
+        node.primaryAbscissa()[celli] = abscissae(nodeIndex);
     }
 
     return true;

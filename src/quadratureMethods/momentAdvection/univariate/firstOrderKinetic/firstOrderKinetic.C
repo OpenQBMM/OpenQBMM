@@ -71,7 +71,8 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         (
             quadrature.subDict("momentAdvection"),
             own_.mesh(),
-            nMoments_,
+            quadrature.momentOrders(),
+            quadrature.nodeIndexes(),
             0
         )
     )

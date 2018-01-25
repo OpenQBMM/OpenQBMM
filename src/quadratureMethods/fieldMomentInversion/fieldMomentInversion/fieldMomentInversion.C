@@ -40,12 +40,15 @@ Foam::fieldMomentInversion::fieldMomentInversion
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const label nMoments,
+    const labelListList& momentOrders,
+    const labelListList& nodeIndexes,
     const label nSecondaryNodes
 )
 :
     mesh_(mesh),
-    extended_(false)
+    extended_(false),
+    momentOrders_(momentOrders),
+    nodeIndexes_(nodeIndexes)
 {}
 
 

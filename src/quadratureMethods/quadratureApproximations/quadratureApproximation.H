@@ -70,6 +70,14 @@ protected:
         //- Reference to the mesh
         const fvMesh& mesh_;
 
+        const dictionary& dict_;
+
+        //- Moment orders used to map moments
+        const labelListList momentOrders_;
+
+        //- Node indexes used to map nodes
+        const labelListList nodeIndexes_;
+
         //- AutoPtr to the PtrList of quadrature nodes
         autoPtr<mappedPtrList<nodeType>> nodes_;
 
@@ -104,8 +112,7 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const word& support,
-            const label nDimensions
+            const word& support
         );
 
 
@@ -137,6 +144,12 @@ public:
 
             //- Return the number of moments
             inline label nMoments() const;
+
+            //- Return moment orders
+            inline const labelListList& momentOrders() const;
+
+            //- return node indexes
+            inline const labelListList& nodeIndexes() const;
 
 
         // Edit

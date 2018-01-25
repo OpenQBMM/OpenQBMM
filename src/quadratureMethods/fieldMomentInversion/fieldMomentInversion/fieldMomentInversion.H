@@ -71,6 +71,12 @@ protected:
         //- Boolean flag to indicate extended type of inversion
         bool extended_;
 
+        //- Moment orders used to map moments
+        const labelListList& momentOrders_;
+
+        //- Node indexes used to map nodes
+        const labelListList& nodeIndexes_;
+
 
 public:
 
@@ -88,10 +94,11 @@ public:
             (
                 const dictionary& dict,
                 const fvMesh& mesh,
-                const label nMoments,
+                const labelListList& momentOrders,
+                const labelListList& nodeIndexes,
                 const label nSecondaryNodes
             ),
-            (dict, mesh, nMoments, nSecondaryNodes)
+            (dict, mesh, momentOrders, nodeIndexes, nSecondaryNodes)
         );
 
 
@@ -102,7 +109,8 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const label nMoments,
+            const labelListList& momentOrders,
+            const labelListList& nodeIndexes,
             const label nSecondaryNodes
         );
 
@@ -117,7 +125,8 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const label nMoments,
+            const labelListList& momentOrders,
+            const labelListList& nodeIndexes,
             const label nSecondaryNodes
         );
 

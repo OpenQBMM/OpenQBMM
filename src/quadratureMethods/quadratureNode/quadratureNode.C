@@ -25,59 +25,6 @@ License
 
 #include "quadratureNode.H"
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-template <class weightType, class abscissaType, class sigmaType>
-const Foam::labelListList
-Foam::quadratureNode<weightType, abscissaType, sigmaType>
-::hyqmom2DimNodeIndexes =
-{
-    {1, 1},
-    {1, 2},
-    {1, 3},
-    {2, 1},
-    {2, 2},
-    {2, 3},
-    {3, 1},
-    {3, 2},
-    {3, 3}
-};
-
-template <class weightType, class abscissaType, class sigmaType>
-const Foam::labelListList
-Foam::quadratureNode<weightType, abscissaType, sigmaType>
-::hyqmom3DimNodeIndexes =
-{
-    {1, 1, 1},
-    {1, 1, 2},
-    {1, 1, 3},
-    {1, 2, 1},
-    {1, 2, 2},
-    {1, 2, 3},
-    {1, 3, 1},
-    {1, 3, 2},
-    {1, 3, 3},
-    {2, 1, 1},
-    {2, 1, 2},
-    {2, 1, 3},
-    {2, 2, 1},
-    {2, 2, 2},
-    {2, 2, 3},
-    {2, 3, 1},
-    {2, 3, 2},
-    {2, 3, 3},
-    {3, 1, 1},
-    {3, 1, 2},
-    {3, 1, 3},
-    {3, 2, 1},
-    {3, 2, 2},
-    {3, 2, 3},
-    {3, 3, 1},
-    {3, 3, 2},
-    {3, 3, 3}
-};
-
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 template <class weightType, class abscissaType, class sigmaType>
 Foam::quadratureNode<weightType, abscissaType, sigmaType>::
@@ -93,7 +40,6 @@ quadratureNode
 )
 :
     name_(IOobject::groupName(name, distributionName)),
-    nodeDict_(),
     weight_
     (
         IOobject
@@ -232,7 +178,6 @@ quadratureNode
 (
     const word& name,
     const word& distributionName,
-    const dictionary& nodeDict,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
     const dimensionSet& abscissaDimensions,
@@ -242,7 +187,6 @@ quadratureNode
 )
 :
     name_(IOobject::groupName(name, distributionName)),
-    nodeDict_(nodeDict),
     weight_
     (
         IOobject

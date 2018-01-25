@@ -85,9 +85,10 @@ int main(int argc, char *argv[])
             )
         );
 
-        label nNodes = HashTable<dictionary>(quadratureDict.lookup("nodes")).size();
-        labelListList momentOrders = quadratureDict.lookup("moments");
+        labelListList momentOrders(quadratureDict.lookup("moments"));
+        labelListList nodeIndexes(quadratureDict.lookup("nodes"));
         label nMoments = momentOrders.size();
+        label nNodes = nodeIndexes.size();
 
         autoPtr<momentGenerationModel> momentGenerator
             = momentGenerationModel::New(phaseDict, momentOrders, nNodes);

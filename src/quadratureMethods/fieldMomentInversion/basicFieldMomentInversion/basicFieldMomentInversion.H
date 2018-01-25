@@ -90,7 +90,8 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const label nMoments,
+            const labelListList& momentOrders,
+            const labelListList& nodeIndexes,
             const label nSecondaryNodes
         );
 

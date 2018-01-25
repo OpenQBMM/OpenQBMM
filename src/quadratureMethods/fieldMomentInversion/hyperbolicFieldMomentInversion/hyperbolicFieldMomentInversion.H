@@ -53,12 +53,6 @@ class hyperbolicFieldMomentInversion
 :
     public fieldMomentInversion
 {
-    // Private data
-
-        //- Moment map used by multivariate moment inversion
-        const labelListList momentMap_;
-
-
     // Private Member Functions
 
         //- Moment inverter
@@ -84,7 +78,8 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const label nMoments,
+            const labelListList& momentOrders,
+            const labelListList& nodeIndexes,
             const label nSecondaryNodes
         );
 

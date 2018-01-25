@@ -122,7 +122,11 @@ Foam::moment<fieldType, nodeType>::moment
     (
         IOobject
         (
-            momentName(listToWord(cmptOrders), distributionName),
+            momentName
+            (
+                mappedPtrList<scalar>::listToWord(cmptOrders),
+                distributionName
+            ),
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,

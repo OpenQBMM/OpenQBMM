@@ -88,14 +88,11 @@ protected:
         //- Support of the distribution function
         word support_;
 
-        //- Dimensions of the underlying distribution
-        label nDimensions_;
+        //- Moment indicies ues to map moments
+        labelListList momentOrders_;
 
         //- Node indicies used to map nodes
         labelListList nodeIndexes_;
-
-        //- Moment indicies ues to map moments
-        labelListList momentOrders_;
 
         //- Advection terms for moment transport equations
         mappedPtrList<volScalarField> divMoments_;

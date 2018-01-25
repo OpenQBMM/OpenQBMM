@@ -30,8 +30,7 @@ moments
 
 nodes
 (
-    node0
-    {}
+    (0)
 );
 
 residuals

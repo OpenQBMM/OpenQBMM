@@ -47,7 +47,7 @@ Foam::PDFTransportModels::velocityPDFTransportModel::velocityPDFTransportModel
     facMin_(readScalar(dict.subDict("odeCoeffs").lookup("facMin"))),
     facMax_(readScalar(dict.subDict("odeCoeffs").lookup("facMax"))),
     minLocalDt_(readScalar(dict.subDict("odeCoeffs").lookup("minLocalDt"))),
-    quadrature_(name, mesh, support, 1),
+    quadrature_(name, mesh, support),
     momentAdvection_
     (
         velocityMomentAdvection::New

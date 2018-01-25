@@ -69,19 +69,8 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
         dimensionedScalar("nei", dimless, -1.0)
     ),
     support_(support),
-    nDimensions_(own_.mesh().nGeometricD()),
-    nodeIndexes_
-    (
-        nDimensions_ == 2
-      ? volVectorNode::hyqmom2DimNodeIndexes
-      : volVectorNode::hyqmom3DimNodeIndexes
-    ),
-    momentOrders_
-    (
-        nDimensions_ == 2
-      ? volVectorMoment::hyqmom2DimMomentOrders
-      : volVectorMoment::hyqmom3DimMomentOrders
-    ),
+    momentOrders_(quadrature.momentOrders()),
+    nodeIndexes_(quadrature.nodeIndexes()),
     divMoments_(nMoments_, momentOrders_)
 {
     forAll(divMoments_, momenti)

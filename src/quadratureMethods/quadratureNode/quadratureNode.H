@@ -59,9 +59,6 @@ class quadratureNode
         //- Name of the quadrature node
         word name_;
 
-        //- Node dictionary
-        dictionary nodeDict_;
-
         //- Primary weight of the node
         weightType weight_;
 
@@ -93,7 +90,6 @@ public:
         (
             const word& name,
             const word& distributionName,
-            const dictionary& nodeDict,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const dimensionSet& abscissaDimensions,
@@ -161,7 +157,7 @@ public:
                 Istream& is
             ) const
             {
-                dictionaryEntry ent(dictionary::null, is);
+                labelList ent(is);
                 return autoPtr
                 <
                     quadratureNode<weightType, abscissaType, sigmaType>
@@ -172,9 +168,8 @@ public:
                         weightType, abscissaType, sigmaType
                     >
                     (
-                        ent.keyword(),
+                        mappedPtrList<scalar>::listToWord(ent),
                         distributionName_,
-                        ent,
                         mesh_,
                         weightDimensions_,
                         abscissaDimensions_,
@@ -189,14 +184,6 @@ public:
 
     //- Destructor
     virtual ~quadratureNode();
-
-    // Static data
-
-        //- List of node indexes in two dimensions
-        static const labelListList hyqmom2DimNodeIndexes;
-
-        //- List of node indexes in three dimensions
-        static const labelListList hyqmom3DimNodeIndexes;
 
 
     // Member Functions
