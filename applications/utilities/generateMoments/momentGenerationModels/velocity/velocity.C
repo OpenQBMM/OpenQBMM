@@ -71,7 +71,8 @@ void Foam::momentGenerationSubModels::velocity::updateQuadrature
     const dictionary& dict
 )
 {
-    forAll(nodeIndexes_, nodei)
+    reset();
+    forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
         if(dict.found(nodeName))
@@ -91,11 +92,6 @@ void Foam::momentGenerationSubModels::velocity::updateQuadrature
             {
                 abscissae_[nodei][cmpti] = U.component(cmpti);
             }
-        }
-        else
-        {
-            abscissae_[nodei] = scalarList(abscissae_[nodei].size(), 0.0);
-            weights_[nodei] = 0.0;
         }
     }
 

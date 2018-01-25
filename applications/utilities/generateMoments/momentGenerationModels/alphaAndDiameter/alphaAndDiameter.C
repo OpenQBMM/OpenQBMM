@@ -71,7 +71,8 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateQuadrature
     const dictionary& dict
 )
 {
-    forAll(nodeIndexes_, nodei)
+    reset();
+    forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
         if(dict.found(nodeName))
@@ -85,11 +86,6 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateQuadrature
                 = (4.0/3.0)*Foam::constant::mathematical::pi*rho*pow3(dia/2.0);
 
             weights_[nodei] = rho*alpha/abscissae_[nodei][0];
-        }
-        else
-        {
-            abscissae_[nodei] = scalarList(nodeIndexes_[nodei].size(), 0.0);
-            weights_[nodei] = 0.0;
         }
     }
 

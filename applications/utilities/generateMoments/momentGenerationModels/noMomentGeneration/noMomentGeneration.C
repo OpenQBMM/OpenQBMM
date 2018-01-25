@@ -71,6 +71,7 @@ void Foam::momentGenerationSubModels::noMomentGeneration::updateQuadrature
     const dictionary& dict
 )
 {
+    reset();
     forAll(moments_, mi)
     {
         moments_[mi] =

@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
         Info<< "Creating moments for phase: " << phaseName << endl;
 
-        // Read number of nodes from quadratureProperties.phase
+        // Read number of nodes from quadratureProperties.phaseName
         IOdictionary quadratureDict
         (
             IOobject
@@ -137,22 +137,19 @@ int main(int argc, char *argv[])
                     moments[mi].internalField(),
                     boundaries
                 );
-
-                Info<< "    " << moments[mi].name() << endl;
             }
         }
 
         forAll(mesh.boundaryMesh(), bi)
         {
-            word bName = mesh.boundaryMesh()[bi].name();
-
-            if (!phaseDict.found(bName))
-            {
-                bName = "default";
-            }
-
             if (moments[0].boundaryField()[bi].fixesValue())
             {
+                word bName
+                (
+                    phaseDict.found(mesh.boundaryMesh()[bi].name())
+                  ? mesh.boundaryMesh()[bi].name()
+                  : "default"
+                );
                 dictionary dict = phaseDict.subDict(bName);
 
                 momentGenerator().updateQuadrature(dict);
@@ -168,13 +165,15 @@ int main(int argc, char *argv[])
             }
         }
 
+        Info<< nl << "Writing moments:" << endl;
         forAll(moments, mi)
         {
+            Info<< moments[mi].name() << endl;
             moments[mi].write();
         }
     }
 
-    Info<< "End\n" << endl;
+    Info<< nl << "End\n" << endl;
 
     return 0;
 }

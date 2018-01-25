@@ -17,12 +17,17 @@ FoamFile
 
 phases
 (
-    air
+    particles
 );
 
 boundaries
 {
-    inlet
+    inlet1
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+    inlet2
     {
         type    fixedValue;
         value   uniform 0;
@@ -41,54 +46,28 @@ boundaries
     }
 }
 
-air
+particles
 {
-    type                alphaAndDiameter;
-    Radau               false;
-    weightDimension     [0 -3 0 0 0 0 0];
-    abscissaDimension   [1 0 0 0 0 0 0];
+    type                weightsAndAbscissae;
+    weightDimension     [0 0 0 0 0 0 0];
+    abscissaDimension   [0 1 -1 0 0 0 0];
 
     internal
+    {}
+    inlet1
     {
-
         node0
         {
-            rho rho [1 -3 0 0 0 0 0] 1.40;
-            dia dia [0 1 0 0 0 0 0] 1.0e-3;
-            alpha alpha [0 0 0 0 0 0 0] 0.33;
-        }
-        node1
-        {
-            rho rho [1 -3 0 0 0 0 0] 1.40;
-            dia dia [0 1 0 0 0 0 0] 2.5e-3;
-            alpha alpha [0 0 0 0 0 0 0] 0.34;
-        }
-        node2
-        {
-            rho rho [1 -3 0 0 0 0 0] 1.40;
-            dia dia [0 1 0 0 0 0 0] 4.0e-3;
-            alpha alpha [0 0 0 0 0 0 0] 0.33;
+            weight  1;
+            abscissa (1 1);
         }
     }
-    inlet
+    inlet2
     {
         node0
         {
-            rho rho [1 -3 0 0 0 0 0] 1.40;
-            dia dia [0 1 0 0 0 0 0] 1.0e-3;
-            alpha alpha [0 0 0 0 0 0 0] 0.33;
-        }
-        node1
-        {
-            rho rho [1 -3 0 0 0 0 0] 1.40;
-            dia dia [0 1 0 0 0 0 0] 2.5e-3;
-            alpha alpha [0 0 0 0 0 0 0] 0.34;
-        }
-        node2
-        {
-            rho rho [1 -3 0 0 0 0 0] 1.40;
-            dia dia [0 1 0 0 0 0 0] 4.0e-3;
-            alpha alpha [0 0 0 0 0 0 0] 0.33;
+            weight  1;
+            abscissa (-1 1);
         }
     }
 }

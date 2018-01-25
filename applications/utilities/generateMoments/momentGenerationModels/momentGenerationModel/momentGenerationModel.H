@@ -99,6 +99,9 @@ protected:
         //- Update moments
         void updateMoments();
 
+        //- Zero weights, abscissae and moments
+        void reset();
+
 
 public:
 

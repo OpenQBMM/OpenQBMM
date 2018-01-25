@@ -45,6 +45,7 @@ void Foam::momentGenerationModel::updateMoments()
 
         forAll(abscissae_, nodei)
         {
+
             scalar absCmpt = 1.0;
             forAll(abscissae_[0], cmpti)
             {
@@ -57,6 +58,19 @@ void Foam::momentGenerationModel::updateMoments()
             }
             moments_[mi].value() += weights_[nodei]*absCmpt;
         }
+    }
+}
+
+void Foam::momentGenerationModel::reset()
+{
+    forAll(abscissae_, nodei)
+    {
+        abscissae_[nodei] = scalarList(nDims_, 0.0);
+        weights_[nodei] = 0.0;
+    }
+    forAll(moments_, mi)
+    {
+        moments_[mi].value() = 0.0;
     }
 }
 
@@ -75,7 +89,7 @@ Foam::momentGenerationModel::momentGenerationModel
     nNodes_(nNodes),
     nMoments_(momentOrders.size()),
     momentOrders_(momentOrders),
-    weights_(nNodes_),
+    weights_(nNodes_, 0.0),
     abscissae_(nNodes_, scalarList(nDims_, 0.0)),
     moments_(nMoments_, momentOrders_)
 {
