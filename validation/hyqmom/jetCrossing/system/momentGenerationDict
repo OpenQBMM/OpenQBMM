@@ -32,10 +32,6 @@ boundaries
         type    fixedValue;
         value   uniform 0;
     }
-    defaultFaces
-    {
-        type    empty;
-    }
     walls
     {
         type    zeroGradient;
@@ -59,7 +55,7 @@ particles
         node0
         {
             weight  1;
-            abscissa (1 1 -1);
+            abscissa (1 1 1);
         }
     }
     inlet2
@@ -67,7 +63,7 @@ particles
         node0
         {
             weight  1;
-            abscissa (-1 1 1);
+            abscissa (-1 1 -1);
         }
     }
 }

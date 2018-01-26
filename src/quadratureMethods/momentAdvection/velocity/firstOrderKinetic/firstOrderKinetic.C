@@ -58,12 +58,12 @@ Foam::velocityAdvection::firstOrderKinetic::firstOrderKinetic
     nodesNei_(),
     nodesOwn_()
 {
-    nodesNei_ = autoPtr<mappedPtrList<surfaceVectorNode>>
+    nodesNei_ = autoPtr<mappedPtrList<surfaceVectorNode> >
     (
         new mappedPtrList<surfaceVectorNode>(nodes_.size(), nodeIndexes_)
     );
 
-    nodesOwn_ = autoPtr<mappedPtrList<surfaceVectorNode>>
+    nodesOwn_ = autoPtr<mappedPtrList<surfaceVectorNode> >
     (
         new mappedPtrList<surfaceVectorNode>(nodes_.size(), nodeIndexes_)
     );

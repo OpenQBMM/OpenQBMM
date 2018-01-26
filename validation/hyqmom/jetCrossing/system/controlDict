@@ -47,56 +47,12 @@ runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           0.2;
+maxCo           0.5;
 
-maxDeltaT       .0057;
+maxDeltaT       .01;
 
 functions
-{
-    fieldAverage1
-    {
-        type            fieldAverage;
-        functionObjectLibs ( "libfieldFunctionObjects.so" );
-        outputControl   outputTime;
-        timeStart       50;
-        fields
-        (
-            U.air
-            {
-                 mean        on;
-                 prime2Mean  off;
-                 base        time;
-            }
-
-            U.water
-            {
-                 mean        on;
-                 prime2Mean  off;
-                 base        time;
-            }
-
-            alpha.air
-            {
-                 mean        on;
-                 prime2Mean  off;
-                 base        time;
-            }
-
-            p
-            {
-                 mean        on;
-                 prime2Mean  off;
-                 base        time;
-            }
-            d.air
-            {
-                 mean        on;
-                 prime2Mean  off;
-                 base        time;
-            }
-        );
-    }
-}
+{}
 
 
 // ************************************************************************* //

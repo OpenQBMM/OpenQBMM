@@ -574,11 +574,11 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
         centralMoments(0, 4, 0) = eta*sqr(c020);
     }
 
-    if (centralMoments(0, 2, 0) <= 0.0)
+    if (centralMoments(0, 0, 2) <= 0.0)
     {
-        centralMoments(0, 2, 0) = 0.0;
-        centralMoments(0, 3, 0) = 0.0;
-        centralMoments(0, 4, 0) = 0.0;
+        centralMoments(0, 0, 2) = 0.0;
+        centralMoments(0, 0, 3) = 0.0;
+        centralMoments(0, 0, 4) = 0.0;
     }
 
     scalar c002 = centralMoments(0, 0, 2);
