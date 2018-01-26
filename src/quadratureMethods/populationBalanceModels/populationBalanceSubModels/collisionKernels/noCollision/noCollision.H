@@ -95,7 +95,6 @@ public:
             const dictionary& dict,
             const fvMesh& mesh,
             const velocityQuadratureApproximation& quadrature,
-            const label nDimensions,
             const bool ode
         );
 

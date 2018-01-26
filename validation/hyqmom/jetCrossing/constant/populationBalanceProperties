@@ -15,31 +15,30 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+populationBalanceModel velocity;
 
-coalescence off;
-
-coalescenceKernel
+velocityCoeffs
 {
-    coalescenceFrequencyKernel CoulaloglouAndTavlarides;
-    coalescenceEfficiencyKernel CoulaloglouAndTavlarides;
+    odeCoeffs
+    {
+        solveODESource off;
 
-    Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
-    Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;
-    ReExp   ReExp   [ 0 0 0 0 0 0 0 ]  -0.732;
-    WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
-}
+        ATol    1.0e-6;
+        RTol    1.0e-4;
+        fac     0.9;
+        facMin  0.1;
+        facMax  5.0;
+        minLocalDt 1.0e-4;
+    }
 
-breakup off;
+    collision  on;
 
-breakupKernel
-{
-    breakupKernel Alopaeus;
-    Cb        Cb        [ 0 0 -1 0 0 0 0 ] 6.0;
-}
-
-daughterDistribution
-{
-    daughterDistribution uniform;
+    collisionKernel
+    {
+        collisionKernel esBGK;
+        e           0.8;
+        tau         tau     [0 0 1 0 0 0 0]     0.3;
+    }
 }
 
 // ************************************************************************* //

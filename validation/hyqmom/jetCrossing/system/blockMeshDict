@@ -23,13 +23,13 @@ x2      0.9;
 h       1.0;
 depth   0.1;
 
-cellSize    0.05;
+cellSize    0.03;
 
 nwPts       #calc "round($w/$cellSize)";
 nWPts       #calc "round(($W - 2*$w)/$cellSize)";
 
 nhPts       #calc "round($h/$cellSize)";
-nDepthPts   1;//#calc "round($depth/$cellSize)";
+nDepthPts   #calc "round($depth/$cellSize)";
 
 vertices
 (
@@ -89,28 +89,28 @@ boundary
             (5 6 14 13)
             (4 5 13 12)
 
-            (0 7 15 8)
-            (3 4 12 11)
-            (1 2 10 9)
-        );
-    }
-//     walls
-//     {
-//         type            wall;
-//         faces
-//         (
 //             (0 7 15 8)
 //             (3 4 12 11)
 //             (1 2 10 9)
-//
-// //             (0 1 6 7)
-// //             (1 2 5 6)
-// //             (2 3 4 5)
-// //             (8 9 14 15)
-// //             (9 10 13 14)
-// //             (10 11 12 13)
-//         );
-//     }
+        );
+    }
+    walls
+    {
+        type            wall;
+        faces
+        (
+            (0 7 15 8)
+            (3 4 12 11)
+            (1 2 10 9)
+
+            (0 1 6 7)
+            (1 2 5 6)
+            (2 3 4 5)
+            (8 9 14 15)
+            (9 10 13 14)
+            (10 11 12 13)
+        );
+    }
 );
 
 mergePatchPairs

@@ -230,11 +230,10 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
     const dictionary& dict,
     const fvMesh& mesh,
     const velocityQuadratureApproximation& quadrature,
-    const label nDimensions,
     const bool ode
 )
 :
-    collisionKernel(dict, mesh, quadrature, nDimensions, ode),
+    collisionKernel(dict, mesh, quadrature, ode),
     tauCollisional_(dict.lookup("tau")),
     Meqf_(quadrature.moments().size(), momentOrders_),
     Meq_(quadrature.moments().size(), momentOrders_)

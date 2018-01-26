@@ -90,14 +90,14 @@ int main(int argc, char *argv[])
 //         label j = indicies[ind][1];
 //         label k = indicies[ind][2];
 
-                w(i,j,k) = scalar(rand())/scalar(RAND_MAX);
+                w(i,j,k) = 1.0;//scalar(rand())/scalar(RAND_MAX);
                 u(i,j,k) =
                     vector
                     (
-                        scalar(rand())/scalar(RAND_MAX),
-                        scalar(rand())/scalar(RAND_MAX),
-                        scalar(rand())/scalar(RAND_MAX)
-                    )*10 - vector(5.0, 5.0, 5.0);
+                        -1.0,//scalar(rand())/scalar(RAND_MAX),
+                        1.0,//scalar(rand())/scalar(RAND_MAX),
+                        1.0//scalar(rand())/scalar(RAND_MAX)
+                    );//*10 - vector(5.0, 5.0, 5.0);
 
                 Info<<i<<j<<k<<": " << w(i,j,k)
                     <<"\t"<<u(i,j,k)<<endl;

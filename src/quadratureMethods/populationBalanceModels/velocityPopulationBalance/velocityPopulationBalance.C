@@ -66,7 +66,6 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
             dict.subDict("collisionKernel"),
             phi_.mesh(),
             quadrature_,
-            phi.mesh().nGeometricD(),
             dict.subDict("odeCoeffs").lookupOrDefault("solveODESource", false)
         )
     )

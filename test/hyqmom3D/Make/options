@@ -7,8 +7,7 @@ EXE_INC = \
     -I$../../../src/Vandermonde/lnInclude \
     -I$../../../src/mappedList \
     -I$../../../src/quadratureMethods/momentSets/lnInclude \
-    -I$../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude \
-    -I$../../../src/quadratureMethods/momentInversion/multivariate/lnInclude
+    -I$../../../src/quadratureMethods/momentInversion/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
@@ -18,6 +17,5 @@ EXE_LIBS = \
     -lsampling \
     -lvandermonde \
     -lmomentSets \
-    -lmomentInversion \
-    -lmultivariateInversion
+    -lmomentInversion
 

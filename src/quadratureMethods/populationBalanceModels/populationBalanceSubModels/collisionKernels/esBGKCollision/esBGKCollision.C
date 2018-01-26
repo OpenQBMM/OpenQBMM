@@ -261,13 +261,12 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     const dictionary& dict,
     const fvMesh& mesh,
     const velocityQuadratureApproximation& quadrature,
-    const label nDimensions,
     const bool ode
 )
 :
-    collisionKernel(dict, mesh, quadrature, nDimensions, ode),
+    collisionKernel(dict, mesh, quadrature, ode),
     tauCollisional_(dict.lookup("tau")),
-    e_(readScalar(dict.lookup("e"))),
+    e_(dict.lookupType<scalar>("e")),
     b_(dict.lookupOrDefault<scalar>("b", 0)),
     Meqf_(quadrature.moments().size(), momentOrders_),
     Meq_(quadrature.moments().size(), momentOrders_)
@@ -279,8 +278,6 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 
     if (!ode)
     {
-//         Meqf_.setSize(quadrature.moments().size());
-
         forAll(Meqf_, mi)
         {
             const labelList& momentOrder = momentOrders_[mi];

@@ -90,19 +90,6 @@ class moment
 
 public:
 
-    //- List of moment orders in two dimensions
-    static const labelListList hyqmom2DimMomentOrders;
-
-    //- List of moment orders in three dimensions
-    static const labelListList hyqmom3DimMomentOrders;
-
-    //- Convert a list of labels to a word. {1, 2, 3} -> 123
-    static word listToWord(const labelList& lst);
-
-    //- Convert a list of labels to a single label. {0, 2, 3} -> 23
-    static label listToLabel(const labelList& lst);
-
-
     // Constructors
 
         //- Construct from a list of orders of each dimension of the moment

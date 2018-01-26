@@ -39,74 +39,6 @@ License
 
 #include "moment.H"
 
-// * * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * //
-template <class momentType, class nodeType>
-const Foam::labelListList
-Foam::moment<momentType, nodeType>::hyqmom2DimMomentOrders =
-{
-    {0, 0},
-    {1, 0},
-    {0, 1},
-    {2, 0},
-    {1, 1},
-    {0, 2},
-    {3, 0},
-    {0, 3},
-    {4, 0},
-    {0, 4}
-};
-
-template <class momentType, class nodeType>
-const Foam::labelListList
-Foam::moment<momentType, nodeType>::hyqmom3DimMomentOrders =
-{
-    {0, 0, 0},
-    {1, 0, 0},
-    {0, 1, 0},
-    {0, 0, 1},
-    {2, 0, 0},
-    {1, 1, 0},
-    {1, 0, 1},
-    {0, 2, 0},
-    {0, 1, 1},
-    {0, 0, 2},
-    {3, 0, 0},
-    {0, 3, 0},
-    {0, 0, 3},
-    {4, 0, 0},
-    {0, 4, 0},
-    {0, 0, 4}
-};
-
-template <class fieldType, class nodeType>
-Foam::word
-Foam::moment<fieldType, nodeType>::listToWord(const labelList& lst)
-{
-    word w;
-
-    forAll(lst, dimi)
-    {
-        w += Foam::name(lst[dimi]);
-    }
-
-    return w;
-}
-
-template <class fieldType, class nodeType>
-Foam::label
-Foam::moment<fieldType, nodeType>::listToLabel(const labelList& lst)
-{
-    label l = 0;
-
-    forAll(lst, dimi)
-    {
-        l += lst[dimi]*pow(10, lst.size() - dimi - 1);
-    }
-
-    return l;
-}
-
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template <class fieldType, class nodeType>
@@ -137,7 +69,14 @@ Foam::moment<fieldType, nodeType>::moment
     distributionName_(distributionName),
     nodes_(nodes),
     cmptOrders_(cmptOrders),
-    name_(momentName(listToWord(cmptOrders_), distributionName_)),
+    name_
+    (
+        momentName
+        (
+            mappedPtrList<scalar>::listToWord(cmptOrders_),
+            distributionName_
+        )
+    ),
     nDimensions_(cmptOrders_.size()),
     order_(sum(cmptOrders_))
 {}
@@ -155,7 +94,14 @@ Foam::moment<fieldType, nodeType>::moment
     distributionName_(distributionName),
     nodes_(nodes),
     cmptOrders_(cmptOrders),
-    name_(momentName(listToWord(cmptOrders_), distributionName_)),
+    name_
+    (
+        momentName
+        (
+            mappedPtrList<scalar>::listToWord(cmptOrders_),
+            distributionName_
+        )
+    ),
     nDimensions_(cmptOrders_.size()),
     order_(sum(cmptOrders_))
 {}
@@ -247,7 +193,6 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
     scalar moment = 0;
 
     const mappedPtrList<nodeType>& nodes = nodes_();
-
     // If nodes are not of extended type, only use primary quadrature.
     if (!nodes[0].extended())
     {

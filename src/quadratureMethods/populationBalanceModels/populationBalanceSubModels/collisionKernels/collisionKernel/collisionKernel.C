@@ -87,20 +87,14 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
     const dictionary& dict,
     const fvMesh& mesh,
     const velocityQuadratureApproximation& quadrature,
-    const label nDimensions,
     const bool ode
 )
 :
     dict_(dict),
     mesh_(mesh),
     quadrature_(quadrature),
-    nDimensions_(nDimensions),
-    momentOrders_
-    (
-        nDimensions_ == 2
-      ? volVectorMoment::hyqmom2DimMomentOrders
-      : volVectorMoment::hyqmom3DimMomentOrders
-    )
+    momentOrders_(quadrature.momentOrders()),
+    nDimensions_(momentOrders_[0].size())
 {}
 
 

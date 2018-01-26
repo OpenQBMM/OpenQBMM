@@ -31,7 +31,7 @@ velocityCoeffs
         minLocalDt 1.0e-4;
     }
 
-    collision  off;
+    collision  on;
 
     collisionKernel
     {

@@ -434,7 +434,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
     if (m000 < SMALL)
     {
-        weights_(2,2) = m000;
+        weights_(2,2,2) = m000;
         return;
     };
 
@@ -649,7 +649,13 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
             for(label i = 1; i <= 3; i++)
             {
                 weights_(2, 2, i) = m000*wDir3[i - 1];
-                abscissae_(2, 2, i).z() = absDir3[i - 1] + meanW;
+                abscissae_(2, 2, i) =
+                    vector
+                    (
+                        meanU,
+                        meanV,
+                        absDir3[i - 1] + meanW
+                    );
             }
 
             return;
@@ -693,9 +699,9 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                     abscissae_(2, j, k) =
                         vector
                         (
-                            0.0,
-                           absDir23(j, k).x() + meanV,
-                           absDir23(j, k).y() + meanW
+                            meanU,
+                            absDir23(j, k).x() + meanV,
+                            absDir23(j, k).y() + meanW
                         );
                 }
             }
@@ -743,7 +749,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
                     vector
                     (
                         absDir13(i, k).x() + meanU,
-                        0.0,
+                        meanV,
                         absDir13(i, k).y() + meanW
                     );
             }
@@ -996,6 +1002,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert
     const multivariateMomentSet& moments
 )
 {
+    reset();
     if (nGeometricD_ == 3)
     {
         invert3D(moments);
@@ -1030,6 +1037,15 @@ void Foam::hyperbolicConditionalMomentInversion::invert
     else
     {
         invert1D(moments);
+    }
+}
+
+void Foam::hyperbolicConditionalMomentInversion::reset()
+{
+    forAll(weights_, nodei)
+    {
+        weights_[nodei] = 0.0;
+        abscissae_[nodei] = vector::zero;
     }
 }
 

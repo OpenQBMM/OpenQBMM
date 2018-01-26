@@ -60,7 +60,7 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     {
         map.insert
         (
-            moment<momentType, nodeType>::listToLabel
+            mappedPtrList<scalar>::listToLabel
             (
                 this->operator[](mI).cmptOrders()
             ),

@@ -78,11 +78,11 @@ protected:
         //- Quadrature approximation
         const velocityQuadratureApproximation& quadrature_;
 
+        //- Moment indicies ues to map moments
+        const labelListList momentOrders_;
+
         //- Number of dimensions
         const label nDimensions_;
-
-        //- Moment indicies ues to map moments
-        labelListList momentOrders_;
 
 
     // Protected functions
@@ -147,10 +147,9 @@ public:
             const dictionary& dict,
             const fvMesh& mesh,
             const velocityQuadratureApproximation& quadrature,
-            const label nDimensions,
             const bool ode
         ),
-        (dict, mesh, quadrature, nDimensions, ode)
+        (dict, mesh, quadrature, ode)
     );
 
 
@@ -162,7 +161,6 @@ public:
             const dictionary& dict,
             const fvMesh& mesh,
             const velocityQuadratureApproximation& quadrature,
-            const label nDimensions,
             const bool ode
         );
 
@@ -174,7 +172,6 @@ public:
             const dictionary& dict,
             const fvMesh& mesh,
             const velocityQuadratureApproximation& quadrature,
-            const label nDimensions,
             const bool ode
         );
 

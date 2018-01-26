@@ -33,7 +33,6 @@ Foam::populationBalanceSubModels::collisionKernel::New
     const dictionary& dict,
     const fvMesh& mesh,
     const velocityQuadratureApproximation& quadrature,
-    const label nDimensions,
     const bool ode
 )
 {
@@ -62,7 +61,6 @@ Foam::populationBalanceSubModels::collisionKernel::New
             dict,
             mesh,
             quadrature,
-            nDimensions,
             ode
         )
     );
