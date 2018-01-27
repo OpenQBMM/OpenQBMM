@@ -49,7 +49,6 @@
 
  Aziz Ilgun*            Ph.D.   2017 - Present  Multivariate population balance
                                                 (TBC)
-                                                Hyperbolic CQMOM (TBC)
 
  David Williams*        M.Eng.  2014 - 2016     Population balance kernels
 
@@ -60,6 +59,7 @@
                                                 Conditional moment inversion
                                                 Realizable ODE solver
                                                 Gas-liquid flow solver
+                                                Hyperbolic CQMOM
 
  Zhenping Liu*          Ph.D.   2016            Population balance modeling in
                                                 turbulent reacting flows
