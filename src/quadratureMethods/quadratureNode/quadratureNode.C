@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -40,7 +40,6 @@ quadratureNode
 )
 :
     name_(IOobject::groupName(name, distributionName)),
-    nodeDict_(),
     weight_
     (
         IOobject
@@ -179,7 +178,6 @@ quadratureNode
 (
     const word& name,
     const word& distributionName,
-    const dictionary& nodeDict,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
     const dimensionSet& abscissaDimensions,
@@ -189,7 +187,6 @@ quadratureNode
 )
 :
     name_(IOobject::groupName(name, distributionName)),
-    nodeDict_(nodeDict),
     weight_
     (
         IOobject

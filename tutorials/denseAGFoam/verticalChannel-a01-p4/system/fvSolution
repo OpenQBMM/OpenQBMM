@@ -52,6 +52,26 @@ solvers
         $p_rgh;
         relTol          0;
     }
+    p
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 10;
+        agglomerator    faceAreaPair;
+        mergeLevels     2;
+        tolerance       1e-8;
+        maxIter         1000;
+    }
+
+    pFinal
+    {
+        $p;
+        relTol          0;
+    }
 
     "U.*"
     {
@@ -106,7 +126,7 @@ PIMPLE
                 tolerance   1e-8;
                 relTol      0;
         }
-        p_rgh
+        p
         {
                 tolerance   1e-6;
                 relTol      0;

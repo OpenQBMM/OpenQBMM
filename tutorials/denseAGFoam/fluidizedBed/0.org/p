@@ -22,7 +22,7 @@ boundaryField
 {
     walls
     {
-        type               fixedFluxPressure;
+        type               zeroGradient;
         value              $internalField;
     }
     outlet
@@ -32,7 +32,7 @@ boundaryField
     }
     inlet
     {
-        type               fixedFluxPressure;
+        type               zeroGradient;
         value              $internalField;
     }
     frontAndBackPlanes

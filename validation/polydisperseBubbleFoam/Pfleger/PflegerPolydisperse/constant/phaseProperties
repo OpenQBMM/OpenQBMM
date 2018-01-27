@@ -28,7 +28,7 @@ air
 water
 {
     type            monodispersePhaseModel;
-    residualAlpha   1e-4;
+    residualAlpha   1e-6;
     d               1e-4;
 }
 
@@ -49,22 +49,11 @@ blending
 
 sigma
 (
-    (air and water)   0.7
+    (air and water)   0.07
 );
 
 aspectRatio
 (
-    (air in water)
-    {
-        type            constant;
-        E0              1.0;
-    }
-
-    (water in air)
-    {
-        type            constant;
-        E0              1.0;
-    }
 );
 
 drag

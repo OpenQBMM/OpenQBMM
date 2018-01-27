@@ -73,7 +73,8 @@ drag
 (
     (air in water)
     {
-        type            Tomiyama;
+        type            TomiyamaCorrelated;
+        A               24.0;
         residualRe      1e-3;
         residualEo      1e-3;
         residualE       1e-2;

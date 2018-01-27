@@ -28,16 +28,15 @@ gradSchemes
 
 divSchemes
 {
-    default                         Gauss linear;
+    default                         Gauss upwind phi;
 
-    div(phi,alpha.air)              Gauss vanLeer;
-    div(phir,alpha.air)             Gauss vanLeer;
-    div(phi,alpha.water)            Gauss vanLeer;
-    "div\(phir,alpha.*,alpha.*\)"   Gauss vanLeer;
+    div(phi,alpha.air)              Gauss upwind;
+    div(phir,alpha.air)             Gauss upwind;
+    div(phi,alpha.water)            Gauss upwind;
+    "div\(phir,alpha.*,alpha.*\)"   Gauss upwind;
 
-    "div\(alphaRhoPhi.*,U.*\)"      Gauss limitedLinearV 0.2;
-    "div\(phi.*,U.*\)"              Gauss limitedLinearV 0.2;
-
+    "div\(alphaRhoPhi.*,U.*\)"      Gauss upwind;
+    "div\(phi.*,U.*\)"              Gauss upwind;
 
     "div\(\(\(\(alpha.*\*thermo:rho.*\)\*nuEff.*\)\*dev2\(T\(grad\(U.*\)\)\)\)\)" Gauss linear;
 
@@ -53,8 +52,9 @@ interpolationSchemes
 {
     default         linear;
 
+    reconstruct(Us)         upwind;
     reconstruct(weight)     upwind;
-    reconstruct(abscissa)   Minmod;
+    reconstruct(abscissa)   upwind;
 }
 
 snGradSchemes

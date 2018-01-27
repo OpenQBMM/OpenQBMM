@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -39,7 +39,7 @@ SourceFiles
 #define quadratureNode_H
 
 #include "fvMesh.H"
-#include "PtrList.H"
+#include "mappedPtrList.H"
 #include "dictionary.H"
 #include "dictionaryEntry.H"
 
@@ -58,9 +58,6 @@ class quadratureNode
 
         //- Name of the quadrature node
         word name_;
-
-        //- Node dictionary
-        dictionary nodeDict_;
 
         //- Primary weight of the node
         weightType weight_;
@@ -83,6 +80,7 @@ class quadratureNode
         //- Boolean variable to identify extended nodes
         bool extended_;
 
+
 public:
 
     // Constructors
@@ -92,7 +90,6 @@ public:
         (
             const word& name,
             const word& distributionName,
-            const dictionary& nodeDict,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const dimensionSet& abscissaDimensions,
@@ -160,7 +157,7 @@ public:
                 Istream& is
             ) const
             {
-                dictionaryEntry ent(dictionary::null, is);
+                labelList ent(is);
                 return autoPtr
                 <
                     quadratureNode<weightType, abscissaType, sigmaType>
@@ -171,9 +168,8 @@ public:
                         weightType, abscissaType, sigmaType
                     >
                     (
-                        ent.keyword(),
+                        mappedPtrList<scalar>::listToWord(ent),
                         distributionName_,
-                        ent,
                         mesh_,
                         weightDimensions_,
                         abscissaDimensions_,

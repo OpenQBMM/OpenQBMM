@@ -14,8 +14,8 @@ word alpharScheme("div(phir," + alpha1.name() + ')');
 
 alpha1.correctBoundaryConditions();
 
-surfaceScalarField phic("phic", phi);
-surfaceScalarField phir("phir", phi1 - phi2);
+surfaceScalarField phic("phic", phi*h2f);
+surfaceScalarField phir("phir", (phi1 - phi2)*h2f);
 
 tmp<surfaceScalarField> alpha1alpha2f;
 
@@ -27,7 +27,7 @@ if (fluid.pPrimeByA().valid())
 
     surfaceScalarField phiP
     (
-        fluid.pPrimeByA()()*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
+        pPrimeByA*fvc::snGrad(alpha1, "bounded")*mesh.magSf()
     );
 
     phir += phiP;
@@ -84,8 +84,7 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
         )
       + fvc::flux
         (
-          - fvc::flux(-phir, scalar(1) - alpha1, alpharScheme)
-          - phi1*(1.0 - h2f),
+          - fvc::flux(-phir, scalar(1) - alpha1, alpharScheme),
             alpha1,
             alpharScheme
         )
@@ -144,12 +143,13 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
         alphaPhi1 = alphaPhic1;
     }
 
+//     alpha1 += AGmodel.ddtAlphaDilute()*runTime.deltaT();
+
     if (fluid.pPrimeByA().valid())
     {
         fvScalarMatrix alpha1Eqn
         (
             fvm::ddt(alpha1) - fvc::ddt(alpha1)
-          - AGmodel.ddtAlphaDilute()
           - fvm::laplacian
             (
                 alpha1alpha2f()*pPrimeByA,
