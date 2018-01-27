@@ -26,6 +26,12 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+//- Return the number of dimensions of the phase space
+Foam::label Foam::hyperbolicConditionalMomentInversion::nDimensions()
+{
+    return nDimensions_;
+}
+
 //- Return the total number of moments
 Foam::label Foam::hyperbolicConditionalMomentInversion::nMoments()
 {

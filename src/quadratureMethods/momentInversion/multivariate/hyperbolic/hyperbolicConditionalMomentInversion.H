@@ -180,6 +180,9 @@ public:
         //- Invert moments to find weights and  abscissae
         void invert(const multivariateMomentSet& moments);
 
+        //- Return the number of dimensions of the phase space
+        inline label nDimensions();
+
         //- Return number of moments
         inline label nMoments();
 
