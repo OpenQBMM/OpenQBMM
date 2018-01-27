@@ -405,7 +405,6 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
             wDir2[nodei] = univariateInverter_().weights()[nodei];
             absDir2[nodei] = univariateInverter_().abscissae()[nodei];
         }
-
     }
 
     // Compute multivariate quadrature
@@ -434,7 +433,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
     if (m000 < SMALL)
     {
-        weights_(2,2,2) = m000;
+        weights_(2, 2, 2) = m000;
         return;
     };
 
@@ -466,29 +465,17 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
     centralMoments(0, 2, 0) -= sqrMeanV;
     centralMoments(0, 0, 2) -= sqrMeanW;
     centralMoments(3, 0, 0) -=
-        (
-            3.0*meanU*scaledMoments(2, 0, 0)
-          - 2.0*pow3(meanU)
-        );
+        3.0*meanU*scaledMoments(2, 0, 0) - 2.0*pow3(meanU);
 
     centralMoments(0, 3, 0) -=
-        (
-            3.0*meanV*scaledMoments(0, 2, 0)
-          - 2.0*pow3(meanV)
-        );
+        3.0*meanV*scaledMoments(0, 2, 0) - 2.0*pow3(meanV);
 
     centralMoments(0, 0, 3) -=
-        (
-            3.0*meanW*scaledMoments(0, 0, 2)
-          - 2.0*pow3(meanW)
-        );
+            3.0*meanW*scaledMoments(0, 0, 2) - 2.0*pow3(meanW);
 
     centralMoments(4, 0, 0) -=
-        (
-            4.0*meanU*scaledMoments(3, 0, 0)
-          - 6.0*sqrMeanU*scaledMoments(2, 0, 0)
-          + 3.0*pow4(meanU)
-        );
+        4.0*meanU*scaledMoments(3, 0, 0) - 6.0*sqrMeanU*scaledMoments(2, 0, 0)
+      + 3.0*pow4(meanU);
 
     centralMoments(0, 4, 0) -=
         (
@@ -498,11 +485,8 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
         );
 
     centralMoments(0, 0, 4) -=
-        (
-            4.0*meanW*scaledMoments(0, 0, 3)
-          - 6.0*sqrMeanW*scaledMoments(0, 0, 2)
-          + 3.0*pow4(meanW)
-        );
+        4.0*meanW*scaledMoments(0, 0, 3) - 6.0*sqrMeanW*scaledMoments(0, 0, 2)
+      + 3.0*pow4(meanW);
 
     if (m000 < SMALL)
     {
