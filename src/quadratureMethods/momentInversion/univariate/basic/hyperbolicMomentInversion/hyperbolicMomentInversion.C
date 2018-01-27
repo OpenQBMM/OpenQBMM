@@ -113,11 +113,11 @@ void Foam::hyperbolicMomentInversion::invert
     }
 
     // Compute normalized moments
-    scalarList normalisedMoments(nInvertibleMoments_);
+    scalarList normalisedMoments(moments);
 
     forAll(normalisedMoments, mi)
     {
-        normalisedMoments[mi] /= moments[0];
+        normalisedMoments[mi] = moments[0];
     }
 
     scalar meanVelocity = normalisedMoments[1];
