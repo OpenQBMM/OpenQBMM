@@ -61,7 +61,8 @@ Foam::PDFTransportModels::velocityPDFTransportModel::velocityPDFTransportModel
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::PDFTransportModels::velocityPDFTransportModel::~velocityPDFTransportModel()
+Foam::PDFTransportModels::velocityPDFTransportModel
+::~velocityPDFTransportModel()
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -77,7 +78,6 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::explicitMomentSource()
     forAll(moments[0], celli)
     {
         // Storing old moments to recover from failed step
-
         scalarList oldMoments(nMoments, 0.0);
 
         forAll(oldMoments, mi)
@@ -286,8 +286,8 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
                 momentEqns[mEqni].relax();
                 momentEqns[mEqni].solve();
 
-                //  Set moments.oldTime to moments transport is not neglected due to
-                //  large collision source terms
+                //  Set moments.oldTime to moments transport is not neglected
+                //  due to large collision source terms
                 m.oldTime() = m;
 
                 // Solve collisions

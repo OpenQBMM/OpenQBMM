@@ -96,6 +96,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     {
         return;
     }
+
     return collisionKernel_->updateFields();
 }
 
@@ -107,6 +108,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     {
         return;
     }
+
     return collisionKernel_->updateCells(celli);
 }
 
@@ -128,6 +130,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
             )
         );
     }
+
     return collisionKernel_->implicitCollisionSource(moment);
 }
 
@@ -143,6 +146,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     {
         return 0.0;
     }
+
     return collisionKernel_->explicitCollisionSource(momenti, celli);
 }
 
