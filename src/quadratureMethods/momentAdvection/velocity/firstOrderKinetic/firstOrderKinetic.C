@@ -185,7 +185,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
         if (isA<wallFvPatch>(currPatch))
         {
             const vectorField& bfSf = mesh.Sf().boundaryField()[patchi];
-            vectorField bfNorm = bfSf/mag(bfSf);
+            vectorField bfNorm(bfSf/mag(bfSf));
 
             forAll(nodes_, nodei)
             {

@@ -25,7 +25,7 @@ Class
     Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 
 Description
-    Extension of the BGK collisional model that includes the coefficient
+    Ellipsoidal statistical BGK collisional model that includes the coefficient
     of restitution.
 
 SourceFiles
