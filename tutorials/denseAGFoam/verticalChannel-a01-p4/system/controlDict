@@ -23,17 +23,17 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         4.04;
+endTime         4;
 
 deltaT          1e-3;
 
 writeControl    adjustableRunTime;
 
-writeInterval   0.01;
+writeInterval   0.005;
 
-purgeWrite      0;
+purgeWrite      100;
 
-writeFormat     binary;
+writeFormat     ascii;
 
 writePrecision  7;
 
@@ -49,7 +49,7 @@ adjustTimeStep  yes;
 
 maxCo           0.1;
 
-maxDeltaT       2e-04;
+maxDeltaT       1e-05;
 
 
 functions1

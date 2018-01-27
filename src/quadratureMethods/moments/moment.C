@@ -16,6 +16,8 @@
                                 improve initialization of nodes.
 2017-03-26 Alberto Passalacqua: Added the capability to recompute the moment
                                 locally.
+2018-01-23 Jeff Heylmun:        Added hyqmom moment orders. Changed node lists
+                                to mappedPtrLists.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -37,37 +39,6 @@ License
 
 #include "moment.H"
 
-// * * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * //
-
-template <class fieldType, class nodeType>
-Foam::word
-Foam::moment<fieldType, nodeType>::listToWord(const labelList& lst)
-{
-    word w;
-
-    forAll(lst, dimi)
-    {
-        w += Foam::name(lst[dimi]);
-    }
-
-    return w;
-}
-
-template <class fieldType, class nodeType>
-Foam::label
-Foam::moment<fieldType, nodeType>::listToLabel(const labelList& lst)
-{
-    label l = 0;
-
-    forAll(lst, dimi)
-    {
-        l += lst[dimi]*pow(10, lst.size() - dimi - 1);
-    }
-
-    return l;
-}
-
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template <class fieldType, class nodeType>
@@ -76,14 +47,18 @@ Foam::moment<fieldType, nodeType>::moment
     const word& distributionName,
     const labelList& cmptOrders,
     const fvMesh& mesh,
-    const autoPtr<PtrList<nodeType>>& nodes
+    const autoPtr<mappedPtrList<nodeType>>& nodes
 )
 :
     fieldType
     (
         IOobject
         (
-            momentName(listToWord(cmptOrders), distributionName),
+            momentName
+            (
+                mappedPtrList<scalar>::listToWord(cmptOrders),
+                distributionName
+            ),
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -94,7 +69,14 @@ Foam::moment<fieldType, nodeType>::moment
     distributionName_(distributionName),
     nodes_(nodes),
     cmptOrders_(cmptOrders),
-    name_(momentName(listToWord(cmptOrders_), distributionName_)),
+    name_
+    (
+        momentName
+        (
+            mappedPtrList<scalar>::listToWord(cmptOrders_),
+            distributionName_
+        )
+    ),
     nDimensions_(cmptOrders_.size()),
     order_(sum(cmptOrders_))
 {}
@@ -104,7 +86,7 @@ Foam::moment<fieldType, nodeType>::moment
 (
     const word& distributionName,
     const labelList& cmptOrders,
-    const autoPtr<PtrList<nodeType>>& nodes,
+    const autoPtr<mappedPtrList<nodeType>>& nodes,
     const fieldType& initMoment
 )
 :
@@ -112,7 +94,14 @@ Foam::moment<fieldType, nodeType>::moment
     distributionName_(distributionName),
     nodes_(nodes),
     cmptOrders_(cmptOrders),
-    name_(momentName(listToWord(cmptOrders_), distributionName_)),
+    name_
+    (
+        momentName
+        (
+            mappedPtrList<scalar>::listToWord(cmptOrders_),
+            distributionName_
+        )
+    ),
     nDimensions_(cmptOrders_.size()),
     order_(sum(cmptOrders_))
 {}
@@ -141,7 +130,7 @@ void Foam::moment<fieldType, nodeType>::update()
     // Resetting the moment to zero
     *this == dimensionedScalar("moment", (*this).dimensions(), 0);
 
-    const PtrList<nodeType>& nodes = nodes_();
+    const mappedPtrList<nodeType>& nodes = nodes_();
 
     // If nodes are not of extended type, only use primary quadrature.
     if (!nodes[0].extended())
@@ -203,8 +192,7 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
     // Resetting the moment to zero
     scalar moment = 0;
 
-    const PtrList<nodeType>& nodes = nodes_();
-
+    const mappedPtrList<nodeType>& nodes = nodes_();
     // If nodes are not of extended type, only use primary quadrature.
     if (!nodes[0].extended())
     {

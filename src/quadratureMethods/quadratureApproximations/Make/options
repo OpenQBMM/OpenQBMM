@@ -11,10 +11,11 @@ EXE_INC = \
     -I../../eigenSolver/lnInclude \
     -I../../Vandermonde/lnInclude \
     -I../../mappedList \
+    -I../../mappedPtrList \
     -I../momentSets/lnInclude \
     -I../quadratureNode \
     -I../moments \
-    -I../momentInversion/univariate/basic/lnInclude \
+    -I../momentInversion/lnInclude \
     -I../fieldMomentInversion/lnInclude
 
 LIB_LIBS = \

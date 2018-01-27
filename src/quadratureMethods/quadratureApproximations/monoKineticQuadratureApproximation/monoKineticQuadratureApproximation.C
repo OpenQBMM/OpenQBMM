@@ -43,7 +43,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
     const word& support
 )
 :
-    quadratureApproximation(name, mesh, support, 1),
+    quadratureApproximation(name, mesh, support),
     U_
     (
         mesh_.lookupObject<volVectorField>

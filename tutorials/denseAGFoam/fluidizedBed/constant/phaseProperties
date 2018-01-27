@@ -23,7 +23,7 @@ particles
     residualAlpha   1e-6;
     diameterModel   constant;
 
-    d               2.75e-4;
+    d               3e-4;
     alphaMax        0.62;
 }
 

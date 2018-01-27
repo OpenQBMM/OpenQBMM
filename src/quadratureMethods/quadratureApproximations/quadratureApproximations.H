@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 InClass
-    Foam::quadratureApproximations
+    Foam::univariateQuadratureApproximations
 
 Description
 
@@ -30,8 +30,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef quadratureApproximations_H
-#define quadratureApproximations_H
+#ifndef univariateQuadratureApproximations_H
+#define univariateQuadratureApproximations_H
 
 #include "volFields.H"
 #include "quadratureNodes.H"
@@ -46,6 +46,9 @@ namespace Foam
 
 typedef quadratureApproximation<volUnivariateMomentFieldSet, volScalarNode>
     univariateQuadratureApproximation;
+
+typedef quadratureApproximation<volVectorMomentFieldSet, volVectorNode>
+    velocityQuadratureApproximation;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

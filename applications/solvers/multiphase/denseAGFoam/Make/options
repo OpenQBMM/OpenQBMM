@@ -1,4 +1,5 @@
 EXE_INC = \
+    -DFULLDEBUG -g -O0 \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
     -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
@@ -17,6 +18,8 @@ EXE_INC = \
     -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
     -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
     -I../../../../src/Vandermonde/lnInclude \
+    -I../../../../src/mappedList \
+    -I../../../../src/mappedPtrList \
     -I../twoPhaseSystem/lnInclude \
     -I../phaseCompressibleTurbulenceModels/lnInclude \
     -I../interfacialModels/lnInclude \
@@ -25,7 +28,7 @@ EXE_INC = \
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lmomentSets \
-    -lextendedMomentInversion \
+    -lmomentInversion \
     -lfieldMomentInversion \
     -lhermiteQuadrature \
     -lquadratureApproximation \

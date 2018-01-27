@@ -32,7 +32,7 @@ in2 #calc "$R";
 nWallPts    #calc "($w2 - $R)/$cellSize";
 nInPts      #calc "$dia/$cellSize";
 nVertPts    #calc "$h/$cellSize";
-nDepthPts   1;
+nDepthPts   #calc "$depth/$cellSize";
 
 vertices
 (
@@ -96,6 +96,13 @@ boundary
             (2 3 11 10)
             (3 4 12 11)
             (7 8 0 15)
+
+            (0 1 6 7)
+            (1 2 5 6)
+            (2 3 4 5)
+            (8 9 14 15)
+            (9 10 13 14)
+            (10 11 12 13)
         );
     }
 );

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -45,17 +45,26 @@ namespace Foam
 Foam::extendedFieldMomentInversion::extendedFieldMomentInversion
 (
     const dictionary& dict,
-    const label nMoments,
+    const fvMesh& mesh,
+    const labelListList& momentOrders,
+    const labelListList& nodeIndexes,
     const label nSecondaryNodes
 )
 :
-    fieldMomentInversion(dict, nMoments, nSecondaryNodes),
+    fieldMomentInversion
+    (
+        dict,
+        mesh,
+        momentOrders,
+        nodeIndexes,
+        nSecondaryNodes
+    ),
     momentInverter_
     (
         extendedMomentInversion::New
         (
             dict.subDict("extendedMomentInversion"),
-            nMoments,
+            momentOrders.size(),
             nSecondaryNodes
         )
     )
@@ -75,7 +84,7 @@ Foam::extendedFieldMomentInversion::~extendedFieldMomentInversion()
 void Foam::extendedFieldMomentInversion::invert
 (
     const volUnivariateMomentFieldSet& moments,
-    PtrList<volScalarNode>& nodes
+    mappedPtrList<volScalarNode>& nodes
 )
 {
     const volScalarField& m0(moments[0]);
@@ -91,7 +100,7 @@ void Foam::extendedFieldMomentInversion::invert
 void Foam::extendedFieldMomentInversion::invertBoundaryMoments
 (
     const volUnivariateMomentFieldSet& moments,
-    PtrList<volScalarNode>& nodes
+    mappedPtrList<volScalarNode>& nodes
 )
 {
     // Recover reference to boundaryField of zero-order moment.
@@ -155,7 +164,7 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
 bool Foam::extendedFieldMomentInversion::invertLocalMoments
 (
     const volUnivariateMomentFieldSet& moments,
-    PtrList<volScalarNode>& nodes,
+    mappedPtrList<volScalarNode>& nodes,
     const label celli,
     const bool fatalErrorOnFailedRealizabilityTest
 )
@@ -232,4 +241,34 @@ bool Foam::extendedFieldMomentInversion::invertLocalMoments
     return true;
 }
 
+void Foam::extendedFieldMomentInversion::invert
+(
+    const volVectorMomentFieldSet& moments,
+    mappedPtrList<volVectorNode>& nodes
+)
+{
+    NotImplemented;
+}
+
+void Foam::extendedFieldMomentInversion::invertBoundaryMoments
+(
+    const volVectorMomentFieldSet& moments,
+    mappedPtrList<volVectorNode>& nodes
+)
+{
+    NotImplemented;
+}
+
+bool Foam::extendedFieldMomentInversion::invertLocalMoments
+(
+    const volVectorMomentFieldSet& moments,
+    mappedPtrList<volVectorNode>& nodes,
+    const label celli,
+    const bool fatalErrorOnFailedRealizabilityTest
+)
+{
+    NotImplemented;
+
+    return true;
+}
 // ************************************************************************* //

@@ -30,7 +30,7 @@ RAS
         equilibrium             no;
         alphaTheta              1.0;
         alphaSigma              1.0;
-        e                       0.9;
+        e                       0.8;
         alphaMax                0.62;
         alphaMinFriction        0.5;
         residualAlpha           1e-4;
@@ -44,6 +44,14 @@ RAS
         h2FluxPow               4;
 
         JohnsonJacksonCoeffs
+        {
+            Fr                      0.05;
+            eta                     2;
+            p                       5;
+            phi                     28.5;
+            alphaDeltaMin           0.05;
+        }
+        SchaefferCoeffs
         {
             Fr                      0.05;
             eta                     2;

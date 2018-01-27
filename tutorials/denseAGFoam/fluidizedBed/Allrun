@@ -31,4 +31,5 @@ cp 0.org/* 0/
 
 setFields
 decomposePar
-mpirun -np 3 denseAGFoam -parallel
+# denseAGFoam
+mpirun -np 4 denseAGFoam -parallel
