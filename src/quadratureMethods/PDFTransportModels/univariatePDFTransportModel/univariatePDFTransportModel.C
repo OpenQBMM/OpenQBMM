@@ -161,7 +161,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
                  || !realizableUpdate3
                 )
                 {
-                    Info << "Not realizable" << endl;
+                    //Info << "Not realizable" << endl;
 
                     forAll(oldMoments, mi)
                     {
