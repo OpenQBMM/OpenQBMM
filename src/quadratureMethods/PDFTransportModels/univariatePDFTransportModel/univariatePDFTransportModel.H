@@ -91,6 +91,7 @@ protected:
         //- Moment advection
         autoPtr<univariateMomentAdvection> momentAdvection_;
 
+
     // Protected member functions
 
         //- Diffusion term
@@ -111,8 +112,8 @@ protected:
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            label& momentOrder,
-            label& celli
+            label momentOrder,
+            label celli
         ) = 0;
 
 

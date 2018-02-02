@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,28 +22,32 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceModels::univariatePopulationBalance
+    Foam::populationBalanceModels::mixingPopulationBalance
 
 Description
-    Solve a univariate population balance equation with the extended quadrature
-    method of moments.
+    Solve a coupled mixing-population balance problem accounting for multiple
+    environments.
 
 SourceFiles
-    univariatePopulationBalance.C
+    mixingPopulationBalance.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef univariatePopulationBalance_H
-#define univariatePopulationBalance_H
+#ifndef mixingPopulationBalance_H
+#define mixingPopulationBalance_H
 
 #include "univariatePDFTransportModel.H"
 #include "populationBalanceModel.H"
+
+#include "turbulentMixing.H"
+
 #include "aggregationKernel.H"
 #include "breakupKernel.H"
 #include "daughterDistribution.H"
 #include "growthModel.H"
 #include "diffusionModel.H"
 #include "nucleationModel.H"
+#include "environmentMixingModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,17 +59,77 @@ namespace populationBalanceModels
 {
 
 /*---------------------------------------------------------------------------*\
-                Class univariatePopulationBalance Declaration
+                    Class mixingPopulationBalance Declaration
 \*---------------------------------------------------------------------------*/
 
-class univariatePopulationBalance
+class mixingPopulationBalance
 :
-    public univariatePDFTransportModel, public populationBalanceModel
+    public populationBalanceModel
 {
     // Private data
 
-        //- Name of the univariatePopulationBalance
+        //- Absolute tolerance for realizable ODE solver
+        scalar ATol_;
+
+        //- Relative tolerance for realizable ODE solver
+        scalar RTol_;
+
+        //- Time-step change factor
+        scalar fac_;
+
+        //- Minimum time-step change factor
+        scalar facMin_;
+
+        //- Maximum time-step change factor
+        scalar facMax_;
+
+        //- Minimum local step in realizable ODE solver
+        label minLocalDt_;
+
+        //- Name of the mixingPopulationBalance
         const word name_;
+
+        //- Turbulent mixing model
+        autoPtr
+        <
+            Foam::PDFTransportModels::mixingModels::turbulentMixing
+        > mixingModel_;
+
+        //- Reference to field of weight of environment one
+        const volScalarField& p1_;
+
+        //- Reference to field of abscissa of environment one
+        const volScalarField& xi1_;
+
+        //- Reference to field of weight of environment two
+        const volScalarField& p2_;
+
+        //- Reference to field of abscissa of environment two
+        const volScalarField& xi2_;
+
+        //- Quadrature for the mean moments
+        univariateQuadratureApproximation meanMomentsQuadrature_;
+
+        //- Quadrature for the mean moment variance
+        univariateQuadratureApproximation meanMomentsVarianceQuadrature_;
+
+        //- Moment advection for mean moments
+        autoPtr<univariateMomentAdvection> meanMomentsAdvection_;
+
+        //- Moment advection for variance of mean moments
+        autoPtr<univariateMomentAdvection> meanMomentsVarianceAdvection_;
+
+        //- Quadrature approximation of the PBE in the first environment
+        univariateQuadratureApproximation envOneQuadrature_;
+
+        //- Quadrature approximation of the PBE in the second environment
+        univariateQuadratureApproximation envTwoQuadrature_;
+
+        //- Reference to moments in environment one
+        volUnivariateMomentFieldSet& mEnvOne_;
+
+        //- Reference to moments in environment two
+        volUnivariateMomentFieldSet& mEnvTwo_;
 
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
@@ -112,20 +176,41 @@ class univariatePopulationBalance
             Foam::populationBalanceSubModels::nucleationModel
         > nucleationModel_;
 
+        //- Environment mixing model
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::environmentMixingModel
+        > envMixingModel_;
+
+
     // Private member functions
+
+        //- Calculate explicit source terms with realizable ODE solver
+        void explicitMomentSource
+        (
+            univariateQuadratureApproximation& quadrature
+        );
+
+        //- Calculate moments of the PBE in each environment
+        void calcEnvironmentMoments();
+
+        //- Calculated mixed moments
+        void calcMixedMoments();
 
         //- Calculate aggregation source terms
         scalar aggregationSource
         (
             const label momentOrder,
-            const label celli
+            const label celli,
+            const PtrList<volScalarNode>& nodes
         );
 
         //- Calculate Breakup source term
         scalar breakupSource
         (
             const label momentOrder,
-            const label celli
+            const label celli,
+            const PtrList<volScalarNode>& nodes
         );
 
         //- Diffusion term
@@ -138,32 +223,29 @@ class univariatePopulationBalance
         virtual scalar phaseSpaceConvection
         (
             const label momentOrder,
-            const label celli
-        );
-
-        //- Calculate implicit source terms
-        virtual tmp<fvScalarMatrix> implicitMomentSource
-        (
-            const volUnivariateMoment& moment
+            const label celli,
+            const PtrList<volScalarNode>& nodes
         );
 
         //- Calculate source term for moment equation in the specified cell
-        virtual scalar cellMomentSource
+        scalar cellMomentSource
         (
             label momentOrder,
-            label celli
+            label celli,
+            const PtrList<volScalarNode>& nodes
         );
+
 
 public:
 
     //- Runtime type information
-    TypeName("univariate");
+    TypeName("mixingPbe");
 
 
     // Constructors
 
         //- Construct from components
-        univariatePopulationBalance
+        mixingPopulationBalance
         (
             const word& name,
             const dictionary& dict,
@@ -172,7 +254,7 @@ public:
 
 
     //- Destructor
-    virtual ~univariatePopulationBalance();
+    virtual ~mixingPopulationBalance();
 
     // Member Functions
 

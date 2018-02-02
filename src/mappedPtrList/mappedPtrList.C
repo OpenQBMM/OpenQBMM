@@ -174,6 +174,7 @@ void Foam::mappedPtrList<mappedType>::set
     mappedType* entry
 )
 {
-    PtrList<mappedType>::set(map_[listToLabel(l)], entry);
+    (*this).set(map_[listToLabel(l)], entry);
 }
+
 // ************************************************************************* //

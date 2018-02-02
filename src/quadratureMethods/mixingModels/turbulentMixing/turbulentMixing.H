@@ -38,7 +38,7 @@ SourceFiles
 #include "univariatePDFTransportModel.H"
 #include "mixingModel.H"
 #include "mixingKernel.H"
-#include "diffusionModel.H"
+#include "mixingDiffusionModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -70,7 +70,7 @@ class turbulentMixing
         //- Diffusion model
         autoPtr
         <
-            Foam::mixingSubModels::diffusionModel
+            Foam::mixingSubModels::mixingDiffusionModel
         > diffusionModel_;
 
     // Private member functions
@@ -99,8 +99,8 @@ class turbulentMixing
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            label& momentOrder,
-            label& celli
+            label momentOrder,
+            label celli
         );
 
 

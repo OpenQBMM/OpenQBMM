@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,36 +23,72 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "diffusionModel.H"
+#include "IEM.H"
+#include "addToRunTimeSelectionTable.H"
+#include "turbulentFluidThermoModel.H"
+#include "fundamentalConstants.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace mixingSubModels
+namespace populationBalanceSubModels
 {
-    defineTypeNameAndDebug(diffusionModel, 0);
+namespace environmentMixingModels
+{
+    defineTypeNameAndDebug(IEM, 0);
 
-    defineRunTimeSelectionTable(diffusionModel, dictionary);
+    addToRunTimeSelectionTable
+    (
+        environmentMixingModel,
+        IEM,
+        dictionary
+    );
+}
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModel::diffusionModel
+Foam::populationBalanceSubModels::environmentMixingModels::IEM::IEM
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    dict_(dict)
+    environmentMixingModel(dict, mesh),
+    flTurb_
+    (
+        mesh_.lookupObject<compressible::turbulenceModel>
+        (
+            turbulenceModel::propertiesName
+        )
+    ),
+    k_(flTurb_.k()),
+    epsilon_(flTurb_.epsilon())
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModel::~diffusionModel()
+Foam::populationBalanceSubModels::environmentMixingModels::IEM::~IEM()
 {}
 
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+Foam::tmp<Foam::fvScalarMatrix>
+Foam::populationBalanceSubModels::environmentMixingModels::IEM::K
+(
+    const volScalarField& meanMoment,
+    const volScalarField& meanMomentVariance,
+    const volScalarField& meanMixtureFraction
+) const
+{
+    return
+        fvm::Sp(2.0*Cphi_*epsilon_/k_, meanMomentVariance)
+      - 2.0*Cphi_*epsilon_*meanMoment*meanMixtureFraction/k_;
+}
 
 // ************************************************************************* //

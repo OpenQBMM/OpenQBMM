@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,10 +23,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "turbulentDiffusion.H"
+#include "noDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
-#include "turbulentTransportModel.H"
 #include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -35,14 +34,14 @@ namespace Foam
 {
 namespace mixingSubModels
 {
-namespace diffusionModels
+namespace mixingDiffusionModels
 {
-    defineTypeNameAndDebug(turbulentDiffusion, 0);
+    defineTypeNameAndDebug(noDiffusion, 0);
 
     addToRunTimeSelectionTable
     (
-        diffusionModel,
-        turbulentDiffusion,
+        mixingDiffusionModel,
+        noDiffusion,
         dictionary
     );
 }
@@ -52,77 +51,51 @@ namespace diffusionModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModels::turbulentDiffusion
-::turbulentDiffusion
+Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
+::noDiffusion
 (
     const dictionary& dict
 )
 :
-    diffusionModel(dict),
-    gammaLam_(dict.lookup("gammaLam")),
-    Sc_(readScalar(dict.lookup("Sc")))
+    mixingDiffusionModel(dict)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModels::turbulentDiffusion
-::~turbulentDiffusion()
+Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
+::~noDiffusion()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::fvScalarMatrix>
-Foam::mixingSubModels::diffusionModels::turbulentDiffusion
+Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
 ::momentDiff
 (
     const volScalarField& moment
 ) const
 {
-    volScalarField gamma(turbViscosity(moment)/Sc_ + gammaLam_);
-
-    return fvm::laplacian(gamma, moment);
-}
-
-Foam::tmp<Foam::volScalarField>
-Foam::mixingSubModels::diffusionModels::turbulentDiffusion::
-turbViscosity(const volScalarField& moment) const
-{
-    typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
-
-    if (moment.mesh().foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
-    {
-        const cmpTurbModel& turb =
-            moment.mesh().lookupObject<cmpTurbModel>
-            (
-                cmpTurbModel::propertiesName
-            );
-
-        return turb.mut()/turb.rho();
-    }
-    else if
+    tmp<volScalarField> noDiff
     (
-        moment.mesh().foundObject<icoTurbModel>(icoTurbModel::propertiesName)
-    )
-    {
-        const incompressible::turbulenceModel& turb =
-            moment.mesh().lookupObject<icoTurbModel>
+        new volScalarField
+        (
+            IOobject
             (
-                icoTurbModel::propertiesName
-            );
+                "noDiff",
+                moment.mesh().time().timeName(),
+                moment.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            moment.mesh(),
+            dimensionedScalar("zero", inv(dimTime), 0.0)
+        )
+    );
 
-        return turb.nut();
-    }
-    else
-    {
-        FatalErrorInFunction
-            << "No valid turbulence model for turbulent diffusion calculation."
-            << exit(FatalError);
-
-        return volScalarField::null();
-    }
+    return fvm::Sp(noDiff, moment);
 }
 
 // ************************************************************************* //

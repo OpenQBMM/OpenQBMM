@@ -22,18 +22,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixingSubModels::diffusionModel
+    Foam::mixingSubModels::mixingDiffusionModel
 
 Description
     Abstract class for moment diffusion models.
 
 SourceFiles
-    diffusionModel.C
+    mixingDiffusionModel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef diffusionModel_H
-#define diffusionModel_H
+#ifndef mixingDiffusionModel_H
+#define mixingDiffusionModel_H
 
 #include "dictionary.H"
 #include "volFields.H"
@@ -49,18 +49,18 @@ namespace mixingSubModels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class diffusionModel Declaration
+                    Class mixingDiffusionModel Declaration
 \*---------------------------------------------------------------------------*/
 
-class diffusionModel
+class mixingDiffusionModel
 {
     // Private member functions
 
         //- Disallow default bitwise copy construct
-        diffusionModel(const diffusionModel&);
+        mixingDiffusionModel(const mixingDiffusionModel&);
 
         //- Disallow default bitwise assignment
-        void operator=(const diffusionModel&);
+        void operator=(const mixingDiffusionModel&);
 
 
 protected:
@@ -79,7 +79,7 @@ public:
     declareRunTimeSelectionTable
     (
         autoPtr,
-        diffusionModel,
+        mixingDiffusionModel,
         dictionary,
         (
             const dictionary& dict
@@ -91,19 +91,19 @@ public:
     // Constructors
 
         //- Construct from components
-        diffusionModel(const dictionary& dict);
+        mixingDiffusionModel(const dictionary& dict);
 
 
     // Selectors
 
-        static autoPtr<diffusionModel> New
+        static autoPtr<mixingDiffusionModel> New
         (
             const dictionary& dict
         );
 
 
     //- Destructor
-    virtual ~diffusionModel();
+    virtual ~mixingDiffusionModel();
 
 
     // Member Functions

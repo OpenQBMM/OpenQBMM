@@ -66,7 +66,7 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::turbulentMixing
     ),
     diffusionModel_
     (
-        Foam::mixingSubModels::diffusionModel::New
+        Foam::mixingSubModels::mixingDiffusionModel::New
         (
             dict.subDict("diffusionModel")
         )
@@ -137,8 +137,8 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::implicitMomentSource
 Foam::scalar
 Foam::PDFTransportModels::mixingModels::turbulentMixing::cellMomentSource
 (
-    label& momentOrder,
-    label& celli
+    label momentOrder,
+    label celli
 )
 {
     return 0.0;

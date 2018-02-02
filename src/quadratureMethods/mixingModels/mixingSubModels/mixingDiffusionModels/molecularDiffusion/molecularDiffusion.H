@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,20 +22,36 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixingSubModels::diffusionModels::noDiffusion
+    Foam::mixingSubModels::mixingDiffusionModels::molecularDiffusion
 
 Description
-    No diffusion model.
+    Molecular diffusion model.
+
+    The moment diffusion is modeled with a constant diffusion coefficient
+    specified by the user.
+
+    \f[
+        \mathcal{D}_k = \nabla \cdot \left( \Gamma_l
+            \nabla m_k \right)
+    \f]
+
+    where
+
+    \vartable
+        \mathcal{D}_k       |   Diffusion term in the moment transport equation
+        m_k                 |   Moment of order k [-]
+        \Gamma_l            |   Molecular diffusivity [m2/s]
+    \endvartable
 
 SourceFiles
-    noDiffusion.C
+    molecularDiffusion.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef noDiffusion_H
-#define noDiffusion_H
+#ifndef molecularDiffusion_H
+#define molecularDiffusion_H
 
-#include "diffusionModel.H"
+#include "mixingDiffusionModel.H"
 #include "fvm.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -43,31 +59,39 @@ namespace Foam
 {
 namespace mixingSubModels
 {
-namespace diffusionModels
+namespace mixingDiffusionModels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class noDiffusion Declaration
+                    Class molecularDiffusion Declaration
 \*---------------------------------------------------------------------------*/
 
-class noDiffusion
+class molecularDiffusion
 :
-    public diffusionModel
+    public mixingDiffusionModel
 {
+    //- Private member functions
+        tmp<volScalarField> turbViscosity(const volScalarField& moment) const;
+
+    //- Private data
+
+        //- Laminar diffusivity
+        dimensionedScalar gammaLam_;
+
 public:
 
         //- Runtime type information
-        TypeName("none");
+        TypeName("molecularDiffusion");
 
 
     // Constructors
 
         //- Construct from components
-        noDiffusion(const dictionary& dict);
+        molecularDiffusion(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~noDiffusion();
+    virtual ~molecularDiffusion();
 
 
     // Member Functions
@@ -83,7 +107,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace diffusionModels
+} // End namespace mixingDiffusionModels
 } // End namespace mixingSubModels
 } // End namespace Foam
 

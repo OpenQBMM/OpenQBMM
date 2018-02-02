@@ -1,5 +1,4 @@
 EXE_INC = \
-    -DFULLDEBUG -g -O0 \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
@@ -19,7 +18,8 @@ EXE_INC = \
     -I../fieldMomentInversion/lnInclude \
     -I../quadratureApproximations/lnInclude \
     -I../momentAdvection/lnInclude \
-    -I../PDFTransportModels/lnInclude
+    -I../PDFTransportModels/lnInclude \
+    -I../mixingModels/lnInclude
 
 LIB_LIBS = \
     -lincompressibleTransportModels \
@@ -38,4 +38,5 @@ LIB_LIBS = \
     -lfieldMomentInversion \
     -lquadratureApproximation \
     -lmomentAdvection \
-    -lPDFTransportModel
+    -lPDFTransportModel \
+    -lmixing

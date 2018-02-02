@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,17 +22,16 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixingSubModels::diffusionModels::molecularDiffusion
+    Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion
 
 Description
-    Molecular diffusion model.
+    Turbulent diffusion model.
 
-    The moment diffusion is modeled with a constant diffusion coefficient
-    specified by the user.
+    The moment diffusion is modeled as
 
     \f[
-        \mathcal{D}_k = \nabla \cdot \left( \Gamma_l
-            \nabla m_k \right)
+        \mathcal{D}_k = \nabla \cdot \left[ \left( \Gamma_l
+            + \frac{\mu_t}{Sc_t} \right) \nabla m_k \right]
     \f]
 
     where
@@ -40,18 +39,20 @@ Description
     \vartable
         \mathcal{D}_k       |   Diffusion term in the moment transport equation
         m_k                 |   Moment of order k [-]
+        Sc_t                |   Turbulent Schmidt number [-]
         \Gamma_l            |   Molecular diffusivity [m2/s]
+        \mu_t               |   Turbulent dynamic viscosity [m2/s]
     \endvartable
 
 SourceFiles
-    molecularDiffusion.C
+    turbulentDiffusion.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef molecularDiffusion_H
-#define molecularDiffusion_H
+#ifndef turbulentDiffusion_H
+#define turbulentDiffusion_H
 
-#include "diffusionModel.H"
+#include "mixingDiffusionModel.H"
 #include "fvm.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -59,16 +60,16 @@ namespace Foam
 {
 namespace mixingSubModels
 {
-namespace diffusionModels
+namespace mixingDiffusionModels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class molecularDiffusion Declaration
+                    Class turbulentDiffusion Declaration
 \*---------------------------------------------------------------------------*/
 
-class molecularDiffusion
+class turbulentDiffusion
 :
-    public diffusionModel
+    public mixingDiffusionModel
 {
     //- Private member functions
         tmp<volScalarField> turbViscosity(const volScalarField& moment) const;
@@ -78,20 +79,23 @@ class molecularDiffusion
         //- Laminar diffusivity
         dimensionedScalar gammaLam_;
 
+        //- Turbulent Schmidt number
+        scalar Sc_;
+
 public:
 
         //- Runtime type information
-        TypeName("molecularDiffusion");
+        TypeName("turbulentDiffusion");
 
 
     // Constructors
 
         //- Construct from components
-        molecularDiffusion(const dictionary& dict);
+        turbulentDiffusion(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~molecularDiffusion();
+    virtual ~turbulentDiffusion();
 
 
     // Member Functions
@@ -107,7 +111,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace diffusionModels
+} // End namespace mixingDiffusionModels
 } // End namespace mixingSubModels
 } // End namespace Foam
 

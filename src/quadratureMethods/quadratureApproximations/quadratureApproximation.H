@@ -107,12 +107,24 @@ public:
 
     // Constructors
 
-        //- Construct from mesh
+        //- Construct from mesh, support and number of dimensions
         quadratureApproximation
         (
             const word& name,
             const fvMesh& mesh,
             const word& support
+        );
+
+        //- Construct from dictionary name, name, momentFieldSet
+        //  Moment fields in the momentFieldSet passed as reference are
+        //  used to initialise the local copy of moments. Inversion on
+        //  creation is optional.
+        quadratureApproximation
+        (
+            const word& dictName,
+            const word& name,
+            const momentFieldSetType& mFieldSet,
+            bool calcQuadratureOnCreation = false
         );
 
 
