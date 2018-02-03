@@ -114,9 +114,14 @@ Foam::mixingSubModels::mixingKernels::IEM::K
     }
     else
     {
-        mixingK.ref() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
-            *(moments[momentOrder - 1]*moments[1])
-            - fvm::SuSp(momentOrder*Cphi_*flTurb.epsilon()/flTurb.k(), moment);
+        mixingK.ref() +=
+            0.5*momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
+           *(moments[momentOrder - 1]*moments[1])
+          - fvm::SuSp
+            (
+                0.5*momentOrder*Cphi_*flTurb.epsilon()/flTurb.k(),
+                moment
+            );
     }
 
     return mixingK;
