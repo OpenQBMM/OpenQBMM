@@ -205,6 +205,11 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::explicitMomentSource()
 
             error = max(sqrt(error/nMoments), SMALL);
 
+            if (error < SMALL)
+            {
+                return;
+            }
+
             if (error < 1)
             {
                 localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));

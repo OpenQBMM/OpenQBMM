@@ -74,7 +74,7 @@ Foam::populationBalanceSubModels::aggregationKernels::ChengVigilFoxFNP
     (
         mesh_.lookupObject<univariateQuadratureApproximation>
         (
-            "mixingZZZ"
+            "quadratureProperties.mixing"
         )
     ),
     mixtureFraction_
@@ -149,7 +149,7 @@ Foam::populationBalanceSubModels::aggregationKernels::ChengVigilFoxFNP::Ka
     // Brownian kernel
     scalar betaBrown =
          2.0*Foam::constant::physicoChemical::k.value()
-        *T_[celli]*sqr(sqrt1 + sqrt2)/(3.0*mu_[celli]*sqrt1*sqrt2);
+        *T_[celli]*sqr(sqrt1 + sqrt2)/max(3.0*mu_[celli]*sqrt1*sqrt2, SMALL);
 
     //Turbulent kernel
     scalar betaTurb =
