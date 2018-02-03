@@ -847,9 +847,12 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Finish solving for moments
     forAll (meanMomentEqns, mEqni)
     {
-        volUnivariateMoment& meanM(meanMomentsQuadrature_.moments()[mEqni]);
+        const volUnivariateMoment& meanM
+        (
+            meanMomentsQuadrature_.moments()[mEqni]
+        );
 
-        volUnivariateMoment& varM
+        const volUnivariateMoment& varM
         (
             meanMomentsVarianceQuadrature_.moments()[mEqni]
         );
