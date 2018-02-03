@@ -224,7 +224,7 @@ Foam::zeta::zeta
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
+                    IOobject::NO_WRITE
                 ),
                 phi.mesh(),
                 dimensionedScalar("zero", dimless, 1.0)
@@ -242,7 +242,7 @@ Foam::zeta::zeta
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
+                    IOobject::NO_WRITE
                 ),
                 phi.mesh(),
                 dimensionedScalar("zero", dimless, 1.0)
