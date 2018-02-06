@@ -206,7 +206,7 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
                 const label cmptMomentOrder = cmptOrders()[cmpt];
 
                 const scalar abscissaCmpt
-                        = node.primaryAbscissa().component(cmpt)()[elemi];
+                        = component(node.primaryAbscissa()[elemi], cmpt);
 
                 m *= pow(abscissaCmpt, cmptMomentOrder);
             }
@@ -234,7 +234,7 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
                 const label cmptMomentOrder = cmptOrders()[cmpt];
 
                 const scalar abscissaCmpt
-                    = node.secondaryAbscissae()[sNodei].component(cmpt)()[elemi];
+                    = component(node.secondaryAbscissae()[sNodei][elemi], cmpt);
 
                 m *= pow(abscissaCmpt, cmptMomentOrder);
             }
