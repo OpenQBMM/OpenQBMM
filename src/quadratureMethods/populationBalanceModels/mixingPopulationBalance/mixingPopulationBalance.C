@@ -303,7 +303,6 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                 {
                     k2[mi] = localDt*cellMomentSource(mi, celli, nodes);
                     moments[mi][celli] = oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
-
                     momentsSecondStep[mi] = moments[mi][celli];
                 }
 
@@ -316,6 +315,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                 forAll(oldMoments, mi)
                 {
                     k3[mi] = localDt*cellMomentSource(mi, celli, nodes);
+
                     moments[mi][celli] =
                         oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
                 }
@@ -332,13 +332,6 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                  || !realizableUpdate3
                 )
                 {
-                    //Info << "Not realizable" << endl;
-
-                    forAll(oldMoments, mi)
-                    {
-                        moments[mi][celli] = oldMoments[mi];
-                    }
-
                     localDt /= 2.0;
 
                     if (localDt < minLocalDt_)
@@ -349,8 +342,14 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                             << "    solver. Cannot ensure realizability." << nl
                             << "    Local time step = " << localDt << nl
                             << "    Min local time step = " << minLocalDt_ << nl
-                            << "    Moments: " << oldMoments << nl
+                            << "    Last valid moments in cell: " 
+                            << oldMoments << nl
                             << abort(FatalError);
+                    }
+
+                    forAll(oldMoments, mi)
+                    {
+                        moments[mi][celli] = oldMoments[mi];
                     }
                 }
             }
@@ -438,22 +437,12 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Difference between abscissae of the mixture fraction
     volScalarField xiDiff(xi1_ - xi2_);
 
-//     const volUnivariateMomentFieldSet& meanMoments
-//     (
-//         meanMomentsQuadrature_.moments()
-//     );
-//
-//     const volUnivariateMomentFieldSet& meanMomentVariance
-//     (
-//         meanMomentsVarianceQuadrature_.moments()
-//     );
-
-    // Compute moments in the environments
+    // Compute moments in the environment
     forAll(xiDiff, celli)
     {
         // Null or very small variance of the mixture fraction
         // Moments in the two environments are identical
-        if (xiVariance[celli] > 1.0e-6)
+        if (xiVariance[celli] > 1.0e-4)
         {
             forAll(mEnvOne_, mi)
             {
@@ -506,16 +495,6 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::calcMixedMoments()
 {
-//     volUnivariateMomentFieldSet& meanMoments
-//     (
-//         meanMomentsQuadrature_.moments()
-//     );
-//
-//     volUnivariateMomentFieldSet& meanMomentsVariance
-//     (
-//         meanMomentsVarianceQuadrature_.moments()
-//     );
-
     forAll(meanMoments_, mi)
     {
         meanMoments_[mi] == p1_*mEnvOne_[mi] + p2_*mEnvTwo_[mi];
