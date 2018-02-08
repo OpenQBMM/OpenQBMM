@@ -72,6 +72,14 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             phi
         )
     ),
+    minMixtureFractionVariance_
+    (
+        dict.lookupOrDefault("minMixtureFractionVariance", 1.0e-4)
+    ),
+    minEnvironmentWeight_
+    (
+        dict.lookupOrDefault("minEnvironmentWeight", 1.0e-6)
+    ),
     p1_
     (
         mixingModel_().quadrature().nodes()[0].primaryWeight()
@@ -342,7 +350,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                             << "    solver. Cannot ensure realizability." << nl
                             << "    Local time step = " << localDt << nl
                             << "    Min local time step = " << minLocalDt_ << nl
-                            << "    Last valid moments in cell: " 
+                            << "    Last valid moments in cell: "
                             << oldMoments << nl
                             << abort(FatalError);
                     }
@@ -442,11 +450,11 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     {
         // Null or very small variance of the mixture fraction
         // Moments in the two environments are identical
-        if (xiVariance[celli] > 1.0e-4)
+        if (xiVariance[celli] > minMixtureFractionVariance_)
         {
             forAll(mEnvOne_, mi)
             {
-                if (p1_[celli] > 1.0e-6)
+                if (p1_[celli] > minEnvironmentWeight_)
                 {
                     mEnvOne_[mi][celli]
                         =
@@ -460,7 +468,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                     mEnvOne_[mi][celli] = 0;
                 }
 
-                if (p2_[celli] > 1.0e-6)
+                if (p2_[celli] > minEnvironmentWeight_)
                 {
                     mEnvTwo_[mi][celli]
                         =

@@ -38,9 +38,7 @@ SourceFiles
 
 #include "univariatePDFTransportModel.H"
 #include "populationBalanceModel.H"
-
 #include "turbulentMixing.H"
-
 #include "aggregationKernel.H"
 #include "breakupKernel.H"
 #include "daughterDistribution.H"
@@ -94,6 +92,12 @@ class mixingPopulationBalance
         <
             Foam::PDFTransportModels::mixingModels::turbulentMixing
         > mixingModel_;
+
+        //- Minimum mixture fraction variance to solve multienvironment problem
+        scalar minMixtureFractionVariance_;
+
+        //- Minimum environment weight
+        scalar minEnvironmentWeight_;
 
         //- Reference to field of weight of environment one
         const volScalarField& p1_;
