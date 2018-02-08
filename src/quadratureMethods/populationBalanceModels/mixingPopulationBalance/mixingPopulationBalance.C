@@ -88,6 +88,10 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     (
         mixingModel_().quadrature().nodes()[1].primaryAbscissa()
     ),
+    meanXi_
+    (
+        mixingModel_().quadrature().moments()[1]
+    ),
     meanMomentsQuadrature_
     (
         name + "MeanMoments",
@@ -120,6 +124,14 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             "RPlus"
         )
     ),
+    meanMoments_
+    (
+        meanMomentsQuadrature_.moments()
+    ),
+    meanMomentsVariance_
+    (
+        meanMomentsVarianceQuadrature_.moments()
+    ),
     envOneQuadrature_
     (
         IOobject::groupName
@@ -137,7 +149,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             "quadratureProperties",
             meanMomentsQuadrature_.name()
         ),
-        "envOneQuadrature",
+        "envTwoQuadrature",
         meanMomentsQuadrature_.moments()
     ),
     mEnvOne_(envOneQuadrature_.moments()),
@@ -233,7 +245,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 )
 {
     volUnivariateMomentFieldSet& moments(quadrature.moments());
-    const PtrList<volScalarNode>& nodes(quadrature.nodes());
+    const mappedPtrList<volScalarNode>& nodes(quadrature.nodes());
     label nMoments = quadrature.nMoments();
     scalar globalDt = moments[0].mesh().time().deltaT().value();
 
@@ -242,7 +254,6 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     forAll(moments[0], celli)
     {
         // Storing old moments to recover from failed step
-
         scalarList oldMoments(nMoments, 0.0);
 
         forAll(oldMoments, mi)
@@ -321,7 +332,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                  || !realizableUpdate3
                 )
                 {
-                    Info << "Not realizable" << endl;
+                    //Info << "Not realizable" << endl;
 
                     forAll(oldMoments, mi)
                     {
@@ -336,6 +347,9 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                             << "Reached minimum local step in realizable ODE"
                             << nl
                             << "    solver. Cannot ensure realizability." << nl
+                            << "    Local time step = " << localDt << nl
+                            << "    Min local time step = " << minLocalDt_ << nl
+                            << "    Moments: " << oldMoments << nl
                             << abort(FatalError);
                     }
                 }
@@ -424,15 +438,15 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Difference between abscissae of the mixture fraction
     volScalarField xiDiff(xi1_ - xi2_);
 
-    const volUnivariateMomentFieldSet& meanMoments
-    (
-        meanMomentsQuadrature_.moments()
-    );
-
-    const volUnivariateMomentFieldSet& meanMomentVariance
-    (
-        meanMomentsVarianceQuadrature_.moments()
-    );
+//     const volUnivariateMomentFieldSet& meanMoments
+//     (
+//         meanMomentsQuadrature_.moments()
+//     );
+//
+//     const volUnivariateMomentFieldSet& meanMomentVariance
+//     (
+//         meanMomentsVarianceQuadrature_.moments()
+//     );
 
     // Compute moments in the environments
     forAll(xiDiff, celli)
@@ -448,8 +462,8 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                     mEnvOne_[mi][celli]
                         =
                         (
-                            meanMomentVariance[mi][celli]
-                           - meanMoments[mi][celli]*xi2_[celli]
+                            meanMomentsVariance_[mi][celli]
+                           - meanMoments_[mi][celli]*xi2_[celli]
                         )/(p1_[celli]*xiDiff[celli]);
                 }
                 else
@@ -462,8 +476,8 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                     mEnvTwo_[mi][celli]
                         =
                         (
-                            meanMoments[mi][celli]*xi1_[celli]
-                          - meanMomentVariance[mi][celli]
+                            meanMoments_[mi][celli]*xi1_[celli]
+                          - meanMomentsVariance_[mi][celli]
                         )/(p2_[celli]*xiDiff[celli]);
                 }
                 else
@@ -476,8 +490,8 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         {
             forAll(mEnvOne_, mi)
             {
-                mEnvOne_[mi][celli] = meanMoments[mi][celli];
-                mEnvTwo_[mi][celli] = meanMoments[mi][celli];
+                mEnvOne_[mi][celli] = meanMoments_[mi][celli];
+                mEnvTwo_[mi][celli] = meanMoments_[mi][celli];
             }
         }
     }
@@ -492,21 +506,21 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::calcMixedMoments()
 {
-    volUnivariateMomentFieldSet& meanMoments
-    (
-        meanMomentsQuadrature_.moments()
-    );
+//     volUnivariateMomentFieldSet& meanMoments
+//     (
+//         meanMomentsQuadrature_.moments()
+//     );
+//
+//     volUnivariateMomentFieldSet& meanMomentsVariance
+//     (
+//         meanMomentsVarianceQuadrature_.moments()
+//     );
 
-    volUnivariateMomentFieldSet& meanMomentsVariance
-    (
-        meanMomentsVarianceQuadrature_.moments()
-    );
-
-    forAll(meanMoments, mi)
+    forAll(meanMoments_, mi)
     {
-        meanMoments[mi] == p1_*mEnvOne_[mi] + p2_*mEnvTwo_[mi];
+        meanMoments_[mi] == p1_*mEnvOne_[mi] + p2_*mEnvTwo_[mi];
 
-        meanMomentsVariance[mi]
+        meanMomentsVariance_[mi]
             == p1_*xi1_*mEnvOne_[mi] + p2_*xi2_*mEnvTwo_[mi];
     }
 }
@@ -517,7 +531,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 (
     const label momentOrder,
     const label celli,
-    const PtrList<volScalarNode>& nodes
+    const mappedPtrList<volScalarNode>& nodes
 )
 {
     scalar aSource = 0.0;
@@ -620,7 +634,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 (
     const label momentOrder,
     const label celli,
-    const PtrList<volScalarNode>& nodes
+    const mappedPtrList<volScalarNode>& nodes
 )
 {
     scalar bSource = 0.0;
@@ -692,7 +706,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 (
     const label momentOrder,
     const label celli,
-    const PtrList<volScalarNode>& nodes
+    const mappedPtrList<volScalarNode>& nodes
 )
 {
     scalar gSource = 0.0;
@@ -744,7 +758,7 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 (
     label momentOrder,
     label celli,
-    const PtrList<volScalarNode>& nodes
+    const mappedPtrList<volScalarNode>& nodes
 )
 {
     return aggregationSource(momentOrder, celli, nodes)
@@ -828,7 +842,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                     (
                         meanM,
                         varM,
-                        mixingModel_().quadrature().moments()[1]
+                        meanXi_
                     )
             )
         );

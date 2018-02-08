@@ -84,7 +84,7 @@ class mixingPopulationBalance
         scalar facMax_;
 
         //- Minimum local step in realizable ODE solver
-        label minLocalDt_;
+        scalar minLocalDt_;
 
         //- Name of the mixingPopulationBalance
         const word name_;
@@ -107,6 +107,9 @@ class mixingPopulationBalance
         //- Reference to field of abscissa of environment two
         const volScalarField& xi2_;
 
+        //- Reference to mean mixture fraction
+        const volScalarField& meanXi_;
+
         //- Quadrature for the mean moments
         univariateQuadratureApproximation meanMomentsQuadrature_;
 
@@ -118,6 +121,12 @@ class mixingPopulationBalance
 
         //- Moment advection for variance of mean moments
         autoPtr<univariateMomentAdvection> meanMomentsVarianceAdvection_;
+
+        //- Mean moments
+        volUnivariateMomentFieldSet& meanMoments_;
+
+        //- Variance of mean moments
+        volUnivariateMomentFieldSet& meanMomentsVariance_;
 
         //- Quadrature approximation of the PBE in the first environment
         univariateQuadratureApproximation envOneQuadrature_;
@@ -202,7 +211,7 @@ class mixingPopulationBalance
         (
             const label momentOrder,
             const label celli,
-            const PtrList<volScalarNode>& nodes
+            const Foam::mappedPtrList<volScalarNode>& nodes
         );
 
         //- Calculate Breakup source term
@@ -210,7 +219,7 @@ class mixingPopulationBalance
         (
             const label momentOrder,
             const label celli,
-            const PtrList<volScalarNode>& nodes
+            const Foam::mappedPtrList<volScalarNode>& nodes
         );
 
         //- Diffusion term
@@ -224,7 +233,7 @@ class mixingPopulationBalance
         (
             const label momentOrder,
             const label celli,
-            const PtrList<volScalarNode>& nodes
+            const Foam::mappedPtrList<volScalarNode>& nodes
         );
 
         //- Calculate source term for moment equation in the specified cell
@@ -232,7 +241,7 @@ class mixingPopulationBalance
         (
             label momentOrder,
             label celli,
-            const PtrList<volScalarNode>& nodes
+            const Foam::mappedPtrList<volScalarNode>& nodes
         );
 
 

@@ -79,7 +79,7 @@ class velocityPDFTransportModel
         scalar facMax_;
 
         //- Minimum local step in realizable ODE solver
-        label minLocalDt_;
+        scalar minLocalDt_;
 
 
 protected:
