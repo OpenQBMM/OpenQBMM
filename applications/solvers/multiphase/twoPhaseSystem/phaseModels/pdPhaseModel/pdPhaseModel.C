@@ -593,7 +593,7 @@ void Foam::pdPhaseModel::correct()
                     (
                         node.primaryAbscissa()*6.0
                        /(rho()*Foam::constant::mathematical::pi)
-                      + dimensionedScalar("SMALL", dimVolume, SMALL),
+                      + dimensionedScalar("small", dimVolume, small),
                         1.0/3.0
                     ),
                     minD_

@@ -346,7 +346,7 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                       > minM0_
                      &&
                         nodes_()[nodei].primaryAbscissa().boundaryField()[patchi][facei]
-                      > SMALL
+                      > small
                     )
                     {
                         nonZeroNodes[nodei] = true;
@@ -540,7 +540,7 @@ void Foam::monoKineticQuadratureApproximation::updateVelocities()
                 if
                 (
                     nodes_()[nodei].primaryWeight()[celli] > minM0_
-                 && nodes_()[nodei].primaryAbscissa()[celli] > SMALL
+                 && nodes_()[nodei].primaryAbscissa()[celli] > small
                 )
                 {
                     nonZeroNodes[nodei] = true;

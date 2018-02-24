@@ -93,7 +93,7 @@ Foam::bubbleBreakupKernels::LuoSvendsen::Kb(const label nodei) const
         "epsilon",
         fluid_.phase2().turbulence().epsilon()
     );
-    epsilon.max(SMALL);
+    epsilon.max(small);
 
     const volScalarField& d = fluid_.phase1().ds(nodei);
     const volScalarField& rho1 = fluid_.phase1().rho();
