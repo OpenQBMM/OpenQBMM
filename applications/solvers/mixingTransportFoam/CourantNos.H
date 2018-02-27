@@ -6,5 +6,5 @@
     Info<< "Max Courant Number for realizable moment transport  = "
         << realizableCo << endl;
 
-    CoNum = max(CoNum, realizableCo);
+    maxCo = min(maxCo, realizableCo);
 }
