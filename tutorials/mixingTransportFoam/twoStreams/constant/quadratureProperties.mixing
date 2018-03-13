@@ -17,6 +17,11 @@ FoamFile
 
 fieldMomentInversion    extendedFieldMomentInversion;
 
+basicMomentInversion
+{
+    univariateMomentInversion   Gauss
+}
+
 extendedMomentInversion
 {
     extendedMomentInversion     beta;
