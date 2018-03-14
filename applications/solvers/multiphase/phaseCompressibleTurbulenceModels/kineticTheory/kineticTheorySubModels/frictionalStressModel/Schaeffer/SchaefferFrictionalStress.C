@@ -163,7 +163,7 @@ Foam::kineticTheoryModels::frictionalStressModels::Schaeffer::nu
                     pf.boundaryField()[patchi]*sin(phi_.value())
                    /(
                         mag(U.boundaryField()[patchi].snGrad())
-                      + small
+                      + SMALL
                     )
                 );
         }
