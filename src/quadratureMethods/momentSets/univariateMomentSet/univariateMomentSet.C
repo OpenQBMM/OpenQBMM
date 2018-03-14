@@ -140,7 +140,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     canonicalMoments[0] = zeta[0];
 
-    if (mag(canonicalMoments[0] - 1.0) <= small)
+    if (mag(canonicalMoments[0] - 1.0) <= SMALL)
     {
         nRealizableMoments_ = 2;
         onMomentSpaceBoundary_ = true;
@@ -160,8 +160,8 @@ void Foam::univariateMomentSet::checkCanonicalMoments
         }
         else if
         (
-            mag(canonicalMoments[zetai]) <= small
-         || mag(canonicalMoments[zetai] - 1.0) <= small
+            mag(canonicalMoments[zetai]) <= SMALL
+         || mag(canonicalMoments[zetai] - 1.0) <= SMALL
         )
         {
             nRealizableMoments_ = zetai + 2;
@@ -208,7 +208,7 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 
-    if ((*this)[0] < small && !fatalErrorOnFailedRealizabilityTest)
+    if ((*this)[0] < SMALL && !fatalErrorOnFailedRealizabilityTest)
     {
         realizabilityChecked_ = true;
         negativeZeta_ = 0;

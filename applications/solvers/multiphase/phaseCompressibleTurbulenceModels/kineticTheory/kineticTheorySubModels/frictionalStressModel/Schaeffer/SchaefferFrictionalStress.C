@@ -144,7 +144,7 @@ Foam::kineticTheoryModels::frictionalStressModels::Schaeffer::nu
                 0.5*pf[celli]*sin(phi_.value())
                /(
                     sqrt((1.0/3.0)*sqr(tr(D[celli])) - invariantII(D[celli]))
-                  + small
+                  + SMALL
                 );
         }
     }

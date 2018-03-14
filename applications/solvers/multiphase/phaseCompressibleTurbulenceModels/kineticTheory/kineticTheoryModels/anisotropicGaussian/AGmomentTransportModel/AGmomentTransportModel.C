@@ -291,7 +291,7 @@ void Foam::AGmomentTransportModel::solve
     m1 = m1Old - 0.5*fvc::surfaceIntegrate(F1_)*deltaT;
     m2 = m2Old - 0.5*fvc::surfaceIntegrate(F2_)*deltaT;
 
-    m0.max(small);
+    m0.max(SMALL);
     alphap_ = m0;
     alphap_.correctBoundaryConditions();
 
@@ -352,19 +352,19 @@ void Foam::AGmomentTransportModel::solve
 
     forAll(Pp_,i)
     {
-        if (Pp_[i].xx() < small)
+        if (Pp_[i].xx() < SMALL)
         {
-                Pp_[i].xx() = small;
+                Pp_[i].xx() = SMALL;
         }
 
-        if (Pp_[i].yy() < small)
+        if (Pp_[i].yy() < SMALL)
         {
-            Pp_[i].yy() = small;
+            Pp_[i].yy() = SMALL;
         }
 
-        if (Pp_[i].zz() < small)
+        if (Pp_[i].zz() < SMALL)
         {
-            Pp_[i].zz() = small;
+            Pp_[i].zz() = SMALL;
         }
     }
 
@@ -480,7 +480,7 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
                             scalar dfls_mf = phiw_*sFlux;
                             scalar dfls_ef = phiw_*tr(tFlux);
 
-                            if (dfls_mf*dfls_ef > small)
+                            if (dfls_mf*dfls_ef > SMALL)
                             {
                                 scalarField facePhio
                                 (
@@ -755,7 +755,7 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
                         scalar dfls_mf = phiw_*sFlux;
                         scalar dfls_ef = phiw_*tr(tFlux);
 
-                        if (dfls_mf*dfls_ef > small)
+                        if (dfls_mf*dfls_ef > SMALL)
                         {
                             scalarField facePhio
                             (

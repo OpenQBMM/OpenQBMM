@@ -128,7 +128,7 @@ Foam::tmp<Foam::volScalarField> Foam::blendingMethods::linear::f1
             max
             (
                 (phase1 - maxFullAlpha)
-               /(maxPartAlpha - maxFullAlpha + small),
+               /(maxPartAlpha - maxFullAlpha + SMALL),
                 scalar(0.0)
             ),
             scalar(1.0)
@@ -153,7 +153,7 @@ Foam::tmp<Foam::volScalarField> Foam::blendingMethods::linear::f2
             max
             (
                 (maxPartAlpha - phase2)
-               /(maxPartAlpha - maxFullAlpha + small),
+               /(maxPartAlpha - maxFullAlpha + SMALL),
                 scalar(0.0)
             ),
             scalar(1.0)

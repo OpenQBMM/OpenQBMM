@@ -92,7 +92,7 @@ Foam::bubbleBreakupKernels::Alopaeus::Kb(const label nodei) const
     const phaseModel& phase(fluid_.phase1());
     volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
     volScalarField epsilon(phase.nu()*(S && S));
-    epsilon.max(small);
+    epsilon.max(SMALL);
 
     const volScalarField& d = fluid_.phase1().ds(nodei);
     const volScalarField& rho1 = fluid_.phase1().rho();
