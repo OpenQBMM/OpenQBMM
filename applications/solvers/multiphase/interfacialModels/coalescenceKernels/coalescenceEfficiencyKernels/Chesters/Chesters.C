@@ -96,8 +96,8 @@ Foam::coalescenceEfficiencyKernels::Chesters::Pc
     (
         "theta",
         Ceff_
-       *pow(max(pair.Re(nodei, 0), small), ReExp_)
-       *pow(max(pair.We(nodei, 0), small), WeExp_)
+       *pow(max(pair.Re(nodei, 0), SMALL), ReExp_)
+       *pow(max(pair.We(nodei, 0), SMALL), WeExp_)
     );
 
     return

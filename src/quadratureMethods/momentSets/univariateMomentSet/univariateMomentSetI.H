@@ -72,7 +72,7 @@ bool Foam::univariateMomentSet::isDegenerate()
     // The case when m0 = 0 is already managed
     for (Foam::label momentI = 1; momentI < (*this).size(); momentI++)
     {
-        if (mag((*this)[momentI]) > small)
+        if (mag((*this)[momentI]) > SMALL)
         {
             degenerate_ = false;
 

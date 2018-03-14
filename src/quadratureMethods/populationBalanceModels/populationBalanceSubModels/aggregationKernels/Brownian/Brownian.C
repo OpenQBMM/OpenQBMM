@@ -83,7 +83,7 @@ Foam::populationBalanceSubModels::aggregationKernels::Brownian::Ka
 {
     return 2.0*Foam::constant::physicoChemical::k.value()*T_[celli]
             *sqr(abscissa1 + abscissa2)/(3.0*mu_[celli]
-            *max(abscissa1*abscissa2, small));
+            *max(abscissa1*abscissa2, SMALL));
 }
 
 // ************************************************************************* //

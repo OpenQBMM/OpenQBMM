@@ -95,7 +95,7 @@ Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
            *pow4
             (
                 d1*d2
-                /max(d1 + d2, dimensionedScalar("zero", dimLength, small))
+                /max(d1 + d2, dimensionedScalar("zero", dimLength, SMALL))
             )
         );
 }

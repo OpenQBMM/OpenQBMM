@@ -309,7 +309,7 @@ void Foam::phaseModel::correctInflowOutflow(surfaceScalarField& alphaPhi) const
 
             forAll(alphaPhip, facei)
             {
-                if (phip[facei] < small)
+                if (phip[facei] < SMALL)
                 {
                     alphaPhip[facei] = alphap[facei]*phip[facei];
                 }
