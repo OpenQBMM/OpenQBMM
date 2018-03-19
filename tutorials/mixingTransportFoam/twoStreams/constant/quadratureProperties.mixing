@@ -19,7 +19,7 @@ fieldMomentInversion    extendedFieldMomentInversion;
 
 basicMomentInversion
 {
-    univariateMomentInversion   Gauss
+    univariateMomentInversion   Gauss;
 }
 
 extendedMomentInversion
