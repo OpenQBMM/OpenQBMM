@@ -33,15 +33,6 @@ PIMPLE
     nCorrectors         1;
     pRefCell            0;
     pRefValue           1.0e5;
-
-    residualControl
-    {
-        "moment.*"
-        {
-            tolerance 1e-10;
-            relTol    0;
-        }
-    }
 }
 
 relaxationFactors

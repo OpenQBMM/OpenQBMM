@@ -110,7 +110,7 @@ Foam::coalescenceEfficiencyKernels::Lehr::Pc
            /max
             (
                 mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej)),
-                dimensionedScalar("small", dimVelocity, 1e-10)
+                dimensionedScalar("smallVelocity", dimVelocity, 1e-10)
             ),
             1.0
         );
