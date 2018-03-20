@@ -35,15 +35,9 @@ moments
 
 nodes
 (
-//     (0)
-//     (1)
-//     (2)
-    node0
-    {}
-    node1
-    {}
-    node2
-    {}
+    (0)
+    (1)
+    (2)
 );
 
 residuals

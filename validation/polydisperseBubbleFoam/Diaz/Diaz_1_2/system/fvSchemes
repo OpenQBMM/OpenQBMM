@@ -54,7 +54,7 @@ interpolationSchemes
 
     "interpolate\(moment.*\)" upwind phi.air;
 
-    reconstruct(Us)         upwind;
+    reconstruct(U)         upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;
 }

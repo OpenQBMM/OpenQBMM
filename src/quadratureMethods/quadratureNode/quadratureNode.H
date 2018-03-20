@@ -39,6 +39,7 @@ SourceFiles
 #define quadratureNode_H
 
 #include "fvMesh.H"
+#include "mappedList.H"
 #include "PtrList.H"
 #include "dictionary.H"
 #include "dictionaryEntry.H"
@@ -87,12 +88,11 @@ public:
 
     // Constructors
 
-        //- Construct from name, dictionary, mesh and dimensions
+        //- Construct from name, mesh and dimensions
         quadratureNode
         (
             const word& name,
             const word& distributionName,
-            const dictionary& nodeDict,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const dimensionSet& abscissaDimensions,
@@ -160,7 +160,7 @@ public:
                 Istream& is
             ) const
             {
-                dictionaryEntry ent(dictionary::null, is);
+                labelList ent(is);
                 return autoPtr
                 <
                     quadratureNode<weightType, abscissaType, sigmaType>
@@ -171,9 +171,8 @@ public:
                         weightType, abscissaType, sigmaType
                     >
                     (
-                        ent.keyword(),
+                        "node" + mappedList<scalar>::listToWord(ent),
                         distributionName_,
-                        ent,
                         mesh_,
                         weightDimensions_,
                         abscissaDimensions_,

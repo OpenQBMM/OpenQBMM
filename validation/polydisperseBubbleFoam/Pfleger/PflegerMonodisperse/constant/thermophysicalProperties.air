@@ -21,7 +21,7 @@ thermoType
     mixture         pureMixture;
     transport       const;
     thermo          hConst;
-    equationOfState perfectGas;
+    equationOfState incompressiblePerfectGas;
     specie          specie;
     energy          sensibleInternalEnergy;
 }
@@ -42,7 +42,11 @@ mixture
         mu          1.84e-05;
         Pr          0.7;
     }
+    equationOfState
+    {
+        rho     1.4;
+        pRef    1e5;
+    }
 }
-
 
 // ************************************************************************* //
