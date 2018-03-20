@@ -20,15 +20,14 @@ solvers
     "alpha.*"
     {
         solver          GAMG;
-        preconditioner  DIC;
-        nAlphaCorr      2;
-        nAlphaSubCycles 1;
+        smoother        DIC;
+        nAlphaCorr      1;
+        nAlphaSubCycles 2;
     }
     p_rgh
     {
         solver          GAMG;
         smoother        DIC;
-        preconditioner  DIC;
         nPreSweeps      0;
         nPostSweeps     2;
         nFinestSweeps   2;
@@ -36,7 +35,7 @@ solvers
         nCellsInCoarsestLevel 10;
         agglomerator    faceAreaPair;
         mergeLevels     2;
-        tolerance       1e-12;
+        tolerance       1e-10;
         maxIter         1000;
     }
 
@@ -48,11 +47,10 @@ solvers
 
     "U.air.*"
     {
-        solver          PBiCGStab;
+        solver          PBiCG;
         preconditioner  DILU;
-        tolerance       1e-10;
+        tolerance       1e-8;
         relTol          0;
-        minIter         1;
     }
 
     U.water
@@ -62,6 +60,14 @@ solvers
         tolerance       1e-8;
         relTol          0;
         minIter         1;
+    }
+    "e.*"
+    {
+        solver          smoothSolver;
+        preconditioner  symGaussSeidel;
+        tolerance       1e-8;
+        relTol          0;
+        maxIter         0;
     }
 
     "Up.*"
@@ -85,7 +91,7 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors 5;
+    nOuterCorrectors 15;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
