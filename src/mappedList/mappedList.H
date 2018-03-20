@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -50,7 +50,7 @@ SourceFiles
 #define mappedList_H
 
 #include "scalar.H"
-#include "List.H"
+#include "labelList.H"
 #include "Map.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

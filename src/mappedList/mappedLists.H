@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -30,8 +30,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef moments_H
-#define moments_H
+#ifndef mappedLists_H
+#define mappedLists_H
 
 #include "mappedList.H"
 
