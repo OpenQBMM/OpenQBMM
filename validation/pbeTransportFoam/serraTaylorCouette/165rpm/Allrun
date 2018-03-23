@@ -18,7 +18,7 @@ cp -f system/controlDict.populationBalance system/controlDict
 cp -f system/fvSchemes.populationBalance system/fvSchemes
 
 runApplication decomposePar -time 0
-runParallel pbeTransportFoam 4 >log.pbeTransportFoam
+runParallel pbeTransportFoam
 
 runApplication reconstructPar -latestTime
 
