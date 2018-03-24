@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                 |
+|  \\    /   O peration     | Version:  dev                                   |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -15,38 +15,11 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-fieldMomentInversion    extendedFieldMomentInversion;
+fieldMomentInversion    basicFieldMomentInversion;
 
 basicMomentInversion
 {
     univariateMomentInversion   Gauss;
-}
-
-extendedMomentInversion
-{
-    extendedMomentInversion     beta;
-
-    maxSigmaIter        1000;
-    momentsTol          1.0e-6;
-    sigmaTol            1.0e-8;
-    targetFunctionTol   1.0e-8;
-    minMean             1.0e-4;
-    minVariance         1.0e-4;
-
-    basicQuadrature
-    {
-        univariateMomentInversion   Gauss;
-    }
-}
-
-momentAdvection
-{
-    univariateMomentAdvection   firstOrderKinetic;
-
-    basicMomentInversion
-    {
-        univariateMomentInversion GaussRadau;
-    }
 }
 
 moments
@@ -56,6 +29,7 @@ moments
     (2)
     (3)
     (4)
+    (5)
 );
 
 nodes
@@ -64,6 +38,13 @@ nodes
     {}
     node1
     {}
+    node2
+    {}
 );
 
+residuals
+{
+    minM0   1;
+    minM1   1e-6;
+}
 // ************************************************************************* //

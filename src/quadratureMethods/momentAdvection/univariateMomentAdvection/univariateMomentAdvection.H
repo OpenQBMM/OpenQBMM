@@ -89,7 +89,7 @@ protected:
         surfaceScalarField nei_;
 
         //- Conservative advection flux
-        const surfaceScalarField phi_;
+        const surfaceScalarField& phi_;
 
         //- Support of the distribution function
         word support_;

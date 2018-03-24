@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.2.2                                 |
+|  \\    /   O peration     | Version:  dev                                   |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -15,23 +15,23 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     denseAGFoam;
+application     polydisperseBubbleFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 
 stopAt          endTime;
 
-endTime         2;
+endTime         250;
 
-deltaT          2e-4;
+deltaT          1e-3;
 
 writeControl    adjustableRunTime;
 
-writeInterval   0.01;
+writeInterval   1;
 
-purgeWrite      0;
+purgeWrite      250;
 
 writeFormat     ascii;
 
@@ -43,38 +43,39 @@ timeFormat      general;
 
 timePrecision   6;
 
-runTimeModifiable on;
+runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           0.2;
+maxCo           0.1;
 
-maxDeltaT       0.001;
+maxDeltaT       1;
 
 functions
 {
     fieldAverage1
     {
         type            fieldAverage;
-        libs            ("libfieldFunctionObjects.so");
-        writeControl    writeTime;
+        functionObjectLibs ( "libfieldFunctionObjects.so" );
+        outputControl   outputTime;
+        timeStart       50;
         fields
         (
-            U.particles
+            U.air
             {
                  mean        on;
                  prime2Mean  off;
                  base        time;
             }
 
-            U.gas
+            U.water
             {
                  mean        on;
                  prime2Mean  off;
                  base        time;
             }
 
-            alpha.particles
+            alpha.air
             {
                  mean        on;
                  prime2Mean  off;
@@ -87,21 +88,12 @@ functions
                  prime2Mean  off;
                  base        time;
             }
-        );
-    }
-    pProbes
-    {
-        type        probes;
-        functionObjectLibs ("libsampling.so");
-        probeLocations
-        (
-            (0.14   0       0)
-            (0.14   0.2     0)
-        );
-
-        fields
-        (
-            p_rgh
+            d.air
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
         );
     }
 }

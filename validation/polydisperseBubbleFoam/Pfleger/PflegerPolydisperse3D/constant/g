@@ -9,37 +9,14 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      fvSolution;
+    class       uniformDimensionedVectorField;
+    location    "constant";
+    object      g;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
-{
-    "moment.*"
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-10;
-        relTol          0;
-    }
-}
+dimensions      [0 1 -2 0 0 0 0];
+value           (0 -9.81 0);
 
-PIMPLE
-{
-    nOuterCorrectors    1;
-    nNonOrthogonalCorrectors 0;
-    nCorrectors         1;
-    pRefCell            0;
-    pRefValue           1.0e5;
-}
 
-relaxationFactors
-{
-    equations
-    {
-        "moment.*"      1;
-    }
-}
 // ************************************************************************* //
