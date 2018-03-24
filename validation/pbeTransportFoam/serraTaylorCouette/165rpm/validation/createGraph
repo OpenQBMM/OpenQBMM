@@ -45,7 +45,7 @@ VALIDATIONDATAROOT=./validationData
 echo "    processing d43 profile" > log.createGraphs 2>&1
 OPENQBMMM="volumeAveragedD43.dat"
 VALIDATION="$VALIDATIONDATAROOT/SerraEtAl1997_d43_165rpm.dat"
-MARCHISIO="$VALIDATIONDATAROOT/Marchisio_165_6.csv"
+MARCHISIO="$VALIDATIONDATAROOT/Marchisio_165_6.dat"
 
 createEpsD43 $VALIDATION $MARCHISIO $OPENQBMMM
 
