@@ -9,7 +9,7 @@ EXE_INC = \
     -I$../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude \
     -I$../../../src/quadratureMethods/momentInversion/univariate/extended/lnInclude \
     -I$../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I$../../../src/quadratureMethods/quadratureApproximations
+    -I$../../../src/quadratureMethods/quadratureApproximations/lnInclude
 
 
 EXE_LIBS = \

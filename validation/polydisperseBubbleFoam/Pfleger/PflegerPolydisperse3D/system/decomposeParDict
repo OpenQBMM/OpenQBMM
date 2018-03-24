@@ -11,35 +11,35 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSolution;
+    object      decomposeParDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
+numberOfSubdomains 4;
+
+method          scotch;
+
+simpleCoeffs
 {
-    "moment.*"
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-10;
-        relTol          0;
-    }
+    n               (1 12 1);
+    delta           0.001;
 }
 
-PIMPLE
+hierarchicalCoeffs
 {
-    nOuterCorrectors    1;
-    nNonOrthogonalCorrectors 0;
-    nCorrectors         1;
-    pRefCell            0;
-    pRefValue           1.0e5;
+    n               (1 1 1);
+    delta           0.001;
+    order           xyz;
 }
 
-relaxationFactors
+manualCoeffs
 {
-    equations
-    {
-        "moment.*"      1;
-    }
+    dataFile        "";
 }
+
+distributed     no;
+
+roots           ( );
+
+
 // ************************************************************************* //

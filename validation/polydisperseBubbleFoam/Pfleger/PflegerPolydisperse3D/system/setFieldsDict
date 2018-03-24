@@ -11,35 +11,27 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSolution;
+    object      setFieldsDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
-{
-    "moment.*"
+regions
+(
+    boxToCell
     {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-10;
-        relTol          0;
+        box (0 0 0) (0.5 0.45 0.1);
+        fieldValues
+        (
+            volScalarFieldValue alpha.air       0
+            volScalarFieldValue moment.0.air    0
+            volScalarFieldValue moment.1.air    0
+            volScalarFieldValue moment.2.air    0
+            volScalarFieldValue moment.3.air    0
+            volScalarFieldValue moment.4.air    0
+            volScalarFieldValue moment.5.air    0
+        );
     }
-}
+);
 
-PIMPLE
-{
-    nOuterCorrectors    1;
-    nNonOrthogonalCorrectors 0;
-    nCorrectors         1;
-    pRefCell            0;
-    pRefValue           1.0e5;
-}
 
-relaxationFactors
-{
-    equations
-    {
-        "moment.*"      1;
-    }
-}
 // ************************************************************************* //

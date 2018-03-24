@@ -78,7 +78,7 @@ class univariatePDFTransportModel
         scalar facMax_;
 
         //- Minimum local step in realizable ODE solver
-        label minLocalDt_;
+        scalar minLocalDt_;
 
 
 protected:

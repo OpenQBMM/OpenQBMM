@@ -10,36 +10,36 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      fvSolution;
+    location    "constant";
+    object      populationaBalanceProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
+
+coalescence off;
+
+coalescenceKernel
 {
-    "moment.*"
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-10;
-        relTol          0;
-    }
+    coalescenceFrequencyKernel CoulaloglouAndTavlarides;
+    coalescenceEfficiencyKernel CoulaloglouAndTavlarides;
+
+    Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
+    Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;
+    ReExp   ReExp   [ 0 0 0 0 0 0 0 ]  -0.732;
+    WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
 }
 
-PIMPLE
+breakup off;
+
+breakupKernel
 {
-    nOuterCorrectors    1;
-    nNonOrthogonalCorrectors 0;
-    nCorrectors         1;
-    pRefCell            0;
-    pRefValue           1.0e5;
+    breakupKernel Alopaeus;
+    Cb        Cb        [ 0 0 -1 0 0 0 0 ] 6.0;
 }
 
-relaxationFactors
+daughterDistribution
 {
-    equations
-    {
-        "moment.*"      1;
-    }
+    daughterDistribution uniform;
 }
+
 // ************************************************************************* //

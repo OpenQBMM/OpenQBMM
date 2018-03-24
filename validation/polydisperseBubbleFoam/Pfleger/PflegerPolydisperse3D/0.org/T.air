@@ -9,37 +9,37 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      fvSolution;
+    class       volScalarField;
+    object      T.air;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
+dimensions          [0 0 0 1 0 0 0];
+
+internalField       uniform 300;
+
+boundaryField
 {
-    "moment.*"
+    walls
     {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-10;
-        relTol          0;
+        type               zeroGradient;
+    }
+    outlet
+    {
+        type               inletOutlet;
+        phi                phi.air;
+        inletValue         $internalField;
+        value              $internalField;
+    }
+    inlet
+    {
+        type               fixedValue;
+        value              $internalField;
+    }
+    defaultFaces
+    {
+        type    empty;
     }
 }
 
-PIMPLE
-{
-    nOuterCorrectors    1;
-    nNonOrthogonalCorrectors 0;
-    nCorrectors         1;
-    pRefCell            0;
-    pRefValue           1.0e5;
-}
-
-relaxationFactors
-{
-    equations
-    {
-        "moment.*"      1;
-    }
-}
-// ************************************************************************* //
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
