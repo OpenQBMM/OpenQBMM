@@ -39,14 +39,14 @@ const Foam::labelList& Foam::conditionalMomentInversion::nNodes()
 }
 
 //- Return mapped list of weights
-const Foam::PtrList< Foam::nDimensionalMappedList< Foam::scalar> >&
+const Foam::PtrList<Foam::mappedList< Foam::scalar>>&
 Foam::conditionalMomentInversion::weights() const
 {
     return weights_;
 }
 
 //- Return mapped list of abscissae
-const Foam::PtrList< Foam::nDimensionalMappedList< Foam::scalar> >&
+const Foam::PtrList< Foam::mappedList< Foam::scalar> >&
 Foam::conditionalMomentInversion::abscissae() const
 {
     return abscissae_;
