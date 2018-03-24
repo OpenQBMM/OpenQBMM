@@ -53,8 +53,9 @@ interpolationSchemes
 {
     default         linear;
 
+    reconstruct(U)          upwind;
     reconstruct(weight)     upwind;
-    reconstruct(abscissa)   Minmod;
+    reconstruct(abscissa)   upwind;
 }
 
 snGradSchemes

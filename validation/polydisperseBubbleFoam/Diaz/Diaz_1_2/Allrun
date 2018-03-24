@@ -12,3 +12,7 @@ runApplication generateMoments
 runApplication setFields
 runApplication decomposePar
 runParallel polydisperseBubbleFoam
+
+# NOTE: This case is very unstable and typically needs to be restarted several time. The createGraph program will read all of the pProbes folders and create the total list of pressures
+# To restart run:
+# mpirun -np $numberOfProcessors polydisperseBubbleFoam -parallel

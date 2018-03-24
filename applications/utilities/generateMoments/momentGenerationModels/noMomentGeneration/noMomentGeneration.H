@@ -64,9 +64,8 @@ public:
         noMomentGeneration
         (
             const dictionary& dict,
-            const label nNodes,
-            const bool extended,
-            const bool radau
+            const labelListList& momentOrders,
+            const label nNodes
         );
 
 

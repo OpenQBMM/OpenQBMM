@@ -11,4 +11,4 @@ runApplication blockMesh
 runApplication generateMoments
 runApplication setFields
 runApplication decomposePar
-runParallel polydisperseBubbleFoam
+runParallel twoPhaseEulerFoam
