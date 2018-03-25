@@ -55,7 +55,7 @@ class noMomentGeneration
 public:
 
         //- Runtime type information
-        TypeName("moments");
+        TypeName("noMomentGeneration");
 
 
     // Constructors
@@ -64,8 +64,9 @@ public:
         noMomentGeneration
         (
             const dictionary& dict,
-            const labelListList& momentOrders,
-            const label nNodes
+            const label nNodes,
+            const bool extended,
+            const bool radau
         );
 
 

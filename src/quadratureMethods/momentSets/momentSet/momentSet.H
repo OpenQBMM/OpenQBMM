@@ -38,7 +38,6 @@ SourceFiles
 
 #include "labelList.H"
 #include "scalarList.H"
-#include "mappedList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -51,17 +50,13 @@ namespace Foam
 
 class momentSet
 :
-    public mappedList<scalar>
+    public scalarList
 {
 protected:
-
     // Protected data
 
         //- Number of moments
         label nMoments_;
-
-        //- Number of dimensions of the the NDF associated to the moment set
-        label nDimensions_;
 
         //- List of moment orders
         labelListList momentOrders_;
@@ -78,7 +73,6 @@ public:
         momentSet
         (
             const label nMoments,
-            const label nDimensions,
             const labelListList& momentOrders,
             const word& support,
             const scalar initValue = 0
@@ -88,7 +82,6 @@ public:
         momentSet
         (
             const scalarList& m,
-            const label nDimensions,
             const labelListList& momentOrders,
             const word& support
         );
@@ -101,9 +94,6 @@ public:
 
         //- Return moment orders
         inline const labelListList& momentOrders() const;
-
-        //- Return the number of dimensions of the NDF
-        inline label nDimensions() const;
 
         //- Return the number of moments
         inline label nMoments() const;

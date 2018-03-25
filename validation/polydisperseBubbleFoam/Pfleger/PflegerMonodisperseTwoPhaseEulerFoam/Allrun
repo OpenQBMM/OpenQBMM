@@ -7,8 +7,7 @@ cd ${0%/*} || exit 1    # Run from this directory
 mkdir 0
 cp 0.org/* 0/
 
-runApplication blockMesh
 runApplication generateMoments
 runApplication setFields
 runApplication decomposePar
-runParallel twoPhaseEulerFoam
+runParallel polydisperseBubbleFoam

@@ -2,13 +2,33 @@
 cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
-. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+org="0.org"
+const="constant"
+system="system"
+dyn="dynamicCode"
+animation="animation"
+data="data"
+
+
+for f in *
+do
+    if [ -d $f ]; then
+        if                              \
+            [ $f != $org ]              \
+         && [ $f != $const ]            \
+         && [ $f != $system ]           \
+         && [ $f != $animation ]        \
+         && [ $f != $data ]             \
+         && [ $f != $dyn ] ; then
+            rm -r $f
+        fi
+    fi
+done
 
 mkdir 0
 cp 0.org/* 0/
-
-runApplication blockMesh
-runApplication generateMoments
-runApplication setFields
-runApplication decomposePar
-runParallel polydisperseBubbleFoam
+generateMoments
+setFields
+decomposePar
+mpirun -np 4 polydisperseBubbleFoam -parallel

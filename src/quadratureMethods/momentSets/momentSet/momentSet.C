@@ -30,15 +30,13 @@ License
 Foam::momentSet::momentSet
 (
     const label nMoments,
-    const label nDimensions,
     const labelListList& momentOrders,
     const word& support,
     const scalar initValue
 )
 :
-    mappedList(nMoments, momentOrders, initValue),
+    scalarList(nMoments, initValue),
     nMoments_(nMoments),
-    nDimensions_(nDimensions),
     momentOrders_(momentOrders),
     support_(support)
 {
@@ -50,27 +48,17 @@ Foam::momentSet::momentSet
             << "    Moment set: " << (*this)
             << abort(FatalError);
     }
-
-    if (nDimensions_ > 5)
-    {
-        FatalErrorInFunction
-            << "The number of maximum dimensions for the NDF is 5." << nl
-            << "    Specified number of dimensions: " << nDimensions_
-            << abort(FatalError);
-    }
 }
 
 Foam::momentSet::momentSet
 (
     const scalarList& m,
-    const label nDimensions,
     const labelListList& momentOrders,
     const word& support
 )
 :
-    mappedList(m, momentOrders),
+    scalarList(m),
     nMoments_(m.size()),
-    nDimensions_(nDimensions),
     momentOrders_(momentOrders),
     support_(support)
 {
@@ -79,15 +67,6 @@ Foam::momentSet::momentSet
         FatalErrorInFunction
             << "The specified support is invalid." << nl
             << "    Valid supports are: R, RPlus and 01."
-            << abort(FatalError);
-    }
-
-
-    if (nDimensions_ > 5)
-    {
-        FatalErrorInFunction
-            << "The number of maximum dimensions for the NDF is 5." << nl
-            << "    Specified number of dimensions: " << nDimensions_
             << abort(FatalError);
     }
 }

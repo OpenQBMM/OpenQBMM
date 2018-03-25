@@ -51,6 +51,7 @@ interpolationSchemes
     default         linear;
 
     reconstruct(U)          upwind;
+    reconstruct(Us)         upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;
 }

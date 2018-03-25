@@ -51,6 +51,11 @@ Foam::label Foam::univariateMomentSet::negativeZeta()
     return negativeZeta_;
 }
 
+// const Foam::scalarList& Foam::univariateMomentSet::zetas() const
+// {
+//     return zeta_;
+// }
+
 Foam::scalarList& Foam::univariateMomentSet::zetas()
 {
     if (!realizabilityChecked_)
@@ -147,7 +152,7 @@ Foam::label Foam::univariateMomentSet::nRealizableMoments
     return nRealizableMoments_;
 }
 
-Foam::scalar& Foam::univariateMomentSet::operator[](const label index)
+Foam::scalar& Foam::univariateMomentSet::operator[](const label i)
 {
     degenerate_ = false;
     fullyRealizable_ = true;
@@ -155,24 +160,12 @@ Foam::scalar& Foam::univariateMomentSet::operator[](const label index)
     onMomentSpaceBoundary_ = false;
     realizabilityChecked_ = false;
 
-    return scalarList::operator[](index);
+    return scalarList::operator[](i);
 }
 
-const Foam::scalar&
-Foam::univariateMomentSet::operator[](const label index) const
+const Foam::scalar& Foam::univariateMomentSet::operator[](const label i) const
 {
-    return scalarList::operator[](index);
-}
-
-const Foam::scalar&
-Foam::univariateMomentSet::operator()(const label momentOrder) const
-{
-    return operator[](momentOrder);
-}
-
-Foam::scalar& Foam::univariateMomentSet::operator()(label momentOrder)
-{
-    return operator[](momentOrder);
+    return scalarList::operator[](i);
 }
 
 // ************************************************************************* //

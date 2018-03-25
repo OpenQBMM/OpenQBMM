@@ -35,11 +35,6 @@ Foam::label Foam::momentSet::nMoments() const
     return nMoments_;
 }
 
-Foam::label Foam::momentSet::nDimensions() const
-{
-    return nDimensions_;
-}
-
 const Foam::word Foam::momentSet::support() const
 {
     return support_;

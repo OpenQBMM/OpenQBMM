@@ -31,19 +31,19 @@ License
 Foam::conditionalMomentInversion::conditionalMomentInversion
 (
     const dictionary& dict,
-    const labelListList& momentOrders,
-    const labelListList& nodeIndexes,
+    const label nMoments,
+    const Map<label> map,
     const labelList& nNodes,
     const List<word>& support
 )
 :
-    nMoments_(momentOrders.size()),
+    nMoments_(nMoments),
     nNodes_(nNodes),
-    nDims_(momentOrders[0].size()),
+    nDims_(nNodes_.size()),
     support_(support),
     abscissae_(nDims_),
     weights_(nDims_),
-    moments_(nMoments_, momentOrders, support[0], 0.0),
+    moments_(nMoments_, nDims_, map),
     conditionalMoments_(nDims_),
     invVR_(nDims_ - 1),
     momentInverter_
@@ -55,65 +55,72 @@ Foam::conditionalMomentInversion::conditionalMomentInversion
 
     forAll(nNodes_, dimi)
     {
-        label nDimensions = dimi + 1;
-        labelList pos(nDimensions);
-        label mi = 0;
-        Map<label> nodeMap(0);
-        setNodeMap(nodeMap, nDimensions, nNodes, 0, mi, pos);
-        label nCmpts = nodeMap.size();
+        weights_.set
+        (
+            dimi,
+            new nDimensionalMappedList<scalar>(dimi + 1, nNodes_)
+        );
 
-        weights_.set(dimi, new mappedList<scalar>(nCmpts, nodeMap, 0.0));
-        abscissae_.set(dimi, new mappedList<scalar>(nCmpts, nodeMap, 0.0));
+        abscissae_.set
+        (
+            dimi,
+            new nDimensionalMappedList<scalar>(dimi + 1, nNodes_)
+        );
+
+        forAll(abscissae_[dimi], ai)
+        {
+            weights_[dimi].set(ai, new scalar(0));
+            abscissae_[dimi].set(ai, new scalar(0));
+        }
     }
 
     forAll(conditionalMoments_, dimi)
     {
-        nNodesCM = nNodes_;
-        nNodesCM[dimi] = 2*nNodes_[dimi];
-
-        label nDimensions = dimi + 1;
-        labelList pos(nDimensions);
-        label mi = 0;
-        Map<label> conditionalMap(0);
-        setNodeMap(conditionalMap, nDimensions, nNodesCM, 0, mi, pos);
-
-        label nCmpts = conditionalMap.size();
-
         conditionalMoments_.set
         (
             dimi,
-            new PtrList<mappedList<scalar>>(dimi + 1)
+            new PtrList<nDimensionalMappedList<scalar>>(dimi + 1)
         );
+
+        nNodesCM = nNodes_;
+        nNodesCM[dimi] = 2*nNodes_[dimi];
 
         forAll(conditionalMoments_[dimi], dimj)
         {
             conditionalMoments_[dimi].set
             (
                 dimj,
-                new mappedList<scalar>(nCmpts, conditionalMap , 0.0)
+                new nDimensionalMappedList<scalar>(dimi + 1, nNodesCM)
             );
+
+            forAll(conditionalMoments_[dimi][dimj], ai)
+            {
+                conditionalMoments_[dimi][dimj].set(ai, new scalar(0));
+            }
         }
     }
 
     forAll(invVR_, dimi)
     {
-        label nDimensions = dimi;
-        labelList pos(nDimensions);
-        label mi = 0;
-        Map<label> VRMap(0);
-        setNodeMap(VRMap, nDimensions, nNodes_, 0, mi, pos);
-        label nCmpts = VRMap.size();
-
         invVR_.set
         (
             dimi,
-            new mappedList<scalarSquareMatrix>
-            (
-                nCmpts,
-                VRMap,
-                scalarSquareMatrix(nNodes_[dimi], scalar(0))
-            )
+            new nDimensionalMappedList<scalarSquareMatrix>(dimi, nNodes_)
         );
+
+        forAll(invVR_[dimi], ai)
+        {
+            invVR_[dimi].set
+            (
+                ai,
+                new scalarSquareMatrix(nNodes_[dimi], scalar(0))
+            );
+        }
+    }
+
+    forAll(moments_, mi)
+    {
+        moments_.set(mi, new scalar(0));
     }
 
     // Set all lists to zero
@@ -131,7 +138,7 @@ Foam::conditionalMomentInversion::~conditionalMomentInversion()
 
 void Foam::conditionalMomentInversion::invert
 (
-    const multivariateMomentSet& moments
+    const nDimensionalMappedList<scalar>& moments
 )
 {
     reset();
@@ -178,42 +185,6 @@ void Foam::conditionalMomentInversion::invert
 
         labelList posW(dimi + 1, 0);
         cycleAlphaWheeler(dimi, 0, posW);
-    }
-}
-
-void Foam::conditionalMomentInversion::setNodeMap
-(
-    Map<label>& map,
-    const label nDimensions,
-    const labelList& nNodes,
-    label dimi,
-    label& mi,
-    labelList& pos
-)
-{
-    if (dimi == 0)
-    {
-        label size = 1;
-        for (label nodei = 0; nodei < nDimensions; nodei++)
-        {
-            size *= nNodes[nodei];
-        }
-
-        map = Map<label>(size);
-    }
-
-    if (dimi < nDimensions)
-    {
-        for (label i = 0; i < nNodes[dimi]; i++)
-        {
-            pos[dimi] = i;
-            setNodeMap(map, nDimensions, nNodes, dimi + 1, mi, pos);
-        }
-    }
-    else
-    {
-        map.insert(mappedList<scalar>::listToLabel(pos), mi);
-        mi++;
     }
 }
 

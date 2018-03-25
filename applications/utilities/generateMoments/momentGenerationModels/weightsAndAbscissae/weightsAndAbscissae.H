@@ -63,8 +63,9 @@ public:
         weightsAndAbscissae
         (
             const dictionary& dict,
-            const labelListList& momentsOrders,
-            const label nNodes
+            const label nNodes,
+            const bool extended,
+            const bool radau
         );
 
 

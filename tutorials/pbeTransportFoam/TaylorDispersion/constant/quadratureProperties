@@ -51,8 +51,8 @@ moments
 
 nodes
 (
-    (0)
-    (1)
+    node0{}
+    node1{}
 );
 
 extendedMomentInversionCoeff

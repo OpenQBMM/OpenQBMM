@@ -50,11 +50,12 @@ namespace momentGenerationSubModels
 Foam::momentGenerationSubModels::noMomentGeneration::noMomentGeneration
 (
     const dictionary& dict,
-    const labelListList& momentOrders,
-    const label nNodes
+    const label nNodes,
+    const bool extended,
+    const bool Radau
 )
 :
-    momentGenerationModel(dict, momentOrders, nNodes)
+    momentGenerationModel(dict, nNodes, extended, Radau)
 {}
 
 
@@ -71,11 +72,15 @@ void Foam::momentGenerationSubModels::noMomentGeneration::updateQuadrature
     const dictionary& dict
 )
 {
-    reset();
-    forAll(moments_, mi)
+    for (label mi = 0; mi < nMoments_; mi++)
     {
         moments_[mi] =
-            dict.lookupType<scalar>("moment." + Foam::name(mi));
+            dimensionedScalar
+            (
+                "moment."+ Foam::name(mi),
+                moments_[mi].dimensions(),
+                dict.lookup("moment."+ Foam::name(mi))
+            );
     }
 }
 

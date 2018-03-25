@@ -52,10 +52,8 @@ SourceFiles
 #include "dictionary.H"
 #include "univariateMomentSet.H"
 #include "univariateMomentInversion.H"
-#include "multivariateMomentSet.H"
 #include "Vandermonde.H"
-#include "mappedList.H"
-#include "PtrList.H"
+#include "nDimensionalMappedList.H"
 
 namespace Foam
 {
@@ -80,36 +78,25 @@ class conditionalMomentInversion
         const List<word> support_;
 
         //- Quadratrure abscissae
-        PtrList<mappedList<scalar> > abscissae_;
+        PtrList<nDimensionalMappedList<scalar>> abscissae_;
 
         //- Quadratrure weights
-        PtrList<mappedList<scalar> > weights_;
+        PtrList<nDimensionalMappedList<scalar>> weights_;
 
         //- Stored moments
-        multivariateMomentSet moments_;
+        nDimensionalMappedList<scalar> moments_;
 
         //- Stored conditional moments
-        PtrList<PtrList<mappedList<scalar> > > conditionalMoments_;
+        PtrList<PtrList<nDimensionalMappedList<scalar>>> conditionalMoments_;
 
         //- Inverted VanderMonde matricies
-        PtrList<mappedList<scalarSquareMatrix> > invVR_;
+        PtrList< nDimensionalMappedList<scalarSquareMatrix>> invVR_;
 
         //- Univariate moment inversion method
         autoPtr<univariateMomentInversion> momentInverter_;
 
 
     // Private member functions
-
-        //- Create map for nodes
-        void setNodeMap
-        (
-            Map<label>& map,
-            const label nDimensions,
-            const labelList& nNodes,
-            label dimi,
-            label& mi,
-            labelList& pos
-        );
 
         //- Cycles through all alphas and solves the given conditional moments
         void cycleAlphaCM
@@ -155,8 +142,8 @@ public:
         conditionalMomentInversion
         (
             const dictionary& dict,
-            const labelListList& momentOrders,
-            const labelListList& nodeIndexes,
+            const label nMoments,
+            const Map<label> map,
             const labelList& nNodes,
             const List<word>& support
         );
@@ -169,7 +156,7 @@ public:
     // Member Functions
 
         //- Invert moments to find weights and  abscissae
-        void invert(const multivariateMomentSet& moments);
+        void invert(const nDimensionalMappedList<scalar>& moments);
 
         //- Return number of moments
         inline label nMoments();
@@ -178,10 +165,10 @@ public:
         inline const labelList& nNodes();
 
         //- Return mapped quadrature weights for each dimension
-        inline const PtrList<mappedList<scalar>>& weights() const;
+        inline const PtrList<nDimensionalMappedList<scalar>>& weights() const;
 
         //- Return mapped quadrature abscissae for each dimension
-        inline const PtrList<mappedList<scalar>>& abscissae() const;
+        inline const PtrList<nDimensionalMappedList<scalar>>& abscissae() const;
 };
 
 
