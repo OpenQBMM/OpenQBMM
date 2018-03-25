@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -30,9 +30,8 @@ License
 Foam::autoPtr<Foam::momentGenerationModel> Foam::momentGenerationModel::New
 (
     const dictionary& dict,
-    const label nNodes,
-    const bool extended,
-    const bool Radau
+    const labelListList& momentOrders,
+    const label nNodes
 )
 {
     word momentGenerationModelType(dict.lookup("type"));
@@ -64,9 +63,8 @@ Foam::autoPtr<Foam::momentGenerationModel> Foam::momentGenerationModel::New
         cstrIter()
         (
             dict,
-            nNodes,
-            extended,
-            Radau
+            momentOrders,
+            nNodes
         )
     );
 }
