@@ -10,7 +10,7 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2017 OpenQBMM developers.
+  Copyright (C) 2014-2018 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 
@@ -47,16 +47,16 @@
 
  Name                   Degree  Period          Contribution
 
- Aziz Ilgun*            Ph.D.   2017 - Present  Multivariate population balance
+ Aziz Ilgun*            Ph.D.   2017 - 2018     Multivariate population balance
                                                 (TBC)
-                                                Hyperbolic CQMOM (TBC)
 
  David Williams*        M.Eng.  2014 - 2016     Population balance kernels
 
  Ehsan Madadi*          Ph.D.   2014 - 2017     Turbulent mixing models
                                                 Lognormal EQMOM
 
- Jeffrey Heylmun*       Ph.D.   2014 - Present  Population balance kernels
+ Jeffrey Heylmun*       Ph.D.   2014 - Present  Hyperbolic CQMOM
+                                                Population balance kernels
                                                 Conditional moment inversion
                                                 Realizable ODE solver
                                                 Gas-liquid flow solver
