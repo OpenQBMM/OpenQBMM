@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -41,8 +41,15 @@ Foam::quadratureApproximation<momentFieldSetType, nodeType>
 }
 
 template <class momentFieldSetType, class nodeType>
-const Foam::PtrList<nodeType>&
+const Foam::mappedPtrList<nodeType>&
 Foam::quadratureApproximation<momentFieldSetType, nodeType>::nodes() const
+{
+    return nodes_();
+}
+
+template <class momentFieldSetType, class nodeType>
+Foam::mappedPtrList<nodeType>&
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::nodes()
 {
     return nodes_();
 }
@@ -74,5 +81,20 @@ Foam::quadratureApproximation<momentFieldSetType, nodeType>::nMoments() const
 {
     return nMoments_;
 }
+
+template <class momentFieldSetType, class nodeType>
+const Foam::labelListList&
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::momentOrders() const
+{
+    return momentOrders_;
+}
+
+template <class momentFieldSetType, class nodeType>
+const Foam::labelListList&
+Foam::quadratureApproximation<momentFieldSetType, nodeType>::nodeIndexes() const
+{
+    return nodeIndexes_;
+}
+
 
 // ************************************************************************* //

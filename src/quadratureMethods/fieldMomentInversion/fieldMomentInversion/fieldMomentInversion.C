@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -39,11 +39,16 @@ namespace Foam
 Foam::fieldMomentInversion::fieldMomentInversion
 (
     const dictionary& dict,
-    const label nMoments,
+    const fvMesh& mesh,
+    const labelListList& momentOrders,
+    const labelListList& nodeIndexes,
     const label nSecondaryNodes
 )
 :
-    extended_(false)
+    mesh_(mesh),
+    extended_(false),
+    momentOrders_(momentOrders),
+    nodeIndexes_(nodeIndexes)
 {}
 
 

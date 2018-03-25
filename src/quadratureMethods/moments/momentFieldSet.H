@@ -56,7 +56,7 @@ SourceFiles
 #ifndef momentFieldSet_H
 #define momentFieldSet_H
 
-#include "PtrList.H"
+#include "mappedPtrList.H"
 #include "volFields.H"
 #include "Map.H"
 
@@ -72,7 +72,7 @@ namespace Foam
 template <class momentType, class nodeType>
 class momentFieldSet
 :
-    public PtrList<momentType>
+    public mappedPtrList<momentType>
 {
     // Private data
 
@@ -80,17 +80,13 @@ class momentFieldSet
         const word name_;
 
         //- Reference to the quadrature nodes
-        const autoPtr<PtrList<nodeType>>& nodes_;
+        const autoPtr<mappedPtrList<nodeType>>& nodes_;
 
         //- The number of dimensions of the distribution function
         const label nDimensions_;
 
         //- The number of moments
         const label nMoments_;
-
-        //- Map from the label representation of the moment name to its index
-        //  within the List of moments
-        Map<label> momentMap_;
 
         //- Support of the measure associated to the moment moment set
         word support_;
@@ -122,7 +118,7 @@ public:
             const word& distributionName,
             const dictionary& dict,
             const fvMesh& mesh,
-            const autoPtr<PtrList<nodeType>>& nodes,
+            const autoPtr<mappedPtrList<nodeType>>& nodes,
             const word& support
         );
 
@@ -133,7 +129,7 @@ public:
         (
             const word& distributionName,
             const label nMoments,
-            const autoPtr<PtrList<nodeType>>& nodes,
+            const autoPtr<mappedPtrList<nodeType>>& nodes,
             const label nDimensions,
             const Map<label>& momentMap,
             const word& support
@@ -148,38 +144,6 @@ public:
 
         // Access
 
-            //- Const access to the zeroth moment
-            inline const momentType& operator()() const;
-
-            //- Non-const access to the zeroth moment
-            inline momentType& operator()();
-
-            //- Const access to the first order moment in dimension a
-            inline const momentType& operator()(label a) const;
-
-            //- Non-const access to the first order moment in dimension a
-            inline momentType& operator()(label a);
-
-            //- Const access to the second order moment in dimension a+b
-            inline const momentType& operator()(label a, label b) const;
-
-            //- Non-const access to the second order moment in dimension a+b
-            inline momentType& operator()(label a, label b);
-
-            //- Const access to the third order moment in dimension a+b+c
-            inline const momentType& operator()
-            (
-                label a,
-                label b,
-                label c
-            ) const;
-
-            //- Non-const access to the third order moment in dimension a+b+c
-            inline momentType& operator()(label a, label b, label c);
-
-            //- Returns const access to the moment map
-            inline const Map<label>& momentMap() const;
-
             //- Return the dimensionality of the distribution
             inline label nDimensions() const;
 
@@ -191,17 +155,6 @@ public:
 
             //- Recalculate the moments from the quadrature nodes in an element
             void updateLocalMoments(label elemi);
-
-            //- Return the map label of a moment
-            label map(label a, label b, label c) const
-            {
-                return momentMap_
-                [
-                    100*a
-                  + 10*b
-                  + c
-                ];
-            };
 };
 
 

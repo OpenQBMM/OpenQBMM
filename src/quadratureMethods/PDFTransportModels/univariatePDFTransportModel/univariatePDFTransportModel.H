@@ -143,7 +143,7 @@ public:
             inline const univariateQuadratureApproximation& quadrature() const;
 
             //- Return the maximum Courant number ensuring moment realizability
-            inline scalar realizableCo();
+            inline scalar realizableCo() const;
 
         //-Edit
 

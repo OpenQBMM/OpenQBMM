@@ -387,9 +387,16 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 
 Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 ::univariatePopulationBalance::realizableCo
-()
+() const
 {
     return univariatePDFTransportModel::realizableCo();
+}
+
+Foam::scalar Foam::PDFTransportModels::populationBalanceModels
+::univariatePopulationBalance::CoNum
+() const
+{
+    return 0.0;
 }
 
 void Foam::PDFTransportModels::populationBalanceModels
