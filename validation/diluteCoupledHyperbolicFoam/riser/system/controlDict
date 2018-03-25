@@ -1,0 +1,87 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     diluteCoupledHyperbolicFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          .001;
+
+writeControl    adjustableRunTime;
+
+writeInterval   .1;
+
+purgeWrite      100;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.2;
+
+maxDeltaT       1;
+
+functions
+{
+    fieldAverage
+    {
+        type            fieldAverage;
+        functionObjectLibs ( "libfieldFunctionObjects.so" );
+        writeControl    writeTime;
+        timeStart       2;
+        fields
+        (
+            U.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            Theta.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            moment.00.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+        );
+    }
+}
+
+
+// ************************************************************************* //
