@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -40,8 +40,7 @@ quadratureApproximation
 (
     const word& name,
     const fvMesh& mesh,
-    const word& support,
-    const label nDimensions
+    const word& support
 )
 :
     IOdictionary
@@ -57,9 +56,18 @@ quadratureApproximation
     ),
     name_(name),
     mesh_(mesh),
+    dict_(*this),
+    momentOrders_
+    (
+        const_cast<const quadratureApproximation<momentFieldSetType, nodeType>&>(*this).lookup("moments")
+    ),
+    nodeIndexes_
+    (
+        const_cast<const quadratureApproximation<momentFieldSetType, nodeType>&>(*this).lookup("nodes")
+    ),
     nodes_(),
     moments_(name_, *this, mesh_, nodes_, support),
-    nDimensions_(nDimensions),
+    nDimensions_(moments_[0].cmptOrders().size()),
     nMoments_(moments_.size()),
     nSecondaryNodes_
     (
@@ -68,7 +76,14 @@ quadratureApproximation
     support_(support),
     momentFieldInverter_
     (
-        fieldMomentInversion::New((*this), nMoments_, nSecondaryNodes_)
+        fieldMomentInversion::New
+        (
+            (*this),
+            mesh_,
+            momentOrders_,
+            nodeIndexes_,
+            nSecondaryNodes_
+        )
     )
 {
     if (nSecondaryNodes_ != 0 && !momentFieldInverter_().extended())
@@ -80,11 +95,10 @@ quadratureApproximation
             << "    Proceeding with nSecondaryNodes = 0." << nl
             << "    No extended quadrature will be computed." << nl;
     }
-
     // Allocating nodes
-    nodes_ = autoPtr<PtrList<nodeType>>
+    nodes_ = autoPtr<mappedPtrList<nodeType>>
     (
-        new PtrList<nodeType>
+        new mappedPtrList<nodeType>
         (
             lookup("nodes"),
             typename nodeType::iNew
@@ -99,6 +113,7 @@ quadratureApproximation
             )
         )
     );
+    nodes_().setMap(mappedPtrList<scalar>(nodes_().size(), nodeIndexes_).map());
 
     updateQuadrature();
 }
