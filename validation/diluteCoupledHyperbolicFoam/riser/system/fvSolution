@@ -1,0 +1,94 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        smoother        DIC;
+        preconditioner  DIC;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 10;
+        agglomerator    faceAreaPair;
+        mergeLevels     2;
+        tolerance       1e-10;
+        maxIter         1000;
+    }
+
+    pFinal
+    {
+        $p;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-8;
+        relTol          0;
+    }
+
+    UFinal
+    {
+        $U;
+        relTol          0;
+    }
+
+    "(moment.*|abscissa.*)"
+    {
+        solver          diagonal;
+        tolerance       1e-12;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    momentumPredictor   yes;
+    transonic           no;
+    nOuterCorrectors    15;
+    nCorrectors         2;
+    nNonOrthogonalCorrectors 0;
+    consistent          yes;
+    pRefCell 0;
+    pRefValue 0;
+
+    residualControl
+    {
+        p
+        {
+            tolerance 1e-5;
+            relTol    0;
+        }
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        p_rgh       0.3;
+    }
+}
+
+
+// ************************************************************************* //

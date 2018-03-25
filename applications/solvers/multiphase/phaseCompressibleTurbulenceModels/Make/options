@@ -13,6 +13,9 @@ EXE_INC = \
     -I../../../../src/quadratureMethods/moments \
     -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
     -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
+    -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I../../../../src/quadratureMethods/momentAdvection/lnInclude \
+    -I../../../../src/quadratureMethods/PDFTransportModels/lnInclude \
     -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
     -I../../../../src/quadratureMethods/hermiteQuadrature/lnInclude \
     -I../../../../src/Vandermonde/lnInclude \
@@ -33,6 +36,8 @@ LIB_LIBS = \
     -lmomentSets \
     -lfieldMomentInversion \
     -lquadratureApproximation \
+    -lmomentAdvection \
+    -lPDFTransportModel \
     -lpopulationBalance \
     -lhermiteQuadrature \
     -lvandermonde \

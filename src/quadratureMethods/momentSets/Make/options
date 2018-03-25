@@ -1,5 +1,6 @@
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I../../mappedList \
     -I../momentSets/lnInclude
 
 LIB_LIBS = \

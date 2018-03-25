@@ -40,7 +40,6 @@ quadratureNode
 )
 :
     name_(IOobject::groupName(name, distributionName)),
-    nodeDict_(),
     weight_
     (
         IOobject
@@ -179,7 +178,6 @@ quadratureNode
 (
     const word& name,
     const word& distributionName,
-    const dictionary& nodeDict,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
     const dimensionSet& abscissaDimensions,
@@ -189,7 +187,6 @@ quadratureNode
 )
 :
     name_(IOobject::groupName(name, distributionName)),
-    nodeDict_(nodeDict),
     weight_
     (
         IOobject

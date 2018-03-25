@@ -38,11 +38,11 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     const word& distributionName,
     const dictionary& dict,
     const fvMesh& mesh,
-    const autoPtr<PtrList<nodeType>>& nodes,
+    const autoPtr<mappedPtrList<nodeType>>& nodes,
     const word& support
 )
 :
-    PtrList<momentType>
+    mappedPtrList<momentType>
     (
         dict.lookup("moments"),
         typename momentType::iNew(distributionName, mesh, nodes)
@@ -51,13 +51,14 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     nodes_(nodes),
     nDimensions_((*this)[0].nDimensions()),
     nMoments_((*this).size()),
-    momentMap_(nMoments_),
     support_(support)
 {
+    Map<label> momentMap(nMoments_);
+
     // Populate the moment set
     forAll(*this, mI)
     {
-        momentMap_.insert
+        momentMap.insert
         (
             moment<momentType, nodeType>::listToLabel
             (
@@ -66,6 +67,7 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
             mI
         );
     }
+    this->setMap(momentMap);
 }
 
 
@@ -74,18 +76,17 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
 (
     const word& distributionName,
     const label nMoments,
-    const autoPtr<PtrList<nodeType>>& nodes,
+    const autoPtr<mappedPtrList<nodeType>>& nodes,
     const label nDimensions,
     const Map<label>& momentMap,
     const word& support
 )
 :
-    PtrList<momentType>(nMoments),
+    mappedPtrList<momentType>(nMoments, momentMap),
     name_(IOobject::groupName("moments", distributionName)),
     nodes_(nodes),
     nDimensions_(nDimensions),
     nMoments_(nMoments),
-    momentMap_(momentMap),
     support_(support)
 {}
 

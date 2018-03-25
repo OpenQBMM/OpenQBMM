@@ -76,7 +76,7 @@ Foam::moment<fieldType, nodeType>::moment
     const word& distributionName,
     const labelList& cmptOrders,
     const fvMesh& mesh,
-    const autoPtr<PtrList<nodeType>>& nodes
+    const autoPtr<mappedPtrList<nodeType>>& nodes
 )
 :
     fieldType
@@ -104,7 +104,7 @@ Foam::moment<fieldType, nodeType>::moment
 (
     const word& distributionName,
     const labelList& cmptOrders,
-    const autoPtr<PtrList<nodeType>>& nodes,
+    const autoPtr<mappedPtrList<nodeType>>& nodes,
     const fieldType& initMoment
 )
 :
@@ -139,9 +139,10 @@ template <class fieldType, class nodeType>
 void Foam::moment<fieldType, nodeType>::update()
 {
     // Resetting the moment to zero
-    *this == dimensionedScalar("moment", (*this).dimensions(), 0);
+    fieldType& moment(*this);
+    moment == dimensionedScalar("moment", (*this).dimensions(), 0);
 
-    const PtrList<nodeType>& nodes = nodes_();
+    const mappedPtrList<nodeType>& nodes = nodes_();
 
     // If nodes are not of extended type, only use primary quadrature.
     if (!nodes[0].extended())
@@ -164,7 +165,7 @@ void Foam::moment<fieldType, nodeType>::update()
                 m == mPow;
             }
 
-            *this == *this + m;
+            moment == moment + m;
         }
 
         return;
@@ -192,7 +193,7 @@ void Foam::moment<fieldType, nodeType>::update()
                 m == mPow;
             }
 
-            *this == *this + m;
+            moment == moment + m;
         }
     }
 }
@@ -203,7 +204,7 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
     // Resetting the moment to zero
     scalar moment = 0;
 
-    const PtrList<nodeType>& nodes = nodes_();
+    const mappedPtrList<nodeType>& nodes = nodes_();
 
     // If nodes are not of extended type, only use primary quadrature.
     if (!nodes[0].extended())
@@ -217,8 +218,8 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
             {
                 const label cmptMomentOrder = cmptOrders()[cmpt];
 
-                const scalar abscissaCmpt
-                        = node.primaryAbscissa().component(cmpt)()[elemi];
+                const scalar abscissaCmpt =
+                    component(node.primaryAbscissa()[elemi], cmpt);
 
                 m *= pow(abscissaCmpt, cmptMomentOrder);
             }
@@ -245,8 +246,8 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
             {
                 const label cmptMomentOrder = cmptOrders()[cmpt];
 
-                const scalar abscissaCmpt
-                    = node.secondaryAbscissae()[sNodei].component(cmpt)()[elemi];
+                const scalar abscissaCmpt =
+                    component(node.secondaryAbscissae()[sNodei][elemi], cmpt);
 
                 m *= pow(abscissaCmpt, cmptMomentOrder);
             }
