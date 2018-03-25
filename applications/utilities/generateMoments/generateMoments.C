@@ -26,16 +26,15 @@ Application
     field files for main solver to use as input.
 
 Description
-    Solver for a system of any number of compressible fluid phases with a
-    common pressure, but otherwise separate properties. The type of phase model
-    is run time selectable and can optionally represent multiple species and
-    in-phase reactions. The phase system is also run time selectable and can
-    optionally represent different types of momentun, heat and mass transfer.
+    Preprocessing application to eliminate the need to create fields for all
+    moments. Instead moments are consucted using inputs from
+    momentGenerationDict. Different methods can be used.
 
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
 #include "momentGenerationModel.H"
+#include "mappedPtrList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -69,9 +68,7 @@ int main(int argc, char *argv[])
 
         Info<< "Creating moments for phase: " << phaseName << endl;
 
-        // Read number of nodes from quadratureProperties.phase
-        label nNodes;
-
+        // Read number of nodes from quadratureProperties.phaseName
         IOdictionary quadratureDict
         (
             IOobject
@@ -88,26 +85,16 @@ int main(int argc, char *argv[])
             )
         );
 
-        nNodes = HashTable<dictionary>(quadratureDict.lookup("nodes")).size();
-
-        label nMoments = 2*nNodes;
-        bool radau = phaseDict.lookupOrDefault<bool>("Radau", false);
-        bool extended(phaseDict.lookupOrDefault<bool>("extended", false));
-
-        if (radau)
-        {
-            nNodes++;
-        }
-
-        if (extended || radau)
-        {
-            nMoments++;
-        }
+        labelListList momentOrders(quadratureDict.lookup("moments"));
+        labelListList nodeIndexes(quadratureDict.lookup("nodes"));
+        label nMoments = momentOrders.size();
+        label nNodes = nodeIndexes.size();
 
         autoPtr<momentGenerationModel> momentGenerator
-            = momentGenerationModel::New(phaseDict, nNodes, extended, radau);
+            = momentGenerationModel::New(phaseDict, momentOrders, nNodes);
 
-        PtrList<volScalarField> moments(nMoments);
+
+        mappedPtrList<volScalarField> moments(nMoments, momentOrders);
 
         //  Set internal field values and initialize moments.
         {
@@ -117,9 +104,10 @@ int main(int argc, char *argv[])
 
             forAll(moments, mi)
             {
+                const labelList& momentOrder= momentOrders[mi];
                 moments.set
                 (
-                    mi,
+                    momentOrder,
                     new volScalarField
                     (
                         IOobject
@@ -129,7 +117,7 @@ int main(int argc, char *argv[])
                                 "moment",
                                 IOobject::groupName
                                 (
-                                    Foam::name(mi),
+                                    mappedPtrList<scalar>::listToWord(momentOrder),
                                     phases[phasei]
                                 )
                             ),
@@ -143,27 +131,26 @@ int main(int argc, char *argv[])
                     )
                 );
 
+                //  Set boundaries based oboundary section
+                //  Initial values specified in the dictionary are overwritten
                 moments[mi].boundaryFieldRef().readField
                 (
                     moments[mi].internalField(),
                     boundaries
                 );
-
-                Info<< "    " << moments[mi].name() << endl;
             }
         }
 
         forAll(mesh.boundaryMesh(), bi)
         {
-            word bName = mesh.boundaryMesh()[bi].name();
-
-            if (!phaseDict.found(bName))
-            {
-                bName = "default";
-            }
-
             if (moments[0].boundaryField()[bi].fixesValue())
             {
+                word bName
+                (
+                    phaseDict.found(mesh.boundaryMesh()[bi].name())
+                  ? mesh.boundaryMesh()[bi].name()
+                  : "default"
+                );
                 dictionary dict = phaseDict.subDict(bName);
 
                 momentGenerator().updateQuadrature(dict);
@@ -179,13 +166,15 @@ int main(int argc, char *argv[])
             }
         }
 
+        Info<< nl << "Writing moments:" << endl;
         forAll(moments, mi)
         {
+            Info<< moments[mi].name() << endl;
             moments[mi].write();
         }
     }
 
-    Info<< "End\n" << endl;
+    Info<< nl << "End\n" << endl;
 
     return 0;
 }

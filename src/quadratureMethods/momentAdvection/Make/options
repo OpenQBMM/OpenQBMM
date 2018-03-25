@@ -1,10 +1,13 @@
 EXE_INC = \
+    -DFULLDEBUG -g -O0 \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
+    -I../../mappedList \
+    -I../../mappedPtrList \
     -I../quadratureNode \
     -I../moments \
     -I../momentSets/lnInclude \
-    -I../momentInversion/univariate/basic/lnInclude \
+    -I../momentInversion/lnInclude \
     -I../fieldMomentInversion/lnInclude \
     -I../quadratureApproximations/lnInclude
 
