@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -89,7 +89,9 @@ public:
         basicFieldMomentInversion
         (
             const dictionary& dict,
-            const label nMoments,
+            const fvMesh& mesh,
+            const labelListList& momentOrders,
+            const labelListList& nodeIndexes,
             const label nSecondaryNodes
         );
 
@@ -100,28 +102,56 @@ public:
 
     // Public member Functions
 
-        //- Invert moments in the entire computational domain
-        virtual void invert
-        (
-            const volUnivariateMomentFieldSet& moments,
-            PtrList<volScalarNode>& nodes
-        );
+        // Univariate moment inversions
 
-        //- Invert moments on boundaries
-        virtual void invertBoundaryMoments
-        (
-            const volUnivariateMomentFieldSet& moments,
-            PtrList<volScalarNode>& nodes
-        );
+            //- Invert moments in the entire computational domain
+            virtual void invert
+            (
+                const volUnivariateMomentFieldSet& moments,
+                mappedPtrList<volScalarNode>& nodes
+            );
 
-        //- Invert moments in a single cell
-        virtual bool invertLocalMoments
-        (
-            const volUnivariateMomentFieldSet& moments,
-            PtrList<volScalarNode>& nodes,
-            const label celli,
-            const bool fatalErrorOnFailedRealizabilityTest = true
-        );
+            //- Invert moments on boundaries
+            virtual void invertBoundaryMoments
+            (
+                const volUnivariateMomentFieldSet& moments,
+                mappedPtrList<volScalarNode>& nodes
+            );
+
+            //- Invert moments in a single cell
+            virtual bool invertLocalMoments
+            (
+                const volUnivariateMomentFieldSet& moments,
+                mappedPtrList<volScalarNode>& nodes,
+                const label celli,
+                const bool fatalErrorOnFailedRealizabilityTest = true
+            );
+
+
+        // Multivriate moment inversions
+
+            //- Invert moments in the entire computational domain
+            virtual void invert
+            (
+                const volVectorMomentFieldSet& moments,
+                mappedPtrList<volVectorNode>& nodes
+            );
+
+            //- Invert moments on boundaries
+            virtual void invertBoundaryMoments
+            (
+                const volVectorMomentFieldSet& moments,
+                mappedPtrList<volVectorNode>& nodes
+            );
+
+            //- Invert moments in a single cell
+            virtual bool invertLocalMoments
+            (
+                const volVectorMomentFieldSet& moments,
+                mappedPtrList<volVectorNode>& nodes,
+                const label celli,
+                const bool fatalErrorOnFailedRealizabilityTest = true
+            );
 };
 
 

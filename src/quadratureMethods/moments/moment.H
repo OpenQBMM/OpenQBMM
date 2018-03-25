@@ -48,7 +48,7 @@ SourceFiles
 #ifndef moment_H
 #define moment_H
 
-#include "PtrList.H"
+#include "mappedPtrList.H"
 #include "quadratureNodes.H"
 #include "volFields.H"
 #include "labelList.H"
@@ -71,7 +71,7 @@ class moment
     const word distributionName_;
 
     //- Reference to the quadrature nodes
-    const autoPtr<PtrList<nodeType>>& nodes_;
+    const autoPtr<mappedPtrList<nodeType>>& nodes_;
 
     //- Order of each dimension of the moment
     const labelList cmptOrders_;
@@ -104,7 +104,7 @@ public:
             const word& distributionName,
             const labelList& cmptOrders,
             const fvMesh& mesh,
-            const autoPtr<PtrList<nodeType>>& nodes
+            const autoPtr<mappedPtrList<nodeType>>& nodes
         );
 
         //- Construct from name, orders, and quadrature nodes
@@ -112,7 +112,7 @@ public:
         (
             const word& distributionName,
             const labelList& cmptOrders,
-            const autoPtr<PtrList<nodeType>>& nodes,
+            const autoPtr<mappedPtrList<nodeType>>& nodes,
             const fieldType& initMoment
         );
 
@@ -126,7 +126,7 @@ public:
         {
             const word& distributionName_;
             const fvMesh& mesh_;
-            const autoPtr<PtrList<nodeType>>& nodes_;
+            const autoPtr<mappedPtrList<nodeType>>& nodes_;
 
         public:
 
@@ -134,7 +134,7 @@ public:
             (
                 const word& distributionName,
                 const fvMesh& mesh,
-                const autoPtr<PtrList<nodeType>>& nodes
+                const autoPtr<mappedPtrList<nodeType>>& nodes
             )
             :
                 distributionName_(distributionName),

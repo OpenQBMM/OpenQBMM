@@ -43,7 +43,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
     const word& support
 )
 :
-    quadratureApproximation(name, mesh, support, 1),
+    quadratureApproximation(name, mesh, support),
     U_
     (
         mesh_.lookupObject<volVectorField>
@@ -108,7 +108,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
                 ),
-                moments_[mi]*U_,
+                volScalarField(moments_[mi])*U_,
                 UTypes
             )
         );

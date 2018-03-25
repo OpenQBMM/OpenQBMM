@@ -32,7 +32,7 @@ Foam::PDFTransportModels::univariatePDFTransportModel::quadrature() const
 }
 
 Foam::scalar
-Foam::PDFTransportModels::univariatePDFTransportModel::realizableCo()
+Foam::PDFTransportModels::univariatePDFTransportModel::realizableCo() const
 {
     return momentAdvection_().realizableCo();
 }

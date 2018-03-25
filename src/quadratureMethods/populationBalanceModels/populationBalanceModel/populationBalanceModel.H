@@ -122,7 +122,10 @@ public:
     // Member Functions
 
         //- Return the maximum Courant number ensuring moment realizability
-        virtual scalar realizableCo() = 0;
+        virtual scalar realizableCo() const = 0;
+
+        //- Return the courant number based on abscissae
+        virtual scalar CoNum() const = 0;
 
         //- Solve population balance equation
         virtual void solve() = 0;

@@ -50,12 +50,11 @@ namespace momentGenerationSubModels
 Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
 (
     const dictionary& dict,
-    const label nNodes,
-    const bool extended,
-    const bool radau
+    const labelListList& momentOrders,
+    const label nNodes
 )
 :
-    momentGenerationModel(dict, nNodes, extended, radau)
+    momentGenerationModel(dict, momentOrders, nNodes)
 {}
 
 
@@ -72,30 +71,21 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateQuadrature
     const dictionary& dict
 )
 {
-    for (label nodei = 0; nodei < nNodes_; nodei++)
+    reset();
+    forAll(weights_, nodei)
     {
-
-        if (dict.found("node" + Foam::name(nodei)))
+        word nodeName = "node" + Foam::name(nodei);
+        if(dict.found(nodeName))
         {
-            dictionary nodeDict(dict.subDict("node"+Foam::name(nodei)));
-            dimensionedScalar dia(nodeDict.lookup("dia"));
-            dimensionedScalar alpha(nodeDict.lookup("alpha"));
-            dimensionedScalar rho(nodeDict.lookup("rho"));
+            dictionary nodeDict(dict.subDict(nodeName));
+            scalar dia(readScalar(nodeDict.lookup("dia")));
+            scalar alpha(readScalar(nodeDict.lookup("alpha")));
+            scalar rho(readScalar(nodeDict.lookup("rho")));
 
-            abscissae_[nodei]
+            abscissae_[nodei][0]
                 = (4.0/3.0)*Foam::constant::mathematical::pi*rho*pow3(dia/2.0);
 
-            weights_[nodei] = rho*alpha/abscissae_[nodei];
-
-            if (nodei == 0 && radau_)
-            {
-                abscissae_[nodei].value() = 0.0;
-            }
-        }
-        else
-        {
-            abscissae_[nodei].value() = 0.0;
-            weights_[nodei].value() = 0.0;
+            weights_[nodei] = rho*alpha/abscissae_[nodei][0];
         }
     }
 
