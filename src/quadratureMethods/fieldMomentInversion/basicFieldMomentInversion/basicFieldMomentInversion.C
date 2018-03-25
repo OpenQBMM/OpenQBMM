@@ -50,8 +50,8 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
 )
 :
     fieldMomentInversion(dict, nMoments, nSecondaryNodes),
-    minKnownAbscissa_(dict.lookupOrDefault("minKnownAbscissa", 0)),
-    maxKnownAbscissa_(dict.lookupOrDefault("maxKnownAbscissa", 1)),
+    minKnownAbscissa_(dict.lookupOrDefault("minKnownAbscissa", 0.0)),
+    maxKnownAbscissa_(dict.lookupOrDefault("maxKnownAbscissa", 1.0)),
     nFixedQuadraturePoints_(0),
     momentInverter_
     (
