@@ -33,6 +33,13 @@ then
     exit 1
 fi
 
+time=50
+echo $1
+if [ $1 ];
+then
+    time=$1
+fi
+
 #set case Direcory names
 pProbesDir="../postProcessing/pProbes"
 
@@ -41,9 +48,10 @@ pProbes_modified="$pProbesDir/0/p_rgh_modified"
 touch $pProbes_modified
 exp="experiments_11_9.data"
 
+printf "Times included:\n"
 for d in $(ls $pProbesDir | sort -g);
 do
-    printf "\n$d"
+    printf "\t$d\n"
     if [ $d = "0" ];
     then
         cat "$pProbesDir/$d/p_rgh" > $pProbes_modified
@@ -55,14 +63,14 @@ done
 pProbesTmp="$pProbesDir/0/p_rghTmp"
 pProbesFinal="$pProbesDir/0/p_rghFinal"
 
-begin=$( grep -wn -m1 "$1" $pProbes_modified | awk '{ print $1 }' | sed 's/:/ /' )
+begin=$( grep -wn -m1 "$time" $pProbes_modified | awk '{ print $1 }' | sed 's/:/ /' )
 tail -n +$begin $pProbes_modified >$pProbesTmp
 
-endTime=$(($1+50))
+endTime=$(($time+50))
 end=$( grep -wn -m1 "$endTime" $pProbesTmp | awk '{ print $1 }' | sed 's/:/ /' )
 head -n $end $pProbesTmp >$pProbesFinal
 
 rm $pProbesTmp
-createEps $pProbesFinal $exp $1
+createEps $pProbesFinal $exp $time
 
 printf "\nDone\n"
