@@ -11,18 +11,46 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSolution;
+    object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
-{
-    "moment.*|abscissa.*"
-    {
-        solver          digonal;
-        tolerance       1e-12;
-        relTol          0;
-    }
-}
+application     oneWayCoupledHyperbolicFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          .001;
+
+writeControl    adjustableRunTime;
+
+writeInterval   .1;
+
+purgeWrite      250;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.5;
+
+maxDeltaT       .01;
+
+
 
 // ************************************************************************* //
