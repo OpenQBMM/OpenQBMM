@@ -17,7 +17,7 @@ FoamFile
 
 solvers
 {
-    "moment.*|node.*.abscissa"
+    "moment.*|abscissa.*"
     {
         solver          diagonal;
         tolerance       1e-12;

@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 1;
+
+nPts 100;
+
+vertices
+(
+    (   -0.5 -0.5   -0.5)   //0
+    (   0.5  -0.5   -0.5)   //1
+    (   0.5  0.5    -0.5)   //2
+    (   -0.5 0.5    -0.5)   //3
+    (   -0.5 -0.5   0.5 )   //4
+    (   0.5  -0.5   0.5 )   //5
+    (   0.5  0.5    0.5 )   //6
+    (   -0.5 0.5    0.5 )   //7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) ($nPts $nPts 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    top
+    {
+        type            cyclic;
+        neighbourPatch  bottom;
+        faces
+        (
+            (3 2 6 7)
+        );
+    }
+    bottom
+    {
+        type            cyclic;
+        neighbourPatch  top;
+        faces
+        (
+            (0 1 5 4)
+        );
+    }
+    left
+    {
+        type            cyclic;
+        neighbourPatch  right;
+        faces
+        (
+            (0 3 7 4)
+        );
+    }
+    right
+    {
+        type            cyclic;
+        neighbourPatch  left;
+        faces
+        (
+            (1 2 6 5)
+        );
+    }
+    front
+    {
+        type            empty;
+        faces
+        (
+            (0 1 2 3)
+        );
+    }
+    back
+    {
+        type            empty;
+        faces
+        (
+            (4 5 6 7)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //)))))
