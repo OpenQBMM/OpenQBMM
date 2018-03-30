@@ -77,8 +77,7 @@ void Foam::gaussLobattoMomentInversion::correctRecurrence
 
         for (label i = 1; i < nNodes_ - 1; i++)
         {
-            p = minKnownAbscissa - alpha[0]*p1
-                - beta[i]*pMinus1;
+            p = (minKnownAbscissa - alpha[i])*p1 - beta[i]*pMinus1;
 
             pMinus1 = p1;
             p1 = p;
