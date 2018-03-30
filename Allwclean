@@ -6,4 +6,6 @@ set -x
 
 wclean all applications
 
+(cd test && ./Allwclean)
+
 # ----------------------------------------------------------------- end-of-file
