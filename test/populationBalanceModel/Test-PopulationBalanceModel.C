@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
     #include "CourantNo.H"
 
-    while (simple.loop())
+    while (simple.loop(runTime))
     {
         Info<< "\nTime = " << runTime.timeName() << nl << endl;
 
