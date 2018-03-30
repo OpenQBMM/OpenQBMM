@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
     #include "CourantNo.H"
 
-    while (simple.loop(runTime))
+    while (simple.loop())
     {
         Info<< "\nTime = " << runTime.timeName() << nl << endl;
 
