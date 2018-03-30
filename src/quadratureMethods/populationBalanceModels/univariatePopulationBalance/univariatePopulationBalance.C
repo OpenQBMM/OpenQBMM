@@ -256,12 +256,8 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             bSource += node.primaryWeight()[celli]
                     *breakupKernel_->Kb(bAbscissa, celli)
                     *(
-                        daughterDistribution_->mD   //Birth
-                        (
-                            momentOrder,
-                            bAbscissa
-                        )
-                    - pow(bAbscissa, momentOrder)   //Death
+                        daughterDistribution_->mD(momentOrder, bAbscissa)//Birth
+                      - pow(bAbscissa, momentOrder)   //Death
                     );
         }
 
@@ -279,17 +275,10 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
             bSource += node.primaryWeight()[celli]
                 *node.secondaryWeights()[sNodei][celli]
-                *breakupKernel_->Kb
-                    (
-                        bAbscissa, celli
-                    )
+                *breakupKernel_->Kb(bAbscissa, celli)
                 *(
-                    daughterDistribution_->mD                      //Birth
-                    (
-                        momentOrder,
-                        bAbscissa
-                    )                                               //Death
-                  - pow(bAbscissa, momentOrder)
+                    daughterDistribution_->mD(momentOrder, bAbscissa)   //Birth
+                  - pow(bAbscissa, momentOrder)                         //Death
                  );
         }
     }
