@@ -39,7 +39,7 @@ univariateCoeffs
     {
         breakupKernel powerLaw;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.01;
-        abscissaExponent 6;
+        abscissaExponent 6.0;
     }
 
     daughterDistribution
