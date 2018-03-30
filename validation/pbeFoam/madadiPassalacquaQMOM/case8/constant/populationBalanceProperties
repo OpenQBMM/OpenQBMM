@@ -51,7 +51,7 @@ univariateCoeffs
 
     growthModel
     {
-        growthModel	constant;
+        growthModel	    constant;
         minAbscissa     minAbscissa [0 -2 0 0 0 0 0] 0.0;
         maxAbscissa     maxAbscissa [0 -2 0 0 0 0 0] 1.0;
 

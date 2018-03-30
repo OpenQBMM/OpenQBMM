@@ -58,7 +58,7 @@ Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup
 :
     breakupKernel(dict, mesh),
     minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0)),
-    abscissaExponent_(dict.lookupOrDefault("abscissaExponent", 3))
+    abscissaExponent_(dict.lookupOrDefault("abscissaExponent", 3.0))
 {}
 
 
