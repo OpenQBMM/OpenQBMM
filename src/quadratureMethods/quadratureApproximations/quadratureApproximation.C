@@ -59,11 +59,17 @@ quadratureApproximation
     dict_(*this),
     momentOrders_
     (
-        const_cast<const quadratureApproximation<momentFieldSetType, nodeType>&>(*this).lookup("moments")
+        const_cast
+        <
+            const quadratureApproximation<momentFieldSetType, nodeType>&
+        >(*this).lookup("moments")
     ),
     nodeIndexes_
     (
-        const_cast<const quadratureApproximation<momentFieldSetType, nodeType>&>(*this).lookup("nodes")
+        const_cast
+        <
+            const quadratureApproximation<momentFieldSetType, nodeType>&
+        >(*this).lookup("nodes")
     ),
     nodes_(),
     moments_(name_, *this, mesh_, nodes_, support),
@@ -86,15 +92,6 @@ quadratureApproximation
         )
     )
 {
-    if (nSecondaryNodes_ != 0 && !momentFieldInverter_().extended())
-    {
-        WarningInFunction
-            << "The number of secondary nodes in the quadrature" << nl
-            << "    approximation is not zero, but the selected" << nl
-            << "    inversion algorithm is not of extended type." << nl
-            << "    Proceeding with nSecondaryNodes = 0." << nl
-            << "    No extended quadrature will be computed." << nl;
-    }
     // Allocating nodes
     nodes_ = autoPtr<mappedPtrList<nodeType>>
     (
@@ -113,6 +110,7 @@ quadratureApproximation
             )
         )
     );
+
     nodes_().setMap(mappedPtrList<scalar>(nodes_().size(), nodeIndexes_).map());
 
     updateQuadrature();
