@@ -129,6 +129,14 @@ public:
             //- Convert a list of labels to a single label. {0, 2, 3} -> 23
             static label listToLabel(const labelList& lst);
 
+        // Modifiers
+
+            //- Resize mapped list
+            void resize (const label newSize);
+
+            //- Set mapped list size
+            void setSize (const label newSize);
+
 
         // Access
 

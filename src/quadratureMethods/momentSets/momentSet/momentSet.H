@@ -108,6 +108,12 @@ public:
         //- Return the number of moments
         inline label nMoments() const;
 
+        //- Resizes moment set
+        void resize(const label newSize);
+
+        //- Set size of moment set
+        void setSize(const label newSize);
+
         //- Return support
         inline const word support() const;
 };
