@@ -98,4 +98,17 @@ Foam::momentSet::momentSet
 Foam::momentSet::~momentSet()
 {}
 
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void Foam::momentSet::setSize(const label newSize)
+{
+    Foam::mappedList<scalar>::setSize(newSize);
+    nMoments_ = newSize;
+}
+
+void Foam::momentSet::resize(const label newSize)
+{
+    (*this).setSize(newSize);
+}
+
 // ************************************************************************* //
