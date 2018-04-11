@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -720,8 +720,14 @@ void Foam::univariateMomentSet::update
 
 void Foam::univariateMomentSet::setSize(const label newSize)
 {
+    label oldSize = (*this).size();
     Foam::momentSet::setSize(newSize);
     realizabilityChecked_ = false;
+
+    if (oldSize > newSize)
+    {
+        makeUnivariateMomentOrders(newSize);
+    }
 }
 
 void Foam::univariateMomentSet::resize(const label newSize)
