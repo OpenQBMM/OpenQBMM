@@ -1,0 +1,20 @@
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/fvOptions/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I../../../src/mappedList \
+    -I../../../src/mappedPtrList \
+    -I../../../src/Vandermonde/lnInclude \
+    -I../../../src/quadratureMethods/momentInversion/lnInclude \
+    -I../../../src/quadratureMethods/momentSets/lnInclude
+
+EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lsampling \
+    -lmeshTools \
+    -lvandermonde \
+    -lmomentSets \
+    -lmomentInversion
