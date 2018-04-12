@@ -335,6 +335,9 @@ public:
             return secondaryAbscissae_;
         }
 
+        //- Return the sum of the kernel density functions at a field of points
+        virtual tmp<scalarField> f(const scalarField& x) const = 0;
+
 };
 
 
