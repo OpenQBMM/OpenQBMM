@@ -53,7 +53,7 @@ functions
         name volumeAverage;
         writeControl timeStep;
 
-        code
+        codeExecute
         #{
         const volScalarField& epsilon
                 = mesh().lookupObject<volScalarField>("epsilon");
