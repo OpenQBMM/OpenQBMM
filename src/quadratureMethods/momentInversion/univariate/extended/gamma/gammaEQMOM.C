@@ -271,4 +271,26 @@ Foam::scalar Foam::gammaEQMOM::sigmaMax(univariateMomentSet& moments)
     return sigmaZeta1;
 }
 
+Foam::tmp<Foam::scalarField> Foam::gammaEQMOM::f(const scalarField& x) const
+{
+    tmp<scalarField> tmpY
+    (
+        new scalarField(x.size(), 0.0)
+    );
+    scalarField& y = tmpY.ref();
+
+    for (label pNodei = 0; pNodei < nPrimaryNodes_; pNodei++)
+    {
+        scalar lambda = sqr(primaryAbscissae_[pNodei]/sigma_);
+        scalar theta = primaryAbscissae_[pNodei]/lambda;
+
+        y +=
+            pow(x, lambda - 1.0)*exp(-x/theta)
+           /(gamma(lambda)*pow(theta, lambda) + VSMALL)
+           *primaryWeights_[pNodei];
+    }
+
+    return tmpY;
+}
+
 // ************************************************************************* //
