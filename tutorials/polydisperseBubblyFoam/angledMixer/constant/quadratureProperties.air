@@ -22,6 +22,24 @@ basicMomentInversion
     univariateMomentInversion   Gauss;
 }
 
+extendedMomentInversion
+{
+    extendedMomentInversion     gamma;
+
+    maxSigmaIter        1000;
+    momentsTol          1.0e-10;
+    sigmaTol            1.0e-12;
+    sigmaMin            1e-17;
+    targetFunctionTol   1.0e-16;
+    minMean             1e-10;
+    minVariance         1e-16;
+
+    basicQuadrature
+    {
+        univariateMomentInversion   Gauss;
+    }
+}
+
 moments
 (
     (0)

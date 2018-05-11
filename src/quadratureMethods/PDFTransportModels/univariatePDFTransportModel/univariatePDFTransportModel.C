@@ -168,6 +168,9 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
                         moments[mi][celli] = oldMoments[mi];
                     }
 
+                    // Updating local quadrature with old moments
+                    quadrature_.updateLocalQuadrature(celli);
+
                     localDt /= 2.0;
 
                     if (localDt < minLocalDt_)

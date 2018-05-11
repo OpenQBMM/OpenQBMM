@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -97,5 +97,18 @@ Foam::momentSet::momentSet
 
 Foam::momentSet::~momentSet()
 {}
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void Foam::momentSet::setSize(const label newSize)
+{
+    Foam::mappedList<scalar>::setSize(newSize);
+    nMoments_ = newSize;
+}
+
+void Foam::momentSet::resize(const label newSize)
+{
+    (*this).setSize(newSize);
+}
 
 // ************************************************************************* //

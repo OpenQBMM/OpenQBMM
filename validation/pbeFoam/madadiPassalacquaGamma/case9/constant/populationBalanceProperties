@@ -41,7 +41,7 @@ univariateCoeffs
 
         expCoeff  expCoeff  [ 0 -3 0 0 0 0 0 ] 0.01;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.1;
-        minAbscissa 1.709975947;//pow(5.0,1.0/3.0)
+        minAbscissa 1.709975947;   //pow(5.0,1.0/3.0)
     }
 
     daughterDistribution

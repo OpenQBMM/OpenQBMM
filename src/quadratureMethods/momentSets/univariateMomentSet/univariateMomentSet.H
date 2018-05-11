@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -208,6 +208,12 @@ public:
 
         //- Non-const access to the moment of order momentOrder
         inline scalar& operator()(const label momentOrder);
+
+        //- Resizes moment set
+        void resize(const label newSize);
+
+        //- Set size of moment set
+        void setSize(const label newSize);
 };
 
 
