@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -107,6 +107,12 @@ public:
 
         //- Return the number of moments
         inline label nMoments() const;
+
+        //- Resizes moment set
+        void resize(const label newSize);
+
+        //- Set size of moment set
+        void setSize(const label newSize);
 
         //- Return support
         inline const word support() const;

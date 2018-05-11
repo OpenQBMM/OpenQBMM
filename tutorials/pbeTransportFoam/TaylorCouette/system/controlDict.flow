@@ -48,12 +48,12 @@ functions
 {
     epsilonVolAverage
     {
-        functionObjectLibs ("libutilityFunctionObjects.so");
+        libs ("libutilityFunctionObjects.so");
         type coded;
-        redirectType integral;
+        name volumeAverage;
         writeControl timeStep;
 
-        code
+        codeExecute
         #{
         const volScalarField& epsilon
                 = mesh().lookupObject<volScalarField>("epsilon");

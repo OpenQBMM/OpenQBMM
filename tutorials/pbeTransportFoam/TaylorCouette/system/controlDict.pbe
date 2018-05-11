@@ -59,7 +59,7 @@ functions
         redirectType integral;
         writeControl timeStep;
 
-        code
+        codeExecute
         #{
         const volScalarField& m3
             = mesh().lookupObject<volScalarField>("moment.3.populationBalance");

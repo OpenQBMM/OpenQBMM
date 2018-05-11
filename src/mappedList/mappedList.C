@@ -164,4 +164,17 @@ Foam::label Foam::mappedList<mappedType>::calcMapIndex
     return mapIndex;
 }
 
+template <class mappedType>
+void Foam::mappedList<mappedType>::setSize(const label newSize)
+{
+    Foam::List<mappedType>::setSize(newSize);
+    map_.resize(newSize);
+}
+
+template <class mappedType>
+void Foam::mappedList<mappedType>::resize(const label newSize)
+{
+    (*this).setSize(newSize);
+}
+
 // ************************************************************************* //
