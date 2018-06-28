@@ -76,25 +76,25 @@ PIMPLE
     {
         p_rgh           
         {
-            tolerance   1e-6;
+            tolerance   1e-4;
             relTol      0.001;
         }
         
         h
         {
-            tolerance   1e-6;
+            tolerance   1e-3;
             relTol      0.01;
         }
         
         T
         {
-            tolerance   1e-6;
+            tolerance   1e-3;
             relTol      0.01;
         }
 
-        "R.*" 
+        "(k|epsilon|R.*)" 
         {
-            tolerance   1e-6;
+            tolerance   1e-4;
             relTol      0.01;
         }
     }
