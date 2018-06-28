@@ -49,6 +49,8 @@
             // Calculate the conservative fluxes
             phi = phiHbyA + p_rghEqn.flux();
 
+            phiByRho = phi/fvc::interpolate(rho);
+
             // Explicitly relax pressure for momentum corrector
             p_rgh.relax();
 
