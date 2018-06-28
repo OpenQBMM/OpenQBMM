@@ -115,6 +115,17 @@ public:
             const word& support
         );
 
+        //- Construct from dictionary name, name, momentFieldSet
+        //  Moment fields in the momentFieldSet passed as reference are
+        //  used to initialise the local copy of moments. Inversion on
+        //  creation is optional.
+        quadratureApproximation
+        (
+            const word& dictName,
+            const word& name,
+            const momentFieldSetType& mFieldSet,
+            bool calcQuadratureOnCreation = false
+        );
 
     //- Destructor
     virtual ~quadratureApproximation();
