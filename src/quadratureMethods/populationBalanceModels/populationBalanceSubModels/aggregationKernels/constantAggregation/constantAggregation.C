@@ -74,7 +74,8 @@ Foam::populationBalanceSubModels::aggregationKernels::constantAggregation::Ka
 (
     const scalar& abscissa1,
     const scalar& abscissa2,
-    const label celli
+    const label celli,
+    const label environment
 ) const
 {
     return Ca_.value();
