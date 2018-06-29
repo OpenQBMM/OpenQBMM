@@ -87,7 +87,8 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
 (
     const scalar& abscissa1,
     const scalar& abscissa2,
-    const label celli
+    const label celli,
+    const label environment
 ) const
 {
     return 2.0*Foam::constant::physicoChemical::k.value()*T_[celli]
