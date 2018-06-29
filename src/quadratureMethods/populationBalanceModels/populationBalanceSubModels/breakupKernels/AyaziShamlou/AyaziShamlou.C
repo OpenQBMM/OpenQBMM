@@ -87,7 +87,8 @@ Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
 (
     const scalar& abscissa,
-    const label celli
+    const label celli,
+    const label environment
 ) const
 {
     // Interparticle force
