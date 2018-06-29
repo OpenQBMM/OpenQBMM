@@ -75,7 +75,8 @@ Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup::Kb
 (
     const scalar& abscissa,
-    const label celli
+    const label celli,
+    const label environment
 ) const
 {
     return Cb_.value()*pos0(abscissa - minAbscissa_.value())

@@ -74,7 +74,8 @@ Foam::populationBalanceSubModels::nucleationModels::noNucleation
 ::nucleationSource
 (
     const label& momentOrder,
-    const label celli
+    const label celli,
+    const label environment
 ) const
 {
     return 0.0;
