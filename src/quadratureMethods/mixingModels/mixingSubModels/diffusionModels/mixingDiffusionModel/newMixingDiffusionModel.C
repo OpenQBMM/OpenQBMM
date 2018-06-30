@@ -23,36 +23,36 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "diffusionModel.H"
+#include "mixingDiffusionModel.H"
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::mixingSubModels::diffusionModel>
-Foam::mixingSubModels::diffusionModel::New
+Foam::autoPtr<Foam::mixingSubModels::mixingDiffusionModel>
+Foam::mixingSubModels::mixingDiffusionModel::New
 (
     const dictionary& dict
 )
 {
-    word diffusionModelType(dict.lookup("diffusionModel"));
+    word mixingDiffusionModelType(dict.lookup("mixingDiffusionModel"));
 
-    Info<< "Selecting diffusionModel "
-        << diffusionModelType << endl;
+    Info<< "Selecting mixingDiffusionModel "
+        << mixingDiffusionModelType << endl;
 
     dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(diffusionModelType);
+        dictionaryConstructorTablePtr_->find(mixingDiffusionModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
         FatalError
-            << "diffusionModel::New(const dictionary&) : " << endl
-            << "    unknown diffusionModelType type "
-            << diffusionModelType
+            << "mixingDiffusionModel::New(const dictionary&) : " << endl
+            << "    unknown mixingDiffusionModelType type "
+            << mixingDiffusionModelType
             << ", constructor not in hash table" << endl << endl
-            << "    Valid diffusionModelType types are :" << endl;
+            << "    Valid mixingDiffusionModelType types are :" << endl;
         Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
     }
 
-    return autoPtr<diffusionModel>(cstrIter()(dict));
+    return autoPtr<mixingDiffusionModel>(cstrIter()(dict));
 }
 
 

@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "diffusionModel.H"
+#include "mixingDiffusionModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -31,16 +31,16 @@ namespace Foam
 {
 namespace mixingSubModels
 {
-    defineTypeNameAndDebug(diffusionModel, 0);
+    defineTypeNameAndDebug(mixingDiffusionModel, 0);
 
-    defineRunTimeSelectionTable(diffusionModel, dictionary);
+    defineRunTimeSelectionTable(mixingDiffusionModel, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModel::diffusionModel
+Foam::mixingSubModels::mixingDiffusionModel::mixingDiffusionModel
 (
     const dictionary& dict
 )
@@ -51,7 +51,7 @@ Foam::mixingSubModels::diffusionModel::diffusionModel
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModel::~diffusionModel()
+Foam::mixingSubModels::mixingDiffusionModel::~mixingDiffusionModel()
 {}
 
 

@@ -34,13 +34,13 @@ namespace Foam
 {
 namespace mixingSubModels
 {
-namespace diffusionModels
+namespace mixingDiffusionModels
 {
     defineTypeNameAndDebug(noDiffusion, 0);
 
     addToRunTimeSelectionTable
     (
-        diffusionModel,
+        mixingDiffusionModel,
         noDiffusion,
         dictionary
     );
@@ -51,19 +51,19 @@ namespace diffusionModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModels::noDiffusion
+Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
 ::noDiffusion
 (
     const dictionary& dict
 )
 :
-    diffusionModel(dict)
+    mixingDiffusionModel(dict)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModels::noDiffusion
+Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
 ::~noDiffusion()
 {}
 
@@ -71,7 +71,7 @@ Foam::mixingSubModels::diffusionModels::noDiffusion
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::fvScalarMatrix>
-Foam::mixingSubModels::diffusionModels::noDiffusion
+Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
 ::momentDiff
 (
     const volScalarField& moment
