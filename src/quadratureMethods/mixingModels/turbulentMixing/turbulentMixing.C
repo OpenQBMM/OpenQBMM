@@ -66,7 +66,7 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::turbulentMixing
     ),
     diffusionModel_
     (
-        Foam::mixingSubModels::diffusionModel::New
+        Foam::mixingSubModels::mixingDiffusionModel::New
         (
             dict.subDict("diffusionModel")
         )

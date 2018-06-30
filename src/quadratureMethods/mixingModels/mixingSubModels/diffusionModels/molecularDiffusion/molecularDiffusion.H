@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixingSubModels::diffusionModels::molecularDiffusion
+    Foam::mixingSubModels::mixingDiffusionModels::molecularDiffusion
 
 Description
     Molecular diffusion model.
@@ -51,7 +51,7 @@ SourceFiles
 #ifndef molecularDiffusion_H
 #define molecularDiffusion_H
 
-#include "diffusionModel.H"
+#include "mixingDiffusionModel.H"
 #include "fvm.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -59,7 +59,7 @@ namespace Foam
 {
 namespace mixingSubModels
 {
-namespace diffusionModels
+namespace mixingDiffusionModels
 {
 
 /*---------------------------------------------------------------------------*\
@@ -68,7 +68,7 @@ namespace diffusionModels
 
 class molecularDiffusion
 :
-    public diffusionModel
+    public mixingDiffusionModel
 {
     //- Private member functions
         tmp<volScalarField> turbViscosity(const volScalarField& moment) const;
@@ -107,7 +107,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace diffusionModels
+} // End namespace mixingDdiffusionModels
 } // End namespace mixingSubModels
 } // End namespace Foam
 

@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixingSubModels::diffusionModels::noDiffusion
+    Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
 
 Description
     No diffusion model.
@@ -35,7 +35,7 @@ SourceFiles
 #ifndef noDiffusion_H
 #define noDiffusion_H
 
-#include "diffusionModel.H"
+#include "mixingDiffusionModel.H"
 #include "fvm.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -43,7 +43,7 @@ namespace Foam
 {
 namespace mixingSubModels
 {
-namespace diffusionModels
+namespace mixingDiffusionModels
 {
 
 /*---------------------------------------------------------------------------*\
@@ -52,7 +52,7 @@ namespace diffusionModels
 
 class noDiffusion
 :
-    public diffusionModel
+    public mixingDiffusionModel
 {
 public:
 
@@ -83,7 +83,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace diffusionModels
+} // End namespace mixingDiffusionModels
 } // End namespace mixingSubModels
 } // End namespace Foam
 

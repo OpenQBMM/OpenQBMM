@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixingSubModels::diffusionModels::turbulentDiffusion
+    Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion
 
 Description
     Turbulent diffusion model.
@@ -52,7 +52,7 @@ SourceFiles
 #ifndef turbulentDiffusion_H
 #define turbulentDiffusion_H
 
-#include "diffusionModel.H"
+#include "mixingDiffusionModel.H"
 #include "fvm.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -60,7 +60,7 @@ namespace Foam
 {
 namespace mixingSubModels
 {
-namespace diffusionModels
+namespace mixingDiffusionModels
 {
 
 /*---------------------------------------------------------------------------*\
@@ -69,7 +69,7 @@ namespace diffusionModels
 
 class turbulentDiffusion
 :
-    public diffusionModel
+    public mixingDiffusionModel
 {
     //- Private member functions
         tmp<volScalarField> turbViscosity(const volScalarField& moment) const;
@@ -111,7 +111,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace diffusionModels
+} // End namespace mixingDiffusionModels
 } // End namespace mixingSubModels
 } // End namespace Foam
 

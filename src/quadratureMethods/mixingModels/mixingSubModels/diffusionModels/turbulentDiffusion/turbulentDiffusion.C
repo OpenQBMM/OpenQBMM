@@ -35,13 +35,13 @@ namespace Foam
 {
 namespace mixingSubModels
 {
-namespace diffusionModels
+namespace mixingDiffusionModels
 {
     defineTypeNameAndDebug(turbulentDiffusion, 0);
 
     addToRunTimeSelectionTable
     (
-        diffusionModel,
+        mixingDiffusionModel,
         turbulentDiffusion,
         dictionary
     );
@@ -52,13 +52,13 @@ namespace diffusionModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModels::turbulentDiffusion
+Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion
 ::turbulentDiffusion
 (
     const dictionary& dict
 )
 :
-    diffusionModel(dict),
+    mixingDiffusionModel(dict),
     gammaLam_(dict.lookup("gammaLam")),
     Sc_(readScalar(dict.lookup("Sc")))
 {}
@@ -66,7 +66,7 @@ Foam::mixingSubModels::diffusionModels::turbulentDiffusion
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::diffusionModels::turbulentDiffusion
+Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion
 ::~turbulentDiffusion()
 {}
 
@@ -74,7 +74,7 @@ Foam::mixingSubModels::diffusionModels::turbulentDiffusion
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::tmp<Foam::fvScalarMatrix>
-Foam::mixingSubModels::diffusionModels::turbulentDiffusion
+Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion
 ::momentDiff
 (
     const volScalarField& moment
@@ -86,7 +86,7 @@ Foam::mixingSubModels::diffusionModels::turbulentDiffusion
 }
 
 Foam::tmp<Foam::volScalarField>
-Foam::mixingSubModels::diffusionModels::turbulentDiffusion::
+Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion::
 turbViscosity(const volScalarField& moment) const
 {
     typedef compressible::turbulenceModel cmpTurbModel;
