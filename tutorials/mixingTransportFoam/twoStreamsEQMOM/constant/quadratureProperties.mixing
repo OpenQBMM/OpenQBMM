@@ -28,10 +28,11 @@ extendedMomentInversion
 
     maxSigmaIter        1000;
     momentsTol          1.0e-6;
+    sigmaMin            1.0e-3;
     sigmaTol            1.0e-8;
     targetFunctionTol   1.0e-8;
     minMean             1.0e-4;
-    minVariance         1.0e-4;
+    minVariance         1.0e-3;
 
     basicQuadrature
     {

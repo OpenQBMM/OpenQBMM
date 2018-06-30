@@ -152,7 +152,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     for (label zetai = 1; zetai < nZeta; zetai++)
     {
-        canonicalMoments[zetai] 
+        canonicalMoments[zetai]
             = zeta[zetai]/(1.0 - canonicalMoments[zetai - 1]);
 
         if (canonicalMoments[zetai] < 0.0 || canonicalMoments[zetai] > 1.0)
@@ -175,7 +175,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     }
 
     onMomentSpaceBoundary_ = false;
-    nRealizableMoments_ = nZeta;
+    nRealizableMoments_ = nZeta + 1;
 }
 
 void Foam::univariateMomentSet::checkRealizability
