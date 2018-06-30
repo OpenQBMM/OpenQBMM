@@ -370,8 +370,9 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return impSource;
 }
 
-Foam::scalar Foam::PDFTransportModels::populationBalanceModels
-::univariatePopulationBalance::cellMomentSource
+Foam::scalar 
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::cellMomentSource
 (
     label& momentOrder,
     label& celli
@@ -383,23 +384,23 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
             + phaseSpaceConvection(momentOrder, celli);
 }
 
-Foam::scalar Foam::PDFTransportModels::populationBalanceModels
-::univariatePopulationBalance::realizableCo
-() const
+Foam::scalar 
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::realizableCo() const
 {
     return univariatePDFTransportModel::realizableCo();
 }
 
-Foam::scalar Foam::PDFTransportModels::populationBalanceModels
-::univariatePopulationBalance::CoNum
-() const
+Foam::scalar 
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::CoNum() const
 {
     return 0.0;
 }
 
-void Foam::PDFTransportModels::populationBalanceModels
-::univariatePopulationBalance::solve
-()
+void 
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::solve()
 {
     univariatePDFTransportModel::solve();
 }

@@ -152,7 +152,8 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     for (label zetai = 1; zetai < nZeta; zetai++)
     {
-        canonicalMoments[zetai] = zeta[zetai]/(1.0 - canonicalMoments[zetai-1]);
+        canonicalMoments[zetai] 
+            = zeta[zetai]/(1.0 - canonicalMoments[zetai - 1]);
 
         if (canonicalMoments[zetai] < 0.0 || canonicalMoments[zetai] > 1.0)
         {
