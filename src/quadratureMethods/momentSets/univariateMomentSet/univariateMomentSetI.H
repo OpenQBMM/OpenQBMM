@@ -48,6 +48,11 @@ Foam::scalarList& Foam::univariateMomentSet::betaRecurrence()
 
 Foam::label Foam::univariateMomentSet::negativeZeta()
 {
+    if (!realizabilityChecked_)
+    {
+        checkRealizability(false);
+    }
+
     return negativeZeta_;
 }
 
