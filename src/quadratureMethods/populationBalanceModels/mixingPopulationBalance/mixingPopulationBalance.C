@@ -903,11 +903,11 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         meanMomentEqns[mEqni] -= fvc::ddt(meanM);
         meanMomentVarianceEqns[mEqni] -= fvc::ddt(varM);
 
-        meanMomentEqns[mEqni].relax();
-        meanMomentEqns[mEqni].solve();
-
         meanMomentVarianceEqns[mEqni].relax();
         meanMomentVarianceEqns[mEqni].solve();
+
+        meanMomentEqns[mEqni].relax();
+        meanMomentEqns[mEqni].solve();       
     }
 
     meanMomentsQuadrature_.updateQuadrature();
