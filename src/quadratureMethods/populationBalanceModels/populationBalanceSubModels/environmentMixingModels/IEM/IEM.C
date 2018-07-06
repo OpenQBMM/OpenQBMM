@@ -87,8 +87,8 @@ Foam::populationBalanceSubModels::environmentMixingModels::IEM::K
 ) const
 {
     return
-        fvm::Sp(2.0*Cphi_*epsilon_/k_, meanMomentVariance)
-      - 2.0*Cphi_*epsilon_*meanMoment*meanMixtureFraction/k_;
+        2.0*Cphi_*epsilon_*meanMoment*meanMixtureFraction/k_
+      - fvm::SuSp(2.0*Cphi_*epsilon_/k_, meanMomentVariance);
 }
 
 // ************************************************************************* //
