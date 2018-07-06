@@ -48,7 +48,7 @@ quadratureNode
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensioned<typename weightType::value_type>
@@ -66,7 +66,7 @@ quadratureNode
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensioned<typename abscissaType::value_type>
@@ -106,7 +106,7 @@ quadratureNode
                         mesh.time().timeName(),
                         mesh,
                         IOobject::NO_READ,
-                        IOobject::AUTO_WRITE
+                        IOobject::NO_WRITE
                     ),
                     mesh,
                     dimensioned<typename weightType::value_type>
@@ -133,7 +133,7 @@ quadratureNode
                         mesh.time().timeName(),
                         mesh,
                         IOobject::NO_READ,
-                        IOobject::AUTO_WRITE
+                        IOobject::NO_WRITE
                     ),
                     mesh,
                     dimensioned<typename abscissaType::value_type>
@@ -157,7 +157,7 @@ quadratureNode
                     mesh.time().timeName(),
                     mesh,
                     IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
+                    IOobject::NO_WRITE
                 ),
                 mesh,
                 dimensioned<typename sigmaType::value_type>
@@ -195,7 +195,7 @@ quadratureNode
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensioned<typename weightType::value_type>
@@ -213,7 +213,7 @@ quadratureNode
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensioned<typename abscissaType::value_type>
@@ -253,7 +253,7 @@ quadratureNode
                         mesh.time().timeName(),
                         mesh,
                         IOobject::NO_READ,
-                        IOobject::AUTO_WRITE
+                        IOobject::NO_WRITE
                     ),
                     mesh,
                     dimensioned<typename weightType::value_type>
@@ -281,7 +281,7 @@ quadratureNode
                         mesh.time().timeName(),
                         mesh,
                         IOobject::NO_READ,
-                        IOobject::AUTO_WRITE
+                        IOobject::NO_WRITE
                     ),
                     mesh,
                     dimensioned<typename abscissaType::value_type>
@@ -304,7 +304,7 @@ quadratureNode
                         mesh.time().timeName(),
                         mesh,
                         IOobject::NO_READ,
-                        IOobject::AUTO_WRITE
+                        IOobject::NO_WRITE
                     ),
                     mesh,
                     dimensioned<typename sigmaType::value_type>
