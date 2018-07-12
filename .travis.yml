@@ -6,7 +6,7 @@ language: cpp
 
 env:
     # Test with OpenFOAM-dev only
-    - OF_VERS="5"
+    - OF_VERS="6"
 
 before_install:
     - sudo sh -c "wget -O - http://dl.openfoam.org/gpg.key | apt-key add -"
