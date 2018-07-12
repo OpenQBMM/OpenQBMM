@@ -111,8 +111,8 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
                 alphaPhic10,
                 (alphaSubCycle.index()*Sp)(),
                 (Su - (alphaSubCycle.index() - 1)*Sp*alpha1)(),
-                phase1.alphaMax(),
-                0
+                UniformField<scalar>(phase1.alphaMax()),
+                zeroField()
             );
 
             if (alphaSubCycle.index() == 1)
@@ -137,8 +137,8 @@ for (int acorr=0; acorr<nAlphaCorr; acorr++)
             alphaPhic1,
             Sp,
             Su,
-            phase1.alphaMax(),
-            0
+            UniformField<scalar>(phase1.alphaMax()),
+            zeroField()
         );
 
         alphaPhi1 = alphaPhic1;

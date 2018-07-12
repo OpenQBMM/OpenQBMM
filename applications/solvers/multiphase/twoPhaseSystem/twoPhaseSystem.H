@@ -226,6 +226,18 @@ public:
 
         // Access
 
+            //- Access a sub model between a phase pair
+            template<class modelType>
+            const modelType& lookupSubModel(const phasePair& key) const;
+
+            //- Access a sub model between two phases
+            template<class modelType>
+            const modelType& lookupSubModel
+            (
+                const phaseModel& dispersed,
+                const phaseModel& continuous
+            ) const;
+
             //- Return the drag model for the given phase
             const dragModel& drag(const phaseModel& phase) const;
 
@@ -289,6 +301,12 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include "twoPhaseSystemI.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#ifdef NoRepository
+    #include "twoPhaseSystemTemplates.C"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

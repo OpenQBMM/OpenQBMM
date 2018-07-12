@@ -1,12 +1,12 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2015-2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
-    This file is derivative work of OpenFOAM.
+    This file is part of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -21,53 +21,57 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Application
-    Test-PopulationBalanceModels
-
-Description
-    Test PopulationBalanceModels classes and methods.
-
 \*---------------------------------------------------------------------------*/
 
-#include "fvCFD.H"
-#include "simpleControl.H"
-#include "populationBalanceModel.H"
+#include "BlendedInterfacialModel.H"
+#include "dragModel.H"
+#include "virtualMassModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-int main(int argc, char *argv[])
+namespace Foam
 {
-    #include "setRootCase.H"
-    #include "createTime.H"
-    #include "createMesh.H"
 
-    simpleControl simple(mesh);
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    #include "createFields.H"
-
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-    Info<< "\nCalculating population balance\n" << endl;
-
-    #include "CourantNo.H"
-
-    while (simple.loop(runTime))
-    {
-        Info<< "\nTime = " << runTime.timeName() << nl << endl;
-
-        if (timeDependentVelocity)
-        {
-            #include "timeDependentVelocity.H"
-        }
-
-        populationBalance->solve();
-
-        runTime.write();
-    }
-
-    Info<< "End\n" << endl;
-
-    return 0;
+template<class modelType>
+const modelType& twoPhaseSystem::lookupSubModel
+(
+    const phasePair& key
+) const
+{
+    return
+        mesh().lookupObject<modelType>
+        (
+            IOobject::groupName(modelType::typeName, key.name())
+        );
 }
+
+
+template<>
+inline const dragModel& twoPhaseSystem::lookupSubModel<dragModel>
+(
+    const phaseModel& dispersed,
+    const phaseModel& continuous
+) const
+{
+    return drag_->phaseModel(dispersed);
+}
+
+
+template<>
+inline const virtualMassModel& twoPhaseSystem::lookupSubModel<virtualMassModel>
+(
+    const phaseModel& dispersed,
+    const phaseModel& continuous
+) const
+{
+    return virtualMass_->phaseModel(dispersed);
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
 
 // ************************************************************************* //

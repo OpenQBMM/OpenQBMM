@@ -46,6 +46,8 @@ Description
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 #include "MULES.H"
 #include "subCycle.H"
+#include "UniformField.H"
+
 /*
 void explicitSolve
 (
