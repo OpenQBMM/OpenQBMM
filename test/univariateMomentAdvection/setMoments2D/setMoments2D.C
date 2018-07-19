@@ -45,6 +45,62 @@ using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+scalar weights1(const scalar x)
+{
+    if ((x >= 0.0) && (3.0*x <= 2.0))
+    {
+        return 9.0*sqr(x)*sqr(2.0 - 3.0*x);
+    }
+
+    return scalar(0);
+}
+
+scalar weights2(const scalar x)
+{
+    if ((3.0*x >= 1.0) && (x <= 1.0))
+    {
+        return 9.0*sqr(3.0*x - 1.0)*sqr(1.0 - x);
+    }
+
+    return scalar(0);
+}
+
+scalar parLambda2(const scalar x)
+{
+    scalar lambda2min = 2.0e-2;
+    scalar lambda2max = 0.7;
+
+    if (3.0*x <= 1.0)
+    {
+        return lambda2min;
+    }
+    else if (3.0*x <= 2.0)
+    {
+        return lambda2min*sqr(2.0 - 3.0*x)*(6.0*x - 1.0)
+            + lambda2max*sqr(3.0*x - 1.0)*(5.0 - 6.0*x);
+    }
+
+    return lambda2max;
+}
+
+scalar park2(scalar x)
+{
+    scalar k2min = 3.0;
+    scalar k2max = 10.0;
+
+    if (3.0*x <= 1.0)
+    {
+        return k2min;
+    }
+    else if (3.0*x <= 2.0)
+    {
+        return k2min*sqr(2.0 - 3.0*x)*(6.0*x - 1.0)
+            + k2max*sqr(3.0*x - 1.0)*(5.0 - 6.0*x);
+    }
+
+    return k2max;
+}
+
 int main(int argc, char *argv[])
 {
     #include "addDictOption.H"
@@ -137,7 +193,55 @@ int main(int argc, char *argv[])
     }
     else if (initType == "bimodal")
     {
-        NotImplemented;
+        forAll(cellCentres, celli)
+        {
+            scalar x = cellCentres[celli].x();
+            scalar y = cellCentres[celli].y();
+
+            scalar z = 8.0*Foam::sqrt(sqr(x - 1.0/8.0) + sqr(y - 1.0/8.0));
+            scalar oneMinusZ = 1.0 - z;
+
+            forAll(moments, mi)
+            {
+                moments[mi][celli] = 0.0;
+            }
+
+            scalar w1, w2, w3, lambda2, k2, xi1;
+
+            w1 = 0.0;
+            w2 = 0.0;
+            w3 = 0.0;
+
+            if ((oneMinusZ >= 0.0) && (oneMinusZ <= 1.0))
+            {
+                w1 = 16.0*sqr(oneMinusZ)*sqr(1.0 - oneMinusZ);
+            }
+
+
+            if ((4.0*oneMinusZ >= 1.0) && (oneMinusZ <= 1.0))
+            {
+                w2 = 256.0*sqr(4.0*oneMinusZ - 1.0)*sqr(1.0 - oneMinusZ)/81.0;
+            }
+
+            w3 = weights2(oneMinusZ);
+
+            if ((3.0*oneMinusZ >= 2.0) && (oneMinusZ <= 1.0))
+            {
+                w3 = 1.0;
+            }
+            
+            lambda2 = parLambda2(oneMinusZ);
+            k2 = park2(oneMinusZ);
+            xi1 = 0.02;
+
+            forAll(moments, mi)
+            {
+                moments[mi][celli]
+                    = w1*pow(xi1, mi) + w2*pow(2.0*xi1, mi)
+                      + w3*pow(lambda2, mi)*(std::tgamma(1.0 + scalar(mi)/k2));
+            }
+
+        }
     }
     else
     {
