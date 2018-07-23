@@ -289,6 +289,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
     }
 
     quadrature_.updateQuadrature();
+    //quadrature_.updateMoments();
 }
 
 

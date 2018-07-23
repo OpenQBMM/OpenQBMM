@@ -101,7 +101,7 @@ Foam::univariateAdvection::zeta::zeta
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
-                    IOobject::NO_WRITE
+                    IOobject::AUTO_WRITE
                 ),
                 phi.mesh(),
                 dimensionedScalar("zero", dimless, 0.0)
@@ -245,7 +245,7 @@ Foam::univariateAdvection::zeta::zeta
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
-                    IOobject::NO_WRITE
+                    IOobject::AUTO_WRITE
                 ),
                 phi.mesh(),
                 dimensionedScalar("zero", dimless, 1.0)
@@ -545,7 +545,7 @@ void Foam::univariateAdvection::zeta::limitZetas()
             {
                 mStar[mi]
                     = scalar(nFacesOutgoingFlux_[celli] + 1)
-                    *moments_[mi][celli] - mPluses[mi][celli];
+                        *moments_[mi][celli] - mPluses[mi][celli];
             }
 
             nRealizableMomentsStar_[celli] = mStar.nRealizableMoments(false);
