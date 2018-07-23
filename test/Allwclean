@@ -9,5 +9,7 @@ wclean populationBalanceModel
 wclean univariateMomentInversion
 wclean univariateQuadratureApproximation
 wclean Vandermonde
+wclean univariateMomentAdvection/setMoments1D
+wclean univariateMomentAdvection/setMoments2D
 
 # ----------------------------------------------------------------- end-of-file

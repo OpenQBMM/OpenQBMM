@@ -11,5 +11,7 @@ wmake populationBalanceModel
 wmake univariateMomentInversion
 wmake univariateQuadratureApproximation
 wmake Vandermonde
+wmake univariateMomentAdvection/setMoments1D
+wmake univariateMomentAdvection/setMoments2D
 
 #------------------------------------------------------------------------------
