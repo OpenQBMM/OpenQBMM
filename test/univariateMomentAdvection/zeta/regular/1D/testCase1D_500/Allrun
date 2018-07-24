@@ -11,5 +11,6 @@ application=`getApplication`
 
 runApplication blockMesh
 runApplication $application
+runApplication posProcess -func sampleDict
 
 # ----------------------------------------------------------------- end-of-file
