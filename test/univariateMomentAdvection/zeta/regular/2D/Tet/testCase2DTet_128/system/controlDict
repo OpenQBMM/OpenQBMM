@@ -25,7 +25,7 @@ stopAt          endTime;
 
 endTime         0.8;
 
-deltaT          2.5e-4;
+deltaT          5.0e-4;
 
 writeControl    runTime;
 
