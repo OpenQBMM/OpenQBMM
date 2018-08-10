@@ -147,7 +147,7 @@ quadratureNode
         }
 
         // Allocating sigma
-        sigma_ = autoPtr<sigmaType>
+        sigma_.set
         (
             new sigmaType
             (
@@ -294,29 +294,31 @@ quadratureNode
                 )
             );
 
-            sigma_ = autoPtr<sigmaType>
-            (
-                new sigmaType
-                (
-                    IOobject
-                    (
-                        IOobject::groupName("sigma", name_),
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::NO_READ,
-                        IOobject::NO_WRITE
-                    ),
-                    mesh,
-                    dimensioned<typename sigmaType::value_type>
-                    (
-                        "zeroSigma",
-                        dimless,
-                        pTraits<typename sigmaType::value_type>::zero
-                    ),
-                    boundaryTypes
-                )
-            );
         }
+
+        sigma_.set
+        (
+            new sigmaType
+            (
+                IOobject
+                (
+                    IOobject::groupName("sigma", name_),
+                    mesh.time().timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    true
+                ),
+                mesh,
+                dimensioned<typename sigmaType::value_type>
+                (
+                    "zeroSigma",
+                    dimless,
+                    pTraits<typename sigmaType::value_type>::zero
+                ),
+                boundaryTypes
+            )
+        );
     }
 }
 
