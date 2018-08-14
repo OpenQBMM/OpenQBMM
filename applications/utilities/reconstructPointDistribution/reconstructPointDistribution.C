@@ -22,13 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Application to construct moments give other parameters. Builds initial
-    field files for main solver to use as input.
+    reconstructPointDistribution
 
 Description
-    Preprocessing application to eliminate the need to create fields for all
-    moments. Instead moments are consucted using inputs from
-    momentGenerationDict. Different methods can be used.
+    Reconstructs a number density function in a point.
 
 \*---------------------------------------------------------------------------*/
 
@@ -52,17 +49,19 @@ int main(int argc, char *argv[])
 
     // Default to latest time
     label startTime = Times.size() - 1;
+
     if (args.optionFound("time"))
     {
         Foam::scalar timeValue = args.optionRead<scalar>("time");
-
         startTime = Foam::Time::findClosestTimeIndex(Times, timeValue);
     }
+
     runTime.setTime(Times[startTime], startTime);
 
     #include "createMesh.H"
 
     Info<< "Reading pointDistributionDict" << nl << endl;
+
     IOdictionary distDict
     (
         IOobject
@@ -84,6 +83,7 @@ int main(int argc, char *argv[])
         const dictionary& probesDict(phaseDict.subDict("probes"));
 
         Info<< "Reading quadratureProperties." << phaseName << endl;
+
         IOdictionary quadratureDict
         (
             IOobject
@@ -104,8 +104,13 @@ int main(int argc, char *argv[])
         labelListList nodeIndexes(quadratureDict.lookup("nodes"));
         label nMoments = momentOrders.size();
         label nSamples = phaseDict.lookupOrDefault("nSamples", 100);
+
         label nSecondaryNodes =
-            quadratureDict.subDict("extendedMomentInversion"). lookupOrDefault("nSecondaryNodes", nMoments + 1);
+            quadratureDict.subDict("extendedMomentInversion").lookupOrDefault
+            (
+                "nSecondaryNodes", 
+                nMoments + 1
+            );
 
         // CreateProbes and probesDict
         fileName probeDir;
@@ -116,8 +121,10 @@ int main(int argc, char *argv[])
         {
             probeSubDir = probeSubDir/mesh.name();
         }
+
         probeSubDir = "postProcessing"/probeSubDir/mesh.time().timeName();
         probeDir = runTime.path()/probeSubDir;
+
         // Remove ".."
         probeDir.clean();
         mkDir(probeDir);
@@ -143,6 +150,7 @@ int main(int argc, char *argv[])
         forAll(momentOrders, mi)
         {
             const labelList& momentOrder = momentOrders[mi];
+
             volScalarField momenti
             (
                 IOobject
@@ -163,6 +171,7 @@ int main(int argc, char *argv[])
                 ),
                 mesh
             );
+
             momentProbes(momentOrder) = mProbes.sample(momenti);
         }
 
@@ -183,6 +192,7 @@ int main(int argc, char *argv[])
             );
 
             univariateMomentSet moments(nMoments, "RPlus");
+            
             forAll(moments, mi)
             {
                 moments(momentOrders[mi][0]) =
@@ -191,10 +201,12 @@ int main(int argc, char *argv[])
 
             //- Guarentee EQMOM is used by setting an odd number of moments
             label nRealizableMoments = moments.nRealizableMoments();
+
             if (nRealizableMoments % 2 == 0)
             {
                 nRealizableMoments--;
             }
+
             for (label mi = nRealizableMoments; mi < nMoments; mi++)
             {
                 moments(momentOrders[mi][0]) = 0.0;
