@@ -22,19 +22,19 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::pdPhaseModel
+    Foam::polydispersePhaseModel
 
 Description
     Class for a polydisperse phase model. Each bubble size hase a unique mean
     velocity. Size and velocity moments are stored in quadrature.
 
 SourceFiles
-    pdPhaseModel.C
+    polydispersePhaseModel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef pdPhaseModel_H
-#define pdPhaseModel_H
+#ifndef polydispersePhaseModel_H
+#define polydispersePhaseModel_H
 
 #include "dictionary.H"
 #include "dimensionedScalar.H"
@@ -55,7 +55,7 @@ namespace Foam
                            Class phaseModel Declaration
 \*---------------------------------------------------------------------------*/
 
-class pdPhaseModel
+class polydispersePhaseModel
 :
     public phaseModel
 {
@@ -142,7 +142,7 @@ class pdPhaseModel
 public:
 
     // Constructors
-        pdPhaseModel
+        polydispersePhaseModel
         (
             const twoPhaseSystem& fluid,
             const dictionary& phaseProperties,
@@ -151,7 +151,7 @@ public:
 
 
     //- Destructor
-    virtual ~pdPhaseModel();
+    virtual ~polydispersePhaseModel();
 
 
     // Member Functions

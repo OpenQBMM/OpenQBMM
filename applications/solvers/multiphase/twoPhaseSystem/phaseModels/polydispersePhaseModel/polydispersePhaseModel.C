@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "pdPhaseModel.H"
+#include "polydispersePhaseModel.H"
 #include "fvMatrix.H"
 #include "twoPhaseSystem.H"
 #include "fixedValueFvPatchFields.H"
@@ -39,7 +39,7 @@ License
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-void Foam::pdPhaseModel::updateVelocity()
+void Foam::polydispersePhaseModel::updateVelocity()
 {
     // Correct mean velocity using the new velocity moments
     U_ =
@@ -57,7 +57,7 @@ void Foam::pdPhaseModel::updateVelocity()
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
+Foam::tmp<Foam::volScalarField> Foam::polydispersePhaseModel::coalescenceSource
 (
     const label momentOrder
 )
@@ -127,7 +127,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::coalescenceSource
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
+Foam::tmp<Foam::volScalarField> Foam::polydispersePhaseModel::breakupSource
 (
     const label momentOrder
 )
@@ -185,7 +185,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::breakupSource
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::daughterDistribution
+Foam::tmp<Foam::volScalarField> Foam::polydispersePhaseModel::daughterDistribution
 (
     const label momentOrder,
     const volScalarField& abscissa
@@ -228,7 +228,7 @@ Foam::tmp<Foam::volScalarField> Foam::pdPhaseModel::daughterDistribution
 }
 
 
-void Foam::pdPhaseModel::solveSourceOde()
+void Foam::polydispersePhaseModel::solveSourceOde()
 {
     if (!ode_)
     {
@@ -375,7 +375,7 @@ void Foam::pdPhaseModel::solveSourceOde()
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::pdPhaseModel::pdPhaseModel
+Foam::polydispersePhaseModel::polydispersePhaseModel
 (
     const twoPhaseSystem& fluid,
     const dictionary& phaseProperties,
@@ -547,13 +547,13 @@ Foam::pdPhaseModel::pdPhaseModel
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::pdPhaseModel::~pdPhaseModel()
+Foam::polydispersePhaseModel::~polydispersePhaseModel()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::pdPhaseModel::correct()
+void Foam::polydispersePhaseModel::correct()
 {
     d_ = dimensionedScalar("zero", dimLength, 0.0);
 
@@ -621,7 +621,7 @@ void Foam::pdPhaseModel::correct()
 }
 
 
-void Foam::pdPhaseModel::relativeTransport()
+void Foam::polydispersePhaseModel::relativeTransport()
 {
     // Do nothing if only mean is used
     if (nNodes_ == 1)
@@ -765,7 +765,7 @@ void Foam::pdPhaseModel::relativeTransport()
 }
 
 
-void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
+void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 {
     // Update moments based source terms for breakup and coalescence
     solveSourceOde();

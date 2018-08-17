@@ -26,7 +26,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 
 #include "phaseModel.H"
-#include "pdPhaseModel.H"
+#include "polydispersePhaseModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -41,8 +41,6 @@ namespace Foam
         dictionary,
         monodispersePhaseModel
     );
-
-    typedef  pdPhaseModel polydispersePhaseModel;
 
     addNamedToRunTimeSelectionTable
     (
