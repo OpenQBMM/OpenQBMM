@@ -336,6 +336,18 @@ public:
             return thermo_->alphaEff(alphat, patchi);
         }
 
+        //- Thermal diffusivity for energy of mixture for patch [kg/m/s]
+        tmp<scalarField> alphahe(const label patchi) const
+        {
+            return thermo_->alphahe(patchi);
+        }
+
+        //- Thermal diffusivity for energy of mixture [kg/m/s]
+        tmp<volScalarField> alphahe() const
+        {
+            return thermo_->alphahe();
+        }
+
         //- Return the specific heat capacity
         tmp<volScalarField> Cp() const
         {
