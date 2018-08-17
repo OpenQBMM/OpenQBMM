@@ -5,7 +5,7 @@
     \\  /    A nd           | Copyright (C) 2013-2017 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2017-05-26 Jeff Heylmun:    Added support of pdPhaseModel
+2017-05-26 Jeff Heylmun:    Added support of polydispersePhaseModel
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
