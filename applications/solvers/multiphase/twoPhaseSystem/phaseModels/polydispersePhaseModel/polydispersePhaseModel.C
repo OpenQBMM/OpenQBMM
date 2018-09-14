@@ -760,13 +760,13 @@ void Foam::polydispersePhaseModel::relativeTransport()
     quadrature_.updateAllQuadrature();
     this->updateVelocity();
     correct();
-
-    quadrature_.interpolateNodes();
 }
 
 
 void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 {
+    quadrature_.interpolateNodes();
+
     // Update moments based source terms for breakup and coalescence
     solveSourceOde();
 
@@ -779,7 +779,7 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
 
     const dictionary& pimpleDict =
         fluid_.mesh().solutionDict().subDict("PIMPLE");
-     label nCorrectors = pimpleDict.lookupOrDefault("nFluxCorrectors", 0);
+    label nCorrectors = pimpleDict.lookupOrDefault("nFluxCorrectors", 0);
     if (nCorrectors > 0)
     {
         word patchName = pimpleDict.lookup("corrPatch");
@@ -855,7 +855,6 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
                     "laplacian(" + quadrature_.moments()[1].name() + ",corr)"
                 )
             );
-            corrEqn.setReference(0, 0.0);
             corrEqn.relax();
             corrEqn.solve();
             phi += fvc::snGrad(corr)*fluid_.mesh().magSf();
@@ -988,7 +987,6 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
     }
 
     quadrature_.updateAllQuadrature();
-    correct();
 
     // Solve for velocity abscissa directly since the momentum exchange
     // terms do not change the mass
@@ -1029,7 +1027,6 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
     }
     quadrature_.updateAllMoments();
     this->updateVelocity();
-    correct();
 
     // Update deviation velocity
     forAll(Vs_, nodei)
