@@ -15,6 +15,23 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 ddtSchemes
 {
     default         Euler;
@@ -22,7 +39,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         cellLimited     leastSquares .2;
+    default         cellLimited     leastSquares 1;
     grad(p_rgh)     leastSquares;
 }
 
@@ -54,6 +71,7 @@ divSchemes
 laplacianSchemes
 {
     default         Gauss linear corrected;
+    laplacian(moment.1.air,corr)    Gauss linear limited 1.0;
 }
 
 interpolationSchemes
@@ -63,15 +81,14 @@ interpolationSchemes
     "interpolate\(moment.*\)" upwind phi.air;
 
     reconstruct(U)          upwind;
-    reconstruct(Us)         upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;
-    reconstruct(sigma)      upwind;
 }
 
 snGradSchemes
 {
     default         corrected;
+    snGrad(corr)    limited     1.0;
 }
 
 wallDist

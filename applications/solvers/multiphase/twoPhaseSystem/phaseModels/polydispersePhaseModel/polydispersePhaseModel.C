@@ -241,89 +241,16 @@ void Foam::polydispersePhaseModel::solveSourceOde()
                 );
         }
         quadrature_.updateQuadrature();
-        quadrature_.updateAllMoments();
+        quadrature_.updateVelocityMoments();
         return;
     }
 
     PtrList<volScalarField> k1(nMoments_);
     PtrList<volScalarField> k2(nMoments_);
-    PtrList<volScalarField> k3(nMoments_);
     PtrList<volScalarField> momentsOld(nMoments_);
 
     forAll(momentsOld, mI)
     {
-        k1.set
-        (
-            mI,
-            new volScalarField
-            (
-                IOobject
-                (
-                    "k1",
-                    U_.mesh().time().timeName(),
-                    U_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                U_.mesh(),
-                dimensionedScalar
-                (
-                    "k1",
-                    quadrature_.moments()[mI].dimensions(),
-                    0.0
-                )
-            )
-        );
-
-        k2.set
-        (
-            mI,
-            new volScalarField
-            (
-                IOobject
-                (
-                    "k2",
-                    U_.mesh().time().timeName(),
-                    U_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                U_.mesh(),
-                dimensionedScalar
-                (
-                    "k2",
-                    quadrature_.moments()[mI].dimensions(),
-                    0.0
-                )
-            )
-        );
-
-        k3.set
-        (
-            mI,
-            new volScalarField
-            (
-                IOobject
-                (
-                    "k3",
-                    U_.mesh().time().timeName(),
-                    U_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                U_.mesh(),
-                dimensionedScalar
-                (
-                    "k3",
-                    quadrature_.moments()[mI].dimensions(),
-                    0.0
-                )
-            )
-        );
-
         momentsOld.set
         (
             mI,
@@ -332,44 +259,53 @@ void Foam::polydispersePhaseModel::solveSourceOde()
     }
     quadrature_.updateQuadrature();
 
-    // Read current deltaT
-    dimensionedScalar dt0 = U_.mesh().time().deltaT();
 
+    // Read current deltaT
+    dimensionedScalar deltaT = U_.mesh().time().deltaT();
 
     // Calculate k1 for all moments
     forAll(momentsOld, mI)
     {
-        k1[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
+        k1.set
+        (
+            mI,
+            new volScalarField
+            (
+                deltaT*(coalescenceSource(mI) + breakupSource(mI))
+            )
+        );
         quadrature_.moments()[mI] == momentsOld[mI] + k1[mI];
     }
     quadrature_.updateQuadrature();
 
+
     // Calculate k2 for all moments
     forAll(momentsOld, mI)
     {
-        k2[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
+        k2.set
+        (
+            mI,
+            new volScalarField
+            (
+                deltaT*(coalescenceSource(mI) + breakupSource(mI))
+            )
+        );
         quadrature_.moments()[mI] == momentsOld[mI] + (k1[mI] + k2[mI])/4.0;
     }
     quadrature_.updateQuadrature();
 
+
     // calculate k3 and new moments for all moments
     forAll(momentsOld, mI)
     {
-        k3[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
+        volScalarField k3(deltaT*(coalescenceSource(mI) + breakupSource(mI)));
 
         // Second order accurate, k3 only used for error estimation
         quadrature_.moments()[mI] ==
-            momentsOld[mI]
-          + (k1[mI] + k2[mI] + 4.0*k3[mI])/6.0;
+            momentsOld[mI] + (k1[mI] + k2[mI] + 4.0*k3)/6.0;
     }
     quadrature_.updateQuadrature();
-
-    // Because velocity moments only change due to change in size abscissae
-    // from break up and coalescence, the velocity moments are simply updated
-    // to include this size change. This eliminated calculating source terms
-    // twice.
     quadrature_.updateAllMoments();
-
 }
 
 
@@ -398,17 +334,6 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
     coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
-    ddtM1_
-    (
-        IOobject
-        (
-            IOobject::groupName("ddtM1", phaseName),
-            fluid_.mesh().time().timeName(),
-            fluid_.mesh()
-        ),
-        fluid_.mesh(),
-        dimensionedScalar("0", dimDensity/dimTime, 0.0)
-    ),
     nNodes_(quadrature_.nodes().size()),
     nMoments_(quadrature_.nMoments()),
     alphas_(nNodes_),
@@ -694,7 +619,6 @@ void Foam::polydispersePhaseModel::relativeTransport()
         mEqn.relax();
         mEqn.solve();
     }
-    ddtM1_ = fvc::ddt(quadrature_.moments()[1]);
 
     forAll(quadrature_.velocityMoments(), mEqni)
     {
@@ -765,17 +689,12 @@ void Foam::polydispersePhaseModel::relativeTransport()
 
 void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
 {
+    // Correct mean flux
     quadrature_.interpolateNodes();
-
-    // Update moments based source terms for breakup and coalescence
-    solveSourceOde();
-
-    // Mean moment advection
-    Info<< "Transporting moments with average velocity" << endl;
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
     dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
-    surfaceScalarField phi(phiPtr_());
+    surfaceScalarField& phi = phiPtr_();
 
     const dictionary& pimpleDict =
         fluid_.mesh().solutionDict().subDict("PIMPLE");
@@ -859,8 +778,14 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
             corrEqn.solve();
             phi += fvc::snGrad(corr)*fluid_.mesh().magSf();
         }
+        quadrature_.interpolateNodes();
     }
 
+    // Update moments based source terms for breakup and coalescence
+    solveSourceOde();
+
+    // Mean moment advection
+    Info<< "Transporting moments with average velocity" << endl;
     forAll(quadrature_.moments(), mEqni)
     {
         volScalarField& m = quadrature_.moments()[mEqni];
@@ -871,10 +796,7 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
             (
                 "meanDivUbMp",
                 fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
+                fluid_.mesh()
             ),
             fluid_.mesh(),
             dimensionedScalar("zero", m.dimensions()/dimTime, Zero)
@@ -938,10 +860,7 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
             (
                 "meanDivUbUp",
                 fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
+                fluid_.mesh()
             ),
             fluid_.mesh(),
             dimensionedVector("zero", Up.dimensions()/dimTime, Zero)

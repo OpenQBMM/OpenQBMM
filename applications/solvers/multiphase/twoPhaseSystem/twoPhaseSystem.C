@@ -930,7 +930,7 @@ void Foam::twoPhaseSystem::averageTransport()
             )
 
             // Dispersion, lift, wall lubrication, and bubble pressure
-          + turbulentDispersion_->F<vector>(nodei, 0)
+          - turbulentDispersion_->F<vector>(nodei, 0)
           - lift_->F<vector>(nodei, 0)
           - wallLubrication_->F<vector>(nodei, 0)
           + bubblePressure_->F<vector>(nodei, 0);

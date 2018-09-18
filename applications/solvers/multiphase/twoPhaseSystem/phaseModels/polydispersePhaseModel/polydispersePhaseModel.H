@@ -76,9 +76,6 @@ class polydispersePhaseModel
         //- QuadratureApproximation
         monoKineticQuadratureApproximation quadrature_;
 
-        //- Relative change in first size moment
-        volScalarField ddtM1_;
-
         //- Number of nodes
         const label nNodes_;
 
