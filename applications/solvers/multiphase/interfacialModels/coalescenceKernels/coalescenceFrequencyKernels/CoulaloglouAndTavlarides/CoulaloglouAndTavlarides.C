@@ -56,7 +56,18 @@ CoulaloglouAndTavlarides
 )
 :
     coalescenceFrequencyKernel(dict, mesh),
-    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties"))
+    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    epsilonf_
+    (
+        IOobject
+        (
+            "CoulaloglouAndTavlarides:epsilonf",
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
+    )
 {}
 
 
@@ -68,6 +79,12 @@ Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::update()
+{
+    epsilonf_ = fluid_.phase2().turbulence().epsilon();
+}
+
 
 Foam::tmp<Foam::volScalarField>
 Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
@@ -83,6 +100,22 @@ Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
 
     return
         cbrt(epsilon)*sqr(d1 + d2)
+       *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
+}
+
+
+Foam::scalar Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
+(
+    const label celli,
+    const label nodei,
+    const label nodej
+) const
+{
+    scalar d1 = fluid_.phase1().ds(nodei)[celli];
+    scalar d2 = fluid_.phase1().ds(nodej)[celli];
+
+    return
+        cbrt(epsilonf_[celli])*sqr(d1 + d2)
        *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
 }
 

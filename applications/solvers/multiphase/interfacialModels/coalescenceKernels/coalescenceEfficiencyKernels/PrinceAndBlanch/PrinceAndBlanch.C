@@ -74,6 +74,17 @@ PrinceAndBlanch
             dimLength,
             1e-6
         )
+    ),
+    epsilonf_
+    (
+        IOobject
+        (
+            "PrinceAndBlanch:epsilonf",
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
     )
 {}
 
@@ -87,6 +98,12 @@ Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::update()
+{
+    epsilonf_ = fluid_.phase2().turbulence().epsilon();
+}
+
+
 Foam::tmp<Foam::volScalarField>
 Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::Pc
 (
@@ -97,7 +114,6 @@ Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::Pc
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
     const volScalarField& rho = fluid_.phase2().rho();
-    const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
     const dimensionedScalar& sigma = fluid_.sigma();
 
     volScalarField rij("rij", 0.5/(2.0/d1 + 2.0/d2));
@@ -106,7 +122,30 @@ Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::Pc
         Foam::exp
         (
           - sqrt(rho*pow3(rij)/(16.0*sigma))*log(ho_/hf_)
-           /(pow(rij, 2.0/3.0)/pow(epsilon, 1.0/3.0))
+           /(pow(rij, 2.0/3.0)/pow(epsilonf_, 1.0/3.0))
+        );
+}
+
+
+Foam::scalar Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::Pc
+(
+    const label celli,
+    const label nodei,
+    const label nodej
+) const
+{
+    scalar d1 = fluid_.phase1().ds(nodei)[celli];
+    scalar d2 = fluid_.phase1().ds(nodej)[celli];
+    scalar rho = fluid_.phase2().rho()[celli];
+    scalar sigma = fluid_.sigma().value();
+
+    scalar rij = 0.5/(2.0/d1 + 2.0/d2);
+
+    return
+        Foam::exp
+        (
+          - sqrt(rho*pow3(rij)/(16.0*sigma))*log(ho_.value()/hf_.value())
+           /(pow(rij, 2.0/3.0)/pow(epsilonf_[celli], 1.0/3.0))
         );
 }
 

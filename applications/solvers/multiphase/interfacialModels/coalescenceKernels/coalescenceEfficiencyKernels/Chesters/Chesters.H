@@ -105,6 +105,9 @@ class Chesters
         //- Webber number exponent
         dimensionedScalar WeExp_;
 
+        //- Ratio of Reynolds number to Webber number
+        volScalarField theta_;
+
 
 public:
 
@@ -128,9 +131,20 @@ public:
 
     // Member Functions
 
+        //- Update fields
+        virtual void update();
+
         //- Aggregation kernel
         virtual tmp<volScalarField> Pc
         (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        //- Aggregation kernel
+        virtual scalar Pc
+        (
+            const label celli,
             const label nodei,
             const label nodej
         ) const;

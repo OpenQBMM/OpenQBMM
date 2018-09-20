@@ -28,7 +28,7 @@ air
 water
 {
     type            monodispersePhaseModel;
-    residualAlpha   1e-4;
+    residualAlpha   1e-6;
     d               1e-4;
 }
 

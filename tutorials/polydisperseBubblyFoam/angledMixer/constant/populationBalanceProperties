@@ -43,4 +43,14 @@ daughterDistribution
     daughterDistribution uniform;
 }
 
+odeCoeffs
+{
+    ATol    1.0e-10;
+    RTol    1.0e-4;
+    fac     0.9;
+    facMin  0.5;
+    facMax  2.0;
+    minLocalDt 1.0e-10;
+}
+
 // ************************************************************************* //

@@ -116,8 +116,14 @@ public:
 
     // Member Functions
 
+        //- Update non-stored fields
+        virtual void update() = 0;
+
         //- Breakup kernel
         virtual tmp<volScalarField> Kb(const label nodei) const = 0;
+
+        //- Breakup kernel for a cell
+        virtual scalar Kb(const label celli, const label nodei) const = 0;
 };
 
 
