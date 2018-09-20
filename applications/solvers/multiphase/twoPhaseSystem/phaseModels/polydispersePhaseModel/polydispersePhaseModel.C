@@ -234,6 +234,11 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
 
 void Foam::polydispersePhaseModel::solveSourceOde()
 {
+    if (!coalescence_ && !breakup_)
+    {
+        return;
+    }
+
     volUnivariateMomentFieldSet& moments = quadrature_.moments();
     label nMoments = quadrature_.nMoments();
     PtrList<volVectorField>& Ups = quadrature_.velocityMoments();
