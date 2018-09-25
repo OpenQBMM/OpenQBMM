@@ -251,18 +251,13 @@ void Foam::polydispersePhaseModel::solveSourceOde()
 
     forAll(moments[0], celli)
     {
-        // Storing old moments to recover from failed step
-        if
-        (
-            (*this)[celli] < residualAlpha_.value()
-         || (*this)[celli] > 0.8
-        )
+        if ((*this)[celli] < residualAlpha_.value())
         {
             continue;
         }
 
-        scalarList oldMoments(nMoments, 0.0);
-        vectorList oldUps(nVelocityMoments, Zero);
+        scalarField oldMoments(nMoments, 0.0);
+        vectorField oldUps(nVelocityMoments, Zero);
         forAll(oldMoments, mi)
         {
             oldMoments[mi] = moments[mi][celli];
@@ -279,13 +274,13 @@ void Foam::polydispersePhaseModel::solveSourceOde()
         scalar localDt = localDt_[celli];
 
         // Initialize RK parameters
-        scalarList k1(nMoments_, 0.0);
-        scalarList k2(nMoments_, 0.0);
-        scalarList k3(nMoments_, 0.0);
+        scalarField k1(nMoments_, 0.0);
+        scalarField k2(nMoments_, 0.0);
+        scalarField k3(nMoments_, 0.0);
 
-        vectorList k1U(nVelocityMoments, Zero);
-        vectorList k2U(nVelocityMoments, Zero);
-        vectorList k3U(nVelocityMoments, Zero);
+        vectorField k1U(nVelocityMoments, Zero);
+        vectorField k2U(nVelocityMoments, Zero);
+        vectorField k3U(nVelocityMoments, Zero);
 
         // Flag to indicate if the time step is complete
         bool timeComplete = false;
@@ -300,9 +295,10 @@ void Foam::polydispersePhaseModel::solveSourceOde()
 
         while (!timeComplete)
         {
+            bool nullSource = true;
             do
             {
-                bool nullSource = true;
+                nullSource = true;
 
                 // First intermediate update
                 forAll(oldMoments, mi)
@@ -323,8 +319,6 @@ void Foam::polydispersePhaseModel::solveSourceOde()
 
                 if (nullSource)
                 {
-                    timeComplete = true;
-                    error  = 0.0;
                     break;
                 }
 
@@ -432,26 +426,35 @@ void Foam::polydispersePhaseModel::solveSourceOde()
              || !realizableUpdate3
             );
 
+            if (nullSource)
+            {
+                timeComplete = true;
+                localT = 0.0;
+                break;
+            }
+
             for (label mi = 0; mi < nMoments; mi++)
             {
                 scalar scalei =
-                    pow(ATol_, mi)
-                  + Foam::max
+                   Foam::max
                     (
                         mag(momentsSecondStep[mi]), mag(oldMoments[mi])
                     )*RTol_;
 
-                error +=
-                    sqr
-                    (
-                        (momentsSecondStep[mi] - moments[mi][celli])/scalei
-                    );
+                if (scalei > 0)
+                {
+                    error +=
+                        sqr
+                        (
+                            (momentsSecondStep[mi] - moments[mi][celli])/scalei
+                        );
+                }
             }
-
             error = sqrt(error/nMoments);
-
             if (error < SMALL)
             {
+                timeComplete = true;
+                localT = 0.0;
                 break;
             }
             else if (error < 1)
@@ -492,9 +495,13 @@ void Foam::polydispersePhaseModel::solveSourceOde()
                 {
                     Ups[mi][celli] = oldUps[mi];
                 }
+                quadrature_.updateAllLocalQuadrature(celli);
 
                 if (localDt < minLocalDt_)
                 {
+                    Info<<" cell "<<celli
+                        <<" error: " <<error
+                        <<" dt: "<<localDt<<endl;
                     FatalErrorInFunction
                         << "Reached minimum local step in realizable ODE"
                         << nl
@@ -504,6 +511,8 @@ void Foam::polydispersePhaseModel::solveSourceOde()
             }
         }
     }
+
+    quadrature_.updateAllMoments();
 }
 
 
@@ -561,7 +570,7 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
         )
     ),
     minLocalDt_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("minLocalDt"))),
-    localDt_(this->size(), minLocalDt_),
+    localDt_(this->size(), fluid.mesh().time().deltaT().value()/10.0),
     ATol_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("ATol"))),
     RTol_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("RTol"))),
     facMax_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("facMax"))),
@@ -892,11 +901,11 @@ void Foam::polydispersePhaseModel::relativeTransport()
 }
 
 
-void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
+void Foam::polydispersePhaseModel::averageTransport
+(
+    const PtrList<fvVectorMatrix>& AEqns
+)
 {
-    // Update moments based source terms for breakup and coalescence
-    solveSourceOde();
-
     // Correct mean flux
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
@@ -1128,14 +1137,9 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
             "tauC",
             (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE
         );
-
         tauC.dimensions().reset(inv(dimTime));
 
-        volScalarField alphaRhoi
-        (
-            "alphaRhoi",
-            alphas_[nodei]*rho()
-        );
+        volScalarField alphaRhoi(alphas_[nodei]*rho());
 
         // Solve for velocities using acceleration terms
         fvVectorMatrix UsEqn
@@ -1153,6 +1157,10 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
     }
     quadrature_.updateAllMoments();
     this->updateVelocity();
+
+    // Update moments with breakup and coalescence sources
+    solveSourceOde();
+    correct();
 
     // Update deviation velocity
     forAll(Vs_, nodei)

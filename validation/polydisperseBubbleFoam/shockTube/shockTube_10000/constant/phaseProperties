@@ -104,17 +104,17 @@ drag
 
 virtualMass
 (
-//     (air in water)
-//     {
-//         type            constantCoefficient;
-//         Cvm             0.5;
-//     }
-//
-//     (water in air)
-//     {
-//         type            constantCoefficient;
-//         Cvm             0.5;
-//     }
+    (air in water)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
+
+    (water in air)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
 );
 
 lift
@@ -130,7 +130,7 @@ turbulentDispersion
     (air in water)
     {
         type    Panicker;
-//         Cdis    10;
+        Cdis    10;
     }
 );
 

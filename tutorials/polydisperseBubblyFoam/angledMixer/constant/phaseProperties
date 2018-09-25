@@ -28,7 +28,7 @@ air
 water
 {
     type            monodispersePhaseModel;
-    residualAlpha   1e-6;
+    residualAlpha   1e-4;
     d               1e-4;
 }
 
@@ -124,6 +124,10 @@ virtualMass
 
 lift
 (
+    (air in water)
+    {
+        type            Tomiyama;
+    }
 );
 
 wallLubrication

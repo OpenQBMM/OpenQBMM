@@ -21,8 +21,8 @@ solvers
     {
         solver          GAMG;
         preconditioner  DIC;
-        nAlphaCorr      2;
-        nAlphaSubCycles 1;
+        nAlphaCorr      1;
+        nAlphaSubCycles 2;
     }
     p_rgh
     {
@@ -93,10 +93,10 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors 30;
-    nCorrectors      2;
+    nOuterCorrectors 5;
+    nCorrectors      3;
     nNonOrthogonalCorrectors 0;
-    nFluxCorrectors 2;
+    nFluxCorrectors 5;
     corrPatch outlet;
     pRefCell 0;
     pRefValue 1e5;
@@ -104,7 +104,7 @@ PIMPLE
     {
         p_rgh
         {
-            tolerance 1e-6;
+            tolerance 1e-5;
             relTol    0;
         }
     }

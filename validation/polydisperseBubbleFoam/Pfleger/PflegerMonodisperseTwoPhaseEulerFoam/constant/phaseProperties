@@ -131,7 +131,7 @@ turbulentDispersion
 );
 
 // Minimum allowable pressure
-pMin            10000;
+pMin            1000;
 
 
 // ************************************************************************* //
