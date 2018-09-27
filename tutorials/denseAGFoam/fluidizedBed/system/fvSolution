@@ -19,15 +19,12 @@ solvers
 {
     "alpha.*"
     {
-        nAlphaCorr      2;
-        nAlphaSubCycles 2;
-
-        smoothLimiter   0.1;
+        nAlphaCorr      5;
 
         implicitPhasePressure yes;
         solver          GAMG;
-        smoother        DIC;
-        tolerance       1e-10;
+        smoother        DILU;
+        tolerance       1e-12;
         relTol          0;
         minIter         1;
     }
@@ -113,6 +110,11 @@ PIMPLE
             tolerance 1e-5;
             relTol    0;
         }
+        alpha.air
+        {
+            tolerance 1e-6;
+            relTol    0;
+        }
     }
 }
 
@@ -120,7 +122,7 @@ relaxationFactors
 {
     equations
     {
-        p_rgh           1;
+        p_rgh           0.3;
     }
 }
 

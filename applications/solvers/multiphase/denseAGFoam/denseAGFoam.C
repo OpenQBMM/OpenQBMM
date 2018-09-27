@@ -119,7 +119,6 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         AGmodel.transportMoments();
-        volVectorField ddtAlphaRhoU1(fvc::ddt(alpha1, rho1, U1));
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())

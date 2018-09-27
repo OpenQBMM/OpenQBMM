@@ -318,10 +318,12 @@ void Foam::AGmomentTransportModel::solve
     alphap_ = m0;
     alphap_.correctBoundaryConditions();
     ddtAlphaDilute_ = fvc::ddt(alphap_);
+    alphap_.storeOldTime();
 
     // Set velocity from dilute transport
     Up_ = m1/m0;
     Up_.correctBoundaryConditions();
+    Up_.storeOldTime();
 
     // Update fluxes
     surfaceScalarField& phip =
@@ -338,14 +340,14 @@ void Foam::AGmomentTransportModel::solve
     alphaPhip = fvc::interpolate(alphap_)*phase_.phi();
     alphaRhoPhip = fvc::interpolate(phase_.rho())*phase_.alphaPhi();
 
-    surfaceScalarField& phi =
-        mesh_.lookupObjectRef<surfaceScalarField>("phi");
-
-    const phaseModel& otherPhase = phase_.fluid().otherPhase(phase_);
-
-    phi =
-        fvc::interpolate(alphap_)*phip
-      + fvc::interpolate(otherPhase)*otherPhase.phi();
+//     surfaceScalarField& phi =
+//         mesh_.lookupObjectRef<surfaceScalarField>("phi");
+//
+//     const phaseModel& otherPhase = phase_.fluid().otherPhase(phase_);
+//
+//     phi =
+//         fvc::interpolate(alphap_)*phip
+//       + fvc::interpolate(otherPhase)*otherPhase.phi();
 
     // Update particle pressure tensor
     Pp_ = m2/m0 - sqr(Up_);
@@ -375,7 +377,7 @@ void Foam::AGmomentTransportModel::solve
     Theta_.max(0);
     Theta_.min(100);
     Theta_.correctBoundaryConditions();
-    Theta_.oldTime() = Theta_;
+    Theta_.storeOldTime();
 
     // Update granular stress tensor
     Sigma_ = Theta_*symmTensor::I - Pp_;

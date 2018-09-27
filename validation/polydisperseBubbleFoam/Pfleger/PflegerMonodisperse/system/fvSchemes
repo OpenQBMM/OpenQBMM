@@ -44,7 +44,7 @@ divSchemes
 laplacianSchemes
 {
     default                         Gauss linear corrected;
-//     laplacian(moment.1.air,corr)    Gauss linear limited 1.0;
+    laplacian(moment.1.air,corr)    Gauss linear limited 1.0;
 }
 
 interpolationSchemes
@@ -59,13 +59,7 @@ interpolationSchemes
 snGradSchemes
 {
     default         corrected;
-//     snGrad(corr)    limited     1.0;
-}
-
-wallDist
-{
-    method      meshWave;
-    nRequired   yes;
+    snGrad(corr)    limited     1.0;
 }
 
 

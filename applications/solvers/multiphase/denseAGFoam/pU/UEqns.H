@@ -24,13 +24,7 @@ volScalarField Kd(fluid.Kd());
     U1Eqn =
         (
             fvm::ddt(alpha1, rho1, U1)
-          - ddtAlphaRhoU1
-          + fvm::div
-            (
-                h2f*alphaRhoPhi1,
-                U1,
-                "div(" + alphaRhoPhi1.name() + "," + U1.name() + ")"
-            )
+          + fvm::div(alphaRhoPhi1, U1)
           - fvm::Sp(contErr1, U1)
           + MRF.DDt(alpha1*rho1, U1)
 

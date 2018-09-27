@@ -228,12 +228,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::solve
         (
             fvm::ddt(alpha, rho, Sigma_)
           - fvc::ddt(alpha, rho, Sigma_)
-          + fvm::div
-            (
-                this->h2f()*alphaRhoPhi,
-                Sigma_,
-                "div(" + alphaRhoPhi.name() + "," + Sigma_.name() + ")"
-            )
+          + fvm::div(alphaRhoPhi, Sigma_)
           - fvc::Sp
             (
                 fvc::ddt(alpha, rho)
@@ -317,12 +312,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::solve
         (
             fvm::ddt(alpha, rho, Theta_)
           - fvc::ddt(alpha, rho, Theta_)
-          + fvm::div
-            (
-                this->h2f()*alphaRhoPhi,
-                Theta_,
-                "div(" + alphaRhoPhi.name() + "," + Theta_.name() + ")"
-            )
+          + fvm::div(alphaRhoPhi, Theta_)
           - fvc::Sp(fvc::ddt(alpha, rho) + fvc::div(alphaRhoPhi), Theta_)
         )
       - fvm::laplacian

@@ -94,7 +94,7 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors 30;
+    nOuterCorrectors 15;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
     nFluxCorrectors 5;

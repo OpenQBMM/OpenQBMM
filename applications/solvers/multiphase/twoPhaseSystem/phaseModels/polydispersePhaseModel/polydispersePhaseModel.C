@@ -1062,7 +1062,8 @@ void Foam::polydispersePhaseModel::averageTransport
             quadrature_.velocityMoments()[mi].correctBoundaryConditions();
         }
 
-        quadrature_.updateAllQuadrature();
+        quadrature_.updateQuadrature();
+        Us_[0] = U_;
         return;
     }
 

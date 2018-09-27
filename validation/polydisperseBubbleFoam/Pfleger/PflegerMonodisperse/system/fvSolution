@@ -114,7 +114,7 @@ relaxationFactors
 {
     equations
     {
-        p_rgh       0.3;
+        p_rgh       1.0;
     }
 }
 

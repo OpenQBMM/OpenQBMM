@@ -39,8 +39,9 @@ ddtSchemes
 
 gradSchemes
 {
-    default         cellLimited     leastSquares 1;
+    default         cellLimited     leastSquares 0.2;
     grad(p_rgh)     leastSquares;
+    grad(p)         leastSquares;
 }
 
 divSchemes
@@ -94,6 +95,7 @@ snGradSchemes
 wallDist
 {
     method meshWave;
+    nRequired yes;
 }
 
 
