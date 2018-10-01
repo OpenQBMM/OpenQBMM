@@ -96,7 +96,7 @@ PIMPLE
     nOuterCorrectors 5;
     nCorrectors      3;
     nNonOrthogonalCorrectors 0;
-    nFluxCorrectors 5;
+    nFluxCorrectors 1;
     corrPatch outlet;
     pRefCell 0;
     pRefValue 1e5;
@@ -114,7 +114,7 @@ relaxationFactors
 {
     equations
     {
-        p_rgh       1.0;
+        p_rgh       0.3;
     }
 }
 

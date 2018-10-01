@@ -132,15 +132,15 @@ lift
 
 wallLubrication
 (
-//     (air in water)
-//      {
-//         type            Antal;
-//         Cw1             -0.01;
-//         Cw2             0.05;
-//         Cwc             10.0;
-//         Cwd             6.8;
-//         p               1.7;
-//     }
+    (air in water)
+     {
+        type            Antal;
+        Cw1             -0.01;
+        Cw2             0.05;
+        Cwc             10.0;
+        Cwd             6.8;
+        p               1.7;
+    }
 );
 
 bubblePressure

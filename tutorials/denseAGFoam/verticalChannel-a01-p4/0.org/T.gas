@@ -22,7 +22,7 @@ boundaryField
 {
     right
     {
-        type               zeroGradient;
+        type                zeroGradient;
     }
     left
     {

@@ -45,7 +45,7 @@ fi
 pProbesDir="../postProcessing/pProbes"
 
 #Set files
-pProbes_modified="$pProbesDir/0/p_rgh_modified"
+pProbes_modified="$pProbesDir/0/p_modified"
 touch $pProbes_modified
 exp="experiments_2_4.data"
 
@@ -55,9 +55,9 @@ do
     printf "\t$d\n"
     if [ $d = "0" ];
     then
-        cat "$pProbesDir/$d/p_rgh" > $pProbes_modified
+        cat "$pProbesDir/$d/p" > $pProbes_modified
     else
-        cat "$pProbesDir/$d/p_rgh">> $pProbes_modified
+        cat "$pProbesDir/$d/p">> $pProbes_modified
     fi
 done
 

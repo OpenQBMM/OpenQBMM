@@ -7,24 +7,33 @@
         fvc::surfaceSum(mag(phi1 - phi2))().primitiveField()/mesh.V().field()
     )*runTime.deltaTValue();
 
+    CoNum = max(CoNum, UrCoNum);
+    Info<< "Max Ur Courant Number = " << UrCoNum << endl;
+
     // relative advection Courant number
-    for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
+    if (phase1.nNodes() > 1)
     {
-        UrCoNum =
-            max
-            (
-                UrCoNum,
-                0.5*gMax
+        scalar maxNodeCoNum = 0;
+        for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
+        {
+            maxNodeCoNum =
+                max
                 (
-                    fvc::surfaceSum
+                    maxNodeCoNum,
+                    0.5*gMax
                     (
-                        mag(fvc::flux(phase1.Us(nodei)))
-                    )().primitiveField()/mesh.V().field()
-                )*runTime.deltaTValue()
-            );
+                        fvc::surfaceSum
+                        (
+                            mag(fvc::flux(phase1.Us(nodei)))
+                        )().primitiveField()/mesh.V().field()
+                    )*runTime.deltaTValue()
+                );
+        }
+        CoNum = max(CoNum, maxNodeCoNum);
+        Info<< "Max Node Courant Number = " << maxNodeCoNum << endl;
     }
 
-    CoNum = max(CoNum, UrCoNum);
 
-    Info<< "Max Ur Courant Number = " << UrCoNum << endl;
+
+
 }

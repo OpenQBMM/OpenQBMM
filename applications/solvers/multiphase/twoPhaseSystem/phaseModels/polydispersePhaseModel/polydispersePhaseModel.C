@@ -694,45 +694,18 @@ Foam::polydispersePhaseModel::~polydispersePhaseModel()
 
 void Foam::polydispersePhaseModel::correct()
 {
-    d_ = dimensionedScalar("zero", dimLength, 0.0);
 
-    volScalarField scale
-    (
-        (*this)
-       /Foam::max
-        (
-            quadrature_.moments()[1]/rho(),
-            residualAlpha_
-        )
-    );
-
-    forAll(quadrature_.nodes(), nodei)
+    if (nNodes_ == 1)
     {
-        const volScalarNode& node = quadrature_.nodes()[nodei];
-
-        // Set alpha values such that the moment.1 is equal to the bounded
-        // alpha
-        if (nNodes_ == 1)
-        {
-            alphas_[nodei] = *this;
-        }
-        else
-        {
-            alphas_[nodei] =
-                node.primaryWeight()*node.primaryAbscissa()/rho()*scale;
-            alphas_[nodei].max(0);
-            alphas_[nodei].min(1);
-        }
-
-        //  Calculate bubble diameter based on bubble mass (abscissa)
-        ds_[nodei] =
+        alphas_[0] = *this;
+        ds_[0] =
             Foam::min
             (
                 Foam::max
                 (
                     Foam::pow
                     (
-                        node.primaryAbscissa()*6.0
+                        quadrature_.nodes()[0].primaryAbscissa()*6.0
                        /(rho()*Foam::constant::mathematical::pi)
                       + dimensionedScalar("smallVolume", dimVolume, SMALL),
                         1.0/3.0
@@ -741,22 +714,56 @@ void Foam::polydispersePhaseModel::correct()
                 ),
                 maxD_
             );
-
-        if (nNodes_ > 1)
-        {
-            d_ += alphas_[nodei]*ds_[nodei];
-        }
-    }
-
-    if (nNodes_ > 1)
-    {
-        d_ /= Foam::max((*this), residualAlpha_);
+        d_ = ds_[0];
+        return;
     }
     else
     {
-        d_ = ds_[0];
+        d_ = dimensionedScalar("zero", dimLength, 0.0);
+        volScalarField scale
+        (
+            (*this)
+           /Foam::max
+            (
+                quadrature_.moments()[1]/rho(),
+                residualAlpha_
+            )
+        );
+
+        forAll(quadrature_.nodes(), nodei)
+        {
+            const volScalarNode& node = quadrature_.nodes()[nodei];
+
+            // Set alpha values such that the moment.1 is equal to the bounded
+            // alpha
+            alphas_[nodei] =
+                node.primaryWeight()*node.primaryAbscissa()/rho()*scale;
+            alphas_[nodei].max(0);
+            alphas_[nodei].min(1);
+
+            //  Calculate bubble diameter based on bubble mass (abscissa)
+            ds_[nodei] =
+                Foam::min
+                (
+                    Foam::max
+                    (
+                        Foam::pow
+                        (
+                            node.primaryAbscissa()*6.0
+                           /(rho()*Foam::constant::mathematical::pi)
+                          + dimensionedScalar("smallVolume", dimVolume, SMALL),
+                            1.0/3.0
+                        ),
+                        minD_
+                    ),
+                    maxD_
+                );
+            d_ += alphas_[nodei]*ds_[nodei];
+        }
+
+        d_ /= Foam::max((*this), residualAlpha_);
+        d_.max(minD_);
     }
-    d_.max(minD_);
 }
 
 
@@ -910,7 +917,7 @@ void Foam::polydispersePhaseModel::averageTransport
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
     dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
-    surfaceScalarField& phi = phiPtr_();
+    surfaceScalarField phi(phiPtr_());
 
     const dictionary& pimpleDict =
         fluid_.mesh().solutionDict().subDict("PIMPLE");

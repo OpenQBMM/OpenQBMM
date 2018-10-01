@@ -46,11 +46,11 @@ daughterDistribution
 odeCoeffs
 {
     ATol    1.0e-8;
-    RTol    1.0e-6;
+    RTol    1.0e-4;
     fac     0.5;
-    facMin  0.2;
+    facMin  0.1;
     facMax  2.0;
-    minLocalDt 1.0e-12;
+    minLocalDt 1.0e-10;
 }
 
 // ************************************************************************* //

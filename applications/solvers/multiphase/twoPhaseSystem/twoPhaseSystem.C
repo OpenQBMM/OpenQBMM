@@ -867,12 +867,23 @@ void Foam::twoPhaseSystem::relativeTransport()
     if (nNodes_ > 1)
     {
         phase1_->relativeTransport();
+        phi_ = phase1_->alphaPhi() + phase2_->alphaPhi();
     }
 }
 
 
 void Foam::twoPhaseSystem::averageTransport()
 {
+    PtrList<fvVectorMatrix> AEqns(nNodes_);
+
+    if (nNodes_ == 1)
+    {
+        phase1_->averageTransport(AEqns);
+        phase1_->correct();
+
+        return;
+    }
+
     // Liquid viscous stress
     volSymmTensorField taul(phase2_->turbulence().devRhoReff());
 
@@ -884,7 +895,6 @@ void Foam::twoPhaseSystem::averageTransport()
       - fvc::div(phase2_->phi())*phase2_->U()
     );
 
-    PtrList<fvVectorMatrix> AEqns(nNodes_);
     for (label nodei = 0; nodei < nNodes_; nodei++)
     {
         //  Build matrix to solve for velocity abscissae due to interfacial
@@ -939,6 +949,8 @@ void Foam::twoPhaseSystem::averageTransport()
 
     phase1_->averageTransport(AEqns);
     phase1_->correct();
+
+    phi_ = phase1_->alphaPhi() + phase2_->alphaPhi();
 }
 
 

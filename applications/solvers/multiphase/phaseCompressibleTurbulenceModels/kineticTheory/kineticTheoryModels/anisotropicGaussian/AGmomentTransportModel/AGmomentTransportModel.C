@@ -326,19 +326,19 @@ void Foam::AGmomentTransportModel::solve
     Up_.storeOldTime();
 
     // Update fluxes
-    surfaceScalarField& phip =
-        mesh_.lookupObjectRef<surfaceScalarField>(phase_.phi().name());
-
-    surfaceScalarField& alphaPhip =
-        mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaPhi().name());
-
-    surfaceScalarField& alphaRhoPhip =
-        mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaRhoPhi().name());
-
-    phip = fvc::flux(Up_);
-
-    alphaPhip = fvc::interpolate(alphap_)*phase_.phi();
-    alphaRhoPhip = fvc::interpolate(phase_.rho())*phase_.alphaPhi();
+//     surfaceScalarField& phip =
+//         mesh_.lookupObjectRef<surfaceScalarField>(phase_.phi().name());
+//
+//     surfaceScalarField& alphaPhip =
+//         mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaPhi().name());
+//
+//     surfaceScalarField& alphaRhoPhip =
+//         mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaRhoPhi().name());
+//
+//     phip = fvc::flux(Up_);
+//
+//     alphaPhip = fvc::interpolate(alphap_)*phase_.phi();
+//     alphaRhoPhip = fvc::interpolate(phase_.rho())*phase_.alphaPhi();
 
 //     surfaceScalarField& phi =
 //         mesh_.lookupObjectRef<surfaceScalarField>("phi");
@@ -382,7 +382,7 @@ void Foam::AGmomentTransportModel::solve
     // Update granular stress tensor
     Sigma_ = Theta_*symmTensor::I - Pp_;
     Sigma_.correctBoundaryConditions();
-    Sigma_.oldTime() = Sigma_;
+    Sigma_.storeOldTime();
 }
 
 

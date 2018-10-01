@@ -16,7 +16,7 @@ createEps()
     set size 2,2
     set autoscale
     set xrange [0:50]
-    set key top left Left box
+    set key top left box
 
     plot    "$2" using 1:2 title 'Diaz'\
                 with points pointtype 7 ps 2 linecolor rgb 'black', \

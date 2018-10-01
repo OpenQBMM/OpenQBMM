@@ -51,7 +51,7 @@ blending
 
 sigma
 (
-    (air and water)   0.7
+    (air and water)   0.07
 );
 
 aspectRatio

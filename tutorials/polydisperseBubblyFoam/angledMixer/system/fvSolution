@@ -84,9 +84,9 @@ solvers
 
     "corr.*"
     {
-        solver          PBiCGStab;
+        solver          PCG;
         preconditioner  DIC;
-        tolerance       1e-15;
+        tolerance       1e-10;
         relTol          0;
     }
 
@@ -112,7 +112,7 @@ PIMPLE
 {
     nOuterCorrectors    15;
     nCorrectors         2;
-    nFluxCorrectors     3;
+    nFluxCorrectors     1;
     corrPatch           outlet;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
@@ -121,7 +121,7 @@ PIMPLE
     {
         p_rgh
         {
-            tolerance 1e-6;
+            tolerance 1e-5;
             relTol    0;
         }
     }
