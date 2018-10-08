@@ -17,7 +17,7 @@ FoamFile
 
 application     polydisperseBubbleFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 
@@ -25,7 +25,7 @@ stopAt          endTime;
 
 endTime         250;
 
-deltaT          1e-3;
+deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 
@@ -35,13 +35,13 @@ purgeWrite      100;
 
 writeFormat     ascii;
 
-writePrecision  6;
+writePrecision  8;
 
 writeCompression uncompressed;
 
 timeFormat      general;
 
-timePrecision   6;
+timePrecision   8;
 
 runTimeModifiable yes;
 

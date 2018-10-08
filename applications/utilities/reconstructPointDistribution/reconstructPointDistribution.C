@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
         label nSecondaryNodes =
             quadratureDict.subDict("extendedMomentInversion").lookupOrDefault
             (
-                "nSecondaryNodes", 
+                "nSecondaryNodes",
                 nMoments + 1
             );
 
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
             );
 
             univariateMomentSet moments(nMoments, "RPlus");
-            
+
             forAll(moments, mi)
             {
                 moments(momentOrders[mi][0]) =

@@ -115,9 +115,20 @@ public:
 
     // Member Functions
 
+        //- Update fields
+        virtual void update() = 0;
+
         //- Aggregation kernel
         virtual tmp<volScalarField> omega
         (
+            const label nodei,
+            const label nodej
+        ) const = 0;
+
+        //- Aggregation kernel
+        virtual scalar omega
+        (
+            const label celli,
             const label nodei,
             const label nodej
         ) const = 0;

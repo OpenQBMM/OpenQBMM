@@ -21,7 +21,7 @@ air
 {
     type            polydispersePhaseModel;
     BGviscosity     true;
-    residualAlpha   1e-4;
+    residualAlpha   1e-5;
     minD            1e-4;
     maxD            1e-2;
 }
@@ -30,7 +30,7 @@ water
 {
     type            monodispersePhaseModel;
     BGviscosity     true;
-    residualAlpha   1e-4;
+    residualAlpha   1e-6;
     d               1e-4;
 }
 

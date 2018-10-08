@@ -94,6 +94,12 @@ class Alopaeus
         dimensionedScalar C1_;
         dimensionedScalar C2_;
 
+        //- Turbulent dissipation rate
+        volScalarField epsilonf_;
+
+        //- Fluid viscosity
+        volScalarField muf_;
+
 
 public:
 
@@ -117,8 +123,14 @@ public:
 
     // Member Functions
 
+        //- Update non-stored fields
+        virtual void update();
+
         //- Breakup kernel
         virtual tmp<volScalarField> Kb(const label nodei) const;
+
+        //- Breakup kernel for a cell
+        virtual scalar Kb(const label celli, const label nodei) const;
 
 };
 

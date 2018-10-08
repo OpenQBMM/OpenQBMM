@@ -53,7 +53,7 @@ Description
     References
     \verbatim
         "Description of interaction processes in agitated liquid-liquid
-        dis[ersions"
+        dispersions"
         C Coulaloglou, L Tavlarides
         Chemical Engineering Science
         Volume 32, Pages 1289-1297, 1977
@@ -95,6 +95,12 @@ class CoulaloglouAndTavlarides
         //- Efficiency coefficient
         dimensionedScalar Ceff_;
 
+        //- Turbulent dissipation
+        volScalarField epsilonf_;
+
+        //- Kinematic viscosity of fluid phase
+        volScalarField nuf_;
+
 
 public:
 
@@ -118,9 +124,20 @@ public:
 
     // Member Functions
 
+        //- Update fields
+        virtual void update();
+
         //- Aggregation kernel
         virtual tmp<volScalarField> Pc
         (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        //- Aggregation kernel
+        virtual scalar Pc
+        (
+            const label celli,
             const label nodei,
             const label nodej
         ) const;

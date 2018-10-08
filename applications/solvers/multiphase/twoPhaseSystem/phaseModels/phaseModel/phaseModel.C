@@ -146,7 +146,6 @@ Foam::phaseModel::phaseModel
     thermo_->validate("phaseModel " + name_, "h", "e");
 
     const word phiName = IOobject::groupName("phi", name_);
-
     IOobject phiHeader
     (
         phiName,
@@ -155,7 +154,7 @@ Foam::phaseModel::phaseModel
         IOobject::NO_READ
     );
 
-    if (typeHeaderOk<surfaceScalarField>(true))
+    if (phiHeader.typeHeaderOk<surfaceScalarField>(true))
     {
         Info<< "Reading face flux field " << phiName << endl;
 

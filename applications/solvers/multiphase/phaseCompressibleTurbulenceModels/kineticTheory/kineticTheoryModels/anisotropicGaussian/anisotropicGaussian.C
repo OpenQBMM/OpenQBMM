@@ -32,10 +32,24 @@ License
 #include "fvOptions.H"
 #include "addToRunTimeSelectionTable.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace kineticTheoryModels
+{
+    defineTypeNameAndDebug(anisotropicGaussian, 0);
+    addToRunTimeSelectionTable
+    (
+        kineticTheoryModel,
+        anisotropicGaussian,
+        dictionary
+    );
+}
+}
 // * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * * //
 
-template<class baseModel>
-void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::updateh2Fn()
+void Foam::kineticTheoryModels::anisotropicGaussian::updateh2Fn()
 {
     this->g0_ = this->radialModel_->g0
     (
@@ -43,6 +57,13 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::updateh2Fn()
         this->alphaMinFriction_,
         this->alphaMax_
     );
+    PsFric_ = this->frictionalStressModel_->frictionalPressure
+    (
+        this->phase_,
+        this->alphaMinFriction_,
+        this->alphaMax_
+    );
+
     h2Fn_ = h2Function_->h2
     (
         this->phase_,
@@ -50,28 +71,23 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::updateh2Fn()
         this->g0_,
         this->phase_.rho(),
         this->phase_.d(),
-        this->frictionalStressModel_->frictionalPressure
-        (
-            this->phase_,
-            this->alphaMinFriction_,
-            this->alphaMax_
-        ),
+        PsFric_,
         this->e_
     );
     h2Fn_.max(this->residualAlpha_);
+    h2Fn_.correctBoundaryConditions();
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class baseModel>
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::anisotropicGaussian
+Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
 (
     const dictionary& dict,
     const phaseModel& phase
 )
 :
-    baseModel(dict, phase),
+    kineticTheoryModel(dict, phase),
     alphaTheta_
     (
         "alphaTheta",
@@ -99,6 +115,19 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::anisotropicGaussian
        phase.mesh(),
        1.0
     ),
+    PsFric_
+    (
+        IOobject
+        (
+            "PsFric",
+            phase.mesh().time().timeName(),
+            phase.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+       ),
+       phase.mesh(),
+       dimensionedScalar("zero", dimPressure, 0.0)
+    ),
 
     Sigma_
     (
@@ -110,33 +139,31 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::anisotropicGaussian
             IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        2.0*this->nu_*dev(twoSymm(fvc::grad(this->phase_.U()))),
-        this->Theta_.boundaryField().types()
+        phase.mesh()
     ),
     AGtransport_(phase.mesh(), dict, phase, this->Theta_, Sigma_)
-{}
+{
+    Sigma_ = 2.0*this->nu_*dev(twoSymm(fvc::grad(this->phase_.U())));
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class baseModel>
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::
+Foam::kineticTheoryModels::anisotropicGaussian::
 ~anisotropicGaussian()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template<class baseModel>
 Foam::tmp<Foam::volSymmTensorField>
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::Sigma() const
+Foam::kineticTheoryModels::anisotropicGaussian::Sigma() const
 {
     return Sigma_;
 }
 
 
-template<class baseModel>
-void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
+void Foam::kineticTheoryModels::anisotropicGaussian::solve
 (
     const volScalarField& beta,
     const volScalarField& alpha,
@@ -148,8 +175,12 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
     const volScalarField& rho = this->phase_.rho();
     const surfaceScalarField& alphaRhoPhi = this->phase_.alphaRhoPhi();
     const volVectorField& U = this->phase_.U();
+    const volVectorField& Uc = phase_.fluid().otherPhase(phase_).U();
 
+    dimensionedScalar ThetaSmall("ThetaSmall", Theta_.dimensions(), 1.0e-6);
+    dimensionedScalar ThetaSmallSqrt(sqrt(ThetaSmall));
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
+    volScalarField ThetaSqrt("sqrtTheta", sqrt(Theta_));
 
     const volScalarField& da = this->phase_.d();
     volSymmTensorField Sp(D - (1.0/3.0)*tr(D)*I);
@@ -214,12 +245,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
         (
             fvm::ddt(alpha, rho, Sigma_)
           - fvc::ddt(alpha, rho, Sigma_)
-          + fvm::div
-            (
-                this->h2f()*alphaRhoPhi,
-                Sigma_,
-                "div(" + alphaRhoPhi.name() + "," + Sigma_.name() + ")"
-            )
+          + fvm::div(alphaRhoPhi, Sigma_)
           - fvc::Sp
             (
                 fvc::ddt(alpha, rho)
@@ -253,18 +279,102 @@ void Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::solve
         fvOptions.correct(Sigma_);
     }
 
-    baseModel::solve(beta, alpha, gradU, D);
+    // Solve granular temperature transport
+    // Stress tensor, Definitions, Table 3.1, p. 43
+    volSymmTensorField tau
+    (
+        rho*(2.0*nu_*D + (lambda_ - (2.0/3.0)*nu_)*tr(D)*I)
+    );
+
+    // Dissipation (Eq. 3.24, p.50)
+    volScalarField gammaCoeff
+    (
+        "gammaCoeff",
+        12.0*(1.0 - sqr(e_))
+        *max(sqr(alpha), residualAlpha_)
+        *rho*g0_*(1.0/da)*ThetaSqrt/sqrtPi
+    );
+
+    // Eq. 3.25, p. 50 Js = J1 - J2
+    volScalarField J1("J1", 3.0*beta);
+    volScalarField J2
+    (
+        "J2",
+        0.25*sqr(beta)*da*magSqr(U - Uc)
+        /(
+            max(alpha, residualAlpha_)*rho
+            *sqrtPi*(ThetaSqrt + ThetaSmallSqrt)
+        )
+    );
+
+    // particle pressure - coefficient in front of Theta (Eq. 3.22, p. 45)
+    volScalarField PsCoeff
+    (
+        granularPressureModel_->granularPressureCoeff
+        (
+            alpha,
+            g0_,
+            rho,
+            e_
+        )
+    );
+
+    // Construct the granular temperature equation (Eq. 3.20, p. 44)
+    // NB. note that there are two typos in Eq. 3.20:
+    //     Ps should be without grad
+    //     the laplacian has the wrong sign
+    fvScalarMatrix ThetaEqn
+    (
+        1.5*
+        (
+            fvm::ddt(alpha, rho, Theta_)
+          - fvc::ddt(alpha, rho, Theta_)
+          + fvm::div(alphaRhoPhi, Theta_)
+          - fvc::Sp(fvc::ddt(alpha, rho) + fvc::div(alphaRhoPhi), Theta_)
+        )
+      - fvm::laplacian
+        (
+            kappa_,
+//           + rho*particleTurbulenceModel.nut()/alphaTheta_,
+            Theta_,
+            "laplacian(kappa,Theta)"
+        )
+     ==
+      - fvm::SuSp((PsCoeff*I) && gradU, Theta_)
+      + (tau && gradU)
+      + fvm::Sp(-gammaCoeff, Theta_)
+      + fvm::Sp(-J1, Theta_)
+      + fvm::Sp(J2/(Theta_ + ThetaSmall), Theta_)
+//       + alpha*rho*particleTurbulenceModel.epsilon()
+
+      + fvOptions(alpha, rho, Theta_)
+    );
+
+    ThetaEqn.relax();
+    fvOptions.constrain(ThetaEqn);
+    ThetaEqn.solve();
+    fvOptions.correct(Theta_);
+
+    Theta_.max(0);
+    Theta_.min(100);
+
+    PsFric_ =
+        frictionalStressModel_->frictionalPressurePrime
+        (
+            phase_,
+            alphaMinFriction_,
+            alphaMax_
+        );
 
     if (debug)
     {
-        Info<< "    max(Sigma) = " << max(mag(Sigma_)).value() << endl;
+        Info<< "    max(Sigma) = " << max(mag(Sigma_)).value()
+            << "    max(Theta) = " << max(Theta_).value() << endl;
     }
 }
 
 
-template<class baseModel>
-void
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::transportMoments()
+void Foam::kineticTheoryModels::anisotropicGaussian::transportMoments()
 {
     Info<< "Transporting moments in dilute regime" << endl;
 
@@ -273,34 +383,28 @@ Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::transportMoments()
 }
 
 
-template<class baseModel>
-Foam::scalar
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::maxUxDx() const
+Foam::scalar Foam::kineticTheoryModels::anisotropicGaussian::maxUxDx() const
 {
     return AGtransport_.maxUxDx();
 }
 
 
-template<class baseModel>
 Foam::tmp<Foam::volScalarField>
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::h2() const
+Foam::kineticTheoryModels::anisotropicGaussian::h2() const
 {
     return h2Fn_;
 }
 
 
-template<class baseModel>
 Foam::tmp<Foam::surfaceScalarField>
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::h2f() const
+Foam::kineticTheoryModels::anisotropicGaussian::h2f() const
 {
     return fvc::interpolate(h2Fn_);
 }
 
 
-template<class baseModel>
 Foam::tmp<Foam::volScalarField>
-Foam::kineticTheoryModels::anisotropicGaussian<baseModel>::
-ddtAlphaDilute() const
+Foam::kineticTheoryModels::anisotropicGaussian::ddtAlphaDilute() const
 {
     return AGtransport_.ddtAlphaDilute();
 }

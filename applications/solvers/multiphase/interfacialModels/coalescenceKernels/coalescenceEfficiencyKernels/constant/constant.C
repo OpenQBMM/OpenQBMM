@@ -67,6 +67,12 @@ Foam::coalescenceEfficiencyKernels::constant::~constant()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void Foam::coalescenceEfficiencyKernels::constant::update()
+{
+    return;
+}
+
+
 Foam::tmp<Foam::volScalarField>
 Foam::coalescenceEfficiencyKernels::constant::Pc
 (
@@ -91,6 +97,17 @@ Foam::coalescenceEfficiencyKernels::constant::Pc
             Ceff_
         )
     );
+}
+
+
+Foam::scalar Foam::coalescenceEfficiencyKernels::constant::Pc
+(
+    const label celli,
+    const label nodei,
+    const label nodej
+) const
+{
+    return Ceff_.value();
 }
 
 // ************************************************************************* //

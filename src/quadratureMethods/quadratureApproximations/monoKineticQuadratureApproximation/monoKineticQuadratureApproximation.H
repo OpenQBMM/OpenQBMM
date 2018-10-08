@@ -151,14 +151,30 @@ public:
             //- Recalculate the velocity abscissae from the velocity moments
             void updateVelocities();
 
+            //- Recalculate the velocity abscissae from the velocity moments
+            void updateLocalVelocities(const label celli);
+
             //- Recalculate the quadrature nodes from the moments
             void updateAllQuadrature();
+
+            //- Recalculate the quadrature nodes from the moments
+            bool updateAllLocalQuadrature
+            (
+                const label celli,
+                const bool failOnRealizability = true
+            );
 
             //- Recalculate the moments from the quadrature nodes
             void updateVelocityMoments();
 
+            //- Recalculate the moments from the quadrature nodes
+            void updateLocalVelocityMoments(const label celli);
+
             //- Recalculate all moments from the quadrature nodes
             void updateAllMoments();
+
+            //- Recalculate all moments from the quadrature nodes
+            void updateAllLocalMoments(const label celli);
 };
 
 

@@ -72,6 +72,9 @@ class JohnsonJacksonParticleSlipFvPatchVectorField
         //- Specularity coefficient
         dimensionedScalar specularityCoefficient_;
 
+        //- Wall collision angle
+        dimensionedScalar internalFrictionAngle_;
+
 
 public:
 

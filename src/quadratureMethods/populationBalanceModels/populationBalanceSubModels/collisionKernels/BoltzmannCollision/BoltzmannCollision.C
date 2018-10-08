@@ -209,17 +209,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
 )
 :
     collisionKernel(dict, mesh, quadrature, ode),
-    dp_
-    (
-        mesh.lookupObject<volScalarField>
-        (
-            IOobject::groupName
-            (
-                "d",
-                quadrature.moments()[0].group()
-            )
-        )
-    ),
+    dp_("d", dimless, dict),
     e_(dict.lookupType<scalar>("e")),
     omega_((1.0 + e_)*0.5),
     Is_(momentOrders_.size(), momentOrders_),
@@ -299,7 +289,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 
     forAll(Cs_, momenti)
     {
-        Cs_[momenti] *= 6.0*g0/dp_[celli];
+        Cs_[momenti] *= 6.0*g0/dp_.value();
     }
 }
 

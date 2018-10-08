@@ -25,7 +25,7 @@ stopAt          endTime;
 
 endTime         250;
 
-deltaT          1e-3;
+deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 
@@ -82,7 +82,7 @@ functions
                  base        time;
             }
 
-            p_rgh
+            p
             {
                  mean        on;
                  prime2Mean  off;
@@ -109,7 +109,7 @@ functions
 
         fields
         (
-            p_rgh
+            p
         );
     }
 }
