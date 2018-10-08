@@ -81,6 +81,12 @@ JohnsonJacksonParticleSlipFvPatchVectorField
         "specularityCoefficient",
         dimless,
         dict.lookup("specularityCoefficient")
+    ),
+    internalFrictionAngle_
+    (
+        "internalFrictionAngle",
+        dimless,
+        dict.lookup("internalFrictionAngle")
     )
 {
     if
@@ -174,14 +180,6 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
         )
     );
 
-    const fvPatchScalarField& gs0
-    (
-        patch().lookupPatchField<volScalarField, scalar>
-        (
-            IOobject::groupName("gs0", phased.name())
-        )
-    );
-
     const scalarField nu
     (
         patch().lookupPatchField<volScalarField, scalar>
@@ -222,16 +220,64 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
        .lookup("alphaMax")
     );
 
-    // calculate the slip value fraction
-    scalarField c
+    scalarField c(alpha.size(), 0.0);
+
+    if
     (
-        constant::mathematical::pi
-       *alpha
-       *gs0
-       *specularityCoefficient_.value()
-       *sqrt(3.0*Theta)
-       /max(6.0*(nu - nuFric)*alphaMax.value(), SMALL)
-    );
+        db().foundObject<volScalarField>
+        (
+            IOobject::groupName("h2Fn", phased.name())
+        )
+    )
+    {
+        const fvPatchScalarField& PsFric
+        (
+            patch().lookupPatchField<volScalarField, scalar>
+            (
+                IOobject::groupName("PsFric", phased.name())
+            )
+        );
+
+        scalarField h2Fn
+        (
+            patch().lookupPatchField<volScalarField, scalar>
+            (
+                IOobject::groupName("h2Fn", phased.name())
+            )
+        );
+
+        c =
+        (
+            h2Fn*specularityCoefficient_.value()
+           *constant::mathematical::pi/6.0
+           *sqrt(3.0*Theta)
+          + PsFric
+           *tan(internalFrictionAngle_.value())
+           /max(alpha*mag(*this), small)
+        );
+
+    }
+    else
+    {
+        const fvPatchScalarField& gs0
+        (
+            patch().lookupPatchField<volScalarField, scalar>
+            (
+                IOobject::groupName("gs0", phased.name())
+            )
+        );
+
+        c =
+        (
+            constant::mathematical::pi
+           *alpha
+           *gs0
+           *specularityCoefficient_.value()
+           *sqrt(3.0*Theta)
+        );
+    }
+    // calculate the slip value fraction
+    c /= max(6.0*(nu - nuFric)*alphaMax.value(), SMALL);
 
     this->valueFraction() = c/(c + patch().deltaCoeffs());
 
