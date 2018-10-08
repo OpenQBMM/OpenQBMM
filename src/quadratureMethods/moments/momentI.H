@@ -1,18 +1,12 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2015-03-09 Alberto Passalacqua: Templated class on the type of field used to
-                                store the moment and on the type of quadrature
-                                node.
-2017-03-26 Alberto Passalacqua: Added the capability to recompute the moment
-                                locally.
--------------------------------------------------------------------------------
 License
-    This file is derivative work of OpenFOAM.
+    This file is part of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
