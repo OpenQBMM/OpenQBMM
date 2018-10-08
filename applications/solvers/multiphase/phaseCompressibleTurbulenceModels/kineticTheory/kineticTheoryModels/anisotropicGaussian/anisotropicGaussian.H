@@ -73,6 +73,9 @@ class anisotropicGaussian
         //- Switching function
 	    volScalarField  h2Fn_;
 
+        //- Particle frictional pressure
+        volScalarField PsFric_;
+
         //- Second order velocity moment tensor
         volSymmTensorField Sigma_;
 
