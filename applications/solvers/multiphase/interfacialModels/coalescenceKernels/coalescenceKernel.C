@@ -57,6 +57,13 @@ Foam::coalescenceKernel::~coalescenceKernel()
 
 // * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * //
 
+void Foam::coalescenceKernel::update()
+{
+    frequency_->update();
+    efficiency_->update();
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::coalescenceKernel::Ka
 (
     const label nodei,
@@ -67,6 +74,19 @@ Foam::tmp<Foam::volScalarField> Foam::coalescenceKernel::Ka
         Ca_
        *frequency_->omega(nodei, nodej)
        *efficiency_->Pc(nodei, nodej);
+}
+
+Foam::scalar Foam::coalescenceKernel::Ka
+(
+    const label celli,
+    const label nodei,
+    const label nodej
+) const
+{
+    return
+        Ca_.value()
+       *frequency_->omega(celli, nodei, nodej)
+       *efficiency_->Pc(celli, nodei, nodej);
 }
 
 

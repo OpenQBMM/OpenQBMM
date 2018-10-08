@@ -103,23 +103,11 @@ int main(int argc, char *argv[])
         #include "readTimeControls.H"
         #include "CourantNos.H"
         #include "setDeltaT.H"
-        if (adjustTimeStep)
-        {
-            runTime.setDeltaT
-            (
-                min
-                (
-                    runTime.deltaT(),
-                    AGmodel.maxUxDx()*runTime.deltaT()
-                )
-            );
-        }
 
         runTime++;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         AGmodel.transportMoments();
-        volVectorField ddtAlphaRhoU1(fvc::ddt(alpha1, rho1, U1));
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())

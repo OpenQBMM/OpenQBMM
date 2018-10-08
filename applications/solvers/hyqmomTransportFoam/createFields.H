@@ -11,23 +11,6 @@ surfaceScalarField phi
     dimensionedScalar("zero", dimVolume/dimTime, 0.0)
 );
 
-Info<< "Reading phaseProperties\n" << endl;
-
-// Default field used for Boltzmann collision
-volScalarField dp
-(
-    IOobject
-    (
-        IOobject::groupName("d", "particles"),
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("d", dimLength, 3e-4)
-);
-
 Info<< "Reading populationBalanceProperties\n" << endl;
 IOdictionary populationBalanceProperties
 (

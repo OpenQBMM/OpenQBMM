@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 
         //  Set internal field values and initialize moments.
         {
+            Info<< "Setting internal field" <<endl;
             const dictionary& dict(phaseDict.subDict("internal"));
 
             momentGenerator().updateQuadrature(dict);
@@ -130,6 +131,10 @@ int main(int argc, char *argv[])
                         momentGenerator().moments()[mi]
                     )
                 );
+                Info<< "moment."
+                    << mappedList<label>::listToWord(momentOrders[mi])
+                    << "." << phaseName << ": "
+                    << momentGenerator().moments()[mi].value() << endl;
 
                 //  Set boundaries based oboundary section
                 //  Initial values specified in the dictionary are overwritten
@@ -151,6 +156,8 @@ int main(int argc, char *argv[])
                   ? mesh.boundaryMesh()[bi].name()
                   : "default"
                 );
+
+                Info<< "Setting " << bName << "boundary" << endl;
                 dictionary dict = phaseDict.subDict(bName);
 
                 momentGenerator().updateQuadrature(dict);
@@ -159,9 +166,14 @@ int main(int argc, char *argv[])
                 {
                     forAll(moments[mi].boundaryField()[bi], facei)
                     {
-                        moments[mi].boundaryFieldRef()[bi][facei]
-                            = (momentGenerator().moments()[mi]).value();
+                        moments[mi].boundaryFieldRef()[bi][facei] =
+                            (momentGenerator().moments()[mi]).value();
                     }
+
+                    Info<< "moment."
+                        << mappedList<label>::listToWord(momentOrders[mi])
+                        << "." << phaseName << ": "
+                        << momentGenerator().moments()[mi].value() << endl;
                 }
             }
         }

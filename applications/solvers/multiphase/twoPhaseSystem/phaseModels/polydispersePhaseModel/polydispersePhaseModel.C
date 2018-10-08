@@ -35,6 +35,7 @@ License
 #include "slipFvPatchFields.H"
 #include "partialSlipFvPatchFields.H"
 #include "momentFieldSets.H"
+#include "vectorList.H"
 
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
@@ -57,53 +58,32 @@ void Foam::polydispersePhaseModel::updateVelocity()
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::polydispersePhaseModel::coalescenceSource
+Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
 (
+    const label celli,
     const label momentOrder
 )
 {
-    tmp<volScalarField> tmpCSource
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "cSource",
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            fluid_.mesh(),
-            dimensionedScalar
-            (
-                "0",
-                quadrature_.moments()[momentOrder].dimensions()/dimTime,
-                0.0
-            )
-        )
-    );
+    scalar cSource = 0.0;
 
-    if (!coalescence_)
+    if (!coalescence_ || momentOrder == 1)
     {
-        return tmpCSource;
+        return cSource;
     }
 
-    volScalarField& cSource = tmpCSource.ref();
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
     {
         const volScalarNode& node1 = nodes[nodei];
-        const volScalarField& weight1 = node1.primaryWeight();
-        const volScalarField& abscissa1 = node1.primaryAbscissa();
+        scalar weight1 = node1.primaryWeight()[celli];
+        scalar abscissa1 = Foam::max(node1.primaryAbscissa()[celli], 0.0);
 
         forAll(nodes, nodej)
         {
             const volScalarNode& node2 = nodes[nodej];
-            const volScalarField& weight2 = node2.primaryWeight();
-            const volScalarField& abscissa2 = node2.primaryAbscissa();
+            scalar weight2 = node2.primaryWeight()[celli];
+            scalar abscissa2 = Foam::max(node2.primaryAbscissa()[celli], 0.0);
 
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa, handled inside kernel
@@ -119,43 +99,71 @@ Foam::tmp<Foam::volScalarField> Foam::polydispersePhaseModel::coalescenceSource
                             momentOrder/3.0
                         )
                       - pow(abscissa1, momentOrder)
-                    )*coalescenceKernel_.Ka(nodei, nodej)
+                    )*coalescenceKernel_.Ka(celli, nodei, nodej)
                 );
         }
     }
-    return tmpCSource*pos(0.8 - *this);
+    return cSource;
 }
 
-
-Foam::tmp<Foam::volScalarField> Foam::polydispersePhaseModel::breakupSource
+Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
 (
+    const label celli,
     const label momentOrder
 )
 {
-    tmp<volScalarField> bSource
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "bSource",
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            fluid_.mesh(),
-            dimensionedScalar
-            (
-                "0",
-                quadrature_.moments()[momentOrder].dimensions()/dimTime,
-                0.0
-            )
-        )
-    );
+    vector cSource = Zero;
 
-    if (!breakup_)
+    if (!coalescence_ || momentOrder == 1)
+    {
+        return cSource;
+    }
+
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
+
+    forAll(nodes, nodei)
+    {
+        const volScalarNode& node1 = nodes[nodei];
+        scalar weight1 = node1.primaryWeight()[celli];
+        scalar abscissa1 = Foam::max(node1.primaryAbscissa()[celli], 0.0);
+
+        forAll(nodes, nodej)
+        {
+            const volScalarNode& node2 = nodes[nodej];
+            scalar weight2 = node2.primaryWeight()[celli];
+            scalar abscissa2 = Foam::max(node2.primaryAbscissa()[celli], 0.0);
+
+            //- Diameter is used to calculate the coalesence kernel in place
+            //  of the abscissa, handled inside kernel
+            cSource +=
+                weight1*Us_[nodei][celli]
+               *(
+                    weight2
+                   *(
+                        0.5*pow // Birth
+                        (
+                            pow3(abscissa1)
+                          + pow3(abscissa2),
+                            momentOrder/3.0
+                        )
+                      - pow(abscissa1, momentOrder)
+                    )*coalescenceKernel_.Ka(celli, nodei, nodej)
+                );
+        }
+    }
+    return cSource;
+}
+
+
+Foam::scalar Foam::polydispersePhaseModel::breakupSource
+(
+    const label celli,
+    const label momentOrder
+)
+{
+    scalar bSource = 0.0;
+
+    if (!breakup_ || momentOrder == 1)
     {
         return bSource;
     }
@@ -165,211 +173,346 @@ Foam::tmp<Foam::volScalarField> Foam::polydispersePhaseModel::breakupSource
     forAll(nodes, nodei)
     {
         const volScalarNode& node = nodes[nodei];
+        scalar abscissa = Foam::max(node.primaryAbscissa()[celli], 0.0);
 
         //- Diameter is used to calculate the breakup kernel in place
         //  of the abscissa
-        bSource.ref() +=
-            node.primaryWeight()
-           *breakupKernel_->Kb(nodei)
+        bSource +=
+            node.primaryWeight()[celli]
+           *breakupKernel_->Kb(celli, nodei)
            *(
-                daughterDistribution                       //Birth
+                daughterDistribution_->mD                       //Birth
                 (
                     momentOrder,
-                    node.primaryAbscissa()
+                    abscissa
                 )
-              - pow(node.primaryAbscissa(), momentOrder)   //Death
+              - pow(abscissa, momentOrder)   //Death
             );
     }
 
-    return bSource*pos(0.8 - *this);
+    return bSource;
 }
 
 
-Foam::tmp<Foam::volScalarField> Foam::polydispersePhaseModel::daughterDistribution
+Foam::vector Foam::polydispersePhaseModel::breakupSourceU
 (
-    const label momentOrder,
-    const volScalarField& abscissa
+    const label celli,
+    const label momentOrder
 )
 {
-    tmp<volScalarField> tmpDaughterDist
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "daughterDist",
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            fluid_.mesh(),
-            dimensionedScalar
-            (
-                "0",
-                pow(dimMass, momentOrder),
-                0.0
-            )
-        )
-    );
-    volScalarField& daughterDist = tmpDaughterDist.ref();
+    vector bSource = Zero;
 
-    forAll(daughterDist, celli)
+    if (!breakup_ || momentOrder == 1)
     {
-        daughterDist[celli] = daughterDistribution_->mD
-        (
-            momentOrder,
-            abscissa[celli]
-        );
+        return bSource;
     }
 
-    return tmpDaughterDist;
-}
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
+    forAll(nodes, nodei)
+    {
+        const volScalarNode& node = nodes[nodei];
+        scalar abscissa = Foam::max(node.primaryAbscissa()[celli], 0.0);
+
+        //- Diameter is used to calculate the breakup kernel in place
+        //  of the abscissa
+        bSource +=
+            node.primaryWeight()[celli]*Us_[nodei][celli]
+           *breakupKernel_->Kb(celli, nodei)
+           *(
+                daughterDistribution_->mD                       //Birth
+                (
+                    momentOrder,
+                    abscissa
+                )
+              - pow(abscissa, momentOrder)   //Death
+            );
+    }
+
+    return bSource;
+}
 
 void Foam::polydispersePhaseModel::solveSourceOde()
 {
-    if (!ode_)
+    if (!coalescence_ && !breakup_)
     {
-        forAll(quadrature_.moments(), mI)
-        {
-            quadrature_.moments()[mI] +=
-                U_.mesh().time().deltaT()
-               *(
-                    coalescenceSource(mI) + breakupSource(mI)
-                );
-        }
-        quadrature_.updateQuadrature();
-        quadrature_.updateAllMoments();
         return;
     }
 
-    PtrList<volScalarField> k1(nMoments_);
-    PtrList<volScalarField> k2(nMoments_);
-    PtrList<volScalarField> k3(nMoments_);
-    PtrList<volScalarField> momentsOld(nMoments_);
+    volUnivariateMomentFieldSet& moments = quadrature_.moments();
+    label nMoments = quadrature_.nMoments();
+    PtrList<volVectorField>& Ups = quadrature_.velocityMoments();
+    label nVelocityMoments = Ups.size();
+    scalar globalDt = moments[0].mesh().time().deltaT().value();
 
-    forAll(momentsOld, mI)
+    Info << "Solving source terms in realizable ODE solver." << endl;
+    coalescenceKernel_.update();
+    breakupKernel_->update();
+
+    forAll(moments[0], celli)
     {
-        k1.set
-        (
-            mI,
-            new volScalarField
-            (
-                IOobject
+        if ((*this)[celli] < residualAlpha_.value())
+        {
+            continue;
+        }
+
+        scalarField oldMoments(nMoments, 0.0);
+        vectorField oldUps(nVelocityMoments, Zero);
+        forAll(oldMoments, mi)
+        {
+            oldMoments[mi] = moments[mi][celli];
+        }
+        forAll(oldUps, mi)
+        {
+            oldUps[mi] = Ups[mi][celli];
+        }
+
+        //- Local time
+        scalar localT = 0.0;
+
+        // Initialize the local step
+        scalar localDt = localDt_[celli];
+
+        // Initialize RK parameters
+        scalarField k1(nMoments_, 0.0);
+        scalarField k2(nMoments_, 0.0);
+        scalarField k3(nMoments_, 0.0);
+
+        vectorField k1U(nVelocityMoments, Zero);
+        vectorField k2U(nVelocityMoments, Zero);
+        vectorField k3U(nVelocityMoments, Zero);
+
+        // Flag to indicate if the time step is complete
+        bool timeComplete = false;
+
+        // Check realizability of intermediate moment sets
+        bool realizableUpdate1 = true;
+        bool realizableUpdate2 = true;
+        bool realizableUpdate3 = true;
+
+        scalarList momentsSecondStep(nMoments_, 0.0);
+        scalar error = 0.0;
+
+        while (!timeComplete)
+        {
+            bool nullSource = true;
+            do
+            {
+                nullSource = true;
+
+                // First intermediate update
+                forAll(oldMoments, mi)
+                {
+                    k1[mi] =
+                        localDt
+                       *(
+                            coalescenceSource(celli, mi)
+                          + breakupSource(celli, mi)
+                        );
+                    moments[mi][celli] = oldMoments[mi] + k1[mi];
+                    nullSource =
+                    (
+                        mag(k1[mi]) < pow(SMALL, mi)
+                     && nullSource
+                    );
+                }
+
+                if (nullSource)
+                {
+                    break;
+                }
+
+                forAll(oldUps, mi)
+                {
+                    k1U[mi] =
+                        localDt
+                       *(
+                            coalescenceSourceU(celli, mi)
+                          + breakupSourceU(celli, mi)
+                        );
+                    Ups[mi][celli] = oldUps[mi] + k1U[mi];
+                }
+                realizableUpdate1 =
+                        quadrature_.updateAllLocalQuadrature(celli, false);
+
+                // Second moment update
+                forAll(oldMoments, mi)
+                {
+                    k2[mi] =
+                        localDt
+                       *(
+                            coalescenceSource(celli, mi)
+                          + breakupSource(celli, mi)
+                        );
+                    moments[mi][celli] = oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
+                    momentsSecondStep[mi] = moments[mi][celli];
+                }
+                forAll(oldUps, mi)
+                {
+                    k2U[mi] =
+                        localDt
+                       *(
+                            coalescenceSourceU(celli, mi)
+                          + breakupSourceU(celli, mi)
+                        );
+                    Ups[mi][celli] = oldUps[mi] + (k1U[mi] + k2U[mi])/4.0;
+                }
+                realizableUpdate2 =
+                        quadrature_.updateAllLocalQuadrature(celli, false);
+
+                // Third moment update
+                forAll(oldMoments, mi)
+                {
+                    k3[mi] =
+                        localDt
+                       *(
+                            coalescenceSource(celli, mi)
+                          + breakupSource(celli, mi)
+                        );
+                    moments[mi][celli] =
+                        oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
+                }
+                forAll(oldUps, mi)
+                {
+                    k3U[mi] =
+                        localDt
+                       *(
+                            coalescenceSourceU(celli, mi)
+                          + breakupSourceU(celli, mi)
+                        );
+                    Ups[mi][celli] =
+                        oldUps[mi] + (k1U[mi] + k2U[mi] + 4.0*k3U[mi])/6.0;
+                }
+                realizableUpdate3 =
+                        quadrature_.updateAllLocalQuadrature(celli, false);
+
+                if
                 (
-                    "k1",
-                    U_.mesh().time().timeName(),
-                    U_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                U_.mesh(),
-                dimensionedScalar
-                (
-                    "k1",
-                    quadrature_.moments()[mI].dimensions(),
-                    0.0
+                    !realizableUpdate1
+                 || !realizableUpdate2
+                 || !realizableUpdate3
                 )
-            )
-        );
+                {
+                    Info << "Not realizable" << endl;
 
-        k2.set
-        (
-            mI,
-            new volScalarField
+                    forAll(oldMoments, mi)
+                    {
+                        moments[mi][celli] = oldMoments[mi];
+                    }
+                    forAll(oldUps, mi)
+                    {
+                        Ups[mi][celli] = oldUps[mi];
+                    }
+
+                    // Updating local quadrature with old moments
+                    quadrature_.updateAllLocalQuadrature(celli);
+
+                    localDt /= 2.0;
+
+                    if (localDt < minLocalDt_)
+                    {
+                        FatalErrorInFunction
+                            << "Reached minimum local step in realizable ODE"
+                            << nl
+                            << "    solver. Cannot ensure realizability." << nl
+                            << abort(FatalError);
+                    }
+                }
+            }
+            while
             (
-                IOobject
-                (
-                    "k2",
-                    U_.mesh().time().timeName(),
-                    U_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                U_.mesh(),
-                dimensionedScalar
-                (
-                    "k2",
-                    quadrature_.moments()[mI].dimensions(),
-                    0.0
-                )
-            )
-        );
+                !realizableUpdate1
+             || !realizableUpdate2
+             || !realizableUpdate3
+            );
 
-        k3.set
-        (
-            mI,
-            new volScalarField
-            (
-                IOobject
-                (
-                    "k3",
-                    U_.mesh().time().timeName(),
-                    U_.mesh(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
-                ),
-                U_.mesh(),
-                dimensionedScalar
-                (
-                    "k3",
-                    quadrature_.moments()[mI].dimensions(),
-                    0.0
-                )
-            )
-        );
+            if (nullSource)
+            {
+                timeComplete = true;
+                localT = 0.0;
+                break;
+            }
 
-        momentsOld.set
-        (
-            mI,
-            new volScalarField(quadrature_.moments()[mI])
-        );
+            for (label mi = 0; mi < nMoments; mi++)
+            {
+                scalar scalei =
+                   Foam::max
+                    (
+                        mag(momentsSecondStep[mi]), mag(oldMoments[mi])
+                    )*RTol_;
+
+                if (scalei > 0)
+                {
+                    error +=
+                        sqr
+                        (
+                            (momentsSecondStep[mi] - moments[mi][celli])/scalei
+                        );
+                }
+            }
+            error = sqrt(error/nMoments);
+            if (error < SMALL)
+            {
+                timeComplete = true;
+                localT = 0.0;
+                break;
+            }
+            else if (error < 1)
+            {
+                localT += localDt;
+                localDt_[celli] = localDt;
+
+                localDt *= Foam::min(facMax_, Foam::max(facMin_, fac_/pow(error, 1.0/3.0)));
+
+                scalar maxLocalDt = Foam::max(globalDt - localT, 0.0);
+                localDt = Foam::min(maxLocalDt, localDt);
+
+                forAll(oldMoments, mi)
+                {
+                    oldMoments[mi] = moments[mi][celli];
+                }
+                forAll(oldUps, mi)
+                {
+                    oldUps[mi] = Ups[mi][celli];
+                }
+
+                if (localDt == 0.0)
+                {
+                    timeComplete = true;
+                    localT = 0.0;
+                    break;
+                }
+            }
+            else
+            {
+                localDt *= Foam::min(1.0, Foam::max(facMin_, fac_/pow(error, 1.0/3.0)));
+
+                forAll(oldMoments, mi)
+                {
+                    moments[mi][celli] = oldMoments[mi];
+                }
+                forAll(oldUps, mi)
+                {
+                    Ups[mi][celli] = oldUps[mi];
+                }
+                quadrature_.updateAllLocalQuadrature(celli);
+
+                if (localDt < minLocalDt_)
+                {
+                    Info<<" cell "<<celli
+                        <<" error: " <<error
+                        <<" dt: "<<localDt<<endl;
+                    FatalErrorInFunction
+                        << "Reached minimum local step in realizable ODE"
+                        << nl
+                        << "    solver. Cannot ensure realizability." << nl
+                        << abort(FatalError);
+                }
+            }
+        }
     }
-    quadrature_.updateQuadrature();
 
-    // Read current deltaT
-    dimensionedScalar dt0 = U_.mesh().time().deltaT();
-
-
-    // Calculate k1 for all moments
-    forAll(momentsOld, mI)
-    {
-        k1[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
-        quadrature_.moments()[mI] == momentsOld[mI] + k1[mI];
-    }
-    quadrature_.updateQuadrature();
-
-    // Calculate k2 for all moments
-    forAll(momentsOld, mI)
-    {
-        k2[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
-        quadrature_.moments()[mI] == momentsOld[mI] + (k1[mI] + k2[mI])/4.0;
-    }
-    quadrature_.updateQuadrature();
-
-    // calculate k3 and new moments for all moments
-    forAll(momentsOld, mI)
-    {
-        k3[mI] = dt0*(coalescenceSource(mI) + breakupSource(mI));
-
-        // Second order accurate, k3 only used for error estimation
-        quadrature_.moments()[mI] ==
-            momentsOld[mI]
-          + (k1[mI] + k2[mI] + 4.0*k3[mI])/6.0;
-    }
-    quadrature_.updateQuadrature();
-
-    // Because velocity moments only change due to change in size abscissae
-    // from break up and coalescence, the velocity moments are simply updated
-    // to include this size change. This eliminated calculating source terms
-    // twice.
     quadrature_.updateAllMoments();
-
 }
 
 
@@ -398,17 +541,6 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
     coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
-    ddtM1_
-    (
-        IOobject
-        (
-            IOobject::groupName("ddtM1", phaseName),
-            fluid_.mesh().time().timeName(),
-            fluid_.mesh()
-        ),
-        fluid_.mesh(),
-        dimensionedScalar("0", dimDensity/dimTime, 0.0)
-    ),
     nNodes_(quadrature_.nodes().size()),
     nMoments_(quadrature_.nMoments()),
     alphas_(nNodes_),
@@ -436,7 +568,14 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
         (
             pbeDict_.subDict("daughterDistribution")
         )
-    )
+    ),
+    minLocalDt_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("minLocalDt"))),
+    localDt_(this->size(), fluid.mesh().time().deltaT().value()/10.0),
+    ATol_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("ATol"))),
+    RTol_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("RTol"))),
+    facMax_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("facMax"))),
+    facMin_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("facMin"))),
+    fac_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("fac")))
 {
     this->d_.writeOpt() = IOobject::AUTO_WRITE;
 
@@ -555,45 +694,18 @@ Foam::polydispersePhaseModel::~polydispersePhaseModel()
 
 void Foam::polydispersePhaseModel::correct()
 {
-    d_ = dimensionedScalar("zero", dimLength, 0.0);
 
-    volScalarField scale
-    (
-        (*this)
-       /Foam::max
-        (
-            quadrature_.moments()[1]/rho(),
-            residualAlpha_
-        )
-    );
-
-    forAll(quadrature_.nodes(), nodei)
+    if (nNodes_ == 1)
     {
-        const volScalarNode& node = quadrature_.nodes()[nodei];
-
-        // Set alpha values such that the moment.1 is equal to the bounded
-        // alpha
-        if (nNodes_ == 1)
-        {
-            alphas_[nodei] = *this;
-        }
-        else
-        {
-            alphas_[nodei] =
-                node.primaryWeight()*node.primaryAbscissa()/rho()*scale;
-            alphas_[nodei].max(0);
-            alphas_[nodei].min(1);
-        }
-
-        //  Calculate bubble diameter based on bubble mass (abscissa)
-        ds_[nodei] =
+        alphas_[0] = *this;
+        ds_[0] =
             Foam::min
             (
                 Foam::max
                 (
                     Foam::pow
                     (
-                        node.primaryAbscissa()*6.0
+                        quadrature_.nodes()[0].primaryAbscissa()*6.0
                        /(rho()*Foam::constant::mathematical::pi)
                       + dimensionedScalar("smallVolume", dimVolume, SMALL),
                         1.0/3.0
@@ -602,22 +714,56 @@ void Foam::polydispersePhaseModel::correct()
                 ),
                 maxD_
             );
-
-        if (nNodes_ > 1)
-        {
-            d_ += alphas_[nodei]*ds_[nodei];
-        }
-    }
-
-    if (nNodes_ > 1)
-    {
-        d_ /= Foam::max((*this), residualAlpha_);
+        d_ = ds_[0];
+        return;
     }
     else
     {
-        d_ = ds_[0];
+        d_ = dimensionedScalar("zero", dimLength, 0.0);
+        volScalarField scale
+        (
+            (*this)
+           /Foam::max
+            (
+                quadrature_.moments()[1]/rho(),
+                residualAlpha_
+            )
+        );
+
+        forAll(quadrature_.nodes(), nodei)
+        {
+            const volScalarNode& node = quadrature_.nodes()[nodei];
+
+            // Set alpha values such that the moment.1 is equal to the bounded
+            // alpha
+            alphas_[nodei] =
+                node.primaryWeight()*node.primaryAbscissa()/rho()*scale;
+            alphas_[nodei].max(0);
+            alphas_[nodei].min(1);
+
+            //  Calculate bubble diameter based on bubble mass (abscissa)
+            ds_[nodei] =
+                Foam::min
+                (
+                    Foam::max
+                    (
+                        Foam::pow
+                        (
+                            node.primaryAbscissa()*6.0
+                           /(rho()*Foam::constant::mathematical::pi)
+                          + dimensionedScalar("smallVolume", dimVolume, SMALL),
+                            1.0/3.0
+                        ),
+                        minD_
+                    ),
+                    maxD_
+                );
+            d_ += alphas_[nodei]*ds_[nodei];
+        }
+
+        d_ /= Foam::max((*this), residualAlpha_);
+        d_.max(minD_);
     }
-    d_.max(minD_);
 }
 
 
@@ -694,7 +840,6 @@ void Foam::polydispersePhaseModel::relativeTransport()
         mEqn.relax();
         mEqn.solve();
     }
-    ddtM1_ = fvc::ddt(quadrature_.moments()[1]);
 
     forAll(quadrature_.velocityMoments(), mEqni)
     {
@@ -760,25 +905,113 @@ void Foam::polydispersePhaseModel::relativeTransport()
     quadrature_.updateAllQuadrature();
     this->updateVelocity();
     correct();
-
-    quadrature_.interpolateNodes();
 }
 
 
-void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
+void Foam::polydispersePhaseModel::averageTransport
+(
+    const PtrList<fvVectorMatrix>& AEqns
+)
 {
-    // Update moments based source terms for breakup and coalescence
-    solveSourceOde();
+    // Correct mean flux
+    const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
+    const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
+    dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
+    surfaceScalarField phi(phiPtr_());
+
+    const dictionary& pimpleDict =
+        fluid_.mesh().solutionDict().subDict("PIMPLE");
+    label nCorrectors = pimpleDict.lookupOrDefault("nFluxCorrectors", 0);
+    if (nCorrectors > 0)
+    {
+        word patchName = pimpleDict.lookup("corrPatch");
+        wordList boundaries(U_.boundaryField().size(), "zeroGradient");
+        forAll(boundaries, patchi)
+        {
+            if (U_.boundaryField()[patchi].patch().name() == patchName)
+            {
+                boundaries[patchi] = "fixedValue";
+            }
+        }
+        volScalarField corr
+        (
+            IOobject
+            (
+                "corr",
+                fluid_.mesh().time().timeName(),
+                fluid_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            fluid_.mesh(),
+            dimensionedScalar("0", sqr(dimLength)/dimTime, 0.0),
+            boundaries
+        );
+
+        for (label i = 0; i < nCorrectors; i++)
+        {
+            //- Update interpolated nodes since upwinding direction
+            //  may have changed
+            quadrature_.interpolateNodes();
+            volScalarField meanM1Flux
+            (
+                IOobject
+                (
+                    "meanM1Flux",
+                    fluid_.mesh().time().timeName(),
+                    fluid_.mesh()
+                ),
+                fluid_.mesh(),
+                dimensionedScalar("zero", dimDensity/dimTime, Zero)
+            );
+
+            for (label nodei = 0; nodei < nNodes_; nodei++)
+            {
+                meanM1Flux +=
+                    fvc::surfaceIntegrate
+                    (
+                        nodesNei[nodei].primaryWeight()
+                       *nodesNei[nodei].primaryAbscissa()
+                       *Foam::min(phi, zeroPhi)
+                      + nodesOwn[nodei].primaryWeight()
+                       *nodesOwn[nodei].primaryAbscissa()
+                       *Foam::max(phi, zeroPhi)
+                    );
+            }
+
+            fvScalarMatrix corrEqn
+            (
+                ((*this)*rho() - quadrature_.moments()[1])
+               /fluid_.mesh().time().deltaT()
+              + meanM1Flux
+              + fvm::laplacian
+                (
+                    Foam::max
+                    (
+                        quadrature_.moments()[1],
+                        dimensionedScalar
+                        (
+                            "small",
+                            dimDensity,
+                            residualAlpha_.value()
+                        )
+                    ),
+                    corr,
+                    "laplacian(" + quadrature_.moments()[1].name() + ",corr)"
+                )
+            );
+            corrEqn.relax();
+            corrEqn.solve();
+            phi += fvc::snGrad(corr)*fluid_.mesh().magSf();
+        }
+    }
+    quadrature_.interpolateNodes();
 
     // Mean moment advection
     Info<< "Transporting moments with average velocity" << endl;
-    const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
-    const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
-
     forAll(quadrature_.moments(), mEqni)
     {
         volScalarField& m = quadrature_.moments()[mEqni];
-        dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
 
         volScalarField meanDivUbMp
         (
@@ -786,10 +1019,7 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
             (
                 "meanDivUbMp",
                 fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
+                fluid_.mesh()
             ),
             fluid_.mesh(),
             dimensionedScalar("zero", m.dimensions()/dimTime, Zero)
@@ -808,13 +1038,13 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
                         nodesNei[nodei].primaryAbscissa(),
                         mEqni
                     )
-                )*Foam::min(phiPtr_(), zeroPhi)
+                )*Foam::min(phi, zeroPhi)
               + nodesOwn[nodei].primaryWeight()
                *pow
                 (
                     nodesOwn[nodei].primaryAbscissa(),
                     mEqni
-                )*Foam::max(phiPtr_(), zeroPhi)
+                )*Foam::max(phi, zeroPhi)
             );
 
             meanDivUbMp += fvc::surfaceIntegrate(aFluxMp);
@@ -839,13 +1069,13 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
             quadrature_.velocityMoments()[mi].correctBoundaryConditions();
         }
 
-        quadrature_.updateAllQuadrature();
+        quadrature_.updateQuadrature();
+        Us_[0] = U_;
         return;
     }
 
     forAll(quadrature_.velocityMoments(), mEqni)
     {
-        dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
         volVectorField& Up = quadrature_.velocityMoments()[mEqni];
 
         volVectorField meanDivUbUp
@@ -854,10 +1084,7 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
             (
                 "meanDivUbUp",
                 fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
+                fluid_.mesh()
             ),
             fluid_.mesh(),
             dimensionedVector("zero", Up.dimensions()/dimTime, Zero)
@@ -877,14 +1104,14 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
                         nodesNei[nodei].primaryAbscissa(),
                         mEqni
                     )
-                )*Foam::min(phiPtr_(), zeroPhi)
+                )*Foam::min(phi, zeroPhi)
               + quadrature_.velocitiesOwn()[nodei]
                *nodesOwn[nodei].primaryWeight()
                *pow
                 (
                     nodesOwn[nodei].primaryAbscissa(),
                     mEqni
-                )*Foam::max(phiPtr_(), zeroPhi)
+                )*Foam::max(phi, zeroPhi)
             );
 
             meanDivUbUp += fvc::surfaceIntegrate(aFluxUp);
@@ -903,7 +1130,6 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
     }
 
     quadrature_.updateAllQuadrature();
-    correct();
 
     // Solve for velocity abscissa directly since the momentum exchange
     // terms do not change the mass
@@ -919,19 +1145,9 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
             "tauC",
             (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE
         );
-
         tauC.dimensions().reset(inv(dimTime));
 
-        volScalarField alphaRhoi
-        (
-            "alphaRhoi",
-            Foam::max
-            (
-                quadrature_.nodes()[nodei].primaryAbscissa()
-               *quadrature_.nodes()[nodei].primaryWeight(),
-                residualAlpha_*rho()
-            )
-        );
+        volScalarField alphaRhoi(alphas_[nodei]*rho());
 
         // Solve for velocities using acceleration terms
         fvVectorMatrix UsEqn
@@ -949,6 +1165,9 @@ void Foam::polydispersePhaseModel::averageTransport(const PtrList<fvVectorMatrix
     }
     quadrature_.updateAllMoments();
     this->updateVelocity();
+
+    // Update moments with breakup and coalescence sources
+    solveSourceOde();
     correct();
 
     // Update deviation velocity

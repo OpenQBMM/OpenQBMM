@@ -152,7 +152,7 @@ Foam::kineticTheoryModel::kineticTheoryModel
     (
         IOobject
         (
-            IOobject::groupName("g0", phase.name()),
+            IOobject::groupName("gs0", phase.name()),
             phase.time().timeName(),
             phase.mesh(),
             IOobject::NO_READ,

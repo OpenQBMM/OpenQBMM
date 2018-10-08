@@ -250,12 +250,33 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
         scalarField c
         (
              constant::mathematical::pi
-            *alpha
-            *gs0
             *(scalar(1) - sqr(restitutionCoefficient_.value()))
             *sqrt(3.0*Theta)
-            /max(4.0*kappa*alphaMax.value(), SMALL)
+            /max(kappa, SMALL)
         );
+
+        if
+        (
+            db().foundObject<volScalarField>
+            (
+                IOobject::groupName("h2Fn", phased.name())
+            )
+        )
+        {
+            scalarField h2Fn
+            (
+                patch().lookupPatchField<volScalarField, scalar>
+                (
+                    IOobject::groupName("h2Fn", phased.name())
+                )
+            );
+
+            c *= h2Fn/6.0;
+        }
+        else
+        {
+            c *= alpha*gs0/(4.0*alphaMax.value());
+        }
 
         this->valueFraction() = c/(c + patch().deltaCoeffs());
     }
@@ -270,11 +291,32 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
             pos0(alpha - SMALL)
            *constant::mathematical::pi
            *specularityCoefficient_.value()
-           *alpha
-           *gs0
            *sqrt(3.0*Theta)
            *magSqr(U)
-           /max(6.0*kappa*alphaMax.value(), SMALL);
+           /max(kappa, SMALL);
+
+        if
+        (
+            db().foundObject<volScalarField>
+            (
+                IOobject::groupName("h2Fn", phased.name())
+            )
+        )
+        {
+            scalarField h2Fn
+            (
+                patch().lookupPatchField<volScalarField, scalar>
+                (
+                    IOobject::groupName("h2Fn", phased.name())
+                )
+            );
+
+            this->refGrad() *= (1.0/9.0)*h2Fn;
+        }
+        else
+        {
+            this->refGrad() *= alpha*gs0/(6.0*alphaMax.value());
+        }
 
         this->valueFraction() = 0.0;
     }

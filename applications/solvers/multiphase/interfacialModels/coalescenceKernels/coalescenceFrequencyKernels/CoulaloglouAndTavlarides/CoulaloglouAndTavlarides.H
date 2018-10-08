@@ -81,6 +81,8 @@ class CoulaloglouAndTavlarides
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
+        //- Turbulent dissipation
+        volScalarField epsilonf_;
 
 public:
 
@@ -104,9 +106,20 @@ public:
 
     // Member Functions
 
+        //- Update fields
+        virtual void update();
+
         //- Aggregation kernel
         virtual tmp<volScalarField> omega
         (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        //- Aggregation kernel
+        virtual scalar omega
+        (
+            const label celli,
             const label nodei,
             const label nodej
         ) const;

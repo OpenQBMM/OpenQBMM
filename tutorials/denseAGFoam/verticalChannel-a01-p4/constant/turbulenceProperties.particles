@@ -26,33 +26,31 @@ RAS
 
     kineticTheoryCoeffs
     {
-        kineticTheoryModel          equilibriumAG;
+        kineticTheoryModel      anisotropicGaussian;
+        equilibrium off;
+        alphaTheta              1.0;
+        alphaSigma              1.0;
+        e                       0.9;
+        alphaMax                0.62;
+        alphaMinFriction        0.5;
+        residualAlpha           1e-4;
 
-        alphaTheta                  1.0;
-        alphaSigma                  1.0;
-        e                           0.9;
-        alphaMax                    0.63;
-        alphaMinFriction            0.55;
-
-        viscosityModel              Gidaspow;
-        conductivityModel           KongFox;
-        granularPressureModel       KongFox;
-        radialModel                 SinclairJackson;
-        frictionalStressModel       JohnsonJackson;
+        viscosityModel          KongFox;
+        conductivityModel       KongFox;
+        granularPressureModel   KongFox;
+        frictionalStressModel   JohnsonJackson;
+        radialModel             SinclairJackson;
+        fluxSplittingFunction   alphaG0;
+        h2FluxPow               4;
 
         JohnsonJacksonCoeffs
         {
             Fr                      0.05;
             eta                     2;
             p                       5;
-            phi                     0.25;
-            alphaDeltaMin           0.03;
+            phi                     28.5;
+            alphaDeltaMin           0.05;
         }
-
-        residualAlpha               1e-4;
-        nHerNodePerDim				6;
-        fluxSplittingFunction   	particlePressure;
-        h2FluxPow					4;
     }
 }
 
