@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-1;2802;0c| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.3.x                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -54,33 +54,11 @@ maxDeltaT       2e-04;
 
 functions1
 {
-  /*
-
-  XYplane
-  {
-    type surfaces;
-    functionObjectLibs ("libsampling.so");
-    enabled true;
-    outputControl outputTime;
-    interpolationScheme cell;
-    surfaceFormat vtk;
-    fields (alpha.partcles U.particles Theta.particles );
-    surfaces
-    (
-      plane
-      {
-	type plane;
-	normalVector (0 0 1);
-	basePoint (0 0 0.03);
-      }
-    );
-  }
-  */
 
       channelTurbCalcs1
 	  {
 	    type        channelTurbCalcs;
-	    functionObjectLibs ("/work2/fox_group/kongbo/OpenFOAM/301-icc-int32/kongbo-3.0.1/platforms/linux64IccDPInt32Opt/lib/libchannelTurbCalcs.so" );
+	    functionObjectLibs ("libchannelTurbCalcs.so" );
 	    enabled true;
         	timeStart   1.5;
 	    timeEnd         200;
@@ -150,10 +128,6 @@ functions1
 							0.05
 							);
 	  }
-
-
-
-
 }
 
 
