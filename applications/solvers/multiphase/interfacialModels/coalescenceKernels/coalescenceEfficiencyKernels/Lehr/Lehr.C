@@ -55,15 +55,15 @@ Lehr
 :
     coalescenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    turbulence_(dict.lookupOrDefault("turbulence", true)),
-    uCrit_
+    sigma_(fluid_.sigma()),
+    WeCrit_
     (
         dimensionedScalar::lookupOrDefault
         (
-            "uCrit",
+            "WeCrit",
             dict,
             dimVelocity,
-            0.08
+            0.06
         )
     ),
     epsilonf_
@@ -104,34 +104,18 @@ Foam::coalescenceEfficiencyKernels::Lehr::Pc
 {
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
+    volScalarField dEq(2.0/(1.0/d1 + 1.0/d2));
 
-    if (turbulence_)
-    {
-        return max
+   return max
+    (
+        WeCrit_*sigma_/(fluid_.phase2().rho()*dEq)
+        /max
         (
-            uCrit_
-           /max
-            (
-                1.414*cbrt(epsilonf_)
-               *sqrt(pow(d1, 2/3) + pow(d2, 2/3)),
-                mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
-            ),
-            1.0
-        );
-    }
-    else
-    {
-        return max
-        (
-            uCrit_
-           /max
-            (
-                mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej)),
-                dimensionedScalar("smallVelocity", dimVelocity, 1e-10)
-            ),
-            1.0
-        );
-    }
+            sqrt(2.0)*pow(epsilonf_*sqrt(d1*d2), 1.0/3.0),
+            mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
+        ),
+        1.0
+    );
 }
 
 
@@ -145,42 +129,22 @@ Foam::coalescenceEfficiencyKernels::Lehr::Pc
 {
     scalar d1 = fluid_.phase1().ds(nodei)[celli];
     scalar d2 = fluid_.phase1().ds(nodej)[celli];
+    scalar dEq = 2.0/(1.0/d1 + 1.0/d2);
 
-    if (turbulence_)
-    {
-        return max
+    return max
+    (
+        WeCrit_.value()*sigma_.value()/(fluid_.phase2().rho()[celli]*dEq)
+        /max
         (
-            uCrit_.value()
-           /max
+            sqrt(2.0)*pow(epsilonf_[celli]*sqrt(d1*d2), 1.0/3.0),
+            mag
             (
-                1.414*cbrt(epsilonf_[celli])
-               *sqrt(pow(d1, 2/3) + pow(d2, 2/3)),
-                mag
-                (
-                    fluid_.phase1().Us(nodei)[celli]
-                  - fluid_.phase1().Us(nodej)[celli]
-                )
-            ),
-            1.0
-        );
-    }
-    else
-    {
-        return max
-        (
-            uCrit_.value()
-           /max
-            (
-                mag
-                (
-                    fluid_.phase1().Us(nodei)[celli]
-                  - fluid_.phase1().Us(nodej)[celli]
-                ),
-                1e-10
-            ),
-            1.0
-        );
-    }
+                fluid_.phase1().Us(nodei)[celli]
+              - fluid_.phase1().Us(nodej)[celli]
+            )
+        ),
+        1.0
+    );
 }
 
 // ************************************************************************* //
