@@ -122,7 +122,7 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
             "PsFric",
             phase.mesh().time().timeName(),
             phase.mesh(),
-            IOobject::MUST_READ,
+            IOobject::NO_READ,
             IOobject::AUTO_WRITE
        ),
        phase.mesh(),
@@ -139,8 +139,7 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
             IOobject::READ_IF_PRESENT,
             IOobject::AUTO_WRITE
         ),
-        2.0*this->nu_*dev(twoSymm(fvc::grad(this->phase_.U()))),
-        this->Theta_.boundaryField().types()
+        phase.mesh()
     ),
     AGtransport_(phase.mesh(), dict, phase, this->Theta_, Sigma_)
 {
