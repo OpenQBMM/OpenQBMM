@@ -1,5 +1,4 @@
 // Solve the Momentum equation
-
 MRF.correctBoundaryVelocity(U);
 
 tmp<fvVectorMatrix> tUEqn
@@ -12,6 +11,7 @@ tmp<fvVectorMatrix> tUEqn
   - fvm::Sp(Kd, U)
   + fvOptions(U)
 );
+
 fvVectorMatrix& UEqn = tUEqn.ref();
 
 UEqn.relax();

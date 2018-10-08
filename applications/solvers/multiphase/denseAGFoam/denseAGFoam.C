@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2018 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -47,27 +47,6 @@ Description
 #include "MULES.H"
 #include "subCycle.H"
 #include "UniformField.H"
-
-/*
-void explicitSolve
-(
-    volScalarField& psi,
-    const surfaceScalarField& phiPsi,
-    const scalar& deltaT
-)
-{
-    scalarField& psiIf = psi;
-    const scalarField& psi0 = psi.oldTime();
-
-    psiIf = 0.0;
-    fvc::surfaceIntegrate(psiIf, phiPsi);
-
-    psiIf = psi0 - psiIf*deltaT;
-
-    psi.correctBoundaryConditions();
-
-}
-*/
 
 int main(int argc, char *argv[])
 {

@@ -13,6 +13,7 @@ volVectorField U
     ),
     mesh
 );
+
 #include "createPhi.H"
 
 // Particle fields
@@ -28,17 +29,21 @@ IOdictionary phaseProperties
         IOobject::NO_WRITE
     )
 );
+
 word particleName = "particles";//(phaseProperties.lookup("dilutePhase"));
 scalar residualAlpha(phaseProperties.lookupType<scalar>("residualAlpha"));
+
 dimensionedScalar St
 (
     "St",
     dimTime,
     phaseProperties
 );
+
 Info<<particleName << endl;
 Info<<phi.name()<<endl;
 Info<< "Reading populationBalanceProperties\n" << endl;
+
 IOdictionary populationBalanceProperties
 (
     IOobject
@@ -58,6 +63,7 @@ autoPtr<populationBalanceModel> populationBalance
         particleName, populationBalanceProperties, phi
     )
 );
+
 velocityQuadratureApproximation& quadrature =
     mesh.lookupObjectRef<velocityQuadratureApproximation>
     (

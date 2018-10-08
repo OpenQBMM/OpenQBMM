@@ -1,4 +1,5 @@
 PtrList<volScalarField> Kds(nodes.size());
+
 volScalarField Kd
 (
     IOobject
@@ -12,6 +13,7 @@ volScalarField Kd
     mesh,
     dimensionedScalar("zero", inv(dimTime), 0.0)
 );
+
 volVectorField dragSource
 (
     IOobject
@@ -43,8 +45,10 @@ volVectorField dragSource
         (
             max(scalar(1) - alphapi, residualAlpha)
         );
+
         volScalarField Re(mag(Upi - U)*dp/nuf);
         volScalarField Res(alphafi*Re);
+
         volScalarField CdsRes
         (
             neg(Res - 1000)*24*(1.0 + 0.15*pow(Res, 0.687))
@@ -66,6 +70,7 @@ volVectorField dragSource
            *nuf
            /sqr(dp)
         );
+        
         Kds.set(nodei, new volScalarField(Kdi*rhof));
         dragSource += Kdi*Upi;
         Kd += Kdi;

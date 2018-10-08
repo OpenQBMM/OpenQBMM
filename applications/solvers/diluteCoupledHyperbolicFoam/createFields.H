@@ -1,6 +1,7 @@
 #include "readGravitationalAcceleration.H"
 
 Info<< "Reading field p\n" << endl;
+
 volScalarField p
 (
     IOobject
@@ -15,6 +16,7 @@ volScalarField p
 );
 
 Info<< "Reading field U\n" << endl;
+
 volVectorField U
 (
     IOobject
@@ -36,18 +38,19 @@ scalar pRefValue = 0.0;
 setRefCell(p, pimple.dict(), pRefCell, pRefValue);
 mesh.setFluxRequired(p.name());
 
-
 singlePhaseTransportModel laminarTransport(U, phi);
 
 autoPtr<incompressible::turbulenceModel> turbulence
 (
     incompressible::turbulenceModel::New(U, phi, laminarTransport)
 );
+
 const volScalarField& nuf = laminarTransport.nu();
 
 // Particle fields
 
 Info<< "Reading phaseProperties\n" << endl;
+
 IOdictionary phaseProperties
 (
     IOobject
@@ -59,11 +62,11 @@ IOdictionary phaseProperties
         IOobject::NO_WRITE
     )
 );
+
 word particleName(phaseProperties.lookup("dilutePhase"));
 scalar residualAlpha(phaseProperties.lookupType<scalar>("residualAlpha"));
 dimensionedScalar rhof(phaseProperties.lookup("rhof"));
 dimensionedScalar rhop(phaseProperties.lookup("rhop"));
-
 
 // Field is created so it can be looked up in collision kernels
 volScalarField dp
@@ -81,6 +84,7 @@ volScalarField dp
 );
 
 Info<< "Reading populationBalanceProperties\n" << endl;
+
 IOdictionary populationBalanceProperties
 (
     IOobject
@@ -100,6 +104,7 @@ autoPtr<populationBalanceModel> populationBalance
         particleName, populationBalanceProperties, phi
     )
 );
+
 velocityQuadratureApproximation& quadrature =
     mesh.lookupObjectRef<velocityQuadratureApproximation>
     (
@@ -114,7 +119,6 @@ const labelListList& momentOrders = quadrature.momentOrders();
 volVectorMomentFieldSet& moments = quadrature.moments();
 mappedPtrList<volVectorNode>& nodes = quadrature.nodes();
 const label nDims = momentOrders[0].size();
-
 const volScalarField& alpha = moments(labelList(nDims, 0));
 
 volVectorField Up
@@ -145,8 +149,6 @@ volScalarField Thetap
     dimensionedScalar("zero", sqr(dimVelocity), 0.0)
 );
 
-
 #include "computeParticleFields.H"
-
 #include "createMRF.H"
 #include "createFvOptions.H"
