@@ -103,17 +103,6 @@ int main(int argc, char *argv[])
         #include "readTimeControls.H"
         #include "CourantNos.H"
         #include "setDeltaT.H"
-        if (adjustTimeStep)
-        {
-            runTime.setDeltaT
-            (
-                min
-                (
-                    runTime.deltaT(),
-                    AGmodel.maxUxDx()*runTime.deltaT()
-                )
-            );
-        }
 
         runTime++;
         Info<< "Time = " << runTime.timeName() << nl << endl;

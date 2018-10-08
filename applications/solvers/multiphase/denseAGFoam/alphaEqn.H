@@ -54,7 +54,7 @@ alphaRhoPhi1 = fvc::interpolate(rho1)*alphaPhi1;
 alphaPhi2 = phi - alphaPhi1;
 phase2.correctInflowOutflow(alphaPhi2);
 alphaRhoPhi2 = fvc::interpolate(rho2)*alphaPhi2;
-alpha1.write();
+
 Info<< alpha1.name() << " volume fraction = "
     << alpha1.weightedAverage(mesh.V()).value()
     << "  Min(" << alpha1.name() << ") = " << min(alpha1).value()
