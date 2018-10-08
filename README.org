@@ -1,0 +1,43 @@
+#                            -*- mode: org; -*-
+#
+#+TITLE:     README for [[http://openfoam.org/download/source][OpenQBMM]]
+#+AUTHOR:               The OpenFOAM Foundation
+#+DATE:                     10th October 2018
+#+LINK:                  http://openfoam.org
+#+OPTIONS: author:nil ^:{}
+# Copyright (c) 2018 OpenFOAM Foundation.
+
+* About OpenFOAM
+  OpenFOAM is a free, open source computational fluid dynamics (CFD) software
+  package released by the OpenFOAM Foundation. It has a large user base across
+  most areas of engineering and science, from both commercial and academic
+  organisations. OpenFOAM has an extensive range of features to solve anything
+  from complex fluid flows involving chemical reactions, turbulence and heat
+  transfer, to solid dynamics and electromagnetics.
+
+* Copyright
+  OpenFOAM is free software: you can redistribute it and/or modify it under the
+  terms of the GNU General Public License as published by the Free Software
+  Foundation, either version 3 of the License, or (at your option) any later
+  version.  See the file =COPYING= in this directory or
+  [[http://www.gnu.org/licenses/]], for a description of the GNU General Public
+  License terms under which you can copy the files.
+
+* OpenQBMM Developments on quadrature-based moment methods
+  This repository contains developments originated from the OpenQBMM project,
+  contributed by Prof. Alberto Passalacqua, Prof. Rodney O. Fox and 
+  Dr. Simanta Mitra at Iowa State University. These contributions are being 
+  evaluated and not yet included the main OpenFOAM-dev repository.
+
+  This work includes the implementation of quadrature-based moment methods
+  for the solution of generalized population balance equations, including the 
+  traditional quadrature method of moments and the extended quadrature method 
+  of moments for univariate problems. The conditional quadrature method of
+  moments and its hyperbolic version are also available for multivariate
+  problems.
+
+* [[https://openfoam.org/resources][Documentation]]
+* [[https://cpp.openfoam.org/dev][Source code documentation]]
+* [[https://openfoam.org/dev/coding-style-guide][OpenFOAM C++ Style Guide]]
+* [[https://bugs.openfoam.org][Reporting bugs in OpenFOAM]]
+* [[https://openfoam.org/contact][Contacting the OpenFOAM Foundation]]
