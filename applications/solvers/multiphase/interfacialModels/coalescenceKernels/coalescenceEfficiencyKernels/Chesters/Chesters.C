@@ -58,7 +58,18 @@ Foam::coalescenceEfficiencyKernels::Chesters::Chesters
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
     Ceff_(dict.lookup("Ceff")),
     ReExp_(dict.lookup("ReExp")),
-    WeExp_(dict.lookup("WeExp"))
+    WeExp_(dict.lookup("WeExp")),
+    theta_
+    (
+        IOobject
+        (
+            "Chesters:theta",
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("zero", dimless, 0.0)
+    )
 {}
 
 
@@ -70,6 +81,15 @@ Foam::coalescenceEfficiencyKernels::Chesters::~Chesters()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void Foam::coalescenceEfficiencyKernels::Chesters::update()
+{
+    const phasePair& pair = fluid_.pair1In2();
+    theta_ =
+        Ceff_
+       *pow(max(pair.Re(), SMALL), ReExp_)
+       *pow(max(pair.We(), SMALL), WeExp_);
+}
+
 Foam::tmp<Foam::volScalarField>
 Foam::coalescenceEfficiencyKernels::Chesters::Pc
 (
@@ -77,7 +97,7 @@ Foam::coalescenceEfficiencyKernels::Chesters::Pc
     const label nodej
 ) const
 {
-    const phasePair& pair = fluid_.pair1In2();
+
     const phaseModel& phase1 = fluid_.phase1();
     const phaseModel& phase2 = fluid_.phase2();
 
@@ -92,21 +112,54 @@ Foam::coalescenceEfficiencyKernels::Chesters::Pc
        /fluid_.sigma()
     );
     volScalarField xi(di/dj);
-    volScalarField theta
-    (
-        "theta",
-        Ceff_
-       *pow(max(pair.Re(nodei, 0), SMALL), ReExp_)
-       *pow(max(pair.We(nodei, 0), SMALL), WeExp_)
-    );
 
     return
         Foam::exp
         (
-          - theta*sqrt(Weij)
+          - theta_*sqrt(Weij)
            *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
            /(
                 sqrt(fluid_.phase1().rho()/fluid_.phase2().rho() + 0.5)
+               *pow3(1.0 + xi)
+            )
+        );
+}
+
+
+Foam::scalar Foam::coalescenceEfficiencyKernels::Chesters::Pc
+(
+    const label celli,
+    const label nodei,
+    const label nodej
+) const
+{
+    const phaseModel& phase1 = fluid_.phase1();
+    const phaseModel& phase2 = fluid_.phase2();
+
+    scalar di = fluid_.phase1().ds(nodei)[celli];
+    scalar dj = fluid_.phase1().ds(nodej)[celli];
+
+    scalar Weij
+    (
+        phase2.rho()[celli]
+       *di
+       *magSqr(phase1.Us(nodei)[celli] - phase1.Us(nodej)[celli])
+       /fluid_.sigma().value()
+    );
+    scalar xi(di/dj);
+
+
+    return
+        Foam::exp
+        (
+          - theta_[celli]*sqrt(Weij)
+           *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
+           /(
+                sqrt
+                (
+                    fluid_.phase1().rho()[celli]/fluid_.phase2().rho()[celli]
+                  + 0.5
+                )
                *pow3(1.0 + xi)
             )
         );

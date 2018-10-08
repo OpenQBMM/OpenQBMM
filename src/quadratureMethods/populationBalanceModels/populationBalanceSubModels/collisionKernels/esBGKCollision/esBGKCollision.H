@@ -58,9 +58,6 @@ class esBGKCollision
 {
     // Private data
 
-        //- Collisional time scale
-        dimensionedScalar tauCollisional_;
-
         //- Coefficient of restitution
         scalar e_;
 
@@ -69,6 +66,18 @@ class esBGKCollision
 
         //- Coefficients
         scalar a1_, b1_;
+
+        //- Granular temperature
+        volScalarField Theta_;
+
+        //- Reference to radial distribution
+//         autoPtr<radialDistributionModel> radialModel_;
+
+        //- Diameter
+        scalar dp_;
+
+        //- Coefficient related to Prandtl number
+        scalar zeta_;
 
 
 protected:

@@ -89,7 +89,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     Meq_(0,0) = moments(0,0)[celli];
     Meq_(1,0) = moments(1,0)[celli];
     Meq_(0,1) = moments(0,1)[celli];
-    Meq_(2,0) = moments(0,2)[celli];
+    Meq_(2,0) = moments(2,0)[celli];
     Meq_(1,1) = moments(1,1)[celli];
     Meq_(0,2) = moments(0,2)[celli];
     Meq_(3,0) = m00*(3.0*sigma11*u + u*uSqr);
@@ -234,7 +234,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
 )
 :
     collisionKernel(dict, mesh, quadrature, ode),
-    tauCollisional_(dict.lookup("tau")),
+    tauCollisional_("tau", dimTime, dict),
     Meqf_(quadrature.moments().size(), momentOrders_),
     Meq_(quadrature.moments().size(), momentOrders_)
 {
@@ -320,7 +320,7 @@ Foam::scalar
 Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 ::explicitCollisionSource(const label mi, const label celli) const
 {
-    return (quadrature_.moments()[mi][celli] - Meq_[mi])/tauCollisional_.value();
+    return (Meq_[mi] - quadrature_.moments()[mi][celli])/tauCollisional_.value();
 }
 
 Foam::tmp<Foam::fvScalarMatrix>

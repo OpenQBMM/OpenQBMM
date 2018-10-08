@@ -79,11 +79,11 @@ PIMPLE
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
     pRefValue 1e5;
-    residualControl
+    outerCorrectorResidualControl
     {
         p_rgh
         {
-            tolerance 1e-4;
+            tolerance 1e-5;
             relTol    0;
         }
     }

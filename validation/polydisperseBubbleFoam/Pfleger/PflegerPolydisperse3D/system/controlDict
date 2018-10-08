@@ -17,7 +17,7 @@ FoamFile
 
 application     polydisperseBubbleFoam;
 
-startFrom       startTime;
+startFrom       latestTime;
 
 startTime       0;
 
@@ -25,7 +25,7 @@ stopAt          endTime;
 
 endTime         250;
 
-deltaT          1e-3;
+deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 
@@ -57,7 +57,7 @@ functions
     {
         type            fieldAverage;
         functionObjectLibs ( "libfieldFunctionObjects.so" );
-        outputControl   outputTime;
+        writeControl    outputTime;
         timeStart       50;
         fields
         (

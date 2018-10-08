@@ -313,7 +313,7 @@ while (pimple.correct())
             fvc::div(phiHbyA)
           - fvm::laplacian(rAUf, p_rgh)
          ==
-            AGmodel.ddtAlphaDilute()
+          - AGmodel.ddtAlphaDilute()
         );
 
         solve

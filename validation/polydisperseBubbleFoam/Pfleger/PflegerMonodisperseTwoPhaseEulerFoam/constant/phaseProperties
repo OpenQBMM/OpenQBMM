@@ -27,7 +27,7 @@ air
         d               2e-3;
     }
 
-    residualAlpha   1e-4;
+    residualAlpha   1e-5;
 }
 
 water
@@ -39,7 +39,7 @@ water
         d               1e-4;
     }
 
-    residualAlpha   1e-4;
+    residualAlpha   1e-6;
 }
 
 blending
@@ -131,7 +131,7 @@ turbulentDispersion
 );
 
 // Minimum allowable pressure
-pMin            10000;
+pMin            1000;
 
 
 // ************************************************************************* //

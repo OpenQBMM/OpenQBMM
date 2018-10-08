@@ -17,7 +17,7 @@ FoamFile
 
 application     polydisperseBubbleFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 
@@ -82,7 +82,7 @@ functions
                  base        time;
             }
 
-            p_rgh
+            p
             {
                  mean        on;
                  prime2Mean  off;
@@ -109,7 +109,7 @@ functions
 
         fields
         (
-            p_rgh
+            p
         );
     }
 }

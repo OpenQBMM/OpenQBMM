@@ -17,7 +17,7 @@ FoamFile
 
 application     polydisperseBubbleFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 
@@ -35,7 +35,7 @@ purgeWrite      100;
 
 writeFormat     ascii;
 
-writePrecision  6;
+writePrecision  8;
 
 writeCompression uncompressed;
 
@@ -82,7 +82,7 @@ functions
                  base        time;
             }
 
-            p_rgh
+            p
             {
                  mean        on;
                  prime2Mean  off;
@@ -110,7 +110,7 @@ functions
 
         fields
         (
-            p_rgh
+            p
         );
     }
 }

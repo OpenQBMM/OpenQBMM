@@ -16,6 +16,6 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dilutePhase particles;
-rhop    rhop    [1 -3 0 0 0 0 0] 2500;
-d       d       [0 1 0 0 0 0 0] 300e-6;
+rhop    2500;
+d       300e-6;
 e       0.9;

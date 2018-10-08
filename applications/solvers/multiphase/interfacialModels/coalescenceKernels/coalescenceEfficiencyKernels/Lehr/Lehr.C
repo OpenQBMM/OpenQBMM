@@ -65,6 +65,17 @@ Lehr
             dimVelocity,
             0.08
         )
+    ),
+    epsilonf_
+    (
+        IOobject
+        (
+            "Lehr:epsilonf",
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
     )
 {}
 
@@ -77,6 +88,12 @@ Foam::coalescenceEfficiencyKernels::Lehr::
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::coalescenceEfficiencyKernels::Lehr::update()
+{
+    epsilonf_ = fluid_.phase2().turbulence().epsilon();
+}
+
 
 Foam::tmp<Foam::volScalarField>
 Foam::coalescenceEfficiencyKernels::Lehr::Pc
@@ -95,7 +112,7 @@ Foam::coalescenceEfficiencyKernels::Lehr::Pc
             uCrit_
            /max
             (
-                1.414*cbrt(fluid_.phase2().turbulence().epsilon())
+                1.414*cbrt(epsilonf_)
                *sqrt(pow(d1, 2/3) + pow(d2, 2/3)),
                 mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
             ),
@@ -111,6 +128,55 @@ Foam::coalescenceEfficiencyKernels::Lehr::Pc
             (
                 mag(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej)),
                 dimensionedScalar("smallVelocity", dimVelocity, 1e-10)
+            ),
+            1.0
+        );
+    }
+}
+
+
+Foam::scalar
+Foam::coalescenceEfficiencyKernels::Lehr::Pc
+(
+    const label celli,
+    const label nodei,
+    const label nodej
+) const
+{
+    scalar d1 = fluid_.phase1().ds(nodei)[celli];
+    scalar d2 = fluid_.phase1().ds(nodej)[celli];
+
+    if (turbulence_)
+    {
+        return max
+        (
+            uCrit_.value()
+           /max
+            (
+                1.414*cbrt(epsilonf_[celli])
+               *sqrt(pow(d1, 2/3) + pow(d2, 2/3)),
+                mag
+                (
+                    fluid_.phase1().Us(nodei)[celli]
+                  - fluid_.phase1().Us(nodej)[celli]
+                )
+            ),
+            1.0
+        );
+    }
+    else
+    {
+        return max
+        (
+            uCrit_.value()
+           /max
+            (
+                mag
+                (
+                    fluid_.phase1().Us(nodei)[celli]
+                  - fluid_.phase1().Us(nodej)[celli]
+                ),
+                1e-10
             ),
             1.0
         );

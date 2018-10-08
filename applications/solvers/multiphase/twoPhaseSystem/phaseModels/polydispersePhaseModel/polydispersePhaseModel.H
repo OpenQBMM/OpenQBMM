@@ -76,9 +76,6 @@ class polydispersePhaseModel
         //- QuadratureApproximation
         monoKineticQuadratureApproximation quadrature_;
 
-        //- Relative change in first size moment
-        volScalarField ddtM1_;
-
         //- Number of nodes
         const label nNodes_;
 
@@ -116,6 +113,29 @@ class polydispersePhaseModel
             populationBalanceSubModels::daughterDistribution
         > daughterDistribution_;
 
+        // ODE Coefficients
+
+            //- Minimum local ode delta t
+            scalar minLocalDt_;
+
+            //- Stored field of time steps
+            scalarField localDt_;
+
+            //- Absolute tolerance of the abscissae
+            scalar ATol_;
+
+            //- Relative tolerance
+            scalar RTol_;
+
+            //- maximum increase factor in time step
+            scalar facMax_;
+
+            //- Maximum decrease factor in time step
+            scalar facMin_;
+
+            //- Precentage of error based time step
+            scalar fac_;
+
 
     // Private member functions
 
@@ -123,17 +143,16 @@ class polydispersePhaseModel
         void updateVelocity();
 
         //- Coalesence source
-        tmp<volScalarField> coalescenceSource(const label momentOrder);
+        scalar coalescenceSource(const label celli, const label momentOrder);
+
+        //- Coalesence source
+        vector coalescenceSourceU(const label celli, const label momentOrder);
 
         //- Breakup source
-        tmp<volScalarField> breakupSource(const label momentOrder);
+        scalar breakupSource(const label celli, const label momentOrder);
 
-        //- Return daughterDistribution
-        tmp<volScalarField> daughterDistribution
-        (
-            const label momentOrder,
-            const volScalarField& abscissa
-        );
+        //- Breakup source
+        vector breakupSourceU(const label celli, const label momentOrder);
 
         //- Solve ode for breakup and coalescnce
         void solveSourceOde();

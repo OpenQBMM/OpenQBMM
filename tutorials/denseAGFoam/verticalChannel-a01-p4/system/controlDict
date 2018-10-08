@@ -25,7 +25,7 @@ stopAt          endTime;
 
 endTime         4.04;
 
-deltaT          1e-3;
+deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 

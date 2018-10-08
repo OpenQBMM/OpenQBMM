@@ -54,10 +54,9 @@ namespace kineticTheoryModels
 /*---------------------------------------------------------------------------*\
                            Class anisotropicGaussian Declaration
 \*---------------------------------------------------------------------------*/
-template<class baseModel>
 class anisotropicGaussian
 :
-    public baseModel
+    public kineticTheoryModel
 {
     // Private data
 
@@ -144,11 +143,6 @@ public:
 } // End namespace kineticTheoryModels
 } // End namespace Foam
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#ifdef NoRepository
-    #include "anisotropicGaussian.C"
-#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
