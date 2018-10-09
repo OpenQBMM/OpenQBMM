@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.3.x                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -30,14 +30,13 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (28 100 1)//(56 200 40)
+    hex (0 1 2 3 4 5 6 7) (28 100 1)
     simpleGrading
     (
         (
-            (   0.0621352389 0.107142857143 5)    // 20% y-dir, 30% cells, expansion = 4
-            (   0.8757295222 0.785714285714 1)    // 60% y-dir, 40% cells, expansion = 1
+            (   0.0621352389 0.107142857143 5)  // 20% y-dir, 30% cells, exp = 4
+            (   0.8757295222 0.785714285714 1)  // 60% y-dir, 40% cells, exp = 1
             1
-            //(   0.0621352389 0.107142857143 0.2)  // 20% y-dir, 30% cells, expansion = 0.25 (1/4)
         )
 	    1                  // y-direction expansion ratio
         1                  // z-direction expansion ratio
