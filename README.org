@@ -25,16 +25,20 @@
 
 * OpenQBMM Developments on quadrature-based moment methods
   This repository contains developments originated from the OpenQBMM project,
-  contributed by Prof. Alberto Passalacqua, Prof. Rodney O. Fox and 
-  Dr. Simanta Mitra at Iowa State University. These contributions are being 
+  contributed by Prof. Alberto Passalacqua, Prof. Rodney O. Fox and
+  Dr. Simanta Mitra at Iowa State University. These contributions are being
   evaluated and not yet included the main OpenFOAM-dev repository.
 
   This work includes the implementation of quadrature-based moment methods
-  for the solution of generalized population balance equations, including the 
-  traditional quadrature method of moments and the extended quadrature method 
+  for the solution of generalized population balance equations, including the
+  traditional quadrature method of moments and the extended quadrature method
   of moments for univariate problems. The conditional quadrature method of
   moments and its hyperbolic version are also available for multivariate
   problems.
+
+  The development of the OpenQBMM solver suite is sponsored by the National
+  Science Foundation of the United States, under the SI2 – SSE award
+  NSF – ACI 1440443.
 
 * [[https://openfoam.org/resources][Documentation]]
 * [[https://cpp.openfoam.org/dev][Source code documentation]]
