@@ -10,36 +10,36 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    location    "0";
-    object      alpha.air;
+    object      T.gas;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
+dimensions          [0 0 0 1 0 0 0];
 
-internalField   uniform 1.0;
+internalField       uniform 300;
 
 boundaryField
 {
-    inlet
+    walls
     {
-        type            fixedValue;
-        value           uniform 0.076;
+        type               zeroGradient;
     }
     outlet
     {
-        type            inletOutlet;
-        phi             phi.air;
-        inletValue      uniform 1.0;
+        type               inletOutlet;
+        phi                phi.gas;
+        inletValue         uniform 300;
+        value              uniform 300;
     }
-    walls
+    inlet
     {
-        type            zeroGradient;
+        type               fixedValue;
+        value              uniform 300;
     }
-    defaultFaces
+    frontAndBackPlanes
     {
         type    empty;
     }
 }
 
-// ************************************************************************* //
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
