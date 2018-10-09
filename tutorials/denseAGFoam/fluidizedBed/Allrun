@@ -3,7 +3,7 @@ cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
 
-org="0.org"
+org="0"
 const="constant"
 system="system"
 dyn="dynamicCode"
@@ -25,9 +25,6 @@ do
         fi
     fi
 done
-
-mkdir 0
-cp 0.org/* 0/
 
 setFields
 decomposePar
