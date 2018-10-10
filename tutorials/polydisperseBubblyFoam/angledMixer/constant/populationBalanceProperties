@@ -45,7 +45,7 @@ daughterDistribution
 
 odeCoeffs
 {
-    ATol    1.0e-8;
+    ATol    1.0e-6;
     RTol    1.0e-4;
     fac     0.5;
     facMin  0.1;
