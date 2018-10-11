@@ -69,7 +69,7 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
     ),
     turbulent_(dict.lookupOrDefault("turbulentCoalescence", false)),
     buoyant_(dict.lookupOrDefault("buoyantCoalescence", true)),
-    LS_(dict.lookupOrDefault("laminarShearCoalescence", true))
+    LS_(dict.lookupOrDefault("laminarShearCoalescence", false))
 {}
 
 
@@ -83,7 +83,9 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::~PrinceAndBlanch()
 
 void Foam::coalescenceFrequencyKernels::PrinceAndBlanch::update()
 {
-    epsilonf_ = fluid_.phase2().turbulence().epsilon();
+    const phaseModel& phase(fluid_.phase1());
+    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
+    epsilonf_ = phase.nu()*(S && S);
     epsilonf_.max(SMALL);
 }
 
@@ -137,12 +139,13 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
     }
     if (LS_)
     {
-        freqSrc == freqSrc
-          + 1.0/6.0*pow3(d1 + d2)
-           *mag
-            (
-                fvc::grad(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
-            );
+        NotImplemented;
+//         freqSrc == freqSrc
+//           + 1.0/6.0*pow3(d1 + d2)
+//            *mag
+//             (
+//                 fvc::grad(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
+//             );
     }
     return tmpFreqSrc;
 }
@@ -186,7 +189,8 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
 //             1.0/6.0*pow3(d1 + d2)
 //            *mag
 //             (
-//                 fvc::grad(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
+//                 fluid_.phase1().Us(nodei)[celli]
+//               - fluid_.phase1().Us(nodej)[celli]
 //             );
     }
     return freqSrc;

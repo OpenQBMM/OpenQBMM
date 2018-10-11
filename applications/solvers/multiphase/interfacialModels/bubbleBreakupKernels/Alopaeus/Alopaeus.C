@@ -110,8 +110,11 @@ Foam::bubbleBreakupKernels::Alopaeus::~Alopaeus()
 
 void Foam::bubbleBreakupKernels::Alopaeus::update()
 {
-    epsilonf_ = fluid_.phase2().turbulence().epsilon();
+    const phaseModel& phase(fluid_.phase1());
+    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
+    epsilonf_ = phase.nu()*(S && S);
     epsilonf_.max(SMALL);
+
     muf_ = fluid_.phase2().mu();
 }
 
