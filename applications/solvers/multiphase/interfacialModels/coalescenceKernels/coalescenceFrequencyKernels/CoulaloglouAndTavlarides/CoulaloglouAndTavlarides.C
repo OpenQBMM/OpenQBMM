@@ -26,7 +26,6 @@ License
 #include "CoulaloglouAndTavlarides.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

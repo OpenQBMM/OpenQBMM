@@ -115,8 +115,6 @@ void Foam::bubbleBreakupKernels::Alopaeus::update()
     epsilonf_ = phase.nu()*(S && S);
     epsilonf_.max(SMALL);
 
-
-
     muf_ = fluid_.phase2().mu();
 }
 

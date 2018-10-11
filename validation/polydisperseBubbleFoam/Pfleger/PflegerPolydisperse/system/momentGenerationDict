@@ -58,13 +58,13 @@ air
         node1
         {
             rho     1.40;
-            dia     2.5e-3;
+            dia     2.0e-3;
             alpha   0.34;
         }
         node2
         {
             rho     1.40;
-            dia     4.0e-3;
+            dia     3.0e-3;
             alpha   0.33;
         }
     }
@@ -79,13 +79,13 @@ air
         node1
         {
             rho     1.40;
-            dia     2.5e-3;
+            dia     2.0e-3;
             alpha   0.34;
         }
         node2
         {
             rho     1.40;
-            dia     4.0e-3;
+            dia     3.0e-3;
             alpha   0.33;
         }
     }

@@ -39,6 +39,7 @@ SourceFiles
 #include "volFields.H"
 #include "dimensionedTypes.H"
 #include "runTimeSelectionTables.H"
+#include "fvc.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
