@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -38,7 +38,7 @@ SourceFiles
 #include "univariatePDFTransportModel.H"
 #include "mixingModel.H"
 #include "mixingKernel.H"
-#include "diffusionModel.H"
+#include "mixingDiffusionModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -70,7 +70,7 @@ class turbulentMixing
         //- Diffusion model
         autoPtr
         <
-            Foam::mixingSubModels::diffusionModel
+            Foam::mixingSubModels::mixingDiffusionModel
         > diffusionModel_;
 
     // Private member functions

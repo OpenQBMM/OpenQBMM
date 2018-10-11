@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -147,9 +147,6 @@ public:
         //- Returns beta coefficients of the recurrence relation
         inline scalarList& betaRecurrence();
 
-//         //- Returns zeta_k values for the moment set
-//         inline const scalarList& zetas() const;
-
         //- Returns zeta_k values for the moment set
         inline scalarList& zetas();
 
@@ -200,9 +197,23 @@ public:
             const scalarList& abscissae
         );
 
-        inline scalar& operator[](const label);
+        //- Const access to element
+        inline const scalar& operator[](const label index) const;
 
-        inline const scalar& operator[](const label) const;
+        //- Non-const access to element, reinitializing realizaibility check
+        inline scalar& operator[](const label index);
+
+        //- Const access to the moment of order momentOrder
+        inline const scalar& operator()(const label momentOrder) const;
+
+        //- Non-const access to the moment of order momentOrder
+        inline scalar& operator()(const label momentOrder);
+
+        //- Resizes moment set
+        void resize(const label newSize);
+
+        //- Set size of moment set
+        void setSize(const label newSize);
 };
 
 

@@ -54,10 +54,9 @@ namespace kineticTheoryModels
 /*---------------------------------------------------------------------------*\
                            Class anisotropicGaussian Declaration
 \*---------------------------------------------------------------------------*/
-template<class baseModel>
 class anisotropicGaussian
 :
-    public baseModel
+    public kineticTheoryModel
 {
     // Private data
 
@@ -73,6 +72,9 @@ class anisotropicGaussian
 
         //- Switching function
 	    volScalarField  h2Fn_;
+
+        //- Particle frictional pressure
+        volScalarField PsFric_;
 
         //- Second order velocity moment tensor
         volSymmTensorField Sigma_;
@@ -144,11 +146,6 @@ public:
 } // End namespace kineticTheoryModels
 } // End namespace Foam
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#ifdef NoRepository
-    #include "anisotropicGaussian.C"
-#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     univariateMomentSet m
     (
         nMoments,
-        "01",
+        "RPlus",
         0,
         1
     );

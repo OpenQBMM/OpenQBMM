@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         Gauss linear;
+    default         faceLimited leastSquares 1;
 }
 
 divSchemes

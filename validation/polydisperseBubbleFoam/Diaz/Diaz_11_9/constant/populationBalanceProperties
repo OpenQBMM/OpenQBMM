@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -40,6 +40,16 @@ breakupKernel
 daughterDistribution
 {
     daughterDistribution uniform;
+}
+
+odeCoeffs
+{
+    ATol    1.0e-10;
+    RTol    1.0e-4;
+    fac     0.9;
+    facMin  0.5;
+    facMax  2.0;
+    minLocalDt 1.0e-7;
 }
 
 // ************************************************************************* //

@@ -1,0 +1,15 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # run from this directory
+set -x
+
+wclean conditionalMomentInversion
+wclean eigenSolver
+wclean extendedMomentInversion
+wclean populationBalanceModel
+wclean univariateMomentInversion
+wclean univariateQuadratureApproximation
+wclean Vandermonde
+wclean univariateMomentAdvection/setMoments1D
+wclean univariateMomentAdvection/setMoments2D
+
+# ----------------------------------------------------------------- end-of-file

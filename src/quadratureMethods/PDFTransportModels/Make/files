@@ -1,4 +1,5 @@
 PDFTransportModel/PDFTransportModel.C
 univariatePDFTransportModel/univariatePDFTransportModel.C
+velocityPDFTransportModel/velocityPDFTransportModel.C
 
 LIB = $(FOAM_USER_LIBBIN)/libPDFTransportModel

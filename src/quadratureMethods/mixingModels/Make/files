@@ -1,14 +1,15 @@
 mixingModel/mixingModel.C
 mixingModel/newMixingModel.C
 
-mixingSubModels/diffusionModels/diffusionModel/diffusionModel.C
-mixingSubModels/diffusionModels/diffusionModel/newDiffusionModel.C
+mixingSubModels/diffusionModels/mixingDiffusionModel/mixingDiffusionModel.C
+mixingSubModels/diffusionModels/mixingDiffusionModel/newMixingDiffusionModel.C
 mixingSubModels/diffusionModels/noDiffusion/noDiffusion.C
 mixingSubModels/diffusionModels/turbulentDiffusion/turbulentDiffusion.C
 mixingSubModels/diffusionModels/molecularDiffusion/molecularDiffusion.C
 
 mixingSubModels/mixingKernels/mixingKernel/mixingKernel.C
 mixingSubModels/mixingKernels/mixingKernel/newMixingKernel.C
+mixingSubModels/mixingKernels/noMixingKernel/noMixingKernel.C
 mixingSubModels/mixingKernels/IEM/IEM.C
 mixingSubModels/mixingKernels/FokkerPlanck/FokkerPlanck.C
 

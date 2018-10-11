@@ -1,0 +1,17 @@
+univariate/basic/univariateMomentInversion/univariateMomentInversion.C
+univariate/basic/univariateMomentInversion/newUnivariateMomentInversion.C
+univariate/basic/gaussMomentInversion/gaussMomentInversion.C
+univariate/basic/gaussLobattoMomentInversion/gaussLobattoMomentInversion.C
+univariate/basic/gaussRadauMomentInversion/gaussRadauMomentInversion.C
+univariate/basic/hyperbolicMomentInversion/hyperbolicMomentInversion.C
+
+univariate/extended/extendedMomentInversion/extendedMomentInversion.C
+univariate/extended/extendedMomentInversion/newExtendedMomentInversion.C
+univariate/extended/gamma/gammaEQMOM.C
+univariate/extended/lognormal/lognormalEQMOM.C
+univariate/extended/beta/betaEQMOM.C
+
+multivariate/conditional/conditionalMomentInversion.C
+multivariate/hyperbolic/hyperbolicConditionalMomentInversion.C
+
+LIB = $(FOAM_USER_LIBBIN)/libmomentInversion

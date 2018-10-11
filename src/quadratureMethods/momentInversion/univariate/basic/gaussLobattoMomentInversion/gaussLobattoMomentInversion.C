@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -77,7 +77,8 @@ void Foam::gaussLobattoMomentInversion::correctRecurrence
 
         for (label i = 1; i < nNodes_ - 1; i++)
         {
-            p = (minKnownAbscissa - alpha[i])*p1 - beta[i]*pMinus1;
+            p = (minKnownAbscissa - alpha[i])*p1
+                - beta[i]*pMinus1;
 
             pMinus1 = p1;
             p1 = p;

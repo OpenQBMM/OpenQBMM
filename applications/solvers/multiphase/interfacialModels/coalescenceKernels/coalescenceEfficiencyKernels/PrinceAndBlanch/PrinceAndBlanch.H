@@ -28,14 +28,10 @@ Description
     Coalesence efficiency based on film drainage and rupture times.
 
     \f[
-        P_c =
-            \text{exp}
-            \left(
-              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
-                \left(
-                    \frac{d_i^{1/3} d_j^{1/3}}{d_i^{1/3} + d_j^{1/3}}
-                \right)
-            \right)
+        P_c = \mathrm{exp}\left(\frac{t_{ij}}{\tau_{ij}}\right)
+        t_{ij} = \sqrt{frac{\rho_f r_{ij}^3}{16 \sigma}} ln(\frac{h_0}{h_f})
+        \tau_{ij} = \frac{r_{ij}^{2/3}}{\epsilon_f^{1/3}}
+        r_{ij} = \frac{1}{2} \left(\frac{1}{r_i} + \frac{1}{r_j} \right)^{-1}
     \f]
 
     where
@@ -44,18 +40,19 @@ Description
         \sigma      |  Surface tension
         \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
-        d_i         |  Diameter of bubble i [m]
-        d_j         |  Diameter of bubble j [m]
+        \h_f        |  Film thickness [m]
+        \h_0        |  Initial film thickness [m]
+        r_i         |  Radius of bubble i [m]
+        r_j         |  Radius of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "Description of interaction processes in agitated liquid-liquid
-        dis[ersions"
-        C Coulaloglou, L Tavlarides
-        Chemical Engineering Science
-        Volume 32, Pages 1289-1297, 1977
+        "Bubble Coalescence and Break-up n Air-Sparged Bubble Columns"
+         M Prince and Harvey Blanch
+         M. J. Prince, H. W. Blanch
+         AIChE Journal
+         Volume 36, Pages 1485 - 1499, 1990
     \endverbatim
 
 SourceFiles
@@ -97,6 +94,9 @@ class PrinceAndBlanch
         //- Critical film thickness
         dimensionedScalar hf_;
 
+        //- Turbulent dissipation
+        volScalarField epsilonf_;
+
 
 public:
 
@@ -120,9 +120,20 @@ public:
 
     // Member Functions
 
+        //- Update fields
+        virtual void update();
+
         //- Aggregation kernel
         virtual tmp<volScalarField> Pc
         (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        //- Aggregation kernel
+        virtual scalar Pc
+        (
+            const label celli,
             const label nodei,
             const label nodej
         ) const;

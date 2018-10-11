@@ -75,7 +75,8 @@ Foam::populationBalanceSubModels::growthModels::constantGrowth
 Foam::scalar
 Foam::populationBalanceSubModels::growthModels::constantGrowth::Kg
 (
-    const scalar& abscissa
+    const scalar& abscissa,
+    const label environment
 ) const
 {
     return Cg_.value()*pos0(-abscissa + maxAbscissa_.value())

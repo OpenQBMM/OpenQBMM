@@ -3,9 +3,9 @@ EXE_INC = \
     -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
-    -I$../../../src/quadratureMethods/momentSets/lnInclude \
-    -I$../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude \
-    -I$../../../src/quadratureMethods/momentInversion/univariate/extended/lnInclude
+    -I../../src/mappedList \
+    -I../../src/quadratureMethods/momentSets/lnInclude \
+    -I../../src/quadratureMethods/momentInversion/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
@@ -15,4 +15,4 @@ EXE_LIBS = \
     -lsampling \
     -lmomentSets \
     -lmomentInversion \
-    -lextendedMomentInversion
+    -lvandermonde

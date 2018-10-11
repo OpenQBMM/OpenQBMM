@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -30,13 +30,15 @@ License
 Foam::momentSet::momentSet
 (
     const label nMoments,
+    const label nDimensions,
     const labelListList& momentOrders,
     const word& support,
     const scalar initValue
 )
 :
-    scalarList(nMoments, initValue),
+    mappedList(nMoments, momentOrders, initValue),
     nMoments_(nMoments),
+    nDimensions_(nDimensions),
     momentOrders_(momentOrders),
     support_(support)
 {
@@ -48,17 +50,27 @@ Foam::momentSet::momentSet
             << "    Moment set: " << (*this)
             << abort(FatalError);
     }
+
+    if (nDimensions_ > 5)
+    {
+        FatalErrorInFunction
+            << "The number of maximum dimensions for the NDF is 5." << nl
+            << "    Specified number of dimensions: " << nDimensions_
+            << abort(FatalError);
+    }
 }
 
 Foam::momentSet::momentSet
 (
     const scalarList& m,
+    const label nDimensions,
     const labelListList& momentOrders,
     const word& support
 )
 :
-    scalarList(m),
+    mappedList(m, momentOrders),
     nMoments_(m.size()),
+    nDimensions_(nDimensions),
     momentOrders_(momentOrders),
     support_(support)
 {
@@ -69,6 +81,15 @@ Foam::momentSet::momentSet
             << "    Valid supports are: R, RPlus and 01."
             << abort(FatalError);
     }
+
+
+    if (nDimensions_ > 5)
+    {
+        FatalErrorInFunction
+            << "The number of maximum dimensions for the NDF is 5." << nl
+            << "    Specified number of dimensions: " << nDimensions_
+            << abort(FatalError);
+    }
 }
 
 
@@ -76,5 +97,18 @@ Foam::momentSet::momentSet
 
 Foam::momentSet::~momentSet()
 {}
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void Foam::momentSet::setSize(const label newSize)
+{
+    Foam::mappedList<scalar>::setSize(newSize);
+    nMoments_ = newSize;
+}
+
+void Foam::momentSet::resize(const label newSize)
+{
+    (*this).setSize(newSize);
+}
 
 // ************************************************************************* //

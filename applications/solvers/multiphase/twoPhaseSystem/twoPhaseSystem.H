@@ -5,7 +5,7 @@
     \\  /    A nd           | Copyright (C) 2013-2017 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2017-05-26 Jeff Heylmun:    Added support of pdPhaseModel
+2017-05-26 Jeff Heylmun:    Added support of polydispersePhaseModel
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -226,6 +226,18 @@ public:
 
         // Access
 
+            //- Access a sub model between a phase pair
+            template<class modelType>
+            const modelType& lookupSubModel(const phasePair& key) const;
+
+            //- Access a sub model between two phases
+            template<class modelType>
+            const modelType& lookupSubModel
+            (
+                const phaseModel& dispersed,
+                const phaseModel& continuous
+            ) const;
+
             //- Return the drag model for the given phase
             const dragModel& drag(const phaseModel& phase) const;
 
@@ -289,6 +301,12 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include "twoPhaseSystemI.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#ifdef NoRepository
+    #include "twoPhaseSystemTemplates.C"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

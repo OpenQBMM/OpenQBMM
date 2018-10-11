@@ -113,7 +113,8 @@ public:
         //- Growth model
         virtual scalar Kg
         (
-            const scalar& abscissa
+            const scalar& abscissa,
+            const label environment = 0
         ) const = 0;
 };
 

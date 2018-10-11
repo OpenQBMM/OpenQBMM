@@ -1,11 +1,12 @@
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I$../../../src/quadratureMethods/momentSets/lnInclude \
-    -I$../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude
+    -I../../src/mappedList \
+    -I../../src/quadratureMethods/momentSets/lnInclude \
+    -I../../src/quadratureMethods/momentInversion/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
 	-lfiniteVolume \
+	-lvandermonde \
 	-lmomentSets \
 	-lmomentInversion
-

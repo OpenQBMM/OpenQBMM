@@ -2,6 +2,5 @@
         (
             "populationBalance",
             mesh,
-            "RPlus",
-            1
+            "RPlus"
         );

@@ -96,9 +96,20 @@ public:
 
     // Member Functions
 
+        //- Update fields
+        void update();
+
         //- Coalescence kernel
         tmp<volScalarField> Ka
         (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        //- Coalescence kernel for a cell
+        scalar Ka
+        (
+            const label celli,
             const label nodei,
             const label nodej
         ) const;

@@ -168,4 +168,24 @@ Foam::scalar Foam::lognormalEQMOM::sigmaMax(univariateMomentSet& moments)
     return sigmaZeta1;
 }
 
+Foam::tmp<Foam::scalarField> Foam::lognormalEQMOM::f(const scalarField& x) const
+{
+    tmp<scalarField> tmpY
+    (
+        new scalarField(x.size(), 0.0)
+    );
+    
+    scalarField& y = tmpY.ref();
+
+    for (label pNodei = 0; pNodei < nPrimaryNodes_; pNodei++)
+    {
+        y +=
+            exp(-sqr(log(x) - log(primaryAbscissae_[pNodei]))/(2.0*sqr(sigma_)))
+           /(x*sigma_*sqrt(2.0*Foam::constant::mathematical::pi))
+           *primaryWeights_[pNodei];
+    }
+
+    return tmpY;
+}
+
 // ************************************************************************* //

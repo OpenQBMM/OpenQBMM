@@ -40,6 +40,7 @@ License
 #include "fixedValueFvsPatchFields.H"
 #include "blendingMethod.H"
 #include "HashPtrTable.H"
+#include "UniformField.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -491,7 +492,7 @@ Foam::twoPhaseSystem::F(const label nodei) const
     return
         lift_->F<vector>(nodei, 0)
       + wallLubrication_->F<vector>(nodei, 0)
-      + bubblePressure_->F<vector>(nodei, 0)
+      - bubblePressure_->F<vector>(nodei, 0)
 
       // Force due to deviation from mean velocity
       - Kd(nodei)*phase1_->Vs(nodei)
@@ -553,7 +554,7 @@ Foam::twoPhaseSystem::Ff(const label nodei) const
     return
         lift_->Ff(nodei, 0)
       + wallLubrication_->Ff(nodei, 0)
-      + bubblePressure_->Ff(nodei, 0)
+      - bubblePressure_->Ff(nodei, 0)
 
       // Force due to deviation from mean velocity
       + fvc::flux
@@ -791,8 +792,8 @@ void Foam::twoPhaseSystem::solve()
                     alphaPhic10,
                     (alphaSubCycle.index()*Sp)(),
                     (Su - (alphaSubCycle.index() - 1)*Sp*alpha1)(),
-                    phase1_->alphaMax(),
-                    0
+                    UniformField<scalar>(phase1_->alphaMax()),
+                    zeroField()
                 );
 
                 if (alphaSubCycle.index() == 1)
@@ -817,8 +818,8 @@ void Foam::twoPhaseSystem::solve()
                 alphaPhic1,
                 Sp,
                 Su,
-                phase1_->alphaMax(),
-                0
+                UniformField<scalar>(phase1_->alphaMax()),
+                zeroField()
             );
 
             phase1_->alphaPhi() = alphaPhic1;
@@ -866,12 +867,23 @@ void Foam::twoPhaseSystem::relativeTransport()
     if (nNodes_ > 1)
     {
         phase1_->relativeTransport();
+        phi_ = phase1_->alphaPhi() + phase2_->alphaPhi();
     }
 }
 
 
 void Foam::twoPhaseSystem::averageTransport()
 {
+    PtrList<fvVectorMatrix> AEqns(nNodes_);
+
+    if (nNodes_ == 1)
+    {
+        phase1_->averageTransport(AEqns);
+        phase1_->correct();
+
+        return;
+    }
+
     // Liquid viscous stress
     volSymmTensorField taul(phase2_->turbulence().devRhoReff());
 
@@ -883,7 +895,6 @@ void Foam::twoPhaseSystem::averageTransport()
       - fvc::div(phase2_->phi())*phase2_->U()
     );
 
-    PtrList<fvVectorMatrix> AEqns(nNodes_);
     for (label nodei = 0; nodei < nNodes_; nodei++)
     {
         //  Build matrix to solve for velocity abscissae due to interfacial
@@ -929,15 +940,17 @@ void Foam::twoPhaseSystem::averageTransport()
             )
 
             // Dispersion, lift, wall lubrication, and bubble pressure
-          + turbulentDispersion_->F<vector>(nodei, 0)
-          + lift_->F<vector>(nodei, 0)
-          + wallLubrication_->F<vector>(nodei, 0)
+          - turbulentDispersion_->F<vector>(nodei, 0)
+          - lift_->F<vector>(nodei, 0)
+          - wallLubrication_->F<vector>(nodei, 0)
           + bubblePressure_->F<vector>(nodei, 0);
 
     }
 
     phase1_->averageTransport(AEqns);
     phase1_->correct();
+
+    phi_ = phase1_->alphaPhi() + phase2_->alphaPhi();
 }
 
 

@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -76,26 +76,26 @@ PIMPLE
     {
         p_rgh           
         {
-            tolerance   1e-3;
-            relTol      0.01;
+            tolerance   1e-4;
+            relTol      0.001;
         }
         
         h
         {
             tolerance   1e-3;
-            relTol      0.1;
+            relTol      0.01;
         }
         
         T
         {
             tolerance   1e-3;
-            relTol      0.1;
+            relTol      0.01;
         }
 
-        "R.*" 
+        "(k|epsilon|R.*)" 
         {
-            tolerance   1e-3;
-            relTol      0.1;
+            tolerance   1e-4;
+            relTol      0.01;
         }
     }
 }

@@ -28,14 +28,10 @@ Description
     Coalesence efficiency based on film drainage and rupture times.
 
     \f[
-        P_c =
-            \text{exp}
-            \left(
-              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
-                \left(
-                    \frac{d_i^{1/3} d_j^{1/3}}{d_i^{1/3} + d_j^{1/3}}
-                \right)
-            \right)
+        P_c = max(\frac{u_\mathrm{crit}}{u'}, 1)
+        u_\mathrm{crit} = \sqrt{\frac{We_\mathrm{crit}\sigma}{\rho_f d_{eq} } }
+        u' = \mathrm{max}(\sqrt{2}(\epsilon_f \sqrt{d_i d_j})^{1/3}, |\mathbf{U}_i - mathbf{U}_j|)
+        d_{eq} = 2(\frac{1}{d_i} + \frac{1}{d_j})^{-1}
     \f]
 
     where
@@ -44,18 +40,19 @@ Description
         \sigma      |  Surface tension
         \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
         d_i         |  Diameter of bubble i [m]
         d_j         |  Diameter of bubble j [m]
+        \mathbf{U}_i|  Velocity of bubble i [m/s]
+        \mathbf{U}_j|  Velocity of bubble j [m/s]
     \endvartable
 
     References
     \verbatim
-        "Description of interaction processes in agitated liquid-liquid
-        dis[ersions"
-        C Coulaloglou, L Tavlarides
+        "A transport equation for the interfacial area density applied to bubble
+        columns"
+        F. Lehr, D. Mewes
         Chemical Engineering Science
-        Volume 32, Pages 1289-1297, 1977
+        Volume 56, Pages 1159-1166, 2001
     \endverbatim
 
 SourceFiles
@@ -94,8 +91,15 @@ class Lehr
         //- Switch if turbulence modleing is used
         Switch turbulence_;
 
+        //- Surface tension
+        dimensionedScalar sigma_;
+
         //- Critical velocity
-        dimensionedScalar uCrit_;
+        dimensionedScalar WeCrit_;
+
+        //- Turbulent dissipation
+        volScalarField epsilonf_;
+
 
 
 public:
@@ -120,9 +124,20 @@ public:
 
     // Member Functions
 
+        //- Update fields
+        virtual void update();
+
         //- Aggregation kernel
         virtual tmp<volScalarField> Pc
         (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        //- Aggregation kernel
+        virtual scalar Pc
+        (
+            const label celli,
             const label nodei,
             const label nodej
         ) const;

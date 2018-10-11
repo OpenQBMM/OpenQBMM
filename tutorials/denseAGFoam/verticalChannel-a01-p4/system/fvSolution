@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.4.0                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -19,14 +19,12 @@ solvers
 {
     "alpha.*"
     {
-        nAlphaCorr      1;
-        nAlphaSubCycles 2;
-
-        smoothLimiter   0.1;
+        nAlphaCorr      5;
+        nAlphaSubCycles 1;
 
         implicitPhasePressure yes;
         solver          GAMG;
-        smoother        DIC;
+        smoother        DILU;
         tolerance       1e-12;
         relTol          0;
         minIter         1;
@@ -43,7 +41,7 @@ solvers
         nCellsInCoarsestLevel 10;
         agglomerator    faceAreaPair;
         mergeLevels     2;
-        tolerance       1e-8;
+        tolerance       1e-10;
         maxIter         1000;
     }
 
@@ -57,7 +55,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-5;
+        tolerance       1e-6;
         relTol          0;
         minIter         1;
     }
@@ -69,13 +67,12 @@ solvers
         tolerance       1e-5;
         relTol          0;
         maxIter         0;
-        minIter         1;
     }
 
     "(Theta.*|Sigma.*)"
     {
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
+        solver          PBiCGStab;
+        preconditioner  DILU;
         tolerance       1e-6;
         relTol          0;
         minIter         1;
@@ -89,42 +86,44 @@ solvers
         relTol          0;
         minIter         1;
     }
+
+    "moment.*"
+    {
+        solver          diagonal;
+        tolerance       1e-12;
+        relTol          0;
+        minIter         1;
+    }
 }
 
 PIMPLE
 {
-    nOuterCorrectors            3;
+    nOuterCorrectors            5;
     nCorrectors                 2;
     nNonOrthogonalCorrectors    0;
     pRefCell    0;
     pRefValue   1e5;
 
-    residualControl
+    outerCorrectorResidualControl
     {
-        "alpha.*"
-        {
-                tolerance   1e-8;
-                relTol      0;
-        }
         p_rgh
         {
-                tolerance   1e-6;
-                relTol      0;
+            tolerance 1e-5;
+            relTol    0;
+        }
+        alpha.air
+        {
+            tolerance 1e-6;
+            relTol    0;
         }
     }
-
-    pRefCell        0;
-    pRefValue       1e5;
 }
 
 relaxationFactors
 {
     equations
     {
-		p                  0.6;
-		"alpha.*"          0.2;
-		"Theta.*"          0.5;
-		"Sigma.*"          1.0;
+        p_rgh           0.3;
     }
 }
 

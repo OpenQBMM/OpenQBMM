@@ -1,8 +1,14 @@
-univariateMomentAdvection/univariateMomentAdvection.C
-univariateMomentAdvection/newUnivariateMomentAdvection.C
+univariate/univariateMomentAdvection/univariateMomentAdvection.C
+univariate/univariateMomentAdvection/newUnivariateMomentAdvection.C
 
-firstOrderKinetic/firstOrderKinetic.C
-noAdvection/noAdvection.C
-zeta/zeta.C
+univariate/firstOrderKineticUnivariateAdvection/firstOrderKineticUnivariateAdvection.C
+univariate/noUnivariateAdvection/noUnivariateAdvection.C
+univariate/zetaUnivariateAdvection/zetaUnivariateAdvection.C
+
+
+velocity/velocityMomentAdvection/velocityMomentAdvection.C
+velocity/velocityMomentAdvection/newVelocityMomentAdvection.C
+
+velocity/firstOrderKineticVelocityAdvection/firstOrderKineticVelocityAdvection.C
 
 LIB = $(FOAM_USER_LIBBIN)/libmomentAdvection

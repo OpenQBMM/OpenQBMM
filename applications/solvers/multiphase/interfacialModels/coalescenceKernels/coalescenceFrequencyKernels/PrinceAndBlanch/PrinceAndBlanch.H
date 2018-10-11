@@ -62,7 +62,7 @@ Description
     References
     \verbatim
         "Bubble Coalescence and Break-up n Air-Sparged Bubble Columns"
-        M Prince and Harvey Blanch
+        M. J. Prince, H. W. Blanch
         AIChE Journal
         Volume 36, Pages 1485 - 1499, 1990
     \endverbatim
@@ -100,6 +100,9 @@ class PrinceAndBlanch
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
+        //- Turbulent dissipation
+        volScalarField epsilonf_;
+
         //- Switch for turbulence driven coalescence
         Switch turbulent_;
 
@@ -132,9 +135,20 @@ public:
 
     // Member Functions
 
+        //- Update fields
+        virtual void update();
+
         //- Aggregation kernel
         virtual tmp<volScalarField> omega
         (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        //- Aggregation kernel
+        virtual scalar omega
+        (
+            const label celli,
             const label nodei,
             const label nodej
         ) const;

@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -59,7 +59,7 @@ solvers
     {
         solver          smoothSolver;
         preconditioner  symGaussSeidel;
-        tolerance       1e-5;
+        tolerance       1e-8;
         relTol          0;
         minIter         1;
     }
@@ -75,8 +75,16 @@ solvers
 
     "moment.*"
     {
-        solver          PBiCG;
-        preconditioner  DILU;
+        solver          diagonal;
+        tolerance       1e-12;
+        relTol          0;
+        minIter         1;
+    }
+
+    "corr.*"
+    {
+        solver          PCG;
+        preconditioner  DIC;
         tolerance       1e-12;
         relTol          0;
         minIter         1;
@@ -88,13 +96,15 @@ PIMPLE
     nOuterCorrectors 5;
     nCorrectors      3;
     nNonOrthogonalCorrectors 0;
+    nFluxCorrectors 1;
+    corrPatch outlet;
     pRefCell 0;
     pRefValue 1e5;
-    residualControl
+    outerCorrectorResidualControl
     {
         p_rgh
         {
-            tolerance 1e-4;
+            tolerance 1e-5;
             relTol    0;
         }
     }
@@ -104,7 +114,7 @@ relaxationFactors
 {
     equations
     {
-        p_rgh       1.0;
+        p_rgh       0.3;
     }
 }
 

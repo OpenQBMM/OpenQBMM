@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -26,7 +26,7 @@ Class
 
 Description
     Provides storage for the moments and the corresponding quadrature
-    approximation of a univariate distribution function.
+    approximation of a distribution function.
     Methods to update the moments and the quadrature approximation are
     provided.
 
@@ -41,7 +41,7 @@ SourceFiles
 
 #include "fvCFD.H"
 #include "IOdictionary.H"
-#include "PtrList.H"
+#include "mappedPtrList.H"
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
@@ -53,7 +53,7 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                Class quadratureApproximation Declaration
+                Class univariateQuadratureApproximation Declaration
 \*---------------------------------------------------------------------------*/
 
 template <class momentFieldSetType, class nodeType>
@@ -70,8 +70,16 @@ protected:
         //- Reference to the mesh
         const fvMesh& mesh_;
 
-        //- AutoPtr to the PtrList of quadrature nodes
-        autoPtr<PtrList<nodeType>> nodes_;
+        const dictionary& dict_;
+
+        //- Moment orders used to map moments
+        const labelListList momentOrders_;
+
+        //- Node indexes used to map nodes
+        const labelListList nodeIndexes_;
+
+        //- AutoPtr to the mappedPtrList of quadrature nodes
+        autoPtr<mappedPtrList<nodeType>> nodes_;
 
         //- List of moments
         momentFieldSetType moments_;
@@ -104,10 +112,20 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const word& support,
-            const label nDimensions
+            const word& support
         );
 
+        //- Construct from dictionary name, name, momentFieldSet
+        //  Moment fields in the momentFieldSet passed as reference are
+        //  used to initialise the local copy of moments. Inversion on
+        //  creation is optional.
+        quadratureApproximation
+        (
+            const word& dictName,
+            const word& name,
+            const momentFieldSetType& mFieldSet,
+            bool calcQuadratureOnCreation = false
+        );
 
     //- Destructor
     virtual ~quadratureApproximation();
@@ -123,8 +141,11 @@ public:
             //- Extended moment inversion method
             inline fieldMomentInversion& momentFieldInverter();
 
-            //- Return the nodes
-            inline const PtrList<nodeType>& nodes() const;
+            //- Const access to the nodes
+            inline const mappedPtrList<nodeType>& nodes() const;
+
+            //- Non-Const access to the nodes
+            inline mappedPtrList<nodeType>& nodes();
 
             //- Const access to the moments
             inline const momentFieldSetType& moments() const;
@@ -137,6 +158,12 @@ public:
 
             //- Return the number of moments
             inline label nMoments() const;
+
+            //- Return moment orders
+            inline const labelListList& momentOrders() const;
+
+            //- return node indexes
+            inline const labelListList& nodeIndexes() const;
 
 
         // Edit

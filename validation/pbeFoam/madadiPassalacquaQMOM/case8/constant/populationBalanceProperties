@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -39,7 +39,7 @@ univariateCoeffs
     {
         breakupKernel powerLaw;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.01;
-        abscissaExponent 6;
+        abscissaExponent 6.0;
     }
 
     daughterDistribution
@@ -51,7 +51,7 @@ univariateCoeffs
 
     growthModel
     {
-        growthModel	constant;
+        growthModel	    constant;
         minAbscissa     minAbscissa [0 -2 0 0 0 0 0] 0.0;
         maxAbscissa     maxAbscissa [0 -2 0 0 0 0 0] 1.0;
 

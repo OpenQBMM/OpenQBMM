@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      pointDistributionDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Name of the quadrature approximation (phase for multiphase solvers)
+phases (populationBalance);
+
+populationBalance
+{
+    // Number of points where to calculate the reconstructed distribution
+    nSamples    100;
+
+    // Minimum value of the abscissa used to plot the reconstructed 
+    // distribution (it must != 0).
+    xMin 1.0e-12;
+
+    // Maximum value of the abscissa used to plot the reconstructed 
+    // distribution
+    xMax 12;
+
+    // Location where the distribution needs to be reconstructed
+    // No field specification is necessary
+    probes
+    {
+        probeLocations
+        (
+            (0.5 0.5 0.5)
+        );
+
+        fields
+        ();
+    };
+}
+// ************************************************************************* //

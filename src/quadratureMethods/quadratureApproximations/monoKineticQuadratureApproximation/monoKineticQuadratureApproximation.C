@@ -43,7 +43,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
     const word& support
 )
 :
-    quadratureApproximation(name, mesh, support, 1),
+    quadratureApproximation(name, mesh, support),
     U_
     (
         mesh_.lookupObject<volVectorField>
@@ -108,7 +108,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
                 ),
-                moments_[mi]*U_,
+                volScalarField(moments_[mi])*U_,
                 UTypes
             )
         );
@@ -518,117 +518,167 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
     updateAllMoments();
 }
 
+bool Foam::monoKineticQuadratureApproximation::updateAllLocalQuadrature
+(
+    const label celli,
+    const bool failOnRealizability
+)
+{
+    const volScalarField& m0 = moments_[0];
+    const volScalarField::Boundary m0Bf = m0.boundaryField();
+
+        //- Make sure moments are below 0 before checking if they
+    //  are small enough to be neglected
+    if
+    (
+        m0[celli] < 0
+        && mag(m0[celli]) < minM0_
+    )
+    {
+        forAll(moments_, mi)
+        {
+            moments_[mi][celli] = 0.0;
+        }
+    }
+    else if
+    (
+        moments_[1][celli] < 0
+        && mag(moments_[1][celli]) < minM1_
+    )
+    {
+        for (label mi = 1; mi < nMoments_; mi++)
+        {
+            moments_[mi][celli] = 0.0;
+        }
+    }
+
+    bool realizable = updateLocalQuadrature(celli, failOnRealizability);
+    updateLocalVelocities(celli);
+
+    updateAllLocalMoments(celli);
+
+    return realizable;
+}
+
 void Foam::monoKineticQuadratureApproximation::updateVelocities()
+{
+    forAll(moments_[0], celli)
+    {
+        updateLocalVelocities(celli);
+    }
+}
+
+void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
+(
+    const label celli
+)
 {
     const volScalarField& m0 = moments_[0];
 
-    forAll(m0, celli)
+    //- number of nodes with a non-negligable number of bubble or mass
+    label nNonZeroNodes = 0;
+    boolList nonZeroNodes(nNodes_, false);
+
+    // Check if moment.0 is large enough to be meaningful
+    if (m0[celli] > minM0_)
     {
-        //- number of nodes with a non-negligable number of bubble or mass
-        label nNonZeroNodes = 0;
-        boolList nonZeroNodes(nNodes_, false);
-
-        // Check if moment.0 is large enough to be meaningful
-        if (m0[celli] > minM0_)
+        forAll(nodes_(), nodei)
         {
-            forAll(nodes_(), nodei)
+            // Check if size moments are large enough.
+            //  If yes make matricies 1 component larger.
+            //  This is done to avoid a divide by 0 error,
+            //  and to reduce unneeded computation time
+            if
+            (
+                nodes_()[nodei].primaryWeight()[celli] > minM0_
+                && nodes_()[nodei].primaryAbscissa()[celli] > SMALL
+            )
             {
-                // Check if size moments are large enough.
-                //  If yes make matricies 1 component larger.
-                //  This is done to avoid a divide by 0 error,
-                //  and to reduce unneeded computation time
-                if
-                (
-                    nodes_()[nodei].primaryWeight()[celli] > minM0_
-                 && nodes_()[nodei].primaryAbscissa()[celli] > SMALL
-                )
-                {
-                    nonZeroNodes[nodei] = true;
-                    nNonZeroNodes++;
-                }
+                nonZeroNodes[nodei] = true;
+                nNonZeroNodes++;
+            }
+        }
+    }
+
+    if (nNonZeroNodes == 1)
+    {
+        label index = -1;
+        forAll(nonZeroNodes, nodei)
+        {
+            if (nonZeroNodes[nodei])
+            {
+                index = nodei;
+                break;
+            }
+        }
+        velocityAbscissae_[index][celli] =
+            velocityMoments_[1][celli]
+            /(
+                nodes_()[index].primaryWeight()[celli]
+                *nodes_()[index].primaryAbscissa()[celli]
+            );
+    }
+    else if (nNonZeroNodes > 1)
+    {
+        // Create invV and invR matrices outside of cmptI loop to save time
+        scalarSquareMatrix invR(nNonZeroNodes, 0.0);
+        scalarDiagonalMatrix x(nNonZeroNodes, 0.0);
+        label nodej = 0;
+        for (label nodei = 0; nodei < nNodes_; nodei++)
+        {
+            if (nonZeroNodes[nodei])
+            {
+                x[nodej] =
+                    nodes_()[nodei].primaryAbscissa()[celli];
+
+                invR[nodej][nodej] =
+                    1.0/nodes_()[nodei].primaryWeight()[celli];
+
+                nodej++;
             }
         }
 
-        if (nNonZeroNodes == 1)
+        // Invert V martix and create invVR matrix
+        Vandermonde V(x);
+        scalarRectangularMatrix invVR = invR*V.inv();
+
+        // Loop over all components of U_{\alpha}
+        for (label cmpti = 0; cmpti < vector::nComponents; cmpti++)
         {
-            label index = -1;
-            forAll(nonZeroNodes, nodei)
-            {
-                if (nonZeroNodes[nodei])
-                {
-                    index = nodei;
-                    break;
-                }
-            }
-            velocityAbscissae_[index][celli] =
-                velocityMoments_[1][celli]
-               /(
-                   nodes_()[index].primaryWeight()[celli]
-                  *nodes_()[index].primaryAbscissa()[celli]
-                );
-        }
-        else if (nNonZeroNodes > 1)
-        {
-            // Create invV and invR matrices outside of cmptI loop to save time
-            scalarSquareMatrix invR(nNonZeroNodes, 0.0);
-            scalarDiagonalMatrix x(nNonZeroNodes, 0.0);
+            scalarRectangularMatrix Upcmpt(nNonZeroNodes, 1, 0.0);
             label nodej = 0;
             for (label nodei = 0; nodei < nNodes_; nodei++)
             {
                 if (nonZeroNodes[nodei])
                 {
-                    x[nodej] =
-                        nodes_()[nodei].primaryAbscissa()[celli];
-
-                    invR[nodej][nodej] =
-                        1.0/nodes_()[nodei].primaryWeight()[celli];
-
+                    Upcmpt[nodej][0] =
+                        velocityMoments_[nodei][celli].component(cmpti);
                     nodej++;
                 }
             }
 
-            // Invert V martix and create invVR matrix
-            Vandermonde V(x);
-            scalarRectangularMatrix invVR = invR*V.inv();
-
-            // Loop over all components of U_{\alpha}
-            for (label cmpti = 0; cmpti < vector::nComponents; cmpti++)
+            // Compute U_{\alpha} cmptI component using invVR matrix
+            scalarRectangularMatrix Ucmpt = invVR*Upcmpt;
+            nodej = 0;
+            for (label nodei = 0; nodei < nNodes_; nodei++)
             {
-                scalarRectangularMatrix Upcmpt(nNonZeroNodes, 1, 0.0);
-                label nodej = 0;
-                for (label nodei = 0; nodei < nNodes_; nodei++)
+                if (nonZeroNodes[nodei])
                 {
-                    if (nonZeroNodes[nodei])
-                    {
-                        Upcmpt[nodej][0] =
-                            velocityMoments_[nodei][celli].component(cmpti);
-                        nodej++;
-                    }
-                }
-
-                // Compute U_{\alpha} cmptI component using invVR matrix
-                scalarRectangularMatrix Ucmpt = invVR*Upcmpt;
-                nodej = 0;
-                for (label nodei = 0; nodei < nNodes_; nodei++)
-                {
-                    if (nonZeroNodes[nodei])
-                    {
-                        velocityAbscissae_[nodei][celli].component(cmpti) =
-                            Ucmpt[nodej][0];
-                        nodej++;
-                    }
+                    velocityAbscissae_[nodei][celli].component(cmpti) =
+                        Ucmpt[nodej][0];
+                    nodej++;
                 }
             }
         }
+    }
 
-        // Set nodes with very small bubble mass or number to mean bubble
-        // velocity
-        for (label nodei = 0; nodei < nNodes_; nodei++)
+    // Set nodes with very small bubble mass or number to mean bubble
+    // velocity
+    for (label nodei = 0; nodei < nNodes_; nodei++)
+    {
+        if (!nonZeroNodes[nodei])
         {
-            if (!nonZeroNodes[nodei])
-            {
-                velocityAbscissae_[nodei][celli] = U_[celli];
-            }
+            velocityAbscissae_[nodei][celli] = U_[celli];
         }
     }
 }
@@ -671,6 +721,38 @@ void Foam::monoKineticQuadratureApproximation::updateVelocityMoments()
     }
 }
 
+void Foam::monoKineticQuadratureApproximation::updateLocalVelocityMoments
+(
+    const label celli
+)
+{
+    // Update velocity moments
+    forAll(velocityMoments_, mi)
+    {
+        velocityMoments_[mi][celli] = Zero;
+
+        if (mi == 0)
+        {
+            forAll(nodes_(), nodei)
+            {
+                velocityMoments_[mi][celli] +=
+                    nodes_()[nodei].primaryWeight()[celli]
+                   *velocityAbscissae_[nodei][celli];
+            }
+        }
+        else
+        {
+            forAll(nodes_(), nodei)
+            {
+                velocityMoments_[mi][celli] +=
+                    nodes_()[nodei].primaryWeight()[celli]
+                   *pow(nodes_()[nodei].primaryAbscissa()[celli], mi)
+                   *velocityAbscissae_[nodei][celli];
+            }
+        }
+    }
+}
+
 
 
 void Foam::monoKineticQuadratureApproximation::updateAllMoments()
@@ -681,4 +763,18 @@ void Foam::monoKineticQuadratureApproximation::updateAllMoments()
     // Update velocity moments
     updateVelocityMoments();
 }
+
+void Foam::monoKineticQuadratureApproximation::updateAllLocalMoments
+(
+    const label celli
+)
+{
+    // Update size moments
+    updateLocalMoments(celli);
+
+    // Update velocity moments
+    updateLocalVelocityMoments(celli);
+}
+
+
 // ************************************************************************* //

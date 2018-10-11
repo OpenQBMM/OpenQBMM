@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -22,11 +22,9 @@ solvers
         nAlphaCorr      2;
         nAlphaSubCycles 2;
 
-        smoothLimiter   0.1;
-
         implicitPhasePressure yes;
         solver          GAMG;
-        smoother        DIC;
+        smoother        DILU;
         tolerance       1e-10;
         relTol          0;
         minIter         1;
@@ -106,11 +104,16 @@ PIMPLE
     pRefCell    0;
     pRefValue   1e5;
 
-    residualControl
+    outerCorrectorResidualControl
     {
         p_rgh
         {
             tolerance 1e-5;
+            relTol    0;
+        }
+        alpha.air
+        {
+            tolerance 1e-6;
             relTol    0;
         }
     }

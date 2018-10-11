@@ -255,7 +255,7 @@ void Foam::gammaEQMOM::recurrenceRelation
         a[ai] = (2.0*scalar(ai) + alpha + 1.0);
     }
 
-    b[0] = gamma(1.0 + alpha);
+    b[0] = tgamma(1.0 + alpha);
 
     for (label bi = 1; bi < b.size(); bi++)
     {
@@ -269,6 +269,28 @@ Foam::scalar Foam::gammaEQMOM::sigmaMax(univariateMomentSet& moments)
         (moments[0]*moments[2] - moments[1]*moments[1])/(moments[0]*moments[1]);
 
     return sigmaZeta1;
+}
+
+Foam::tmp<Foam::scalarField> Foam::gammaEQMOM::f(const scalarField& x) const
+{
+    tmp<scalarField> tmpY
+    (
+        new scalarField(x.size(), 0.0)
+    );
+    scalarField& y = tmpY.ref();
+
+    for (label pNodei = 0; pNodei < nPrimaryNodes_; pNodei++)
+    {
+        scalar lambda = sqr(primaryAbscissae_[pNodei]/sigma_);
+        scalar theta = primaryAbscissae_[pNodei]/lambda;
+
+        y +=
+            pow(x, lambda - 1.0)*exp(-x/theta)
+           /max(tgamma(lambda)*pow(theta, lambda), SMALL)
+           *primaryWeights_[pNodei];
+    }
+
+    return tmpY;
 }
 
 // ************************************************************************* //

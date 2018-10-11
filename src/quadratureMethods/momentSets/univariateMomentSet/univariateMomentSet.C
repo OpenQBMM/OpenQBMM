@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -38,7 +38,8 @@ Foam::univariateMomentSet::univariateMomentSet
     momentSet
     (
         nMoments,
-        makeUnivariateMomentOrders(nMoments),//NullObjectRef<labelListList>(),
+        1,
+        makeUnivariateMomentOrders(nMoments),
         support,
         initValue
     ),
@@ -86,6 +87,7 @@ Foam::univariateMomentSet::univariateMomentSet
     momentSet
     (
         m,
+        1,
         makeUnivariateMomentOrders(m.size()),
         support
     ),
@@ -140,7 +142,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     canonicalMoments[0] = zeta[0];
 
-    if (canonicalMoments[0] == 1.0)
+    if (mag(canonicalMoments[0] - 1.0) <= SMALL)
     {
         nRealizableMoments_ = 2;
         onMomentSpaceBoundary_ = true;
@@ -150,7 +152,8 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     for (label zetai = 1; zetai < nZeta; zetai++)
     {
-        canonicalMoments[zetai] = zeta[zetai]/(1.0 - canonicalMoments[zetai-1]);
+        canonicalMoments[zetai]
+            = zeta[zetai]/(1.0 - canonicalMoments[zetai - 1]);
 
         if (canonicalMoments[zetai] < 0.0 || canonicalMoments[zetai] > 1.0)
         {
@@ -160,8 +163,8 @@ void Foam::univariateMomentSet::checkCanonicalMoments
         }
         else if
         (
-            canonicalMoments[zetai] == 0.0
-         || canonicalMoments[zetai] == 1.0
+            mag(canonicalMoments[zetai]) <= SMALL
+         || mag(canonicalMoments[zetai] - 1.0) <= SMALL
         )
         {
             nRealizableMoments_ = zetai + 2;
@@ -172,7 +175,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     }
 
     onMomentSpaceBoundary_ = false;
-    nRealizableMoments_ = nZeta;
+    nRealizableMoments_ = nZeta + 1;
 }
 
 void Foam::univariateMomentSet::checkRealizability
@@ -243,6 +246,7 @@ void Foam::univariateMomentSet::checkRealizability
     {
         if (support_ == "R")
         {
+            realizabilityChecked_ = true;
             negativeZeta_ = 0;
             nRealizableMoments_ = 2;
             fullyRealizable_ = true;
@@ -258,6 +262,7 @@ void Foam::univariateMomentSet::checkRealizability
         {
             if (isDegenerate() || zeta_[0] == 0.0)
             {
+                realizabilityChecked_ = true;
                 negativeZeta_ = 0;
                 nRealizableMoments_ = 2;
                 fullyRealizable_ = true;
@@ -276,6 +281,7 @@ void Foam::univariateMomentSet::checkRealizability
             }
             else
             {
+                realizabilityChecked_ = true;
                 negativeZeta_ = 1;
                 nRealizableMoments_ = 1;
                 fullyRealizable_ = false;
@@ -288,11 +294,11 @@ void Foam::univariateMomentSet::checkRealizability
 
         if (support_ == "RPlus")
         {
+            realizabilityChecked_ = true;
             negativeZeta_ = 0;
             nRealizableMoments_ = 2;
             fullyRealizable_ = true;
             subsetRealizable_ = true;
-            realizabilityChecked_ = true;
             onMomentSpaceBoundary_ = false;
 
             return;
@@ -301,10 +307,10 @@ void Foam::univariateMomentSet::checkRealizability
         {
             if (zeta_[0] <= 1.0)
             {
+                realizabilityChecked_ = true;
                 nRealizableMoments_ = 2;
                 fullyRealizable_ = true;
                 subsetRealizable_ = true;
-                realizabilityChecked_ = true;
 
                 if (zeta_[0] < 1.0)
                 {
@@ -321,6 +327,7 @@ void Foam::univariateMomentSet::checkRealizability
             {
                 if (isDegenerate())
                 {
+                    realizabilityChecked_ = true;
                     negativeZeta_ = 0;
                     nRealizableMoments_ = 2;
                     fullyRealizable_ = true;
@@ -339,6 +346,7 @@ void Foam::univariateMomentSet::checkRealizability
                 }
                 else
                 {
+                    realizabilityChecked_ = true;
                     negativeZeta_ = 1;
                     nRealizableMoments_ = 1;
                     fullyRealizable_ = false;
@@ -374,6 +382,7 @@ void Foam::univariateMomentSet::checkRealizability
     {
         if (isDegenerate() || zeta_[0] == 0.0)
         {
+            realizabilityChecked_ = true;
             negativeZeta_ = 0;
             nRealizableMoments_ = 2;
             fullyRealizable_ = false;
@@ -392,6 +401,7 @@ void Foam::univariateMomentSet::checkRealizability
         }
         else
         {
+            realizabilityChecked_ = true;
             negativeZeta_ = 1;
             nRealizableMoments_ = 1;
             fullyRealizable_ = false;
@@ -411,10 +421,10 @@ void Foam::univariateMomentSet::checkRealizability
         {
             if (beta_[zetai] < 0.0)
             {
+                realizabilityChecked_ = true;
                 nRealizableMoments_ = 2*zetai;
                 fullyRealizable_ = false;
                 subsetRealizable_ = true;
-                realizabilityChecked_ = true;
 
                 return;
             }
@@ -445,9 +455,9 @@ void Foam::univariateMomentSet::checkRealizability
                     checkCanonicalMoments(zeta_, 2*zetai);
                 }
 
+                realizabilityChecked_ = true;
                 fullyRealizable_ = false;
                 subsetRealizable_ = true;
-                realizabilityChecked_ = true;
 
                 return;
             }
@@ -483,9 +493,9 @@ void Foam::univariateMomentSet::checkRealizability
                     checkCanonicalMoments(zeta_, 2*zetai + 1);
                 }
 
+                realizabilityChecked_ = true;
                 fullyRealizable_ = false;
                 subsetRealizable_ = true;
-                realizabilityChecked_ = true;
 
                 return;
             }
@@ -508,19 +518,19 @@ void Foam::univariateMomentSet::checkRealizability
 
         if (beta_[nD] < 0.0)
         {
+            realizabilityChecked_ = true;
             nRealizableMoments_ = 2*nD;
             fullyRealizable_ = false;
             subsetRealizable_ = true;
-            realizabilityChecked_ = true;
 
             return;
         }
         else
         {
+            realizabilityChecked_ = true;
             nRealizableMoments_ = nMoments_;
             fullyRealizable_ = true;
             subsetRealizable_ = true;
-            realizabilityChecked_ = true;
 
             return;
         }
@@ -551,9 +561,9 @@ void Foam::univariateMomentSet::checkRealizability
                 checkCanonicalMoments(zeta_, 2*nD);
             }
 
+            realizabilityChecked_ = true;
             fullyRealizable_ = false;
             subsetRealizable_ = true;
-            realizabilityChecked_ = true;
 
             return;
         }
@@ -600,8 +610,8 @@ void Foam::univariateMomentSet::checkRealizability
                     }
                 }
 
-                subsetRealizable_ = true;
                 realizabilityChecked_ = true;
+                subsetRealizable_ = true;
 
                 return;
             }
@@ -630,8 +640,8 @@ void Foam::univariateMomentSet::checkRealizability
                     }
                 }
 
-                subsetRealizable_ = true;
                 realizabilityChecked_ = true;
+                subsetRealizable_ = true;
 
                 return;
             }
@@ -707,6 +717,23 @@ void Foam::univariateMomentSet::update
     }
 
     realizabilityChecked_ = false;
+}
+
+void Foam::univariateMomentSet::setSize(const label newSize)
+{
+    label oldSize = (*this).size();
+    Foam::momentSet::setSize(newSize);
+    realizabilityChecked_ = false;
+
+    if (oldSize > newSize)
+    {
+        makeUnivariateMomentOrders(newSize);
+    }
+}
+
+void Foam::univariateMomentSet::resize(const label newSize)
+{
+    setSize(newSize);
 }
 
 // ************************************************************************* //

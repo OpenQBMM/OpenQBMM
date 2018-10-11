@@ -1,4 +1,5 @@
 EXE_INC = \
+    -DFULLDEBUG -g -O0 \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
@@ -9,11 +10,12 @@ EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I../../eigenSolver/lnInclude \
+    -I../../mappedList \
+    -I../../mappedPtrList\
     -I../momentSets/lnInclude \
     -I../quadratureNode \
     -I../moments \
-    -I../momentInversion/univariate/basic/lnInclude \
-    -I../momentInversion/univariate/extended/lnInclude \
+    -I../momentInversion/lnInclude \
     -I../fieldMomentInversion/lnInclude \
     -I../quadratureApproximations/lnInclude \
     -I../momentAdvection/lnInclude \
@@ -33,7 +35,6 @@ LIB_LIBS = \
     -leigenSolver \
     -lmomentSets \
     -lmomentInversion \
-    -lextendedMomentInversion \
     -lfieldMomentInversion \
     -lquadratureApproximation \
     -lmomentAdvection \

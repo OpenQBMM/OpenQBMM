@@ -92,7 +92,8 @@ public:
         (
             const scalar& abscissa1,
             const scalar& abscissa2,
-            const label celli
+            const label celli,
+            const label environment = 0
         ) const;
 
 };

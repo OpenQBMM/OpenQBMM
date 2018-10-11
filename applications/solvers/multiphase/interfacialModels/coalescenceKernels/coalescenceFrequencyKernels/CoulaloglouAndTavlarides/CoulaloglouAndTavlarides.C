@@ -26,7 +26,6 @@ License
 #include "CoulaloglouAndTavlarides.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -56,7 +55,18 @@ CoulaloglouAndTavlarides
 )
 :
     coalescenceFrequencyKernel(dict, mesh),
-    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties"))
+    fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    epsilonf_
+    (
+        IOobject
+        (
+            "CoulaloglouAndTavlarides:epsilonf",
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
+    )
 {}
 
 
@@ -69,6 +79,15 @@ Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::update()
+{
+    const phaseModel& phase(fluid_.phase1());
+    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
+    epsilonf_ = phase.nu()*(S && S);
+    epsilonf_.max(SMALL);
+}
+
+
 Foam::tmp<Foam::volScalarField>
 Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
 (
@@ -76,16 +95,29 @@ Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
     const label nodej
 ) const
 {
-//     const volScalarField& epsilon = fluid_.phase2().turbulence().epsilon();
-    const phaseModel& phase(fluid_.phase1());
-    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
-    volScalarField epsilon(phase.nu()*(S && S));
+    tmp<volScalarField> epsilon(fluid_.phase2().turbulence().epsilon());
 
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
 
     return
         cbrt(epsilon)*sqr(d1 + d2)
+       *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
+}
+
+
+Foam::scalar Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
+(
+    const label celli,
+    const label nodei,
+    const label nodej
+) const
+{
+    scalar d1 = fluid_.phase1().ds(nodei)[celli];
+    scalar d2 = fluid_.phase1().ds(nodej)[celli];
+
+    return
+        cbrt(epsilonf_[celli])*sqr(d1 + d2)
        *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
 }
 

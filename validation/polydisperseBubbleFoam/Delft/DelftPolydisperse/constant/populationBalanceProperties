@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -15,6 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+ode on;
 
 coalescence on;
 
@@ -22,13 +23,14 @@ coalescenceKernel
 {
     coalescenceFrequencyKernel CoulaloglouAndTavlarides;
     coalescenceEfficiencyKernel CoulaloglouAndTavlarides;
-    laminarShearCoalescence off;
 
     Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
     Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;
+    ReExp   ReExp   [ 0 0 0 0 0 0 0 ]  -0.732;
+    WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
 }
 
-breakup off;
+breakup on;
 
 breakupKernel
 {
@@ -41,4 +43,13 @@ daughterDistribution
     daughterDistribution uniform;
 }
 
+odeCoeffs
+{
+    ATol    1.0e-8;
+    RTol    1.0e-4;
+    fac     0.5;
+    facMin  0.1;
+    facMax  2.0;
+    minLocalDt 1.0e-10;
+}
 // ************************************************************************* //

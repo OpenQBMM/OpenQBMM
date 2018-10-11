@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -348,6 +348,29 @@ Foam::scalar Foam::betaEQMOM::sigmaMax(univariateMomentSet& moments)
     //Info << "p2 = " << p2 << endl;
 
     return p2/(1.0 - p2);
+}
+
+Foam::tmp<Foam::scalarField> Foam::betaEQMOM::f(const scalarField& x) const
+{
+    tmp<scalarField> tmpY
+    (
+        new scalarField(x.size(), 0.0)
+    );
+    scalarField& y = tmpY.ref();
+
+    for (label pNodei = 0; pNodei < nPrimaryNodes_; pNodei++)
+    {
+        scalar pAbscissa = primaryAbscissae_[pNodei];
+        scalar lambda = pAbscissa/sigma_;
+        scalar mu = (1.0 - pAbscissa)/sigma_;
+
+        y +=
+            pow(x, lambda - 1)*pow(1.0 - x, mu - 1)
+           /(gamma(lambda)*gamma(mu)/gamma(lambda + mu))
+           *this->primaryWeights_[pNodei];
+    }
+
+    return tmpY;
 }
 
 // ************************************************************************* //

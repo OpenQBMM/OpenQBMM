@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -40,12 +40,11 @@ quadratureNode
 )
 :
     name_(IOobject::groupName(name, distributionName)),
-    nodeDict_(),
     weight_
     (
         IOobject
         (
-            IOobject::groupName(name_, "weight"),
+            IOobject::groupName("weight", name_),
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -63,7 +62,7 @@ quadratureNode
     (
         IOobject
         (
-            IOobject::groupName(name_, "abscissa"),
+            IOobject::groupName("abscissa", name_),
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -101,8 +100,8 @@ quadratureNode
                     (
                         IOobject::groupName
                         (
-                            name_,
-                            "secondaryWeight." + Foam::name(nodei)
+                            "secondaryWeight." + Foam::name(nodei),
+                            name_
                         ),
                         mesh.time().timeName(),
                         mesh,
@@ -128,8 +127,8 @@ quadratureNode
                     (
                         IOobject::groupName
                         (
-                            name_,
-                            "secondaryAbscissa." + Foam::name(nodei)
+                            "secondaryAbscissa." + Foam::name(nodei),
+                            name_
                         ),
                         mesh.time().timeName(),
                         mesh,
@@ -148,13 +147,13 @@ quadratureNode
         }
 
         // Allocating sigma
-        sigma_ = autoPtr<sigmaType>
+        sigma_.set
         (
             new sigmaType
             (
                 IOobject
                 (
-                    IOobject::groupName(name_, "sigma"),
+                    IOobject::groupName("sigma", name_),
                     mesh.time().timeName(),
                     mesh,
                     IOobject::NO_READ,
@@ -179,7 +178,6 @@ quadratureNode
 (
     const word& name,
     const word& distributionName,
-    const dictionary& nodeDict,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
     const dimensionSet& abscissaDimensions,
@@ -189,12 +187,11 @@ quadratureNode
 )
 :
     name_(IOobject::groupName(name, distributionName)),
-    nodeDict_(nodeDict),
     weight_
     (
         IOobject
         (
-            IOobject::groupName(name_, "weight"),
+            IOobject::groupName("weight", name_),
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -212,7 +209,7 @@ quadratureNode
     (
         IOobject
         (
-            IOobject::groupName(name_, "abscissa"),
+            IOobject::groupName("abscissa", name_),
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
@@ -250,8 +247,8 @@ quadratureNode
                     (
                         IOobject::groupName
                         (
-                            name_,
-                            "secondaryWeight." + Foam::name(nodei)
+                            "secondaryWeight." + Foam::name(nodei),
+                            name_
                         ),
                         mesh.time().timeName(),
                         mesh,
@@ -278,8 +275,8 @@ quadratureNode
                     (
                         IOobject::groupName
                         (
-                            name_,
-                            "secondaryAbscissa." + Foam::name(nodei)
+                            "secondaryAbscissa." + Foam::name(nodei),
+                            name_
                         ),
                         mesh.time().timeName(),
                         mesh,
@@ -297,29 +294,31 @@ quadratureNode
                 )
             );
 
-            sigma_ = autoPtr<sigmaType>
-            (
-                new sigmaType
-                (
-                    IOobject
-                    (
-                        IOobject::groupName(name_, "sigma"),
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::NO_READ,
-                        IOobject::NO_WRITE
-                    ),
-                    mesh,
-                    dimensioned<typename sigmaType::value_type>
-                    (
-                        "zeroSigma",
-                        dimless,
-                        pTraits<typename sigmaType::value_type>::zero
-                    ),
-                    boundaryTypes
-                )
-            );
         }
+
+        sigma_.set
+        (
+            new sigmaType
+            (
+                IOobject
+                (
+                    IOobject::groupName("sigma", name_),
+                    mesh.time().timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    true
+                ),
+                mesh,
+                dimensioned<typename sigmaType::value_type>
+                (
+                    "zeroSigma",
+                    dimless,
+                    pTraits<typename sigmaType::value_type>::zero
+                ),
+                boundaryTypes
+            )
+        );
     }
 }
 

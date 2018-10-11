@@ -2,32 +2,14 @@
 cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
 
-org="0.org"
-const="constant"
-system="system"
-dyn="dynamicCode"
-animation="animation"
+runApplication blockMesh
+runApplication generateMoments
+runApplication setFields
+runApplication decomposePar
+runParallel polydisperseBubbleFoam
 
-
-for f in *
-do
-    if [ -d $f ]; then
-        if                              \
-            [ $f != $org ]              \
-         && [ $f != $const ]            \
-         && [ $f != $system ]           \
-         && [ $f != $animation ]        \
-         && [ $f != $dyn ] ; then
-            rm -r $f
-        fi
-    fi
-done
-
-mkdir 0
-cp 0.org/* 0/
-generateMoments
-setFields
-decomposePar
-# polydisperseBubbleFoam
-mpirun -np 4 polydisperseBubbleFoam -parallel
+# NOTE: This case is very unstable and typically needs to be restarted several time. The createGraph program will read all of the pProbes folders and create the total list of pressures
+# To restart run:
+# mpirun -np $numberOfProcessors polydisperseBubbleFoam -parallel

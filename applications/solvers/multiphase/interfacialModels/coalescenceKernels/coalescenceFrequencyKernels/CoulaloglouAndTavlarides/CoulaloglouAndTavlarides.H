@@ -42,7 +42,7 @@ Description
 
     References
     \verbatim
-        "Description of interaction processes in agitated liquid-liquid dis[ersions"
+        "Description of interaction processes in agitated liquid-liquid dispersions"
         C Coulaloglou, L Tavlarides
         Chemical Engineering Science
         Volume 32, Pages 1289-1297, 1977
@@ -81,6 +81,8 @@ class CoulaloglouAndTavlarides
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
+        //- Turbulent dissipation
+        volScalarField epsilonf_;
 
 public:
 
@@ -104,9 +106,20 @@ public:
 
     // Member Functions
 
+        //- Update fields
+        virtual void update();
+
         //- Aggregation kernel
         virtual tmp<volScalarField> omega
         (
+            const label nodei,
+            const label nodej
+        ) const;
+
+        //- Aggregation kernel
+        virtual scalar omega
+        (
+            const label celli,
             const label nodei,
             const label nodej
         ) const;

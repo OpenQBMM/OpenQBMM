@@ -50,12 +50,11 @@ Foam::momentGenerationSubModels::weightsAndAbscissae
 ::weightsAndAbscissae
 (
     const dictionary& dict,
-    const label nNodes,
-    const bool extended,
-    const bool radau
+    const labelListList& momentOrders,
+    const label nNodes
 )
 :
-    momentGenerationModel(dict, nNodes, extended, radau)
+    momentGenerationModel(dict, momentOrders, nNodes)
 {}
 
 
@@ -73,26 +72,15 @@ void Foam::momentGenerationSubModels::weightsAndAbscissae::updateQuadrature
     const dictionary& dict
 )
 {
-    for (label nodei = 0; nodei < nNodes_; nodei++)
+    reset();
+    forAll(weights_, nodei)
     {
-        if (dict.found("node" + Foam::name(nodei)))
+        word nodeName = "node" + Foam::name(nodei);
+        if(dict.found(nodeName))
         {
-            dictionary nodeDict(dict.subDict("node" + Foam::name(nodei)));
-            if (nodei == 0 && radau_)
-            {
-                abscissae_[nodei].value() = 0.0;
-            }
-            else
-            {
-                abscissae_[nodei] = nodeDict.lookup("abscissa");
-            }
-
-            weights_[nodei] = nodeDict.lookup("weight");
-        }
-        else
-        {
-            abscissae_[nodei].value() = 0.0;
-            weights_[nodei].value() = 0.0;
+            dictionary nodeDict(dict.subDict(nodeName));
+            abscissae_[nodei] = nodeDict.lookupType<scalarList>("abscissa");
+            weights_[nodei] = nodeDict.lookupType<scalar>("weight");
         }
     }
 

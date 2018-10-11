@@ -87,7 +87,8 @@ Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::Kb
 (
     const scalar& abscissa,
-    const label celli
+    const label celli,
+    const label environment
 ) const
 {
     return Cb_.value()*pow(epsilon_[celli], epsilonExp_)

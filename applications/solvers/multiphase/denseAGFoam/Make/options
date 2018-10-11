@@ -9,7 +9,7 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
     -I../../../../src/quadratureMethods/momentSets/lnInclude \
-    -I../../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude \
+    -I../../../../src/quadratureMethods/momentInversion/lnInclude \
     -I../../../../src/quadratureMethods/quadratureNode \
     -I../../../../src/quadratureMethods/moments \
     -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
@@ -25,7 +25,7 @@ EXE_INC = \
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lmomentSets \
-    -lextendedMomentInversion \
+    -lmomentInversion \
     -lfieldMomentInversion \
     -lhermiteQuadrature \
     -lquadratureApproximation \

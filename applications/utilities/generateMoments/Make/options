@@ -3,7 +3,9 @@ EXE_INC = \
     -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
-    -ImomentGenerationModels/lnInclude
+    -ImomentGenerationModels/lnInclude \
+    -I../../../src/mappedList \
+    -I../../../src/mappedPtrList
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \

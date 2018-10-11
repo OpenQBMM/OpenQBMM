@@ -58,7 +58,7 @@ Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup
 :
     breakupKernel(dict, mesh),
     minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0)),
-    abscissaExponent_(dict.lookupOrDefault("abscissaExponent", 3))
+    abscissaExponent_(dict.lookupOrDefault("abscissaExponent", 3.0))
 {}
 
 
@@ -75,7 +75,8 @@ Foam::scalar
 Foam::populationBalanceSubModels::breakupKernels::powerLawBreakup::Kb
 (
     const scalar& abscissa,
-    const label celli
+    const label celli,
+    const label environment
 ) const
 {
     return Cb_.value()*pos0(abscissa - minAbscissa_.value())

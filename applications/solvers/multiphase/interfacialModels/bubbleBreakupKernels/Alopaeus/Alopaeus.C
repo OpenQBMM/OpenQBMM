@@ -74,6 +74,28 @@ Foam::bubbleBreakupKernels::Alopaeus::Alopaeus
             "C2",
             dimensionedScalar("C2", dimless, 0.01)
         )
+    ),
+    epsilonf_
+    (
+        IOobject
+        (
+            "LuoSvendsen:epsilonf",
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
+    ),
+    muf_
+    (
+        IOobject
+        (
+            "LuoSvendsen:muf",
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("zero", dimDynamicViscosity, 0.0)
     )
 {}
 
@@ -86,34 +108,68 @@ Foam::bubbleBreakupKernels::Alopaeus::~Alopaeus()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField>
-Foam::bubbleBreakupKernels::Alopaeus::Kb(const label nodei) const
+void Foam::bubbleBreakupKernels::Alopaeus::update()
 {
     const phaseModel& phase(fluid_.phase1());
     volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
-    volScalarField epsilon(phase.nu()*(S && S));
-    epsilon.max(SMALL);
+    epsilonf_ = phase.nu()*(S && S);
+    epsilonf_.max(SMALL);
 
+    muf_ = fluid_.phase2().mu();
+}
+
+
+Foam::tmp<Foam::volScalarField>
+Foam::bubbleBreakupKernels::Alopaeus::Kb(const label nodei) const
+{
     const volScalarField& d = fluid_.phase1().ds(nodei);
     const volScalarField& rho1 = fluid_.phase1().rho();
     const volScalarField& rho2 = fluid_.phase2().rho();
-    const volScalarField& mu = fluid_.phase2().mu();
     const dimensionedScalar& sigma = fluid_.sigma();
 
-    tmp<volScalarField> breakupSource =
-        Cb_*cbrt(epsilon)
+    tmp<volScalarField> breakupSource
+    (
+        Cb_*cbrt(epsilonf_)
        *Foam::erfc
         (
             Foam::sqrt
             (
                 C1_*sigma
-               /(rho2*pow(epsilon, 2.0/3.0)*pow(d, 5.0/3.0))
-              + C2_*mu
-               /(sqrt(rho1*rho2)*cbrt(epsilon)*pow(d, 4.0/3.0))
+               /(rho2*pow(epsilonf_, 2.0/3.0)*pow(d, 5.0/3.0))
+              + C2_*muf_
+               /(sqrt(rho1*rho2)*cbrt(epsilonf_)*pow(d, 4.0/3.0))
             )
-        );
+        )
+    );
     breakupSource.ref().dimensions().reset(inv(dimTime));
     return breakupSource;
+}
+
+
+Foam::scalar
+Foam::bubbleBreakupKernels::Alopaeus::Kb
+(
+    const label celli,
+    const label nodei
+) const
+{
+    scalar d(fluid_.phase1().ds(nodei)[celli]);
+    scalar rho1(fluid_.phase1().rho()[celli]);
+    scalar rho2(fluid_.phase2().rho()[celli]);
+    scalar sigma(fluid_.sigma().value());
+
+    return
+        Cb_.value()*cbrt(epsilonf_[celli])
+       *Foam::erfc
+        (
+            Foam::sqrt
+            (
+                C1_.value()*sigma
+               /(rho2*pow(epsilonf_[celli], 2.0/3.0)*pow(d, 5.0/3.0))
+              + C2_.value()*muf_[celli]
+               /(sqrt(rho1*rho2)*cbrt(epsilonf_[celli])*pow(d, 4.0/3.0))
+            )
+        );
 }
 
 // ************************************************************************* //

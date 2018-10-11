@@ -56,9 +56,20 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
 :
     coalescenceFrequencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    epsilonf_
+    (
+        IOobject
+        (
+            "PrinceAndBlanch:epsilonf",
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
+    ),
     turbulent_(dict.lookupOrDefault("turbulentCoalescence", false)),
     buoyant_(dict.lookupOrDefault("buoyantCoalescence", true)),
-    LS_(dict.lookupOrDefault("laminarShearCoalescence", true))
+    LS_(dict.lookupOrDefault("laminarShearCoalescence", false))
 {}
 
 
@@ -69,6 +80,14 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::~PrinceAndBlanch()
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::coalescenceFrequencyKernels::PrinceAndBlanch::update()
+{
+    const phaseModel& phase(fluid_.phase1());
+    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
+    epsilonf_ = phase.nu()*(S && S);
+    epsilonf_.max(SMALL);
+}
 
 Foam::tmp<Foam::volScalarField>
 Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
@@ -120,14 +139,61 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
     }
     if (LS_)
     {
-        freqSrc == freqSrc
-          + 1.0/6.0*pow3(d1 + d2)
-           *mag
-            (
-                fvc::grad(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
-            );
+        NotImplemented;
+//         freqSrc == freqSrc
+//           + 1.0/6.0*pow3(d1 + d2)
+//            *mag
+//             (
+//                 fvc::grad(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
+//             );
     }
     return tmpFreqSrc;
+}
+
+Foam::scalar
+Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
+(
+    const label celli,
+    const label nodei,
+    const label nodej
+) const
+{
+    scalar freqSrc = 0.0;
+
+    scalar d1 = fluid_.phase1().ds(nodei)[celli];
+    scalar d2 = fluid_.phase1().ds(nodej)[celli];
+    scalar rho = fluid_.phase2().rho()[celli];
+    scalar sigma = fluid_.sigma().value();
+    scalar g = mag(fluid_.g()).value();
+
+    if (turbulent_)
+    {
+        freqSrc +=
+            0.089*constant::mathematical::pi*sqr(d1 + d2)
+           *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
+           *cbrt(epsilonf_[celli]);
+    }
+    if (buoyant_)
+    {
+        freqSrc +=
+            constant::mathematical::pi/4.0*sqr(d1 + d2)
+           *(
+               sqrt(2.14*sigma/(d1*rho) + 0.5*g*d1)
+             - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
+            );
+    }
+    if (LS_)
+    {
+        NotImplemented;
+//         freqSrc +=
+//             1.0/6.0*pow3(d1 + d2)
+//            *mag
+//             (
+//                 fluid_.phase1().Us(nodei)[celli]
+//               - fluid_.phase1().Us(nodej)[celli]
+//             );
+    }
+    return freqSrc;
 }
 
 // ************************************************************************* //

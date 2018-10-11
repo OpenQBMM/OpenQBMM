@@ -1,5 +1,7 @@
 EXE_INC = \
+    -DFULLDEBUG -g -O0 \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I../../mappedList \
     -I../momentSets/lnInclude
 
 LIB_LIBS = \

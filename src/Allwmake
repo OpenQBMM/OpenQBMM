@@ -5,15 +5,13 @@ set -x
 wmake libso eigenSolver
 wmake libso Vandermonde
 wmake libso quadratureMethods/momentSets
-wmake libso quadratureMethods/momentInversion/univariate/basic
-wmake libso quadratureMethods/momentInversion/univariate/extended
-wmake libso quadratureMethods/momentInversion/multivariate
+wmake libso quadratureMethods/momentInversion/
 wmake libso quadratureMethods/hermiteQuadrature
 wmake libso quadratureMethods/fieldMomentInversion
 wmake libso quadratureMethods/quadratureApproximations
 wmake libso quadratureMethods/momentAdvection
 wmake libso quadratureMethods/PDFTransportModels
-wmake libso quadratureMethods/populationBalanceModels
 wmake libso quadratureMethods/mixingModels
+wmake libso quadratureMethods/populationBalanceModels
 
 # ----------------------------------------------------------------- end-of-file

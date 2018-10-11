@@ -49,7 +49,7 @@ Foam::PDFTransportModels::univariatePDFTransportModel
     facMin_(readScalar(dict.subDict("odeCoeffs").lookup("facMin"))),
     facMax_(readScalar(dict.subDict("odeCoeffs").lookup("facMax"))),
     minLocalDt_(readScalar(dict.subDict("odeCoeffs").lookup("minLocalDt"))),
-    quadrature_(name, mesh, support, 1),
+    quadrature_(name, mesh, support),
     momentAdvection_
     (
         univariateMomentAdvection::New
@@ -167,6 +167,9 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
                     {
                         moments[mi][celli] = oldMoments[mi];
                     }
+
+                    // Updating local quadrature with old moments
+                    quadrature_.updateLocalQuadrature(celli);
 
                     localDt /= 2.0;
 
@@ -286,6 +289,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
     }
 
     quadrature_.updateQuadrature();
+    //quadrature_.updateMoments();
 }
 
 

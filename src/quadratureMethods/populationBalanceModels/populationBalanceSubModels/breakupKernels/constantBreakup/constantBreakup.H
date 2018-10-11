@@ -89,7 +89,8 @@ public:
         virtual scalar Kb
         (
             const scalar& abscissa,
-            const label celli
+            const label celli,
+            const label environment = 0
         ) const;
 
 };
