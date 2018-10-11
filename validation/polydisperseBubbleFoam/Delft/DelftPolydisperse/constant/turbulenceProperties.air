@@ -15,19 +15,32 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType  laminar;
+simulationType  LES;
 
 RAS
 {
     RASModel mixtureKEpsilon;
 
     turbulence      on;
-    printCoeffs     off;
+    printCoeffs     on;
 
     mixtureKEpsilonCoeffs
     {
         Cp  0;
         C3  0;
+    }
+}
+LES
+{
+    LESModel Smagorinsky;
+
+    turbulence      on;
+    printCoeffs     on;
+
+    delta           cubeRootVol;
+
+    cubeRootVolCoeffs
+    {
     }
 }
 

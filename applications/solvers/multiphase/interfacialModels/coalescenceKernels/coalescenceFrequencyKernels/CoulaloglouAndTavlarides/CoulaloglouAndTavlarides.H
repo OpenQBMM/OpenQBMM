@@ -42,7 +42,7 @@ Description
 
     References
     \verbatim
-        "Description of interaction processes in agitated liquid-liquid dis[ersions"
+        "Description of interaction processes in agitated liquid-liquid dispersions"
         C Coulaloglou, L Tavlarides
         Chemical Engineering Science
         Volume 32, Pages 1289-1297, 1977
