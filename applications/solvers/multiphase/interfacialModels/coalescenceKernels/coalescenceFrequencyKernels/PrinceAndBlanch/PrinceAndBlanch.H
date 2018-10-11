@@ -62,7 +62,7 @@ Description
     References
     \verbatim
         "Bubble Coalescence and Break-up n Air-Sparged Bubble Columns"
-        M Prince and Harvey Blanch
+        M. J. Prince, H. W. Blanch
         AIChE Journal
         Volume 36, Pages 1485 - 1499, 1990
     \endverbatim

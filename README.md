@@ -30,6 +30,11 @@ terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
+## Acknowledgments
+
+The development of the OpenQBMM solver suite is sponsored by the National
+Science Foundation of the United States, under the SI2 – SSE award
+NSF – ACI 1440443.
 
 ## Contact information
 
