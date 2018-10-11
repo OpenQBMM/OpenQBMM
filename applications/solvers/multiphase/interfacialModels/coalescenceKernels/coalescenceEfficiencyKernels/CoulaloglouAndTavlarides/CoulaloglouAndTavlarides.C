@@ -100,11 +100,6 @@ void Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::update()
     epsilonf_ = phase.nu()*(S && S);
     epsilonf_.max(SMALL);
     nuf_ = fluid_.phase2().nu();
-
-    if (fluid_.mesh().time().outputTime())
-    {
-        epsilonf_.write();
-    }
 }
 
 
@@ -118,19 +113,14 @@ Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
     const volScalarField& rho = fluid_.phase2().rho();
-    tmp<volScalarField> epsilon(fluid_.phase2().turbulence().epsilon());
     const dimensionedScalar& sigma = fluid_.sigma();
 
     return
         Foam::exp
         (
           - Ceff_
-           *fluid_.phase2().nu()*epsilon*sqr(rho/sigma)
-           *pow4
-            (
-                d1*d2
-                /max(d1 + d2, dimensionedScalar("zero", dimLength, SMALL))
-            )
+           *nuf_*epsilonf_*sqr(rho/sigma)
+           *pow4(d1*d2/(d1 + d2))
         );
 }
 

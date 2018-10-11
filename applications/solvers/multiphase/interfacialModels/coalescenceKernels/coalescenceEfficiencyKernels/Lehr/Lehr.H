@@ -29,7 +29,8 @@ Description
 
     \f[
         P_c = max(\frac{u_\mathrm{crit}}{u'}, 1)
-        u_\mathrm{crit} = \sqrt{\frac{We_\mathrm{crit}\sigma}{\rho_f d_{eq}}}
+        u_\mathrm{crit} = \sqrt{\frac{We_\mathrm{crit}\sigma}{\rho_f d_{eq} } }
+        u' = \mathrm{max}(\sqrt{2}(\epsilon_f \sqrt{d_i d_j})^{1/3}, |\mathbf{U}_i - mathbf{U}_j|)
         d_{eq} = 2(\frac{1}{d_i} + \frac{1}{d_j})^{-1}
     \f]
 
@@ -39,9 +40,10 @@ Description
         \sigma      |  Surface tension
         \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
         d_i         |  Diameter of bubble i [m]
         d_j         |  Diameter of bubble j [m]
+        \mathbf{U}_i|  Velocity of bubble i [m/s]
+        \mathbf{U}_j|  Velocity of bubble j [m/s]
     \endvartable
 
     References
