@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,54 +22,46 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::coalescenceEfficiencyKernels::
-    Chesters
+    Foam::coalescenceEfficiencyKernels::PrinceAndBlanch
 
 Description
-    Coaelescence efficieny kernel based on the interaction time of bubble.
-    Only valid for bubbles of equal sizes.
+    Coalesence efficiency based on film drainage and rupture times.
 
     \f[
-        P_c =
-            \text{exp}
-            (
-            - \frac{\theta \sqrt{We} \sqrt{0.75 (1.0 + \xi^2) (1.0 + \xi^3)}}
-              {\sqrt{\rho_b/rho_f}*(1.0 + \xi)^3}
-            );
-        \xi = \frac{d_i}{d_j}
-        \theta = x Re^{y} \text{We}^{z}
+        P_c = \mathrm{exp}\left(\frac{t_{ij}}{\tau_{ij}}\right)
+        t_{ij} = \sqrt{frac{\rho_f r_{ij}^3}{16 \sigma}} ln(\frac{h_0}{h_f})
+        \tau_{ij} = \frac{r_{ij}^{2/3}}{\epsilon_f^{1/3}}
+        r_{ij} = \frac{1}{2} \left(\frac{1}{r_i} + \frac{1}{r_j} \right)^{-1}
     \f]
 
     where
 
     \vartable
+        \sigma      |  Surface tension
         \rho_f      |  Density of liquid phase [kg/m3]
-        \rho_b      |  Density of bubble phase [kg/m3]
-        We          |  Webber number [ ]
-        Re          |  Reynolds number [ ]
-        x           |  Efficiency cofficient [ ]
-        y           |  Reynolds number coefficient [ ]
-        z           |  Weber number coefficient [ ]
-        d_i         |  Diameter of bubble i [m]
-        d_j         |  Diamerer of bubble j [m]
+        \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
+        \h_f        |  Film thickness [m]
+        \h_0        |  Initial film thickness [m]
+        r_i         |  Radius of bubble i [m]
+        r_j         |  Radius of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "The Modelling of coalescence processes in fluid-liquid dispersions:
-        a review of current understanding"
-        A.K. Chesters
-        Chemical Engineering Research and Design
-        Volume 69, Pages 259 - 270, 1991
+        "Bubble Coalescence and Break-up n Air-Sparged Bubble Columns"
+         M Prince and Harvey Blanch
+         M. J. Prince, H. W. Blanch
+         AIChE Journal
+         Volume 36, Pages 1485 - 1499, 1990
     \endverbatim
 
 SourceFiles
-    Chesters.C
+    PrinceAndBlanchEfficiency.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Chesters_H
-#define Chesters_H
+#ifndef PrinceAndBlanchEfficiency_H
+#define PrinceAndBlanchEfficiency_H
 
 #include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
@@ -84,10 +76,10 @@ namespace coalescenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class Chesters Declaration
+                    Class PrinceAndBlanch Declaration
 \*---------------------------------------------------------------------------*/
 
-class Chesters
+class PrinceAndBlanch
 :
     public coalescenceEfficiencyKernel
 {
@@ -96,29 +88,26 @@ class Chesters
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
-        //- Efficiency coefficient
-        dimensionedScalar Ceff_;
+        //- Initial film thickness
+        dimensionedScalar ho_;
 
-        //- Reynolds number exponent
-        dimensionedScalar ReExp_;
+        //- Critical film thickness
+        dimensionedScalar hf_;
 
-        //- Webber number exponent
-        dimensionedScalar WeExp_;
-
-        //- Ratio of Reynolds number to Webber number
-        volScalarField theta_;
+        //- Turbulent dissipation
+        volScalarField epsilonf_;
 
 
 public:
 
         //- Runtime type information
-        TypeName("Chesters");
+        TypeName("PrinceAndBlanch");
 
 
     // Constructors
 
         //- Construct from components
-        Chesters
+        PrinceAndBlanch
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -126,7 +115,7 @@ public:
 
 
     //- Destructor
-    virtual ~Chesters();
+    virtual ~PrinceAndBlanch();
 
 
     // Member Functions

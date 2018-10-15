@@ -108,6 +108,8 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         AGmodel.transportMoments();
+        alpha2 = 1.0 - alpha1;
+        alpha2.correctBoundaryConditions();
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
@@ -121,7 +123,10 @@ int main(int argc, char *argv[])
             fluid.correct();
 
 			#include "pU/UEqns.H"
-            #include "pU/pEqn.H"
+            while (pimple.correct())
+            {
+				#include "pU/pEqn.H"
+            }
             #include "pU/DDtU.H"
 
             if (pimple.turbCorr())

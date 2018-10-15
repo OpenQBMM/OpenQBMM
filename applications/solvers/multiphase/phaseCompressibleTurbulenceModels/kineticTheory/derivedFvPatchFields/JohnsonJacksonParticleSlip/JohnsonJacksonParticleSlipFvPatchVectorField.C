@@ -188,14 +188,6 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
         )
     );
 
-    const scalarField nuFric
-    (
-        patch().lookupPatchField<volScalarField, scalar>
-        (
-            IOobject::groupName("nuFric", phased.name())
-        )
-    );
-
     word ThetaName(IOobject::groupName("Theta", phased.name()));
 
     const fvPatchScalarField& Theta
@@ -203,21 +195,6 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
         db().foundObject<volScalarField>(ThetaName)
       ? patch().lookupPatchField<volScalarField, scalar>(ThetaName)
       : alpha
-    );
-
-    // lookup the packed volume fraction
-    dimensionedScalar alphaMax
-    (
-        "alphaMax",
-        dimless,
-        db()
-       .lookupObject<IOdictionary>
-        (
-            IOobject::groupName("turbulenceProperties", phased.name())
-        )
-       .subDict("RAS")
-       .subDict("kineticTheoryCoeffs")
-       .lookup("alphaMax")
     );
 
     scalarField c(alpha.size(), 0.0);
@@ -230,6 +207,14 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
         )
     )
     {
+        const scalarField& h2Fn
+        (
+            patch().lookupPatchField<volScalarField, scalar>
+            (
+                IOobject::groupName("h2Fn", phased.name())
+            )
+        );
+
         const fvPatchScalarField& PsFric
         (
             patch().lookupPatchField<volScalarField, scalar>
@@ -238,22 +223,16 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
             )
         );
 
-        scalarField h2Fn
-        (
-            patch().lookupPatchField<volScalarField, scalar>
-            (
-                IOobject::groupName("h2Fn", phased.name())
-            )
-        );
+        scalarField Vw(constant::mathematical::pi/6.0*sqrt(3.0*Theta));
 
-        c =
+        // calculate the slip value fraction
+        scalarField c
         (
-            h2Fn*specularityCoefficient_.value()
-           *constant::mathematical::pi/6.0
-           *sqrt(3.0*Theta)
-          + PsFric
-           *tan(internalFrictionAngle_.value())
-           /max(alpha*mag(*this), small)
+            (
+                h2Fn*specularityCoefficient_.value()*Vw
+              + PsFric*tan(internalFrictionAngle_.value())
+               /max(alpha*mag(patchInternalField()), SMALL)
+            )/max(nu, SMALL)
         );
 
     }
@@ -267,17 +246,41 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
             )
         );
 
-        c =
+        const scalarField nuFric
+        (
+            patch().lookupPatchField<volScalarField, scalar>
+            (
+                IOobject::groupName("nuFric", phased.name())
+            )
+        );
+        // lookup the packed volume fraction
+        dimensionedScalar alphaMax
+        (
+            "alphaMax",
+            dimless,
+            db()
+           .lookupObject<IOdictionary>
+            (
+                IOobject::groupName("turbulenceProperties", phased.name())
+            )
+           .subDict("RAS")
+           .subDict("kineticTheoryCoeffs")
+           .lookup("alphaMax")
+        );
+
+       scalarField c
         (
             constant::mathematical::pi
            *alpha
            *gs0
            *specularityCoefficient_.value()
            *sqrt(3.0*Theta)
+           /max(6.0*(nu - nuFric)*alphaMax.value(), small)
         );
+
+        // calculate the slip value fraction
+        c /= max(6.0*(nu - nuFric)*alphaMax.value(), SMALL);
     }
-    // calculate the slip value fraction
-    c /= max(6.0*(nu - nuFric)*alphaMax.value(), SMALL);
 
     this->valueFraction() = c/(c + patch().deltaCoeffs());
 

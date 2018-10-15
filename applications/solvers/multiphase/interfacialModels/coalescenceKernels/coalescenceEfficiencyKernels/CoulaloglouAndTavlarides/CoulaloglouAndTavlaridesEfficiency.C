@@ -23,10 +23,10 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Chesters.H"
+#include "CoulaloglouAndTavlaridesEfficiency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "phasePair.H"
+#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -34,12 +34,11 @@ namespace Foam
 {
 namespace coalescenceEfficiencyKernels
 {
-    defineTypeNameAndDebug(Chesters, 0);
-
+    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
     addToRunTimeSelectionTable
     (
         coalescenceEfficiencyKernel,
-        Chesters,
+        CoulaloglouAndTavlarides,
         dictionary
     );
 }
@@ -48,7 +47,8 @@ namespace coalescenceEfficiencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::Chesters::Chesters
+Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::
+CoulaloglouAndTavlarides
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -57,111 +57,97 @@ Foam::coalescenceEfficiencyKernels::Chesters::Chesters
     coalescenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
     Ceff_(dict.lookup("Ceff")),
-    ReExp_(dict.lookup("ReExp")),
-    WeExp_(dict.lookup("WeExp")),
-    theta_
+    epsilonf_
     (
         IOobject
         (
-            "Chesters:theta",
+            "CoulaloglouAndTavlarides:epsilonf",
             fluid_.mesh().time().timeName(),
             fluid_.mesh()
         ),
         fluid_.mesh(),
-        dimensionedScalar("zero", dimless, 0.0)
+        dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
+    ),
+    muf_
+    (
+        IOobject
+        (
+            "CoulaloglouAndTavlarides:muf",
+            fluid_.mesh().time().timeName(),
+            fluid_.mesh()
+        ),
+        fluid_.mesh(),
+        dimensionedScalar("zero", dimDynamicViscosity, 0.0)
     )
-{}
+{
+    Ceff_.dimensions().reset(inv(sqr(dimLength)));
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::Chesters::~Chesters()
+Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::
+~CoulaloglouAndTavlarides()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::coalescenceEfficiencyKernels::Chesters::update()
+void Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::update()
 {
-    const phasePair& pair = fluid_.pair1In2();
-    theta_ =
-        Ceff_
-       *pow(max(pair.Re(), SMALL), ReExp_)
-       *pow(max(pair.We(), SMALL), WeExp_);
+    const phaseModel& phase(fluid_.phase1());
+    epsilonf_ = phase.turbulence().epsilon();
+    epsilonf_.max(SMALL);
+    muf_ = fluid_.phase2().mu();
 }
 
+
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceEfficiencyKernels::Chesters::Pc
+Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
 (
     const label nodei,
     const label nodej
 ) const
 {
-
-    const phaseModel& phase1 = fluid_.phase1();
-    const phaseModel& phase2 = fluid_.phase2();
-
-    const volScalarField& di = fluid_.phase1().ds(nodei);
-    const volScalarField& dj = fluid_.phase1().ds(nodej);
-
-    volScalarField Weij
-    (
-        phase2.rho()
-       *di
-       *magSqr(phase1.Us(nodei) - phase1.Us(nodej))
-       /fluid_.sigma()
-    );
-    volScalarField xi(di/dj);
+    scalar pi = constant::mathematical::pi;
+    volScalarField v1(pow3(fluid_.phase1().ds(nodei))*pi/6.0);
+    volScalarField v2(pow3(fluid_.phase1().ds(nodej))*pi/6.0);
+    const volScalarField& rho = fluid_.phase2().rho();
+    const dimensionedScalar& sigma = fluid_.sigma();
 
     return
         Foam::exp
         (
-          - theta_*sqrt(Weij)
-           *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
-           /(
-                sqrt(fluid_.phase1().rho()/fluid_.phase2().rho() + 0.5)
-               *pow3(1.0 + xi)
-            )
+          - Ceff_
+           *muf_*epsilonf_*rho/sqr(sigma)
+           *pow4(cbrt(v1)*cbrt(v2)/(cbrt(v1) + cbrt(v2)))
         );
 }
 
 
-Foam::scalar Foam::coalescenceEfficiencyKernels::Chesters::Pc
+Foam::scalar Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
 (
     const label celli,
     const label nodei,
     const label nodej
 ) const
 {
-    const phaseModel& phase1 = fluid_.phase1();
-    const phaseModel& phase2 = fluid_.phase2();
+    scalar d1 = fluid_.phase1().ds(nodei)[celli];
+    scalar d2 = fluid_.phase1().ds(nodej)[celli];
 
-    scalar di = fluid_.phase1().ds(nodei)[celli];
-    scalar dj = fluid_.phase1().ds(nodej)[celli];
+    scalar pi = constant::mathematical::pi;
+    scalar v1 = pow3(d1)*pi/6.0;
+    scalar v2 = pow3(d2)*pi/6.0;
 
-    scalar Weij
-    (
-        phase2.rho()[celli]
-       *di
-       *magSqr(phase1.Us(nodei)[celli] - phase1.Us(nodej)[celli])
-       /fluid_.sigma().value()
-    );
-    scalar xi(di/dj);
-
+    scalar rho = fluid_.phase2().rho()[celli];
+    scalar sigma = fluid_.sigma().value();
 
     return
         Foam::exp
         (
-          - theta_[celli]*sqrt(Weij)
-           *sqrt(0.75*(1.0 + sqr(xi))*(1.0 + pow3(xi)))
-           /(
-                sqrt
-                (
-                    fluid_.phase1().rho()[celli]/fluid_.phase2().rho()[celli]
-                  + 0.5
-                )
-               *pow3(1.0 + xi)
-            )
+          - Ceff_.value()
+           *muf_[celli]*epsilonf_[celli]*rho/sqr(sigma)
+           *pow4(cbrt(v1)*cbrt(v2)/(cbrt(v1) + cbrt(v2)))
         );
 }
 

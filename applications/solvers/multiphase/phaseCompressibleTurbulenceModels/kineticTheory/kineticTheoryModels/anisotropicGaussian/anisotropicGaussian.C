@@ -106,7 +106,7 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
     (
         IOobject
         (
-            "h2Fn",
+            IOobject::groupName("h2Fn", phase.name()),
             phase.mesh().time().timeName(),
             phase.mesh(),
             IOobject::NO_READ,
@@ -119,7 +119,7 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
     (
         IOobject
         (
-            "PsFric",
+            IOobject::groupName("PsFric", phase.name()),
             phase.mesh().time().timeName(),
             phase.mesh(),
             IOobject::NO_READ,

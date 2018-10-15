@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CoulaloglouAndTavlarides.H"
+#include "LuoFrequency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
 #include "fvc.H"
@@ -32,13 +32,14 @@ License
 
 namespace Foam
 {
-namespace coalescenceEfficiencyKernels
+namespace coalescenceFrequencyKernels
 {
-    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
+    defineTypeNameAndDebug(Luo, 0);
+
     addToRunTimeSelectionTable
     (
-        coalescenceEfficiencyKernel,
-        CoulaloglouAndTavlarides,
+        coalescenceFrequencyKernel,
+        Luo,
         dictionary
     );
 }
@@ -47,64 +48,45 @@ namespace coalescenceEfficiencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::
-CoulaloglouAndTavlarides
+Foam::coalescenceFrequencyKernels::Luo::Luo
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalescenceEfficiencyKernel(dict, mesh),
+    coalescenceFrequencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    Ceff_(dict.lookup("Ceff")),
     epsilonf_
     (
         IOobject
         (
-            "CoulaloglouAndTavlarides:epsilonf",
+            "Luo:epsilonf",
             fluid_.mesh().time().timeName(),
             fluid_.mesh()
         ),
         fluid_.mesh(),
         dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
-    ),
-    nuf_
-    (
-        IOobject
-        (
-            "CoulaloglouAndTavlarides:nuf",
-            fluid_.mesh().time().timeName(),
-            fluid_.mesh()
-        ),
-        fluid_.mesh(),
-        dimensionedScalar("zero", dimViscosity, 0.0)
     )
-{
-    Ceff_.dimensions().reset(inv(sqr(dimLength)));
-}
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::
-~CoulaloglouAndTavlarides()
+Foam::coalescenceFrequencyKernels::Luo::~Luo()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::update()
+void Foam::coalescenceFrequencyKernels::Luo::update()
 {
     const phaseModel& phase(fluid_.phase1());
-    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
-    epsilonf_ = phase.nu()*(S && S);
+    epsilonf_ = phase.turbulence().epsilon();
     epsilonf_.max(SMALL);
-    nuf_ = fluid_.phase2().nu();
 }
 
-
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
+Foam::coalescenceFrequencyKernels::Luo::omega
 (
     const label nodei,
     const label nodej
@@ -115,17 +97,18 @@ Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
     const volScalarField& rho = fluid_.phase2().rho();
     const dimensionedScalar& sigma = fluid_.sigma();
 
-    return
-        Foam::exp
-        (
-          - Ceff_
-           *nuf_*epsilonf_*sqr(rho/sigma)
-           *pow4(d1*d2/(d1 + d2))
-        );
+    volScalarField xi("xi", min(d1, d2)/max(d1, d2));
+    volScalarField uRel
+    (
+        "uRel",
+        2.0*cbrt(epsilonf_)*sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
+    );
+
+    return constant::mathematical::pi/4.0*sqr(d1 + d2)*uRel;
 }
 
-
-Foam::scalar Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
+Foam::scalar
+Foam::coalescenceFrequencyKernels::Luo::omega
 (
     const label celli,
     const label nodei,
@@ -134,16 +117,12 @@ Foam::scalar Foam::coalescenceEfficiencyKernels::CoulaloglouAndTavlarides::Pc
 {
     scalar d1 = fluid_.phase1().ds(nodei)[celli];
     scalar d2 = fluid_.phase1().ds(nodej)[celli];
-    scalar rho = fluid_.phase2().rho()[celli];
-    scalar sigma = fluid_.sigma().value();
 
-    return
-        Foam::exp
-        (
-          - Ceff_.value()
-           *nuf_[celli]*epsilonf_[celli]*sqr(rho/sigma)
-           *pow4(d1*d2/(d1 + d2))
-        );
+    scalar xi = min(d1, d2)/max(d1, d2);
+    scalar uRel =
+        2.0*cbrt(epsilonf_[celli])*sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
+
+    return constant::mathematical::pi/4.0*sqr(d1 + d2)*uRel;
 }
 
 // ************************************************************************* //

@@ -22,39 +22,42 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::aggregationKernels::
-    CoulaloglouAndTavlarides
+    Foam::populationBalanceSubModels::aggregationKernels::Luo
 
 Description
-    Coalesence frequency kernel based on kinetic theory of gasses
+    Coalesence frequency kernel based on turbulence, buoyancy, and
+    laminar shear.
 
     \f[
-        \omega = \epsilon_f^{1/3}(d_i^{2/3} + d_j^{2/3})
     \f]
 
     where
 
     \vartable
+        \sigma      |  Surface tension
+        \mathbf{U}_f|  Liquid velocity [m/s]
+        \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        d_i         |  Diameter of bubble i [m]
-        d_j         |  Diameter of bubble j [m]
+        g           |  Gravitational acceleration [m/s2]
+        \d_i        |  Diameter of bubble i [m]
+        \d_j        |  Diameter of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "Description of interaction processes in agitated liquid-liquid dispersions"
-        C Coulaloglou, L Tavlarides
-        Chemical Engineering Science
-        Volume 32, Pages 1289-1297, 1977
+        "Coalescence, breakup and liquid circulation in bubble column reactors"
+         Luo, H.,
+         PhD Theses,
+         The Norwegian Institute of Technology, 1993
     \endverbatim
 
 SourceFiles
-    CoulaloglouAndTavlarides.C
+    LuoFrequecy.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef CoulaloglouAndTavlarides_H
-#define CoulaloglouAndTavlarides_H
+#ifndef PrinceAndBlanch_H
+#define PrinceAndBlanch_H
 
 #include "coalescenceFrequencyKernel.H"
 #include "twoPhaseSystem.H"
@@ -69,10 +72,10 @@ namespace coalescenceFrequencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class CoulaloglouAndTavlarides Declaration
+                            Class Luo Declaration
 \*---------------------------------------------------------------------------*/
 
-class CoulaloglouAndTavlarides
+class Luo
 :
     public coalescenceFrequencyKernel
 {
@@ -84,16 +87,17 @@ class CoulaloglouAndTavlarides
         //- Turbulent dissipation
         volScalarField epsilonf_;
 
+
 public:
 
         //- Runtime type information
-        TypeName("CoulaloglouAndTavlarides");
+        TypeName("Luo");
 
 
     // Constructors
 
         //- Construct from components
-        CoulaloglouAndTavlarides
+        Luo
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -101,7 +105,7 @@ public:
 
 
     //- Destructor
-    virtual ~CoulaloglouAndTavlarides();
+    virtual ~Luo();
 
 
     // Member Functions

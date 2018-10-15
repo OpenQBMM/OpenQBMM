@@ -282,6 +282,9 @@ void Foam::monoKineticQuadratureApproximation::interpolateNodes()
         surfaceScalarNode& nodeNei(nodesNei[nodei]);
         surfaceScalarNode& nodeOwn(nodesOwn[nodei]);
 
+        nodes_()[nodei].primaryWeight().correctBoundaryConditions();
+        nodes_()[nodei].primaryAbscissa().correctBoundaryConditions();
+
         nodeOwn.primaryWeight() =
             fvc::interpolate(node.primaryWeight(), own, "reconstruct(weight)");
 
@@ -509,11 +512,6 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
 
     updateVelocities();
     updateBoundaryVelocities();
-
-    forAll(nodes_(), nodei)
-    {
-        velocityAbscissae_[nodei].correctBoundaryConditions();
-    }
 
     updateAllMoments();
 }

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,60 +22,52 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::aggregationKernels::
-    PrinceAndBlanch
+    Foam::populationBalanceSubModels::coalescenceEfficiencyKernels::
+    CoulaloglouAndTavlarides
 
 Description
-    Coalesence frequency kernel based on turbulence, buoyancy, and
-    laminar shear.
+    Coalesence efficiency based on film drainage and rupture times.
 
     \f[
-        \omega_{turb} =
-            0.089 \pi (d_i + d_j)^2
-            \sqrt{d_i^{\frac{2}{3}} + d_j^{\frac{2}{3}} }
-            epsilon_f^{frac{1}{3}}
-
-        \omega_{buoyancy} =
-            \pi (d_i + d_j)^2
-            (
-               \sqrt{2.14*\sigma/(d_i \rho_f) + 0.5 \mathbf{g} d_i}
-             - \sqrt{2.14*\sigma/(d_j \rho_f) + 0.5 \mathbf{g} d_j}
-            )
-
-        \omega_{shear} =
-            \frac{2}{3} (d_i + d_j)^3 |\nabla \mathbf{U}_f|
-
+        P_c =
+            \text{exp}
+            \left(
+              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
+                \left(
+                    \frac{d_i^{1/3} d_j^{1/3}}{d_i^{1/3} + d_j^{1/3}}
+                \right)
+            \right)
     \f]
 
     where
 
     \vartable
         \sigma      |  Surface tension
-        \mathbf{U}_f|  Liquid velocity [m/s]
         \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        g           |  Gravitational acceleration [m/s2]
-        \d_i        |  Diameter of bubble i [m]
-        \d_j        |  Diameter of bubble j [m]
+        \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
+        d_i         |  Diameter of bubble i [m]
+        d_j         |  Diameter of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "Bubble Coalescence and Break-up n Air-Sparged Bubble Columns"
-        M. J. Prince, H. W. Blanch
-        AIChE Journal
-        Volume 36, Pages 1485 - 1499, 1990
+        "Description of interaction processes in agitated liquid-liquid
+        dispersions"
+        C Coulaloglou, L Tavlarides
+        Chemical Engineering Science
+        Volume 32, Pages 1289-1297, 1977
     \endverbatim
 
 SourceFiles
-    PrinceAndBlanch.C
+    CoulaloglouAndTavlaridesEfficiency.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef PrinceAndBlanch_H
-#define PrinceAndBlanch_H
+#ifndef CoulaloglouAndTavlaridesEfficiency_H
+#define CoulaloglouAndTavlaridesEfficiency_H
 
-#include "coalescenceFrequencyKernel.H"
+#include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
 #include "phaseModel.H"
 #include "PhaseCompressibleTurbulenceModel.H"
@@ -84,45 +76,42 @@ SourceFiles
 
 namespace Foam
 {
-namespace coalescenceFrequencyKernels
+namespace coalescenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class PrinceAndBlanch Declaration
+                    Class CoulaloglouAndTavlarides Declaration
 \*---------------------------------------------------------------------------*/
 
-class PrinceAndBlanch
+class CoulaloglouAndTavlarides
 :
-    public coalescenceFrequencyKernel
+    public coalescenceEfficiencyKernel
 {
     // Private data
 
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
+        //- Efficiency coefficient
+        dimensionedScalar Ceff_;
+
         //- Turbulent dissipation
         volScalarField epsilonf_;
 
-        //- Switch for turbulence driven coalescence
-        Switch turbulent_;
-
-        //- Switch for buoyancy drive coalescence
-        Switch buoyant_;
-
-        //- Switch for laminar shear driven coalescence
-        Switch LS_;
+        //- Kinematic viscosity of fluid phase
+        volScalarField muf_;
 
 
 public:
 
         //- Runtime type information
-        TypeName("PrinceAndBlanch");
+        TypeName("CoulaloglouAndTavlarides");
 
 
     // Constructors
 
         //- Construct from components
-        PrinceAndBlanch
+        CoulaloglouAndTavlarides
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -130,7 +119,7 @@ public:
 
 
     //- Destructor
-    virtual ~PrinceAndBlanch();
+    virtual ~CoulaloglouAndTavlarides();
 
 
     // Member Functions
@@ -139,14 +128,14 @@ public:
         virtual void update();
 
         //- Aggregation kernel
-        virtual tmp<volScalarField> omega
+        virtual tmp<volScalarField> Pc
         (
             const label nodei,
             const label nodej
         ) const;
 
         //- Aggregation kernel
-        virtual scalar omega
+        virtual scalar Pc
         (
             const label celli,
             const label nodei,
@@ -158,7 +147,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coalescenceFrequencyKernels
+} // End namespace coalescenceEfficiencyKernels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

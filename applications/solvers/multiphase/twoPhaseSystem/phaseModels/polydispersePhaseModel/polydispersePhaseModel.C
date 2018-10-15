@@ -66,11 +66,6 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
 {
     scalar cSource = 0.0;
 
-    if (!coalescence_ || momentOrder == 1)
-    {
-        return cSource;
-    }
-
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
@@ -113,11 +108,6 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
 )
 {
     vector cSource = Zero;
-
-    if (!coalescence_ || momentOrder == 1)
-    {
-        return cSource;
-    }
 
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
@@ -163,11 +153,6 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
 {
     scalar bSource = 0.0;
 
-    if (!breakup_ || momentOrder == 1)
-    {
-        return bSource;
-    }
-
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
@@ -202,11 +187,6 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
 {
     vector bSource = Zero;
 
-    if (!breakup_ || momentOrder == 1)
-    {
-        return bSource;
-    }
-
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
@@ -239,15 +219,110 @@ void Foam::polydispersePhaseModel::solveSourceOde()
         return;
     }
 
+    Info << "Solving source terms in realizable ODE solver." << endl;
+    coalescenceKernel_.update();
+    breakupKernel_->update();
+
     volUnivariateMomentFieldSet& moments = quadrature_.moments();
     label nMoments = quadrature_.nMoments();
     PtrList<volVectorField>& Ups = quadrature_.velocityMoments();
     label nVelocityMoments = Ups.size();
     scalar globalDt = moments[0].mesh().time().deltaT().value();
 
-    Info << "Solving source terms in realizable ODE solver." << endl;
-    coalescenceKernel_.update();
-    breakupKernel_->update();
+    if (!ode_)
+    {
+        forAll(moments[0], celli)
+        {
+            if ((*this)[celli] < residualAlpha_.value())
+            {
+                continue;
+            }
+
+            //- Store old moments
+            scalarField momentsOld(nMoments, 0.0);
+            vectorField UpsOld(nVelocityMoments, Zero);
+
+            //- First step
+            scalarField k1(nMoments, 0.0);
+            vectorField k1U(nVelocityMoments, Zero);
+            forAll(moments, momenti)
+            {
+                momentsOld[momenti] = moments[momenti][celli];
+                k1[momenti] =
+                (
+                    breakupSource(momenti, celli)
+                  + coalescenceSource(momenti, celli)
+                );
+                moments[momenti][celli] += k1[momenti]*globalDt;
+            }
+            forAll(Ups, momenti)
+            {
+                UpsOld[momenti] = Ups[momenti][celli];
+                k1U[momenti] =
+                (
+                    breakupSourceU(momenti, celli)
+                  + coalescenceSourceU(momenti, celli)
+                );
+                Ups[momenti][celli] += k1U[momenti]*globalDt;
+            }
+            quadrature_.updateAllLocalQuadrature(celli, true);
+
+            //- Second step
+            scalarField k2(nMoments, 0.0);
+            vectorField k2U(nVelocityMoments, Zero);
+            forAll(moments, momenti)
+            {
+                k2[momenti] =
+                (
+                    breakupSource(momenti, celli)
+                  + coalescenceSource(momenti, celli)
+                );
+                moments[momenti][celli] =
+                    momentsOld[momenti]
+                  + (k1[momenti] + k2[momenti])/4.0*globalDt;
+            }
+            forAll(Ups, momenti)
+            {
+                k2U[momenti] =
+                (
+                    breakupSourceU(momenti, celli)
+                  + coalescenceSourceU(momenti, celli)
+                );
+                Ups[momenti][celli] =
+                    UpsOld[momenti]
+                  + (k1U[momenti] + k2U[momenti])/4.0*globalDt;
+            }
+            quadrature_.updateAllLocalQuadrature(celli, true);
+
+            //- Final step
+            forAll(moments, momenti)
+            {
+                scalar k3
+                (
+                    breakupSource(momenti, celli)
+                  + coalescenceSource(momenti, celli)
+                );
+                moments[momenti][celli] =
+                    momentsOld[momenti]
+                  + (k1[momenti] + k2[momenti] + 4.0*k3)/6.0*globalDt;
+            }
+            forAll(Ups, momenti)
+            {
+                vector k3U
+                (
+                    breakupSourceU(momenti, celli)
+                  + coalescenceSourceU(momenti, celli)
+                );
+                Ups[momenti][celli] +=
+                    (k1U[momenti] + k2U[momenti] + 4.0*k3U)/6.0*globalDt;
+            }
+//             quadrature_.updateAllLocalQuadrature(celli, true);
+        }
+
+        quadrature_.updateAllQuadrature();
+
+        return;
+    }
 
     forAll(moments[0], celli)
     {
@@ -913,6 +988,9 @@ void Foam::polydispersePhaseModel::averageTransport
     const PtrList<fvVectorMatrix>& AEqns
 )
 {
+    // Update moments with breakup and coalescence sources
+    solveSourceOde();
+
     // Correct mean flux
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
@@ -1165,10 +1243,6 @@ void Foam::polydispersePhaseModel::averageTransport
     }
     quadrature_.updateAllMoments();
     this->updateVelocity();
-
-    // Update moments with breakup and coalescence sources
-    solveSourceOde();
-    correct();
 
     // Update deviation velocity
     forAll(Vs_, nodei)
