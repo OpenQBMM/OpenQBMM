@@ -28,10 +28,14 @@ Description
     Coalesence efficiency based on film drainage and rupture times.
 
     \f[
-        P_c = \mathrm{exp}\left(\frac{t_{ij}}{\tau_{ij}}\right)
-        t_{ij} = \sqrt{frac{\rho_f r_{ij}^3}{16 \sigma}} ln(\frac{h_0}{h_f})
-        \tau_{ij} = \frac{r_{ij}^{2/3}}{\epsilon_f^{1/3}}
-        r_{ij} = \frac{1}{2} \left(\frac{1}{r_i} + \frac{1}{r_j} \right)^{-1}
+        P_c = \mathrm{exp}
+            \left(
+               -\frac{\frac{3}{4}(1+\xi^2)^{1/2}(1+\xi^3)^{1/2}}
+                {\left(\frac{\rho_b}{\rho_f}+C_{vm}\right)^{1/2}(1+\xi)^3}
+                \mathrm{We}^{1/2}
+            \right)
+        u_{rel} =  2 \epsilon_f^{1/3}(d_i^{2/3} + d_j^{2/3})^{1/2}
+        \mathrm{We} = \frac{\mathrm{min}(d_i, d_j)\rho_f\u_{rel}^2}{\sigma}
     \f]
 
     where
@@ -39,11 +43,10 @@ Description
     \vartable
         \sigma      |  Surface tension
         \rho_f      |  Density of liquid phase [kg/m3]
+        \rho_b      |  Density of bubble phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        \h_f        |  Film thickness [m]
-        \h_0        |  Initial film thickness [m]
-        r_i         |  Radius of bubble i [m]
-        r_j         |  Radius of bubble j [m]
+        d_i         |  Diameter of bubble i [m]
+        d_j         |  Diameter of bubble j [m]
     \endvartable
 
     References

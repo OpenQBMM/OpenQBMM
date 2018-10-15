@@ -29,16 +29,15 @@ Description
     laminar shear.
 
     \f[
+        \omega = \frac{\pi}{4}(d_i + d_j)^2 u_{rel}
+
+        u_{rel} =  2 \epsilon_f^{1/3}(d_i^{2/3} + d_j^{2/3})^{1/2}
     \f]
 
     where
 
     \vartable
-        \sigma      |  Surface tension
-        \mathbf{U}_f|  Liquid velocity [m/s]
-        \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        g           |  Gravitational acceleration [m/s2]
         \d_i        |  Diameter of bubble i [m]
         \d_j        |  Diameter of bubble j [m]
     \endvartable
