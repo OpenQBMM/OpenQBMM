@@ -65,6 +65,10 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
 )
 {
     scalar cSource = 0.0;
+    if (!coalescence_)
+    {
+        return cSource;
+    }
 
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
@@ -83,19 +87,19 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa, handled inside kernel
             cSource +=
-                weight1
+                0.5*weight1
                *(
                     weight2
                    *(
-                        0.5*pow // Birth
+                        pow // Birth
                         (
-                            pow3(abscissa1)
-                          + pow3(abscissa2),
-                            momentOrder/3.0
+                            (abscissa1) + (abscissa2),
+                            momentOrder
                         )
                       - pow(abscissa1, momentOrder)
-                    )*coalescenceKernel_.Ka(celli, nodei, nodej)
-                );
+                      - pow(abscissa2, momentOrder)
+                    )
+                )*coalescenceKernel_.Ka(celli, nodei, nodej);
         }
     }
     return cSource;
@@ -108,6 +112,10 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
 )
 {
     vector cSource = Zero;
+    if (!coalescence_)
+    {
+        return cSource;
+    }
 
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
@@ -126,17 +134,17 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa, handled inside kernel
             cSource +=
-                weight1*Us_[nodei][celli]
+                0.5*weight1*Us_[nodei][celli]
                *(
                     weight2
                    *(
-                        0.5*pow // Birth
+                        pow // Birth
                         (
-                            pow3(abscissa1)
-                          + pow3(abscissa2),
-                            momentOrder/3.0
+                            (abscissa1) + (abscissa2),
+                            momentOrder
                         )
                       - pow(abscissa1, momentOrder)
+                      - pow(abscissa2, momentOrder)
                     )*coalescenceKernel_.Ka(celli, nodei, nodej)
                 );
         }
@@ -152,6 +160,10 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
 )
 {
     scalar bSource = 0.0;
+    if (!breakup_)
+    {
+        return bSource;
+    }
 
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
@@ -174,7 +186,6 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
               - pow(abscissa, momentOrder)   //Death
             );
     }
-
     return bSource;
 }
 
@@ -186,6 +197,10 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
 )
 {
     vector bSource = Zero;
+    if (!breakup_)
+    {
+        return bSource;
+    }
 
     const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 

@@ -69,6 +69,8 @@ protected:
 
         const dictionary& dict_;
 
+        Switch massBased_;
+
 
 public:
 

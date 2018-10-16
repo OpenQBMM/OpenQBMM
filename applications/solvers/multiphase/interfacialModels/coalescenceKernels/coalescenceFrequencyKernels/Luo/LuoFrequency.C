@@ -94,10 +94,7 @@ Foam::coalescenceFrequencyKernels::Luo::omega
 {
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
-    const volScalarField& rho = fluid_.phase2().rho();
-    const dimensionedScalar& sigma = fluid_.sigma();
 
-    volScalarField xi("xi", min(d1, d2)/max(d1, d2));
     volScalarField uRel
     (
         "uRel",
@@ -118,7 +115,6 @@ Foam::coalescenceFrequencyKernels::Luo::omega
     scalar d1 = fluid_.phase1().ds(nodei)[celli];
     scalar d2 = fluid_.phase1().ds(nodej)[celli];
 
-    scalar xi = min(d1, d2)/max(d1, d2);
     scalar uRel =
         2.0*cbrt(epsilonf_[celli])*sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
 

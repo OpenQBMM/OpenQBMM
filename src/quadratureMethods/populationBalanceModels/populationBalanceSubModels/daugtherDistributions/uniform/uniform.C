@@ -75,6 +75,11 @@ Foam::populationBalanceSubModels::daughterDistributions::uniform::mD
     const scalar& abscissa
 ) const
 {
+    if (this->massBased_)
+    {
+       return 2.0*pow(abscissa, order)/(order + 1.0);
+    }
+
     return 6.0*pow(abscissa, order)/(order + 3.0);
 }
 

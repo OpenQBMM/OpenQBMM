@@ -76,6 +76,12 @@ Foam::populationBalanceSubModels::daughterDistributions::erosion::mD
     const scalar& abscissa
 ) const
 {
+    if (this->massBased_)
+    {
+        return
+            pow(primarySize_.value(), order)
+          + pow(abscissa - primarySize_.value(), order);
+    }
     return pow(primarySize_.value(), order)
         + pow(pow3(abscissa) - pow3(primarySize_.value()), order/3.0);
 }

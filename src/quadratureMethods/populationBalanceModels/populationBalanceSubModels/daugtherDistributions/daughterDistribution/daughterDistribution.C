@@ -45,7 +45,8 @@ Foam::populationBalanceSubModels::daughterDistribution::daughterDistribution
     const dictionary& dict
 )
 :
-    dict_(dict)
+    dict_(dict),
+    massBased_(dict.lookupOrDefault("massBased", false))
 {}
 
 

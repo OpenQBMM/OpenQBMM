@@ -77,7 +77,12 @@ Foam::populationBalanceSubModels::daughterDistributions::fullFragmentation
 ) const
 {
 
-    return (pow3(abscissa/primarySize_.value()))
+    if (this->massBased_)
+    {
+        return abscissa/primarySize_.value()*pow(primarySize_.value(), order);
+    }
+
+    return pow3(abscissa/primarySize_.value())
             *pow(primarySize_.value(), order);
 }
 

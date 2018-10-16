@@ -75,7 +75,11 @@ Foam::populationBalanceSubModels::daughterDistributions::oneQuarterMassRatio::mD
     const scalar& abscissa
 ) const
 {
-    scalar exponent = order/3.0;
+    scalar exponent = order;
+    if (!this->massBased_)
+    {
+        exponent /= 3.0;
+    }
 
     return (pow(4.0, exponent) + 1.0)*pow(abscissa, order)/pow(5, exponent);
 }
