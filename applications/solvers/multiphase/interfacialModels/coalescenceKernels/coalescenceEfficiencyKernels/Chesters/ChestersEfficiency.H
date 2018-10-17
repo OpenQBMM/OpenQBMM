@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,46 +22,54 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::coalescenceEfficiencyKernels::Lehr
+    Foam::populationBalanceSubModels::coalescenceEfficiencyKernels::
+    Chesters
 
 Description
-    Coalesence efficiency based on film drainage and rupture times.
+    Coaelescence efficieny kernel based on the interaction time of bubble.
+    Only valid for bubbles of equal sizes.
 
     \f[
-        P_c = max(\frac{u_\mathrm{crit}}{u'}, 1)
-        u_\mathrm{crit} = \sqrt{\frac{We_\mathrm{crit}\sigma}{\rho_f d_{eq} } }
-        u' = \mathrm{max}(\sqrt{2}(\epsilon_f \sqrt{d_i d_j})^{1/3}, |\mathbf{U}_i - mathbf{U}_j|)
-        d_{eq} = 2(\frac{1}{d_i} + \frac{1}{d_j})^{-1}
+        P_c =
+            \text{exp}
+            (
+            - \frac{\theta \sqrt{We} \sqrt{0.75 (1.0 + \xi^2) (1.0 + \xi^3)}}
+              {\sqrt{\rho_b/rho_f}*(1.0 + \xi)^3}
+            );
+        \xi = \frac{d_i}{d_j}
+        \theta = x Re^{y} \text{We}^{z}
     \f]
 
     where
 
     \vartable
-        \sigma      |  Surface tension
         \rho_f      |  Density of liquid phase [kg/m3]
-        \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
+        \rho_b      |  Density of bubble phase [kg/m3]
+        We          |  Webber number [ ]
+        Re          |  Reynolds number [ ]
+        x           |  Efficiency cofficient [ ]
+        y           |  Reynolds number coefficient [ ]
+        z           |  Weber number coefficient [ ]
         d_i         |  Diameter of bubble i [m]
-        d_j         |  Diameter of bubble j [m]
-        \mathbf{U}_i|  Velocity of bubble i [m/s]
-        \mathbf{U}_j|  Velocity of bubble j [m/s]
+        d_j         |  Diamerer of bubble j [m]
     \endvartable
 
     References
     \verbatim
-        "A transport equation for the interfacial area density applied to bubble
-        columns"
-        F. Lehr, D. Mewes
-        Chemical Engineering Science
-        Volume 56, Pages 1159-1166, 2001
+        "The Modelling of coalescence processes in fluid-liquid dispersions:
+        a review of current understanding"
+        A.K. Chesters
+        Chemical Engineering Research and Design
+        Volume 69, Pages 259 - 270, 1991
     \endverbatim
 
 SourceFiles
-    Lehr.C
+    ChestersEfficiency.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Lehr_H
-#define Lehr_H
+#ifndef ChestersEfficiency_H
+#define ChestersEfficiency_H
 
 #include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
@@ -76,10 +84,10 @@ namespace coalescenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class Lehr Declaration
+                    Class Chesters Declaration
 \*---------------------------------------------------------------------------*/
 
-class Lehr
+class Chesters
 :
     public coalescenceEfficiencyKernel
 {
@@ -88,30 +96,29 @@ class Lehr
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
-        //- Switch if turbulence modleing is used
-        Switch turbulence_;
+        //- Efficiency coefficient
+        dimensionedScalar Ceff_;
 
-        //- Surface tension
-        dimensionedScalar sigma_;
+        //- Reynolds number exponent
+        dimensionedScalar ReExp_;
 
-        //- Critical velocity
-        dimensionedScalar WeCrit_;
+        //- Webber number exponent
+        dimensionedScalar WeExp_;
 
-        //- Turbulent dissipation
-        volScalarField epsilonf_;
-
+        //- Ratio of Reynolds number to Webber number
+        volScalarField theta_;
 
 
 public:
 
         //- Runtime type information
-        TypeName("Lehr");
+        TypeName("Chesters");
 
 
     // Constructors
 
         //- Construct from components
-        Lehr
+        Chesters
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -119,7 +126,7 @@ public:
 
 
     //- Destructor
-    virtual ~Lehr();
+    virtual ~Chesters();
 
 
     // Member Functions

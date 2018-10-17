@@ -54,9 +54,6 @@ class AGmomentTransportModel
 {
     // Private data
 
-        //- Flag to indicate if inversion is done in cells
-		const Switch cellInv_;
-
         //- Const refrence to mesh
         const fvMesh& mesh_;
 
@@ -82,10 +79,10 @@ class AGmomentTransportModel
         hermiteQuadrature hq_;
 
         //- Constant reference to quadrature weights
-        const scalarList& hqWeigs_;
+        PtrList<volScalarField> weights_;
 
         //- Reference to quadrature abscissae
-        vectorList& hqAbsc_;
+        PtrList<volVectorField> abscissae_;
 
         //- Wall restitution coefficient
         const scalar ew_;
@@ -93,7 +90,9 @@ class AGmomentTransportModel
         //- Wall specularity coefficient
         const scalar phiw_;
 
-        PtrList<surfaceScalarField> ownnei_;
+        surfaceScalarField own_;
+
+        surfaceScalarField nei_;
 
         //- Zero order moment flux
         surfaceScalarField F0_;

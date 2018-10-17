@@ -23,49 +23,18 @@ License
 
 Class
     Foam::populationBalanceSubModels::coalescenceEfficiencyKernels::
-    CoulaloglouAndTavlarides
+    constant
 
 Description
-    Coalesence efficiency based on film drainage and rupture times.
-
-    \f[
-        P_c =
-            \text{exp}
-            \left(
-              - C_{eff} \frac{\mu_f \rho_f \epsilon_f}{\sigma^2}
-                \left(
-                    \frac{d_i^{1/3} d_j^{1/3}}{d_i^{1/3} + d_j^{1/3}}
-                \right)
-            \right)
-    \f]
-
-    where
-
-    \vartable
-        \sigma      |  Surface tension
-        \rho_f      |  Density of liquid phase [kg/m3]
-        \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
-        \mu_f       |  Molecular dynamic iscosity of liquid phase [Pa s]
-        d_i         |  Diameter of bubble i [m]
-        d_j         |  Diameter of bubble j [m]
-    \endvartable
-
-    References
-    \verbatim
-        "Description of interaction processes in agitated liquid-liquid
-        dispersions"
-        C Coulaloglou, L Tavlarides
-        Chemical Engineering Science
-        Volume 32, Pages 1289-1297, 1977
-    \endverbatim
+    Constant coalescence efficiency
 
 SourceFiles
-    CoulaloglouAndTavlarides.C
+    constantEfficiency.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef CoulaloglouAndTavlarides_H
-#define CoulaloglouAndTavlarides_H
+#ifndef constantEfficiency_H
+#define constantEfficiency_H
 
 #include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
@@ -80,10 +49,10 @@ namespace coalescenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class CoulaloglouAndTavlarides Declaration
+                    Class constant Declaration
 \*---------------------------------------------------------------------------*/
 
-class CoulaloglouAndTavlarides
+class constant
 :
     public coalescenceEfficiencyKernel
 {
@@ -95,23 +64,17 @@ class CoulaloglouAndTavlarides
         //- Efficiency coefficient
         dimensionedScalar Ceff_;
 
-        //- Turbulent dissipation
-        volScalarField epsilonf_;
-
-        //- Kinematic viscosity of fluid phase
-        volScalarField nuf_;
-
 
 public:
 
         //- Runtime type information
-        TypeName("CoulaloglouAndTavlarides");
+        TypeName("constant");
 
 
     // Constructors
 
         //- Construct from components
-        CoulaloglouAndTavlarides
+        constant
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -119,7 +82,7 @@ public:
 
 
     //- Destructor
-    virtual ~CoulaloglouAndTavlarides();
+    virtual ~constant();
 
 
     // Member Functions

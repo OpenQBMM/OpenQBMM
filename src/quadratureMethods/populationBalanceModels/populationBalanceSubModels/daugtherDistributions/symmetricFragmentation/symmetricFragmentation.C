@@ -79,4 +79,16 @@ Foam::populationBalanceSubModels::daughterDistributions::symmetricFragmentation
     return pow(2.0, (3.0 - order)/3.0)*pow(abscissa, order);
 }
 
+Foam::scalar
+Foam::populationBalanceSubModels::daughterDistributions::symmetricFragmentation
+::mDMass
+(
+    const label& order,
+    const scalar& abscissa
+) const
+{
+    return pow(2.0, (1 - order))*pow(abscissa, order);
+}
+
+
 // ************************************************************************* //

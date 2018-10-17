@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Chesters.H"
+#include "ChestersEfficiency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
 #include "phasePair.H"
@@ -147,7 +147,6 @@ Foam::scalar Foam::coalescenceEfficiencyKernels::Chesters::Pc
        /fluid_.sigma().value()
     );
     scalar xi(di/dj);
-
 
     return
         Foam::exp

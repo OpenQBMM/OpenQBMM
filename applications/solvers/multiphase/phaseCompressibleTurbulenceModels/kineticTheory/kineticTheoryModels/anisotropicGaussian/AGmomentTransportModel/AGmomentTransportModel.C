@@ -43,7 +43,6 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
     volSymmTensorField& Sigma
 )
 :
-    cellInv_(dict.lookupOrDefault("cellInv", true)),
     mesh_(mesh),
     phase_(phase),
     alphap_
@@ -76,11 +75,32 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
         Sigma_.boundaryField().types()
     ),
     hq_(3, dict.lookupOrDefault("nHerNodePerDim", 4)),
-    hqWeigs_(hq_.hermiteWeights()),
-    hqAbsc_(hq_.hermiteAbscissas()),
+    weights_(hq_.hermiteWeights().size()),
+    abscissae_(hq_.hermiteAbscissas().size()),
     ew_(dict.lookupOrDefault("wallRestitutionCoefficient", 1.0)),
     phiw_(dict.lookupOrDefault("wallSpecularityCoefficient", 0.0)),
-    ownnei_(2),
+    own_
+    (
+        IOobject
+        (
+            "own",
+            mesh.time().timeName(),
+            mesh
+        ),
+        mesh,
+        dimensionedScalar("own", dimless, 1.0)
+    ),
+    nei_
+    (
+        IOobject
+        (
+            "nei",
+            mesh.time().timeName(),
+            mesh
+        ),
+        mesh,
+        dimensionedScalar("nei", dimless, -1.0)
+    ),
     F0_
     (
         IOobject
@@ -148,33 +168,48 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
         dimensionedScalar("0", inv(dimTime), 0.0)
     )
 {
-    if (!cellInv_)
+    forAll(weights_, nodei)
     {
-        forAll(ownnei_,i)
-        {
-            ownnei_.set
+        weights_.set
+        (
+            nodei,
+            new volScalarField
             (
-                i,
-                new surfaceScalarField
+                IOobject
                 (
-                    IOobject
+                    IOobject::groupName
                     (
-                        "phi",
-                        mesh_.time().timeName(),
-                        mesh_,
-                        IOobject::NO_READ,
-                        IOobject::NO_WRITE
+                        "weight" + Foam::name(nodei),
+                        phase.name()
                     ),
-                    mesh_,
-                    0.0
-                )
-            );
-        }
+                    mesh.time().timeName(),
+                    mesh
+                ),
+                mesh,
+                dimensionedScalar("zero", dimless, 0.0)
+            )
+        );
 
-        ownnei_[0] == 1.0;
-        ownnei_[1] == -1.0;
+        abscissae_.set
+        (
+            nodei,
+            new volVectorField
+            (
+                IOobject
+                (
+                    IOobject::groupName
+                    (
+                        "abscisa" + Foam::name(nodei),
+                        phase.name()
+                    ),
+                    mesh.time().timeName(),
+                    mesh
+                ),
+                mesh,
+                dimensionedVector("zero", dimVelocity, Zero)
+            )
+        );
     }
-
     const faceList & ff = mesh.faces();
     const pointField & pp = mesh.points();
 
@@ -219,31 +254,10 @@ Foam::AGmomentTransportModel::~AGmomentTransportModel()
 Foam::scalar  Foam::AGmomentTransportModel::maxUxDx() const
 {
     scalar maxUxDx = 0.0;
-    tmp<volScalarField>  tVv;
-
-    tVv =
-        (mag(Up_.component(vector::X))
-      + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::XX)))
-       /pDxyz_.component(vector::X);
-
-    maxUxDx = gMax(tVv());
-    tVv.clear();
-
-    tVv =
-        (mag(Up_.component(vector::Y))
-      + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::YY)))
-       /pDxyz_.component(vector::Y);
-
-    maxUxDx = max(maxUxDx, gMax(tVv()));
-    tVv.clear();
-
-    tVv =
-        (mag(Up_.component(vector::Z))
-      + hq_.maxAbs()*sqrt(Pp_.component(symmTensor::ZZ)))
-       /pDxyz_.component(vector::Z);
-
-    maxUxDx = max(maxUxDx, gMax(tVv()));
-    tVv.clear();
+    forAll(weights_, nodei)
+    {
+        maxUxDx = max(maxUxDx, max(mag(abscissae_[nodei])).value());
+    }
 
     return maxUxDx;
 }
@@ -291,72 +305,41 @@ void Foam::AGmomentTransportModel::solve
     m1 = m1Old - 0.5*fvc::surfaceIntegrate(F1_)*deltaT;
     m2 = m2Old - 0.5*fvc::surfaceIntegrate(F2_)*deltaT;
 
-    m0.max(SMALL);
     alphap_ = m0;
     alphap_.correctBoundaryConditions();
 
-    Up_ = m1/m0;
+    Up_ = m1/max(m0, phase_.residualAlpha());
     Up_.correctBoundaryConditions();
 
-    Pp_ = m2/m0 - sqr(Up_);
+    Pp_ = m2/max(m0, phase_.residualAlpha()) - sqr(Up_);
     Pp_.correctBoundaryConditions();
 
     calcMomentFluxes(h1f);
 
     // Correction
     m0 = m0Old - fvc::surfaceIntegrate(F0_)*deltaT;
-    m0.correctBoundaryConditions();
-
     m1 = m1Old - fvc::surfaceIntegrate(F1_)*deltaT;
-    m1.correctBoundaryConditions();
-
     m2 = m2Old - fvc::surfaceIntegrate(F2_)*deltaT;
-    m2.correctBoundaryConditions();
 
     // Set volume fraction updated form dilute transport
-    m0.max(SMALL);
     alphap_ = m0;
     alphap_.correctBoundaryConditions();
     ddtAlphaDilute_ = fvc::ddt(alphap_);
     alphap_.storeOldTime();
 
     // Set velocity from dilute transport
-    Up_ = m1/m0;
+    Up_ = m1/max(m0, phase_.residualAlpha());
     Up_.correctBoundaryConditions();
     Up_.storeOldTime();
 
-    // Update fluxes
-//     surfaceScalarField& phip =
-//         mesh_.lookupObjectRef<surfaceScalarField>(phase_.phi().name());
-//
-//     surfaceScalarField& alphaPhip =
-//         mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaPhi().name());
-//
-//     surfaceScalarField& alphaRhoPhip =
-//         mesh_.lookupObjectRef<surfaceScalarField>(phase_.alphaRhoPhi().name());
-//
-//     phip = fvc::flux(Up_);
-//
-//     alphaPhip = fvc::interpolate(alphap_)*phase_.phi();
-//     alphaRhoPhip = fvc::interpolate(phase_.rho())*phase_.alphaPhi();
-
-//     surfaceScalarField& phi =
-//         mesh_.lookupObjectRef<surfaceScalarField>("phi");
-//
-//     const phaseModel& otherPhase = phase_.fluid().otherPhase(phase_);
-//
-//     phi =
-//         fvc::interpolate(alphap_)*phip
-//       + fvc::interpolate(otherPhase)*otherPhase.phi();
-
     // Update particle pressure tensor
-    Pp_ = m2/m0 - sqr(Up_);
+    Pp_ = m2/max(m0, phase_.residualAlpha()) - sqr(Up_);
 
     forAll(Pp_,i)
     {
         if (Pp_[i].xx() < SMALL)
         {
-                Pp_[i].xx() = SMALL;
+            Pp_[i].xx() = SMALL;
         }
 
         if (Pp_[i].yy() < SMALL)
@@ -391,457 +374,137 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
     const surfaceScalarField& h1f
 )
 {
+    PtrList<surfaceScalarField> weightsOwn(weights_.size());
+    PtrList<surfaceScalarField> weightsNei(weights_.size());
+    PtrList<surfaceVectorField> abscissaeOwn(abscissae_.size());
+    PtrList<surfaceVectorField> abscissaeNei(abscissae_.size());
 
-    const fvPatchList& patches = mesh_.boundary();
-    const surfaceVectorField& Sf = mesh_.Sf();
-
-    F0_ == dimensionedScalar("zero", F0_.dimensions(), 0.0);
-    F1_ == dimensionedVector("zero", F1_.dimensions(), vector::zero);
-    F2_ == dimensionedSymmTensor("zero", F2_.dimensions(), symmTensor::zero);
-
-    if (cellInv_)
+    forAll(alphap_, celli)
     {
-        const labelUList& owner = mesh_.owner();
-
-        forAll(alphap_, celli)
+        hq_.calcHermiteQuadrature(Up_[celli], Pp_[celli]);
+        forAll(weights_, nodei)
         {
-            const cell& cProp = mesh_.cells()[celli];
-
-            hq_.calcHermiteQuadrature(Up_[celli],Pp_[celli]);
-
-            scalarField hwl(alphap_[celli]*hqWeigs_);
-
-            // Loop over all the current cell faces to calculate the flux
-            forAll(cProp, locFacei)
-            {
-                const  label& facei = cProp[locFacei];
-
-                if (mesh_.isInternalFace(facei))
-                {
-
-                    scalarField facePhi(hqAbsc_ & Sf[facei]);
-                    // Sf is always pointing away from owner cell
-                    if (celli == owner[facei])
-                    {
-                        facePhi *= pos(facePhi);
-                    }
-                    else
-                    {
-                        facePhi *= neg(facePhi);
-                    }
-
-                    scalarField wPhi(hwl*facePhi);
-
-                    F0_[facei] += sum(wPhi);
-                    F1_[facei] += sum(wPhi*hqAbsc_);
-                    F2_[facei] += sum(wPhi*sqr(hqAbsc_));
-                }
-                else
-                {
-                    label patchi = mesh_.boundaryMesh().whichPatch(facei);
-                    const fvPatch& currPatch = patches[patchi];
-
-                    if (!isA<emptyFvPatch> (currPatch))
-                    {
-                        label pFacei = facei - currPatch.start();
-                        const vector& sf = currPatch.Sf()[pFacei];
-
-                        //  outgoing flux on the wall
-                        scalarField facePhi( sf & hqAbsc_);
-                        facePhi *= pos(facePhi);
-                        scalarField wPhi(hwl*facePhi);
-
-                        scalar sFlux = sum(wPhi);
-                        F1_.boundaryFieldRef()[patchi][pFacei] =
-                            sum(wPhi*hqAbsc_);
-
-                        F2_.boundaryFieldRef()[patchi][pFacei] =
-                            sum(wPhi*sqr(hqAbsc_));
-
-                        // Reflection incoming flux on the wall
-                        if (isA<wallFvPatch>(patches[patchi]))
-                        {
-
-                            F0_.boundaryFieldRef()[patchi][pFacei] = 0.0;
-
-                            // Reflection flux on the wall
-                            vector nf(sf/mag(sf));
-
-                            vectorField Uw
-                            (
-                                hqAbsc_ - (1.0 + ew_)*(hqAbsc_ & nf)*nf
-                            );
-
-                            wPhi *= phiw_ - 1.0;
-
-                            F1_.boundaryFieldRef()[patchi][pFacei] +=
-                                sum(wPhi*Uw);
-
-                            symmTensor tFlux(sum(wPhi*sqr(Uw)));
-                            F2_.boundaryFieldRef()[patchi][pFacei] += tFlux;
-                            scalar dfls_mf = phiw_*sFlux;
-                            scalar dfls_ef = phiw_*tr(tFlux);
-
-                            if (dfls_mf*dfls_ef > SMALL)
-                            {
-                                scalarField facePhio
-                                (
-                                    sf & hq_.hermiteOriginalAbscissas()
-                                );
-
-                                facePhio *= neg(facePhio);
-                                scalarField wPhio(hwl*facePhio);
-
-                                scalar sFluxo = mag(sum(wPhio));
-                                scalar tFluxo =
-                                    mag
-                                    (
-                                        sum
-                                        (
-                                            wPhio
-                                           *magSqr
-                                           (
-                                               hq_.hermiteOriginalAbscissas()
-                                           )
-                                        )
-                                    );
-
-                                scalar sig =
-                                    Foam::sqrt
-                                    (
-                                        dfls_ef*sFluxo/(dfls_mf*tFluxo)
-                                    );
-
-                                scalar pp = dfls_mf/sFluxo/sig;
-
-                                vectorField Ud
-                                (
-                                    sig*hq_.hermiteOriginalAbscissas()
-                                );
-
-                                scalarField facePhid(sf & Ud);
-                                facePhid *= neg(facePhid);
-                                scalarField wPhid(pp*hwl*facePhid);
-
-                                F1_.boundaryFieldRef()[patchi][pFacei] +=
-                                    sum(wPhid*Ud);
-
-                                F2_.boundaryFieldRef()[patchi][pFacei] +=
-                                    sum(wPhid*sqr(Ud));
-                            }
-                        }
-                    }
-                }
-            }
+            weights_[nodei][celli] = hq_.hermiteWeights()[nodei]*alphap_[celli];
+            abscissae_[nodei][celli] = hq_.hermiteAbscissas()[nodei];
         }
-
-        forAll(patches, patchi)
-        {
-            const fvPatch& currPatch = patches[patchi];
-
-            if
-            (
-                !(
-                    isA<wallFvPatch>(currPatch)
-                 || isA<emptyFvPatch>(currPatch)
-                )
-            )
-            {
-
-                const vectorField& Sfbf = currPatch.Sf();
-
-                // incoming flux from the periodic boundary
-                if ( isA<coupledFvPatch> (currPatch) )
-                {
-
-                    scalarField alphaNf
-                    (
-                        alphap_.boundaryField()[patchi].patchNeighbourField()
-                    );
-
-                    vectorField UpNf
-                    (
-                        Up_.boundaryField()[patchi].patchNeighbourField()
-                    );
-
-                    symmTensorField PpNf
-                    (
-                        Pp_.boundaryField()[patchi].patchNeighbourField()
-                    );
-
-                    forAll(Sfbf, pFacei)
-                    {
-                        hq_.calcHermiteQuadrature(UpNf[pFacei], PpNf[pFacei]);
-
-                        scalarField facePhi(Sfbf[pFacei] & hqAbsc_);
-                        facePhi *= neg(facePhi);
-                        scalarField wPhi(alphaNf[pFacei]*hqWeigs_*facePhi);
-
-                        F0_.boundaryFieldRef()[patchi][pFacei] +=
-                            sum(wPhi);
-
-                        F1_.boundaryFieldRef()[patchi][pFacei] +=
-                            sum(wPhi*hqAbsc_);
-
-                        F2_.boundaryFieldRef()[patchi][pFacei] +=
-                            sum(wPhi*sqr(hqAbsc_));
-                    }
-                }
-                else
-                {
-                    // incoming flux from the inlet boundary
-                    const scalarField& alphaPf
-                    (
-                        alphap_.boundaryField()[patchi]
-                    );
-
-                    const vectorField& UpPf(Up_.boundaryField()[patchi]);
-                    const symmTensorField& PpPf(Pp_.boundaryField()[patchi]);
-
-                    forAll(Sfbf, pFacei)
-                    {
-
-                        hq_.calcHermiteQuadrature(UpPf[pFacei], PpPf[pFacei]);
-
-                        scalarField facePhi(Sfbf[pFacei] & hqAbsc_);
-                        facePhi *= neg(facePhi);
-                        scalarField wPhi(alphaPf[pFacei]*hqWeigs_*facePhi);
-
-                        F0_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi);
-                        F1_.boundaryFieldRef()[patchi][pFacei] +=
-                            sum(wPhi*hqAbsc_);
-
-                        F2_.boundaryFieldRef()[patchi][pFacei] +=
-                            sum(wPhi*sqr(hqAbsc_));
-                    }
-                }
-            }
-        }
-
-        F0_ *= h1f;
-        F1_ *= h1f;
-        F2_ *= h1f;
     }
-    else
+    forAll(alphap_.boundaryField(), patchi)
     {
-        forAll(ownnei_, di)
+        forAll(alphap_.boundaryField()[patchi], facei)
         {
-
-            surfaceScalarField alphaf
+            hq_.calcHermiteQuadrature
             (
-                fvc::interpolate(alphap_,ownnei_[di], "alphap")
+                Up_.boundaryField()[patchi][facei],
+                Pp_.boundaryField()[patchi][facei]
             );
-
-            surfaceVectorField Upf(fvc::interpolate(Up_,ownnei_[di],"Up"));
-            surfaceSymmTensorField Ppf(fvc::interpolate(Pp_,ownnei_[di],"Pp"));
-            alphaf *= h1f;
-
-            forAll(F0_, facei)
+            forAll(weights_, nodei)
             {
-                hq_.calcHermiteQuadrature(Upf[facei], Ppf[facei]);
-
-                scalarField facePhi(hqAbsc_ & Sf[facei]);
-
-                // Sf is always pointing away from the owner cell to
-                // neighbor cell
-                if (di == 0)
-                {
-                    facePhi *= pos(facePhi);
-                }
-                else
-                {
-                    facePhi *= neg(facePhi);
-                }
-
-                scalarField wPhi(alphaf[facei]*hqWeigs_*facePhi);
-
-                scalar sWphi(sum(wPhi));
-
-                if (sWphi != 0.0)
-                {
-                    F0_[facei] += sWphi;
-                    F1_[facei] += sum(wPhi*hqAbsc_);
-                    F2_[facei] += sum(wPhi*sqr(hqAbsc_));
-                }
+                weights_[nodei].boundaryFieldRef()[patchi][facei] =
+                    hq_.hermiteWeights()[nodei]*alphap_.boundaryField()[patchi][facei];
+                abscissae_[nodei].boundaryFieldRef()[patchi][facei] =
+                    hq_.hermiteAbscissas()[nodei];
             }
+        }
+    }
 
-            forAll(patches, patchi)
+    forAll(weights_, nodei)
+    {
+        weights_[nodei].correctBoundaryConditions();
+        abscissae_[nodei].correctBoundaryConditions();
+    }
+
+    forAll(weightsOwn, nodei)
+    {
+        weightsOwn.set
+        (
+            nodei,
+            fvc::interpolate(weights_[nodei], own_, "reconstruct(weight)")
+        );
+        weightsNei.set
+        (
+            nodei,
+            fvc::interpolate(weights_[nodei], nei_, "reconstruct(weight)")
+        );
+
+        abscissaeOwn.set
+        (
+            nodei,
+            fvc::interpolate(abscissae_[nodei], own_, "reconstruct(U)")
+        );
+        abscissaeNei.set
+        (
+            nodei,
+            fvc::interpolate(abscissae_[nodei], nei_, "reconstruct(U)")
+        );
+    }
+
+    // Update face values for wall conditions
+    forAll(mesh_.boundary(), patchi)
+    {
+        const fvPatch& currPatch = mesh_.boundary()[patchi];
+        if (isA<wallFvPatch>(currPatch))
+        {
+            const vectorField& bfSf(mesh_.Sf().boundaryField()[patchi]);
+            vectorField bfNorm(bfSf/mag(bfSf));
+
+            forAll(weights_, nodei)
             {
-                const fvPatch& currPatch = patches[patchi];
-                const vectorField& Sfbf = currPatch.Sf();
 
-                const scalarField& alphaPf(alphaf.boundaryField()[patchi]);
-                const vectorField& UpPf(Upf.boundaryField()[patchi]);
-                const symmTensorField& PpPf(Ppf.boundaryField()[patchi]);
+                const volScalarField& weight = weights_[nodei];
+                surfaceScalarField& weightOwn = weightsOwn[nodei];
+                surfaceScalarField& weightNei = weightsNei[nodei];
+                const volVectorField& U = abscissae_[nodei];
+                surfaceVectorField& UOwn = abscissaeOwn[nodei];;
+                surfaceVectorField& UNei = abscissaeNei[nodei];
 
-                // Flux from the periodic boundary
-                if ( isA<coupledFvPatch> (currPatch) )
+                scalarField& bfwOwn = weightOwn.boundaryFieldRef()[patchi];
+                scalarField& bfwNei = weightNei.boundaryFieldRef()[patchi];
+                vectorField& bfUOwn = UOwn.boundaryFieldRef()[patchi];
+                vectorField& bfUNei = UNei.boundaryFieldRef()[patchi];
+
+                forAll(currPatch, facei)
                 {
-                    forAll(Sfbf,pFacei)
-                    {
-                        hq_.calcHermiteQuadrature
-                        (
-                            UpPf[pFacei],
-                            PpPf[pFacei]
-                        );
+                    label faceCelli = currPatch.faceCells()[facei];
 
-                        scalarField facePhi(Sfbf[pFacei] & hqAbsc_);
+                    bfwOwn[facei] = weight[faceCelli];
+                    bfUOwn[facei] = U[faceCelli];
 
-                        if (di == 0)
-                        {
-                            facePhi *= pos(facePhi);
-                        }
-                        else
-                        {
-                            facePhi *= neg(facePhi);
-                        }
-
-                        scalarField wPhi(alphaPf[pFacei]*hqWeigs_*facePhi);
-                        scalar sWphi(sum(wPhi));
-
-                        if (sWphi != 0.0)
-                        {
-                            F0_.boundaryFieldRef()[patchi][pFacei] += sWphi;
-
-                            F1_.boundaryFieldRef()[patchi][pFacei] +=
-                                sum(wPhi*hqAbsc_);
-
-                            F2_.boundaryFieldRef()[patchi][pFacei] +=
-                                sum(wPhi*sqr(hqAbsc_));
-                        }
-
-                    }
-
-                }
-                else if (isA<wallFvPatch>(currPatch) && (di == 0))
-                {
-                    // Wall boundary only need to be solved once
-                    F0_.boundaryFieldRef()[patchi] == 0.0;
-
-                    forAll(Sfbf, pFacei)
-                    {
-                        const vector& sf = Sfbf[pFacei];
-
-                        scalarList hwl(alphaPf[pFacei]*hqWeigs_);
-
-                        hq_.calcHermiteQuadrature(UpPf[pFacei], PpPf[pFacei]);
-
-                        //  outgoing flux on the wall
-                        scalarField facePhi(sf & hqAbsc_);
-                        facePhi *= pos(facePhi);
-                        scalarField wPhi(hwl*facePhi);
-
-                        scalar sFlux = sum(wPhi);
-
-                        F1_.boundaryFieldRef()[patchi][pFacei] =
-                            sum(wPhi*hqAbsc_);
-
-                        F2_.boundaryFieldRef()[patchi][pFacei] =
-                            sum(wPhi*sqr(hqAbsc_));
-
-                        // Reflection flux on the wall
-                        vector nf(sf/mag(sf));
-
-                        vectorField Uw
-                        (
-                            hqAbsc_
-                          - (1.0 + ew_)*(hqAbsc_ & nf)*nf
-                        );
-
-                        wPhi *= phiw_ - 1.0;
-
-                        F1_.boundaryFieldRef()[patchi][pFacei] += sum(wPhi*Uw);
-                        symmTensor tFlux(sum(wPhi*sqr(Uw)));
-                        F2_.boundaryFieldRef()[patchi][pFacei] += tFlux;
-
-                        scalar dfls_mf = phiw_*sFlux;
-                        scalar dfls_ef = phiw_*tr(tFlux);
-
-                        if (dfls_mf*dfls_ef > SMALL)
-                        {
-                            scalarField facePhio
-                            (
-                                sf & hq_.hermiteOriginalAbscissas()
-                            );
-
-                            facePhio *= neg(facePhio);
-                            scalarField wPhio(hwl*facePhio);
-
-                            scalar sFluxo = mag(sum(wPhio));
-
-                            scalar tFluxo =
-                                mag
-                                (
-                                    sum
-                                    (
-                                        wPhio
-                                       *magSqr(hq_.hermiteOriginalAbscissas())
-                                    )
-                                );
-
-                            scalar sig =
-                                Foam::sqrt(dfls_ef*sFluxo/(dfls_mf*tFluxo));
-
-                            scalar pp = dfls_mf/sFluxo/sig;
-
-                            vectorField  Ud
-                            (
-                                sig*hq_.hermiteOriginalAbscissas()
-                            );
-
-                            scalarField  facePhid( sf & Ud );
-                            facePhid *= neg(facePhid);
-                            scalarField  wPhid(pp*hwl*facePhid);
-
-                            F1_.boundaryFieldRef()[patchi][pFacei] +=
-                                sum(wPhid*Ud);
-
-                            F2_.boundaryFieldRef()[patchi][pFacei] +=
-                                sum(wPhid*sqr(Ud));
-                        }
-                    }
-                }
-                else if ((!isA<emptyFvPatch>(currPatch)) && (di == 0))
-                {
-                    // Inlet/outlet boundary only need to be solved once
-                    // Fixed value boundary condition, i.e. inlet only consider
-                    // incoming flux otherwise, zeroGradient outlet type,
-                    // only consider outgoing flux
-                    bool inlet =
-                        isA<fixedValueFvPatchScalarField>
-                        (
-                            alphap_.boundaryField()[patchi]
-                        );
-
-                    forAll(Sfbf, pFacei)
-                    {
-                        hq_.calcHermiteQuadrature(UpPf[pFacei], PpPf[pFacei]);
-
-                        scalarField facePhi(Sfbf[pFacei] & hqAbsc_);
-
-                        if (inlet)
-                        {
-                            facePhi *= neg(facePhi);
-                        }
-                        else
-                        {
-                            facePhi *= pos(facePhi);
-                        }
-
-                        scalarField wPhi(alphaPf[pFacei]*hqWeigs_*facePhi);
-
-                        F0_.boundaryFieldRef()[patchi][pFacei] = sum(wPhi);
-
-                        F1_.boundaryFieldRef()[patchi][pFacei] =
-                            sum(wPhi*hqAbsc_);
-
-                        F2_.boundaryFieldRef()[patchi][pFacei] =
-                            sum(wPhi*sqr(hqAbsc_));
-                    }
+                    bfwNei[facei] = weight[faceCelli];
+                    bfUNei[facei] =
+                        U[faceCelli]
+                      - (1.0 + ew_)*(U[faceCelli] & bfNorm[facei])
+                       *bfNorm[facei];
                 }
             }
         }
     }
+
+    dimensionedScalar zeroPhi("zeroPhi", dimVelocity*dimArea, 0.0);
+    F0_ == dimensionedScalar("zero", F0_.dimensions(), 0.0);
+    F1_ == dimensionedVector("zero", F1_.dimensions(), Zero);
+    F2_ == dimensionedSymmTensor("zero", F2_.dimensions(), Zero);
+
+    forAll(weights_, nodei)
+    {
+        surfaceScalarField phiOwn(abscissaeOwn[nodei] & mesh_.Sf());
+        surfaceScalarField phiNei(abscissaeNei[nodei] & mesh_.Sf());
+
+        F0_ +=
+            weightsOwn[nodei]*max(phiOwn, zeroPhi)
+          + weightsNei[nodei]*min(phiNei, zeroPhi);
+
+        F1_ +=
+            weightsOwn[nodei]*abscissaeOwn[nodei]*max(phiOwn, zeroPhi)
+          + weightsNei[nodei]*abscissaeNei[nodei]*min(phiNei, zeroPhi);
+
+        F2_ +=
+            weightsOwn[nodei]*max(phiOwn, zeroPhi)*sqr(abscissaeOwn[nodei])
+          + weightsNei[nodei]*min(phiNei, zeroPhi)*sqr(abscissaeNei[nodei]);
+    }
+
+    F0_ *= h1f;
+    F1_ *= h1f;
+    F2_ *= h1f;
 
     return;
 }

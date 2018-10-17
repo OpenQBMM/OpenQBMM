@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,41 +22,48 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::aggregationKernels::
-    CoulaloglouAndTavlarides
+    Foam::coalescenceEfficiencyKernels::Lehr
 
 Description
-    Coalesence frequency kernel based on kinetic theory of gasses
+    Coalesence efficiency based on film drainage and rupture times.
 
     \f[
-        \omega = \epsilon_f^{1/3}(d_i^{2/3} + d_j^{2/3})
+        P_c = max(\frac{u_\mathrm{crit}}{u'}, 1)
+        u_\mathrm{crit} = \sqrt{\frac{We_\mathrm{crit}\sigma}{\rho_f d_{eq} } }
+        u' = \mathrm{max}(\sqrt{2}(\epsilon_f \sqrt{d_i d_j})^{1/3}, |\mathbf{U}_i - mathbf{U}_j|)
+        d_{eq} = 2(\frac{1}{d_i} + \frac{1}{d_j})^{-1}
     \f]
 
     where
 
     \vartable
+        \sigma      |  Surface tension
+        \rho_f      |  Density of liquid phase [kg/m3]
         \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
         d_i         |  Diameter of bubble i [m]
         d_j         |  Diameter of bubble j [m]
+        \mathbf{U}_i|  Velocity of bubble i [m/s]
+        \mathbf{U}_j|  Velocity of bubble j [m/s]
     \endvartable
 
     References
     \verbatim
-        "Description of interaction processes in agitated liquid-liquid dispersions"
-        C Coulaloglou, L Tavlarides
+        "A transport equation for the interfacial area density applied to bubble
+        columns"
+        F. Lehr, D. Mewes
         Chemical Engineering Science
-        Volume 32, Pages 1289-1297, 1977
+        Volume 56, Pages 1159-1166, 2001
     \endverbatim
 
 SourceFiles
-    CoulaloglouAndTavlarides.C
+    LehrEfficiency.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef CoulaloglouAndTavlarides_H
-#define CoulaloglouAndTavlarides_H
+#ifndef LehrEfficiency_H
+#define LehrEfficiency_H
 
-#include "coalescenceFrequencyKernel.H"
+#include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
 #include "phaseModel.H"
 #include "PhaseCompressibleTurbulenceModel.H"
@@ -65,35 +72,46 @@ SourceFiles
 
 namespace Foam
 {
-namespace coalescenceFrequencyKernels
+namespace coalescenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class CoulaloglouAndTavlarides Declaration
+                    Class Lehr Declaration
 \*---------------------------------------------------------------------------*/
 
-class CoulaloglouAndTavlarides
+class Lehr
 :
-    public coalescenceFrequencyKernel
+    public coalescenceEfficiencyKernel
 {
     // Private data
 
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
+        //- Switch if turbulence modleing is used
+        Switch turbulence_;
+
+        //- Surface tension
+        dimensionedScalar sigma_;
+
+        //- Critical velocity
+        dimensionedScalar WeCrit_;
+
         //- Turbulent dissipation
         volScalarField epsilonf_;
+
+
 
 public:
 
         //- Runtime type information
-        TypeName("CoulaloglouAndTavlarides");
+        TypeName("Lehr");
 
 
     // Constructors
 
         //- Construct from components
-        CoulaloglouAndTavlarides
+        Lehr
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -101,7 +119,7 @@ public:
 
 
     //- Destructor
-    virtual ~CoulaloglouAndTavlarides();
+    virtual ~Lehr();
 
 
     // Member Functions
@@ -110,14 +128,14 @@ public:
         virtual void update();
 
         //- Aggregation kernel
-        virtual tmp<volScalarField> omega
+        virtual tmp<volScalarField> Pc
         (
             const label nodei,
             const label nodej
         ) const;
 
         //- Aggregation kernel
-        virtual scalar omega
+        virtual scalar Pc
         (
             const label celli,
             const label nodei,
@@ -129,7 +147,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace coalescenceFrequencyKernels
+} // End namespace coalescenceEfficiencyKernels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -22,19 +22,48 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::coalescenceEfficiencyKernels::
-    constant
+    Foam::coalescenceEfficiencyKernels::PrinceAndBlanch
 
 Description
-    Constant coalescence efficiency
+    Coalesence efficiency based on film drainage and rupture times.
+
+    \f[
+        P_c = \mathrm{exp}
+            \left(
+               -\frac{\frac{3}{4}(1+\xi^2)^{1/2}(1+\xi^3)^{1/2}}
+                {\left(\frac{\rho_b}{\rho_f}+C_{vm}\right)^{1/2}(1+\xi)^3}
+                \mathrm{We}^{1/2}
+            \right)
+        u_{rel} =  2 \epsilon_f^{1/3}(d_i^{2/3} + d_j^{2/3})^{1/2}
+        \mathrm{We} = \frac{\mathrm{min}(d_i, d_j)\rho_f\u_{rel}^2}{\sigma}
+    \f]
+
+    where
+
+    \vartable
+        \sigma      |  Surface tension
+        \rho_f      |  Density of liquid phase [kg/m3]
+        \rho_b      |  Density of bubble phase [kg/m3]
+        \epsilon_f  |  Turbulent dissipation rate of liquid phase [m2/s3]
+        d_i         |  Diameter of bubble i [m]
+        d_j         |  Diameter of bubble j [m]
+    \endvartable
+
+    References
+    \verbatim
+        "Coalescence, breakup and liquid circulation in bubble column reactors"
+         Luo, H.,
+         PhD Theses,
+         The Norwegian Institute of Technology, 1993
+    \endverbatim
 
 SourceFiles
-    constant.C
+    LuoEfficiency.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef constant_H
-#define constant_H
+#ifndef LuoEfficiency_H
+#define LuoEfficiency_H
 
 #include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"
@@ -49,10 +78,10 @@ namespace coalescenceEfficiencyKernels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class constant Declaration
+                            Class Luo Declaration
 \*---------------------------------------------------------------------------*/
 
-class constant
+class Luo
 :
     public coalescenceEfficiencyKernel
 {
@@ -61,20 +90,23 @@ class constant
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
-        //- Efficiency coefficient
-        dimensionedScalar Ceff_;
+        //- Turbulent dissipation
+        volScalarField epsilonf_;
+
+        //- Virutal mass coefficient
+        volScalarField Cvm_;
 
 
 public:
 
         //- Runtime type information
-        TypeName("constant");
+        TypeName("Luo");
 
 
     // Constructors
 
         //- Construct from components
-        constant
+        Luo
         (
             const dictionary& dict,
             const fvMesh& mesh
@@ -82,7 +114,7 @@ public:
 
 
     //- Destructor
-    virtual ~constant();
+    virtual ~Luo();
 
 
     // Member Functions

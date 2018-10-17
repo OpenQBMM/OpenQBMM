@@ -76,9 +76,22 @@ Foam::populationBalanceSubModels::daughterDistributions::fullFragmentation
     const scalar& abscissa
 ) const
 {
+    return
+        pow3(abscissa/primarySize_.value())
+       *pow(primarySize_.value(), order);
+}
 
-    return (pow3(abscissa/primarySize_.value()))
-            *pow(primarySize_.value(), order);
+
+Foam::scalar
+Foam::populationBalanceSubModels::daughterDistributions::fullFragmentation
+::mDMass
+(
+    const label& order,
+    const scalar& abscissa
+) const
+{
+
+    return abscissa/primarySize_.value()*pow(primarySize_.value(), order);
 }
 
 // ************************************************************************* //
