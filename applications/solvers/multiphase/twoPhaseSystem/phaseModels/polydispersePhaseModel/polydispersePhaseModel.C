@@ -149,7 +149,8 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
                 );
         }
     }
-    return cSource;
+
+    return cmptMultiply(cSource, validDirections_);
 }
 
 
@@ -224,7 +225,7 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
             );
     }
 
-    return bSource;
+    return cmptMultiply(bSource, validDirections_);
 }
 
 void Foam::polydispersePhaseModel::solveSourceOde()
@@ -665,7 +666,11 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
     RTol_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("RTol"))),
     facMax_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("facMax"))),
     facMin_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("facMin"))),
-    fac_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("fac")))
+    fac_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("fac"))),
+    validDirections_
+    (
+        (vector(fluid_.mesh().solutionD()) + vector(1.0, 1.0, 1.0))/2.0
+    )
 {
     this->d_.writeOpt() = IOobject::AUTO_WRITE;
 

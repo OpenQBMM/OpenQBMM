@@ -136,6 +136,10 @@ class polydispersePhaseModel
             //- Precentage of error based time step
             scalar fac_;
 
+            //- Vector to remove buildup due to coalescence and breakup
+            //  in unused directions
+            vector validDirections_;
+
 
     // Private member functions
 
