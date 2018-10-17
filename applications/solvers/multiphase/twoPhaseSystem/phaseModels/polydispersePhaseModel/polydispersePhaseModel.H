@@ -64,9 +64,6 @@ class polydispersePhaseModel
         //- Population balance properties
         IOdictionary pbeDict_;
 
-        //- Switch to turn ode on/off (off by defaul)
-        Switch ode_;
-
         //- Switch for coalescence
         Switch coalescence_;
 
