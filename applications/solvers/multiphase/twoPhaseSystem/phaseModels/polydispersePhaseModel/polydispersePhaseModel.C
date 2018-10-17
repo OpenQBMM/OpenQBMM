@@ -179,7 +179,7 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
             node.primaryWeight()[celli]
            *breakupKernel_->Kb(celli, nodei)
            *(
-                daughterDistribution_->mD                       //Birth
+                daughterDistribution_->mDMass  //Birth
                 (
                     momentOrder,
                     abscissa
@@ -216,7 +216,7 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
             node.primaryWeight()[celli]*Us_[nodei][celli]
            *breakupKernel_->Kb(celli, nodei)
            *(
-                daughterDistribution_->mD                       //Birth
+                daughterDistribution_->mDMass //Birth
                 (
                     momentOrder,
                     abscissa

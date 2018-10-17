@@ -41,7 +41,6 @@ breakupKernel
 daughterDistribution
 {
     daughterDistribution uniform;
-    massBased true;
 }
 
 odeCoeffs

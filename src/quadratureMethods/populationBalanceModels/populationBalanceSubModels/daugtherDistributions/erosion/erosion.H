@@ -94,8 +94,15 @@ public:
 
     // Member Functions
 
-        //- Moment of the daughter distribution function
+        //- Moment of the daughter distribution function (length based)
         virtual scalar mD
+        (
+            const label& order,
+            const scalar& abscissa
+        ) const;
+
+        //- Moment of the daughter distribution function (mass/volume based)
+        virtual scalar mDMass
         (
             const label& order,
             const scalar& abscissa

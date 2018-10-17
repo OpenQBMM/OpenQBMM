@@ -76,14 +76,21 @@ Foam::populationBalanceSubModels::daughterDistributions::erosion::mD
     const scalar& abscissa
 ) const
 {
-    if (this->massBased_)
-    {
-        return
-            pow(primarySize_.value(), order)
-          + pow(abscissa - primarySize_.value(), order);
-    }
     return pow(primarySize_.value(), order)
         + pow(pow3(abscissa) - pow3(primarySize_.value()), order/3.0);
+}
+
+
+Foam::scalar
+Foam::populationBalanceSubModels::daughterDistributions::erosion::mDMass
+(
+    const label& order,
+    const scalar& abscissa
+) const
+{
+    return
+        pow(primarySize_.value(), order)
+      + pow(abscissa - primarySize_.value(), order);
 }
 
 // ************************************************************************* //

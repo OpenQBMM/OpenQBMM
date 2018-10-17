@@ -69,8 +69,6 @@ protected:
 
         const dictionary& dict_;
 
-        Switch massBased_;
-
 
 public:
 
@@ -110,8 +108,15 @@ public:
 
     // Member Functions
 
-        //- Moment of the daughter distribution function
+        //- Moment of the daughter distribution function (length based)
         virtual scalar mD
+        (
+            const label& order,
+            const scalar& abscissa
+        ) const = 0;
+
+        //- Moment of the daughter distribution function (mass/volume based)
+        virtual scalar mDMass
         (
             const label& order,
             const scalar& abscissa
