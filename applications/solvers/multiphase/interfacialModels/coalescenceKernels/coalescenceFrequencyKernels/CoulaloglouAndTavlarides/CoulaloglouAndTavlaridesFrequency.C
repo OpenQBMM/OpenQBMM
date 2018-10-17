@@ -23,25 +23,22 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "LuoSvendsen.H"
+#include "CoulaloglouAndTavlaridesFrequency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "phaseModel.H"
-#include "PhaseCompressibleTurbulenceModel.H"
-
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace bubbleBreakupKernels
+namespace coalescenceFrequencyKernels
 {
-    defineTypeNameAndDebug(LuoSvendsen, 0);
+    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
 
     addToRunTimeSelectionTable
     (
-        bubbleBreakupKernel,
-        LuoSvendsen,
+        coalescenceFrequencyKernel,
+        CoulaloglouAndTavlarides,
         dictionary
     );
 }
@@ -50,109 +47,82 @@ namespace bubbleBreakupKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::bubbleBreakupKernels::LuoSvendsen::LuoSvendsen
+Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
+CoulaloglouAndTavlarides
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    bubbleBreakupKernel(dict, mesh),
+    coalescenceFrequencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    Cf_
-    (
-        dict.lookupOrDefault
-        (
-            "Cf",
-            dimensionedScalar("Cf", dimless, 0.26)
-        )
-    ),
     epsilonf_
     (
         IOobject
         (
-            "LuoSvendsen:epsilonf",
+            "CoulaloglouAndTavlarides:epsilonf",
             fluid_.mesh().time().timeName(),
             fluid_.mesh()
         ),
         fluid_.mesh(),
         dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
-    ),
-    de_
-    (
-        IOobject
-        (
-            "LuoSvendsen:de",
-            fluid_.mesh().time().timeName(),
-            fluid_.mesh()
-        ),
-        fluid_.mesh(),
-        dimensionedScalar("zero", dimLength, 0.0)
     )
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::bubbleBreakupKernels::LuoSvendsen::~LuoSvendsen()
+Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
+~CoulaloglouAndTavlarides()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::bubbleBreakupKernels::LuoSvendsen::update()
+void Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::update()
 {
     const phaseModel& phase(fluid_.phase1());
     epsilonf_ = phase.turbulence().epsilon();
     epsilonf_.max(SMALL);
-
-    de_ = pow(pow3(phase.turbulence().nut())/epsilonf_, 0.25);
 }
 
 
 Foam::tmp<Foam::volScalarField>
-Foam::bubbleBreakupKernels::LuoSvendsen::Kb(const label nodei) const
-{
-    const volScalarField& d = fluid_.phase1().ds(nodei);
-    const volScalarField& rho2 = fluid_.phase2().rho();
-    const dimensionedScalar& sigma = fluid_.sigma();
-    volScalarField xi(de_/d + SMALL);
-
-    tmp<volScalarField> breakupSource =
-        0.923*fluid_.phase2()*cbrt(epsilonf_*d)
-       *sqr(1.0 + xi)/(sqr(d)*pow(xi, 20.0))
-       *exp
-        (
-            12.0*Cf_*sigma
-           /(2.045*rho2*pow(xi, 11.0/3.0)*pow(d, 5.0/3.0)*pow(epsilonf_, 2.0/3.0))
-        );
-    breakupSource.ref().dimensions().reset(inv(dimTime));
-    return breakupSource;
-}
-
-Foam::scalar
-Foam::bubbleBreakupKernels::LuoSvendsen::Kb
+Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
 (
-    const label celli,
-    const label nodei
+    const label nodei,
+    const label nodej
 ) const
 {
-    scalar d(fluid_.phase1().ds(nodei)[celli]);
-    scalar rho2(fluid_.phase2().rho()[celli]);
-    scalar sigma(fluid_.sigma().value());
-    scalar xi = max(de_[celli]/d, 20.0);
-
+    scalar pi = constant::mathematical::pi;
+    volScalarField v1(pow3(fluid_.phase1().ds(nodei))*pi/6.0);
+    volScalarField v2(pow3(fluid_.phase1().ds(nodej))*pi/6.0);
 
     return
-        0.923*fluid_.phase2()[celli]*cbrt(epsilonf_[celli]*d)
-       *sqr(1.0 + xi)/(sqr(d)*pow(xi, 11.0/3.0))
-       *exp
-        (
-            -12.0*Cf_.value()*sigma
-           /(
-               2.045*rho2
-              *pow(xi, 11.0/3.0)*pow(d, 5.0/3.0)*pow(epsilonf_[celli], 2.0/3.0)
-            )
-        );
+        (pow(v1, 2.0/3.0) + pow(v2, 2.0/3.0))
+       *sqrt(pow(v1, 2.0/9.0) + pow(v2, 2.0/9.0))
+       *cbrt(epsilonf_)/(1.0 + fluid_.phase1());
+}
+
+
+Foam::scalar Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
+(
+    const label celli,
+    const label nodei,
+    const label nodej
+) const
+{
+    scalar d1 = fluid_.phase1().ds(nodei)[celli];
+    scalar d2 = fluid_.phase1().ds(nodej)[celli];
+
+    scalar pi = constant::mathematical::pi;
+    scalar v1 = pow3(d1)*pi/6.0;
+    scalar v2 = pow3(d2)*pi/6.0;
+
+    return
+        (pow(v1, 2.0/3.0) + pow(v2, 2.0/3.0))
+       *sqrt(pow(v1, 2.0/9.0) + pow(v2, 2.0/9.0))
+       *cbrt(epsilonf_[celli])/(1.0 + fluid_.phase1()[celli]);
 }
 
 // ************************************************************************* //

@@ -76,8 +76,19 @@ Foam::populationBalanceSubModels::daughterDistributions::oneQuarterMassRatio::mD
 ) const
 {
     scalar exponent = order/3.0;
-
     return (pow(4.0, exponent) + 1.0)*pow(abscissa, order)/pow(5, exponent);
+}
+
+
+Foam::scalar
+Foam::populationBalanceSubModels::daughterDistributions::oneQuarterMassRatio
+::mDMass
+(
+    const label& order,
+    const scalar& abscissa
+) const
+{
+    return (pow(4.0, order) + 1.0)*pow(abscissa, order)/pow(5, order);
 }
 
 // ************************************************************************* //

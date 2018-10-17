@@ -56,12 +56,12 @@ Description
     \endverbatim
 
 SourceFiles
-    PrinceAndBlanch.C
+    PrinceAndBlanchEfficiency.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef PrinceAndBlanch_H
-#define PrinceAndBlanch_H
+#ifndef PrinceAndBlanchEfficiency_H
+#define PrinceAndBlanchEfficiency_H
 
 #include "coalescenceEfficiencyKernel.H"
 #include "twoPhaseSystem.H"

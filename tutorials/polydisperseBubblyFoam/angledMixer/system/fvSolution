@@ -112,8 +112,6 @@ PIMPLE
 {
     nOuterCorrectors    15;
     nCorrectors         2;
-    nFluxCorrectors     1;
-    corrPatch           outlet;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
     pRefValue 1e5;

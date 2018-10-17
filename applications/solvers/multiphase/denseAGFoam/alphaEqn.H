@@ -66,4 +66,5 @@ alpha1.max(0);
 alpha1.min(1);
 
 alpha2 = scalar(1) - alpha1;
+alpha2.correctBoundaryConditions();
 

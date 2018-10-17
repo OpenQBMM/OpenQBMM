@@ -23,22 +23,20 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "PrinceAndBlanch.H"
+#include "PrinceAndBlanchEfficiency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
-#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace coalescenceFrequencyKernels
+namespace coalescenceEfficiencyKernels
 {
     defineTypeNameAndDebug(PrinceAndBlanch, 0);
-
     addToRunTimeSelectionTable
     (
-        coalescenceFrequencyKernel,
+        coalescenceEfficiencyKernel,
         PrinceAndBlanch,
         dictionary
     );
@@ -48,14 +46,35 @@ namespace coalescenceFrequencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
+Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::
+PrinceAndBlanch
 (
     const dictionary& dict,
     const fvMesh& mesh
 )
 :
-    coalescenceFrequencyKernel(dict, mesh),
+    coalescenceEfficiencyKernel(dict, mesh),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    ho_
+    (
+        dimensionedScalar::lookupOrDefault
+        (
+            "h0",
+            dict,
+            dimLength,
+            1e-3
+        )
+    ),
+    hf_
+    (
+        dimensionedScalar::lookupOrDefault
+        (
+            "hf",
+            dict,
+            dimLength,
+            1e-6
+        )
+    ),
     epsilonf_
     (
         IOobject
@@ -66,22 +85,20 @@ Foam::coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
         ),
         fluid_.mesh(),
         dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
-    ),
-    turbulent_(dict.lookupOrDefault("turbulentCoalescence", false)),
-    buoyant_(dict.lookupOrDefault("buoyantCoalescence", true)),
-    LS_(dict.lookupOrDefault("laminarShearCoalescence", false))
+    )
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceFrequencyKernels::PrinceAndBlanch::~PrinceAndBlanch()
+Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::
+~PrinceAndBlanch()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::coalescenceFrequencyKernels::PrinceAndBlanch::update()
+void Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::update()
 {
     const phaseModel& phase(fluid_.phase1());
     volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
@@ -89,111 +106,50 @@ void Foam::coalescenceFrequencyKernels::PrinceAndBlanch::update()
     epsilonf_.max(SMALL);
 }
 
+
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
+Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::Pc
 (
     const label nodei,
     const label nodej
 ) const
 {
-    tmp<volScalarField> tmpFreqSrc
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "freqSrc",
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            fluid_.mesh(),
-            dimensionedScalar("0", dimensionSet(0, 3, -1, 0, 0), 0.0)
-        )
-    );
-    volScalarField& freqSrc = tmpFreqSrc.ref();
-
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
     const volScalarField& rho = fluid_.phase2().rho();
     const dimensionedScalar& sigma = fluid_.sigma();
-    dimensionedScalar g = mag(fluid_.g());
 
-    if (turbulent_)
-    {
-        freqSrc == freqSrc
-          + 0.089*constant::mathematical::pi*sqr(d1 + d2)
-           *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
-           *cbrt(fluid_.phase2().turbulence().epsilon());
-    }
-    if (buoyant_)
-    {
-        freqSrc == freqSrc
-          + constant::mathematical::pi/4.0*sqr(d1 + d2)
-           *(
-               sqrt(2.14*sigma/(d1*rho) + 0.5*g*d1)
-             - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
-            );
-    }
-    if (LS_)
-    {
-        NotImplemented;
-//         freqSrc == freqSrc
-//           + 1.0/6.0*pow3(d1 + d2)
-//            *mag
-//             (
-//                 fvc::grad(fluid_.phase1().Us(nodei) - fluid_.phase1().Us(nodej))
-//             );
-    }
-    return tmpFreqSrc;
+    volScalarField rij("rij", 0.5/(2.0/d1 + 2.0/d2));
+
+    return
+        Foam::exp
+        (
+          - sqrt(rho*pow3(rij)/(16.0*sigma))*log(ho_/hf_)
+           /(pow(rij, 2.0/3.0)/pow(epsilonf_, 1.0/3.0))
+        );
 }
 
-Foam::scalar
-Foam::coalescenceFrequencyKernels::PrinceAndBlanch::omega
+
+Foam::scalar Foam::coalescenceEfficiencyKernels::PrinceAndBlanch::Pc
 (
     const label celli,
     const label nodei,
     const label nodej
 ) const
 {
-    scalar freqSrc = 0.0;
-
     scalar d1 = fluid_.phase1().ds(nodei)[celli];
     scalar d2 = fluid_.phase1().ds(nodej)[celli];
     scalar rho = fluid_.phase2().rho()[celli];
     scalar sigma = fluid_.sigma().value();
-    scalar g = mag(fluid_.g()).value();
 
-    if (turbulent_)
-    {
-        freqSrc +=
-            0.089*constant::mathematical::pi*sqr(d1 + d2)
-           *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
-           *cbrt(epsilonf_[celli]);
-    }
-    if (buoyant_)
-    {
-        freqSrc +=
-            constant::mathematical::pi/4.0*sqr(d1 + d2)
-           *(
-               sqrt(2.14*sigma/(d1*rho) + 0.5*g*d1)
-             - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
-            );
-    }
-    if (LS_)
-    {
-        NotImplemented;
-//         freqSrc +=
-//             1.0/6.0*pow3(d1 + d2)
-//            *mag
-//             (
-//                 fluid_.phase1().Us(nodei)[celli]
-//               - fluid_.phase1().Us(nodej)[celli]
-//             );
-    }
-    return freqSrc;
+    scalar rij = 0.5/(2.0/d1 + 2.0/d2);
+
+    return
+        Foam::exp
+        (
+          - sqrt(rho*pow3(rij)/(16.0*sigma))*log(ho_.value()/hf_.value())
+           /(pow(rij, 2.0/3.0)/pow(epsilonf_[celli], 1.0/3.0))
+        );
 }
 
 // ************************************************************************* //

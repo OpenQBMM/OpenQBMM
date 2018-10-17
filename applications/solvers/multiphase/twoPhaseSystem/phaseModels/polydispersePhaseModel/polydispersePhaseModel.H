@@ -64,9 +64,6 @@ class polydispersePhaseModel
         //- Population balance properties
         IOdictionary pbeDict_;
 
-        //- Switch to turn ode on/off (off by defaul)
-        Switch ode_;
-
         //- Switch for coalescence
         Switch coalescence_;
 
@@ -135,6 +132,10 @@ class polydispersePhaseModel
 
             //- Precentage of error based time step
             scalar fac_;
+
+            //- Vector to remove buildup due to coalescence and breakup
+            //  in unused directions
+            vector validDirections_;
 
 
     // Private member functions

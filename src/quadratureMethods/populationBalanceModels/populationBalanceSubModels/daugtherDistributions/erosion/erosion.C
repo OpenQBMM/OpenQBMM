@@ -80,4 +80,17 @@ Foam::populationBalanceSubModels::daughterDistributions::erosion::mD
         + pow(pow3(abscissa) - pow3(primarySize_.value()), order/3.0);
 }
 
+
+Foam::scalar
+Foam::populationBalanceSubModels::daughterDistributions::erosion::mDMass
+(
+    const label& order,
+    const scalar& abscissa
+) const
+{
+    return
+        pow(primarySize_.value(), order)
+      + pow(abscissa - primarySize_.value(), order);
+}
+
 // ************************************************************************* //

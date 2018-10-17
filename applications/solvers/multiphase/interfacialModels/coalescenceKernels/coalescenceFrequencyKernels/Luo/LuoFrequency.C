@@ -23,9 +23,10 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CoulaloglouAndTavlarides.H"
+#include "LuoFrequency.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fundamentalConstants.H"
+#include "fvc.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -33,12 +34,12 @@ namespace Foam
 {
 namespace coalescenceFrequencyKernels
 {
-    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
+    defineTypeNameAndDebug(Luo, 0);
 
     addToRunTimeSelectionTable
     (
         coalescenceFrequencyKernel,
-        CoulaloglouAndTavlarides,
+        Luo,
         dictionary
     );
 }
@@ -47,8 +48,7 @@ namespace coalescenceFrequencyKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
-CoulaloglouAndTavlarides
+Foam::coalescenceFrequencyKernels::Luo::Luo
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -60,7 +60,7 @@ CoulaloglouAndTavlarides
     (
         IOobject
         (
-            "CoulaloglouAndTavlarides:epsilonf",
+            "Luo:epsilonf",
             fluid_.mesh().time().timeName(),
             fluid_.mesh()
         ),
@@ -72,41 +72,40 @@ CoulaloglouAndTavlarides
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::
-~CoulaloglouAndTavlarides()
+Foam::coalescenceFrequencyKernels::Luo::~Luo()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::update()
+void Foam::coalescenceFrequencyKernels::Luo::update()
 {
     const phaseModel& phase(fluid_.phase1());
-    volTensorField S(fvc::grad(phase.U()) + T(fvc::grad(phase.U())));
-    epsilonf_ = phase.nu()*(S && S);
+    epsilonf_ = phase.turbulence().epsilon();
     epsilonf_.max(SMALL);
 }
 
-
 Foam::tmp<Foam::volScalarField>
-Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
+Foam::coalescenceFrequencyKernels::Luo::omega
 (
     const label nodei,
     const label nodej
 ) const
 {
-    tmp<volScalarField> epsilon(fluid_.phase2().turbulence().epsilon());
-
     const volScalarField& d1 = fluid_.phase1().ds(nodei);
     const volScalarField& d2 = fluid_.phase1().ds(nodej);
 
-    return
-        cbrt(epsilon)*sqr(d1 + d2)
-       *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
+    volScalarField uRel
+    (
+        "uRel",
+        2.0*cbrt(epsilonf_)*sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
+    );
+
+    return constant::mathematical::pi/4.0*sqr(d1 + d2)*uRel;
 }
 
-
-Foam::scalar Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
+Foam::scalar
+Foam::coalescenceFrequencyKernels::Luo::omega
 (
     const label celli,
     const label nodei,
@@ -116,9 +115,10 @@ Foam::scalar Foam::coalescenceFrequencyKernels::CoulaloglouAndTavlarides::omega
     scalar d1 = fluid_.phase1().ds(nodei)[celli];
     scalar d2 = fluid_.phase1().ds(nodej)[celli];
 
-    return
-        cbrt(epsilonf_[celli])*sqr(d1 + d2)
-       *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
+    scalar uRel =
+        2.0*cbrt(epsilonf_[celli])*sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0));
+
+    return constant::mathematical::pi/4.0*sqr(d1 + d2)*uRel;
 }
 
 // ************************************************************************* //

@@ -14,10 +14,19 @@ rhoThermo& thermo1 = phase1.thermo();
 rhoThermo& thermo2 = phase2.thermo();
 
 volScalarField& rho1 = thermo1.rho();
-const volScalarField& psi1 = thermo1.psi();
-
 volScalarField& rho2 = thermo2.rho();
-const volScalarField& psi2 = thermo2.psi();
+
+if
+(
+    !thermo1.isochoric()
+ || !thermo2.isochoric()
+)
+{
+    FatalErrorInFunction
+        << "denseAGFoam requires that both phases be incompressible." << nl
+        << "please use rhoConst thermoType for both phases."
+        << abort(FatalError);
+}
 
 // AG refrences
 kineticTheoryModel& AGmodel =

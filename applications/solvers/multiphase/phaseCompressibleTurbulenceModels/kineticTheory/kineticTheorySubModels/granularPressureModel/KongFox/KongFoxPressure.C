@@ -78,7 +78,13 @@ granularPressureCoeff
 {
     const dimensionedScalar eta = 0.5*(1.0 + e);
 
-    if (!alpha1.mesh().foundObject<volScalarField>("h2Fn"))
+    if
+    (
+        !alpha1.mesh().foundObject<volScalarField>
+        (
+            IOobject::groupName("h2Fn", rho1.group())
+        )
+    )
     {
         FatalErrorInFunction
             << "Anisotropic Gaussian must be used with "
@@ -87,7 +93,10 @@ granularPressureCoeff
     }
 
     const volScalarField& h2Fn =
-        alpha1.mesh().lookupObject<volScalarField>("h2Fn");
+        alpha1.mesh().lookupObject<volScalarField>
+        (
+            IOobject::groupName("h2Fn", rho1.group())
+        );
 
     return rho1*alpha1*(h2Fn + 4.0*eta*alpha1*g0);
 }
@@ -105,7 +114,13 @@ granularPressureCoeffPrime
 ) const
 {
     const dimensionedScalar eta = 0.5*(1.0 + e);
-    if (!alpha1.mesh().foundObject<volScalarField>("h2Fn"))
+    if
+    (
+        !alpha1.mesh().foundObject<volScalarField>
+        (
+            IOobject::groupName("h2Fn", alpha1.group())
+        )
+    )
     {
         FatalErrorInFunction
             << "Anisotropic Gaussian must be used with "
@@ -113,7 +128,10 @@ granularPressureCoeffPrime
             << exit(FatalError);
     }
     const volScalarField& h2Fn =
-        alpha1.mesh().lookupObject<volScalarField>("h2Fn");
+        alpha1.mesh().lookupObject<volScalarField>
+        (
+            IOobject::groupName("h2Fn", alpha1.group())
+        );
 
     return rho1*(h2Fn + 4.0*alpha1*eta*(2.0*g0 + g0prime*alpha1));
 }

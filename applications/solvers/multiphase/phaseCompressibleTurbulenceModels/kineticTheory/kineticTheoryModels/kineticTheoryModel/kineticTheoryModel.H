@@ -285,7 +285,7 @@ public:
         //- Max time-step
         virtual scalar maxUxDx() const
         {
-            return HUGE;
+            return 0.0;
         }
 
         //- Return fraction to be used for hydrodynamic flux
