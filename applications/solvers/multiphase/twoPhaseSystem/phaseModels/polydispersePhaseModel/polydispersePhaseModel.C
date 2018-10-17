@@ -923,10 +923,10 @@ void Foam::polydispersePhaseModel::averageTransport
 
     const dictionary& pimpleDict =
         fluid_.mesh().solutionDict().subDict("PIMPLE");
-    label nCorrectors = pimpleDict.lookupOrDefault("nFluxCorrectors", 0);
+    label nCorrectors = pimpleDict.lookupOrDefault("nFluxCorrectors", 1);
     if (nCorrectors > 0)
     {
-        word patchName = pimpleDict.lookup("corrPatch");
+        word patchName(pimpleDict.lookupOrDefault<word>("corrPatch", "outlet"));
         wordList boundaries(U_.boundaryField().size(), "zeroGradient");
         forAll(boundaries, patchi)
         {
