@@ -1,16 +1,16 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  jeff
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
     version     2.0;
     format      ascii;
     class       polyBoundaryMesh;
-    location    "0.0001/polyMesh";
+    location    "constant/polyMesh";
     object      boundary;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -20,49 +20,48 @@ FoamFile
     frontAndBack
     {
         type            empty;
-        inGroups        1(empty);
-        nFaces          25224;
-        startFace       18792;
+        nFaces          7876;
+        startFace       5831;
     }
     top
     {
         type            cyclic;
         inGroups        1(cyclic);
-        nFaces          63;
-        startFace       44016;
+        nFaces          38;
+        startFace       13707;
         matchTolerance  0.0001;
-        transform       unknown;
+        transform       coincidentFullMatch;
         neighbourPatch  bottom;
     }
     bottom
     {
         type            cyclic;
         inGroups        1(cyclic);
-        nFaces          63;
-        startFace       44079;
+        nFaces          38;
+        startFace       13745;
         matchTolerance  0.0001;
-        transform       unknown;
+        transform       coincidentFullMatch;
         neighbourPatch  top;
-    }
-    right
-    {
-        type            cyclic;
-        inGroups        1(cyclic);
-        nFaces          63;
-        startFace       44142;
-        matchTolerance  0.0001;
-        transform       unknown;
-        neighbourPatch  left;
     }
     left
     {
         type            cyclic;
         inGroups        1(cyclic);
-        nFaces          63;
-        startFace       44205;
+        nFaces          38;
+        startFace       13783;
         matchTolerance  0.0001;
-        transform       unknown;
+        transform       coincidentFullMatch;
         neighbourPatch  right;
+    }
+    right
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          38;
+        startFace       13821;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  left;
     }
 )
 
