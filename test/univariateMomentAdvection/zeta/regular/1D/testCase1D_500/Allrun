@@ -10,6 +10,7 @@ cp -rf 0.orig 0
 application=`getApplication`
 
 runApplication blockMesh
+runApplication setMoments1D
 runApplication $application
 runApplication posProcess -func sampleDict
 

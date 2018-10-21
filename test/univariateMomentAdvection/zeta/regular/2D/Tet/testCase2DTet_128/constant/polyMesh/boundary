@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  dev                                   |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  jeff
+     \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -17,52 +17,51 @@ FoamFile
 
 5
 (
+    frontAndBack
+    {
+        type            empty;
+        nFaces          31788;
+        startFace       23689;
+    }
+    top
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          76;
+        startFace       55477;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  bottom;
+    }
     bottom
     {
         type            cyclic;
         inGroups        1(cyclic);
-        nFaces          128;
-        startFace       77936;
+        nFaces          76;
+        startFace       55553;
         matchTolerance  0.0001;
-        transform       unknown;
+        transform       coincidentFullMatch;
         neighbourPatch  top;
-    }
-    frontAndBack
-    {
-        type            empty;
-        inGroups        1(empty);
-        nFaces          104256;
-        startFace       78064;
     }
     left
     {
         type            cyclic;
         inGroups        1(cyclic);
-        nFaces          128;
-        startFace       182320;
+        nFaces          76;
+        startFace       55629;
         matchTolerance  0.0001;
-        transform       unknown;
+        transform       coincidentFullMatch;
         neighbourPatch  right;
     }
     right
     {
         type            cyclic;
         inGroups        1(cyclic);
-        nFaces          128;
-        startFace       182448;
+        nFaces          76;
+        startFace       55705;
         matchTolerance  0.0001;
-        transform       unknown;
+        transform       coincidentFullMatch;
         neighbourPatch  left;
-    }
-    top
-    {
-        type            cyclic;
-        inGroups        1(cyclic);
-        nFaces          128;
-        startFace       182576;
-        matchTolerance  0.0001;
-        transform       unknown;
-        neighbourPatch  bottom;
     }
 )
 
