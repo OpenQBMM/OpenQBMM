@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
                   : "default"
                 );
 
-                Info<< "Setting " << bName << "boundary" << endl;
+                Info<< nl << "Setting " << bName << " boundary" << endl;
                 dictionary dict = phaseDict.subDict(bName);
 
                 momentGenerator().updateQuadrature(dict);
