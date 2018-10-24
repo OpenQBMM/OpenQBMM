@@ -85,6 +85,7 @@ PIMPLE
     nNonOrthogonalCorrectors    0;
     pRefCell    0;
     pRefValue   1e5;
+//     solveP_rgh  true;
 
     outerCorrectorResidualControl
     {

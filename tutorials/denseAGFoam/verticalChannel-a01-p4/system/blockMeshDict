@@ -34,9 +34,9 @@ blocks
     simpleGrading
     (
         (
-            (   0.0621352389 0.107142857143 5)  // 20% y-dir, 30% cells, exp = 4
+            (   0.0621352389 0.107142857143 4)  // 20% y-dir, 30% cells, exp = 4
             (   0.8757295222 0.785714285714 1)  // 60% y-dir, 40% cells, exp = 1
-            1
+            (   0.0621352389 0.107142857143 .25)  // 20% y-dir, 30% cells, exp = 4
         )
 	    1                  // y-direction expansion ratio
         1                  // z-direction expansion ratio

@@ -867,7 +867,6 @@ void Foam::twoPhaseSystem::relativeTransport()
     if (nNodes_ > 1)
     {
         phase1_->relativeTransport();
-        phi_ = phase1_->alphaPhi() + phase2_->alphaPhi();
     }
 }
 

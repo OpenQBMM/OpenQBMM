@@ -902,7 +902,6 @@ void Foam::polydispersePhaseModel::relativeTransport()
         UpEqn.solve();
     }
     quadrature_.updateAllQuadrature();
-    this->updateVelocity();
     correct();
 }
 
@@ -995,7 +994,7 @@ void Foam::polydispersePhaseModel::averageTransport
                         (
                             "small",
                             dimDensity,
-                            1e-10//residualAlpha_.value()
+                            1e-10
                         )
                     ),
                     corr,
