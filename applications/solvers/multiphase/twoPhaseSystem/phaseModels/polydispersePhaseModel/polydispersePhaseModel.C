@@ -994,7 +994,7 @@ void Foam::polydispersePhaseModel::averageTransport
                         (
                             "small",
                             dimDensity,
-                            1e-10
+                            1e-6
                         )
                     ),
                     corr,
@@ -1174,4 +1174,22 @@ void Foam::polydispersePhaseModel::averageTransport
     }
 }
 
+
+bool Foam::polydispersePhaseModel::read()
+{
+    maxD_.readIfPresent(phaseDict_);
+    minD_.readIfPresent(phaseDict_);
+
+    const dictionary& odeDict(pbeDict_.subDict("odeCoeffs"));
+    pbeDict_.lookup("coalescence") >> coalescence_;
+    pbeDict_.lookup("breakup") >> breakup_;
+    odeDict.lookup("minLocalDt") >> minLocalDt_;
+    odeDict.lookup("ATol") >> ATol_;
+    odeDict.lookup("RTol") >> RTol_;
+    odeDict.lookup("facMax") >> facMax_;
+    odeDict.lookup("facMin") >> facMin_;
+    odeDict.lookup("fac") >> fac_;
+
+    return true;
+}
 // ************************************************************************* //

@@ -22,8 +22,8 @@ solvers
         nAlphaCorr      2;
 
         implicitPhasePressure yes;
-        solver          GAMG;
-        smoother        DILU;
+        solver          PBiCGStab;
+        preconditioner  DILU;
         tolerance       1e-12;
         relTol          0;
         minIter         1;
@@ -85,7 +85,6 @@ PIMPLE
     nNonOrthogonalCorrectors    0;
     pRefCell    0;
     pRefValue   1e5;
-//     solveP_rgh  true;
 
     outerCorrectorResidualControl
     {

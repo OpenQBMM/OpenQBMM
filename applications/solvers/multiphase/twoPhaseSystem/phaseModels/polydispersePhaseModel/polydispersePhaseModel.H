@@ -226,6 +226,9 @@ public:
 
         //- Average transport of moments
         virtual void averageTransport(const PtrList<fvVectorMatrix>& AEqns);
+
+        //- Read phase properties dictionary
+        virtual bool read();
 };
 
 

@@ -973,11 +973,10 @@ bool Foam::twoPhaseSystem::read()
     {
         bool readOK = true;
 
-        readOK &= phase1_->read(*this);
-        readOK &= phase2_->read(*this);
+        readOK &= phase1_->read();
+        readOK &= phase2_->read();
 
         // models ...
-
         return readOK;
     }
     else
