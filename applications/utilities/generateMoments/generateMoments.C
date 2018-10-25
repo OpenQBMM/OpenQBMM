@@ -35,6 +35,8 @@ Description
 #include "fvCFD.H"
 #include "momentGenerationModel.H"
 #include "mappedPtrList.H"
+#include "topoSetSource.H"
+#include "cellSet.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -98,8 +100,13 @@ int main(int argc, char *argv[])
 
         //  Set internal field values and initialize moments.
         {
-            Info<< "Setting internal field" <<endl;
-            const dictionary& dict(phaseDict.subDict("internal"));
+            Info<< "Setting internal fields" <<endl;
+            const dictionary& dict
+            (
+                phaseDict.found("internal")
+              ? phaseDict.subDict("internal")
+              : phaseDict.subDict("default")
+            );
 
             momentGenerator().updateQuadrature(dict);
 
@@ -148,40 +155,85 @@ int main(int argc, char *argv[])
 
         forAll(mesh.boundaryMesh(), bi)
         {
-            if (moments[0].boundaryField()[bi].fixesValue())
+            word bName
+            (
+                phaseDict.found(mesh.boundaryMesh()[bi].name())
+                ? mesh.boundaryMesh()[bi].name()
+                : "default"
+            );
+
+            Info<< nl << "Setting " << mesh.boundaryMesh()[bi].name() << " boundary" << endl;
+            dictionary dict = phaseDict.subDict(bName);
+
+            momentGenerator().updateQuadrature(dict);
+
+            forAll(moments, mi)
             {
-                word bName
-                (
-                    phaseDict.found(mesh.boundaryMesh()[bi].name())
-                  ? mesh.boundaryMesh()[bi].name()
-                  : "default"
-                );
-
-                Info<< nl << "Setting " << bName << " boundary" << endl;
-                dictionary dict = phaseDict.subDict(bName);
-
-                momentGenerator().updateQuadrature(dict);
-
-                forAll(moments, mi)
+                forAll(moments[mi].boundaryField()[bi], facei)
                 {
-                    forAll(moments[mi].boundaryField()[bi], facei)
+                    moments[mi].boundaryFieldRef()[bi][facei] =
+                        (momentGenerator().moments()[mi]).value();
+                }
+
+                Info<< "moment."
+                    << mappedList<label>::listToWord(momentOrders[mi])
+                    << "." << phaseName << ": "
+                    << momentGenerator().moments()[mi].value() << endl;
+            }
+        }
+
+        //- Set regions of domain using methods seen in setFields
+        if (phaseDict.found("regions"))
+        {
+            PtrList<entry> regions(phaseDict.lookup("regions"));
+
+            forAll(regions, regionI)
+            {
+                const entry& region = regions[regionI];
+
+                autoPtr<topoSetSource> source =
+                    topoSetSource::New(region.keyword(), mesh, region.dict());
+
+                if (source().setType() == topoSetSource::CELLSETSOURCE)
+                {
+                    cellSet selectedCellSet
+                    (
+                        mesh,
+                        "cellSet",
+                        mesh.nCells()/10+1  // Reasonable size estimate.
+                    );
+
+                    source->applyToSet
+                    (
+                        topoSetSource::NEW,
+                        selectedCellSet
+                    );
+
+                    const labelList& cells = selectedCellSet.toc();
+                    momentGenerator().updateQuadrature(region.dict());
+
+                    forAll(moments, mi)
                     {
-                        moments[mi].boundaryFieldRef()[bi][facei] =
-                            (momentGenerator().moments()[mi]).value();
+                        forAll(cells, celli)
+                        {
+                            moments[mi][cells[celli]] =
+                                momentGenerator().moments()[mi].value();
+                        }
                     }
 
-                    Info<< "moment."
-                        << mappedList<label>::listToWord(momentOrders[mi])
-                        << "." << phaseName << ": "
-                        << momentGenerator().moments()[mi].value() << endl;
+                }
+                else if (source().setType() == topoSetSource::FACESETSOURCE)
+                {
+                    FatalErrorInFunction
+                        << "Moments must be volume fields."
+                        << abort(FatalError);
                 }
             }
         }
 
-        Info<< nl << "Writing moments:" << endl;
+
         forAll(moments, mi)
         {
-            Info<< moments[mi].name() << endl;
             moments[mi].write();
         }
     }
