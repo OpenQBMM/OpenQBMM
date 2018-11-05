@@ -458,6 +458,12 @@ public:
         {
             return true;
         }
+
+        //- Read phase properties dictionary
+        virtual bool read(const bool readOK)
+        {
+            return false;
+        }
 };
 
 

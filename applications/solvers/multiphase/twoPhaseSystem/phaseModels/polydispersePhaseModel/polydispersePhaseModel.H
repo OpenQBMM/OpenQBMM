@@ -228,7 +228,7 @@ public:
         virtual void averageTransport(const PtrList<fvVectorMatrix>& AEqns);
 
         //- Read phase properties dictionary
-        virtual bool read();
+        virtual bool read(const bool readOK);
 };
 
 
