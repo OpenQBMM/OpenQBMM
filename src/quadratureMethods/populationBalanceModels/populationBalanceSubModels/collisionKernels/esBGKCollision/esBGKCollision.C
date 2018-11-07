@@ -190,7 +190,7 @@ void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     dimensionedScalar zeroVar("zero", sqr(dimVelocity), 0.0);
     volScalarField sigma1(max(moments(2,0)/m00 - uSqr, zeroVar));
     volScalarField sigma2(max(moments(0,2)/m00 - vSqr, zeroVar));
-    Theta_ = (sigma1 + sigma2)/2.0;
+    Theta_ = (sigma1 + sigma2)/3.0;
 
     volScalarField sigma11(a1_*Theta_ + b1_*sigma1);
     volScalarField sigma22(a1_*Theta_ + b1_*sigma2);

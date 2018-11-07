@@ -38,7 +38,7 @@ velocityCoeffs
         collisionKernel esBGK;
         e           0.9;
         d           600e-6;
-        tau 10;
+        tau         10;
     }
 }
 

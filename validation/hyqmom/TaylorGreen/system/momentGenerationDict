@@ -54,34 +54,40 @@ particles
     weightDimension     [0 0 0 0 0 0 0];
     abscissaDimension   [0 1 -1 0 0 0 0];
 
-    internal
+    default
     {
-//         node0
-//         {
-//             weight  0.001;
-//             abscissa (0 0);
-//         }
-        node0
-        {
-            weight  0.0001;
-            abscissa (0.001 0.001);
-        }
-        node0
-        {
-            weight  0.0001;
-            abscissa (-0.001 0.00);
-        }
-        node0
-        {
-            weight  0.0001;
-            abscissa (0.001 -0.001);
-        }
-        node0
-        {
-            weight  0.0001;
-            abscissa (-0.001 -0.001);
-        }
     }
+
+    regions
+    (
+        cylinderToCell
+        {
+            p1 (0 0.05 -0.5);
+            p2 (0 0.05 0.5);
+            radius 0.05;
+
+            node0
+            {
+                weight  0.0001;
+                abscissa (0 0);
+            }
+//             node0
+//             {
+//                 weight  0.0001;
+//                 abscissa (-0.001 0.00);
+//             }
+//             node0
+//             {
+//                 weight  0.0001;
+//                 abscissa (0.001 -0.001);
+//             }
+//             node0
+//             {
+//                 weight  0.0001;
+//                 abscissa (-0.001 -0.001);
+//             }
+        }
+    );
 }
 
 
