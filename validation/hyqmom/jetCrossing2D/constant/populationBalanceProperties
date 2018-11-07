@@ -21,7 +21,7 @@ velocityCoeffs
 {
     odeCoeffs
     {
-        solveODESource on;
+        solveODESource off;
 
         ATol    1.0e-6;
         RTol    1.0e-4;
@@ -35,7 +35,7 @@ velocityCoeffs
 
     collisionKernel
     {
-        collisionKernel BGK;
+        collisionKernel esBGK;
         e           0.9;
         d           600e-6;
         tau 10;
