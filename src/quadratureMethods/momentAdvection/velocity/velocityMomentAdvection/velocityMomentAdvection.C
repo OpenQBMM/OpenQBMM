@@ -71,7 +71,8 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
     support_(support),
     momentOrders_(quadrature.momentOrders()),
     nodeIndexes_(quadrature.nodeIndexes()),
-    divMoments_(nMoments_)
+    divMoments_(nMoments_),
+    ew_(dict.lookupOrDefault("ew", 1.0))
 {
     forAll(divMoments_, momenti)
     {

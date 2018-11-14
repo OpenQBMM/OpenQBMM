@@ -30,7 +30,7 @@ solvers
         minIter         1;
     }
 
-    p
+    "p|p_rgh"
     {
         solver          PCG;
         preconditioner  DIC;
@@ -43,9 +43,10 @@ solvers
         mergeLevels     2;
         tolerance       1e-10;
         maxIter         1000;
+        relTol 0.01;
     }
 
-    pFinal
+    "(p|p_rgh)Final"
     {
         $p;
         relTol          0;
@@ -64,7 +65,7 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-6;
+        tolerance       1e-8;
         relTol          0;
         minIter         1;
     }
@@ -84,8 +85,9 @@ PIMPLE
     nOuterCorrectors            15;
     nCorrectors                 2;
     nNonOrthogonalCorrectors    0;
-    pRefCell    0;
+    pRefCell   0;
     pRefValue   1e5;
+    solveP_rgh false;
 
     outerCorrectorResidualControl
     {
@@ -104,9 +106,13 @@ PIMPLE
 
 relaxationFactors
 {
-    equations
+    fields
     {
         p           0.3;
+    }
+    equations
+    {
+        "U.*"       0.7;
     }
 }
 

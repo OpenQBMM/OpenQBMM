@@ -1,7 +1,16 @@
 EXE_INC = \
     -DFULLDEBUG -g -O0 \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I../../../../src/mappedList
+    -I$(LIB_SRC)/transportModels/compressible/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/thermophysicalProperties/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+    -I../../../../src/mappedList \
+    -I../../../../src/mappedPtrList
 
 LIB_LIBS = \
-    -lfiniteVolume
+    -lfiniteVolume \
+    -lcompressibleTransportModels \
+    -lspecie \
+    -lthermophysicalProperties \
+    -lfluidThermophysicalModels

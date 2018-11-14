@@ -112,7 +112,7 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
 )
 {
     vector cSource = Zero;
-    if (!coalescence_)
+    if (!coalescence_ || momentOrder == 1)
     {
         return cSource;
     }
@@ -198,7 +198,7 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
 )
 {
     vector bSource = Zero;
-    if (!breakup_)
+    if (!breakup_  || momentOrder == 1)
     {
         return bSource;
     }
@@ -902,7 +902,6 @@ void Foam::polydispersePhaseModel::relativeTransport()
         UpEqn.solve();
     }
     quadrature_.updateAllQuadrature();
-    this->updateVelocity();
     correct();
 }
 
@@ -995,7 +994,7 @@ void Foam::polydispersePhaseModel::averageTransport
                         (
                             "small",
                             dimDensity,
-                            residualAlpha_.value()
+                            1e-6
                         )
                     ),
                     corr,
@@ -1145,9 +1144,13 @@ void Foam::polydispersePhaseModel::averageTransport
         volScalarField tauC
         (
             "tauC",
-            (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE
+            Foam::max
+            (
+                (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE,
+                residualAlpha_
+            )
         );
-        tauC.dimensions().reset(inv(dimTime));
+        tauC.dimensions().reset(dimDensity/dimTime);
 
         volScalarField alphaRhoi(alphas_[nodei]*rho());
 
@@ -1156,10 +1159,10 @@ void Foam::polydispersePhaseModel::averageTransport
         (
             alphaRhoi*fvm::ddt(Us_[nodei])
           - alphaRhoi*fvc::ddt(Us_[nodei])
-          + fvm::Sp(tauC*alphaRhoi, Us_[nodei])
+          + fvm::Sp(tauC, Us_[nodei])
          ==
             AEqns[nodei]
-          + tauC*alphaRhoi*U_
+          + tauC*U_
         );
 
         UsEqn.relax();
@@ -1175,4 +1178,31 @@ void Foam::polydispersePhaseModel::averageTransport
     }
 }
 
+
+bool Foam::polydispersePhaseModel::read(const bool readOK)
+{
+    bool read = false;
+    if (readOK)
+    {
+        maxD_.readIfPresent(phaseDict_);
+        minD_.readIfPresent(phaseDict_);
+        read = true;
+    }
+
+    if (pbeDict_.modified())
+    {
+        const dictionary& odeDict(pbeDict_.subDict("odeCoeffs"));
+        pbeDict_.lookup("coalescence") >> coalescence_;
+        pbeDict_.lookup("breakup") >> breakup_;
+        odeDict.lookup("minLocalDt") >> minLocalDt_;
+        odeDict.lookup("ATol") >> ATol_;
+        odeDict.lookup("RTol") >> RTol_;
+        odeDict.lookup("facMax") >> facMax_;
+        odeDict.lookup("facMin") >> facMin_;
+        odeDict.lookup("fac") >> fac_;
+        read = true;
+    }
+
+    return read || readOK;
+}
 // ************************************************************************* //
