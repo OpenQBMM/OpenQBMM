@@ -227,7 +227,6 @@ int main(int argc, char *argv[])
 
         forAll(moments, mi)
         {
-            moments[mi].correctBoundaryConditions();
             moments[mi].write();
         }
     }
