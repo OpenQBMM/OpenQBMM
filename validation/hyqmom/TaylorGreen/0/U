@@ -48,8 +48,8 @@ internalField   #codeStream
             u[celli] =
                 vector
                 (
-                    Foam::cos(twoPi*x)*Foam::sin(twoPi*y),
-                    -Foam::sin(twoPi*x)*Foam::cos(twoPi*y),
+                    Foam::sin(twoPi*x)*Foam::cos(twoPi*y),
+                    -Foam::sin(twoPi*y)*Foam::cos(twoPi*x),
                     0.0
                 );
         }

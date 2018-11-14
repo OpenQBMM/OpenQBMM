@@ -231,7 +231,7 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
             (
                 h2Fn*specularityCoefficient_.value()*Vw
               + PsFric*tan(internalFrictionAngle_.value())
-               /max(alpha*mag(patchInternalField()), 1e-4)
+               /max(alpha*mag(patchInternalField()), SMALL)
             )/max(nu, SMALL)
         );
 
@@ -296,8 +296,6 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::write
     fvPatchVectorField::write(os);
     os.writeKeyword("specularityCoefficient")
         << specularityCoefficient_ << token::END_STATEMENT << nl;
-    os.writeKeyword("internalFrictionAngle")
-        << internalFrictionAngle_ << token::END_STATEMENT << nl;
     writeEntry("value", os);
 }
 

@@ -17,4 +17,4 @@ FoamFile
 
 dilutePhase     particles;
 residualAlpha   1e-6;
-St              0.1;
+St              1.0;

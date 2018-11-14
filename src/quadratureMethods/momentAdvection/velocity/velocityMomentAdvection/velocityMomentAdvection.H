@@ -96,9 +96,6 @@ protected:
         //- Advection terms for moment transport equations
         PtrList<volScalarField> divMoments_;
 
-        //- Coefficient of restitution
-        scalar ew_;
-
 
 public:
 
