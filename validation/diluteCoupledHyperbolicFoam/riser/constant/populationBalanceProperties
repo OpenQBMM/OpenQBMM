@@ -36,8 +36,8 @@ velocityCoeffs
     collisionKernel
     {
         collisionKernel esBGK;
-        e           0.8;
-        tau         tau     [0 0 1 0 0 0 0]     0.18;
+        e           0.9;
+        d           90.0e-6;
     }
 }
 
