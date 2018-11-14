@@ -123,15 +123,10 @@ int main(int argc, char *argv[])
             fluid.correct();
 
 			#include "pU/UEqns.H"
-            if (solveP_rgh)
+            while (pimple.correct())
             {
-                #include "pU/p_rghEqn.H"
+				#include "pU/pEqn.H"
             }
-            else
-            {
-                #include "pU/pEqn.H"
-            }
-
             #include "pU/DDtU.H"
 
             if (pimple.turbCorr())

@@ -38,7 +38,7 @@ if (pPrimeByA.valid())
 }
 else
 {
-    alpha1Eqn =
+     alpha1Eqn =
     (
         fvm::ddt(alpha1)
       + fvm::div(phi1, alpha1)

@@ -47,7 +47,7 @@ air
     weightDimension     [0 -3 0 0 0 0 0];
     abscissaDimension   [1 0 0 0 0 0 0];
 
-    "internal|default"
+    internal
     {
         node0
         {
@@ -89,9 +89,6 @@ air
             alpha   0.33;
         }
     }
-
-    setRegions
-    {}
 }
 
 

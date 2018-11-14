@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         cellLimited     leastSquares 1.0;
+    default         cellLimited     leastSquares .2;
     grad(p)         leastSquares;
 }
 
