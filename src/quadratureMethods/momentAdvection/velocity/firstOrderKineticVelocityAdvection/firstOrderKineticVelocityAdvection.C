@@ -189,7 +189,7 @@ void Foam::velocityAdvection::firstOrderKinetic::updateWallCollisions()
                     bfwNei[facei] = bfwOwn[facei];
                     bfUNei[facei] =
                         bfUOwn[facei]
-                      - 2.0*(bfUOwn[facei] & bfNorm[facei])
+                      - (1.0 + this->ew_)*(bfUOwn[facei] & bfNorm[facei])
                        *bfNorm[facei];
                 }
             }
