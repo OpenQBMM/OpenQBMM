@@ -453,16 +453,16 @@ public:
             return;
         }
 
-        //- Read phase properties dictionary
-        virtual bool read()
+        //- Read phaseProperties dictionary
+        virtual bool read(const dictionary& phaseProperties)
         {
             return true;
         }
 
-        //- Read phase properties dictionary
-        virtual bool read(const bool readOK)
+        //- Dummy Read for transportModel
+        virtual bool read()
         {
-            return false;
+            return true;
         }
 };
 

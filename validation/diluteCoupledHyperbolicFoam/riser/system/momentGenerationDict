@@ -46,12 +46,17 @@ particles
     weightDimension     [0 0 0 0 0 0 0];
     abscissaDimension   [0 1 -1 0 0 0 0];
 
-    default
+    internal
     {
         node0
         {
-            weight  0.01;
-            abscissa (0 0);
+            weight  0.005;
+            abscissa (0.01 0);
+        }
+        node1
+        {
+            weight  0.005;
+            abscissa (-0.01 0);
         }
     }
 }

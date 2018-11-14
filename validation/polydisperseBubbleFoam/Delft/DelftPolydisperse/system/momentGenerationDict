@@ -44,16 +44,17 @@ boundaries
 air
 {
     type                alphaAndDiameter;
+    Radau               false;
     weightDimension     [0 -3 0 0 0 0 0];
     abscissaDimension   [1 0 0 0 0 0 0];
 
-    "default"
+    internal
     {
         node0
         {
             rho     1.40;
             dia     3.5e-3;
-            alpha   0.33;
+            alpha alpha [0 0 0 0 0 0 0] 0.33;
         }
         node1
         {
@@ -89,32 +90,6 @@ air
             alpha   0.0253;
         }
     }
-
-    regions
-    (
-        boxToCell
-        {
-            box (0 0 0) (0.5 0.7 0.5);
-//             node0
-//             {
-//                 rho     1.40;
-//                 dia     3.5e-3;
-//                 alpha   0.33;
-//             }
-//             node1
-//             {
-//                 rho     1.40;
-//                 dia     4.25e-3;
-//                 alpha   0.34;
-//             }
-//             node2
-//             {
-//                 rho     1.40;
-//                 dia     5.0e-3;
-//                 alpha   0.33;
-//             }
-        }
-    );
 }
 
 
