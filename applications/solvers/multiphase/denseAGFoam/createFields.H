@@ -37,30 +37,53 @@ volVectorField U
     fluid.U()
 );
 
-label pRefCell = 0;
-scalar pRefValue = 0.0;
-setRefCell
-(
-    p,
-    pimple.dict(),
-    pRefCell,
-    pRefValue
-);
-mesh.setFluxRequired(p.name());
-mesh.setFluxRequired(alpha1.name());
-
-Info<< "Creating field dpdt\n" << endl;
-volScalarField dpdt
+volScalarField p_rgh
 (
     IOobject
     (
-        "dpdt",
+        "p_rgh",
         runTime.timeName(),
-        mesh
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
     ),
-    mesh,
-    dimensionedScalar("dpdt", p.dimensions()/dimTime, 0)
+    mesh
 );
+
+Switch solveP_rgh
+(
+    pimple.dict().lookupOrDefault<Switch>
+    (
+        "solveP_rgh", false
+    )
+);
+
+label pRefCell = 0;
+scalar pRefValue = 0.0;
+if (solveP_rgh)
+{
+    setRefCell
+    (
+        p,
+        p_rgh,
+        pimple.dict(),
+        pRefCell,
+        pRefValue
+    );
+    mesh.setFluxRequired(p_rgh.name());
+}
+else
+{
+    setRefCell
+    (
+        p,
+        pimple.dict(),
+        pRefCell,
+        pRefValue
+    );
+    mesh.setFluxRequired(p.name());
+}
+mesh.setFluxRequired(alpha1.name());
 
 volScalarField rAU1
 (
@@ -89,10 +112,6 @@ volScalarField rAU2
     mesh,
     dimensionedScalar("0", dimTime/dimDensity, 0.0)
 );
-
-Info<< "Creating field kinetic energy K\n" << endl;
-volScalarField K1(IOobject::groupName("K", phase1.name()), 0.5*magSqr(U1));
-volScalarField K2(IOobject::groupName("K", phase2.name()), 0.5*magSqr(U2));
 
 #include "createMRF.H"
 

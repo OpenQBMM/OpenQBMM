@@ -51,25 +51,28 @@ tmp<surfaceScalarField> phiF2;
     volScalarField pPrime2(phase2.turbulence().pPrime());
 
     // Set pPrimeByA to zero so that size dependent dispersion can be summed
-    fluid.pPrimeByA() = tmp<surfaceScalarField>
-    (
-        new surfaceScalarField
+    if (implicitPhasePressure)
+    {
+        fluid.pPrimeByA() = tmp<surfaceScalarField>
         (
-            IOobject
+            new surfaceScalarField
             (
-                "pPrimeByA",
-                runTime.timeName(),
-                mesh
-            ),
-            mesh,
-            dimensionedScalar
-            (
-                "0",
-                pPrime1.dimensions()*rAU1.dimensions(),
-                0.0
+                IOobject
+                (
+                    "pPrimeByA",
+                    runTime.timeName(),
+                    mesh
+                ),
+                mesh,
+                dimensionedScalar
+                (
+                    "0",
+                    pPrime1.dimensions()*rAU1.dimensions(),
+                    0.0
+                )
             )
-        )
-    );
+        );
+    }
 
     // Sum dispersion due to grad(alpha) of each class
     for (label nodei = 0; nodei < phase1.nNodes(); nodei++)
