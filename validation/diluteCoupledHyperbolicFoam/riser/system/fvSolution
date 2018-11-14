@@ -31,6 +31,7 @@ solvers
         mergeLevels     2;
         tolerance       1e-10;
         maxIter         1000;
+        relTol          0.1;
     }
 
     pFinal
@@ -41,8 +42,8 @@ solvers
 
     U
     {
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
+        solver          PBiCGStab;
+        preconditioner  DILU;
         tolerance       1e-8;
         relTol          0;
     }
@@ -65,18 +66,18 @@ PIMPLE
 {
     momentumPredictor   yes;
     transonic           no;
-    nOuterCorrectors    15;
+    nOuterCorrectors    25;
     nCorrectors         2;
     nNonOrthogonalCorrectors 0;
     consistent          yes;
     pRefCell 0;
     pRefValue 0;
 
-    residualControl
+    outerCorrectorResidualControl
     {
         p
         {
-            tolerance 1e-5;
+            tolerance 1e-3;
             relTol    0;
         }
     }
@@ -84,9 +85,13 @@ PIMPLE
 
 relaxationFactors
 {
+    fields
+    {
+        ".*"       1;
+    }
     equations
     {
-        p_rgh       0.3;
+        ".*"       1;
     }
 }
 

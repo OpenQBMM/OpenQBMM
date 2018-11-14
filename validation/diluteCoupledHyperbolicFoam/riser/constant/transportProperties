@@ -16,6 +16,6 @@ FoamFile
 
 transportModel  Newtonian;
 
-nu              [0 2 -1 0 0 0 0] 1.48e-5; // kinematic -> 0.002 dynamic
+nu              [0 2 -1 0 0 0 0] 1.8e-5; // kinematic -> 0.002 dynamic
 
 // ************************************************************************* //

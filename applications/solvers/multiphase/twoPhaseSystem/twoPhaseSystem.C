@@ -867,7 +867,6 @@ void Foam::twoPhaseSystem::relativeTransport()
     if (nNodes_ > 1)
     {
         phase1_->relativeTransport();
-        phi_ = phase1_->alphaPhi() + phase2_->alphaPhi();
     }
 }
 
@@ -970,21 +969,12 @@ void Foam::twoPhaseSystem::correctTurbulence()
 
 bool Foam::twoPhaseSystem::read()
 {
-    if (regIOobject::read())
-    {
-        bool readOK = true;
+    bool readOK = regIOobject::read();
 
-        readOK &= phase1_->read(*this);
-        readOK &= phase2_->read(*this);
+    bool readOK1 = phase1_->read(readOK);
+    bool readOK2 = phase2_->read(readOK);
 
-        // models ...
-
-        return readOK;
-    }
-    else
-    {
-        return false;
-    }
+    return (readOK1 || readOK2);
 }
 
 

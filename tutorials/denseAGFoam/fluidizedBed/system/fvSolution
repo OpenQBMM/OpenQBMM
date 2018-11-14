@@ -106,11 +106,7 @@ relaxationFactors
 {
     equations
     {
-<<<<<<< HEAD
         p           0.3;
-=======
-        p_rgh           1;
->>>>>>> master
     }
 }
 
