@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
         //  Set internal field values and initialize moments.
         {
-            Info<< "Setting internal fields" <<endl;
+            Info<< "Setting internal fields" << nl << endl;
             const dictionary& dict
             (
                 phaseDict.found("internal")
@@ -138,10 +138,6 @@ int main(int argc, char *argv[])
                         momentGenerator().moments()[mi]
                     )
                 );
-                Info<< "moment."
-                    << mappedList<label>::listToWord(momentOrders[mi])
-                    << "." << phaseName << ": "
-                    << momentGenerator().moments()[mi].value() << endl;
 
                 //  Set boundaries based oboundary section
                 //  Initial values specified in the dictionary are overwritten
@@ -155,30 +151,27 @@ int main(int argc, char *argv[])
 
         forAll(mesh.boundaryMesh(), bi)
         {
-            word bName
-            (
-                phaseDict.found(mesh.boundaryMesh()[bi].name())
-                ? mesh.boundaryMesh()[bi].name()
-                : "default"
-            );
-
-            Info<< nl << "Setting " << mesh.boundaryMesh()[bi].name() << " boundary" << endl;
-            dictionary dict = phaseDict.subDict(bName);
-
-            momentGenerator().updateQuadrature(dict);
-
-            forAll(moments, mi)
+            if (moments[0].boundaryField()[bi].fixesValue())
             {
-                forAll(moments[mi].boundaryField()[bi], facei)
-                {
-                    moments[mi].boundaryFieldRef()[bi][facei] =
-                        (momentGenerator().moments()[mi]).value();
-                }
+                Info<< "Setting " << mesh.boundaryMesh()[bi].name()
+                    << " boundary" << endl;
+                const dictionary& dict
+                (
+                    phaseDict.found(mesh.boundaryMesh()[bi].name())
+                  ? phaseDict.subDict(mesh.boundaryMesh()[bi].name())
+                  : phaseDict.subDict("default")
+                );
 
-                Info<< "moment."
-                    << mappedList<label>::listToWord(momentOrders[mi])
-                    << "." << phaseName << ": "
-                    << momentGenerator().moments()[mi].value() << endl;
+                momentGenerator().updateQuadrature(dict);
+
+                forAll(moments, mi)
+                {
+                    forAll(moments[mi].boundaryField()[bi], facei)
+                    {
+                        moments[mi].boundaryFieldRef()[bi][facei] =
+                            (momentGenerator().moments()[mi]).value();
+                    }
+                }
             }
         }
 
@@ -234,6 +227,7 @@ int main(int argc, char *argv[])
 
         forAll(moments, mi)
         {
+            moments[mi].correctBoundaryConditions();
             moments[mi].write();
         }
     }
