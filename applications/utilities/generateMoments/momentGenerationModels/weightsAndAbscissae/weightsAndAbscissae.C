@@ -49,12 +49,13 @@ namespace momentGenerationSubModels
 Foam::momentGenerationSubModels::weightsAndAbscissae
 ::weightsAndAbscissae
 (
+    const fvMesh& mesh,
     const dictionary& dict,
     const labelListList& momentOrders,
     const label nNodes
 )
 :
-    momentGenerationModel(dict, momentOrders, nNodes)
+    momentGenerationModel(mesh, dict, momentOrders, nNodes)
 {}
 
 
@@ -67,7 +68,7 @@ Foam::momentGenerationSubModels::weightsAndAbscissae
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::weightsAndAbscissae::updateQuadrature
+void Foam::momentGenerationSubModels::weightsAndAbscissae::setNodes
 (
     const dictionary& dict
 )
@@ -84,8 +85,21 @@ void Foam::momentGenerationSubModels::weightsAndAbscissae::updateQuadrature
         }
     }
 
-    updateMoments();
+    //- update since weights and abscissae are constant
+    momentGenerationModel::updateMoments();
 }
 
+void Foam::momentGenerationSubModels::weightsAndAbscissae::updateMoments
+(
+    const label celli
+)
+{}
+
+void Foam::momentGenerationSubModels::weightsAndAbscissae::updateMoments
+(
+    const label patchi,
+    const label facei
+)
+{}
 
 // ************************************************************************* //

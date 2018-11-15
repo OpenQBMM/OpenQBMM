@@ -49,12 +49,13 @@ namespace momentGenerationSubModels
 
 Foam::momentGenerationSubModels::noMomentGeneration::noMomentGeneration
 (
+    const fvMesh& mesh,
     const dictionary& dict,
     const labelListList& momentOrders,
     const label nNodes
 )
 :
-    momentGenerationModel(dict, momentOrders, nNodes)
+    momentGenerationModel(mesh, dict, momentOrders, nNodes)
 {}
 
 
@@ -66,12 +67,11 @@ Foam::momentGenerationSubModels::noMomentGeneration::~noMomentGeneration()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::noMomentGeneration::updateQuadrature
+void Foam::momentGenerationSubModels::noMomentGeneration::setNodes
 (
     const dictionary& dict
 )
 {
-    reset();
     forAll(moments_, mi)
     {
         moments_[mi] =
@@ -79,5 +79,17 @@ void Foam::momentGenerationSubModels::noMomentGeneration::updateQuadrature
     }
 }
 
+void Foam::momentGenerationSubModels::noMomentGeneration::updateMoments
+(
+    const label celli
+)
+{}
+
+void Foam::momentGenerationSubModels::noMomentGeneration::updateMoments
+(
+    const label patchi,
+    const label facei
+)
+{}
 
 // ************************************************************************* //

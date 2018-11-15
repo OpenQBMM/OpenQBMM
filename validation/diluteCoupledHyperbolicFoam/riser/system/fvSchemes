@@ -22,8 +22,8 @@ ddtSchemes
 
 gradSchemes
 {
-    default         cellLimited     leastSquares 1.0;
-    grad(p)         leastSquares;
+    default                         faceLimited     leastSquares 1.0;
+    grad(p)                         leastSquares;
 }
 
 divSchemes

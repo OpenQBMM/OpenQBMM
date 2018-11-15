@@ -37,6 +37,7 @@ SourceFiles
 #ifndef momentGeneration_H
 #define momentGeneration_H
 
+#include "fvMesh.H"
 #include "dictionary.H"
 #include "mappedLists.H"
 #include "dimensionedTypes.H"
@@ -115,11 +116,12 @@ public:
         momentGenerationModel,
         dictionary,
         (
+            const fvMesh& mesh,
             const dictionary& dict,
             const labelListList& momentOrders,
             const label nNodes
         ),
-        (dict, momentOrders, nNodes)
+        (mesh, dict, momentOrders, nNodes)
     );
 
 
@@ -128,6 +130,7 @@ public:
         //- Construct from dictionary and number of nodes
         momentGenerationModel
         (
+            const fvMesh& mesh,
             const dictionary& dict,
             const labelListList& momentsOrders,
             const label nNodes
@@ -138,6 +141,7 @@ public:
 
         static autoPtr<momentGenerationModel> New
         (
+            const fvMesh& mesh,
             const dictionary& dict,
             const labelListList& momentsOrders,
             const label nNodes
@@ -150,6 +154,9 @@ public:
 
     // Public Functions
 
+        //- Set the node quanties for a region given a dictionary
+        virtual void setNodes(const dictionary& dict) = 0;
+
         // Access
 
             //- Return constant access to moments
@@ -161,7 +168,14 @@ public:
         // Member Functions
 
             //- Update weights and abscissae given a dictionary
-            virtual void updateQuadrature(const dictionary&) = 0;
+            virtual void updateMoments(const label celli) = 0;
+
+            //- Update moments given a dictionary
+            virtual void updateMoments
+            (
+                const label patchi,
+                const label facei
+            ) = 0;
 };
 
 

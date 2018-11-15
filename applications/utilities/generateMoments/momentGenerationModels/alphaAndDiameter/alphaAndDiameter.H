@@ -36,6 +36,7 @@ SourceFiles
 #define alphaAndDiameter_H
 
 #include "momentGenerationModel.H"
+#include "rhoThermo.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,6 +53,17 @@ class alphaAndDiameter
 :
     public momentGenerationModel
 {
+
+    //- Read alpha field
+    volScalarField alpha_;
+
+    //- Build thermo object to get density
+    autoPtr<rhoThermo> thermo_;
+
+    scalarList ds_;
+    scalarList alphas_;
+    scalar sumAlpha_;
+
 public:
 
         //- Runtime type information
@@ -63,6 +75,7 @@ public:
         //- Construct from components
         alphaAndDiameter
         (
+            const fvMesh& mesh,
             const dictionary& dict,
             const labelListList& momentsOrders,
             const label nNodes
@@ -75,8 +88,18 @@ public:
 
     // Public member functions
 
-        //- Update quadrature given a dictionary
-        virtual void updateQuadrature(const dictionary&);
+        //- Set the node quanties for a region given a dictionary
+        virtual void setNodes(const dictionary& dict);
+
+        //- Update weights and abscissae given a dictionary
+        virtual void updateMoments(const label celli);
+
+        //- Update moments given a dictionary
+        virtual void updateMoments
+        (
+            const label patchi,
+            const label facei
+        );
 };
 
 

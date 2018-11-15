@@ -49,12 +49,33 @@ namespace momentGenerationSubModels
 
 Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
 (
+    const fvMesh& mesh,
     const dictionary& dict,
     const labelListList& momentOrders,
     const label nNodes
 )
 :
-    momentGenerationModel(dict, momentOrders, nNodes)
+    momentGenerationModel(mesh, dict, momentOrders, nNodes),
+    alpha_
+    (
+        IOobject
+        (
+            IOobject::groupName
+            (
+                "alpha",
+                IOobject::group(dict.name())
+            ),
+            mesh.time().timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh
+    ),
+    thermo_(rhoThermo::New(mesh, alpha_.group())),
+    ds_(nNodes, 0.0),
+    alphas_(nNodes, 0.0),
+    sumAlpha_(0.0)
 {}
 
 
@@ -66,31 +87,88 @@ Foam::momentGenerationSubModels::alphaAndDiameter::~alphaAndDiameter()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::alphaAndDiameter::updateQuadrature
+void Foam::momentGenerationSubModels::alphaAndDiameter::setNodes
 (
     const dictionary& dict
 )
 {
-    reset();
+    sumAlpha_ = 0.0;
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            scalar dia(readScalar(nodeDict.lookup("dia")));
-            scalar alpha(readScalar(nodeDict.lookup("alpha")));
-            scalar rho(readScalar(nodeDict.lookup("rho")));
+            ds_[nodei] = nodeDict.lookupType<scalar>("dia");
+            alphas_[nodei] = nodeDict.lookupType<scalar>("alpha");
+            sumAlpha_ += alphas_[nodei];
+        }
+        else
+        {
+            ds_[nodei] = 0.0;
+            alphas_[nodei] = 0.0;
+        }
+    }
+    sumAlpha_ = max(sumAlpha_, 1e-8);
+}
 
-            abscissae_[nodei][0]
-                = (4.0/3.0)*Foam::constant::mathematical::pi*rho*pow3(dia/2.0);
+void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
+(
+    const label celli
+)
+{
+    reset();
 
+    forAll(weights_, nodei)
+    {
+        scalar alpha = alpha_[celli]*alphas_[nodei]/sumAlpha_;
+        scalar rho = thermo_->rho()[celli];
+
+        abscissae_[nodei][0] =
+            Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
+
+        if (abscissae_[nodei][0] > SMALL)
+        {
             weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+        }
+        else
+        {
+            weights_[nodei] = 0.0;
         }
     }
 
-    updateMoments();
+    momentGenerationModel::updateMoments();
 }
 
+void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
+(
+    const label patchi,
+    const label facei
+)
+{
+    reset();
+
+    forAll(weights_, nodei)
+    {
+        scalar alpha =
+            alpha_.boundaryField()[patchi][facei]*alphas_[nodei]/sumAlpha_;
+        scalar rho = thermo_->rho().boundaryField()[patchi][facei];
+
+        abscissae_[nodei][0] =
+            Foam::constant::mathematical::pi/6.0
+            *rho*pow3(ds_[nodei]);
+
+        if (abscissae_[nodei][0] > SMALL)
+        {
+            weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+        }
+        else
+        {
+            weights_[nodei] = 0.0;
+        }
+    }
+
+    momentGenerationModel::updateMoments();
+}
 
 // ************************************************************************* //
