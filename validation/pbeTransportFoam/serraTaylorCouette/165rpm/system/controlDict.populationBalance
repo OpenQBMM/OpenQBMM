@@ -54,18 +54,18 @@ functions
 {
     d43Average
     {
-        functionObjectLibs ("libutilityFunctionObjects.so");
-        type coded;
-        redirectType integral;
-        writeControl timeStep;
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                d43VolumeAverage;
+        writeControl        timeStep;
 
-        code
+        codeExecute
         #{
         const volScalarField& m3
-                = mesh().lookupObject<volScalarField>("moment.3");
+                = mesh().lookupObject<volScalarField>("moment.3.populationBalance");
 
         const volScalarField& m4
-                = mesh().lookupObject<volScalarField>("moment.4");
+                = mesh().lookupObject<volScalarField>("moment.4.populationBalance");
 
         volScalarField d43(m4/m3);
 

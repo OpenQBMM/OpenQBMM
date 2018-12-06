@@ -16,7 +16,7 @@ FoamFile
 
 application     pbeTransportFoam;
 
-startFrom       latestTime;
+startFrom       startTime;//latestTime;
 
 startTime       0;
 
@@ -54,10 +54,10 @@ functions
 {
     d43Average
     {
-        libs ("libutilityFunctionObjects.so");
-        type coded;
-        name d43volumeAverage;
-        writeControl timeStep;
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                d43VolumeAverage;
+        writeControl        timeStep;
 
         codeExecute
         #{
