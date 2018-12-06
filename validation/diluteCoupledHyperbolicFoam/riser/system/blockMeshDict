@@ -71,6 +71,24 @@ boundary
             (2 3 7 6)
         );
     }
+    left
+    {
+        type            cyclic;
+        neighbourPatch  right;
+        faces
+        (
+            (0 1 5 4)
+        );
+    }
+    right
+    {
+        type            cyclic;
+        neighbourPatch  right;
+        faces
+        (
+            (2 3 7 6)
+        );
+    }
     walls
     {
         type            wall;

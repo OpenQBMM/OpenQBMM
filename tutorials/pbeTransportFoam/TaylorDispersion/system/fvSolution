@@ -30,7 +30,7 @@ solvers
         agglomerator     faceAreaPair;
         mergeLevels      1;
     }
-      
+
     "(U|h|e|k|epsilon|omega|R)"
     {
         solver          PBiCG;
@@ -73,11 +73,11 @@ PIMPLE
     nCorrectors         1;
     pRefCell            0;
     pRefValue           1.0e5;
-    
-    residualControl
+
+    outerCorrectorResidualControl
     {
-        "moment.*"      
-        {   
+        "moment.*"
+        {
             tolerance 1e-6;
             relTol    0;
         }
@@ -91,7 +91,7 @@ relaxationFactors
         rho             1.0;
         p_rgh           0.7;
     }
-    
+
     equations
     {
         U               0.3;
