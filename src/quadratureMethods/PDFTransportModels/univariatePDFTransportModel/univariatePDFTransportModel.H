@@ -80,6 +80,9 @@ class univariatePDFTransportModel
         //- Minimum local step in realizable ODE solver
         scalar minLocalDt_;
 
+        //- Stored time step values
+        scalarField localDt_;
+
 
 protected:
 
