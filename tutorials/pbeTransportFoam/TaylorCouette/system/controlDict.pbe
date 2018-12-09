@@ -56,7 +56,7 @@ functions
     {
         functionObjectLibs ("libutilityFunctionObjects.so");
         type coded;
-        redirectType integral;
+        redirectType d43VolumeAverage;
         writeControl timeStep;
 
         codeExecute

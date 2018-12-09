@@ -92,8 +92,14 @@ int main(int argc, char *argv[])
         label nMoments = momentOrders.size();
         label nNodes = nodeIndexes.size();
 
-        autoPtr<momentGenerationModel> momentGenerator
-            = momentGenerationModel::New(phaseDict, momentOrders, nNodes);
+        autoPtr<momentGenerationModel> momentGenerator =
+            momentGenerationModel::New
+            (
+                mesh,
+                phaseDict,
+                momentOrders,
+                nNodes
+            );
 
 
         mappedPtrList<volScalarField> moments(nMoments, momentOrders);
@@ -108,7 +114,7 @@ int main(int argc, char *argv[])
               : phaseDict.subDict("default")
             );
 
-            momentGenerator().updateQuadrature(dict);
+            momentGenerator().setNodes(dict);
 
             forAll(moments, mi)
             {
@@ -147,6 +153,15 @@ int main(int argc, char *argv[])
                     boundaries
                 );
             }
+
+            forAll(moments[0], celli)
+            {
+                momentGenerator->updateMoments(celli);
+                forAll(moments, mi)
+                {
+                    moments[mi][celli] = momentGenerator->moments()[mi].value();
+                }
+            }
         }
 
         forAll(mesh.boundaryMesh(), bi)
@@ -162,12 +177,14 @@ int main(int argc, char *argv[])
                   : phaseDict.subDict("default")
                 );
 
-                momentGenerator().updateQuadrature(dict);
+                momentGenerator().setNodes(dict);
 
                 forAll(moments, mi)
                 {
                     forAll(moments[mi].boundaryField()[bi], facei)
                     {
+                        momentGenerator().updateMoments(bi, facei);
+
                         moments[mi].boundaryFieldRef()[bi][facei] =
                             (momentGenerator().moments()[mi]).value();
                     }
@@ -203,11 +220,12 @@ int main(int argc, char *argv[])
                     );
 
                     const labelList& cells = selectedCellSet.toc();
-                    momentGenerator().updateQuadrature(region.dict());
+                    momentGenerator().setNodes(region.dict());
 
-                    forAll(moments, mi)
+                    forAll(cells, celli)
                     {
-                        forAll(cells, celli)
+                        momentGenerator().updateMoments(cells[celli]);
+                        forAll(moments, mi)
                         {
                             moments[mi][cells[celli]] =
                                 momentGenerator().moments()[mi].value();

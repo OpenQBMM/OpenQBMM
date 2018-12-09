@@ -62,6 +62,7 @@ public:
         //- Construct from components
         weightsAndAbscissae
         (
+            const fvMesh& mesh,
             const dictionary& dict,
             const labelListList& momentsOrders,
             const label nNodes
@@ -74,8 +75,18 @@ public:
 
     // Public member functions
 
-        //- Update quadrature given a dictionary
-        virtual void updateQuadrature(const dictionary&);
+        //- Set the node quanties for a region given a dictionary
+        virtual void setNodes(const dictionary& dict);
+
+        //- Update weights and abscissae given a dictionary
+        virtual void updateMoments(const label celli);
+
+        //- Update moments given a dictionary
+        virtual void updateMoments
+        (
+            const label patchi,
+            const label facei
+        );
 };
 
 

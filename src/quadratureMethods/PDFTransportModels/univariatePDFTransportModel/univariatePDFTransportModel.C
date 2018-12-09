@@ -49,6 +49,7 @@ Foam::PDFTransportModels::univariatePDFTransportModel
     facMin_(readScalar(dict.subDict("odeCoeffs").lookup("facMin"))),
     facMax_(readScalar(dict.subDict("odeCoeffs").lookup("facMax"))),
     minLocalDt_(readScalar(dict.subDict("odeCoeffs").lookup("minLocalDt"))),
+    localDt_(mesh.nCells(), mesh.time().deltaTValue()/10.0),
     quadrature_(name, mesh, support),
     momentAdvection_
     (
@@ -94,7 +95,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
         scalar localT = 0.0;
 
         // Initialize the local step
-        scalar localDt = globalDt/100.0;
+        scalar localDt = localDt_[celli];
 
         // Initialize RK parameters
         scalarList k1(nMoments, 0.0);
@@ -229,6 +230,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel
                     break;
                 }
 
+                localDt_[celli] = localDt;
                 localT += localDt;
             }
             else

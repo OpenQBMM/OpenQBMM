@@ -28,6 +28,14 @@ boundaryField
     {
         type            cyclic;
     }
+    left
+    {
+        type            cyclic;
+    }
+    right
+    {
+        type            cyclic;
+    }
     wall
     {
         type            fixedValue;

@@ -79,6 +79,7 @@ void Foam::momentGenerationModel::reset()
 
 Foam::momentGenerationModel::momentGenerationModel
 (
+    const fvMesh& mesh,
     const dictionary& dict,
     const labelListList& momentOrders,
     const label nNodes

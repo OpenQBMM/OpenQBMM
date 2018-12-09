@@ -73,7 +73,7 @@ PIMPLE
     pRefCell            0;
     pRefValue           1.0e5;
 
-    residualControl
+    outerCorrectorResidualControl
     {
         "moment.*"
         {

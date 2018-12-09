@@ -49,12 +49,13 @@ namespace momentGenerationSubModels
 
 Foam::momentGenerationSubModels::velocity::velocity
 (
+    const fvMesh& mesh,
     const dictionary& dict,
     const labelListList& momentOrders,
     const label nNodes
 )
 :
-    momentGenerationModel(dict, momentOrders, nNodes)
+    momentGenerationModel(mesh, dict, momentOrders, nNodes)
 {}
 
 
@@ -66,7 +67,7 @@ Foam::momentGenerationSubModels::velocity::~velocity()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::velocity::updateQuadrature
+void Foam::momentGenerationSubModels::velocity::setNodes
 (
     const dictionary& dict
 )
@@ -95,8 +96,19 @@ void Foam::momentGenerationSubModels::velocity::updateQuadrature
         }
     }
 
-    updateMoments();
+    momentGenerationModel::updateMoments();
 }
 
+void Foam::momentGenerationSubModels::velocity::updateMoments
+(
+    const label celli
+)
+{}
 
+void Foam::momentGenerationSubModels::velocity::updateMoments
+(
+    const label patchi,
+    const label facei
+)
+{}
 // ************************************************************************* //

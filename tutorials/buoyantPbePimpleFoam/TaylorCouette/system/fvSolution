@@ -52,7 +52,7 @@ solvers
         $U;
         relTol          0;
     }
-    
+
     "moment.*"
     {
         solver          PCG;
@@ -71,28 +71,28 @@ PIMPLE
     pRefCell    0;
     pRefValue   1.0e5;
     turbOnFinalIterOnly no;
-    
-    residualControl
+
+    outerCorrectorResidualControl
     {
-        p_rgh           
+        p_rgh
         {
             tolerance   1e-4;
             relTol      0.001;
         }
-        
+
         h
         {
             tolerance   1e-3;
             relTol      0.01;
         }
-        
+
         T
         {
             tolerance   1e-3;
             relTol      0.01;
         }
 
-        "(k|epsilon|R.*)" 
+        "(k|epsilon|R.*)"
         {
             tolerance   1e-4;
             relTol      0.01;

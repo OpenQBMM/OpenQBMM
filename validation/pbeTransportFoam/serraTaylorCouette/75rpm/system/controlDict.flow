@@ -48,10 +48,10 @@ functions
 {
     epsilonVolAverage
     {
-        libs ("libutilityFunctionObjects.so");
-        type coded;
-        name epsilonVolumeAverage;
-        writeControl timeStep;
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                epsilonVolumeAverage;
+        writeControl        timeStep;
 
         codeExecute
         #{
