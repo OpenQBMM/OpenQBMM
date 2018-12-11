@@ -140,6 +140,18 @@ class hyperbolicConditionalMomentInversion
         //- Reset inverter
         void reset();
 
+        //- Return the number of moments given a number of dimensions
+        label getNMoments(const label nDims) const;
+
+        //- Return the moment orders give a number of dimensions
+        labelListList getMomentOrders(const label nDims) const;
+
+        //- Return the number of nodes given a number of dimensions
+        label getNNodes(const label nDims) const;
+
+        //- Return the node indexes give a number of dimensions
+        labelListList getNodeIndexes(const label nDims) const;
+
         //- Disallow default bitwise copy construct
         //hyperbolicConditionalMomentInversion(const hyperbolicConditionalMomentInversion&);
 

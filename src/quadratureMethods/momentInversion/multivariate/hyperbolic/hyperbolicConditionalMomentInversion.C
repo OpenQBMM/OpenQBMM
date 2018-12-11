@@ -116,6 +116,90 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 };
 
 
+Foam::label Foam::hyperbolicConditionalMomentInversion::getNMoments
+(
+    const label nDims
+) const
+{
+    if (nDims == 1)
+    {
+        return 5;
+    }
+    else if (nDims == 2)
+    {
+        return 10;
+    }
+    else if (nDims == 3)
+    {
+        return 16;
+    }
+    return 0;
+}
+
+
+Foam::labelListList Foam::hyperbolicConditionalMomentInversion::getMomentOrders
+(
+    const label nDims
+) const
+{
+    if (nDims == 1)
+    {
+        return {{0}, {1}, {2}, {3}, {4}};
+    }
+    else if (nDims == 2)
+    {
+        return twoDimMomentOrders;
+    }
+    else if (nDims == 3)
+    {
+        return threeDimMomentOrders;
+    }
+    return {{}};
+}
+
+
+Foam::label Foam::hyperbolicConditionalMomentInversion::getNNodes
+(
+    const label nDims
+) const
+{
+    if (nDims == 1)
+    {
+        return 3;
+    }
+    else if (nDims == 2)
+    {
+        return 9;
+    }
+    else if (nDims == 3)
+    {
+        return 27;
+    }
+    return 0;
+}
+
+
+Foam::labelListList Foam::hyperbolicConditionalMomentInversion::getNodeIndexes
+(
+    const label nDims
+) const
+{
+    if (nDims == 1)
+    {
+        return {{1}, {2}, {3}};
+    }
+    else if (nDims == 2)
+    {
+        return twoDimNodeIndexes;
+    }
+    else if (nDims == 3)
+    {
+        return threeDimNodeIndexes;
+    }
+    return {{}};
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
@@ -125,24 +209,12 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 )
 :
     nDimensions_(nDimensions),
-    nMoments_(nDimensions == 2 ? 10 : 16),
-    nNodes_(nDimensions == 2 ? 9 : 27),
+     nMoments_(getNMoments(nDimensions)),
+    nNodes_(getNNodes(nDimensions)),
     support_("R"),
-    moments_
-    (
-        nMoments_,
-        nDimensions == 2 ? twoDimMomentOrders : threeDimMomentOrders
-    ),
-    abscissae_
-    (
-        nNodes_,
-        nDimensions == 2 ? twoDimNodeIndexes : threeDimNodeIndexes
-    ),
-    weights_
-    (
-        nNodes_,
-        nDimensions == 2 ? twoDimNodeIndexes : threeDimNodeIndexes
-    ),
+    moments_(nMoments_, getMomentOrders(nDimensions)),
+    abscissae_(nNodes_, getNodeIndexes(nDimensions)),
+    weights_(nNodes_, getNodeIndexes(nDimensions)),
     univariateInverter_
     (
         new hyperbolicMomentInversion(dict.subDict("basicQuadrature"))
