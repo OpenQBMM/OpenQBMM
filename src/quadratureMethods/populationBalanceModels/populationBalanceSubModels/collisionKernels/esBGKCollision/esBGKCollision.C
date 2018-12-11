@@ -63,7 +63,7 @@ void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     // Variances of velocities
     scalar sigma = max(moments(2)[celli]/m0 - uSqr, 0.0);
     scalar sigma1 = (a1_ + b1_)*sigma;
-    Theta_[celli] = sigma1/3.0;
+    Theta_[celli] = sigma1;
 
     Meq_(0) = moments(0)[celli];
     Meq_(1) = moments(1)[celli];
@@ -87,7 +87,7 @@ void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     // Variances of velocities
     scalar sigma1 = max(moments(2,0)[celli]/m00 - uSqr, 0.0);
     scalar sigma2 = max(moments(0,2)[celli]/m00 - vSqr, 0.0);
-    Theta_[celli] = (sigma1 + sigma2)/3.0;
+    Theta_[celli] = (sigma1 + sigma2)/2.0;
 
     scalar sigma11 = a1_*Theta_[celli] + b1_*sigma1;
     scalar sigma22 = a1_*Theta_[celli] + b1_*sigma2;
@@ -165,7 +165,7 @@ void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     dimensionedScalar zeroVar("zero", sqr(dimVelocity), 0.0);
     volScalarField sigma(max(moments(2)/m0 - uSqr, zeroVar));
     volScalarField sigma1((a1_ + b1_)*sigma);
-    Theta_ = sigma1/3.0;
+    Theta_ = sigma1;
 
     Meqf_(0) = moments(0);
     Meqf_(1) = moments(1);
@@ -190,7 +190,7 @@ void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     dimensionedScalar zeroVar("zero", sqr(dimVelocity), 0.0);
     volScalarField sigma1(max(moments(2,0)/m00 - uSqr, zeroVar));
     volScalarField sigma2(max(moments(0,2)/m00 - vSqr, zeroVar));
-    Theta_ = (sigma1 + sigma2)/3.0;
+    Theta_ = (sigma1 + sigma2)/2.0;
 
     volScalarField sigma11(a1_*Theta_ + b1_*sigma1);
     volScalarField sigma22(a1_*Theta_ + b1_*sigma2);
