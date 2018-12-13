@@ -247,7 +247,7 @@ void Foam::polydispersePhaseModel::solveSourceOde()
 
     forAll(moments[0], celli)
     {
-        if ((*this)[celli] < residualAlpha_.value())
+        if ((*this)[celli] < 0.01)
         {
             continue;
         }
@@ -911,9 +911,6 @@ void Foam::polydispersePhaseModel::averageTransport
     const PtrList<fvVectorMatrix>& AEqns
 )
 {
-    // Update moments with breakup and coalescence sources
-    solveSourceOde();
-
     // Correct mean flux
     const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
     const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
@@ -1169,6 +1166,11 @@ void Foam::polydispersePhaseModel::averageTransport
         UsEqn.solve();
     }
     quadrature_.updateAllMoments();
+
+    // Update moments with breakup and coalescence sources
+    solveSourceOde();
+
+    //- Update mean velocity
     this->updateVelocity();
 
     // Update deviation velocity
