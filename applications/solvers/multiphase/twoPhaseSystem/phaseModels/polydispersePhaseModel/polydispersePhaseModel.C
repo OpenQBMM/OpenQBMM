@@ -680,6 +680,41 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
 
     // Set alpha value based on moments
     volScalarField(*this) == quadrature_.moments()[1]/rho();
+    correct();
+
+    const dictionary& pimpleDict =
+        fluid_.mesh().solutionDict().subDict("PIMPLE");
+    label nCorrectors = pimpleDict.lookupOrDefault<label>("nFluxCorrectors", 0);
+    if (nCorrectors > 0)
+    {
+        word patchName(pimpleDict.lookup("corrPatch"));
+        wordList boundaries(U_.boundaryField().size(), "zeroGradient");
+        forAll(boundaries, patchi)
+        {
+            if (U_.boundaryField()[patchi].patch().name() == patchName)
+            {
+                boundaries[patchi] = "fixedValue";
+            }
+        }
+
+        corr_ = tmp<volScalarField>
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "corr",
+                    fluid_.mesh().time().timeName(),
+                    fluid_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                fluid_.mesh(),
+                dimensionedScalar("0", sqr(dimLength)/dimTime, 0.0),
+                boundaries
+            )
+        );
+    }
 }
 
 
@@ -919,32 +954,10 @@ void Foam::polydispersePhaseModel::averageTransport
 
     const dictionary& pimpleDict =
         fluid_.mesh().solutionDict().subDict("PIMPLE");
-    label nCorrectors = pimpleDict.lookupOrDefault("nFluxCorrectors", 1);
-    if (nCorrectors > 0)
+    label nCorrectors = pimpleDict.lookupOrDefault("nFluxCorrectors", 0);
+    if (corr_.valid())
     {
-        word patchName(pimpleDict.lookupOrDefault<word>("corrPatch", "outlet"));
-        wordList boundaries(U_.boundaryField().size(), "zeroGradient");
-        forAll(boundaries, patchi)
-        {
-            if (U_.boundaryField()[patchi].patch().name() == patchName)
-            {
-                boundaries[patchi] = "fixedValue";
-            }
-        }
-        volScalarField corr
-        (
-            IOobject
-            (
-                "corr",
-                fluid_.mesh().time().timeName(),
-                fluid_.mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            fluid_.mesh(),
-            dimensionedScalar("0", sqr(dimLength)/dimTime, 0.0),
-            boundaries
-        );
+        volScalarField& corr = corr_.ref();
 
         for (label i = 0; i < nCorrectors; i++)
         {
@@ -998,6 +1011,7 @@ void Foam::polydispersePhaseModel::averageTransport
                     "laplacian(" + quadrature_.moments()[1].name() + ",corr)"
                 )
             );
+            corrEqn.setReference(0, 0.0);
             corrEqn.relax();
             corrEqn.solve();
             phi += fvc::snGrad(corr)*fluid_.mesh().magSf();

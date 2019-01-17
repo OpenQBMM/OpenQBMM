@@ -98,6 +98,9 @@ class polydispersePhaseModel
         //- Minimum diameter
         dimensionedScalar minD_;
 
+        //- Correction field used to keep m1 and alpha*rho consistent
+        tmp<volScalarField> corr_;
+
         //- Coalescence kernel
         coalescenceKernel coalescenceKernel_;
 
