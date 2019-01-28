@@ -216,7 +216,7 @@ void Foam::mappedPtrList<mappedType>::set
     mappedType* entry
 )
 {
-    PtrList<mappedType>::set(map_[listToLabel(l), nDims_], entry);
+    PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
 
 template <class mappedType>
@@ -226,7 +226,7 @@ void Foam::mappedPtrList<mappedType>::set
     autoPtr<mappedType> entry
 )
 {
-    PtrList<mappedType>::set(map_[listToLabel(l), nDims_], entry);
+    PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
 
 template <class mappedType>
@@ -236,6 +236,6 @@ void Foam::mappedPtrList<mappedType>::set
     tmp<mappedType> entry
 )
 {
-    PtrList<mappedType>::set(map_[listToLabel(l), nDims_], entry);
+    PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
 // ************************************************************************* //
