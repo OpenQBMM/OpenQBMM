@@ -44,13 +44,14 @@ Foam::mappedList<mappedType>::listToWord(const labelList& lst)
 
 template <class mappedType>
 Foam::label
-Foam::mappedList<mappedType>::listToLabel(const labelList& lst)
+Foam::mappedList<mappedType>::listToLabel(const labelList& lst, const label nDims)
 {
     label l = 0;
+    label size = max(nDims, lst.size());
 
     forAll(lst, dimi)
     {
-        l += lst[dimi]*pow(10, lst.size() - dimi - 1);
+        l += lst[dimi]*pow(10, size - dimi - 1);
     }
 
     return l;
@@ -66,13 +67,19 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 )
 :
     List<mappedType>(size),
-    map_(size)
+    map_(size),
+    nDims_(0)
 {
+    forAll(indexes, i)
+    {
+        nDims_ = max(nDims_, indexes[i].size());
+    }
+
     forAll(*this, elemi)
     {
         map_.insert
         (
-            listToLabel(indexes[elemi]),
+            listToLabel(indexes[elemi], nDims_),
             elemi
         );
     }
@@ -86,13 +93,18 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 )
 :
     List<mappedType>(size, initValue),
-    map_(size)
+    map_(size),
+    nDims_(0)
 {
+    forAll(indexes, i)
+    {
+        nDims_ = max(nDims_, indexes[i].size());
+    }
     forAll(*this, elemi)
     {
         map_.insert
         (
-            listToLabel(indexes[elemi]),
+            listToLabel(indexes[elemi], nDims_),
             elemi
         );
     }
@@ -106,8 +118,21 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 )
 :
     List<mappedType>(size, initValue),
-    map_(map)
-{}
+    map_(map),
+    nDims_(0)
+{
+    forAllConstIter(Map<label>, map_, iter)
+    {
+        label x = iter.key();
+        label nD = 0;
+        while (x)
+        {
+            x /= 10;
+            nD++;
+        }
+        nDims_ = max(nDims_, nD);
+    }
+}
 
 template <class mappedType> Foam::mappedList<mappedType>::mappedList
 (
@@ -116,13 +141,19 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 )
 :
     List<mappedType>(initList),
-    map_(initList.size())
+    map_(initList.size()),
+    nDims_(0)
 {
+    forAll(indexes, i)
+    {
+        nDims_ = max(nDims_, indexes[i].size());
+    }
+
     forAll(*this, elemi)
     {
         map_.insert
         (
-            listToLabel(indexes[elemi]),
+            listToLabel(indexes[elemi], nDims_),
             elemi
         );
     }
@@ -144,10 +175,9 @@ Foam::label Foam::mappedList<mappedType>::calcMapIndex
     std::initializer_list<Foam::label> indexes
 ) const
 {
-    label argSize = indexes.size();
     label mapIndex = 0;
 
-    if (argSize > 0)
+    if (indexes.size() > 0)
     {
         for
         (
@@ -157,7 +187,7 @@ Foam::label Foam::mappedList<mappedType>::calcMapIndex
         )
         {
             label argIndex = std::distance(indexes.begin(), iter);
-            mapIndex += (*iter)*pow(10, argSize - argIndex - 1);
+            mapIndex += (*iter)*pow(10, nDims_ - argIndex - 1);
         }
     }
 

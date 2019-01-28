@@ -44,13 +44,18 @@ Foam::mappedPtrList<mappedType>::listToWord(const labelList& lst)
 
 template <class mappedType>
 Foam::label
-Foam::mappedPtrList<mappedType>::listToLabel(const labelList& lst)
+Foam::mappedPtrList<mappedType>::listToLabel
+(
+    const labelList& lst,
+    const label nDims
+)
 {
     label l = 0;
+    label size = max(nDims, lst.size());
 
     forAll(lst, dimi)
     {
-        l += lst[dimi]*pow(10, lst.size() - dimi - 1);
+        l += lst[dimi]*pow(10, size - dimi - 1);
     }
 
     return l;
@@ -66,13 +71,19 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 )
 :
     PtrList<mappedType>(size),
-    map_(size)
+    map_(size),
+    nDims_(0)
 {
+    forAll(indexes, i)
+    {
+        nDims_ = max(nDims_, indexes[i].size());
+    }
+
     forAll(*this, elemi)
     {
         map_.insert
         (
-            listToLabel(indexes[elemi]),
+            listToLabel(indexes[elemi], nDims_),
             elemi
         );
     }
@@ -85,8 +96,21 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 )
 :
     PtrList<mappedType>(size),
-    map_(map)
-{}
+    map_(map),
+    nDims_(0)
+{
+    forAllConstIter(Map<label>, map_, iter)
+    {
+        label x = iter.key();
+        label nD = 0;
+        while (x)
+        {
+            x /= 10;
+            nD++;
+        }
+        nDims_ = max(nDims_, nD);
+    }
+}
 
 template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 (
@@ -95,13 +119,19 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 )
 :
     PtrList<mappedType>(initList),
-    map_(initList.size())
+    map_(initList.size()),
+    nDims_(0)
 {
+    forAll(indexes, i)
+    {
+        nDims_ = max(nDims_, indexes[i].size());
+    }
+
     forAll(*this, elemi)
     {
         map_.insert
         (
-            listToLabel(indexes[elemi]),
+            listToLabel(indexes[elemi], nDims_),
             elemi
         );
     }
@@ -111,7 +141,8 @@ template <class mappedType>
 template<class INew>
 Foam::mappedPtrList<mappedType>::mappedPtrList(Istream& is, const INew& iNewt)
 :
-    PtrList<mappedType>(is, iNewt)
+    PtrList<mappedType>(is, iNewt),
+    nDims_(0)
 {
     map_.resize(this->size());
 }
@@ -132,10 +163,9 @@ Foam::label Foam::mappedPtrList<mappedType>::calcMapIndex
     std::initializer_list<Foam::label> indexes
 ) const
 {
-    label argSize = indexes.size();
     label mapIndex = 0;
 
-    if (argSize > 0)
+    if (indexes.size() > 0)
     {
         for
         (
@@ -145,7 +175,7 @@ Foam::label Foam::mappedPtrList<mappedType>::calcMapIndex
         )
         {
             label argIndex = std::distance(indexes.begin(), iter);
-            mapIndex += (*iter)*pow(10, argSize - argIndex - 1);
+            mapIndex += (*iter)*pow(10, nDims_ - argIndex - 1);
         }
     }
 
@@ -156,6 +186,17 @@ template <class mappedType>
 void Foam::mappedPtrList<mappedType>::setMap(const Map<label>& map)
 {
     map_ = map;
+    forAllConstIter(Map<label>, map_, iter)
+    {
+        label x = iter.key();
+        label nD = 0;
+        while (x)
+        {
+            x /= 10;
+            nD++;
+        }
+        nDims_ = max(nDims_, nD);
+    }
 }
 
 template <class mappedType>
@@ -175,7 +216,7 @@ void Foam::mappedPtrList<mappedType>::set
     mappedType* entry
 )
 {
-    PtrList<mappedType>::set(map_[listToLabel(l)], entry);
+    PtrList<mappedType>::set(map_[listToLabel(l), nDims_], entry);
 }
 
 template <class mappedType>
@@ -185,7 +226,7 @@ void Foam::mappedPtrList<mappedType>::set
     autoPtr<mappedType> entry
 )
 {
-    PtrList<mappedType>::set(map_[listToLabel(l)], entry);
+    PtrList<mappedType>::set(map_[listToLabel(l), nDims_], entry);
 }
 
 template <class mappedType>
@@ -195,6 +236,6 @@ void Foam::mappedPtrList<mappedType>::set
     tmp<mappedType> entry
 )
 {
-    PtrList<mappedType>::set(map_[listToLabel(l)], entry);
+    PtrList<mappedType>::set(map_[listToLabel(l), nDims_], entry);
 }
 // ************************************************************************* //
