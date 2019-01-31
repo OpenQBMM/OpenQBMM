@@ -135,13 +135,23 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
 )
 :
     collisionKernel(dict, mesh, quadrature, ode),
-    dp_("d", dimless, dict),
+    dp_
+    (
+        lookupOrInitialize
+        (
+            mesh,
+            IOobject::groupName("d", quadrature.moments()[0].group()),
+            dict,
+            "d",
+            dimLength
+        )
+    ),
     e_(dict.lookupType<scalar>("e")),
     omega_((1.0 + e_)*0.5),
     Is_(momentOrders_.size(), momentOrders_),
     Cs_(momentOrders_.size(), momentOrders_)
 {
-    Info<<"found d.particles"<<endl;
+
     if (!ode)
     {
         FatalErrorInFunction
@@ -204,7 +214,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 
     forAll(Cs_, momenti)
     {
-        Cs_[momenti] *= 6.0*g0/dp_.value();
+        Cs_[momenti] *= 6.0*g0/dp_()[celli];
     }
 }
 

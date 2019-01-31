@@ -60,7 +60,7 @@ class BoltzmannCollision
     // Private data
 
         //- Refrence to particle diameter
-        dimensionedScalar dp_;
+        tmp<volScalarField> dp_;
 
         //- Coefficient of restitution
         scalar e_;

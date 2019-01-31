@@ -222,8 +222,18 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
         mesh,
         dimensionedScalar("0", sqr(dimVelocity), 0.0)
     ),
-    dp_("d", dimLength, dict),
     zeta_(dict_.lookupOrDefault("zeta", 1.0)),
+    dp_
+    (
+        lookupOrInitialize
+        (
+            mesh,
+            IOobject::groupName("d", quadrature.moments()[0].group()),
+            dict,
+            "d",
+            dimLength
+        )
+    ),
     Meqf_(quadrature.moments().size(), momentOrders_),
     Meq_(quadrature.moments().size(), momentOrders_)
 {
@@ -278,7 +288,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     scalar c = quadrature_.moments()[0][celli]/0.63;
     scalar gs0 = (2.0 - c)/(2.0*pow3(1.0 - c)) + 1.1603*c;
     scalar tauC =
-        zeta_*sqrt(Foam::constant::mathematical::pi)*dp_.value()
+        zeta_*sqrt(Foam::constant::mathematical::pi)*dp_()[celli]
        /max
         (
             12.0*gs0*quadrature_.moments()[0][celli]*sqrt(Theta_[celli]),
@@ -296,7 +306,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     volScalarField gs0((2.0 - c)/(2.0*pow3(1.0 - c)) + 1.1603*c);
     volScalarField tauC
     (
-        zeta_*sqrt(Foam::constant::mathematical::pi)*dp_
+        zeta_*sqrt(Foam::constant::mathematical::pi)*dp_()
        /max
         (
             12.0*gs0*quadrature_.moments()[0]*sqrt(Theta_),

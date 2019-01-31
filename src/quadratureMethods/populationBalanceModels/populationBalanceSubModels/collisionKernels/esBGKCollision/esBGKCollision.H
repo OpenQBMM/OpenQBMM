@@ -73,11 +73,11 @@ class esBGKCollision
         //- Reference to radial distribution
 //         autoPtr<radialDistributionModel> radialModel_;
 
-        //- Diameter
-        dimensionedScalar dp_;
-
         //- Coefficient related to Prandtl number
         scalar zeta_;
+
+        //- Diameter
+        tmp<volScalarField> dp_;
 
 
 protected:

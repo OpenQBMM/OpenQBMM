@@ -113,6 +113,15 @@ protected:
             const volScalarField& m2
         );
 
+        static tmp<volScalarField> lookupOrInitialize
+        (
+            const fvMesh& mesh,
+            const word& name,
+            const dictionary& dict,
+            const word& entryName,
+            const dimensionSet& dims
+        );
+
 
 public:
 
