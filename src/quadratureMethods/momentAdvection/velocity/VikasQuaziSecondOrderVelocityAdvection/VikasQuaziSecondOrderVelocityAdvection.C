@@ -205,12 +205,6 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
     const labelList& own = mesh.owner();
     const labelList& nei = mesh.neighbour();
     surfaceVectorField Sf(mesh.Sf());
-    scalarField lambda
-    (
-        fvc::surfaceSum(mag(Sf))().primitiveField()
-       /mesh.V().field()
-       *mesh.time().deltaTValue()
-    );
 
     scalarField maxCoNum(mesh.nCells(), 1.0);
 
@@ -220,7 +214,7 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
         forAll(nodes_, nodei)
         {
             scalar num = nodes_[nodei].primaryWeight()[celli];
-            scalar den = small;
+            scalar den = 0;
             forAll(cell, facei)
             {
                 if (cell[facei] < mesh.nInternalFaces())
@@ -231,7 +225,7 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
                             nodesOwn_()[nodei].primaryWeight()[celli]
                            *max
                             (
-                                nodesOwn_()[nodei].primaryAbscissa()[celli]
+                                nodes_[nodei].primaryAbscissa()[celli]
                               & Sf[cell[facei]],
                                 0.0
                             );
@@ -240,9 +234,9 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
                     {
                         den -=
                             nodesNei_()[nodei].primaryWeight()[celli]
-                        *min
+                           *min
                             (
-                                nodesNei_()[nodei].primaryAbscissa()[celli]
+                                nodes_[nodei].primaryAbscissa()[celli]
                               & Sf[cell[facei]],
                                 0.0
                             );
@@ -251,8 +245,10 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
             }
             if (num > 1e-6)
             {
-                num /= lambda[celli];
-                maxCoNum[celli] = num/den;
+                den = max(den, small);
+                maxCoNum[celli] =
+                    num*mesh.V()[celli]
+                  /(den*mesh.time().deltaTValue());
             }
         }
     }
