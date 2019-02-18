@@ -46,6 +46,7 @@ SourceFiles
 #include "momentFieldSets.H"
 #include "basicFieldMomentInversion.H"
 #include "quadratureApproximations.H"
+#include "surfaceInterpolationScheme.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

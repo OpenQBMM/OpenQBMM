@@ -45,6 +45,7 @@ SourceFiles
 #include "momentFieldSets.H"
 #include "hyperbolicFieldMomentInversion.H"
 #include "quadratureApproximations.H"
+#include "surfaceInterpolationScheme.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -83,6 +84,12 @@ protected:
 
         //- Field used to find upwind values of the neighbour
         surfaceScalarField nei_;
+
+        //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
+        tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme_;
+        tmp<surfaceInterpolationScheme<vector>> UOwnScheme_;
+        tmp<surfaceInterpolationScheme<vector>> UNeiScheme_;
 
         //- Support of the distribution function
         word support_;

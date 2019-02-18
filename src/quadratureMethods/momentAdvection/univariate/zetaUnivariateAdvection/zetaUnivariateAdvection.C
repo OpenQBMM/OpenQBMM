@@ -276,6 +276,21 @@ Foam::univariateAdvection::zeta::zeta
             )
         );
     }
+    {
+        IStringStream MinmodM0("Minmod");
+        IStringStream MinmodZeta("Minmod");
+
+        m0OwnScheme_ = fvc::scheme<scalar>(own_, MinmodM0);
+        zetaOwnScheme_ = fvc::scheme<scalar>(own_, MinmodZeta);
+    }
+
+    {
+        IStringStream MinmodM0("Minmod");
+        IStringStream MinmodZeta("Minmod");
+
+        m0NeiScheme_ = fvc::scheme<scalar>(nei_, MinmodM0);
+        zetaNeiScheme_ = fvc::scheme<scalar>(nei_, MinmodZeta);
+    }
 }
 
 
@@ -289,16 +304,14 @@ Foam::univariateAdvection::zeta::~zeta()
 
 void Foam::univariateAdvection::zeta::interpolateFields()
 {
-    m0Own_ = fvc::interpolate(moments_[0], own_, "reconstruct(m0)");
-    m0Nei_ = fvc::interpolate(moments_[0], nei_, "reconstruct(m0)");
+    m0Own_ = m0OwnScheme_().interpolate(moments_[0]);
+    m0Nei_ = m0NeiScheme_().interpolate(moments_[0]);
 
     forAll(zetas_, zetai)
     {
-        zetasNei_[zetai] =
-            fvc::interpolate(zetas_[zetai], nei_, "reconstruct(zeta)");
+        zetasNei_[zetai] = zetaOwnScheme_().interpolate(zetas_[zetai]);
 
-        zetasOwn_[zetai] =
-            fvc::interpolate(zetas_[zetai], own_, "reconstruct(zeta)");
+        zetasOwn_[zetai] = zetaNeiScheme_().interpolate(zetas_[zetai]);
 
         zetasUpwindNei_[zetai] =
             upwind<scalar>(zetas_[zetai].mesh(), nei_).flux(zetas_[zetai]);

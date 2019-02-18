@@ -103,6 +103,20 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::VikasQuaziSecondOrder
             )
         );
     }
+
+    {
+        IStringStream upwind("upwind");
+        IStringStream Minmod("Minmod");
+        weightOwnScheme_ = fvc::scheme<scalar>(own_, Minmod);
+        UOwnScheme_ = fvc::scheme<vector>(own_, upwind);
+    }
+
+    {
+        IStringStream upwind("upwind");
+        IStringStream Minmod("Minmod");
+        weightNeiScheme_ = fvc::scheme<scalar>(nei_, Minmod);
+        UNeiScheme_ = fvc::scheme<vector>(nei_, upwind);
+    }
 }
 
 
@@ -126,26 +140,16 @@ void Foam::velocityAdvection::VikasQuaziSecondOrder::interpolateNodes()
         surfaceVectorNode& nodeOwn(nodesOwn[nodei]);
 
         nodeOwn.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), own_, "reconstruct(weight)");
+            weightOwnScheme_().interpolate(node.primaryWeight());
 
         nodeOwn.primaryAbscissa() =
-            fvc::interpolate
-            (
-                node.primaryAbscissa(),
-                own_,
-                "reconstruct(U)"
-            );
+            UOwnScheme_().interpolate(node.primaryAbscissa());
 
         nodeNei.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), nei_, "reconstruct(weight)");
+            weightNeiScheme_().interpolate(node.primaryWeight());
 
         nodeNei.primaryAbscissa() =
-            fvc::interpolate
-            (
-                node.primaryAbscissa(),
-                nei_,
-                "reconstruct(U)"
-            );
+            UNeiScheme_().interpolate(node.primaryAbscissa());
     }
 }
 
