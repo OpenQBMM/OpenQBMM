@@ -64,6 +64,9 @@ class polydispersePhaseModel
         //- Population balance properties
         IOdictionary pbeDict_;
 
+        //- Switch for ode source
+        Switch solveOde_;
+
         //- Switch for coalescence
         Switch coalescence_;
 

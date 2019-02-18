@@ -235,7 +235,6 @@ void Foam::polydispersePhaseModel::solveSourceOde()
         return;
     }
 
-    Info << "Solving source terms in realizable ODE solver." << endl;
     coalescenceKernel_.update();
     breakupKernel_->update();
 
@@ -243,7 +242,38 @@ void Foam::polydispersePhaseModel::solveSourceOde()
     label nMoments = quadrature_.nMoments();
     PtrList<volVectorField>& Ups = quadrature_.velocityMoments();
     label nVelocityMoments = Ups.size();
+
     scalar globalDt = moments[0].mesh().time().deltaT().value();
+
+    if (!solveOde_)
+    {
+        forAll(moments[0], celli)
+        {
+            forAll(moments, mi)
+            {
+                moments[mi][celli] +=
+                    globalDt
+                   *(
+                        coalescenceSource(celli, mi)
+                        + breakupSource(celli, mi)
+                    );
+            }
+
+            forAll(Ups, mi)
+            {
+                Ups[mi][celli] +=
+                    globalDt
+                   *(
+                        coalescenceSourceU(celli, mi)
+                      + breakupSourceU(celli, mi)
+                    );
+            }
+        }
+        return;
+    }
+
+
+    Info << "Solving source terms in realizable ODE solver." << endl;
 
     forAll(moments[0], celli)
     {
@@ -533,6 +563,7 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
             IOobject::NO_WRITE
         )
     ),
+    solveOde_(pbeDict_.lookup("ode")),
     coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
