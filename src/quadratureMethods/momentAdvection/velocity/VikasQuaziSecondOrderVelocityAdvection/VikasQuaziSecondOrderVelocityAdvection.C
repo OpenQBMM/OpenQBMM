@@ -225,7 +225,7 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
                 {
                     if (own[cell[facei]] == celli)
                     {
-                        den +=
+                        den -=
                             nodesOwn_()[nodei].primaryWeight()[celli]
                            *max
                             (
@@ -236,7 +236,7 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
                     }
                     else if (nei[cell[facei]] == celli)
                     {
-                        den -=
+                        den +=
                             nodesNei_()[nodei].primaryWeight()[celli]
                            *min
                             (
