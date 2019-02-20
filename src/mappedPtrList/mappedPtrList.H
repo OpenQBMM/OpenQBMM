@@ -73,6 +73,8 @@ class mappedPtrList
         //- Map from the label to its index within the List
         Map<label> map_;
 
+        //- Number of dimensions
+        label nDims_;
 
     // Private Member Functions
 
@@ -122,7 +124,11 @@ public:
             static word listToWord(const labelList& lst);
 
             //- Convert a list of labels to a single label. {0, 2, 3} -> 23
-            static label listToLabel(const labelList& lst);
+            static label listToLabel
+            (
+                const labelList& lst,
+                const label nDims = 0
+            );
 
 
         // Access functions

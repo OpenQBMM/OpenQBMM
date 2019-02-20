@@ -100,7 +100,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
                         IOobject::groupName
                         (
                             Foam::name(mi),
-                            "air"
+                            name_
                         )
                     ),
                     mesh_.time().timeName(),

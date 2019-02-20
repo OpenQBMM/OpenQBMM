@@ -52,8 +52,12 @@ int main(int argc, char *argv[])
     #include "createControl.H"
     #include "createFields.H"
     #include "createTimeControls.H"
+
+    scalar CoNum = 0.0;
     #include "CourantNos.H"
     #include "setInitialDeltaT.H"
+
+
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

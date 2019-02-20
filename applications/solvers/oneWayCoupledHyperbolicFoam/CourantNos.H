@@ -1,7 +1,5 @@
-#include "CourantNo.H"
-
 // Compute Courant number based on node velocities
-CoNum = max(CoNum, populationBalance->CoNum());
+CoNum = populationBalance->CoNum();
 
 // Compute Courant number based on granular temperature
 CoNum =
@@ -18,6 +16,8 @@ CoNum =
     );
 
 // Set max Courant number based on scheme
-maxCo = min(maxCo, populationBalance->realizableCo());
+scalar pbeCoNum = populationBalance->realizableCo();
+maxCo = min(maxCo, pbeCoNum);
 
+Info<< "Pbe Realizable Courant Number = " << pbeCoNum << endl;
 Info<< "Max Courant Number = " << CoNum << endl;

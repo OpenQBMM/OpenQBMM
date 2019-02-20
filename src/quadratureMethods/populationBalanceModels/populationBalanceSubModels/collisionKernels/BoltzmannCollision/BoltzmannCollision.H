@@ -60,7 +60,7 @@ class BoltzmannCollision
     // Private data
 
         //- Refrence to particle diameter
-        dimensionedScalar dp_;
+        tmp<volScalarField> dp_;
 
         //- Coefficient of restitution
         scalar e_;
@@ -77,24 +77,8 @@ class BoltzmannCollision
 
     // Protected functions
 
-        //- Update equilibrium moments for a cell (1D)
-        void I1D
-        (
-            const label celli,
-            const label node1,
-            const label node2
-        );
-
-        //- Update equilibrium moments for a cell (2D)
-        void I2D
-        (
-            const label celli,
-            const label node1,
-            const label node2
-        );
-
-        //- Update equilibrium moments for a cell (3D)
-        void I3D
+        //- Update equilibrium moments for a cell
+        void updateI
         (
             const label celli,
             const label node1,

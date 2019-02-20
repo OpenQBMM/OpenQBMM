@@ -50,7 +50,7 @@ const mappedType& Foam::mappedPtrList<mappedType>::operator()
     const Foam::labelList& l
 ) const
 {
-    return this->operator[](map_[listToLabel(l)]);
+    return this->operator[](map_[listToLabel(l, nDims_)]);
 }
 
 template <class mappedType>
@@ -59,7 +59,7 @@ mappedType& Foam::mappedPtrList<mappedType>::operator()
     const Foam::labelList& l
 )
 {
-    return this->operator[](map_[listToLabel(l)]);
+    return this->operator[](map_[listToLabel(l, nDims_)]);
 }
 
 template <class mappedType> const Foam::Map<Foam::label>&

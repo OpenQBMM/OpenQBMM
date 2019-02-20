@@ -40,6 +40,36 @@ namespace populationBalanceSubModels
 
 // * * * * * * * * * * * * * * Static Functions  * * * * * * * * * * * * * * //
 
+Foam::tmp<Foam::volScalarField>
+Foam::populationBalanceSubModels::collisionKernel::lookupOrInitialize
+(
+    const fvMesh& mesh,
+    const word& name,
+    const dictionary& dict,
+    const word& entryName,
+    const dimensionSet& dims
+)
+{
+    if (mesh.foundObject<volScalarField>(name))
+    {
+        return mesh.lookupObject<volScalarField>(name);
+    }
+    return tmp<volScalarField>
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                name,
+                mesh.time().timeName(),
+                mesh
+            ),
+            mesh,
+            dimensionedScalar(entryName, dims, dict)
+        )
+    );
+}
+
 Foam::scalar Foam::populationBalanceSubModels::collisionKernel::meanVelocity
 (
     const scalar& m0,

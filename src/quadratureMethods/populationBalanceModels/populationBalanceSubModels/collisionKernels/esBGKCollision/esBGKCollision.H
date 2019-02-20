@@ -73,11 +73,11 @@ class esBGKCollision
         //- Reference to radial distribution
 //         autoPtr<radialDistributionModel> radialModel_;
 
-        //- Diameter
-        dimensionedScalar dp_;
-
         //- Coefficient related to Prandtl number
         scalar zeta_;
+
+        //- Diameter
+        tmp<volScalarField> dp_;
 
 
 protected:
@@ -88,27 +88,6 @@ protected:
 
         //- Equilibrium moments (fields)
         mappedList<scalar> Meq_;
-
-
-    // Protected functions
-
-        //- Update equilibrium moments for a cell (1D)
-        void updateCells1D(const label celli);
-
-        //- Update equilibrium moments for a cell (2D)
-        void updateCells2D(const label celli);
-
-        //- Update equilibrium moments for a cell (3D)
-        void updateCells3D(const label celli);
-
-        //- Update equilibrium moments for fields (1D)
-        void updateFields1D();
-
-        //- Update equilibrium moments for fields (2D)
-        void updateFields2D();
-
-        //- Update equilibrium moments for fields (3D)
-        void updateFields3D();
 
 
 public:

@@ -50,90 +50,7 @@ namespace collisionKernels
 // * * * * * * * * * * * * * * Static Functions  * * * * * * * * * * * * * * //
 
 void
-Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::I1D
-(
-    const label celli,
-    const label node1,
-    const label node2
-)
-{
-    const vector& u1 = quadrature_.nodes()[node1].primaryAbscissa()[celli];
-    const vector& u2 = quadrature_.nodes()[node2].primaryAbscissa()[celli];
-    scalar v1(u1.x());
-    vector g = u1 - u2;
-    scalar g1(g.x());
-    scalar g1Sqr(sqr(g1));
-    scalar gMag = mag(g);
-    scalar gMagSqr = sqr(gMag);
-    scalar omegaSqr = sqr(omega_);
-    scalar omegaPow3 = omega_*omegaSqr;
-    scalar omegaPow4 = omegaSqr*omegaSqr;
-
-    Is_(0) = 0.0;
-    Is_(1) = -(omega_/2.0)*g1;
-    Is_(2) = (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g1Sqr - omega_*g1*v1;
-    Is_(3) =
-      - (omegaPow3/8.0)*(gMagSqr + g1Sqr)*g1
-      + (omegaSqr/4.0)*(gMagSqr + 3.0*g1Sqr)*v1
-      - (1.5*omega_)*g1*sqr(v1);
-    Is_(4) =
-        (omegaPow4/80.0)*(sqr(gMagSqr) + 10.0*gMagSqr*g1Sqr + 5.0*sqr(g1Sqr))
-      - (omegaPow3/2.0)*(gMagSqr + g1Sqr)*g1*v1
-      + (omegaSqr/2.0)*(gMagSqr + 3.0*g1Sqr)*sqr(v1)
-      - 2.0*omega_*g1*pow3(v1);
-}
-
-void
-Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::I2D
-(
-    const label celli,
-    const label node1,
-    const label node2
-)
-{
-    const vector& u1 = quadrature_.nodes()[node1].primaryAbscissa()[celli];
-    const vector& u2 = quadrature_.nodes()[node2].primaryAbscissa()[celli];
-    scalar v1(u1.x());
-    scalar v2(u1.y());
-    vector g = u1 - u2;
-    scalar g1(g.x());
-    scalar g1Sqr(sqr(g1));
-    scalar g2(g.y());
-    scalar g2Sqr(sqr(g2));
-    scalar gMag = mag(g);
-    scalar gMagSqr = sqr(gMag);
-    scalar omegaSqr = sqr(omega_);
-    scalar omegaPow3 = omega_*omegaSqr;
-    scalar omegaPow4 = omegaSqr*omegaSqr;
-
-    Is_(0,0) = 0.0;
-    Is_(1,0) = -(omega_/2.0)*g1;
-    Is_(0,1) = -(omega_/2.0)*g2;
-    Is_(2,0) = (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g1Sqr - omega_*g1*v1;
-    Is_(1,1) = (omegaSqr/4.0)*g1*g2 - (omega_/2.0)*(v1*g2 + g1*v2);
-    Is_(0,2) = (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g2Sqr - omega_*g2*v2;
-    Is_(3,0) =
-      - (omegaPow3/8.0)*(gMagSqr + g1Sqr)*g1
-      + (omegaSqr/4.0)*(gMagSqr + 3.0*g1Sqr)*v1
-      - (1.5*omega_)*g1*sqr(v1);
-    Is_(0,3) =
-      - (omegaPow3/8.0)*(gMagSqr + g2Sqr)*g2
-      + (omegaSqr/4.0)*(gMagSqr + 3.0*g2Sqr)*v2
-      - (1.5*omega_)*g2*sqr(v2);
-    Is_(4,0) =
-        (omegaPow4/80.0)*(sqr(gMagSqr) + 10.0*gMagSqr*g1Sqr + 5.0*sqr(g1Sqr))
-      - (omegaPow3/2.0)*(gMagSqr + g1Sqr)*g1*v1
-      + (omegaSqr/2.0)*(gMagSqr + 3.0*g1Sqr)*sqr(v1)
-      - 2.0*omega_*g1*pow3(v1);
-    Is_(0,4) =
-        (omegaPow4/80.0)*(sqr(gMagSqr) + 10.0*gMagSqr*g2Sqr + 5.0*sqr(g2Sqr))
-      - (omegaPow3/2.0)*(gMagSqr + g2Sqr)*g2*v2
-      + (omegaSqr/2.0)*(gMagSqr + 3.0*g2Sqr)*sqr(v2)
-      - 2.0*omega_*g2*pow3(v2);
-}
-
-void
-Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::I3D
+Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
 (
     const label celli,
     const label node1,
@@ -158,43 +75,52 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::I3D
     scalar omegaPow3 = omega_*omegaSqr;
     scalar omegaPow4 = omegaSqr*omegaSqr;
 
-    Is_(0,0,0) = 0.0;
-    Is_(1,0,0) = -(omega_/2.0)*g1;
-    Is_(0,1,0) = -(omega_/2.0)*g2;
-    Is_(0,0,1) = -(omega_/2.0)*g3;
-    Is_(2,0,0) = (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g1Sqr - omega_*g1*v1;
-    Is_(1,1,0) = (omegaSqr/4.0)*g1*g2 - (omega_/2.0)*(v1*g2 + g1*v2);
-    Is_(1,0,1) = (omegaSqr/4.0)*g1*g3 - (omega_/2.0)*(v1*g3 + g1*v3);
-    Is_(0,2,0) = (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g2Sqr - omega_*g2*v2;
-    Is_(0,1,1) = (omegaSqr/4.0)*g2*g3 - (omega_/2.0)*(v2*g3 + g2*v3);
-    Is_(0,0,2) = (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g3Sqr - omega_*g3*v3;
-    Is_(3,0,0) =
+    Is_(0) = 0.0;
+    Is_(1) = -(omega_/2.0)*g1;
+    Is_(2) = (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g1Sqr - omega_*g1*v1;
+    Is_(3) =
       - (omegaPow3/8.0)*(gMagSqr + g1Sqr)*g1
       + (omegaSqr/4.0)*(gMagSqr + 3.0*g1Sqr)*v1
       - (1.5*omega_)*g1*sqr(v1);
-    Is_(0,3,0) =
-      - (omegaPow3/8.0)*(gMagSqr + g2Sqr)*g2
-      + (omegaSqr/4.0)*(gMagSqr + 3.0*g2Sqr)*v2
-      - (1.5*omega_)*g2*sqr(v2);
-    Is_(0,0,3) =
-      - (omegaPow3/8.0)*(gMagSqr + g3Sqr)*g3
-      + (omegaSqr/4.0)*(gMagSqr + 3.0*g3Sqr)*v3
-      - (1.5*omega_)*g3*sqr(v3);
-    Is_(4,0,0) =
+    Is_(4) =
         (omegaPow4/80.0)*(sqr(gMagSqr) + 10.0*gMagSqr*g1Sqr + 5.0*sqr(g1Sqr))
       - (omegaPow3/2.0)*(gMagSqr + g1Sqr)*g1*v1
       + (omegaSqr/2.0)*(gMagSqr + 3.0*g1Sqr)*sqr(v1)
       - 2.0*omega_*g1*pow3(v1);
-    Is_(0,4,0) =
-        (omegaPow4/80.0)*(sqr(gMagSqr) + 10.0*gMagSqr*g2Sqr + 5.0*sqr(g2Sqr))
-      - (omegaPow3/2.0)*(gMagSqr + g2Sqr)*g2*v2
-      + (omegaSqr/2.0)*(gMagSqr + 3.0*g2Sqr)*sqr(v2)
-      - 2.0*omega_*g2*pow3(v2);
-    Is_(0,0,4) =
-        (omegaPow4/80.0)*(sqr(gMagSqr) + 10.0*gMagSqr*g3Sqr + 5.0*sqr(g3Sqr))
-      - (omegaPow3/2.0)*(gMagSqr + g3Sqr)*g3*v3
-      + (omegaSqr/2.0)*(gMagSqr + 3.0*g3Sqr)*sqr(v3)
-      - 2.0*omega_*g3*pow3(v3);
+
+    if (nDimensions_ > 1)
+    {
+        Is_(0,1) = -(omega_/2.0)*g2;
+        Is_(1,1) = (omegaSqr/4.0)*g1*g2 - (omega_/2.0)*(v1*g2 + g1*v2);
+        Is_(0,2) =
+            (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g2Sqr - omega_*g2*v2;
+        Is_(0,3) =
+          - (omegaPow3/8.0)*(gMagSqr + g2Sqr)*g2
+          + (omegaSqr/4.0)*(gMagSqr + 3.0*g2Sqr)*v2
+          - (1.5*omega_)*g2*sqr(v2);
+        Is_(0,4) =
+            (omegaPow4/80.0)*(sqr(gMagSqr) + 10.0*gMagSqr*g2Sqr + 5.0*sqr(g2Sqr))
+          - (omegaPow3/2.0)*(gMagSqr + g2Sqr)*g2*v2
+          + (omegaSqr/2.0)*(gMagSqr + 3.0*g2Sqr)*sqr(v2)
+          - 2.0*omega_*g2*pow3(v2);
+    }
+    if (nDimensions_ > 2)
+    {
+        Is_(0,0,1) = -(omega_/2.0)*g3;
+        Is_(1,0,1) = (omegaSqr/4.0)*g1*g3 - (omega_/2.0)*(v1*g3 + g1*v3);
+        Is_(0,1,1) = (omegaSqr/4.0)*g2*g3 - (omega_/2.0)*(v2*g3 + g2*v3);
+        Is_(0,0,2) =
+            (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g3Sqr - omega_*g3*v3;
+        Is_(0,0,3) =
+          - (omegaPow3/8.0)*(gMagSqr + g3Sqr)*g3
+          + (omegaSqr/4.0)*(gMagSqr + 3.0*g3Sqr)*v3
+          - (1.5*omega_)*g3*sqr(v3);
+        Is_(0,0,4) =
+            (omegaPow4/80.0)*(sqr(gMagSqr) + 10.0*gMagSqr*g3Sqr + 5.0*sqr(g3Sqr))
+          - (omegaPow3/2.0)*(gMagSqr + g3Sqr)*g3*v3
+          + (omegaSqr/2.0)*(gMagSqr + 3.0*g3Sqr)*sqr(v3)
+          - 2.0*omega_*g3*pow3(v3);
+    }
 }
 
 
@@ -209,13 +135,23 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
 )
 :
     collisionKernel(dict, mesh, quadrature, ode),
-    dp_("d", dimless, dict),
+    dp_
+    (
+        lookupOrInitialize
+        (
+            mesh,
+            IOobject::groupName("d", quadrature.moments()[0].group()),
+            dict,
+            "d",
+            dimLength
+        )
+    ),
     e_(dict.lookupType<scalar>("e")),
     omega_((1.0 + e_)*0.5),
     Is_(momentOrders_.size(), momentOrders_),
     Cs_(momentOrders_.size(), momentOrders_)
 {
-    Info<<"found d.particles"<<endl;
+
     if (!ode)
     {
         FatalErrorInFunction
@@ -253,18 +189,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
         {
             const volVectorNode& node2 = quadrature_.nodes()[nodej];
 
-            if (nDimensions_ == 1)
-            {
-                I1D(celli, nodei, nodej);
-            }
-            else if (nDimensions_ == 2)
-            {
-                I2D(celli, nodei, nodej);
-            }
-            else if (nDimensions_ == 3)
-            {
-                I3D(celli, nodei, nodej);
-            }
+            updateI(celli, nodei, nodej);
 
             forAll(Cs_, momenti)
             {
@@ -289,7 +214,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 
     forAll(Cs_, momenti)
     {
-        Cs_[momenti] *= 6.0*g0/dp_.value();
+        Cs_[momenti] *= 6.0*g0/dp_()[celli];
     }
 }
 

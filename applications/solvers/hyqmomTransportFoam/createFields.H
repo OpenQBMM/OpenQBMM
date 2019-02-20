@@ -23,7 +23,17 @@ IOdictionary populationBalanceProperties
         IOobject::NO_WRITE
     )
 );
-
+volScalarField dp
+(
+    IOobject
+    (
+        "d.particles",
+        runTime.timeName(),
+        mesh
+    ),
+    mesh,
+    dimensionedScalar("d", dimLength, 1e-4)
+);
 autoPtr<populationBalanceModel> populationBalance
 (
     populationBalanceModel::New
