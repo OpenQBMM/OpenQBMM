@@ -277,19 +277,19 @@ Foam::univariateAdvection::zeta::zeta
         );
     }
     {
-        IStringStream MinmodM0("Minmod");
-        IStringStream MinmodZeta("Minmod");
+        IStringStream m0Limiter("Minmod");
+        IStringStream zetaLimiter("Minmod");
 
-        m0OwnScheme_ = fvc::scheme<scalar>(own_, MinmodM0);
-        zetaOwnScheme_ = fvc::scheme<scalar>(own_, MinmodZeta);
+        m0OwnScheme_ = fvc::scheme<scalar>(own_, m0Limiter);
+        zetaOwnScheme_ = fvc::scheme<scalar>(own_, zetaLimiter);
     }
 
     {
-        IStringStream MinmodM0("Minmod");
-        IStringStream MinmodZeta("Minmod");
+        IStringStream m0Limiter("Minmod");
+        IStringStream zetaLimiter("Minmod");
 
-        m0NeiScheme_ = fvc::scheme<scalar>(nei_, MinmodM0);
-        zetaNeiScheme_ = fvc::scheme<scalar>(nei_, MinmodZeta);
+        m0NeiScheme_ = fvc::scheme<scalar>(nei_, m0Limiter);
+        zetaNeiScheme_ = fvc::scheme<scalar>(nei_, zetaLimiter);
     }
 }
 

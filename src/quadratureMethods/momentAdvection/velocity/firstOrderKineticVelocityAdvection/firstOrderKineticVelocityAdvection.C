@@ -105,17 +105,17 @@ Foam::velocityAdvection::firstOrderKinetic::firstOrderKinetic
     }
 
     {
-        IStringStream upwindW("upwind");
-        IStringStream upwindU("upwind");
-        weightOwnScheme_ = fvc::scheme<scalar>(own_, upwindW);
-        UOwnScheme_ = fvc::scheme<vector>(own_, upwindU);
+        IStringStream weightLimiter("upwind");
+        IStringStream ULimiter("upwind");
+        weightOwnScheme_ = fvc::scheme<scalar>(own_, weightLimiter);
+        UOwnScheme_ = fvc::scheme<vector>(own_, ULimiter);
     }
 
     {
-        IStringStream upwindW("upwind");
-        IStringStream upwindU("upwind");
-        weightNeiScheme_ = fvc::scheme<scalar>(nei_, upwindW);
-        UNeiScheme_ = fvc::scheme<vector>(nei_, upwindU);
+        IStringStream weightLimiter("upwind");
+        IStringStream ULimiter("upwind");
+        weightNeiScheme_ = fvc::scheme<scalar>(nei_, weightLimiter);
+        UNeiScheme_ = fvc::scheme<vector>(nei_, ULimiter);
     }
 }
 
@@ -140,14 +140,14 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
         surfaceVectorNode& nodeOwn(nodesOwn[nodei]);
 
         nodeOwn.primaryWeight() =
-            weightOwnScheme_().interpolate(node.primaryWeight(), own_);
+            weightOwnScheme_().interpolate(node.primaryWeight());
         nodeOwn.primaryAbscissa() =
-            UOwnScheme_().interpolate(node.primaryAbscissa(), own_);
+            UOwnScheme_().interpolate(node.primaryAbscissa());
 
         nodeNei.primaryWeight() =
-            weightNeiScheme_().interpolate(node.primaryWeight(), nei_);
+            weightNeiScheme_().interpolate(node.primaryWeight());
         nodeNei.primaryAbscissa() =
-            UNeiScheme_().interpolate(node.primaryAbscissa(), nei_);
+            UNeiScheme_().interpolate(node.primaryAbscissa());
     }
 }
 

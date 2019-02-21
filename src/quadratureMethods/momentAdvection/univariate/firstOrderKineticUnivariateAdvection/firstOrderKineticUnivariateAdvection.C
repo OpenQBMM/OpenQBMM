@@ -181,17 +181,17 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     }
 
     {
-        IStringStream upwindW("upwind");
-        IStringStream upwindXi("upwind");
-        weightOwnScheme_ = fvc::scheme<scalar>(own_, upwindW);
-        abscissaOwnScheme_ = fvc::scheme<scalar>(own_, upwindXi);
+        IStringStream weightLimiter("upwind");
+        IStringStream abscissaLimiter("upwind");
+        weightOwnScheme_ = fvc::scheme<scalar>(own_, weightLimiter);
+        abscissaOwnScheme_ = fvc::scheme<scalar>(own_, abscissaLimiter);
     }
 
     {
-        IStringStream upwindW("upwind");
-        IStringStream upwindXi("upwind");
-        weightNeiScheme_ = fvc::scheme<scalar>(nei_, upwindW);
-        abscissaNeiScheme_ = fvc::scheme<scalar>(nei_, upwindXi);
+        IStringStream weightLimiter("upwind");
+        IStringStream abscissaLimiter("upwind");
+        weightNeiScheme_ = fvc::scheme<scalar>(nei_, weightLimiter);
+        abscissaNeiScheme_ = fvc::scheme<scalar>(nei_, abscissaLimiter);
     }
 }
 

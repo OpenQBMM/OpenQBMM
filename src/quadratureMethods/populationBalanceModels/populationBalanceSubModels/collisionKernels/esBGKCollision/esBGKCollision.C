@@ -87,21 +87,21 @@ void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     Theta_[celli] /= nDimensions_;
 
     scalar sigma11 = a1_*Theta_[celli] + b1_*sigma1;
-    Meq_(0)     = moments(0)[celli];
-    Meq_(1)     = moments(1)[celli];
-    Meq_(2)     = m0*(sigma11 + uSqr);
-    Meq_(3)     = m0*(3.0*sigma11*u + u*uSqr);
-    Meq_(4)     = m0*(6.0*uSqr*sigma11 + 3.0*sqr(sigma11) + uSqr*uSqr);
+    Meq_(0) = moments(0)[celli];
+    Meq_(1) = moments(1)[celli];
+    Meq_(2) = m0*(sigma11 + uSqr);
+    Meq_(3) = m0*(3.0*sigma11*u + u*uSqr);
+    Meq_(4) = m0*(6.0*uSqr*sigma11 + 3.0*sqr(sigma11) + uSqr*uSqr);
 
     if (nDimensions_ > 1)
     {
         scalar sigma22 = a1_*Theta_[celli] + b1_*sigma2;
         scalar sigma12 = b1_*(moments(1,1)[celli]/m0 - u*v);
-        Meq_(0,1)   = moments(0,1)[celli];
-        Meq_(1,1)   = m0*(sigma12 + u*v);
-        Meq_(0,2)   = m0*(sigma22 + vSqr);
-        Meq_(0,3)   = m0*(3.0*sigma22*v + v*vSqr);
-        Meq_(0,4)   = m0*(6.0*vSqr*sigma22 + 3.0*sqr(sigma22) + vSqr*vSqr);
+        Meq_(0,1) = moments(0,1)[celli];
+        Meq_(1,1) = m0*(sigma12 + u*v);
+        Meq_(0,2) = m0*(sigma22 + vSqr);
+        Meq_(0,3) = m0*(3.0*sigma22*v + v*vSqr);
+        Meq_(0,4) = m0*(6.0*vSqr*sigma22 + 3.0*sqr(sigma22) + vSqr*vSqr);
     }
 
     if (nDimensions_ > 2)

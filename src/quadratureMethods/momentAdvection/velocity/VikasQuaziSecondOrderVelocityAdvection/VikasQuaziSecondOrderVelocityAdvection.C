@@ -105,17 +105,17 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::VikasQuaziSecondOrder
     }
 
     {
-        IStringStream upwind("upwind");
-        IStringStream Minmod("Minmod");
-        weightOwnScheme_ = fvc::scheme<scalar>(own_, Minmod);
-        UOwnScheme_ = fvc::scheme<vector>(own_, upwind);
+        IStringStream weightLimiter("Minmod");
+        IStringStream ULimiter("upwind");
+        weightOwnScheme_ = fvc::scheme<scalar>(own_, weightLimiter);
+        UOwnScheme_ = fvc::scheme<vector>(own_, ULimiter);
     }
 
     {
-        IStringStream upwind("upwind");
-        IStringStream Minmod("Minmod");
-        weightNeiScheme_ = fvc::scheme<scalar>(nei_, Minmod);
-        UNeiScheme_ = fvc::scheme<vector>(nei_, upwind);
+        IStringStream weightLimiter("Minmod");
+        IStringStream ULimiter("upwind");
+        weightNeiScheme_ = fvc::scheme<scalar>(nei_, weightLimiter);
+        UNeiScheme_ = fvc::scheme<vector>(nei_, ULimiter);
     }
 }
 
@@ -212,11 +212,22 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
 
     scalarField maxCoNum(mesh.nCells(), 1.0);
 
-    forAll(moments_[0], celli)
+    forAll(nodes_, nodei)
     {
-        const labelList& cell = mesh.cells()[celli];
-        forAll(nodes_, nodei)
+
+        surfaceScalarField phiOwn
+        (
+            nodesOwn_()[nodei].primaryAbscissa() & mesh.Sf()
+        );
+        surfaceScalarField phiNei
+        (
+            nodesNei_()[nodei].primaryAbscissa() & mesh.Sf()
+        );
+
+        forAll(moments_[0], celli)
         {
+            const labelList& cell = mesh.cells()[celli];
+
             scalar num = nodes_[nodei].primaryWeight()[celli];
             scalar den = 0;
             forAll(cell, facei)
@@ -225,34 +236,28 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
                 {
                     if (own[cell[facei]] == celli)
                     {
-                        den -=
+                        den +=
                             nodesOwn_()[nodei].primaryWeight()[celli]
-                           *max
-                            (
-                                nodes_[nodei].primaryAbscissa()[celli]
-                              & Sf[cell[facei]],
-                                0.0
-                            );
+                           *max(phiOwn[cell[facei]], 0.0);
                     }
                     else if (nei[cell[facei]] == celli)
                     {
-                        den +=
+                        den -=
                             nodesNei_()[nodei].primaryWeight()[celli]
-                           *min
-                            (
-                                nodes_[nodei].primaryAbscissa()[celli]
-                              & Sf[cell[facei]],
-                                0.0
-                            );
+                           *min(phiNei[cell[facei]], 0.0);
                     }
                 }
-            }
-            if (num > 1e-6)
-            {
-                den = max(den, small);
-                maxCoNum[celli] =
-                    num*mesh.V()[celli]
-                  /(den*mesh.time().deltaTValue());
+                if (num > 1e-6)
+                {
+                    den = max(den, small);
+                    maxCoNum[celli] =
+                        min
+                        (
+                            maxCoNum[celli],
+                            num*mesh.V()[celli]
+                           /(den*mesh.time().deltaTValue())
+                        );
+                }
             }
         }
     }

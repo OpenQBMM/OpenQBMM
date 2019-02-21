@@ -49,7 +49,7 @@ adjustTimeStep  yes;
 
 maxCo           0.5;
 
-maxDeltaT       .01;
+maxDeltaT       1;
 
 
 
