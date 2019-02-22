@@ -57,6 +57,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 :
     velocityPDFTransportModel(name, dict, phi.mesh(), "R"),
     populationBalanceModel(name, dict, phi),
+    odeType(phi.mesh(), dict),
     name_(name),
     collision_(dict.lookup("collision")),
     collisionKernel_
@@ -81,16 +82,9 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-bool
-Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
-::collision() const
-{
-    return collision_;
-}
-
 void
 Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
-::updateImplicitCollisionSource()
+::updateImplicitMomentSource()
 {
     if (!collision_)
     {
@@ -99,20 +93,10 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     return collisionKernel_->updateFields();
 }
 
-void
-Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
-::updateExplicitCollisionSource(const label celli)
-{
-    if (!collision_)
-    {
-        return;
-    }
-    return collisionKernel_->updateCells(celli);
-}
 
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
-::implicitCollisionSource
+::implicitMomentSource
 (
     const volVectorMoment& moment
 )
@@ -131,30 +115,42 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     return collisionKernel_->implicitCollisionSource(moment);
 }
 
-Foam::scalar
-Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
-::explicitCollisionSource
-(
-    const label momenti,
-    const label celli
-)
+
+void Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
+::explicitMomentSource()
 {
     if (!collision_)
     {
-        return 0.0;
+        return;
     }
-    return collisionKernel_->explicitCollisionSource(momenti, celli);
+    return odeType::solve(quadrature_, 0);
 }
+
+
+void
+Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
+::updateCellMomentSource(const label celli)
+{
+    if (!collision_)
+    {
+        return;
+    }
+    return collisionKernel_->updateCells(celli);
+}
+
 
 Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 ::velocityPopulationBalance::cellMomentSource
 (
     const label momenti,
-    const label celli
+    const label celli,
+    const mappedPtrList<volVectorNode>&,
+    const label
 )
 {
-    return explicitCollisionSource(momenti, celli);
+    return collisionKernel_->explicitCollisionSource(momenti, celli);
 }
+
 
 Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 ::velocityPopulationBalance::realizableCo() const
@@ -162,11 +158,29 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
     return velocityPDFTransportModel::realizableCo();
 }
 
+
 Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 ::velocityPopulationBalance::CoNum() const
 {
     return velocityPDFTransportModel::CoNum();
 }
+
+
+bool
+Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
+::solveMomentSources() const
+{
+    return odeType::solveSources_;
+}
+
+
+bool
+Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
+::solveMomentOde() const
+{
+    return odeType::solveOde_;
+}
+
 
 void Foam::PDFTransportModels::populationBalanceModels
 ::velocityPopulationBalance::solve()
@@ -174,24 +188,5 @@ void Foam::PDFTransportModels::populationBalanceModels
     velocityPDFTransportModel::solve();
 }
 
-void Foam::PDFTransportModels::populationBalanceModels
-::velocityPopulationBalance::meanTransport
-(
-    const surfaceScalarField& phi,
-    const bool wallCollisions
-)
-{
-    velocityPDFTransportModel::meanTransport(phi, wallCollisions);
-}
-
-void Foam::PDFTransportModels::populationBalanceModels
-::velocityPopulationBalance::relativeTransport
-(
-    const mappedPtrList<volVectorField>& Vs,
-    const bool wallCollisions
-)
-{
-    velocityPDFTransportModel::relativeTransport(Vs, wallCollisions);
-}
 
 // ************************************************************************* //

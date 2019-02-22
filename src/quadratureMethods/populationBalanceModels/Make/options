@@ -20,7 +20,8 @@ EXE_INC = \
     -I../quadratureApproximations/lnInclude \
     -I../momentAdvection/lnInclude \
     -I../PDFTransportModels/lnInclude \
-    -I../mixingModels/lnInclude 
+    -I../mixingModels/lnInclude  \
+    -I../realizableOdeSolver
 
 LIB_LIBS = \
     -lincompressibleTransportModels \

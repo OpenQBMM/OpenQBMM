@@ -45,6 +45,7 @@ namespace populationBalanceModels
 }
 }
 
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
@@ -57,6 +58,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 :
     univariatePDFTransportModel(name, dict, phi.mesh(), phi, "RPlus"),
     populationBalanceModel(name, dict, phi),
+    odeType(phi.mesh(), dict),
     name_(name),
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
@@ -228,6 +230,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return aSource;
 }
 
+
 Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::breakupSource
@@ -286,6 +289,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return bSource;
 }
 
+
 Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::populationBalanceModels
 ::univariatePopulationBalance::momentDiffusion
 (
@@ -294,6 +298,7 @@ Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::populationBalanceModels
 {
     return diffusionModel_->momentDiff(moment);
 }
+
 
 Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
@@ -351,6 +356,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return gSource;
 }
 
+
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::implicitMomentSource
@@ -370,39 +376,76 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     return impSource;
 }
 
-Foam::scalar 
+
+void
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::updateCellMomentSource(const label)
+{}
+
+
+Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::cellMomentSource
 (
-    label& momentOrder,
-    label& celli
+    const label momentOrder,
+    const label celli,
+    const mappedPtrList<volScalarNode>& nodes,
+    const label enviroment
 )
 {
     return aggregationSource(momentOrder, celli)
-            + breakupSource(momentOrder, celli)
-            + nucleationModel_->nucleationSource(momentOrder, celli)
-            + phaseSpaceConvection(momentOrder, celli);
+         + breakupSource(momentOrder, celli)
+         + nucleationModel_->nucleationSource(momentOrder, celli)
+         + phaseSpaceConvection(momentOrder, celli);
 }
 
-Foam::scalar 
+
+Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::realizableCo() const
 {
     return univariatePDFTransportModel::realizableCo();
 }
 
-Foam::scalar 
+
+Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::CoNum() const
 {
     return 0.0;
 }
 
-void 
+
+bool
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::solveMomentSources() const
+{
+    return odeType::solveSources_;
+}
+
+
+bool
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::solveMomentOde() const
+{
+    return odeType::solveOde_;
+}
+
+
+void
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::explicitMomentSource()
+{
+    odeType::solve(quadrature_, 0);
+}
+
+
+void
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::solve()
 {
     univariatePDFTransportModel::solve();
 }
+
 
 // ************************************************************************* //

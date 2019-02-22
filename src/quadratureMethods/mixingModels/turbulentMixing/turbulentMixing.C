@@ -91,6 +91,7 @@ Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::mixingModels
     return diffusionModel_->momentDiff(moment);
 }
 
+
 Foam::tmp<Foam::volScalarField>
 Foam::PDFTransportModels::mixingModels::turbulentMixing
 ::phaseSpaceConvection
@@ -119,9 +120,26 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing
     return gSource;
 }
 
+
 void Foam::PDFTransportModels::mixingModels::turbulentMixing
 ::explicitMomentSource()
 {}
+
+
+bool Foam::PDFTransportModels::mixingModels::turbulentMixing
+::solveMomentSources() const
+{
+    return false;
+}
+
+
+bool Foam::PDFTransportModels::mixingModels::turbulentMixing
+::solveMomentOde() const
+{
+    return false;
+}
+
+
 
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::mixingModels::turbulentMixing::implicitMomentSource
@@ -134,21 +152,13 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::implicitMomentSource
     return mixingKernel_->K(moment, moments);
 }
 
-Foam::scalar
-Foam::PDFTransportModels::mixingModels::turbulentMixing::cellMomentSource
-(
-    label& momentOrder,
-    label& celli
-)
-{
-    return 0.0;
-}
 
 Foam::scalar Foam::PDFTransportModels::mixingModels::turbulentMixing::realizableCo
 ()
 {
     return univariatePDFTransportModel::realizableCo();
 }
+
 
 void Foam::PDFTransportModels::mixingModels::turbulentMixing::solve
 ()

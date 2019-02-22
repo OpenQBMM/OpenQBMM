@@ -31,7 +31,7 @@ adjustTimeStep  off;
 
 writeControl    runTime;
 
-writeInterval   1;
+writeInterval   10;
 
 purgeWrite      0;
 
