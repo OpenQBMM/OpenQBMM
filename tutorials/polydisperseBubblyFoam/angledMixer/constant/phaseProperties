@@ -20,9 +20,9 @@ phases (air water);
 air
 {
     type            polydispersePhaseModel;
-    residualAlpha   1e-4;
+    residualAlpha   1e-5;
     minD            1e-4;
-    maxD            5e-2;
+    maxD            1;
 }
 
 water
@@ -71,8 +71,9 @@ drag
 (
     (air in water)
     {
-        type            Tomiyama;
+        type            TomiyamaCorrelated;
         residualRe      1e-3;
+        A               24.0;
         swarmCorrection
         {
             type        none;

@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         cellLimited     leastSquares 0.2;
+    default         cellLimited     leastSquares 1;
     grad(p_rgh)     leastSquares;
 }
 
@@ -60,8 +60,6 @@ laplacianSchemes
 interpolationSchemes
 {
     default         linear;
-
-    "interpolate\(moment.*\)" upwind phi.air;
 
     reconstruct(U)          upwind;
     reconstruct(weight)     upwind;
