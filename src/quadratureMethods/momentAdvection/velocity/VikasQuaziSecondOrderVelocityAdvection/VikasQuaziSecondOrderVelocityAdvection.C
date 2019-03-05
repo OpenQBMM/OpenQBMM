@@ -103,6 +103,20 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::VikasQuaziSecondOrder
             )
         );
     }
+
+    {
+        IStringStream weightLimiter("Minmod");
+        IStringStream ULimiter("upwind");
+        weightOwnScheme_ = fvc::scheme<scalar>(own_, weightLimiter);
+        UOwnScheme_ = fvc::scheme<vector>(own_, ULimiter);
+    }
+
+    {
+        IStringStream weightLimiter("Minmod");
+        IStringStream ULimiter("upwind");
+        weightNeiScheme_ = fvc::scheme<scalar>(nei_, weightLimiter);
+        UNeiScheme_ = fvc::scheme<vector>(nei_, ULimiter);
+    }
 }
 
 
@@ -126,26 +140,16 @@ void Foam::velocityAdvection::VikasQuaziSecondOrder::interpolateNodes()
         surfaceVectorNode& nodeOwn(nodesOwn[nodei]);
 
         nodeOwn.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), own_, "reconstruct(weight)");
+            weightOwnScheme_().interpolate(node.primaryWeight());
 
         nodeOwn.primaryAbscissa() =
-            fvc::interpolate
-            (
-                node.primaryAbscissa(),
-                own_,
-                "reconstruct(U)"
-            );
+            UOwnScheme_().interpolate(node.primaryAbscissa());
 
         nodeNei.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), nei_, "reconstruct(weight)");
+            weightNeiScheme_().interpolate(node.primaryWeight());
 
         nodeNei.primaryAbscissa() =
-            fvc::interpolate
-            (
-                node.primaryAbscissa(),
-                nei_,
-                "reconstruct(U)"
-            );
+            UNeiScheme_().interpolate(node.primaryAbscissa());
     }
 }
 
@@ -208,11 +212,22 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
 
     scalarField maxCoNum(mesh.nCells(), 1.0);
 
-    forAll(moments_[0], celli)
+    forAll(nodes_, nodei)
     {
-        const labelList& cell = mesh.cells()[celli];
-        forAll(nodes_, nodei)
+
+        surfaceScalarField phiOwn
+        (
+            nodesOwn_()[nodei].primaryAbscissa() & mesh.Sf()
+        );
+        surfaceScalarField phiNei
+        (
+            nodesNei_()[nodei].primaryAbscissa() & mesh.Sf()
+        );
+
+        forAll(moments_[0], celli)
         {
+            const labelList& cell = mesh.cells()[celli];
+
             scalar num = nodes_[nodei].primaryWeight()[celli];
             scalar den = 0;
             forAll(cell, facei)
@@ -223,32 +238,26 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
                     {
                         den +=
                             nodesOwn_()[nodei].primaryWeight()[celli]
-                           *max
-                            (
-                                nodes_[nodei].primaryAbscissa()[celli]
-                              & Sf[cell[facei]],
-                                0.0
-                            );
+                           *max(phiOwn[cell[facei]], 0.0);
                     }
                     else if (nei[cell[facei]] == celli)
                     {
                         den -=
                             nodesNei_()[nodei].primaryWeight()[celli]
-                           *min
-                            (
-                                nodes_[nodei].primaryAbscissa()[celli]
-                              & Sf[cell[facei]],
-                                0.0
-                            );
+                           *min(phiNei[cell[facei]], 0.0);
                     }
                 }
-            }
-            if (num > 1e-6)
-            {
-                den = max(den, small);
-                maxCoNum[celli] =
-                    num*mesh.V()[celli]
-                  /(den*mesh.time().deltaTValue());
+                if (num > 1e-6)
+                {
+                    den = max(den, small);
+                    maxCoNum[celli] =
+                        min
+                        (
+                            maxCoNum[celli],
+                            num*mesh.V()[celli]
+                           /(den*mesh.time().deltaTValue())
+                        );
+                }
             }
         }
     }
