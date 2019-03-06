@@ -25,7 +25,8 @@ Class
     Foam::VikasQuasiSecondOrder
 
 Description
-    First-order velocity moment advection with kinetic scheme.
+    Quasi second order velocity moment advection with kinetic scheme.
+    Weights use a Minmod limiter and velocities use upwinding
 
 SourceFiles
     VikasQuasiSecondOrderVelocityAdvection.C

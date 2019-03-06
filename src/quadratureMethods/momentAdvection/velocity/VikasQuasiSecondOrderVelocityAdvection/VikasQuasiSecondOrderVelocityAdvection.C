@@ -106,16 +106,26 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::VikasQuasiSecondOrder
 
     {
         IStringStream weightLimiter("Minmod");
-        IStringStream ULimiter("upwind");
+        IStringStream velocityAbscissaeLimiter("upwind");
         weightOwnScheme_ = fvc::scheme<scalar>(own_, weightLimiter);
-        UOwnScheme_ = fvc::scheme<vector>(own_, ULimiter);
+        velocityAbscissaeOwnScheme_ =
+            fvc::scheme<vector>
+            (
+                own_,
+                velocityAbscissaeLimiter
+            );
     }
 
     {
         IStringStream weightLimiter("Minmod");
-        IStringStream ULimiter("upwind");
+        IStringStream velocityAbscissaeLimiter("upwind");
         weightNeiScheme_ = fvc::scheme<scalar>(nei_, weightLimiter);
-        UNeiScheme_ = fvc::scheme<vector>(nei_, ULimiter);
+        velocityAbscissaeNeiScheme_ =
+            fvc::scheme<vector>
+            (
+                nei_,
+                velocityAbscissaeLimiter
+            );
     }
 }
 
@@ -143,13 +153,13 @@ void Foam::velocityAdvection::VikasQuasiSecondOrder::interpolateNodes()
             weightOwnScheme_().interpolate(node.primaryWeight());
 
         nodeOwn.primaryAbscissa() =
-            UOwnScheme_().interpolate(node.primaryAbscissa());
+            velocityAbscissaeOwnScheme_().interpolate(node.primaryAbscissa());
 
         nodeNei.primaryWeight() =
             weightNeiScheme_().interpolate(node.primaryWeight());
 
         nodeNei.primaryAbscissa() =
-            UNeiScheme_().interpolate(node.primaryAbscissa());
+            velocityAbscissaeNeiScheme_().interpolate(node.primaryAbscissa());
     }
 }
 

@@ -88,8 +88,8 @@ protected:
         //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
         tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme_;
         tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme_;
-        tmp<surfaceInterpolationScheme<vector>> UOwnScheme_;
-        tmp<surfaceInterpolationScheme<vector>> UNeiScheme_;
+        tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeOwnScheme_;
+        tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeNeiScheme_;
 
         //- Support of the distribution function
         word support_;
