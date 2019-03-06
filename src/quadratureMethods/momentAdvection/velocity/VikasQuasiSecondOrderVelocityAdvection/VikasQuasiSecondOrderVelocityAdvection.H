@@ -22,18 +22,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::VikasQuaziSecondOrder
+    Foam::VikasQuasiSecondOrder
 
 Description
     First-order velocity moment advection with kinetic scheme.
 
 SourceFiles
-    VikasQuaziSecondOrderVelocityAdvection.C
+    VikasQuasiSecondOrderVelocityAdvection.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef VikasQuaziSecondOrderVelocityAdvection_H
-#define VikasQuaziSecondOrderVelocityAdvection_H
+#ifndef VikasQuasiSecondOrderVelocityAdvection_H
+#define VikasQuasiSecondOrderVelocityAdvection_H
 
 #include "velocityMomentAdvection.H"
 
@@ -46,10 +46,10 @@ namespace velocityAdvection
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class VikasQuaziSecondOrder Declaration
+                    Class VikasQuasiSecondOrder Declaration
 \*---------------------------------------------------------------------------*/
 
-class VikasQuaziSecondOrder
+class VikasQuasiSecondOrder
 :
     public velocityMomentAdvection
 {
@@ -88,7 +88,7 @@ public:
     // Constructors
 
         //- Construct from velocityMomentSet
-        VikasQuaziSecondOrder
+        VikasQuasiSecondOrder
         (
             const dictionary& dict,
             const velocityQuadratureApproximation& quadrature,
@@ -97,7 +97,7 @@ public:
 
 
     //- Destructor
-    virtual ~VikasQuaziSecondOrder();
+    virtual ~VikasQuasiSecondOrder();
 
 
     // Public member functions
