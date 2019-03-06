@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         cellLimited     leastSquares 1;
+    default         cellLimited     leastSquares 0.2;
     grad(p_rgh)     leastSquares;
 }
 
@@ -69,7 +69,7 @@ interpolationSchemes
 snGradSchemes
 {
     default         corrected;
-    snGrad(corr)    limited     1.0;
+    snGrad(corr)    limited     0.2;
 }
 
 wallDist
