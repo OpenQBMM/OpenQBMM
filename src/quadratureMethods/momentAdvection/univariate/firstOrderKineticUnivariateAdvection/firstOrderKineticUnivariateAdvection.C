@@ -48,7 +48,7 @@ namespace univariateAdvection
 Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
 (
     const dictionary& dict,
-    const univariateQuadratureApproximation& quadrature,
+    const scalarQuadratureApproximation& quadrature,
     const surfaceScalarField& phi,
     const word& support
 )
@@ -87,24 +87,31 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     }
 
     const Map<label> map = quadrature.nodes().map();
-    nodes_ = autoPtr<mappedPtrList<volScalarNode>>
+    nodes_ = autoPtr<mappedPtrList<volNode>>
     (
-        new mappedPtrList<volScalarNode>(nNodes_, map)
+        new mappedPtrList<volNode>(nNodes_, map)
     );
 
-    nodesNei_ = autoPtr<mappedPtrList<surfaceScalarNode>>
+    nodesNei_ = autoPtr<mappedPtrList<surfaceNode>>
     (
-        new mappedPtrList<surfaceScalarNode>(nNodes_, map)
+        new mappedPtrList<surfaceNode>(nNodes_, map)
     );
 
-    nodesOwn_ = autoPtr<mappedPtrList<surfaceScalarNode>>
+    nodesOwn_ = autoPtr<mappedPtrList<surfaceNode>>
     (
-        new mappedPtrList<surfaceScalarNode>(nNodes_, map)
+        new mappedPtrList<surfaceNode>(nNodes_, map)
     );
 
-    mappedPtrList<volScalarNode>& nodes = nodes_();
-    mappedPtrList<surfaceScalarNode>& nodesNei = nodesNei_();
-    mappedPtrList<surfaceScalarNode>& nodesOwn = nodesOwn_();
+    mappedPtrList<volNode>& nodes = nodes_();
+    mappedPtrList<surfaceNode>& nodesNei = nodesNei_();
+    mappedPtrList<surfaceNode>& nodesOwn = nodesOwn_();
+
+    PtrList<dimensionSet> abscissaDimensions(1);
+    abscissaDimensions.set
+    (
+        0,
+        new dimensionSet(moments_(1).dimensions()/moments_(0).dimensions())
+    );
 
     // Populating nodes and interpolated nodes
     forAll(nodes, nodei)
@@ -112,13 +119,13 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         nodes.set
         (
             nodei,
-            new volScalarNode
+            new volNode
             (
                 "nodeAdvection" + Foam::name(nodei),
                 name_,
                 moments_[0].mesh(),
                 moments_[0].dimensions(),
-                moments_[1].dimensions()/moments_[0].dimensions(),
+                abscissaDimensions,
                 false
             )
         );
@@ -126,13 +133,13 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         nodesNei.set
         (
             nodei,
-            new surfaceScalarNode
+            new surfaceNode
             (
                 "nodeRadau" + Foam::name(nodei) + "Nei",
                 name_,
                 moments_[0].mesh(),
                 moments_[0].dimensions(),
-                moments_[1].dimensions()/moments_[0].dimensions(),
+                abscissaDimensions,
                 false
             )
         );
@@ -140,13 +147,13 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         nodesOwn.set
         (
             nodei,
-            new surfaceScalarNode
+            new surfaceNode
             (
                 "nodeRadau" + Foam::name(nodei) + "Own",
                 name_,
                 moments_[0].mesh(),
                 moments_[0].dimensions(),
-                moments_[1].dimensions()/moments_[0].dimensions(),
+                abscissaDimensions,
                 false
             )
         );
@@ -158,7 +165,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         momentsNei_.set
         (
             momenti,
-            new Foam::surfaceUnivariateMoment
+            new Foam::surfaceMoment
             (
                 name_,
                 moments_[momenti].cmptOrders(),
@@ -170,7 +177,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         momentsOwn_.set
         (
             momenti,
-            new Foam::surfaceUnivariateMoment
+            new Foam::surfaceMoment
             (
                 name_,
                 moments_[momenti].cmptOrders(),
@@ -206,25 +213,25 @@ Foam::univariateAdvection::firstOrderKinetic::~firstOrderKinetic()
 
 void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
 {
-    const PtrList<volScalarNode>& nodes = nodes_();
-    PtrList<surfaceScalarNode>& nodesNei = nodesNei_();
-    PtrList<surfaceScalarNode>& nodesOwn = nodesOwn_();
+    const PtrList<volNode>& nodes = nodes_();
+    PtrList<surfaceNode>& nodesNei = nodesNei_();
+    PtrList<surfaceNode>& nodesOwn = nodesOwn_();
 
     forAll(nodes, rNodei)
     {
-        const volScalarNode& node(nodes[rNodei]);
-        surfaceScalarNode& nodeNei(nodesNei[rNodei]);
-        surfaceScalarNode& nodeOwn(nodesOwn[rNodei]);
+        const volNode& node(nodes[rNodei]);
+        surfaceNode& nodeNei(nodesNei[rNodei]);
+        surfaceNode& nodeOwn(nodesOwn[rNodei]);
 
         nodeOwn.primaryWeight() =
             weightOwnScheme_().interpolate(node.primaryWeight());
-        nodeOwn.primaryAbscissa() =
-            abscissaOwnScheme_().interpolate(node.primaryAbscissa());
+        nodeOwn.primaryAbscissae()[0] =
+            abscissaOwnScheme_().interpolate(node.primaryAbscissae()[0]);
 
         nodeNei.primaryWeight() =
             weightNeiScheme_().interpolate(node.primaryWeight());
-        nodeNei.primaryAbscissa() =
-            abscissaNeiScheme_().interpolate(node.primaryAbscissa());
+        nodeNei.primaryAbscissae()[0] =
+            abscissaNeiScheme_().interpolate(node.primaryAbscissae()[0]);
     }
 }
 

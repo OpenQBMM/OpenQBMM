@@ -34,9 +34,9 @@ volVectorField dragSource
 
     forAll(nodes, nodei)
     {
-        const volVectorNode& node = nodes[nodei];
+        const volVelocityNode& node = nodes[nodei];
         const volScalarField& alphapi = node.primaryWeight();
-        const volVectorField& Upi = node.primaryAbscissa();
+        const volVectorField& Upi = node.velocityAbscissae();
 
         // WenYu drag
         volScalarField alphafi

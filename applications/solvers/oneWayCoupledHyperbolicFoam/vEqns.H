@@ -1,6 +1,6 @@
 forAll(nodes, nodei)
 {
-    volVectorField& Upi = nodes[nodei].primaryAbscissa();
+    volVectorField& Upi = nodes[nodei].velocityAbscissae();
     fvVectorMatrix UpiEqn
     (
         fvm::ddt(Upi)

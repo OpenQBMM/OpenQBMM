@@ -49,7 +49,7 @@ Foam::monoKineticQuadratureApproximation::velocityMoments()
     return velocityMoments_;
 }
 
-const Foam::PtrList<Foam::surfaceScalarNode>&
+const Foam::PtrList<Foam::surfaceNode>&
 Foam::monoKineticQuadratureApproximation::nodesOwn() const
 {
     return nodesOwn_();
@@ -61,7 +61,7 @@ Foam::monoKineticQuadratureApproximation::velocitiesOwn() const
     return velocitiesOwn_;
 }
 
-const Foam::PtrList<Foam::surfaceScalarNode>&
+const Foam::PtrList<Foam::surfaceNode>&
 Foam::monoKineticQuadratureApproximation::nodesNei() const
 {
     return nodesNei_;

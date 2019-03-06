@@ -85,7 +85,7 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::~turbulentMixing()
 Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::mixingModels
 ::turbulentMixing::momentDiffusion
 (
-    const volUnivariateMoment& moment
+    const volMoment& moment
 )
 {
     return diffusionModel_->momentDiff(moment);
@@ -95,7 +95,7 @@ Foam::tmp<Foam::volScalarField>
 Foam::PDFTransportModels::mixingModels::turbulentMixing
 ::phaseSpaceConvection
 (
-    const volUnivariateMoment& moment
+    const volMoment& moment
 )
 {
     tmp<volScalarField> gSource
@@ -126,10 +126,10 @@ void Foam::PDFTransportModels::mixingModels::turbulentMixing
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::mixingModels::turbulentMixing::implicitMomentSource
 (
-    const volUnivariateMoment& moment
+    const volMoment& moment
 )
 {
-    const volUnivariateMomentFieldSet& moments = (*this).quadrature().moments();
+    const volMomentFieldSet& moments = (*this).quadrature().moments();
 
     return mixingKernel_->K(moment, moments);
 }

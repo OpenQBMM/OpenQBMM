@@ -87,7 +87,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
                     IOobject::groupName
                     (
                         "divMoment"
-                       + volVectorMoment::listToWord(momentOrder),
+                       + mappedList<vector>::listToWord(momentOrder),
                         name_
                     ),
                     moments_[0].mesh().time().timeName(),

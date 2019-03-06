@@ -25,73 +25,73 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class momentFieldSetType, class nodeType>
+template <class momentType, class nodeType>
 const word
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::name() const
+Foam::quadratureApproximation<momentType, nodeType>::name() const
 {
     return name_;
 }
 
-template <class momentFieldSetType, class nodeType>
+template <class momentType, class nodeType>
 Foam::fieldMomentInversion&
-Foam::quadratureApproximation<momentFieldSetType, nodeType>
+Foam::quadratureApproximation<momentType, nodeType>
 ::momentFieldInverter()
 {
     return momentFieldInverter_();
 }
 
-template <class momentFieldSetType, class nodeType>
+template <class momentType, class nodeType>
 const Foam::mappedPtrList<nodeType>&
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::nodes() const
+Foam::quadratureApproximation<momentType, nodeType>::nodes() const
 {
     return nodes_();
 }
 
-template <class momentFieldSetType, class nodeType>
+template <class momentType, class nodeType>
 Foam::mappedPtrList<nodeType>&
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::nodes()
+Foam::quadratureApproximation<momentType, nodeType>::nodes()
 {
     return nodes_();
 }
 
-template <class momentFieldSetType, class nodeType>
-const momentFieldSetType&
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::moments() const
+template <class momentType, class nodeType>
+const momentFieldSet<momentType, nodeType>&
+Foam::quadratureApproximation<momentType, nodeType>::moments() const
 {
     return moments_;
 }
 
-template <class momentFieldSetType, class nodeType>
-momentFieldSetType&
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::moments()
+template <class momentType, class nodeType>
+momentFieldSet<momentType, nodeType>&
+Foam::quadratureApproximation<momentType, nodeType>::moments()
 {
     return moments_;
 }
 
-template <class momentFieldSetType, class nodeType>
+template <class momentType, class nodeType>
 Foam::label
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::nDimensions() const
+Foam::quadratureApproximation<momentType, nodeType>::nDimensions() const
 {
     return nDimensions_;
 }
 
-template <class momentFieldSetType, class nodeType>
+template <class momentType, class nodeType>
 Foam::label
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::nMoments() const
+Foam::quadratureApproximation<momentType, nodeType>::nMoments() const
 {
     return nMoments_;
 }
 
-template <class momentFieldSetType, class nodeType>
+template <class momentType, class nodeType>
 const Foam::labelListList&
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::momentOrders() const
+Foam::quadratureApproximation<momentType, nodeType>::momentOrders() const
 {
     return momentOrders_;
 }
 
-template <class momentFieldSetType, class nodeType>
+template <class momentType, class nodeType>
 const Foam::labelListList&
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::nodeIndexes() const
+Foam::quadratureApproximation<momentType, nodeType>::nodeIndexes() const
 {
     return nodeIndexes_;
 }

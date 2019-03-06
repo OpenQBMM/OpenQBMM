@@ -6,80 +6,85 @@
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
-
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
-
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType, class sigmaType>
+template<class scalarType, class vectorType>
 const Foam::word&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::name() const
+Foam::quadratureNode<scalarType, vectorType>::name() const
 {
     return name_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-inline bool Foam::quadratureNode<weightType, abscissaType, sigmaType>::
-extended() const
+template<class scalarType, class vectorType>
+inline bool Foam::quadratureNode<scalarType, vectorType>::extended() const
 {
     return extended_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
+template<class scalarType, class vectorType>
+const Foam::labelList&
+Foam::quadratureNode<scalarType, vectorType>::scalarIndexes() const
+{
+    return scalarIndexes_;
+}
+
+template<class scalarType, class vectorType>
+const Foam::labelList&
+Foam::quadratureNode<scalarType, vectorType>::velocityIndexes() const
+{
+    return velocityIndexes_;
+}
+
+template<class scalarType, class vectorType>
 Foam::label
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::
-nSecondaryNodes() const
+Foam::quadratureNode<scalarType, vectorType>::nSecondaryNodes() const
 {
     return nSecondaryNodes_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-const weightType&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::
-primaryWeight() const
+template<class scalarType, class vectorType>
+const scalarType&
+Foam::quadratureNode<scalarType, vectorType>::primaryWeight() const
 {
     return weight_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-weightType&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::primaryWeight()
+template<class scalarType, class vectorType>
+scalarType&
+Foam::quadratureNode<scalarType, vectorType>::primaryWeight()
 {
     return weight_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-const abscissaType&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::
-primaryAbscissa() const
+template<class scalarType, class vectorType>
+const Foam::PtrList<scalarType>&
+Foam::quadratureNode<scalarType, vectorType>::primaryAbscissae() const
 {
-    return abscissa_;
+    return abscissae_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-abscissaType&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::primaryAbscissa()
+template<class scalarType, class vectorType>
+Foam::PtrList<scalarType>&
+Foam::quadratureNode<scalarType, vectorType>::primaryAbscissae()
 {
-    return abscissa_;
+    return abscissae_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-const Foam::PtrList<weightType>&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::
-secondaryWeights() const
+template<class scalarType, class vectorType>
+const Foam::PtrList<scalarType>&
+Foam::quadratureNode<scalarType, vectorType>::secondaryWeights() const
 {
     if (!extended_)
     {
@@ -92,10 +97,9 @@ secondaryWeights() const
     return secondaryWeights_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-Foam::PtrList<weightType>&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::
-secondaryWeights()
+template<class scalarType, class vectorType>
+Foam::PtrList<scalarType>&
+Foam::quadratureNode<scalarType, vectorType>::secondaryWeights()
 {
     if (!extended_)
     {
@@ -107,10 +111,9 @@ secondaryWeights()
     return secondaryWeights_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-const Foam::PtrList<abscissaType>&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>
-::secondaryAbscissae() const
+template<class scalarType, class vectorType>
+const Foam::PtrList<Foam::PtrList<scalarType>>&
+Foam::quadratureNode<scalarType, vectorType>::secondaryAbscissae() const
 {
     if (!extended_)
     {
@@ -123,10 +126,9 @@ Foam::quadratureNode<weightType, abscissaType, sigmaType>
     return secondaryAbscissae_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-Foam::PtrList<abscissaType>&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>
-::secondaryAbscissae()
+template<class scalarType, class vectorType>
+Foam::PtrList<Foam::PtrList<scalarType>>&
+Foam::quadratureNode<scalarType, vectorType>::secondaryAbscissae()
 {
     if (!extended_)
     {
@@ -139,10 +141,9 @@ Foam::quadratureNode<weightType, abscissaType, sigmaType>
     return secondaryAbscissae_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-const sigmaType&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>
-::sigma() const
+template<class scalarType, class vectorType>
+const Foam::PtrList<scalarType>&
+Foam::quadratureNode<scalarType, vectorType>::sigmas() const
 {
     if (!extended_)
     {
@@ -152,12 +153,12 @@ Foam::quadratureNode<weightType, abscissaType, sigmaType>
             << abort(FatalError);
     }
 
-    return sigma_();
+    return sigmas_;
 }
 
-template <class weightType, class abscissaType, class sigmaType>
-sigmaType&
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::sigma()
+template<class scalarType, class vectorType>
+Foam::PtrList<scalarType>&
+Foam::quadratureNode<scalarType, vectorType>::sigmas()
 {
     if (!extended_)
     {
@@ -167,8 +168,30 @@ Foam::quadratureNode<weightType, abscissaType, sigmaType>::sigma()
             << abort(FatalError);
     }
 
-    return sigma_();
+    return sigmas_;
 }
 
+template<class scalarType, class vectorType>
+const vectorType&
+Foam::quadratureNode<scalarType, vectorType>::velocityAbscissae() const
+{
+    FatalErrorInFunction
+        << "Attempt to access velocity abscissa of a quadrature node" << nl
+        << "    with no scalar abscissa. "
+        << abort(FatalError);
+
+    return const_cast<const vectorType&>(velocityAbscissaeType::null());
+}
+
+template<class scalarType, class vectorType>
+vectorType&
+Foam::quadratureNode<scalarType, vectorType>::velocityAbscissae()
+{
+    FatalErrorInFunction
+        << "Attempt to access velocity abscissa of aquadrature node" << nl
+        << "    with no velocity abscissa. "
+        << abort(FatalError);
+    return const_cast<vectorType&>(velocityAbscissaeType::null());
+}
 
 // ************************************************************************* //

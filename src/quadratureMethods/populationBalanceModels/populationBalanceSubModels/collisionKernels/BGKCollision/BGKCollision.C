@@ -52,7 +52,7 @@ namespace collisionKernels
 void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 ::updateCells(const label celli)
 {
-    const volVectorMomentFieldSet& moments = quadrature_.moments();
+    const volVelocityMomentFieldSet& moments = quadrature_.moments();
     scalar m0 = max(moments(0)[celli], SMALL);
 
     // Mean velocity
@@ -96,7 +96,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 ::updateFields()
 {
-    const volVectorMomentFieldSet& moments = quadrature_.moments();
+    const volVelocityMomentFieldSet& moments = quadrature_.moments();
     volScalarField m0(max(moments(0), SMALL));
 
     dimensionedScalar zeroVar("zero", sqr(dimVelocity), 0.0);
@@ -199,7 +199,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::populationBalanceSubModels::collisionKernels::BGKCollision
-::implicitCollisionSource(const volVectorMoment& m) const
+::implicitCollisionSource(const volVelocityMoment& m) const
 {
     return
     (

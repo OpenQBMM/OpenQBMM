@@ -179,7 +179,7 @@ public:
         zeta
         (
             const dictionary& dict,
-            const univariateQuadratureApproximation& quadrature,
+            const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
             const word& support
         );

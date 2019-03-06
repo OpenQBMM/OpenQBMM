@@ -119,8 +119,8 @@ public:
         //- Aggregation kernel
         virtual tmp<fvScalarMatrix> K
         (
-            const volUnivariateMoment& moment,
-            const volUnivariateMomentFieldSet& moments
+            const volMoment& moment,
+            const volMomentFieldSet& moments
         ) const = 0;
 };
 

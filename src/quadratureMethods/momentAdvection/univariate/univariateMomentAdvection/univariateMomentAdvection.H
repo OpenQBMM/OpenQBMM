@@ -75,7 +75,7 @@ protected:
         const word name_;
 
         //- Reference to the moments to advect
-        const volUnivariateMomentFieldSet& moments_;
+        const volMomentFieldSet& moments_;
 
         //- Number of moments
         const label nMoments_;
@@ -114,7 +114,7 @@ public:
             dictionary,
             (
                 const dictionary& dict,
-                const univariateQuadratureApproximation& quadrature,
+                const scalarQuadratureApproximation& quadrature,
                 const surfaceScalarField& phi,
                 const word& support
             ),
@@ -128,7 +128,7 @@ public:
         univariateMomentAdvection
         (
             const dictionary& dict,
-            const univariateQuadratureApproximation& quadrature,
+            const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
             const word& support
         );
@@ -143,7 +143,7 @@ public:
         static autoPtr<univariateMomentAdvection> New
         (
             const dictionary& dict,
-            const univariateQuadratureApproximation& quadrature,
+            const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
             const word& support
         );

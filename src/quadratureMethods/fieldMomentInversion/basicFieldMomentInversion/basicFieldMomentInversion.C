@@ -90,11 +90,11 @@ Foam::basicFieldMomentInversion::~basicFieldMomentInversion()
 
 void Foam::basicFieldMomentInversion::invert
 (
-    const volUnivariateMomentFieldSet& moments,
-    mappedPtrList<volScalarNode>& nodes
+    const volMomentFieldSet& moments,
+    mappedPtrList<volNode>& nodes
 )
 {
-    const volUnivariateMoment& m0(moments[0]);
+    const volMoment& m0(moments(0));
 
     forAll(m0, celli)
     {
@@ -106,8 +106,8 @@ void Foam::basicFieldMomentInversion::invert
 
 void Foam::basicFieldMomentInversion::invertBoundaryMoments
 (
-    const volUnivariateMomentFieldSet& moments,
-    mappedPtrList<volScalarNode>& nodes
+    const volMomentFieldSet& moments,
+    mappedPtrList<volNode>& nodes
 )
 {
     // Recover reference to boundaryField of zero-order moment.
@@ -148,13 +148,13 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             // Copy quadrature data to boundary face
             for (label nodei = 0; nodei < maxNodes; nodei++)
             {
-                volScalarNode& node = nodes[nodei];
+                volNode& node = nodes[nodei];
 
                 volScalarField::Boundary& weightBf
                         = node.primaryWeight().boundaryFieldRef();
 
                 volScalarField::Boundary& abscissaBf
-                        = node.primaryAbscissa().boundaryFieldRef();
+                        = node.primaryAbscissae()[0].boundaryFieldRef();
 
                 if (nodei < actualNodes)
                 {
@@ -176,8 +176,8 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
 
 bool Foam::basicFieldMomentInversion::invertLocalMoments
 (
-    const volUnivariateMomentFieldSet& moments,
-    mappedPtrList<volScalarNode>& nodes,
+    const volMomentFieldSet& moments,
+    mappedPtrList<volNode>& nodes,
     const label celli,
     const bool fatalErrorOnFailedRealizabilityTest
 )
@@ -221,17 +221,17 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
 
     for (label nodei = 0; nodei < maxNodes; nodei++)
     {
-        volScalarNode& node(nodes[nodei]);
+        volNode& node(nodes[nodei]);
 
         if (nodei < actualNodes)
         {
             node.primaryWeight()[celli] = weights[nodei];
-            node.primaryAbscissa()[celli] = abscissae[nodei];
+            node.primaryAbscissae()[0][celli] = abscissae[nodei];
         }
         else
         {
             node.primaryWeight()[celli] = 0.0;
-            node.primaryAbscissa()[celli] = 0.0;
+            node.primaryAbscissae()[0][celli] = 0.0;
         }
     }
 
@@ -240,8 +240,8 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
 
 void Foam::basicFieldMomentInversion::invert
 (
-    const volVectorMomentFieldSet& moments,
-    mappedPtrList<volVectorNode>& nodes
+    const volVelocityMomentFieldSet& moments,
+    mappedPtrList<volVelocityNode>& nodes
 )
 {
     NotImplemented;
@@ -249,8 +249,8 @@ void Foam::basicFieldMomentInversion::invert
 
 void Foam::basicFieldMomentInversion::invertBoundaryMoments
 (
-    const volVectorMomentFieldSet& moments,
-    mappedPtrList<volVectorNode>& nodes
+    const volVelocityMomentFieldSet& moments,
+    mappedPtrList<volVelocityNode>& nodes
 )
 {
     NotImplemented;
@@ -258,8 +258,8 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
 
 bool Foam::basicFieldMomentInversion::invertLocalMoments
 (
-    const volVectorMomentFieldSet& moments,
-    mappedPtrList<volVectorNode>& nodes,
+    const volVelocityMomentFieldSet& moments,
+    mappedPtrList<volVelocityNode>& nodes,
     const label celli,
     const bool fatalErrorOnFailedRealizabilityTest
 )

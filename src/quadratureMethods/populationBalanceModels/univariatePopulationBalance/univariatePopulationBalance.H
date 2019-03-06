@@ -131,7 +131,7 @@ class univariatePopulationBalance
         //- Diffusion term
         virtual tmp<fvScalarMatrix> momentDiffusion
         (
-            const volUnivariateMoment& moment
+            const volMoment& moment
         );
 
         //- Convect moments in phase space
@@ -144,7 +144,7 @@ class univariatePopulationBalance
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
-            const volUnivariateMoment& moment
+            const volMoment& moment
         );
 
         //- Calculate source term for moment equation in the specified cell

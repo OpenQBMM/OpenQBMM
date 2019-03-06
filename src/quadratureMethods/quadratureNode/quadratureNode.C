@@ -7,34 +7,29 @@
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
-
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
-
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
 \*---------------------------------------------------------------------------*/
 
 #include "quadratureNode.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-template <class weightType, class abscissaType, class sigmaType>
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::
-quadratureNode
+template<class scalarType, class vectorType>
+Foam::quadratureNode<scalarType, vectorType>::quadratureNode
 (
     const word& name,
     const word& distributionName,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
-    const dimensionSet& abscissaDimensions,
+    const PtrList<dimensionSet>& abscissaeDimensions,
     const bool extended,
     const label nSecondaryNodes
 )
@@ -58,129 +53,151 @@ quadratureNode
             pTraits<typename weightType::value_type>::zero
         )
     ),
-    abscissa_
-    (
-        IOobject
-        (
-            IOobject::groupName("abscissa", name_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensioned<typename abscissaType::value_type>
-        (
-            "zeroAbscissa",
-            abscissaDimensions,
-            pTraits<typename abscissaType::value_type>::zero
-        )
-    ),
+    abscissae_(),
     secondaryWeights_(),
     secondaryAbscissae_(),
-    sigma_(),
+    sigmas_(),
     nSecondaryNodes_(nSecondaryNodes),
     extended_(extended)
 {
+    forAll(abscissaeDimensions, dimi)
+    {
+        if (abscissaeDimensions[dimi] == dimVelocity)
+        {
+            velocityIndexes_.append(dimi);
+        }
+        else
+        {
+            scalarIndexes_.append(dimi);
+        }
+    }
+    abscissae_.resize(scalarIndexes_.size());
     if (extended_)
     {
-        // Allocating secondary quadrature only if the node is of extended type
-        secondaryWeights_.setSize(nSecondaryNodes_);
-        secondaryAbscissae_.setSize(nSecondaryNodes_);
+        secondaryAbscissae_.resize(scalarIndexes_.size());
+        sigmas_.resize(scalarIndexes_.size());
+    }
 
-        // Allocating secondary weights and abscissae
-        forAll(secondaryWeights_, nodei)
-        {
-            secondaryWeights_.set
-            (
-                nodei,
-                new weightType
-                (
-                    IOobject
-                    (
-                        IOobject::groupName
-                        (
-                            "secondaryWeight." + Foam::name(nodei),
-                            name_
-                        ),
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::NO_READ,
-                        IOobject::NO_WRITE
-                    ),
-                    mesh,
-                    dimensioned<typename weightType::value_type>
-                    (
-                        "zeroWeight",
-                        dimless,
-                        pTraits<typename weightType::value_type>::zero
-                    )
-                )
-            );
-
-            secondaryAbscissae_.set
-            (
-                nodei,
-                new abscissaType
-                (
-                    IOobject
-                    (
-                        IOobject::groupName
-                        (
-                            "secondaryAbscissa." + Foam::name(nodei),
-                            name_
-                        ),
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::NO_READ,
-                        IOobject::NO_WRITE
-                    ),
-                    mesh,
-                    dimensioned<typename abscissaType::value_type>
-                    (
-                        "zeroAbscissa",
-                        abscissaDimensions,
-                        pTraits<typename abscissaType::value_type>::zero
-                    )
-                )
-            );
-        }
-
-        // Allocating sigma
-        sigma_.set
+    forAll(abscissae_, dimi)
+    {
+        label cmpt = scalarIndexes_[dimi];
+        abscissae_.set
         (
-            new sigmaType
+            dimi,
+            new abscissaType
             (
                 IOobject
                 (
-                    IOobject::groupName("sigma", name_),
+                    IOobject::groupName("abscissa", name_),
                     mesh.time().timeName(),
                     mesh,
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
                 mesh,
-                dimensioned<typename sigmaType::value_type>
+                dimensionedScalar
                 (
-                    "zeroSigma",
-                    dimless,
-                    pTraits<typename sigmaType::value_type>::zero
+                    "zeroAbscissa",
+                    abscissaeDimensions[cmpt],
+                    0.0
                 )
             )
         );
+
+        if (extended_)
+        {
+            // Allocating secondary quadrature only if the node is of extended type
+            secondaryWeights_.setSize(nSecondaryNodes_);
+            secondaryAbscissae_.set
+            (
+                dimi,
+                new abscissaeType(nSecondaryNodes_)
+            );
+
+            // Allocating secondary weights and abscissae
+            forAll(secondaryWeights_, sNodei)
+            {
+                secondaryWeights_.set
+                (
+                    sNodei,
+                    new weightType
+                    (
+                        IOobject
+                        (
+                            IOobject::groupName
+                            (
+                                "secondaryWeight." + Foam::name(sNodei),
+                                name_
+                            ),
+                            mesh.time().timeName(),
+                            mesh,
+                            IOobject::NO_READ,
+                            IOobject::NO_WRITE
+                        ),
+                        mesh,
+                        dimensionedScalar("zeroWeight", dimless, 0.0)
+                    )
+                );
+
+                secondaryAbscissae_[dimi].set
+                (
+                    sNodei,
+                    new abscissaType
+                    (
+                        IOobject
+                        (
+                            IOobject::groupName
+                            (
+                                "secondaryAbscissa." + Foam::name(sNodei),
+                                name_
+                            ),
+                            mesh.time().timeName(),
+                            mesh,
+                            IOobject::NO_READ,
+                            IOobject::NO_WRITE
+                        ),
+                        mesh,
+                        dimensionedScalar
+                        (
+                            "zeroAbscissa",
+                            abscissaeDimensions[cmpt],
+                            0.0
+                        )
+                    )
+                );
+            }
+
+            // Allocating sigma
+            sigmas_.set
+            (
+                dimi,
+                new sigmaType
+                (
+                    IOobject
+                    (
+                        IOobject::groupName("sigma", name_),
+                        mesh.time().timeName(),
+                        mesh,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
+                    ),
+                    mesh,
+                    dimensionedScalar("zeroSigma", dimless, 0.0)
+                )
+            );
+        }
     }
 }
 
 
-template <class weightType, class abscissaType, class sigmaType>
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::
-quadratureNode
+template<class scalarType, class vectorType>
+Foam::quadratureNode<scalarType, vectorType>::quadratureNode
 (
     const word& name,
     const word& distributionName,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
-    const dimensionSet& abscissaDimensions,
+    const PtrList<dimensionSet>& abscissaeDimensions,
     const wordList& boundaryTypes,
     const bool extended,
     const label nSecondaryNodes
@@ -203,146 +220,164 @@ quadratureNode
             "zeroWeight",
             weightDimensions,
             pTraits<typename weightType::value_type>::zero
-        )
-    ),
-    abscissa_
-    (
-        IOobject
-        (
-            IOobject::groupName("abscissa", name_),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
         ),
-        mesh,
-        dimensioned<typename abscissaType::value_type>
-        (
-            "zeroAbscissa",
-            abscissaDimensions,
-            pTraits<typename abscissaType::value_type>::zero
-        )
+        boundaryTypes
     ),
+    abscissae_(),
     secondaryWeights_(),
     secondaryAbscissae_(),
-    sigma_(),
+    sigmas_(),
     nSecondaryNodes_(nSecondaryNodes),
     extended_(extended)
 {
+    forAll(abscissaeDimensions, dimi)
+    {
+        if (abscissaeDimensions[dimi] == dimVelocity)
+        {
+            velocityIndexes_.append(dimi);
+        }
+        else
+        {
+            scalarIndexes_.append(dimi);
+        }
+    }
+    abscissae_.resize(scalarIndexes_.size());
     if (extended_)
     {
-        // Allocating secondary quadrature only if the node is of extended type
-        secondaryWeights_.setSize(nSecondaryNodes_);
-        secondaryAbscissae_.setSize(nSecondaryNodes_);
+        secondaryAbscissae_.resize(scalarIndexes_.size());
+        sigmas_.resize(scalarIndexes_.size());
+    }
 
-        // Allocating secondary weights and abscissae
-        forAll(secondaryWeights_, nodei)
-        {
-            secondaryWeights_.set
-            (
-                nodei,
-                new weightType
-                (
-                    IOobject
-                    (
-                        IOobject::groupName
-                        (
-                            "secondaryWeight." + Foam::name(nodei),
-                            name_
-                        ),
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::NO_READ,
-                        IOobject::NO_WRITE
-                    ),
-                    mesh,
-                    dimensioned<typename weightType::value_type>
-                    (
-                        "zeroWeight",
-                        dimless,
-                        pTraits<typename weightType::value_type>::zero
-                    ),
-                    boundaryTypes
-                )
-            );
-
-            secondaryAbscissae_.set
-            (
-                nodei,
-                new abscissaType
-                (
-                    IOobject
-                    (
-                        IOobject::groupName
-                        (
-                            "secondaryAbscissa." + Foam::name(nodei),
-                            name_
-                        ),
-                        mesh.time().timeName(),
-                        mesh,
-                        IOobject::NO_READ,
-                        IOobject::NO_WRITE
-                    ),
-                    mesh,
-                    dimensioned<typename abscissaType::value_type>
-                    (
-                        "zeroAbscissa",
-                        abscissaDimensions,
-                        pTraits<typename abscissaType::value_type>::zero
-                    ),
-                    boundaryTypes
-                )
-            );
-
-        }
-
-        sigma_.set
+    forAll(abscissae_, dimi)
+    {
+        label cmpt = scalarIndexes_[dimi];
+        abscissae_.set
         (
-            new sigmaType
+            dimi,
+            new abscissaType
             (
                 IOobject
                 (
-                    IOobject::groupName("sigma", name_),
+                    IOobject::groupName("abscissa", name_),
                     mesh.time().timeName(),
                     mesh,
                     IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    true
+                    IOobject::NO_WRITE
                 ),
                 mesh,
-                dimensioned<typename sigmaType::value_type>
+                dimensionedScalar
                 (
-                    "zeroSigma",
-                    dimless,
-                    pTraits<typename sigmaType::value_type>::zero
+                    "zeroAbscissa",
+                    abscissaeDimensions[cmpt],
+                    0.0
                 ),
                 boundaryTypes
             )
         );
+
+        if (extended_)
+        {
+            // Allocating secondary quadrature only if the node is of extended type
+            secondaryWeights_.setSize(nSecondaryNodes_);
+            secondaryAbscissae_.set
+            (
+                dimi,
+                new abscissaeType(nSecondaryNodes_)
+            );
+
+            // Allocating secondary weights and abscissae
+            forAll(secondaryWeights_, sNodei)
+            {
+                secondaryWeights_.set
+                (
+                    sNodei,
+                    new weightType
+                    (
+                        IOobject
+                        (
+                            IOobject::groupName
+                            (
+                                "secondaryWeight." + Foam::name(sNodei),
+                                name_
+                            ),
+                            mesh.time().timeName(),
+                            mesh,
+                            IOobject::NO_READ,
+                            IOobject::NO_WRITE
+                        ),
+                        mesh,
+                        dimensionedScalar("zeroWeight", dimless, 0.0),
+                        boundaryTypes
+                    )
+                );
+
+                secondaryAbscissae_[dimi].set
+                (
+                    sNodei,
+                    new abscissaType
+                    (
+                        IOobject
+                        (
+                            IOobject::groupName
+                            (
+                                "secondaryAbscissa." + Foam::name(sNodei),
+                                name_
+                            ),
+                            mesh.time().timeName(),
+                            mesh,
+                            IOobject::NO_READ,
+                            IOobject::NO_WRITE
+                        ),
+                        mesh,
+                        dimensionedScalar
+                        (
+                            "zeroAbscissa",
+                            abscissaeDimensions[cmpt],
+                            0.0
+                        ),
+                        boundaryTypes
+                    )
+                );
+            }
+
+            // Allocating sigma
+            sigmas_.set
+            (
+                dimi,
+                new sigmaType
+                (
+                    IOobject
+                    (
+                        IOobject::groupName("sigma", name_),
+                        mesh.time().timeName(),
+                        mesh,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
+                    ),
+                    mesh,
+                    dimensionedScalar("zeroSigma", dimless, 0.0),
+                    boundaryTypes
+                )
+            );
+        }
     }
 }
 
+
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType, class sigmaType>
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::
-~quadratureNode()
+template<class scalarType, class vectorType>
+Foam::quadratureNode<scalarType, vectorType>::~quadratureNode()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template <class weightType, class abscissaType, class sigmaType>
-Foam::autoPtr
-<
-    Foam::quadratureNode<weightType, abscissaType, sigmaType>
->
-Foam::quadratureNode<weightType, abscissaType, sigmaType>::clone() const
+template<class scalarType, class vectorType>
+Foam::autoPtr<Foam::quadratureNode<scalarType, vectorType>>
+Foam::quadratureNode<scalarType, vectorType>::clone() const
 {
     notImplemented("quadratureNode::clone() const");
-    return autoPtr
-    <
-        quadratureNode<weightType, abscissaType, sigmaType>
-    >(NULL);
+    return autoPtr<quadratureNode<scalarType, vectorType>>(NULL);
 }
 
 // ************************************************************************* //

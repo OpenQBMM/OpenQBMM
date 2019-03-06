@@ -86,7 +86,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     ),
     xi1_
     (
-        mixingModel_().quadrature().nodes()[0].primaryAbscissa()
+        mixingModel_().quadrature().nodes()[0].primaryAbscissae()[0]
     ),
     p2_
     (
@@ -94,7 +94,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     ),
     xi2_
     (
-        mixingModel_().quadrature().nodes()[1].primaryAbscissa()
+        mixingModel_().quadrature().nodes()[1].primaryAbscissae()[0]
     ),
     meanXi_
     (
@@ -249,12 +249,12 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::explicitMomentSource
 (
-    univariateQuadratureApproximation& quadrature,
+    scalarQuadratureApproximation& quadrature,
     const label environment
 )
 {
-    volUnivariateMomentFieldSet& moments(quadrature.moments());
-    const mappedPtrList<volScalarNode>& nodes(quadrature.nodes());
+    volMomentFieldSet& moments(quadrature.moments());
+    const mappedPtrList<volNode>& nodes(quadrature.nodes());
     label nMoments = quadrature.nMoments();
     scalar globalDt = moments[0].mesh().time().deltaT().value();
 
@@ -455,13 +455,13 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::calcEnvironmentMoments()
 {
-    const volUnivariateMomentFieldSet& mXi
+    const volMomentFieldSet& mXi
     (
         mixingModel_().quadrature().moments()
     );
 
-    const volUnivariateMoment& xiMean_ = mXi[1];
-    const volUnivariateMoment& xiMTwo_ = mXi[2];
+    const volMoment& xiMean_ = mXi[1];
+    const volMoment& xiMTwo_ = mXi[2];
 
     // Compute variance of the mixture fraction
     const volScalarField xiVariance(xiMTwo_ - sqr(xiMean_));
@@ -531,8 +531,8 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     {
         meanMoments_[mi] == p1_*mEnvOne_[mi] + p2_*mEnvTwo_[mi];
 
-        meanMomentsVariance_[mi]
-            == p1_*xi1_*mEnvOne_[mi] + p2_*xi2_*mEnvTwo_[mi];
+        meanMomentsVariance_[mi] ==
+            p1_*xi1_*mEnvOne_[mi] + p2_*xi2_*mEnvTwo_[mi];
     }
 }
 
@@ -542,7 +542,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 (
     const label momentOrder,
     const label celli,
-    const mappedPtrList<volScalarNode>& nodes,
+    const mappedPtrList<volNode>& nodes,
     const label environment
 )
 {
@@ -557,15 +557,15 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     {
         forAll(nodes, pNode1i)
         {
-            const volScalarNode& node1 = nodes[pNode1i];
+            const volNode& node1 = nodes[pNode1i];
             const volScalarField& pWeight1 = node1.primaryWeight();
-            const volScalarField& pAbscissa1 = node1.primaryAbscissa();
+            const volScalarField& pAbscissa1 = node1.primaryAbscissae()[0];
 
             forAll(nodes, pNode2i)
             {
-                const volScalarNode& node2 = nodes[pNode2i];
+                const volNode& node2 = nodes[pNode2i];
                 const volScalarField& pWeight2 = node2.primaryWeight();
-                const volScalarField& pAbscissa2 = node2.primaryAbscissa();
+                const volScalarField& pAbscissa2 = node2.primaryAbscissae()[0];
 
                 aSource +=
                     pWeight1[celli]*
@@ -595,7 +595,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 
     forAll(nodes, pNode1i)      // Extended quadrature case
     {
-        const volScalarNode& node1 = nodes[pNode1i];
+        const volNode& node1 = nodes[pNode1i];
         const volScalarField& pWeight1 = node1.primaryWeight();
 
         forAll(node1.secondaryWeights(), sNode1i)
@@ -603,11 +603,11 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             const volScalarField& sWeight1 = node1.secondaryWeights()[sNode1i];
 
             const volScalarField& sAbscissa1
-                = node1.secondaryAbscissae()[sNode1i];
+                = node1.secondaryAbscissae()[0][sNode1i];
 
             forAll(nodes, pNode2i)
             {
-                const volScalarNode& node2 = nodes[pNode2i];
+                const volNode& node2 = nodes[pNode2i];
                 const volScalarField& pWeight2 = node2.primaryWeight();
 
                 forAll(node2.secondaryWeights(), sNode2i)
@@ -616,7 +616,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                         = node2.secondaryWeights()[sNode2i];
 
                     const volScalarField& sAbscissa2
-                        = node2.secondaryAbscissae()[sNode2i];
+                        = node2.secondaryAbscissae()[0][sNode2i];
 
                     aSource +=
                         pWeight1[celli]*sWeight1[celli]*
@@ -652,7 +652,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 (
     const label momentOrder,
     const label celli,
-    const mappedPtrList<volScalarNode>& nodes,
+    const mappedPtrList<volNode>& nodes,
     const label environment
 )
 {
@@ -667,17 +667,17 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     {
         forAll(nodes, pNodeI)
         {
-            const volScalarNode& node = nodes[pNodeI];
+            const volNode& node = nodes[pNodeI];
 
             bSource += node.primaryWeight()[celli]
-                    *breakupKernel_->Kb(node.primaryAbscissa()[celli], celli)
+                    *breakupKernel_->Kb(node.primaryAbscissae()[0][celli], celli)
                     *(
                         daughterDistribution_->mD                      //Birth
                         (
                             momentOrder,
-                            node.primaryAbscissa()[celli]
+                            node.primaryAbscissae()[0][celli]
                         )
-                    - pow(node.primaryAbscissa()[celli], momentOrder)   //Death
+                    - pow(node.primaryAbscissae()[0][celli], momentOrder)   //Death
                     );
         }
 
@@ -686,7 +686,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 
     forAll(nodes, pNodeI)
     {
-        const volScalarNode& node = nodes[pNodeI];
+        const volNode& node = nodes[pNodeI];
 
         forAll(node.secondaryWeights(), sNodei)
         {
@@ -694,15 +694,15 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
                 *node.secondaryWeights()[sNodei][celli]
                 *breakupKernel_->Kb
                     (
-                        node.secondaryAbscissae()[sNodei][celli], celli
+                        node.secondaryAbscissae()[0][sNodei][celli], celli
                     )
                 *(
                     daughterDistribution_->mD                      //Birth
                     (
                         momentOrder,
-                        node.secondaryAbscissae()[sNodei][celli]
+                        node.secondaryAbscissae()[0][sNodei][celli]
                     )                                               //Death
-                  - pow(node.secondaryAbscissae()[sNodei][celli], momentOrder)
+                  - pow(node.secondaryAbscissae()[0][sNodei][celli], momentOrder)
                  );
         }
     }
@@ -713,7 +713,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::populationBalanceModels
 ::mixingPopulationBalance::momentDiffusion
 (
-    const volUnivariateMoment& moment
+    const volMoment& moment
 )
 {
     return diffusionModel_->momentDiff(moment);
@@ -725,7 +725,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 (
     const label momentOrder,
     const label celli,
-    const mappedPtrList<volScalarNode>& nodes,
+    const mappedPtrList<volNode>& nodes,
     const label environment
 )
 {
@@ -740,13 +740,13 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     {
         forAll(nodes, pNodeI)
         {
-            const volScalarNode& node = nodes[pNodeI];
+            const volNode& node = nodes[pNodeI];
 
             gSource += node.primaryWeight()[celli]
-                    *growthModel_->Kg(node.primaryAbscissa()[celli])
+                    *growthModel_->Kg(node.primaryAbscissae()[0][celli])
                     *momentOrder*pow
                         (
-                            node.primaryAbscissa()[celli], momentOrder - 1
+                            node.primaryAbscissae()[0][celli], momentOrder - 1
                         );
         }
 
@@ -755,16 +755,16 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 
     forAll(nodes, pNodeI)
     {
-        const volScalarNode& node = nodes[pNodeI];
+        const volNode& node = nodes[pNodeI];
 
         forAll(node.secondaryWeights(), sNodei)
         {
             gSource += node.primaryWeight()[celli]
                 *node.secondaryWeights()[sNodei][celli]
-                *growthModel_->Kg(node.secondaryAbscissae()[sNodei][celli])
+                *growthModel_->Kg(node.secondaryAbscissae()[0][sNodei][celli])
                 *momentOrder*pow
                     (
-                        node.secondaryAbscissae()[sNodei][celli],
+                        node.secondaryAbscissae()[0][sNodei][celli],
                         momentOrder - 1
                     );
         }
@@ -773,13 +773,13 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     return gSource;
 }
 
-Foam::scalar 
+Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::cellMomentSource
 (
     label momentOrder,
     label celli,
-    const mappedPtrList<volScalarNode>& nodes,
+    const mappedPtrList<volNode>& nodes,
     const label environment
 )
 {
@@ -789,7 +789,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             + phaseSpaceConvection(momentOrder, celli, nodes, environment);
 }
 
-Foam::scalar 
+Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::realizableCo() const
 {
@@ -801,7 +801,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         );
 }
 
-Foam::scalar 
+Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::CoNum() const
 {
@@ -837,7 +837,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Solve moment transport equations
     forAll(meanMomentsQuadrature_.moments(), momenti)
     {
-        volUnivariateMoment& meanM
+        volMoment& meanM
         (
             meanMomentsQuadrature_.moments()[momenti]
         );
@@ -853,7 +853,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             )
         );
 
-        volUnivariateMoment& varM
+        volMoment& varM
         (
             meanMomentsVarianceQuadrature_.moments()[momenti]
         );
@@ -890,12 +890,12 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Finish solving for moments
     forAll (meanMomentEqns, mEqni)
     {
-        const volUnivariateMoment& meanM
+        const volMoment& meanM
         (
             meanMomentsQuadrature_.moments()[mEqni]
         );
 
-        const volUnivariateMoment& varM
+        const volMoment& varM
         (
             meanMomentsVarianceQuadrature_.moments()[mEqni]
         );
@@ -907,7 +907,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         meanMomentVarianceEqns[mEqni].solve();
 
         meanMomentEqns[mEqni].relax();
-        meanMomentEqns[mEqni].solve();       
+        meanMomentEqns[mEqni].solve();
     }
 
     meanMomentsQuadrature_.updateQuadrature();

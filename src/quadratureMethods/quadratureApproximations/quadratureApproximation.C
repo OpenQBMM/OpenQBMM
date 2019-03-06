@@ -27,15 +27,15 @@ License
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-template<class momentFieldSetType, class nodeType>
-const Foam::word Foam::quadratureApproximation<momentFieldSetType, nodeType>::
+template<class momentType, class nodeType>
+const Foam::word Foam::quadratureApproximation<momentType, nodeType>::
 propertiesName("quadratureProperties");
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class momentFieldSetType, class nodeType>
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::
+template<class momentType, class nodeType>
+Foam::quadratureApproximation<momentType, nodeType>::
 quadratureApproximation
 (
     const word& name,
@@ -61,14 +61,14 @@ quadratureApproximation
     (
         const_cast
         <
-            const quadratureApproximation<momentFieldSetType, nodeType>&
+            const quadratureApproximation<momentType, nodeType>&
         >(*this).lookup("moments")
     ),
     nodeIndexes_
     (
         const_cast
         <
-            const quadratureApproximation<momentFieldSetType, nodeType>&
+            const quadratureApproximation<momentType, nodeType>&
         >(*this).lookup("nodes")
     ),
     nodes_(),
@@ -92,6 +92,24 @@ quadratureApproximation
         )
     )
 {
+    PtrList<dimensionSet> abscissaeDimensions(momentOrders_[0].size());
+    labelList zeroOrder(momentOrders_[0].size(), 0);
+
+    forAll(abscissaeDimensions, dimi)
+    {
+        labelList firstOrder(zeroOrder);
+        firstOrder[dimi] = 1;
+
+        abscissaeDimensions.set
+        (
+            dimi,
+            new dimensionSet
+            (
+                moments_(firstOrder).dimensions()/moments_(0).dimensions()
+            )
+        );
+    }
+
     // Allocating nodes
     nodes_ = autoPtr<mappedPtrList<nodeType>>
     (
@@ -103,7 +121,7 @@ quadratureApproximation
                 name_,
                 mesh_,
                 moments_[0].dimensions(),
-                moments_[1].dimensions()/moments_[0].dimensions(),
+                abscissaeDimensions,
                 moments_[0].boundaryField().types(),
                 momentFieldInverter_().extended(),
                 nSecondaryNodes_
@@ -117,8 +135,8 @@ quadratureApproximation
 }
 
 
-template<class momentFieldSetType, class nodeType>
-Foam::quadratureApproximation<momentFieldSetType, nodeType>::
+template<class momentType, class nodeType>
+Foam::quadratureApproximation<momentType, nodeType>::
 quadratureApproximation
 (
     const word& dictName,
@@ -146,14 +164,14 @@ quadratureApproximation
     (
         const_cast
         <
-            const quadratureApproximation<momentFieldSetType, nodeType>&
+            const quadratureApproximation<momentType, nodeType>&
         >(*this).lookup("moments")
     ),
     nodeIndexes_
     (
         const_cast
         <
-            const quadratureApproximation<momentFieldSetType, nodeType>&
+            const quadratureApproximation<momentType, nodeType>&
         >(*this).lookup("nodes")
     ),
     nodes_(),
@@ -200,12 +218,30 @@ quadratureApproximation
         moments_.set
         (
             mi,
-            new volUnivariateMoment
+            new momentType
             (
                 name_ + Foam::name(mi),
                 mFieldSet[mi].cmptOrders(),
                 nodes_,
                 mFieldSet[mi]
+            )
+        );
+    }
+
+    PtrList<dimensionSet> abscissaeDimensions(momentOrders_[0].size());
+    labelList zeroOrder(momentOrders_[0].size(), 0);
+
+    forAll(abscissaeDimensions, dimi)
+    {
+        labelList firstOrder(zeroOrder);
+        firstOrder[dimi] = 1;
+
+        abscissaeDimensions.set
+        (
+            dimi,
+            new dimensionSet
+            (
+                moments_(firstOrder).dimensions()/moments_(0).dimensions()
             )
         );
     }
@@ -221,7 +257,7 @@ quadratureApproximation
                 name_,
                 mesh_,
                 moments_[0].dimensions(),
-                moments_[1].dimensions()/moments_[0].dimensions(),
+                abscissaeDimensions,
                 moments_[0].boundaryField().types(),
                 momentFieldInverter_().extended(),
                 nSecondaryNodes_
@@ -240,38 +276,38 @@ quadratureApproximation
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-template<class momentFieldSetType, class nodeType>
-Foam::quadratureApproximation<momentFieldSetType, nodeType>
+template<class momentType, class nodeType>
+Foam::quadratureApproximation<momentType, nodeType>
 ::~quadratureApproximation()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-template<class momentFieldSetType, class nodeType>
-void Foam::quadratureApproximation<momentFieldSetType, nodeType>
+template<class momentType, class nodeType>
+void Foam::quadratureApproximation<momentType, nodeType>
 ::updateQuadrature()
 {
     momentFieldInverter_().invert(moments_, nodes_());
     updateMoments();
 }
 
-template<class momentFieldSetType, class nodeType>
-void Foam::quadratureApproximation<momentFieldSetType, nodeType>
+template<class momentType, class nodeType>
+void Foam::quadratureApproximation<momentType, nodeType>
 ::updateMoments()
 {
     moments_.update();
 }
 
-template<class momentFieldSetType, class nodeType>
-void Foam::quadratureApproximation<momentFieldSetType, nodeType>
+template<class momentType, class nodeType>
+void Foam::quadratureApproximation<momentType, nodeType>
 ::updateLocalMoments(label celli)
 {
     moments_.updateLocalMoments(celli);
 }
 
-template<class momentFieldSetType, class nodeType>
-bool Foam::quadratureApproximation<momentFieldSetType, nodeType>
+template<class momentType, class nodeType>
+bool Foam::quadratureApproximation<momentType, nodeType>
 ::updateLocalQuadrature(label celli, bool fatalErrorOnFailedRealizabilityTest)
 {
     bool realizable = momentFieldInverter_().invertLocalMoments

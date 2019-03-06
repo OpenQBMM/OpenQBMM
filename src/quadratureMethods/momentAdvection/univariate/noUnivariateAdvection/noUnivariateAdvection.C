@@ -48,7 +48,7 @@ namespace univariateAdvection
 Foam::univariateAdvection::noAdvection::noAdvection
 (
     const dictionary& dict,
-    const univariateQuadratureApproximation& quadrature,
+    const scalarQuadratureApproximation& quadrature,
     const surfaceScalarField& phi,
     const word& support
 )

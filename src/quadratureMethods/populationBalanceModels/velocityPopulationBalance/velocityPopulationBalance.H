@@ -86,7 +86,7 @@ class velocityPopulationBalance
          //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitCollisionSource
         (
-            const volVectorMoment& moment
+            const volVelocityMoment& moment
         );
 
         virtual scalar explicitCollisionSource

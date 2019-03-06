@@ -42,6 +42,7 @@ daughterDistribution
     daughterDistribution uniform;
 }
 
+ode off;
 odeCoeffs
 {
     ATol    1.0e-10;

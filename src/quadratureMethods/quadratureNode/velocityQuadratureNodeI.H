@@ -3,7 +3,6 @@
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
     \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
-     \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -25,16 +24,18 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-const Foam::scalarQuadratureApproximation&
-Foam::PDFTransportModels::univariatePDFTransportModel::quadrature() const
+template<class scalarType, class vectorType>
+const vectorType&
+Foam::velocityQuadratureNode<scalarType, vectorType>::velocityAbscissae() const
 {
-    return quadrature_;
+    return velocityAbscissae_;
 }
 
-Foam::scalar
-Foam::PDFTransportModels::univariatePDFTransportModel::realizableCo() const
+template<class scalarType, class vectorType>
+vectorType&
+Foam::velocityQuadratureNode<scalarType, vectorType>::velocityAbscissae()
 {
-    return momentAdvection_().realizableCo();
+    return velocityAbscissae_;
 }
 
 // ************************************************************************* //

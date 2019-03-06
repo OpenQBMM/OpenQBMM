@@ -96,7 +96,7 @@ public:
         //- Return implicit collision source matrix
         virtual tmp<fvScalarMatrix> implicitCollisionSource
         (
-            const volVectorMoment& m
+            const volVelocityMoment& m
         ) const;
 
 };

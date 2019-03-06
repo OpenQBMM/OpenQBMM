@@ -35,29 +35,18 @@ SourceFiles
 
 #include "volFields.H"
 #include "quadratureNode.H"
+#include "velocityQuadratureNode.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-typedef quadratureNode<volScalarField, volScalarField, volScalarField>
-    volScalarNode;
+typedef quadratureNode<volScalarField, volVectorField>  volNode;
+typedef quadratureNode<surfaceScalarField, surfaceVectorField> surfaceNode;
 
-typedef quadratureNode
-<
-    surfaceScalarField, surfaceScalarField, surfaceScalarField
->
-surfaceScalarNode;
-
-typedef quadratureNode<volScalarField, volVectorField, volScalarField>
-    volVectorNode;
-
-typedef quadratureNode
-<
-    surfaceScalarField, surfaceVectorField, surfaceScalarField
->
-surfaceVectorNode;
+typedef velocityQuadratureNode<volScalarField, volVectorField> volVelocityNode;
+typedef velocityQuadratureNode<surfaceScalarField, surfaceVectorField> surfaceVelocityNode;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

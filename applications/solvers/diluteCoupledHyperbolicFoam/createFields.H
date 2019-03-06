@@ -111,8 +111,8 @@ velocityQuadratureApproximation& quadrature =
     );
 
 const labelListList& momentOrders = quadrature.momentOrders();
-volVectorMomentFieldSet& moments = quadrature.moments();
-mappedPtrList<volVectorNode>& nodes = quadrature.nodes();
+volVelocityMomentFieldSet& moments = quadrature.moments();
+mappedPtrList<volVelocityNode>& nodes = quadrature.nodes();
 const label nDims = momentOrders[0].size();
 
 const volScalarField& alpha = moments(labelList(nDims, 0));

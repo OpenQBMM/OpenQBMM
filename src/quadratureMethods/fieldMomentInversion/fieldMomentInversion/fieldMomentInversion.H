@@ -131,55 +131,55 @@ public:
         );
 
 
-    // Member Functions
+    // Public member Functions
 
-        // Univariate moment inversions
+        // Scalar moment inversions
 
             //- Invert moments in the entire computational domain
             virtual void invert
             (
-                const volUnivariateMomentFieldSet& moments,
-                mappedPtrList<volScalarNode>& nodes
+                const volMomentFieldSet& moments,
+                mappedPtrList<volNode>& nodes
             ) = 0;
 
             //- Invert moments on boundaries
             virtual void invertBoundaryMoments
             (
-                const volUnivariateMomentFieldSet& moments,
-                mappedPtrList<volScalarNode>& nodes
+                const volMomentFieldSet& moments,
+                mappedPtrList<volNode>& nodes
             ) = 0;
 
             //- Invert moments in a single cell
             virtual bool invertLocalMoments
             (
-                const volUnivariateMomentFieldSet& moments,
-                mappedPtrList<volScalarNode>& nodes,
+                const volMomentFieldSet& moments,
+                mappedPtrList<volNode>& nodes,
                 const label celli,
                 const bool fatalErrorOnFailedRealizabilityTest = true
             ) = 0;
 
 
-        // Multivriate moment inversions
+        // Velocity moment inversions
 
             //- Invert moments in the entire computational domain
             virtual void invert
             (
-                const volVectorMomentFieldSet& moments,
-                mappedPtrList<volVectorNode>& nodes
+                const volVelocityMomentFieldSet& moments,
+                mappedPtrList<volVelocityNode>& nodes
             ) = 0;
 
             //- Invert moments on boundaries
             virtual void invertBoundaryMoments
             (
-                const volVectorMomentFieldSet& moments,
-                mappedPtrList<volVectorNode>& nodes
+                const volVelocityMomentFieldSet& moments,
+                mappedPtrList<volVelocityNode>& nodes
             ) = 0;
 
             //- Invert moments in a single cell
             virtual bool invertLocalMoments
             (
-                const volVectorMomentFieldSet& moments,
-                mappedPtrList<volVectorNode>& nodes,
+                const volVelocityMomentFieldSet& moments,
+                mappedPtrList<volVelocityNode>& nodes,
                 const label celli,
                 const bool fatalErrorOnFailedRealizabilityTest = true
             ) = 0;

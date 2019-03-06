@@ -72,8 +72,8 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::~FokkerPlanck()
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
 (
-    const volUnivariateMoment& moment,
-    const volUnivariateMomentFieldSet& moments
+    const volMoment& moment,
+    const volMomentFieldSet& moments
 ) const
 {
     typedef compressible::turbulenceModel cmpTurbModel;

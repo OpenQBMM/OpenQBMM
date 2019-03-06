@@ -115,10 +115,10 @@ class mixingPopulationBalance
         const volScalarField& meanXi_;
 
         //- Quadrature for the mean moments
-        univariateQuadratureApproximation meanMomentsQuadrature_;
+        scalarQuadratureApproximation meanMomentsQuadrature_;
 
         //- Quadrature for the mean moment variance
-        univariateQuadratureApproximation meanMomentsVarianceQuadrature_;
+        scalarQuadratureApproximation meanMomentsVarianceQuadrature_;
 
         //- Moment advection for mean moments
         autoPtr<univariateMomentAdvection> meanMomentsAdvection_;
@@ -127,22 +127,22 @@ class mixingPopulationBalance
         autoPtr<univariateMomentAdvection> meanMomentsVarianceAdvection_;
 
         //- Mean moments
-        volUnivariateMomentFieldSet& meanMoments_;
+        volMomentFieldSet& meanMoments_;
 
         //- Variance of mean moments
-        volUnivariateMomentFieldSet& meanMomentsVariance_;
+        volMomentFieldSet& meanMomentsVariance_;
 
         //- Quadrature approximation of the PBE in the first environment
-        univariateQuadratureApproximation envOneQuadrature_;
+        scalarQuadratureApproximation envOneQuadrature_;
 
         //- Quadrature approximation of the PBE in the second environment
-        univariateQuadratureApproximation envTwoQuadrature_;
+        scalarQuadratureApproximation envTwoQuadrature_;
 
         //- Reference to moments in environment one
-        volUnivariateMomentFieldSet& mEnvOne_;
+        volMomentFieldSet& mEnvOne_;
 
         //- Reference to moments in environment two
-        volUnivariateMomentFieldSet& mEnvTwo_;
+        volMomentFieldSet& mEnvTwo_;
 
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
@@ -201,7 +201,7 @@ class mixingPopulationBalance
         //- Calculate explicit source terms with realizable ODE solver
         void explicitMomentSource
         (
-            univariateQuadratureApproximation& quadrature,
+            scalarQuadratureApproximation& quadrature,
             const label environment
         );
 
@@ -216,7 +216,7 @@ class mixingPopulationBalance
         (
             const label momentOrder,
             const label celli,
-            const Foam::mappedPtrList<volScalarNode>& nodes,
+            const Foam::mappedPtrList<volNode>& nodes,
             const label environment
         );
 
@@ -225,14 +225,14 @@ class mixingPopulationBalance
         (
             const label momentOrder,
             const label celli,
-            const Foam::mappedPtrList<volScalarNode>& nodes,
+            const Foam::mappedPtrList<volNode>& nodes,
             const label environment
         );
 
         //- Diffusion term
         virtual tmp<fvScalarMatrix> momentDiffusion
         (
-            const volUnivariateMoment& moment
+            const volMoment& moment
         );
 
         //- Convect moments in phase space
@@ -240,7 +240,7 @@ class mixingPopulationBalance
         (
             const label momentOrder,
             const label celli,
-            const Foam::mappedPtrList<volScalarNode>& nodes,
+            const Foam::mappedPtrList<volNode>& nodes,
             const label environment
         );
 
@@ -249,7 +249,7 @@ class mixingPopulationBalance
         (
             label momentOrder,
             label celli,
-            const Foam::mappedPtrList<volScalarNode>& nodes,
+            const Foam::mappedPtrList<volNode>& nodes,
             const label environment
         );
 

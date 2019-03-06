@@ -56,13 +56,15 @@ namespace Foam
                 Class univariateQuadratureApproximation Declaration
 \*---------------------------------------------------------------------------*/
 
-template <class momentFieldSetType, class nodeType>
+template <class momentType, class nodeType>
 class quadratureApproximation
 :
     public IOdictionary
 {
 protected:
     // Protected data
+
+        typedef momentFieldSet<momentType, nodeType> momentFieldSetType;
 
         //- Name of the quadrature approximation
         const word name_;
