@@ -1023,11 +1023,9 @@ void Foam::polydispersePhaseModel::averageTransport
 
             fvScalarMatrix corrEqn
             (
-                (
-                    ((*this)*rho() - quadrature_.moments()[1])
-                   /fluid_.mesh().time().deltaT()
-                  + meanM1Flux
-                )/**pos((*this) - residualAlpha_)*/
+                ((*this)*rho() - quadrature_.moments()[1])
+               /fluid_.mesh().time().deltaT()
+              + meanM1Flux
               + fvm::laplacian
                 (
                     Foam::max
@@ -1037,7 +1035,7 @@ void Foam::polydispersePhaseModel::averageTransport
                         (
                             "small",
                             dimDensity,
-                            1e-2
+                            residualAlpha_.value()
                         )
                     ),
                     corr,
