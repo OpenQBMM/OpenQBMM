@@ -12,6 +12,6 @@ application=`getApplication`
 runApplication blockMesh
 runApplication setMoments1D
 runApplication $application
-runApplication posProcess -func sampleDict
+runApplication postProcess -func sampleDict
 
 # ----------------------------------------------------------------- end-of-file

@@ -26,7 +26,7 @@ solvers
         nPostSweeps     2;
         nFinestSweeps   2;
         cacheAgglomeration true;
-        nCellsInCoarsestLevel 10;
+        nCellsInCoarsestLevel 100;
         agglomerator    faceAreaPair;
         mergeLevels     2;
         tolerance       1e-10;
@@ -65,11 +65,10 @@ solvers
 PIMPLE
 {
     momentumPredictor   yes;
-    transonic           no;
-    nOuterCorrectors    25;
-    nCorrectors         2;
-    nNonOrthogonalCorrectors 0;
     consistent          yes;
+    nOuterCorrectors    10;
+    nCorrectors         3;
+    nNonOrthogonalCorrectors 0;
     pRefCell 0;
     pRefValue 0;
 
@@ -87,11 +86,9 @@ relaxationFactors
 {
     fields
     {
-        ".*"       1;
     }
     equations
     {
-        ".*"       1;
     }
 }
 

@@ -22,77 +22,91 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::univariatePDFTransportModel
+    Foam::realizableOdeSolver
 
 Description
     Solve a univariate PDF transport equation with the extended quadrature
     method of moments.
 
 SourceFiles
-    univariatePDFTransportModel.C
+    realizableOdeSolver.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef univariatePDFTransportModel_H
-#define univariatePDFTransportModel_H
+#ifndef realizableOdeSolver_H
+#define realizableOdeSolver_H
 
-#include "PDFTransportModel.H"
 #include "quadratureApproximations.H"
-#include "univariateMomentAdvection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace PDFTransportModels
-{
 
 /*---------------------------------------------------------------------------*\
-                Class univariatePDFTransportModel Declaration
+                Class realizableOdeSolver Declaration
 \*---------------------------------------------------------------------------*/
 
-class univariatePDFTransportModel
-:
-    public PDFTransportModel
+template<class momentType, class nodeType>
+class realizableOdeSolver
 {
+
+    typedef momentFieldSet<momentType, nodeType> momentFieldSetType;
+    typedef quadratureApproximation<momentFieldSetType, nodeType> quadratureType;
+
     // Private data
 
-        //- Name of the univariatePDFTransportModel
-        const word name_;
+        //- Reference to mesh
+        const fvMesh& mesh_;
+
+        //- Ode coefficient dictionary
+        const dictionary& odeDict_;
+
+        //- Absolute tolerance for realizable ODE solver
+        scalar ATol_;
+
+        //- Relative tolerance for realizable ODE solver
+        scalar RTol_;
+
+        //- Time-step change factor
+        scalar fac_;
+
+        //- Minimum time-step change factor
+        scalar facMin_;
+
+        //- Maximum time-step change factor
+        scalar facMax_;
+
+        //- Minimum local step in realizable ODE solver
+        scalar minLocalDt_;
+
+        //- Stored time step values
+        scalarField localDt_;
 
 
 protected:
 
     // Protected data
 
-        //- Univariate quadrature approximation used to solve PDF transport
-        univariateQuadratureApproximation quadrature_;
+        //- Are the moments updated due to sources
+        Switch solveSources_;
 
-        //- Moment advection
-        autoPtr<univariateMomentAdvection> momentAdvection_;
+        //- Is the realizable ode solver used
+        Switch solveOde_;
 
     // Protected member functions
 
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
+        //- Calculate source term for moment equation in the specified cell
+        virtual void updateCellMomentSource(const label celli) = 0;
+
+        //- Calculate source term for moment equation in the specified cell
+        virtual scalar cellMomentSource
         (
-            const volUnivariateMoment& moment
+            const label momentOrder,
+            const label celli,
+            const mappedPtrList<nodeType>& nodes,
+            const label enviroment
         ) = 0;
-
-        //- Calculate implicit source terms
-        virtual tmp<fvScalarMatrix> implicitMomentSource
-        (
-            const volUnivariateMoment& moment
-        ) = 0;
-
-        //- Calculate explicit source terms with realizable ODE solver
-        virtual void explicitMomentSource() = 0;
-
-        //- Are moments updated due to sources
-        virtual bool solveMomentSources() const = 0;
-
-        //- Is the realizable ode solver used to solve sources
-        virtual bool solveMomentOde() const = 0;
 
 
 public:
@@ -100,45 +114,36 @@ public:
     // Constructors
 
         //- Construct from components
-        univariatePDFTransportModel
+        realizableOdeSolver
         (
-            const word& name,
-            const dictionary& dict,
             const fvMesh& mesh,
-            const surfaceScalarField& phi,
-            const word& support
+            const dictionary& dict
         );
 
 
     //- Destructor
-    virtual ~univariatePDFTransportModel();
+    virtual ~realizableOdeSolver();
 
 
     // Member Functions
 
-        //- Access
+        //- Solve univariate PDF transport equation
+        void solve(quadratureType& quadrature, const label enviroment);
 
-            //- Returns a const reference to the quadrature approximation
-            inline const univariateQuadratureApproximation& quadrature() const;
-
-            //- Return the maximum Courant number ensuring moment realizability
-            inline scalar realizableCo() const;
-
-        //-Edit
-
-            //- Solve univariate PDF transport equation
-            virtual void solve();
+        //- Read coefficients from dictionary
+        void read();
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace PDFTransportModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "univariatePDFTransportModelI.H"
+#if NoRepository
+    #include "realizableOdeSolver.C"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

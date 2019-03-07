@@ -44,6 +44,7 @@ SourceFiles
 #include "growthModel.H"
 #include "diffusionModel.H"
 #include "nucleationModel.H"
+#include "realizableOdeSolver.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -60,8 +61,12 @@ namespace populationBalanceModels
 
 class univariatePopulationBalance
 :
-    public univariatePDFTransportModel, public populationBalanceModel
+    public univariatePDFTransportModel,
+    public populationBalanceModel,
+    private realizableOdeSolver<volUnivariateMoment, volScalarNode>
 {
+    typedef realizableOdeSolver<volUnivariateMoment, volScalarNode> odeType;
+
     // Private data
 
         //- Name of the univariatePopulationBalance
@@ -147,12 +152,27 @@ class univariatePopulationBalance
             const volUnivariateMoment& moment
         );
 
+        //- Calculate explicit source terms with realizable ODE solver
+        virtual void explicitMomentSource();
+
+        //- Are moments updated due to sources
+        virtual bool solveMomentSources() const;
+
+        //- Is the realizable ode solver used to solve sources
+        virtual bool solveMomentOde() const;
+
+        //- Update explicit collison source terms
+        virtual void updateCellMomentSource(const label celli);
+
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            label& momentOrder,
-            label& celli
+            const label momentOrder,
+            const label celli,
+            const mappedPtrList<volScalarNode>& nodes,
+            const label enviroment
         );
+
 
 public:
 

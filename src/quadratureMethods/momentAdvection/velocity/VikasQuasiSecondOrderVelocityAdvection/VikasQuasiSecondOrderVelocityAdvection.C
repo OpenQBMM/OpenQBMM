@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "VikasQuaziSecondOrderVelocityAdvection.H"
+#include "VikasQuasiSecondOrderVelocityAdvection.H"
 #include "wallFvPatch.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -33,12 +33,12 @@ namespace Foam
 {
 namespace velocityAdvection
 {
-    defineTypeNameAndDebug(VikasQuaziSecondOrder, 0);
+    defineTypeNameAndDebug(VikasQuasiSecondOrder, 0);
 
     addToRunTimeSelectionTable
     (
         velocityMomentAdvection,
-        VikasQuaziSecondOrder,
+        VikasQuasiSecondOrder,
         dictionary
     );
 }
@@ -46,7 +46,7 @@ namespace velocityAdvection
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::velocityAdvection::VikasQuaziSecondOrder::VikasQuaziSecondOrder
+Foam::velocityAdvection::VikasQuasiSecondOrder::VikasQuasiSecondOrder
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
@@ -103,18 +103,42 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::VikasQuaziSecondOrder
             )
         );
     }
+
+    {
+        IStringStream weightLimiter("Minmod");
+        IStringStream velocityAbscissaeLimiter("upwind");
+        weightOwnScheme_ = fvc::scheme<scalar>(own_, weightLimiter);
+        velocityAbscissaeOwnScheme_ =
+            fvc::scheme<vector>
+            (
+                own_,
+                velocityAbscissaeLimiter
+            );
+    }
+
+    {
+        IStringStream weightLimiter("Minmod");
+        IStringStream velocityAbscissaeLimiter("upwind");
+        weightNeiScheme_ = fvc::scheme<scalar>(nei_, weightLimiter);
+        velocityAbscissaeNeiScheme_ =
+            fvc::scheme<vector>
+            (
+                nei_,
+                velocityAbscissaeLimiter
+            );
+    }
 }
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::velocityAdvection::VikasQuaziSecondOrder::~VikasQuaziSecondOrder()
+Foam::velocityAdvection::VikasQuasiSecondOrder::~VikasQuasiSecondOrder()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::velocityAdvection::VikasQuaziSecondOrder::interpolateNodes()
+void Foam::velocityAdvection::VikasQuasiSecondOrder::interpolateNodes()
 {
     PtrList<surfaceVectorNode>& nodesNei = nodesNei_();
     PtrList<surfaceVectorNode>& nodesOwn = nodesOwn_();
@@ -126,30 +150,20 @@ void Foam::velocityAdvection::VikasQuaziSecondOrder::interpolateNodes()
         surfaceVectorNode& nodeOwn(nodesOwn[nodei]);
 
         nodeOwn.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), own_, "reconstruct(weight)");
+            weightOwnScheme_().interpolate(node.primaryWeight());
 
         nodeOwn.primaryAbscissa() =
-            fvc::interpolate
-            (
-                node.primaryAbscissa(),
-                own_,
-                "reconstruct(U)"
-            );
+            velocityAbscissaeOwnScheme_().interpolate(node.primaryAbscissa());
 
         nodeNei.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), nei_, "reconstruct(weight)");
+            weightNeiScheme_().interpolate(node.primaryWeight());
 
         nodeNei.primaryAbscissa() =
-            fvc::interpolate
-            (
-                node.primaryAbscissa(),
-                nei_,
-                "reconstruct(U)"
-            );
+            velocityAbscissaeNeiScheme_().interpolate(node.primaryAbscissa());
     }
 }
 
-void Foam::velocityAdvection::VikasQuaziSecondOrder::updateWallCollisions()
+void Foam::velocityAdvection::VikasQuasiSecondOrder::updateWallCollisions()
 {
     const fvMesh& mesh = own_.mesh();
 
@@ -199,7 +213,7 @@ void Foam::velocityAdvection::VikasQuaziSecondOrder::updateWallCollisions()
 
 
 Foam::scalar
-Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
+Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
 {
     const fvMesh& mesh = own_.mesh();
     const labelList& own = mesh.owner();
@@ -208,11 +222,22 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
 
     scalarField maxCoNum(mesh.nCells(), 1.0);
 
-    forAll(moments_[0], celli)
+    forAll(nodes_, nodei)
     {
-        const labelList& cell = mesh.cells()[celli];
-        forAll(nodes_, nodei)
+
+        surfaceScalarField phiOwn
+        (
+            nodesOwn_()[nodei].primaryAbscissa() & mesh.Sf()
+        );
+        surfaceScalarField phiNei
+        (
+            nodesNei_()[nodei].primaryAbscissa() & mesh.Sf()
+        );
+
+        forAll(moments_[0], celli)
         {
+            const labelList& cell = mesh.cells()[celli];
+
             scalar num = nodes_[nodei].primaryWeight()[celli];
             scalar den = 0;
             forAll(cell, facei)
@@ -223,39 +248,33 @@ Foam::velocityAdvection::VikasQuaziSecondOrder::realizableCo() const
                     {
                         den +=
                             nodesOwn_()[nodei].primaryWeight()[celli]
-                           *max
-                            (
-                                nodes_[nodei].primaryAbscissa()[celli]
-                              & Sf[cell[facei]],
-                                0.0
-                            );
+                           *max(phiOwn[cell[facei]], 0.0);
                     }
                     else if (nei[cell[facei]] == celli)
                     {
                         den -=
                             nodesNei_()[nodei].primaryWeight()[celli]
-                           *min
-                            (
-                                nodes_[nodei].primaryAbscissa()[celli]
-                              & Sf[cell[facei]],
-                                0.0
-                            );
+                           *min(phiNei[cell[facei]], 0.0);
                     }
                 }
-            }
-            if (num > 1e-6)
-            {
-                den = max(den, small);
-                maxCoNum[celli] =
-                    num*mesh.V()[celli]
-                  /(den*mesh.time().deltaTValue());
+                if (num > 1e-6)
+                {
+                    den = max(den, small);
+                    maxCoNum[celli] =
+                        min
+                        (
+                            maxCoNum[celli],
+                            num*mesh.V()[celli]
+                           /(den*mesh.time().deltaTValue())
+                        );
+                }
             }
         }
     }
     return gMin(maxCoNum);
 }
 
-Foam::scalar Foam::velocityAdvection::VikasQuaziSecondOrder::CoNum() const
+Foam::scalar Foam::velocityAdvection::VikasQuasiSecondOrder::CoNum() const
 {
     scalar CoNum = 0.0;
     const fvMesh& mesh = own_.mesh();
@@ -277,7 +296,7 @@ Foam::scalar Foam::velocityAdvection::VikasQuaziSecondOrder::CoNum() const
     return CoNum;
 }
 
-void Foam::velocityAdvection::VikasQuaziSecondOrder::update()
+void Foam::velocityAdvection::VikasQuasiSecondOrder::update()
 {
     const fvMesh& mesh = own_.mesh();
     dimensionedScalar zeroPhi("zero", dimVolume/dimTime, 0.0);
@@ -360,7 +379,7 @@ void Foam::velocityAdvection::VikasQuaziSecondOrder::update()
     }
 }
 
-void Foam::velocityAdvection::VikasQuaziSecondOrder::update
+void Foam::velocityAdvection::VikasQuasiSecondOrder::update
 (
     const surfaceScalarField& phi,
     const bool wallCollisions
@@ -446,7 +465,7 @@ void Foam::velocityAdvection::VikasQuaziSecondOrder::update
     }
 }
 
-void Foam::velocityAdvection::VikasQuaziSecondOrder::update
+void Foam::velocityAdvection::VikasQuasiSecondOrder::update
 (
     const mappedPtrList<volVectorField>& Us,
     const bool wallCollisions

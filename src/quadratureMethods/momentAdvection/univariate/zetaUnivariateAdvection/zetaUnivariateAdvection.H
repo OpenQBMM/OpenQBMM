@@ -121,6 +121,12 @@ class zeta
         //- Face velocity
         const surfaceScalarField& phi_;
 
+        //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
+        tmp<surfaceInterpolationScheme<scalar>> m0OwnScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> m0NeiScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> zetaOwnScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> zetaNeiScheme_;
+
 
     // Private member functions
 

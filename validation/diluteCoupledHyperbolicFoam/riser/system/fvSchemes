@@ -30,12 +30,8 @@ divSchemes
 {
     default                         none;
 
-    div(phi,U)                      Gauss linearUpwind grad(U);
-    div(phi,sigma)                  Gauss vanAlbada;
-
-    div(sigma)                      Gauss linear;
+    div(phi,U)                      bounded Gauss limitedLinearV 1;
     div((nuEff*dev2(T(grad(U)))))   Gauss linear;
-    div((nuM*grad(U)))              Gauss linear;
 }
 
 laplacianSchemes
@@ -46,19 +42,11 @@ laplacianSchemes
 interpolationSchemes
 {
     default                         linear;
-
-    reconstruct(U)                  upwind;
-    reconstruct(weight)             upwind;
 }
 
 snGradSchemes
 {
     default                         corrected;
-}
-
-wallDist
-{
-    method meshWave;
 }
 
 

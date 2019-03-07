@@ -76,6 +76,12 @@ class firstOrderKinetic
         //- Number of nodes used for advection
         label nNodes_;
 
+        //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
+        tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> abscissaOwnScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> abscissaNeiScheme_;
+
 
 protected:
 

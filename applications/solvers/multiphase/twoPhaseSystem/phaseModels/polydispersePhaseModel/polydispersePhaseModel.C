@@ -1035,7 +1035,7 @@ void Foam::polydispersePhaseModel::averageTransport
                         (
                             "small",
                             dimDensity,
-                            1e-6
+                            residualAlpha_.value()
                         )
                     ),
                     corr,
