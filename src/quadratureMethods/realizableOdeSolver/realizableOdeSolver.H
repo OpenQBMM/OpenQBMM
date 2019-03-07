@@ -102,9 +102,9 @@ protected:
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            const label momentOrder,
+            const labelList& momentOrder,
             const label celli,
-            const mappedPtrList<nodeType>& nodes,
+            const quadratureType& nodes,
             const label enviroment
         ) = 0;
 

@@ -39,6 +39,7 @@ SourceFiles
 #include "volFields.H"
 #include "dimensionedTypes.H"
 #include "runTimeSelectionTables.H"
+#include "quadratureApproximations.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -128,6 +129,15 @@ public:
             const label celli,
             const label environment = 0
         ) const = 0;
+
+        //- Return aggregation source terms
+        scalar aggregationSource
+        (
+            const label momentOrder,
+            const label celli,
+            const scalarQuadratureApproximation& quadrature,
+            const label enviroment
+        );
 };
 
 

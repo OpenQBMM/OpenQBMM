@@ -73,11 +73,6 @@ protected:
 
     // Protected member functions
 
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
-        (
-            const volMoment& moment
-        ) = 0;
 
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource

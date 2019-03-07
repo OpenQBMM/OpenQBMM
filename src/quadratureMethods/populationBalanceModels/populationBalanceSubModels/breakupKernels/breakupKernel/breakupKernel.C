@@ -55,6 +55,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupKernel
             "Cb",
             dimensionedScalar("one", inv(dimTime), 1.0)
         )
+    ),
+    daughterDistribution_
+    (
+        Foam::populationBalanceSubModels::daughterDistribution::New
+        (
+            dict
+        )
     )
 {}
 
@@ -64,5 +71,58 @@ Foam::populationBalanceSubModels::breakupKernel::breakupKernel
 Foam::populationBalanceSubModels::breakupKernel::~breakupKernel()
 {}
 
+
+Foam::scalar
+Foam::populationBalanceSubModels::breakupKernel::breakupSource
+(
+    const label momentOrder,
+    const label celli,
+    const scalarQuadratureApproximation& quadrature
+)
+{
+    scalar bSource = 0.0;
+
+    const PtrList<volNode>& nodes = quadrature.nodes();
+
+    if (!nodes[0].extended())
+    {
+        forAll(nodes, pNodeI)
+        {
+            const volNode& node = nodes[pNodeI];
+
+            scalar bAbscissa = max(node.primaryAbscissae()[0][celli], 0.0);
+
+            bSource += node.primaryWeight()[celli]
+                    *Kb(bAbscissa, celli)
+                    *(
+                        daughterDistribution_->mD(momentOrder, bAbscissa)//Birth
+                      - pow(bAbscissa, momentOrder)   //Death
+                    );
+        }
+
+        return bSource;
+    }
+
+    forAll(nodes, pNodeI)
+    {
+        const volNode& node = nodes[pNodeI];
+
+        forAll(node.secondaryWeights(), sNodei)
+        {
+            scalar bAbscissa
+                = max(node.secondaryAbscissae()[0][sNodei][celli], 0.0);
+
+            bSource += node.primaryWeight()[celli]
+                *node.secondaryWeights()[sNodei][celli]
+                *Kb(bAbscissa, celli)
+                *(
+                    daughterDistribution_->mD(momentOrder, bAbscissa)   //Birth
+                  - pow(bAbscissa, momentOrder)                         //Death
+                 );
+        }
+    }
+
+    return bSource;
+}
 
 // ************************************************************************* //

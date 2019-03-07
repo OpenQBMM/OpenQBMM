@@ -79,7 +79,6 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             (
                 fvm::ddt(m)
               + momentAdvection_().divMoments()[momenti]
-              - momentDiffusion(m)
               ==
                 implicitMomentSource(m)
             )

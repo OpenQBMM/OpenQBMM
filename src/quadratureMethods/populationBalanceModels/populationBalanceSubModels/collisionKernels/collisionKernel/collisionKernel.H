@@ -182,7 +182,7 @@ public:
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource
         (
-            const label mi,
+            const labelList& momentOrder,
             const label celli
         ) const = 0;
 

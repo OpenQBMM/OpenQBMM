@@ -36,8 +36,7 @@ SourceFiles
 #ifndef velocityPopulationBalance_H
 #define velocityPopulationBalance_H
 
-#include "velocityPDFTransportModel.H"
-#include "populationBalanceModel.H"
+#include "velocityPopulationBalance.H"
 #include "collisionKernel.H"
 #include "realizableOdeSolver.H"
 
@@ -56,54 +55,103 @@ namespace populationBalanceModels
 
 class velocityPopulationBalance
 :
-    public velocityPDFTransportModel,
-    public populationBalanceModel,
-    public realizableOdeSolver<volVelocityMoment, volVelocityNode>
+    public velocityPopulationBalanceModel
 {
-    typedef realizableOdeSolver<volVelocityMoment, volVelocityNode> odeType;
-
     // Private data
 
-        //- Name of the velocityPopulationBalance
-        const word name_;
-
         //- Switch indicating the status of the aggregation model
-        Switch collision_;
+        Switch aggregation_;
+
+        //- Switch indicating the status of the breakup model
+        Switch breakup_;
+
+        //- Switch indicating the status of the growth model
+        Switch growth_;
 
         //- Aggregation kernel model
         autoPtr
         <
-            Foam::populationBalanceSubModels::collisionKernel
-        > collisionKernel_;
+            Foam::populationBalanceSubModels::aggregationKernel
+        > aggregationKernel_;
 
+        //- Breakup kernel model
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::breakupKernel
+        > breakupKernel_;
+
+        //- Daughter distribution function
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::daughterDistribution
+        > daughterDistribution_;
+
+        //- Growth model function
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::growthModel
+        > growthModel_;
+
+        //- Diffusion model
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::diffusionModel
+        > diffusionModel_;
+
+        //- Nucleation model
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::nucleationModel
+        > nucleationModel_;
 
     // Private member functions
 
-        //- Update implicit collison source terms
-        virtual void updateImplicitMomentSource();
-
-         //- Calculate implicit source terms
-        virtual tmp<fvScalarMatrix> implicitMomentSource
+        //- Calculate aggregation source terms
+        scalar aggregationSource
         (
-            const volVelocityMoment& moment
+            const label& momentOrder,
+            const label& celli
         );
+
+        //- Calculate Breakup source term
+        scalar breakupSource
+        (
+            const label& momentOrder,
+            const label& celli
+        );
+
+        //- Diffusion term
+        virtual tmp<fvScalarMatrix> momentDiffusion
+        (
+            const volMoment& moment
+        );
+
+        //- Convect moments in phase space
+        virtual scalar phaseSpaceConvection
+        (
+            const label& momentOrder,
+            const label& celli
+        );
+
+//         //- Update implicit collison source terms
+//         virtual void updateImplicitMomentSource();
+//
+//          //- Calculate implicit source terms
+//         virtual tmp<fvScalarMatrix> implicitMomentSource
+//         (
+//             const volVelocityMoment& moment
+//         );
 
         //- Calculate explicit source terms with realizable ODE solver
         virtual void explicitMomentSource();
 
-        //- Are moments updated due to sources
-        virtual bool solveMomentSources() const;
-
-        //- Is the realizable ode solver used to solve sources
-        virtual bool solveMomentOde() const;
-
-        //- Update explicit collison source terms
-        virtual void updateCellMomentSource(const label celli);
+//         //- Update explicit collison source terms
+//         virtual void updateCellMomentSource(const label celli);
 
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            const labelList& momentOrder,
+            const label momentOrder,
             const label celli,
             const velocityQuadratureApproximation& quadrature,
             const label enviroment = 0
@@ -113,7 +161,7 @@ class velocityPopulationBalance
 public:
 
     //- Runtime type information
-    TypeName("velocity");
+    TypeName("sizeVelocity");
 
 
     // Constructors
@@ -131,12 +179,6 @@ public:
     virtual ~velocityPopulationBalance();
 
     // Member Functions
-
-        //- Return the maximum Courant number ensuring moment realizability
-        virtual scalar realizableCo() const;
-
-        //- Return the maximum Courant number based on velocities
-        virtual scalar CoNum() const;
 
         //- Solve population balance equation
         virtual void solve();

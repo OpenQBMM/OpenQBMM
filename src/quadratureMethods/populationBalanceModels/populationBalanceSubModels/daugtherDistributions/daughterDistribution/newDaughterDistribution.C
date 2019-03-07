@@ -33,7 +33,10 @@ Foam::populationBalanceSubModels::daughterDistribution::New
     const dictionary& dict
 )
 {
-    word daughterDistributionType(dict.lookup("daughterDistribution"));
+    word daughterDistributionType
+    (
+        dict.subDict("daughterDistribution").lookup("daughterDistribution")
+    );
 
     Info<< "Selecting daughterDistribution "
         << daughterDistributionType << endl;

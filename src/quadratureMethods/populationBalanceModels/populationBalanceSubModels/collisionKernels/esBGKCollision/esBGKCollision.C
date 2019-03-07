@@ -283,9 +283,13 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 
 Foam::scalar
 Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
-::explicitCollisionSource(const label mi, const label celli) const
+::explicitCollisionSource
+(
+    const labelList& momentOrder,
+    const label celli
+) const
 {
-    scalar c = quadrature_.moments()[0][celli]/0.63;
+    scalar c = quadrature_.moments()(0)[celli]/0.63;
     scalar gs0 = (2.0 - c)/(2.0*pow3(1.0 - c)) + 1.1603*c;
     scalar tauC =
         zeta_*sqrt(Foam::constant::mathematical::pi)*dp_()[celli]
@@ -295,7 +299,10 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
             1e-10
         );
 
-    return (Meq_[mi] - quadrature_.moments()[mi][celli])/tauC;
+    return
+        (
+            Meq_(momentOrder) - quadrature_.moments()(momentOrder)[celli]
+        )/tauC;
 }
 
 Foam::tmp<Foam::fvScalarMatrix>

@@ -139,6 +139,9 @@ class mixingPopulationBalance
         //- Switch indicating the status of the growth model
         Switch growth_;
 
+        //- Switch indicating the status of the nucleation model
+        Switch nucleation_;
+
         //- Aggregation kernel model
         autoPtr
         <
@@ -150,12 +153,6 @@ class mixingPopulationBalance
         <
             Foam::populationBalanceSubModels::breakupKernel
         > breakupKernel_;
-
-        //- Daughter distribution function
-        autoPtr
-        <
-            Foam::populationBalanceSubModels::daughterDistribution
-        > daughterDistribution_;
 
         //- Growth model function
         autoPtr
@@ -190,48 +187,15 @@ class mixingPopulationBalance
         //- Calculated mixed moments
         void calcMixedMoments();
 
-        //- Calculate aggregation source terms
-        scalar aggregationSource
-        (
-            const label momentOrder,
-            const label celli,
-            const Foam::mappedPtrList<volNode>& nodes,
-            const label environment
-        );
-
-        //- Calculate Breakup source term
-        scalar breakupSource
-        (
-            const label momentOrder,
-            const label celli,
-            const Foam::mappedPtrList<volNode>& nodes,
-            const label environment
-        );
-
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
-        (
-            const volMoment& moment
-        );
-
-        //- Convect moments in phase space
-        virtual scalar phaseSpaceConvection
-        (
-            const label momentOrder,
-            const label celli,
-            const Foam::mappedPtrList<volNode>& nodes,
-            const label environment
-        );
-
         //- Update explicit collison source terms
         virtual void updateCellMomentSource(const label celli);
 
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            const label momentOrder,
+            const labelList& momentOrder,
             const label celli,
-            const mappedPtrList<volNode>& nodes,
+            const scalarQuadratureApproximation& nodes,
             const label enviroment
         );
 

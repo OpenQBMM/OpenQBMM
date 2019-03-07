@@ -65,4 +65,112 @@ Foam::populationBalanceSubModels::aggregationKernel::~aggregationKernel()
 {}
 
 
+Foam::scalar
+Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
+(
+    const label momentOrder,
+    const label celli,
+    const scalarQuadratureApproximation& quadrature,
+    const label enviroment
+)
+{
+    scalar aSource = 0.0;
+
+    const PtrList<volNode>& nodes = quadrature.nodes();
+
+    if (!nodes[0].extended())   // Non-extended quadrature case
+    {
+        forAll(nodes, pNode1i)
+        {
+            const volNode& node1 = nodes[pNode1i];
+            const volScalarField& pWeight1 = node1.primaryWeight();
+            const volScalarField& pAbscissa1 = node1.primaryAbscissae()[0];
+
+            forAll(nodes, pNode2i)
+            {
+                const volNode& node2 = nodes[pNode2i];
+                const volScalarField& pWeight2 = node2.primaryWeight();
+                const volScalarField& pAbscissa2 = node2.primaryAbscissae()[0];
+
+                // Remove small negative values in abscissae
+                scalar bAbscissa1 = max(pAbscissa1[celli], 0.0);
+                scalar bAbscissa2 = max(pAbscissa2[celli], 0.0);
+
+                aSource +=
+                    pWeight1[celli]*
+                    (
+                        pWeight2[celli]*
+                        (
+                            0.5*pow // Birth
+                            (
+                                pow3(bAbscissa1) + pow3(bAbscissa2),
+                                momentOrder/3.0
+                            )
+                            - pow(bAbscissa1, momentOrder)
+                        )
+                       *Ka
+                        (
+                            bAbscissa1, bAbscissa2, celli, enviroment
+                        )
+                    );
+            }
+        }
+
+        return aSource;
+    }
+
+    forAll(nodes, pNode1i)      // Extended quadrature case
+    {
+        const volNode& node1 = nodes[pNode1i];
+        const volScalarField& pWeight1 = node1.primaryWeight();
+
+        forAll(node1.secondaryWeights(), sNode1i)
+        {
+            const volScalarField& sWeight1 = node1.secondaryWeights()[sNode1i];
+
+            const volScalarField& sAbscissa1
+                = node1.secondaryAbscissae()[0][sNode1i];
+
+            forAll(nodes, pNode2i)
+            {
+                const volNode& node2 = nodes[pNode2i];
+                const volScalarField& pWeight2 = node2.primaryWeight();
+
+                forAll(node2.secondaryWeights(), sNode2i)
+                {
+                    const volScalarField& sWeight2
+                        = node2.secondaryWeights()[sNode2i];
+
+                    const volScalarField& sAbscissa2
+                        = node2.secondaryAbscissae()[0][sNode2i];
+
+                    // Remove small negative values in abscissae
+                    scalar bAbscissa1 = max(sAbscissa1[celli], 0.0);
+                    scalar bAbscissa2 = max(sAbscissa2[celli], 0.0);
+
+                    aSource +=
+                        pWeight1[celli]*sWeight1[celli]*
+                        (
+                            pWeight2[celli]*sWeight2[celli]*
+                            (
+                                0.5*pow // Birth
+                                (
+                                    pow3(bAbscissa1) + pow3(bAbscissa2),
+                                    momentOrder/3.0
+                                )
+                              - pow(bAbscissa1, momentOrder)
+                            )
+                           *Ka
+                            (
+                                bAbscissa1, bAbscissa2, celli, enviroment
+                            )
+                        );
+                }
+            }
+        }
+    }
+
+    return aSource;
+}
+
 // ************************************************************************* //

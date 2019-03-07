@@ -142,13 +142,13 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 ::velocityPopulationBalance::cellMomentSource
 (
-    const label momenti,
+    const labelList& momentOrder,
     const label celli,
-    const mappedPtrList<volVelocityNode>&,
+    const velocityQuadratureApproximation&,
     const label
 )
 {
-    return collisionKernel_->explicitCollisionSource(momenti, celli);
+    return collisionKernel_->explicitCollisionSource(momentOrder, celli);
 }
 
 

@@ -34,7 +34,10 @@ Foam::populationBalanceSubModels::nucleationModel::New
     const fvMesh& mesh
 )
 {
-    word nucleationModelType(dict.lookup("nucleationModel"));
+    word nucleationModelType
+    (
+        dict.subDict("nucleationModel").lookup("nucleationModel")
+    );
 
     Info<< "Selecting nucleationModel "
         << nucleationModelType << endl;

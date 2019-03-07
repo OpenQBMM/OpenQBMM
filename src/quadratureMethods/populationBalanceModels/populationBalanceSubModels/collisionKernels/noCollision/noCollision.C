@@ -80,7 +80,7 @@ Foam::populationBalanceSubModels::collisionKernels::noCollision::updateFields()
 
 Foam::scalar
 Foam::populationBalanceSubModels::collisionKernels::noCollision
-::explicitCollisionSource(const label mi, const label celli) const
+::explicitCollisionSource(const labelList&, const label) const
 {
     return 0.0;
 }

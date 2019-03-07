@@ -39,6 +39,7 @@ SourceFiles
 #include "volFields.H"
 #include "dimensionedTypes.H"
 #include "runTimeSelectionTables.H"
+#include "quadratureApproximations.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -116,6 +117,14 @@ public:
             const scalar& abscissa,
             const label environment = 0
         ) const = 0;
+
+        //- Return phase space convection
+        scalar phaseSpaceConvection
+        (
+            const label cmpt,
+            const label celli,
+            const scalarQuadratureApproximation& quadrature
+        );
 };
 
 

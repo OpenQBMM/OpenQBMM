@@ -34,7 +34,10 @@ Foam::populationBalanceSubModels::breakupKernel::New
     const fvMesh& mesh
 )
 {
-    word breakupKernelType(dict.lookup("breakupKernel"));
+    word breakupKernelType
+    (
+        dict.subDict("breakupKernel").lookup("breakupKernel")
+    );
 
     Info<< "Selecting breakupKernel "
         << breakupKernelType << endl;

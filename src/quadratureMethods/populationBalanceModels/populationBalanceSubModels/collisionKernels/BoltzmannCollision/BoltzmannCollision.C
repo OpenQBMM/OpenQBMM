@@ -226,9 +226,13 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 
 Foam::scalar
 Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
-::explicitCollisionSource(const label mi, const label celli) const
+::explicitCollisionSource
+(
+    const labelList& momentOrder,
+    const label celli
+) const
 {
-    return Cs_[mi];
+    return Cs_(momentOrder);
 }
 
 Foam::tmp<Foam::fvScalarMatrix>

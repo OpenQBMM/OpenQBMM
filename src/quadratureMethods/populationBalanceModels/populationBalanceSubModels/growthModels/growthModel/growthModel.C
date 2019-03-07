@@ -63,4 +63,60 @@ Foam::populationBalanceSubModels::growthModel::~growthModel()
 {}
 
 
+Foam::scalar
+Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
+(
+    const label momentOrder,
+    const label celli,
+    const scalarQuadratureApproximation& quadrature
+)
+{
+    scalar gSource = 0.0;
+
+    if (momentOrder < 1)
+    {
+        return gSource;
+    }
+
+    const PtrList<volNode>& nodes = quadrature.nodes();
+
+    if (!nodes[0].extended())
+    {
+        forAll(nodes, pNodeI)
+        {
+            const volNode& node = nodes[pNodeI];
+
+            scalar bAbscissa = max(node.primaryAbscissae()[0][celli], 0.0);
+
+            gSource += node.primaryWeight()[celli]
+                    *Kg(node.primaryAbscissae()[0][celli])
+                    *momentOrder*pow(bAbscissa, momentOrder - 1);
+        }
+
+        return gSource;
+    }
+
+    forAll(nodes, pNodeI)
+    {
+        const volNode& node = nodes[pNodeI];
+
+        forAll(node.secondaryWeights(), sNodei)
+        {
+            scalar bAbscissa
+                = max(node.secondaryAbscissae()[0][sNodei][celli], 0.0);
+
+            gSource += node.primaryWeight()[celli]
+                *node.secondaryWeights()[sNodei][celli]
+                *Kg(bAbscissa)
+                *momentOrder*pow
+                    (
+                        bAbscissa,
+                        momentOrder - 1
+                    );
+        }
+    }
+
+    return gSource;
+}
+
 // ************************************************************************* //
