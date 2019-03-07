@@ -87,21 +87,20 @@ class turbulentMixing
             const volMoment& moment
         );
 
-        //- Calculate explicit source terms
-        virtual void explicitMomentSource();
-
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
             const volMoment& moment
         );
 
-        //- Calculate source term for moment equation in the specified cell
-        virtual scalar cellMomentSource
-        (
-            label& momentOrder,
-            label& celli
-        );
+        //- Calculate explicit source terms with realizable ODE solver
+        virtual void explicitMomentSource();
+
+        //- Are moments updated due to sources
+        virtual bool solveMomentSources() const;
+
+        //- Is the realizable ode solver used to solve sources
+        virtual bool solveMomentOde() const;
 
 
 public:

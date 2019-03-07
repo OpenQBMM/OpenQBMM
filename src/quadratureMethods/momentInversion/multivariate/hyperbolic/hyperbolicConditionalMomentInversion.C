@@ -119,7 +119,7 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 Foam::label Foam::hyperbolicConditionalMomentInversion::getNMoments
 (
     const label nDims
-) const
+)
 {
     if (nDims == 1)
     {
@@ -140,7 +140,7 @@ Foam::label Foam::hyperbolicConditionalMomentInversion::getNMoments
 Foam::labelListList Foam::hyperbolicConditionalMomentInversion::getMomentOrders
 (
     const label nDims
-) const
+)
 {
     if (nDims == 1)
     {
@@ -161,7 +161,7 @@ Foam::labelListList Foam::hyperbolicConditionalMomentInversion::getMomentOrders
 Foam::label Foam::hyperbolicConditionalMomentInversion::getNNodes
 (
     const label nDims
-) const
+)
 {
     if (nDims == 1)
     {
@@ -182,7 +182,7 @@ Foam::label Foam::hyperbolicConditionalMomentInversion::getNNodes
 Foam::labelListList Foam::hyperbolicConditionalMomentInversion::getNodeIndexes
 (
     const label nDims
-) const
+)
 {
     if (nDims == 1)
     {

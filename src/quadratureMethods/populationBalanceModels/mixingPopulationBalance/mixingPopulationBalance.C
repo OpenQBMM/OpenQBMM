@@ -56,12 +56,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 )
 :
     populationBalanceModel(name, dict, phi),
-    ATol_(readScalar(dict.subDict("odeCoeffs").lookup("ATol"))),
-    RTol_(readScalar(dict.subDict("odeCoeffs").lookup("RTol"))),
-    fac_(readScalar(dict.subDict("odeCoeffs").lookup("fac"))),
-    facMin_(readScalar(dict.subDict("odeCoeffs").lookup("facMin"))),
-    facMax_(readScalar(dict.subDict("odeCoeffs").lookup("facMax"))),
-    minLocalDt_(readScalar(dict.subDict("odeCoeffs").lookup("minLocalDt"))),
+    odeType(phi.mesh(), dict),
     name_(name),
     mixingModel_
     (
@@ -247,212 +242,6 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
-::explicitMomentSource
-(
-    scalarQuadratureApproximation& quadrature,
-    const label environment
-)
-{
-    volMomentFieldSet& moments(quadrature.moments());
-    const mappedPtrList<volNode>& nodes(quadrature.nodes());
-    label nMoments = quadrature.nMoments();
-    scalar globalDt = moments[0].mesh().time().deltaT().value();
-
-    Info << "Solving source terms in realizable ODE solver." << endl;
-
-    forAll(moments[0], celli)
-    {
-        // Storing old moments to recover from failed step
-        scalarList oldMoments(nMoments, 0.0);
-
-        forAll(oldMoments, mi)
-        {
-            oldMoments[mi] = moments[mi][celli];
-        }
-
-        //- Local time
-        scalar localT = 0.0;
-
-        // Initialize the local step
-        scalar localDt = globalDt/100.0;
-
-        // Initialize RK parameters
-        scalarList k1(nMoments, 0.0);
-        scalarList k2(nMoments, 0.0);
-        scalarList k3(nMoments, 0.0);
-
-        // Flag to indicate if the time step is complete
-        bool timeComplete = false;
-
-        // Check realizability of intermediate moment sets
-        bool realizableUpdate1 = false;
-        bool realizableUpdate2 = false;
-        bool realizableUpdate3 = false;
-
-        scalarList momentsSecondStep(nMoments, 0.0);
-
-        bool nullSource = false;
-
-        while (!timeComplete)
-        {
-            do
-            {
-                // First intermediate update
-                forAll(oldMoments, mi)
-                {
-                    k1[mi]
-                        = localDt*cellMomentSource
-                          (
-                              mi, celli, nodes, environment
-                          );
-
-                    moments[mi][celli] = oldMoments[mi] + k1[mi];
-
-                    nullSource = (mag(k1[mi]) < SMALL) || nullSource;
-                }
-
-                if (nullSource)
-                {
-                    return;
-                }
-
-                realizableUpdate1 =
-                        quadrature.updateLocalQuadrature(celli, false);
-
-                quadrature.updateLocalMoments(celli);
-
-                // Second moment update
-                forAll(oldMoments, mi)
-                {
-                    k2[mi]
-                        = localDt*cellMomentSource
-                          (
-                              mi, celli, nodes, environment
-                          );
-
-                    moments[mi][celli] = oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
-                    momentsSecondStep[mi] = moments[mi][celli];
-                }
-
-                realizableUpdate2 =
-                        quadrature.updateLocalQuadrature(celli, false);
-
-                quadrature.updateLocalMoments(celli);
-
-                // Third moment update
-                forAll(oldMoments, mi)
-                {
-                    k3[mi]
-                        = localDt*cellMomentSource
-                          (
-                              mi, celli, nodes, environment
-                          );
-
-                    moments[mi][celli] =
-                        oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
-                }
-
-                realizableUpdate3 =
-                        quadrature.updateLocalQuadrature(celli, false);
-
-                quadrature.updateLocalMoments(celli);
-
-                if
-                (
-                    !realizableUpdate1
-                 || !realizableUpdate2
-                 || !realizableUpdate3
-                )
-                {
-                    localDt /= 2.0;
-
-                    if (localDt < minLocalDt_)
-                    {
-                        FatalErrorInFunction
-                            << "Reached minimum local step in realizable ODE"
-                            << nl
-                            << "    solver. Cannot ensure realizability." << nl
-                            << "    Local time step = " << localDt << nl
-                            << "    Min local time step = " << minLocalDt_ << nl
-                            << "    Last valid moments in cell: "
-                            << oldMoments << nl
-                            << abort(FatalError);
-                    }
-
-                    forAll(oldMoments, mi)
-                    {
-                        moments[mi][celli] = oldMoments[mi];
-                    }
-                }
-            }
-            while
-            (
-                !realizableUpdate1
-             || !realizableUpdate2
-             || !realizableUpdate3
-            );
-
-            scalar error = 0.0;
-
-            for (label mi = 0; mi < nMoments; mi++)
-            {
-                scalar scalei =
-                        ATol_
-                    + max
-                        (
-                            mag(momentsSecondStep[mi]), mag(oldMoments[mi])
-                        )*RTol_;
-
-                error +=
-                        sqr
-                        (
-                            (momentsSecondStep[mi] - moments[mi][celli])/scalei
-                        );
-            }
-
-            error = sqrt(error/nMoments);
-
-            if (error < SMALL)
-            {
-                return;
-            }
-
-            if (error < 1)
-            {
-                localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
-
-                scalar maxLocalDt = max(globalDt - localT, 0.0);
-                localDt = min(maxLocalDt, localDt);
-
-                forAll(oldMoments, mi)
-                {
-                    oldMoments[mi] = moments[mi][celli];
-                }
-
-                if (localDt == 0.0)
-                {
-                    timeComplete = true;
-                    localT = 0.0;
-                    break;
-                }
-
-                localT += localDt;
-            }
-            else
-            {
-                localDt *= min(1.0, max(facMin_, fac_/pow(error, 1.0/3.0)));
-
-                forAll(oldMoments, mi)
-                {
-                    moments[mi][celli] = oldMoments[mi];
-                }
-            }
-        }
-    }
-}
-
-
-void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::calcEnvironmentMoments()
 {
     const volMomentFieldSet& mXi
@@ -524,6 +313,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     }
 }
 
+
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::calcMixedMoments()
 {
@@ -535,6 +325,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             p1_*xi1_*mEnvOne_[mi] + p2_*xi2_*mEnvTwo_[mi];
     }
 }
+
 
 Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
@@ -646,6 +437,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     return aSource;
 }
 
+
 Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::breakupSource
@@ -710,6 +502,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     return bSource;
 }
 
+
 Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::populationBalanceModels
 ::mixingPopulationBalance::momentDiffusion
 (
@@ -718,6 +511,7 @@ Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::populationBalanceModels
 {
     return diffusionModel_->momentDiff(moment);
 }
+
 
 Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
@@ -773,20 +567,27 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     return gSource;
 }
 
+
+void
+Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
+::updateCellMomentSource(const label)
+{}
+
+
 Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::cellMomentSource
 (
-    label momentOrder,
-    label celli,
+    const label momentOrder,
+    const label celli,
     const mappedPtrList<volNode>& nodes,
     const label environment
 )
 {
     return aggregationSource(momentOrder, celli, nodes, environment)
-            + breakupSource(momentOrder, celli, nodes, environment)
-            + nucleationModel_->nucleationSource(momentOrder, celli)
-            + phaseSpaceConvection(momentOrder, celli, nodes, environment);
+         + breakupSource(momentOrder, celli, nodes, environment)
+         + nucleationModel_->nucleationSource(momentOrder, celli)
+         + phaseSpaceConvection(momentOrder, celli, nodes, environment);
 }
 
 Foam::scalar
@@ -801,12 +602,14 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         );
 }
 
+
 Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::CoNum() const
 {
     return 0.0;
 }
+
 
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::solve()
@@ -881,8 +684,8 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     calcEnvironmentMoments();
 
     // Solve source terms
-    explicitMomentSource(envOneQuadrature_, 1);
-    explicitMomentSource(envTwoQuadrature_, 2);
+    odeType::solve(envOneQuadrature_, 1);
+    odeType::solve(envTwoQuadrature_, 2);
 
     // Update mixed moments
     calcMixedMoments();
@@ -913,5 +716,6 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     meanMomentsQuadrature_.updateQuadrature();
     meanMomentsVarianceQuadrature_.updateQuadrature();
 }
+
 
 // ************************************************************************* //

@@ -61,8 +61,6 @@ interpolationSchemes
 {
     default         linear;
 
-    "interpolate\(moment.*\)" upwind phi.air;
-
     reconstruct(U)          upwind;
     reconstruct(weight)     upwind;
     reconstruct(abscissa)   upwind;
@@ -71,7 +69,7 @@ interpolationSchemes
 snGradSchemes
 {
     default         corrected;
-    snGrad(corr)    limited     1.0;
+    snGrad(corr)    limited     0.2;
 }
 
 wallDist

@@ -46,6 +46,7 @@ SourceFiles
 #include "diffusionModel.H"
 #include "nucleationModel.H"
 #include "environmentMixingModel.H"
+#include "realizableOdeSolver.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -62,27 +63,12 @@ namespace populationBalanceModels
 
 class mixingPopulationBalance
 :
-    public populationBalanceModel
+    public populationBalanceModel,
+    private realizableOdeSolver<volMoment, volNode>
 {
+    typedef realizableOdeSolver<volMoment, volNode> odeType;
+
     // Private data
-
-        //- Absolute tolerance for realizable ODE solver
-        scalar ATol_;
-
-        //- Relative tolerance for realizable ODE solver
-        scalar RTol_;
-
-        //- Time-step change factor
-        scalar fac_;
-
-        //- Minimum time-step change factor
-        scalar facMin_;
-
-        //- Maximum time-step change factor
-        scalar facMax_;
-
-        //- Minimum local step in realizable ODE solver
-        scalar minLocalDt_;
 
         //- Name of the mixingPopulationBalance
         const word name_;
@@ -198,13 +184,6 @@ class mixingPopulationBalance
 
     // Private member functions
 
-        //- Calculate explicit source terms with realizable ODE solver
-        void explicitMomentSource
-        (
-            scalarQuadratureApproximation& quadrature,
-            const label environment
-        );
-
         //- Calculate moments of the PBE in each environment
         void calcEnvironmentMoments();
 
@@ -244,13 +223,16 @@ class mixingPopulationBalance
             const label environment
         );
 
+        //- Update explicit collison source terms
+        virtual void updateCellMomentSource(const label celli);
+
         //- Calculate source term for moment equation in the specified cell
-        scalar cellMomentSource
+        virtual scalar cellMomentSource
         (
-            label momentOrder,
-            label celli,
-            const Foam::mappedPtrList<volNode>& nodes,
-            const label environment
+            const label momentOrder,
+            const label celli,
+            const mappedPtrList<volNode>& nodes,
+            const label enviroment
         );
 
 

@@ -123,8 +123,8 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
             (
                 "nodeAdvection" + Foam::name(nodei),
                 name_,
-                moments_[0].mesh(),
-                moments_[0].dimensions(),
+                moments_(0).mesh(),
+                moments_(0).dimensions(),
                 abscissaDimensions,
                 false
             )
@@ -137,8 +137,8 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
             (
                 "nodeRadau" + Foam::name(nodei) + "Nei",
                 name_,
-                moments_[0].mesh(),
-                moments_[0].dimensions(),
+                moments_(0).mesh(),
+                moments_(0).dimensions(),
                 abscissaDimensions,
                 false
             )
@@ -151,8 +151,8 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
             (
                 "nodeRadau" + Foam::name(nodei) + "Own",
                 name_,
-                moments_[0].mesh(),
-                moments_[0].dimensions(),
+                moments_(0).mesh(),
+                moments_(0).dimensions(),
                 abscissaDimensions,
                 false
             )
@@ -168,9 +168,9 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
             new Foam::surfaceMoment
             (
                 name_,
-                moments_[momenti].cmptOrders(),
+                moments_(momenti).cmptOrders(),
                 nodesNei_,
-                fvc::interpolate(moments_[momenti])
+                fvc::interpolate(moments_(momenti))
             )
         );
 
@@ -180,9 +180,9 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
             new Foam::surfaceMoment
             (
                 name_,
-                moments_[momenti].cmptOrders(),
+                moments_(momenti).cmptOrders(),
                 nodesOwn_,
-                fvc::interpolate(moments_[momenti])
+                fvc::interpolate(moments_(momenti))
             )
         );
     }
@@ -225,13 +225,22 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
 
         nodeOwn.primaryWeight() =
             weightOwnScheme_().interpolate(node.primaryWeight());
-        nodeOwn.primaryAbscissae()[0] =
-            abscissaOwnScheme_().interpolate(node.primaryAbscissae()[0]);
-
         nodeNei.primaryWeight() =
             weightNeiScheme_().interpolate(node.primaryWeight());
-        nodeNei.primaryAbscissae()[0] =
-            abscissaNeiScheme_().interpolate(node.primaryAbscissae()[0]);
+
+        forAll(node.primaryAbscissae(), cmpt)
+        {
+            nodeOwn.primaryAbscissae()[cmpt] =
+                abscissaOwnScheme_().interpolate
+                (
+                    node.primaryAbscissae()[cmpt]
+                );
+            nodeNei.primaryAbscissae()[cmpt] =
+                abscissaNeiScheme_().interpolate
+                (
+                    node.primaryAbscissae()[cmpt]
+                );
+        }
     }
 }
 
@@ -259,26 +268,26 @@ void Foam::univariateAdvection::firstOrderKinetic::update()
             IOobject
             (
                 "divMoment",
-                moments_[0].mesh().time().timeName(),
-                moments_[0].mesh(),
+                moments_(0).mesh().time().timeName(),
+                moments_(0).mesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE,
                 false
             ),
-            moments_[0].mesh(),
+            moments_(0).mesh(),
             dimensionedScalar("zero", dimless, 0.0)
         );
 
         surfaceScalarField mFlux
         (
-            momentsNei_[divi]*min(phi_, zeroPhi)
-          + momentsOwn_[divi]*max(phi_, zeroPhi)
+            momentsNei_(divi)*min(phi_, zeroPhi)
+          + momentsOwn_(divi)*max(phi_, zeroPhi)
         );
 
         fvc::surfaceIntegrate(divMoment.ref(), mFlux);
-        divMoment.ref().dimensions().reset(moments_[divi].dimensions()/dimTime);
+        divMoment.ref().dimensions().reset(moments_(divi).dimensions()/dimTime);
 
-        divMoments_[divi].replace(0, divMoment);
+        divMoments_(divi).replace(0, divMoment);
     }
 }
 

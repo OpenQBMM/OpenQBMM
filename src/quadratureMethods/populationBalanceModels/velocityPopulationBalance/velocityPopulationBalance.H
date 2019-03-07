@@ -39,6 +39,7 @@ SourceFiles
 #include "velocityPDFTransportModel.H"
 #include "populationBalanceModel.H"
 #include "collisionKernel.H"
+#include "realizableOdeSolver.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,8 +56,12 @@ namespace populationBalanceModels
 
 class velocityPopulationBalance
 :
-    public velocityPDFTransportModel, public populationBalanceModel
+    public velocityPDFTransportModel,
+    public populationBalanceModel,
+    public realizableOdeSolver<volVelocityMoment, volVelocityNode>
 {
+    typedef realizableOdeSolver<volVelocityMoment, volVelocityNode> odeType;
+
     // Private data
 
         //- Name of the velocityPopulationBalance
@@ -74,33 +79,36 @@ class velocityPopulationBalance
 
     // Private member functions
 
-        //- Return if collisions are on
-        virtual bool collision() const;
-
         //- Update implicit collison source terms
-        virtual void updateImplicitCollisionSource();
-
-        //- Update explicit collison source terms
-        virtual void updateExplicitCollisionSource(const label celli);
+        virtual void updateImplicitMomentSource();
 
          //- Calculate implicit source terms
-        virtual tmp<fvScalarMatrix> implicitCollisionSource
+        virtual tmp<fvScalarMatrix> implicitMomentSource
         (
             const volVelocityMoment& moment
         );
 
-        virtual scalar explicitCollisionSource
-        (
-            const label momenti,
-            const label celli
-        );
+        //- Calculate explicit source terms with realizable ODE solver
+        virtual void explicitMomentSource();
+
+        //- Are moments updated due to sources
+        virtual bool solveMomentSources() const;
+
+        //- Is the realizable ode solver used to solve sources
+        virtual bool solveMomentOde() const;
+
+        //- Update explicit collison source terms
+        virtual void updateCellMomentSource(const label celli);
 
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
             const label momentOrder,
-            const label celli
+            const label celli,
+            const mappedPtrList<volVelocityNode>& nodes,
+            const label enviroment = 0
         );
+
 
 public:
 
@@ -132,20 +140,6 @@ public:
 
         //- Solve population balance equation
         virtual void solve();
-
-        //- Solve mean tranport
-        virtual void meanTransport
-        (
-            const surfaceScalarField& phi,
-            const bool wallCollisions
-        );
-
-        //- Solve relative transport
-        virtual void relativeTransport
-        (
-            const mappedPtrList<volVectorField>& Vs,
-            const bool wallCollisions
-        );
 };
 
 

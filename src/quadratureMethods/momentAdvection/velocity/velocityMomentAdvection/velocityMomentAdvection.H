@@ -88,8 +88,10 @@ protected:
         //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
         tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme_;
         tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme_;
-        tmp<surfaceInterpolationScheme<vector>> UOwnScheme_;
-        tmp<surfaceInterpolationScheme<vector>> UNeiScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeOwnScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeNeiScheme_;
+        tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeOwnScheme_;
+        tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeNeiScheme_;
 
         //- Support of the distribution function
         word support_;
@@ -105,6 +107,17 @@ protected:
 
         //- Coefficient of restitution
         scalar ew_;
+
+
+    //- Protected member function
+
+            //- Update fluxes due to wall callisions
+            void updateWallCollisions
+            (
+                const PtrList<volVelocityNode>& nodes,
+                PtrList<surfaceVelocityNode>& nodesOwn,
+                PtrList<surfaceVelocityNode>& nodesNei
+            );
 
 
 public:

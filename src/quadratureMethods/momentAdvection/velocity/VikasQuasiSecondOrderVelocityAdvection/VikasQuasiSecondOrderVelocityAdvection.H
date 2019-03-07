@@ -22,20 +22,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::VikasQuaziSecondOrder
+    Foam::VikasQuasiSecondOrder
 
 Description
-    First-order velocity moment advection with kinetic scheme.
+    Quasi second order velocity moment advection with kinetic scheme.
+    Weights use a Minmod limiter and velocities use upwinding
 
 SourceFiles
-    VikasQuaziSecondOrderVelocityAdvection.C
+    VikasQuasiSecondOrderVelocityAdvection.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef VikasQuaziSecondOrderVelocityAdvection_H
-#define VikasQuaziSecondOrderVelocityAdvection_H
+#ifndef VikasQuasiSecondOrderVelocityAdvection_H
+#define VikasQuasiSecondOrderVelocityAdvection_H
 
-#include "velocityMomentAdvection.H"
+#include "firstOrderKineticVelocityAdvection.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -46,23 +47,14 @@ namespace velocityAdvection
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class VikasQuaziSecondOrder Declaration
+                    Class VikasQuasiSecondOrder Declaration
 \*---------------------------------------------------------------------------*/
 
-class VikasQuaziSecondOrder
+class VikasQuasiSecondOrder
 :
-    public velocityMomentAdvection
+    public firstOrderKinetic
 {
     // Private data
-
-        //- List of quadrature nodes used for moment advection
-        const PtrList<volVelocityNode>& nodes_;
-
-        //- List of interpolated nodes (neighbour)
-        autoPtr<PtrList<surfaceVelocityNode>> nodesNei_;
-
-        //- List of interpolated nodes (owner)
-        autoPtr<PtrList<surfaceVelocityNode>> nodesOwn_;
 
         //- Flux moment inversion method
 //         autoPtr<hyperbolicFieldMomentInversion> momentFieldInverter_;
@@ -75,9 +67,6 @@ protected:
         // Interpolate weights and abscissae
         void interpolateNodes();
 
-        //- Compute collisions with walls
-        void updateWallCollisions();
-
 
 public:
 
@@ -88,7 +77,7 @@ public:
     // Constructors
 
         //- Construct from velocityMomentSet
-        VikasQuaziSecondOrder
+        VikasQuasiSecondOrder
         (
             const dictionary& dict,
             const velocityQuadratureApproximation& quadrature,
@@ -97,33 +86,13 @@ public:
 
 
     //- Destructor
-    virtual ~VikasQuaziSecondOrder();
+    virtual ~VikasQuasiSecondOrder();
 
 
     // Public member functions
 
         //- Return the maximum Courant number ensuring moment realizability
         virtual scalar realizableCo() const;
-
-        //- Return the maximum Courant number based on velocities
-        virtual scalar CoNum() const;
-
-        //- Update moment advection
-        virtual void update();
-
-        //- Update moment advection using a specified velocity field
-        virtual void update
-        (
-            const surfaceScalarField& U,
-            const bool wallCollisions
-        );
-
-        //- Update moment advection using a specified list of velocity fields
-        virtual void update
-        (
-            const mappedPtrList<volVectorField>& Us,
-            const bool wallCollisions
-        );
 };
 
 

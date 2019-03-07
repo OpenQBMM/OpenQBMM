@@ -60,30 +60,6 @@ class velocityPDFTransportModel
         //- Name of the velocityPDFTransportModel
         const word name_;
 
-        //- Switch to solve source terms with ode solver
-        Switch solveODESource_;
-
-        //- Absolute tolerance for realizable ODE solver
-        scalar ATol_;
-
-        //- Relative tolerance for realizable ODE solver
-        scalar RTol_;
-
-        //- Time-step change factor
-        scalar fac_;
-
-        //- Minimum time-step change factor
-        scalar facMin_;
-
-        //- Maximum time-step change factor
-        scalar facMax_;
-
-        //- Minimum local step in realizable ODE solver
-        label minLocalDt_;
-
-        //- Stored time step values
-        scalarField localDt_;
-
 
 protected:
 
@@ -97,36 +73,23 @@ protected:
 
     // Protected member functions
 
-        //- Return if collisions are used
-        virtual bool collision() const = 0;
-
         //- Update implicit collison source terms
-        virtual void updateImplicitCollisionSource() = 0;
-
-        //- Update explicit collison source terms
-        virtual void updateExplicitCollisionSource(const label celli) = 0;
+        virtual void updateImplicitMomentSource() = 0;
 
         //- Calculate implicit source terms
-        virtual tmp<fvScalarMatrix> implicitCollisionSource
+        virtual tmp<fvScalarMatrix> implicitMomentSource
         (
             const volVelocityMoment& moment
         ) = 0;
 
-        virtual scalar explicitCollisionSource
-        (
-            const label momenti,
-            const label celli
-        ) = 0;
-
         //- Calculate explicit source terms with realizable ODE solver
-        virtual void explicitMomentSource();
+        virtual void explicitMomentSource() = 0;
 
-        //- Calculate source term for moment equation in the specified cell
-        virtual scalar cellMomentSource
-        (
-            const label momentOrder,
-            const label celli
-        ) = 0;
+        //- Are moments updated due to sources
+        virtual bool solveMomentSources() const = 0;
+
+        //- Is the realizable ode solver used to solve sources
+        virtual bool solveMomentOde() const = 0;
 
 
 public:
@@ -165,20 +128,6 @@ public:
 
             //- Solve velocity PDF transport equation
             virtual void solve();
-
-            //- Solve mean tranport
-            virtual void meanTransport
-            (
-                const surfaceScalarField& phi,
-                const bool wallCollisions
-            );
-
-            //- Solve relative transport
-            virtual void relativeTransport
-            (
-                const mappedPtrList<volVectorField>& Vs,
-                const bool wallCollisions
-            );
 };
 
 

@@ -13,5 +13,6 @@ univariate/extended/beta/betaEQMOM.C
 
 multivariate/conditional/conditionalMomentInversion.C
 multivariate/hyperbolic/hyperbolicConditionalMomentInversion.C
+multivariate/sizeCHyQMOM/sizeCHyQMOM.C
 
 LIB = $(FOAM_USER_LIBBIN)/libmomentInversion
