@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-convertToMeters 0.01;
+convertToMeters 0.1;
 
 W       1.0;
 h       0.1;

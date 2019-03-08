@@ -125,8 +125,8 @@ void Foam::sizeCHyQMOM::invert
     }
 
     sizeInverter_->invert(sizeMoments);
-    const scalarList& sWeights(sizeInverter_->weights());
-    const scalarList& sAbscissae(sizeInverter_->abscissae());
+    const scalarList& sizeWeights(sizeInverter_->weights());
+    const scalarList& sizeAbscissae(sizeInverter_->abscissae());
 
     forAll(nodeIndexes_, nodei)
     {
@@ -137,31 +137,26 @@ void Foam::sizeCHyQMOM::invert
             weights_(nodeIndex) = sWeights[sizeNode];
             sizeAbscissae_(nodeIndex) = sAbscissae[sizeNode];
         }
-    }
-
-    //- Check for non-zero size nodes
-    label nSizeNodes = 0;
-    scalarList sizeWeights;
-    scalarList sizeAbscissae;
-    forAll(sWeights, nodei)
-    {
-        if (sWeights[nodei] > small && sAbscissae[nodei] > small)
+        else
         {
-            nSizeNodes++;
-            sizeWeights.append(sWeights[nodei]);
-            sizeAbscissae.append(sAbscissae[nodei]);
+            weights_(nodeIndex) = 0.0;
+            sizeAbscissae_(nodeIndex) = 0.0;
         }
     }
+    label nSizeNodes = sizeWeights.size();
+
+
 
     if (nSizeNodes > 0)
     {
+        scalar sumW = 0;
         scalarDiagonalMatrix x(nSizeNodes, 0.0);
         scalarSquareMatrix invR(nSizeNodes, 0.0);
 
         forAll(sizeWeights, nodei)
         {
             x[nodei] = sizeAbscissae[nodei];
-            invR[nodei][nodei] = 1.0/sizeWeights[nodei];
+            invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], 1e-10);
         }
         Vandermonde V(x);
         scalarSquareMatrix invVR = invR*V.inv();
@@ -234,6 +229,7 @@ void Foam::sizeCHyQMOM::invert
                     velocityInverter_->weights()(velocityNodeIndex);
                 velocityAbscissae_(nodeIndex) =
                     velocityInverter_->abscissae()(velocityNodeIndex);
+                sumW += weights_(nodeIndex);
             }
         }
     }

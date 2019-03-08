@@ -29,7 +29,7 @@ boundaryField
     inlet2
     {
         type            fixedValue;
-        value           uniform 1e-07;
+        value           uniform 2.5e-06;
     }
     defaultFaces
     {
