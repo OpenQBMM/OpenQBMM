@@ -287,65 +287,72 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
             surfaceScalarField momentCmptOwn(weightOwn);
             surfaceScalarField momentCmptNei(weightNei);
 
-            forAll(velocityIndexes, cmpti)
-            {
-                const label cmpt = velocityIndexes[cmpti];
-                const label cmptMomentOrder = momentOrder[cmpt];
-
-                tmp<surfaceScalarField> abscissaOwnCmpt =
-                   UOwn.component(cmpti);
-                tmp<surfaceScalarField> abscissaNeiCmpt =
-                    UNei.component(cmpti);
-
-                tmp<surfaceScalarField> mOwnPow =
-                    momentCmptOwn
-                   *pow
-                    (
-                        abscissaOwnCmpt,
-                        cmptMomentOrder
-                    );
-                tmp<surfaceScalarField> mNeiPow =
-                    momentCmptNei
-                   *pow
-                    (
-                        abscissaNeiCmpt,
-                        cmptMomentOrder
-                    );
-                momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                momentCmptOwn == mOwnPow;
-
-                momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                momentCmptNei == mNeiPow;
-            }
             forAll(scalarIndexes, cmpti)
             {
                 const label cmpt = scalarIndexes[cmpti];
                 const label cmptMomentOrder = momentOrder[cmpt];
 
-                const surfaceScalarField& abscissaOwnCmpt =
-                   scalarAbscissaeOwn[cmpti];
-                const surfaceScalarField& abscissaNeiCmpt =
-                    scalarAbscissaeNei[cmpti];
+                if (cmptMomentOrder > 0)
+                {
+                    const surfaceScalarField& abscissaOwnCmpt =
+                    scalarAbscissaeOwn[cmpti];
+                    const surfaceScalarField& abscissaNeiCmpt =
+                        scalarAbscissaeNei[cmpti];
 
-                tmp<surfaceScalarField> mOwnPow =
-                    momentCmptOwn
-                   *pow
-                    (
-                        abscissaOwnCmpt,
-                        cmptMomentOrder
-                    );
-                tmp<surfaceScalarField> mNeiPow =
-                    momentCmptNei
-                   *pow
-                    (
-                        abscissaNeiCmpt,
-                        cmptMomentOrder
-                    );
-                momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                momentCmptOwn == mOwnPow;
+                    tmp<surfaceScalarField> mOwnPow =
+                        momentCmptOwn
+                       *pow
+                        (
+                            abscissaOwnCmpt,
+                            cmptMomentOrder
+                        );
+                    tmp<surfaceScalarField> mNeiPow =
+                        momentCmptNei
+                       *pow
+                        (
+                            abscissaNeiCmpt,
+                            cmptMomentOrder
+                        );
+                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
+                    momentCmptOwn == mOwnPow;
 
-                momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                momentCmptNei == mNeiPow;
+                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
+                    momentCmptNei == mNeiPow;
+                }
+            }
+
+            forAll(velocityIndexes, cmpti)
+            {
+                const label cmpt = velocityIndexes[cmpti];
+                const label cmptMomentOrder = momentOrder[cmpt];
+
+                if (cmptMomentOrder > 0)
+                {
+                    tmp<surfaceScalarField> abscissaOwnCmpt =
+                    UOwn.component(cmpti);
+                    tmp<surfaceScalarField> abscissaNeiCmpt =
+                        UNei.component(cmpti);
+
+                    tmp<surfaceScalarField> mOwnPow =
+                        momentCmptOwn
+                       *pow
+                        (
+                            abscissaOwnCmpt,
+                            cmptMomentOrder
+                        );
+                    tmp<surfaceScalarField> mNeiPow =
+                        momentCmptNei
+                       *pow
+                        (
+                            abscissaNeiCmpt,
+                            cmptMomentOrder
+                        );
+                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
+                    momentCmptOwn == mOwnPow;
+
+                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
+                    momentCmptNei == mNeiPow;
+                }
             }
 
             divMoments_[divi] +=
@@ -413,65 +420,72 @@ void Foam::velocityAdvection::firstOrderKinetic::update
             surfaceScalarField momentCmptOwn(weightOwn);
             surfaceScalarField momentCmptNei(weightNei);
 
-            forAll(velocityIndexes, cmpti)
-            {
-                const label cmpt = velocityIndexes[cmpti];
-                const label cmptMomentOrder = momentOrder[cmpt];
-
-                tmp<surfaceScalarField> abscissaOwnCmpt =
-                   UOwn.component(cmpti);
-                tmp<surfaceScalarField> abscissaNeiCmpt =
-                    UNei.component(cmpti);
-
-                tmp<surfaceScalarField> mOwnPow =
-                    momentCmptOwn
-                   *pow
-                    (
-                        abscissaOwnCmpt,
-                        cmptMomentOrder
-                    );
-                tmp<surfaceScalarField> mNeiPow =
-                    momentCmptNei
-                   *pow
-                    (
-                        abscissaNeiCmpt,
-                        cmptMomentOrder
-                    );
-                momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                momentCmptOwn == mOwnPow;
-
-                momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                momentCmptNei == mNeiPow;
-            }
             forAll(scalarIndexes, cmpti)
             {
                 const label cmpt = scalarIndexes[cmpti];
                 const label cmptMomentOrder = momentOrder[cmpt];
 
-                const surfaceScalarField& abscissaOwnCmpt =
-                   scalarAbscissaeOwn[cmpti];
-                const surfaceScalarField& abscissaNeiCmpt =
-                    scalarAbscissaeNei[cmpti];
+                if (cmptMomentOrder > 0)
+                {
+                    const surfaceScalarField& abscissaOwnCmpt =
+                    scalarAbscissaeOwn[cmpti];
+                    const surfaceScalarField& abscissaNeiCmpt =
+                        scalarAbscissaeNei[cmpti];
 
-                tmp<surfaceScalarField> mOwnPow =
-                    momentCmptOwn
-                   *pow
-                    (
-                        abscissaOwnCmpt,
-                        cmptMomentOrder
-                    );
-                tmp<surfaceScalarField> mNeiPow =
-                    momentCmptNei
-                   *pow
-                    (
-                        abscissaNeiCmpt,
-                        cmptMomentOrder
-                    );
-                momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                momentCmptOwn == mOwnPow;
+                    tmp<surfaceScalarField> mOwnPow =
+                        momentCmptOwn
+                       *pow
+                        (
+                            abscissaOwnCmpt,
+                            cmptMomentOrder
+                        );
+                    tmp<surfaceScalarField> mNeiPow =
+                        momentCmptNei
+                       *pow
+                        (
+                            abscissaNeiCmpt,
+                            cmptMomentOrder
+                        );
+                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
+                    momentCmptOwn == mOwnPow;
 
-                momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                momentCmptNei == mNeiPow;
+                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
+                    momentCmptNei == mNeiPow;
+                }
+            }
+
+            forAll(velocityIndexes, cmpti)
+            {
+                const label cmpt = velocityIndexes[cmpti];
+                const label cmptMomentOrder = momentOrder[cmpt];
+
+                if (cmptMomentOrder > 0)
+                {
+                    tmp<surfaceScalarField> abscissaOwnCmpt =
+                    UOwn.component(cmpti);
+                    tmp<surfaceScalarField> abscissaNeiCmpt =
+                        UNei.component(cmpti);
+
+                    tmp<surfaceScalarField> mOwnPow =
+                        momentCmptOwn
+                       *pow
+                        (
+                            abscissaOwnCmpt,
+                            cmptMomentOrder
+                        );
+                    tmp<surfaceScalarField> mNeiPow =
+                        momentCmptNei
+                       *pow
+                        (
+                            abscissaNeiCmpt,
+                            cmptMomentOrder
+                        );
+                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
+                    momentCmptOwn == mOwnPow;
+
+                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
+                    momentCmptNei == mNeiPow;
+                }
             }
 
             divMoments_[divi] +=
@@ -551,65 +565,72 @@ void Foam::velocityAdvection::firstOrderKinetic::update
             surfaceScalarField momentCmptOwn(weightOwn);
             surfaceScalarField momentCmptNei(weightNei);
 
-            forAll(velocityIndexes, cmpti)
-            {
-                const label cmpt = velocityIndexes[cmpti];
-                const label cmptMomentOrder = momentOrder[cmpt];
-
-                tmp<surfaceScalarField> abscissaOwnCmpt =
-                   UOwn.component(cmpti);
-                tmp<surfaceScalarField> abscissaNeiCmpt =
-                    UNei.component(cmpti);
-
-                tmp<surfaceScalarField> mOwnPow =
-                    momentCmptOwn
-                   *pow
-                    (
-                        abscissaOwnCmpt,
-                        cmptMomentOrder
-                    );
-                tmp<surfaceScalarField> mNeiPow =
-                    momentCmptNei
-                   *pow
-                    (
-                        abscissaNeiCmpt,
-                        cmptMomentOrder
-                    );
-                momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                momentCmptOwn == mOwnPow;
-
-                momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                momentCmptNei == mNeiPow;
-            }
             forAll(scalarIndexes, cmpti)
             {
                 const label cmpt = scalarIndexes[cmpti];
                 const label cmptMomentOrder = momentOrder[cmpt];
 
-                const surfaceScalarField& abscissaOwnCmpt =
-                   scalarAbscissaeOwn[cmpti];
-                const surfaceScalarField& abscissaNeiCmpt =
-                    scalarAbscissaeNei[cmpti];
+                if (cmptMomentOrder > 0)
+                {
+                    const surfaceScalarField& abscissaOwnCmpt =
+                    scalarAbscissaeOwn[cmpti];
+                    const surfaceScalarField& abscissaNeiCmpt =
+                        scalarAbscissaeNei[cmpti];
 
-                tmp<surfaceScalarField> mOwnPow =
-                    momentCmptOwn
-                   *pow
-                    (
-                        abscissaOwnCmpt,
-                        cmptMomentOrder
-                    );
-                tmp<surfaceScalarField> mNeiPow =
-                    momentCmptNei
-                   *pow
-                    (
-                        abscissaNeiCmpt,
-                        cmptMomentOrder
-                    );
-                momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                momentCmptOwn == mOwnPow;
+                    tmp<surfaceScalarField> mOwnPow =
+                        momentCmptOwn
+                       *pow
+                        (
+                            abscissaOwnCmpt,
+                            cmptMomentOrder
+                        );
+                    tmp<surfaceScalarField> mNeiPow =
+                        momentCmptNei
+                       *pow
+                        (
+                            abscissaNeiCmpt,
+                            cmptMomentOrder
+                        );
+                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
+                    momentCmptOwn == mOwnPow;
 
-                momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                momentCmptNei == mNeiPow;
+                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
+                    momentCmptNei == mNeiPow;
+                }
+            }
+
+            forAll(velocityIndexes, cmpti)
+            {
+                const label cmpt = velocityIndexes[cmpti];
+                const label cmptMomentOrder = momentOrder[cmpt];
+
+                if (cmptMomentOrder > 0)
+                {
+                    tmp<surfaceScalarField> abscissaOwnCmpt =
+                    UOwn.component(cmpti);
+                    tmp<surfaceScalarField> abscissaNeiCmpt =
+                        UNei.component(cmpti);
+
+                    tmp<surfaceScalarField> mOwnPow =
+                        momentCmptOwn
+                       *pow
+                        (
+                            abscissaOwnCmpt,
+                            cmptMomentOrder
+                        );
+                    tmp<surfaceScalarField> mNeiPow =
+                        momentCmptNei
+                       *pow
+                        (
+                            abscissaNeiCmpt,
+                            cmptMomentOrder
+                        );
+                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
+                    momentCmptOwn == mOwnPow;
+
+                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
+                    momentCmptNei == mNeiPow;
+                }
             }
 
             divMoments_[divi] +=

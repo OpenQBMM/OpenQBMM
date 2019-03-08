@@ -235,7 +235,7 @@ bool Foam::sizeHyperbolicFieldMomentInversion::invertLocalMoments
         momentInverter_().velocityAbscissae()
     );
 
-    forAll(weights, nodei)
+    forAll(nodes, nodei)
     {
         const labelList& nodeIndex = nodeIndexes_[nodei];
         volVelocityNode& node(nodes[nodei]);

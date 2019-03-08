@@ -123,9 +123,10 @@ void Foam::sizeCHyQMOM::invert
     {
         sizeMoments[mi] = moments(mi);
     }
+
     sizeInverter_->invert(sizeMoments);
-    const scalarList& sizeWeights(sizeInverter_->weights());
-    const scalarList& sizeAbscissae(sizeInverter_->abscissae());
+    const scalarList& sWeights(sizeInverter_->weights());
+    const scalarList& sAbscissae(sizeInverter_->abscissae());
 
     forAll(nodeIndexes_, nodei)
     {
@@ -133,79 +134,113 @@ void Foam::sizeCHyQMOM::invert
         label sizeNode = nodeIndex[0] - 1;
         if (sizeNode < sizeInverter_->nNodes())
         {
-            weights_(nodeIndex) = sizeWeights[sizeNode];
-            sizeAbscissae_(nodeIndex) = sizeAbscissae[sizeNode];
+            weights_(nodeIndex) = sWeights[sizeNode];
+            sizeAbscissae_(nodeIndex) = sAbscissae[sizeNode];
         }
     }
 
-    scalarDiagonalMatrix x(sizeInverter_->nNodes(), 0.0);
-    scalarSquareMatrix R(sizeInverter_->nNodes(), 0.0);
-    scalarSquareMatrix invR(sizeInverter_->nNodes(), 0.0);
-
-    forAll(sizeWeights, nodei)
+    //- Check for non-zero size nodes
+    label nSizeNodes = 0;
+    scalarList sizeWeights;
+    scalarList sizeAbscissae;
+    forAll(sWeights, nodei)
     {
-        x[nodei] = sizeAbscissae[nodei];
-        R[nodei][nodei] = sizeWeights[nodei];
-        invR[nodei][nodei] = 1.0/sizeWeights[nodei];
+        if (sWeights[nodei] > small && sAbscissae[nodei] > small)
+        {
+            nSizeNodes++;
+            sizeWeights.append(sWeights[nodei]);
+            sizeAbscissae.append(sAbscissae[nodei]);
+        }
     }
-    Vandermonde V(x);
-    scalarSquareMatrix invVR = invR*V.inv();
-    scalarSquareMatrix VR = V()*R;
 
-    // Compute conditional velocity moments and invert
-    PtrList<mappedList<scalar>> conditionalMoments(sizeInverter_->nNodes());
-    forAll(conditionalMoments, sNodei)
+    if (nSizeNodes > 0)
     {
-        conditionalMoments.set
-        (
-            sNodei,
-            new mappedList<scalar>
+        scalarDiagonalMatrix x(nSizeNodes, 0.0);
+        scalarSquareMatrix invR(nSizeNodes, 0.0);
+
+        forAll(sizeWeights, nodei)
+        {
+            x[nodei] = sizeAbscissae[nodei];
+            invR[nodei][nodei] = 1.0/sizeWeights[nodei];
+        }
+        Vandermonde V(x);
+        scalarSquareMatrix invVR = invR*V.inv();
+
+        // Compute conditional velocity moments and invert
+        PtrList<mappedList<scalar>> conditionalMoments(nSizeNodes);
+        forAll(conditionalMoments, sNodei)
+        {
+            conditionalMoments.set
             (
-                nVelocityMoments_,
-                velocityMomentOrders_,
-                0.0
-            )
-        );
-    }
-
-    forAll(velocityMomentOrders_, mi)
-    {
-        const labelList& velocityMomentOrder = velocityMomentOrders_[mi];
-        labelList pureMomentOrder(nDistributionDims_, 0);
-        for (label dimi = 1; dimi < nDistributionDims_; dimi++)
-        {
-            pureMomentOrder[dimi] = velocityMomentOrder[dimi - 1];
+                sNodei,
+                new mappedList<scalar>
+                (
+                    nVelocityMoments_,
+                    velocityMomentOrders_,
+                    0.0
+                )
+            );
         }
 
-        scalarRectangularMatrix M(sizeInverter_->nNodes(), 1, 0);
-        for (label sNodei = 0; sNodei < sizeInverter_->nNodes(); sNodei++)
+        forAll(velocityMomentOrders_, mi)
         {
-            pureMomentOrder[0] = sNodei;
-            M(sNodei, 0) = moments(pureMomentOrder);
+            const labelList& velocityMomentOrder = velocityMomentOrders_[mi];
+            labelList pureMomentOrder(nDistributionDims_, 0);
+            for (label dimi = 1; dimi < nDistributionDims_; dimi++)
+            {
+                pureMomentOrder[dimi] = velocityMomentOrder[dimi - 1];
+            }
+
+            scalarRectangularMatrix M(nSizeNodes, 1, 0);
+            for (label sNodei = 0; sNodei < nSizeNodes; sNodei++)
+            {
+                pureMomentOrder[0] = sNodei;
+                M(sNodei, 0) = moments(pureMomentOrder);
+            }
+            scalarRectangularMatrix nu = invVR*M;
+
+            forAll(conditionalMoments, sNodei)
+            {
+                conditionalMoments[sNodei](velocityMomentOrder) = nu(sNodei, 0);
+            }
         }
-        scalarRectangularMatrix nu = invVR*M;
 
         forAll(conditionalMoments, sNodei)
         {
-            conditionalMoments[sNodei](velocityMomentOrder) = nu(sNodei, 0);
+            multivariateMomentSet momentsToInvert
+            (
+                nVelocityMoments_,
+                velocityMomentOrders_,
+                "R"
+            );
+            forAll(momentsToInvert, mi)
+            {
+                momentsToInvert(velocityMomentOrders_[mi]) =
+                    conditionalMoments[sNodei](velocityMomentOrders_[mi]);
+            }
+            velocityInverter_->invert(momentsToInvert);
+
+            forAll(velocityNodeIndexes_, nodei)
+            {
+                const labelList& velocityNodeIndex = velocityNodeIndexes_[nodei];
+                labelList nodeIndex(nDistributionDims_, 0);
+                nodeIndex[0] = sNodei + 1;
+                for (label dimi = 1; dimi < nDistributionDims_; dimi++)
+                {
+                    nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
+                }
+
+                weights_(nodeIndex) *=
+                    velocityInverter_->weights()(velocityNodeIndex);
+                velocityAbscissae_(nodeIndex) =
+                    velocityInverter_->abscissae()(velocityNodeIndex);
+            }
         }
     }
 
-    forAll(conditionalMoments, sNodei)
-    {
-        multivariateMomentSet momentsToInvert
-        (
-            nVelocityMoments_,
-            velocityMomentOrders_,
-            "R"
-        );
-        forAll(momentsToInvert, mi)
-        {
-            momentsToInvert(velocityMomentOrders_[mi]) =
-                conditionalMoments[sNodei](velocityMomentOrders_[mi]);
-        }
-        velocityInverter_->invert(momentsToInvert);
 
+    for(label sNodei = nSizeNodes; sNodei < nSizeNodes_; sNodei++)
+    {
         forAll(velocityNodeIndexes_, nodei)
         {
             const labelList& velocityNodeIndex = velocityNodeIndexes_[nodei];
@@ -216,16 +251,8 @@ void Foam::sizeCHyQMOM::invert
                 nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
             }
 
-            weights_(nodeIndex) *=
-                velocityInverter_->weights()(velocityNodeIndex);
-            for (label dimi = 0; dimi < nGeometricDimensions_; dimi++)
-            {
-                velocityAbscissae_(nodeIndex)[dimi] =
-                    velocityInverter_->abscissae()
-                    (
-                        velocityNodeIndex
-                    ).component(dimi);
-            }
+            weights_(nodeIndex) = 0.0;
+            velocityAbscissae_(nodeIndex) = Zero;
         }
     }
 }

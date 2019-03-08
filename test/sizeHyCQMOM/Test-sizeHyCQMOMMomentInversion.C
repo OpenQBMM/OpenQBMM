@@ -127,7 +127,12 @@ int main(int argc, char *argv[])
             cmpt *= pow(sizeAbscissae(nodeIndex), momentOrder[0]);
             for(label dimi = 0; dimi < momentOrder.size() - 1; dimi++)
             {
-                cmpt *= pow(velocityAbscissae(nodeIndex)[dimi], momentOrder[dimi]);
+                cmpt *=
+                    pow
+                    (
+                        velocityAbscissae(nodeIndex)[dimi],
+                        momentOrder[dimi + 1]
+                    );
             }
             newMoments(momentOrder) += cmpt;
         }

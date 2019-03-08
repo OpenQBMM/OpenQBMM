@@ -209,7 +209,7 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 )
 :
     nDimensions_(nDimensions),
-     nMoments_(getNMoments(nDimensions)),
+    nMoments_(getNMoments(nDimensions)),
     nNodes_(getNNodes(nDimensions)),
     support_("R"),
     moments_(nMoments_, getMomentOrders(nDimensions)),
@@ -355,8 +355,8 @@ void Foam::hyperbolicConditionalMomentInversion::invert1D
     // Store univariate quadrature in first direction
     forAll(weights1D, wi)
     {
-        weights1D[wi] = univariateInverter_().weights()[wi];
-        abscissae1D[wi] = univariateInverter_().abscissae()[wi];
+        weights1D[wi] = m0*univariateInverter_().weights()[wi];
+        abscissae1D[wi] = univariateInverter_().abscissae()[wi] + meanU;
     }
 }
 

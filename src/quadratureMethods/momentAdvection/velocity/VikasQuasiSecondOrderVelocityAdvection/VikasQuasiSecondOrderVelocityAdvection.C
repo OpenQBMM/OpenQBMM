@@ -108,13 +108,13 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
                     if (own[cell[facei]] == celli)
                     {
                         den +=
-                            this->nodesOwn_()[nodei].primaryWeight()[celli]
+                            this->nodesOwn_()[nodei].primaryWeight()[cell[facei]]
                            *max(phiOwn[cell[facei]], 0.0);
                     }
                     else if (nei[cell[facei]] == celli)
                     {
                         den -=
-                            this->nodesNei_()[nodei].primaryWeight()[celli]
+                            this->nodesNei_()[nodei].primaryWeight()[cell[facei]]
                            *min(phiNei[cell[facei]], 0.0);
                     }
                 }

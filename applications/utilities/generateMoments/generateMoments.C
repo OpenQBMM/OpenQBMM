@@ -141,15 +141,15 @@ int main(int argc, char *argv[])
                             IOobject::AUTO_WRITE
                         ),
                         mesh,
-                        momentGenerator().moments()[mi]
+                        momentGenerator().moments()(momentOrder)
                     )
                 );
 
                 //  Set boundaries based oboundary section
                 //  Initial values specified in the dictionary are overwritten
-                moments[mi].boundaryFieldRef().readField
+                moments(momentOrder).boundaryFieldRef().readField
                 (
-                    moments[mi].internalField(),
+                    moments(momentOrder).internalField(),
                     boundaries
                 );
             }

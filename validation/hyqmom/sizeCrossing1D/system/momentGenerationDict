@@ -1,0 +1,70 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      momentGenerationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases
+(
+    particles
+);
+
+boundaries
+{
+    inlet1
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+    inlet2
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+    defaultFaces
+    {
+        type    empty;
+    }
+}
+
+particles
+{
+    type                weightsAndAbscissae;
+    weightDimension     [0 0 0 0 0 0 0];
+    abscissaeDim0Dimensions       [0 1 0 0 0 0 0];
+    abscissaeDim1Dimensions       [0 1 -1 0 0 0 0];
+
+    default
+    {
+    }
+    inlet1
+    {
+        node0
+        {
+            weight  .001;
+            abscissa (0.01 1);
+        }
+    }
+    inlet2
+    {
+        node0
+        {
+            weight  .001;
+            abscissa (0.01 0);
+        }
+    }
+}
+
+
+// ************************************************************************* //
