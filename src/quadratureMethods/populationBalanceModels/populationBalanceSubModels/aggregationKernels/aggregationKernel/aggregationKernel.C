@@ -351,7 +351,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                         (
                             component
                             (
-                                node1.velocityAbscissae()[cmpt][celli],
+                                node1.velocityAbscissae()[celli],
                                 cmpt
                             ),
                             momentOrder[velocityIndexes[cmpt]]
@@ -432,7 +432,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                             (
                                 component
                                 (
-                                    node1.velocityAbscissae()[cmpt][celli],
+                                    node1.velocityAbscissae()[celli],
                                     cmpt
                                 ),
                                 momentOrder[velocityIndexes[cmpt]]

@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
     forAll(x, nodei)
     {
-        w[nodei] = scalar(rand())/scalar(RAND_MAX);
+        w[nodei] = scalar(rand())/scalar(RAND_MAX)*1e-30;
         forAll(x[nodei], dimi)
         {
             if (dimi == 0)
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
             Info<< momentOrder[dimi];
         }
         Info<< ": " << newMoments(momentOrder)
-            << ",\terror: "
+            << ",\trel error: "
             << (mag(moments(momentOrder) - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
 

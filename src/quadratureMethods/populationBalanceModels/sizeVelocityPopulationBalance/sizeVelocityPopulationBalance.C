@@ -125,6 +125,15 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
     return implicitSource + collisionKernel_->implicitCollisionSource(moment);
 }
 
+void Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
+::explicitMomentSource()
+{
+    if (collision_ || aggregation_ || breakup_ || growth_ || nucleation_)
+    {
+        odeType::solve(quadrature_, 0);
+    }
+    return ;
+}
 
 Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 ::sizeVelocityPopulationBalance::cellMomentSource

@@ -55,8 +55,7 @@ particles
     abscissaeDim2Dimensions       [0 1 -1 0 0 0 0];
 
     default
-    {
-    }
+    {}
     inlet1
     {
         node0

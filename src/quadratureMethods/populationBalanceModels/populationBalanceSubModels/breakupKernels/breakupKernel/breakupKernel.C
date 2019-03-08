@@ -273,7 +273,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                     (
                         component
                         (
-                            node.velocityAbscissae()[cmpt][celli],
+                            node.velocityAbscissae()[celli],
                             cmpt
                         ),
                         momentOrder[velocityIndexes[cmpt]]
@@ -329,7 +329,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                     (
                         component
                         (
-                            node.velocityAbscissae()[cmpt][celli],
+                            node.velocityAbscissae()[celli],
                             cmpt
                         ),
                         momentOrder[velocityIndexes[cmpt]]

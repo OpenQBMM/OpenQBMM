@@ -119,6 +119,9 @@ class sizeVelocityPopulationBalance
 //         //- Update explicit collison source terms
 //         virtual void updateCellMomentSource(const label celli);
 
+        //- Calculate explicit source terms with realizable ODE solver
+        virtual void explicitMomentSource();
+
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (

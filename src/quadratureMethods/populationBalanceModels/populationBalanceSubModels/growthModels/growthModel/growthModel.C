@@ -248,7 +248,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
                     (
                         component
                         (
-                            node.velocityAbscissae()[cmpt][celli],
+                            node.velocityAbscissae()[celli],
                             cmpt
                         ),
                         momentOrder[velocityIndexes[cmpt]]
@@ -305,7 +305,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
                     (
                         component
                         (
-                            node.velocityAbscissae()[cmpt][celli],
+                            node.velocityAbscissae()[celli],
                             cmpt
                         ),
                         momentOrder[velocityIndexes[cmpt]]
