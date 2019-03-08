@@ -26,28 +26,29 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-//- Return the total number of moments
 Foam::label Foam::sizeCHyQMOM::nMoments()
 {
     return nMoments_;
 }
 
-//- Return the list of nNodes
 Foam::label Foam::sizeCHyQMOM::nNodes()
 {
     return nNodes_;
 }
 
-//- Return mapped list of weights
-const Foam::mappedList<Foam::scalar>& Foam::sizeCHyQMOM::weights() const
+const Foam::mappedScalarList& Foam::sizeCHyQMOM::weights() const
 {
     return weights_;
 }
 
-//- Return mapped list of abscissae
-const Foam::mappedList<Foam::scalarList>& Foam::sizeCHyQMOM::abscissae() const
+const Foam::mappedScalarList& Foam::sizeCHyQMOM::sizeAbscissae() const
 {
-    return abscissae_;
+    return sizeAbscissae_;
+}
+
+const Foam::mappedVectorList& Foam::sizeCHyQMOM::velocityAbscissae() const
+{
+    return velocityAbscissae_;
 }
 
 

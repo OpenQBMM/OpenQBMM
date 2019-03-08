@@ -68,7 +68,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     (
         Foam::populationBalanceSubModels::aggregationKernel::New
         (
-            dict,
+            dict.subDict("aggregationKernel"),
             phi_.mesh()
         )
     ),
@@ -76,7 +76,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     (
         Foam::populationBalanceSubModels::breakupKernel::New
         (
-            dict,
+            dict.subDict("breakupKernel"),
             phi_.mesh()
         )
     ),
@@ -84,21 +84,21 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     (
         Foam::populationBalanceSubModels::growthModel::New
         (
-            dict
+            dict.subDict("growthModel")
         )
     ),
     diffusionModel_
     (
         Foam::populationBalanceSubModels::diffusionModel::New
         (
-            dict
+            dict.subDict("diffusionModel")
         )
     ),
     nucleationModel_
     (
         Foam::populationBalanceSubModels::nucleationModel::New
         (
-            dict,
+            dict.subDict("nucleationModel"),
             phi_.mesh()
         )
     )
@@ -147,7 +147,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
         source +=
             aggregationKernel_->aggregationSource
             (
-                momentOrder[0],
+                momentOrder,
                 celli,
                 quadrature,
                 environment
@@ -158,7 +158,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
         source +=
             breakupKernel_->breakupSource
             (
-                momentOrder[0],
+                momentOrder,
                 celli,
                 quadrature
             );
@@ -168,7 +168,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
         source +=
             growthModel_->phaseSpaceConvection
             (
-                momentOrder[0],
+                momentOrder,
                 celli,
                 quadrature
             );

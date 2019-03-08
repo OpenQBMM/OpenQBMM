@@ -28,7 +28,7 @@ Foam::quadratureNode<scalarType, vectorType>::name() const
 }
 
 template<class scalarType, class vectorType>
-inline bool Foam::quadratureNode<scalarType, vectorType>::extended() const
+bool Foam::quadratureNode<scalarType, vectorType>::extended() const
 {
     return extended_;
 }
@@ -45,6 +45,19 @@ const Foam::labelList&
 Foam::quadratureNode<scalarType, vectorType>::velocityIndexes() const
 {
     return velocityIndexes_;
+}
+
+template<class scalarType, class vectorType>
+Foam::label
+Foam::quadratureNode<scalarType, vectorType>::sizeIndex() const
+{
+    return sizeIndex_;
+}
+
+template<class scalarType, class vectorType>
+bool Foam::quadratureNode<scalarType, vectorType>::massBased() const
+{
+    return massBased_;
 }
 
 template<class scalarType, class vectorType>
@@ -83,7 +96,7 @@ Foam::quadratureNode<scalarType, vectorType>::primaryAbscissae()
 }
 
 template<class scalarType, class vectorType>
-const Foam::PtrList<scalarType>&
+const Foam::PtrList<Foam::PtrList<scalarType>>&
 Foam::quadratureNode<scalarType, vectorType>::secondaryWeights() const
 {
     if (!extended_)
@@ -98,7 +111,7 @@ Foam::quadratureNode<scalarType, vectorType>::secondaryWeights() const
 }
 
 template<class scalarType, class vectorType>
-Foam::PtrList<scalarType>&
+Foam::PtrList<Foam::PtrList<scalarType>>&
 Foam::quadratureNode<scalarType, vectorType>::secondaryWeights()
 {
     if (!extended_)

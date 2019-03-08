@@ -84,6 +84,23 @@ protected:
         > daughterDistribution_;
 
 
+    // Protected functions
+
+        //- Length based breakup source given two abscissae and an order
+        scalar nodeSource
+        (
+            const scalar& abscissa,
+            const label momentOrder
+        ) const;
+
+        //- Mass based breakup source given two abscissae and an order
+        scalar massNodeSource
+        (
+            const scalar& abscissa,
+            const label momentOrder
+        ) const;
+
+
 public:
 
     //- Runtime type information
@@ -139,9 +156,17 @@ public:
         //- Return Breakup source term
         scalar breakupSource
         (
-            const label momentOrder,
+            const labelList& momentOrder,
             const label celli,
             const scalarQuadratureApproximation& quadrature
+        );
+
+        //- Return Breakup source term
+        scalar breakupSource
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const velocityQuadratureApproximation& quadrature
         );
 };
 

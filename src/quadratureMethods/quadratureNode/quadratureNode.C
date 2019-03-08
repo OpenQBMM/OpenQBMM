@@ -54,6 +54,10 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
         )
     ),
     abscissae_(),
+    scalarIndexes_(),
+    velocityIndexes_(),
+    sizeIndex_(-1),
+    massBased_(false),
     secondaryWeights_(),
     secondaryAbscissae_(),
     sigmas_(),
@@ -69,11 +73,38 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
         else
         {
             scalarIndexes_.append(dimi);
+
+            if
+            (
+                (abscissaeDimensions[dimi] == dimMass)
+             || (abscissaeDimensions[dimi] == dimVolume)
+             || (abscissaeDimensions[dimi] == dimLength)
+            )
+            {
+                if (sizeIndex_ != -1)
+                {
+                    FatalErrorInFunction
+                        << "Only one abscissae can be sized based."
+                        << abort(FatalError);
+                }
+                sizeIndex_ = dimi;
+
+                if
+                (
+                    (abscissaeDimensions[dimi] == dimMass)
+                 || (abscissaeDimensions[dimi] == dimVolume)
+                )
+                {
+                    massBased_ = true;
+                }
+            }
         }
     }
+
     abscissae_.resize(scalarIndexes_.size());
     if (extended_)
     {
+        secondaryWeights_.resize(scalarIndexes_.size());
         secondaryAbscissae_.resize(scalarIndexes_.size());
         sigmas_.resize(scalarIndexes_.size());
     }
@@ -88,7 +119,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
             (
                 IOobject
                 (
-                    IOobject::groupName("abscissa", name_),
+                    IOobject::groupName("abscissa" + Foam::name(dimi), name_),
                     mesh.time().timeName(),
                     mesh,
                     IOobject::NO_READ,
@@ -107,7 +138,11 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
         if (extended_)
         {
             // Allocating secondary quadrature only if the node is of extended type
-            secondaryWeights_.setSize(nSecondaryNodes_);
+            secondaryWeights_.set
+            (
+                dimi,
+                new PtrList<weightType>(nSecondaryNodes_)
+            );
             secondaryAbscissae_.set
             (
                 dimi,
@@ -115,9 +150,9 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
             );
 
             // Allocating secondary weights and abscissae
-            forAll(secondaryWeights_, sNodei)
+            forAll(secondaryWeights_[dimi], sNodei)
             {
-                secondaryWeights_.set
+                secondaryWeights_[dimi].set
                 (
                     sNodei,
                     new weightType
@@ -126,7 +161,10 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         (
                             IOobject::groupName
                             (
-                                "secondaryWeight." + Foam::name(sNodei),
+                                "secondaryWeight"
+                              + Foam::name(dimi)
+                              + '.'
+                              + Foam::name(sNodei),
                                 name_
                             ),
                             mesh.time().timeName(),
@@ -148,7 +186,10 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         (
                             IOobject::groupName
                             (
-                                "secondaryAbscissa." + Foam::name(sNodei),
+                                "secondaryAbscissa"
+                              + Foam::name(dimi)
+                              + '.'
+                              + Foam::name(sNodei),
                                 name_
                             ),
                             mesh.time().timeName(),
@@ -224,6 +265,10 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
         boundaryTypes
     ),
     abscissae_(),
+    scalarIndexes_(),
+    velocityIndexes_(),
+    sizeIndex_(-1),
+    massBased_(false),
     secondaryWeights_(),
     secondaryAbscissae_(),
     sigmas_(),
@@ -239,11 +284,38 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
         else
         {
             scalarIndexes_.append(dimi);
+
+            if
+            (
+                (abscissaeDimensions[dimi] == dimMass)
+             || (abscissaeDimensions[dimi] == dimVolume)
+             || (abscissaeDimensions[dimi] == dimLength)
+            )
+            {
+                if (sizeIndex_ != -1)
+                {
+                    FatalErrorInFunction
+                        << "Only one abscissae can be sized based."
+                        << abort(FatalError);
+                }
+                sizeIndex_ = dimi;
+
+                if
+                (
+                    (abscissaeDimensions[dimi] == dimMass)
+                 || (abscissaeDimensions[dimi] == dimVolume)
+                )
+                {
+                    massBased_ = true;
+                }
+            }
         }
     }
+
     abscissae_.resize(scalarIndexes_.size());
     if (extended_)
     {
+        secondaryWeights_.resize(scalarIndexes_.size());
         secondaryAbscissae_.resize(scalarIndexes_.size());
         sigmas_.resize(scalarIndexes_.size());
     }
@@ -258,7 +330,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
             (
                 IOobject
                 (
-                    IOobject::groupName("abscissa", name_),
+                    IOobject::groupName("abscissa" + Foam::name(dimi), name_),
                     mesh.time().timeName(),
                     mesh,
                     IOobject::NO_READ,
@@ -278,7 +350,11 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
         if (extended_)
         {
             // Allocating secondary quadrature only if the node is of extended type
-            secondaryWeights_.setSize(nSecondaryNodes_);
+            secondaryWeights_.set
+            (
+                dimi,
+                new PtrList<weightType>(nSecondaryNodes_)
+            );
             secondaryAbscissae_.set
             (
                 dimi,
@@ -286,9 +362,9 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
             );
 
             // Allocating secondary weights and abscissae
-            forAll(secondaryWeights_, sNodei)
+            forAll(secondaryWeights_[dimi], sNodei)
             {
-                secondaryWeights_.set
+                secondaryWeights_[dimi].set
                 (
                     sNodei,
                     new weightType
@@ -297,7 +373,10 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         (
                             IOobject::groupName
                             (
-                                "secondaryWeight." + Foam::name(sNodei),
+                                "secondaryWeight"
+                              + Foam::name(dimi)
+                              + '.'
+                              + Foam::name(sNodei),
                                 name_
                             ),
                             mesh.time().timeName(),
@@ -320,7 +399,10 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         (
                             IOobject::groupName
                             (
-                                "secondaryAbscissa." + Foam::name(sNodei),
+                                "secondaryAbscissa"
+                              + Foam::name(dimi)
+                              + '.'
+                              + Foam::name(sNodei),
                                 name_
                             ),
                             mesh.time().timeName(),
@@ -335,7 +417,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                             abscissaeDimensions[cmpt],
                             0.0
                         ),
-                        boundaryTypes
+                    boundaryTypes
                     )
                 );
             }

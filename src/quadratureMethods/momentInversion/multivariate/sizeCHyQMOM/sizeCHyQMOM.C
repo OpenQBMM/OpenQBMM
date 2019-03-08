@@ -67,7 +67,8 @@ Foam::sizeCHyQMOM::sizeCHyQMOM
     ),
     supports_({"RPlus", "R", "R", "R"}),
     weights_(nNodes_, nodeIndexes, 0.0),
-    abscissae_(nNodes_, nodeIndexes, scalarList(nDistributionDims_, 0.0)),
+    sizeAbscissae_(nNodes_, nodeIndexes, 0.0),
+    velocityAbscissae_(nNodes_, nodeIndexes, Zero),
     sizeInverter_
     (
         univariateMomentInversion::New(dict.subDict("basicQuadrature"))
@@ -118,11 +119,9 @@ void Foam::sizeCHyQMOM::invert
 
     //- Invert size moments and build VR matrix
     univariateMomentSet sizeMoments(nSizeMoments_, supports_[0], 0.0);
-    labelList order(nDistributionDims_, 0);
     forAll(sizeMoments, mi)
     {
-        order[0] = mi;
-        sizeMoments[mi] = moments(order);
+        sizeMoments[mi] = moments(mi);
     }
     sizeInverter_->invert(sizeMoments);
     const scalarList& sizeWeights(sizeInverter_->weights());
@@ -131,11 +130,11 @@ void Foam::sizeCHyQMOM::invert
     forAll(nodeIndexes_, nodei)
     {
         const labelList& nodeIndex = nodeIndexes_[nodei];
-        label sizeNode = nodeIndex[0];
-        if (sizeNode <= sizeInverter_->nNodes())
+        label sizeNode = nodeIndex[0] - 1;
+        if (sizeNode < sizeInverter_->nNodes())
         {
-            weights_(nodeIndex) = sizeWeights[sizeNode - 1];
-            abscissae_(nodeIndex)[0] = sizeAbscissae[sizeNode - 1];
+            weights_(nodeIndex) = sizeWeights[sizeNode];
+            sizeAbscissae_(nodeIndex) = sizeAbscissae[sizeNode];
         }
     }
 
@@ -221,7 +220,7 @@ void Foam::sizeCHyQMOM::invert
                 velocityInverter_->weights()(velocityNodeIndex);
             for (label dimi = 0; dimi < nGeometricDimensions_; dimi++)
             {
-                abscissae_(nodeIndex)[dimi + 1] =
+                velocityAbscissae_(nodeIndex)[dimi] =
                     velocityInverter_->abscissae()
                     (
                         velocityNodeIndex
@@ -236,7 +235,8 @@ void Foam::sizeCHyQMOM::reset()
     forAll(weights_, nodei)
     {
         weights_[nodei] = 0.0;
-        abscissae_[nodei] = scalarList(nDistributionDims_, 0.0);
+        sizeAbscissae_[nodei] = 0.0;
+        velocityAbscissae_[nodei] = Zero;
     }
 }
 

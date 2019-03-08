@@ -54,7 +54,11 @@ Foam::populationBalanceSubModels::daughterDistribution::New
             << abort(FatalError);
     }
 
-    return autoPtr<daughterDistribution>(cstrIter()(dict));
+    return
+        autoPtr<daughterDistribution>
+        (
+            cstrIter()(dict.subDict("daughterDistribution"))
+        );
 }
 
 

@@ -121,9 +121,17 @@ public:
         //- Return phase space convection
         scalar phaseSpaceConvection
         (
-            const label cmpt,
+            const labelList& momentOrder,
             const label celli,
             const scalarQuadratureApproximation& quadrature
+        );
+
+        //- Return phase space convection
+        scalar phaseSpaceConvection
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const velocityQuadratureApproximation& quadrature
         );
 };
 

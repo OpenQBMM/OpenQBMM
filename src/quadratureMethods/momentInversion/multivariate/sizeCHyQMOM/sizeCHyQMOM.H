@@ -45,7 +45,7 @@ SourceFiles
 #include "vector.H"
 #include "scalarMatrices.H"
 #include "dictionary.H"
-#include "mappedList.H"
+#include "mappedLists.H"
 #include "Vandermonde.H"
 #include "hyperbolicConditionalMomentInversion.H"
 
@@ -97,10 +97,13 @@ class sizeCHyQMOM
         const wordList supports_;
 
         //- Quadratrure weights
-        mappedList<scalar> weights_;
+        mappedScalarList weights_;
 
-        //- Quadratrure abscissae
-        mappedList<scalarList> abscissae_;
+        //- Quadratrure size abscissae
+        mappedScalarList sizeAbscissae_;
+
+        //- Quadratrure velocity abscissae
+        mappedVectorList velocityAbscissae_;
 
         //- Univariate moment inversion method
         autoPtr<univariateMomentInversion> sizeInverter_;
@@ -153,10 +156,13 @@ public:
         inline label nNodes();
 
         //- Return mapped quadrature weights for each dimension
-        inline const mappedList<scalar>& weights() const;
+        inline const mappedScalarList& weights() const;
 
-        //- Return mapped quadrature abscissae for each dimension
-        inline const mappedList<scalarList>& abscissae() const;
+        //- Return mapped quadrature size abscissae for each dimension
+        inline const mappedScalarList& sizeAbscissae() const;
+
+        //- Return mapped quadrature velocity abscissae for each dimension
+        inline const mappedVectorList& velocityAbscissae() const;
 };
 
 

@@ -38,7 +38,7 @@ SourceFiles
 
 #include "labelList.H"
 #include "scalarList.H"
-#include "mappedList.H"
+#include "mappedLists.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -73,9 +73,35 @@ Foam::populationBalanceSubModels::breakupKernel::~breakupKernel()
 
 
 Foam::scalar
+Foam::populationBalanceSubModels::breakupKernel::nodeSource
+(
+    const scalar& abscissa,
+    const label momentOrder
+) const
+{
+    return
+         daughterDistribution_->mD(momentOrder, abscissa)//Birth
+       - pow(abscissa, momentOrder);
+}
+
+
+Foam::scalar
+Foam::populationBalanceSubModels::breakupKernel::massNodeSource
+(
+    const scalar& abscissa,
+    const label momentOrder
+) const
+{
+    return
+        daughterDistribution_->mDMass(momentOrder, abscissa)//Birth
+      - pow(abscissa, momentOrder);
+}
+
+
+Foam::scalar
 Foam::populationBalanceSubModels::breakupKernel::breakupSource
 (
-    const label momentOrder,
+    const labelList& momentOrder,
     const label celli,
     const scalarQuadratureApproximation& quadrature
 )
@@ -83,42 +109,233 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     scalar bSource = 0.0;
 
     const PtrList<volNode>& nodes = quadrature.nodes();
+    bool massBased = nodes[0].massBased();
+    label sizeIndex = nodes[0].sizeIndex();
+
+    if (sizeIndex == -1)
+    {
+        return bSource;
+    }
+
+    label sizeOrder = momentOrder[sizeIndex];
+
+    const labelList& scalarIndexes = nodes[0].scalarIndexes();
+
 
     if (!nodes[0].extended())
     {
-        forAll(nodes, pNodeI)
+        forAll(nodes, pNodei)
         {
-            const volNode& node = nodes[pNodeI];
+             const volNode& node = nodes[pNodei];
 
-            scalar bAbscissa = max(node.primaryAbscissae()[0][celli], 0.0);
+            scalar bAbscissa =
+                max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
 
-            bSource += node.primaryWeight()[celli]
-                    *Kb(bAbscissa, celli)
-                    *(
-                        daughterDistribution_->mD(momentOrder, bAbscissa)//Birth
-                      - pow(bAbscissa, momentOrder)   //Death
-                    );
+            scalar bSourcei = 0.0;
+            if (massBased)
+            {
+                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+            }
+            else
+            {
+                bSourcei = nodeSource(bAbscissa, sizeOrder);
+            }
+
+            bSourcei *=
+                node.primaryWeight()[celli]
+                *Kb(bAbscissa, celli);
+
+            forAll(scalarIndexes, nodei)
+            {
+                if (scalarIndexes[nodei] != sizeIndex)
+                {
+                    bSourcei *=
+                        pow
+                        (
+                            node.primaryAbscissae()[nodei][celli],
+                            momentOrder[scalarIndexes[nodei]]
+                        );
+                }
+            }
+            bSource += bSourcei;
         }
 
         return bSource;
     }
 
-    forAll(nodes, pNodeI)
+    forAll(nodes, pNodei)
     {
-        const volNode& node = nodes[pNodeI];
+        const volNode& node = nodes[pNodei];
 
-        forAll(node.secondaryWeights(), sNodei)
+        forAll(node.secondaryWeights()[0], sNodei)
         {
-            scalar bAbscissa
-                = max(node.secondaryAbscissae()[0][sNodei][celli], 0.0);
+            scalar bAbscissa =
+                max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
 
-            bSource += node.primaryWeight()[celli]
-                *node.secondaryWeights()[sNodei][celli]
-                *Kb(bAbscissa, celli)
-                *(
-                    daughterDistribution_->mD(momentOrder, bAbscissa)   //Birth
-                  - pow(bAbscissa, momentOrder)                         //Death
-                 );
+            scalar bSourcei = 0.0;
+            if (massBased)
+            {
+                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+            }
+            else
+            {
+                bSourcei = nodeSource(bAbscissa, sizeOrder);
+            }
+
+            bSourcei *=
+                node.primaryWeight()[celli]
+               *node.secondaryWeights()[sizeIndex][sNodei][celli]
+               *Kb(bAbscissa, celli);
+
+            forAll(scalarIndexes, cmpt)
+            {
+                if (scalarIndexes[cmpt] != sizeIndex)
+                {
+                    bSourcei *=
+                        node.secondaryWeights()[cmpt][sNodei][celli]
+                       *pow
+                        (
+                            node.secondaryAbscissae()[cmpt][sNodei][celli],
+                            momentOrder[scalarIndexes[cmpt]]
+                        );
+                }
+            }
+            bSource += bSourcei;
+        }
+    }
+
+    return bSource;
+}
+
+Foam::scalar
+Foam::populationBalanceSubModels::breakupKernel::breakupSource
+(
+    const labelList& momentOrder,
+    const label celli,
+    const velocityQuadratureApproximation& quadrature
+)
+{
+    scalar bSource = 0.0;
+
+    const PtrList<volVelocityNode>& nodes = quadrature.nodes();
+    bool massBased = nodes[0].massBased();
+    label sizeIndex = nodes[0].sizeIndex();
+
+    if (sizeIndex == -1)
+    {
+        return bSource;
+    }
+
+    label sizeOrder = momentOrder[sizeIndex];
+
+    const labelList& scalarIndexes = nodes[0].scalarIndexes();
+    const labelList& velocityIndexes = nodes[0].velocityIndexes();
+
+    if (!nodes[0].extended())
+    {
+        forAll(nodes, pNodei)
+        {
+             const volVelocityNode& node = nodes[pNodei];
+
+            scalar bAbscissa =
+                max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+
+            scalar bSourcei = 0.0;
+            if (massBased)
+            {
+                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+            }
+            else
+            {
+                bSourcei = nodeSource(bAbscissa, sizeOrder);
+            }
+
+            bSourcei *=
+                node.primaryWeight()[celli]
+                *Kb(bAbscissa, celli);
+
+            forAll(scalarIndexes, nodei)
+            {
+                if (scalarIndexes[nodei] != sizeIndex)
+                {
+                    bSourcei *=
+                        pow
+                        (
+                            node.primaryAbscissae()[nodei][celli],
+                            momentOrder[scalarIndexes[nodei]]
+                        );
+                }
+            }
+            forAll(velocityIndexes, cmpt)
+            {
+                bSourcei *=
+                    pow
+                    (
+                        component
+                        (
+                            node.velocityAbscissae()[cmpt][celli],
+                            cmpt
+                        ),
+                        momentOrder[velocityIndexes[cmpt]]
+                    );
+            }
+            bSource += bSourcei;
+        }
+
+        return bSource;
+    }
+
+    forAll(nodes, pNodei)
+    {
+        const volVelocityNode& node = nodes[pNodei];
+
+        forAll(node.secondaryWeights()[0], sNodei)
+        {
+            scalar bAbscissa =
+                max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
+
+            scalar bSourcei = 0.0;
+            if (massBased)
+            {
+                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+            }
+            else
+            {
+                bSourcei = nodeSource(bAbscissa, sizeOrder);
+            }
+
+            bSourcei *=
+                node.primaryWeight()[celli]
+               *node.secondaryWeights()[sizeIndex][sNodei][celli]
+               *Kb(bAbscissa, celli);
+
+            forAll(scalarIndexes, cmpt)
+            {
+                if (scalarIndexes[cmpt] != sizeIndex)
+                {
+                    bSourcei *=
+                        node.secondaryWeights()[cmpt][sNodei][celli]
+                       *pow
+                        (
+                            node.secondaryAbscissae()[cmpt][sNodei][celli],
+                            momentOrder[scalarIndexes[cmpt]]
+                        );
+                }
+            }
+            forAll(velocityIndexes, cmpt)
+            {
+                bSourcei *=
+                    pow
+                    (
+                        component
+                        (
+                            node.velocityAbscissae()[cmpt][celli],
+                            cmpt
+                        ),
+                        momentOrder[velocityIndexes[cmpt]]
+                    );
+            }
+            bSource += bSourcei;
         }
     }
 

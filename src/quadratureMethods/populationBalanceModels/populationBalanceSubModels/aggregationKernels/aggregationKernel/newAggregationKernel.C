@@ -34,10 +34,7 @@ Foam::populationBalanceSubModels::aggregationKernel::New
     const fvMesh& mesh
 )
 {
-    word aggregationKernelType
-    (
-        dict.subDict("aggregationKernel").lookup("aggregationKernel")
-    );
+    word aggregationKernelType(dict.lookup("aggregationKernel"));
 
     Info<< "Selecting aggregationKernel "
         << aggregationKernelType << endl;

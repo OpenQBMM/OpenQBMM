@@ -150,7 +150,7 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
                     sNodei++
                 )
                 {
-                    node.secondaryWeights()[sNodei].boundaryFieldRef()[patchi][facei]
+                    node.secondaryWeights()[0][sNodei].boundaryFieldRef()[patchi][facei]
                             = momentInverter_().secondaryWeights()[pNodei][sNodei];
 
                     node.secondaryAbscissae()[0][sNodei].boundaryFieldRef()[patchi][facei]
@@ -210,7 +210,7 @@ bool Foam::extendedFieldMomentInversion::invertLocalMoments
         node.primaryAbscissae()[0][celli] = pAbscissae[pNodei];
 
         // Copy secondary nodes
-        PtrList<volScalarField>& sWeightFields(node.secondaryWeights());
+        PtrList<volScalarField>& sWeightFields(node.secondaryWeights()[0]);
         PtrList<volScalarField>& sAbscissaFields(node.secondaryAbscissae()[0]);
 
         const scalarRectangularMatrix& sWeights

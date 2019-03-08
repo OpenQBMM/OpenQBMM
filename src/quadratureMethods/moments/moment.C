@@ -197,7 +197,7 @@ void Foam::moment<fieldType, nodeType>::update()
 
         for (label sNodei = 0; sNodei < node.nSecondaryNodes(); sNodei++)
         {
-            fieldType m(pW*node.secondaryWeights()[sNodei]);
+            fieldType m(pW);
 
             for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
             {
@@ -207,7 +207,11 @@ void Foam::moment<fieldType, nodeType>::update()
                 tmp<fieldType> abscissaCmpt
                         = node.secondaryAbscissae()[cmpt][sNodei];
 
-                tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
+                tmp<fieldType> mPow =
+                    m
+                   *node.secondaryWeights()[cmpt][sNodei]
+                   *pow(abscissaCmpt, cmptMomentOrder);
+
                 m.dimensions().reset(mPow().dimensions());
                 m == mPow;
             }
@@ -287,7 +291,7 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
 
         for (label sNodei = 0; sNodei < node.nSecondaryNodes(); sNodei++)
         {
-            scalar m = pW*node.secondaryWeights()[sNodei][elemi];
+            scalar m = pW;
 
             for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
             {
@@ -297,7 +301,9 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
                 const scalar abscissaCmpt =
                     node.secondaryAbscissae()[cmpt][sNodei][elemi];
 
-                m *= pow(abscissaCmpt, cmptMomentOrder);
+                m *=
+                    node.secondaryWeights()[cmpt][sNodei][elemi]
+                   *pow(abscissaCmpt, cmptMomentOrder);
             }
             for (label cmpt = 0; cmpt < velocityIndexes.size(); cmpt++)
             {

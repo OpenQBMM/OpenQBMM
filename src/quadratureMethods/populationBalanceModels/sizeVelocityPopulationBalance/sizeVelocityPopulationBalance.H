@@ -29,16 +29,20 @@ Description
     conditional quadrature method of moments with collisions.
 
 SourceFiles
-    velocityPopulationBalance.C
+    sizeVelocityPopulationBalance.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef velocityPopulationBalance_H
-#define velocityPopulationBalance_H
+#ifndef sizeVelocityPopulationBalance_H
+#define sizeVelocityPopulationBalance_H
 
 #include "velocityPopulationBalance.H"
 #include "collisionKernel.H"
-#include "realizableOdeSolver.H"
+#include "aggregationKernel.H"
+#include "breakupKernel.H"
+#include "growthModel.H"
+#include "diffusionModel.H"
+#include "nucleationModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,9 +57,9 @@ namespace populationBalanceModels
                 Class velocityPopulationBalance Declaration
 \*---------------------------------------------------------------------------*/
 
-class velocityPopulationBalance
+class sizeVelocityPopulationBalance
 :
-    public velocityPopulationBalanceModel
+    public velocityPopulationBalance
 {
     // Private data
 
@@ -68,6 +72,9 @@ class velocityPopulationBalance
         //- Switch indicating the status of the growth model
         Switch growth_;
 
+        //- Switch indicating the status of the nucleation model
+        Switch nucleation_;
+
         //- Aggregation kernel model
         autoPtr
         <
@@ -79,12 +86,6 @@ class velocityPopulationBalance
         <
             Foam::populationBalanceSubModels::breakupKernel
         > breakupKernel_;
-
-        //- Daughter distribution function
-        autoPtr
-        <
-            Foam::populationBalanceSubModels::daughterDistribution
-        > daughterDistribution_;
 
         //- Growth model function
         autoPtr
@@ -106,44 +107,14 @@ class velocityPopulationBalance
 
     // Private member functions
 
-        //- Calculate aggregation source terms
-        scalar aggregationSource
-        (
-            const label& momentOrder,
-            const label& celli
-        );
-
-        //- Calculate Breakup source term
-        scalar breakupSource
-        (
-            const label& momentOrder,
-            const label& celli
-        );
-
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
-        (
-            const volMoment& moment
-        );
-
-        //- Convect moments in phase space
-        virtual scalar phaseSpaceConvection
-        (
-            const label& momentOrder,
-            const label& celli
-        );
-
 //         //- Update implicit collison source terms
 //         virtual void updateImplicitMomentSource();
 //
-//          //- Calculate implicit source terms
-//         virtual tmp<fvScalarMatrix> implicitMomentSource
-//         (
-//             const volVelocityMoment& moment
-//         );
-
-        //- Calculate explicit source terms with realizable ODE solver
-        virtual void explicitMomentSource();
+         //- Calculate implicit source terms
+        virtual tmp<fvScalarMatrix> implicitMomentSource
+        (
+            const volVelocityMoment& moment
+        );
 
 //         //- Update explicit collison source terms
 //         virtual void updateCellMomentSource(const label celli);
@@ -151,7 +122,7 @@ class velocityPopulationBalance
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            const label momentOrder,
+            const labelList& momentOrder,
             const label celli,
             const velocityQuadratureApproximation& quadrature,
             const label enviroment = 0
@@ -167,7 +138,7 @@ public:
     // Constructors
 
         //- Construct from components
-        velocityPopulationBalance
+        sizeVelocityPopulationBalance
         (
             const word& name,
             const dictionary& dict,
@@ -176,12 +147,7 @@ public:
 
 
     //- Destructor
-    virtual ~velocityPopulationBalance();
-
-    // Member Functions
-
-        //- Solve population balance equation
-        virtual void solve();
+    virtual ~sizeVelocityPopulationBalance();
 };
 
 

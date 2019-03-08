@@ -77,6 +77,25 @@ protected:
         const dimensionedScalar Ca_;
 
 
+    // Protected functions
+
+        //- Length based aggregation source given two abscissae and an order
+        scalar nodeSource
+        (
+            const scalar& abscissa1,
+            const scalar& abscissa2,
+            const label momentOrder
+        ) const;
+
+        //- Mass based aggregation source given two abscissae and an order
+        scalar massNodeSource
+        (
+            const scalar& abscissa1,
+            const scalar& abscissa2,
+            const label momentOrder
+        ) const;
+
+
 public:
 
     //- Runtime type information
@@ -133,9 +152,18 @@ public:
         //- Return aggregation source terms
         scalar aggregationSource
         (
-            const label momentOrder,
+            const labelList& momentOrder,
             const label celli,
             const scalarQuadratureApproximation& quadrature,
+            const label enviroment
+        );
+
+        //- Return aggregation source terms
+        scalar aggregationSource
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const velocityQuadratureApproximation& quadrature,
             const label enviroment
         );
 };

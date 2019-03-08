@@ -33,7 +33,7 @@ Description
 #include "IOmanip.H"
 #include "IFstream.H"
 #include "OFstream.H"
-#include "mappedList.H"
+#include "mappedLists.H"
 #include "sizeCHyQMOM.H"
 #include "Random.H"
 
@@ -108,8 +108,10 @@ int main(int argc, char *argv[])
 
     Info<< "\nReconstructed moments:" << endl;
 
-    const mappedList<scalar>& weights = momentInverter.weights();
-    const mappedList<scalarList>& abscissae = momentInverter.abscissae();
+    const mappedScalarList& weights = momentInverter.weights();
+    const mappedScalarList& sizeAbscissae = momentInverter.sizeAbscissae();
+    const mappedVectorList& velocityAbscissae =
+        momentInverter.velocityAbscissae();
 
     mappedList<scalar> newMoments(nMoments, momentOrders);
     forAll(momentOrders, mi)
@@ -122,9 +124,10 @@ int main(int argc, char *argv[])
             const labelList& nodeIndex = nodeIndexes[nodei];
 
             scalar cmpt = weights(nodeIndex);
-            forAll(momentOrder, dimi)
+            cmpt *= pow(sizeAbscissae(nodeIndex), momentOrder[0]);
+            for(label dimi = 0; dimi < momentOrder.size() - 1; dimi++)
             {
-                cmpt *= pow(abscissae(nodeIndex)[dimi], momentOrder[dimi]);
+                cmpt *= pow(velocityAbscissae(nodeIndex)[dimi], momentOrder[dimi]);
             }
             newMoments(momentOrder) += cmpt;
         }

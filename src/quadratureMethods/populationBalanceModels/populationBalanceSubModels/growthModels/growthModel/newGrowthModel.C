@@ -33,10 +33,7 @@ Foam::populationBalanceSubModels::growthModel::New
     const dictionary& dict
 )
 {
-    word growthModelType
-    (
-        dict.subDict("growthModel").lookup("growthModel")
-    );
+    word growthModelType(dict.lookup("growthModel"));
 
     Info<< "Selecting growthModel "
         << growthModelType << endl;

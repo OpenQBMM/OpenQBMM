@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
         for (label sNodeI = 0; sNodeI < nSecondaryNodes; sNodeI++)
         {
-            quadrature.nodes()[nodeI].secondaryWeights()[sNodeI].write();
+            quadrature.nodes()[nodeI].secondaryWeights()[0][sNodeI].write();
             quadrature.nodes()[nodeI].secondaryAbscissae()[0][sNodeI].write();
         }
     }

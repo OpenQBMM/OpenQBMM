@@ -60,7 +60,7 @@ protected:
         //- Typedefs
 
         typedef scalarType weightType;
-        typedef PtrList<weightType> secondaryWeightsType;
+        typedef PtrList<PtrList<weightType>> secondaryWeightsType;
 
         typedef scalarType abscissaType;
         typedef PtrList<abscissaType> abscissaeType;
@@ -88,6 +88,12 @@ protected:
 
         //- Indicies of velocity components
         labelList velocityIndexes_;
+
+        //- Index of size component
+        label sizeIndex_;
+
+        //- Is the size mass based
+        bool massBased_;
 
         //- List of secondary weights of the node
         secondaryWeightsType secondaryWeights_;
@@ -216,6 +222,12 @@ public:
 
             //- Return velocity indexes
             const labelList& velocityIndexes() const;
+
+            //- Return size index
+            label sizeIndex() const;
+
+            //- Is the node mass based
+            bool massBased() const;
 
             //- Is the node extended
             bool extended() const;

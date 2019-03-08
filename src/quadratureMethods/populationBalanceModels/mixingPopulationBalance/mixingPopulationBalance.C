@@ -343,7 +343,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         source +=
             aggregationKernel_->aggregationSource
             (
-                momentOrder[0],
+                momentOrder,
                 celli,
                 quadrature,
                 environment
@@ -354,7 +354,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         source +=
             breakupKernel_->breakupSource
             (
-                momentOrder[0],
+                momentOrder,
                 celli,
                 quadrature
             );
@@ -364,7 +364,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         source +=
             growthModel_->phaseSpaceConvection
             (
-                momentOrder[0],
+                momentOrder,
                 celli,
                 quadrature
             );

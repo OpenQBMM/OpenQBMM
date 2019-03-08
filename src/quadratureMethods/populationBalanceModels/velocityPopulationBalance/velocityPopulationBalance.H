@@ -60,9 +60,11 @@ class velocityPopulationBalance
     public populationBalanceModel,
     public realizableOdeSolver<volVelocityMoment, volVelocityNode>
 {
+protected:
+
     typedef realizableOdeSolver<volVelocityMoment, volVelocityNode> odeType;
 
-    // Private data
+    // protected data
 
         //- Name of the velocityPopulationBalance
         const word name_;
