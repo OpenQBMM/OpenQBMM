@@ -210,7 +210,54 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
 Foam::scalar
 Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
 {
-    return 1.0;
+    const fvMesh& mesh = this->own_.mesh();
+    const labelList& own = mesh.owner();
+    const labelList& nei = mesh.neighbour();
+    surfaceVectorField Sf(mesh.Sf());
+
+    scalarField maxCoNum(mesh.nCells(), 1.0);
+
+    forAll(this->nodes_, nodei)
+    {
+
+        surfaceScalarField phiOwn
+        (
+            mag(this->nodesOwn_()[nodei].velocityAbscissae() & mesh.Sf())
+        );
+        surfaceScalarField phiNei
+        (
+            mag(this->nodesNei_()[nodei].velocityAbscissae() & mesh.Sf())
+        );
+
+        forAll(moments_[0], celli)
+        {
+            const labelList& cell = mesh.cells()[celli];
+
+            scalar den = 0;
+            forAll(cell, facei)
+            {
+                if (cell[facei] < mesh.nInternalFaces())
+                {
+                    den +=
+                        max
+                        (
+                            phiOwn[cell[facei]],
+                            phiNei[cell[facei]]
+                        );
+                }
+
+                den = max(den, small);
+                maxCoNum[celli] =
+                    min
+                    (
+                        maxCoNum[celli],
+                        mesh.V()[celli]
+                       /(den*mesh.time().deltaTValue())
+                    );
+            }
+        }
+    }
+    return gMin(maxCoNum);
 }
 
 Foam::scalar Foam::velocityAdvection::firstOrderKinetic::CoNum() const

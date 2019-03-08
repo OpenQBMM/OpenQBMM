@@ -46,6 +46,8 @@ SourceFiles
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "fieldMomentInversion.H"
+#include "volVelocityNode.H"
+#include "surfaceVelocityNode.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

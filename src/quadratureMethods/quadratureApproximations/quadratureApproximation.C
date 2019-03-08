@@ -289,7 +289,7 @@ void Foam::quadratureApproximation<momentType, nodeType>
 ::updateQuadrature()
 {
     momentFieldInverter_().invert(moments_, nodes_());
-//     updateMoments();
+    updateMoments();
 }
 
 template<class momentType, class nodeType>

@@ -232,7 +232,6 @@ void Foam::sizeCHyQMOM::invert
             }
             velocityInverter_->invert(momentsToInvert);
 
-            scalar sumW = 0;
             forAll(velocityNodeIndexes_, nodei)
             {
                 const labelList& velocityNodeIndex = velocityNodeIndexes_[nodei];
@@ -243,13 +242,11 @@ void Foam::sizeCHyQMOM::invert
                     nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
                 }
 
-                sumW += velocityInverter_->weights()(velocityNodeIndex);
                 weights_(nodeIndex) *=
                     velocityInverter_->weights()(velocityNodeIndex);
                 velocityAbscissae_(nodeIndex) =
                     velocityInverter_->abscissae()(velocityNodeIndex);
             }
-//             Info<<"cM0: "<<conditionalMoments[sNodei](0)<<", sumW: "<<sumW<<endl;
         }
     }
 }

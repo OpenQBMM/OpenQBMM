@@ -31,11 +31,11 @@ velocityCoeffs
         minLocalDt 1.0e-4;
     }
 
-    collision  on;
+    collision  off;
 
     collisionKernel
     {
-        collisionKernel esBGK;
+        collisionKernel noCollision;
         e           0.9;
         d           600e-6;
         tau         10;

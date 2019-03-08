@@ -66,7 +66,11 @@ class velocityQuadratureNode
     // Private functions
 
         //- Lookup boundary conditions and return velocity abscissae field
-        tmp<vectorType> createVelocityAbscissae(const scalarType&) const;
+        tmp<vectorType> createVelocityAbscissae
+        (
+            const scalarType& weight,
+            const bool boundary = false
+        ) const;
 
 
 public:

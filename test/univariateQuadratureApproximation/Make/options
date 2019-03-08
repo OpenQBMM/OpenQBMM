@@ -5,7 +5,7 @@ EXE_INC = \
     -I$(LIB_SRC)/sampling/lnInclude \
     -I../../src/mappedList \
     -I../../src/mappedPtrList \
-    -I../../src/quadratureMethods/quadratureNode \
+    -I../../src/quadratureMethods/quadratureNode/lnInclude \
     -I../../src/quadratureMethods/moments \
     -I../../src/quadratureMethods/momentSets/lnInclude \
     -I../../src/quadratureMethods/momentInversion/lnInclude \
@@ -20,6 +20,7 @@ EXE_LIBS = \
     -lmeshTools \
     -lsampling \
     -lvandermonde \
+    -lquadratureNode \
     -lmomentSets \
     -lmomentInversion \
     -lfieldMomentInversion

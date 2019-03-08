@@ -75,7 +75,7 @@ Foam::velocityQuadratureNode<scalarType, vectorType>::velocityQuadratureNode
         extended,
         nSecondaryNodes
     ),
-    velocityAbscissae_(createVelocityAbscissae(this->weight_))
+    velocityAbscissae_(createVelocityAbscissae(this->weight_, true))
 {}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -86,45 +86,16 @@ Foam::velocityQuadratureNode<scalarType, vectorType>::
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
+/*
 template<class scalarType, class vectorType>
 Foam::tmp<vectorType>
-Foam::velocityQuadratureNode<scalarType, vectorType>::
-createVelocityAbscissae(const scalarType& weight) const
+Foam::velocityQuadratureNode<scalarType, vectorType>::createVelocityAbscissae
+(
+    const scalarType& weight,
+    const bool boundary
+) const
 {
     const fvMesh& mesh = weight.mesh();
-
-//     if (weight.size() == mesh.nCells())
-//     {
-//         const vectorType& Umean =
-//             mesh.lookupObject<vectorType>
-//             (
-//                 IOobject::groupName("U", weight.group())
-//             );
-//
-//         return tmp<vectorType>
-//         (
-//             new vectorType
-//             (
-//                 IOobject
-//                 (
-//                     IOobject::groupName("velocityAbscissae", this->name_),
-//                     mesh.time().timeName(),
-//                     mesh,
-//                     IOobject::NO_READ,
-//                     IOobject::NO_WRITE
-//                 ),
-//                 mesh,
-//                 dimensionedVector
-//                 (
-//                     "zeroVelocityAbscissa",
-//                     dimVelocity,
-//                     Zero
-//                 )
-// //                 Umean.boundaryField()
-//             )
-//         );
-//     }
 
     return tmp<vectorType>
     (
@@ -147,7 +118,7 @@ createVelocityAbscissae(const scalarType& weight) const
             )
         )
     );
-}
+}*/
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

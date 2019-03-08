@@ -22,7 +22,6 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 InClass
-    Foam::quadratureNodes
 
 Description
 
@@ -30,31 +29,50 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef quadratureNodes_H
-#define quadratureNodes_H
+#include "surfaceVelocityNode.H"
 
-#include "volFields.H"
-#include "quadratureNode.H"
-#include "velocityQuadratureNode.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-typedef quadratureNode<volScalarField, volVectorField>  volNode;
-typedef quadratureNode<surfaceScalarField, surfaceVectorField> surfaceNode;
+template<>
+tmp<surfaceVectorField>
+velocityQuadratureNode<surfaceScalarField, surfaceVectorField>::
+createVelocityAbscissae
+(
+    const surfaceScalarField& weight,
+    const bool boundary
+) const
+{
+    const fvMesh& mesh = weight.mesh();
 
-typedef velocityQuadratureNode<volScalarField, volVectorField> volVelocityNode;
-typedef velocityQuadratureNode<surfaceScalarField, surfaceVectorField> surfaceVelocityNode;
+    return tmp<surfaceVectorField>
+    (
+        new surfaceVectorField
+        (
+            IOobject
+            (
+                IOobject::groupName("velocityAbscissae", this->name_),
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedVector
+            (
+                "zeroVelocityAbscissa",
+                dimVelocity,
+                Zero
+            )
+        )
+    );
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
-
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#endif
 
 // ************************************************************************* //

@@ -13,7 +13,7 @@ EXE_INC = \
     -I../../mappedList \
     -I../../mappedPtrList \
     -I../momentSets/lnInclude \
-    -I../quadratureNode \
+    -I../quadratureNode/lnInclude \
     -I../moments \
     -I../momentInversion/lnInclude \
     -I../fieldMomentInversion/lnInclude \
@@ -32,6 +32,7 @@ LIB_LIBS = \
     -lmeshTools \
     -L$(FOAM_USER_LIBBIN) \
     -leigenSolver \
+    -lquadratureNode \
     -lmomentSets \
     -lmomentInversion \
     -lfieldMomentInversion \
