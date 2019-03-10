@@ -118,7 +118,7 @@ Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::implicitMomentSource
 (
-    const volMoment& moment
+    const volScalarMoment& moment
 )
 {
     return diffusionModel_->momentDiff(moment);

@@ -117,7 +117,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 {
     scalar aSource = 0.0;
 
-    const PtrList<volNode>& nodes = quadrature.nodes();
+    const PtrList<volScalarNode>& nodes = quadrature.nodes();
     bool massBased = nodes[0].massBased();
     label sizeIndex = nodes[0].sizeIndex();
 
@@ -134,14 +134,14 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
     {
         forAll(nodes, pNode1i)
         {
-            const volNode& node1 = nodes[pNode1i];
+            const volScalarNode& node1 = nodes[pNode1i];
             const volScalarField& pWeight1 = node1.primaryWeight();
             const PtrList<volScalarField>& pAbscissae1 =
                 node1.primaryAbscissae();
 
             forAll(nodes, pNode2i)
             {
-                const volNode& node2 = nodes[pNode2i];
+                const volScalarNode& node2 = nodes[pNode2i];
                 const volScalarField& pWeight2 = node2.primaryWeight();
 
                 // Remove small negative values in abscissae
@@ -195,7 +195,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 
     forAll(nodes, pNode1i)      // Extended quadrature case
     {
-        const volNode& node1 = nodes[pNode1i];
+        const volScalarNode& node1 = nodes[pNode1i];
         const volScalarField& pWeight1 = node1.primaryWeight();
 
         forAll(node1.secondaryWeights()[0], sNode1i)
@@ -205,7 +205,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 
             forAll(nodes, pNode2i)
             {
-                const volNode& node2 = nodes[pNode2i];
+                const volScalarNode& node2 = nodes[pNode2i];
                 const volScalarField& pWeight2 = node2.primaryWeight();
 
                 forAll(node2.secondaryWeights()[0], sNode2i)

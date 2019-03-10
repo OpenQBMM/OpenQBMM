@@ -70,17 +70,17 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
         return cSource;
     }
 
-    const PtrList<volNode>& nodes = quadrature_.nodes();
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
     {
-        const volNode& node1 = nodes[nodei];
+        const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
         scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], 0.0);
 
         forAll(nodes, nodej)
         {
-            const volNode& node2 = nodes[nodej];
+            const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
             scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], 0.0);
 
@@ -117,17 +117,17 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
         return cSource;
     }
 
-    const PtrList<volNode>& nodes = quadrature_.nodes();
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
     {
-        const volNode& node1 = nodes[nodei];
+        const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
         scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], 0.0);
 
         forAll(nodes, nodej)
         {
-            const volNode& node2 = nodes[nodej];
+            const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
             scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], 0.0);
 
@@ -166,11 +166,11 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
         return bSource;
     }
 
-    const PtrList<volNode>& nodes = quadrature_.nodes();
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
     {
-        const volNode& node = nodes[nodei];
+        const volScalarNode& node = nodes[nodei];
         scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], 0.0);
 
         //- Diameter is used to calculate the breakup kernel in place
@@ -203,11 +203,11 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
         return bSource;
     }
 
-    const PtrList<volNode>& nodes = quadrature_.nodes();
+    const PtrList<volScalarNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
     {
-        const volNode& node = nodes[nodei];
+        const volScalarNode& node = nodes[nodei];
         scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], 0.0);
 
         //- Diameter is used to calculate the breakup kernel in place
@@ -238,7 +238,7 @@ void Foam::polydispersePhaseModel::solveSourceOde()
     coalescenceKernel_.update();
     breakupKernel_->update();
 
-    volMomentFieldSet& moments = quadrature_.moments();
+    volScalarMomentFieldSet& moments = quadrature_.moments();
     label nMoments = quadrature_.nMoments();
     PtrList<volVectorField>& Ups = quadrature_.velocityMoments();
     label nVelocityMoments = Ups.size();
@@ -797,7 +797,7 @@ void Foam::polydispersePhaseModel::correct()
 
         forAll(quadrature_.nodes(), nodei)
         {
-            const volNode& node = quadrature_.nodes()[nodei];
+            const volScalarNode& node = quadrature_.nodes()[nodei];
 
             // Set alpha values such that the moment.1 is equal to the bounded
             // alpha
@@ -843,8 +843,8 @@ void Foam::polydispersePhaseModel::relativeTransport()
     Info<< "Transporting moments based on relative flux" << endl;
 
     quadrature_.interpolateNodes();
-    const PtrList<surfaceNode>& nodesOwn = quadrature_.nodesOwn();
-    const PtrList<surfaceNode>& nodesNei = quadrature_.nodesNei();
+    const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
+    const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
 
     // Transport moments with relative flux
     forAll(quadrature_.moments(), mEqni)
@@ -978,8 +978,8 @@ void Foam::polydispersePhaseModel::averageTransport
 )
 {
     // Correct mean flux
-    const PtrList<surfaceNode>& nodesOwn = quadrature_.nodesOwn();
-    const PtrList<surfaceNode>& nodesNei = quadrature_.nodesNei();
+    const PtrList<surfaceScalarNode>& nodesOwn = quadrature_.nodesOwn();
+    const PtrList<surfaceScalarNode>& nodesNei = quadrature_.nodesNei();
     dimensionedScalar zeroPhi("zero", phiPtr_().dimensions(), 0.0);
     surfaceScalarField phi(phiPtr_());
 

@@ -50,10 +50,12 @@ sizeVelocityCoeffs
     aggregation on;
     aggregationKernel
     {
-        aggregationKernel constant;
+        aggregationKernel differentialForce;
+
+        Ca        Ca        [ 0 0 -1 0 0 0 0 ] 1.0;
     }
 
-    breakup on;
+    breakup off;
     breakupKernel
     {
         breakupKernel constant;

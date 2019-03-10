@@ -60,7 +60,7 @@ namespace Foam
 
 class monoKineticQuadratureApproximation
 :
-    public quadratureApproximation<volMoment, volNode>
+    public quadratureApproximation<volScalarMoment, volScalarNode>
 {
     // Private data
 
@@ -77,13 +77,13 @@ class monoKineticQuadratureApproximation
         PtrList<volVectorField> velocityAbscissae_;
 
         //- List of interpolated nodes (neighbour)
-        autoPtr<PtrList<surfaceNode>> nodesNei_;
+        autoPtr<PtrList<surfaceScalarNode>> nodesNei_;
 
         //- List of interpolate velocities (neighbour)
         PtrList<surfaceVectorField> velocitiesNei_;
 
         //- List of interpolated nodes (owner)
-        autoPtr<PtrList<surfaceNode>> nodesOwn_;
+        autoPtr<PtrList<surfaceScalarNode>> nodesOwn_;
 
         //- List of interpolate velocities (owner)
         PtrList<surfaceVectorField> velocitiesOwn_;
@@ -128,13 +128,13 @@ public:
             inline PtrList<volVectorField>& velocityMoments();
 
             //- Const access to the interpolated moments (owner)
-            inline const PtrList<surfaceNode>& nodesOwn() const;
+            inline const PtrList<surfaceScalarNode>& nodesOwn() const;
 
             //- Const access to the interpolated velocities (owner)
             inline const PtrList<surfaceVectorField>& velocitiesOwn() const;
 
             //- Const access to the interpolated moments (neighbour)
-            inline const PtrList<surfaceNode>& nodesNei() const;
+            inline const PtrList<surfaceScalarNode>& nodesNei() const;
 
             //- Const access to the interpolated velocities (neighbour)
             inline const PtrList<surfaceVectorField>& velocitiesNei() const;

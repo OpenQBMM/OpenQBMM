@@ -78,19 +78,19 @@ class turbulentMixing
         //- Diffusion term
         virtual tmp<fvScalarMatrix> momentDiffusion
         (
-            const volMoment& moment
+            const volScalarMoment& moment
         );
 
         //- Convect moments in phase space
         virtual tmp<volScalarField> phaseSpaceConvection
         (
-            const volMoment& moment
+            const volScalarMoment& moment
         );
 
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
-            const volMoment& moment
+            const volScalarMoment& moment
         );
 
         //- Calculate explicit source terms with realizable ODE solver

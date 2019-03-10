@@ -62,9 +62,9 @@ class univariatePopulationBalance
 :
     public univariatePDFTransportModel,
     public populationBalanceModel,
-    private realizableOdeSolver<volMoment, volNode>
+    private realizableOdeSolver<volScalarMoment, volScalarNode>
 {
-    typedef realizableOdeSolver<volMoment, volNode> odeType;
+    typedef realizableOdeSolver<volScalarMoment, volScalarNode> odeType;
 
     // Private data
 
@@ -118,7 +118,7 @@ class univariatePopulationBalance
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
-            const volMoment& moment
+            const volScalarMoment& moment
         );
 
         //- Calculate explicit source terms with realizable ODE solver

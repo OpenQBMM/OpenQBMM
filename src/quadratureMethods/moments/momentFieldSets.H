@@ -43,9 +43,9 @@ SourceFiles
 namespace Foam
 {
 
-typedef momentFieldSet<volMoment, volNode> volMomentFieldSet;
-
-typedef momentFieldSet<surfaceMoment, surfaceNode> surfaceMomentFieldSet;
+typedef momentFieldSet<volScalarMoment, volScalarNode> volScalarMomentFieldSet;
+typedef momentFieldSet<surfaceScalarMoment, surfaceScalarNode>
+    surfaceScalarMomentFieldSet;
 
 typedef momentFieldSet<volVelocityMoment, volVelocityNode>
     volVelocityMomentFieldSet;

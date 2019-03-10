@@ -73,7 +73,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
 {
     scalar gSource = 0.0;
 
-    const PtrList<volNode>& nodes = quadrature.nodes();
+    const PtrList<volScalarNode>& nodes = quadrature.nodes();
     bool massBased = nodes[0].massBased();
     label sizeIndex = nodes[0].sizeIndex();
 
@@ -94,7 +94,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     {
         forAll(nodes, pNodeI)
         {
-            const volNode& node = nodes[pNodeI];
+            const volScalarNode& node = nodes[pNodeI];
 
             scalar bAbscissa =
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
@@ -134,7 +134,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
 
     forAll(nodes, pNodeI)
     {
-        const volNode& node = nodes[pNodeI];
+        const volScalarNode& node = nodes[pNodeI];
 
         forAll(node.secondaryWeights()[0], sNodei)
         {

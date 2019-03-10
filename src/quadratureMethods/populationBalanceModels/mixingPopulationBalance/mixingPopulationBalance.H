@@ -64,9 +64,9 @@ namespace populationBalanceModels
 class mixingPopulationBalance
 :
     public populationBalanceModel,
-    private realizableOdeSolver<volMoment, volNode>
+    private realizableOdeSolver<volScalarMoment, volScalarNode>
 {
-    typedef realizableOdeSolver<volMoment, volNode> odeType;
+    typedef realizableOdeSolver<volScalarMoment, volScalarNode> odeType;
 
     // Private data
 
@@ -113,10 +113,10 @@ class mixingPopulationBalance
         autoPtr<univariateMomentAdvection> meanMomentsVarianceAdvection_;
 
         //- Mean moments
-        volMomentFieldSet& meanMoments_;
+        volScalarMomentFieldSet& meanMoments_;
 
         //- Variance of mean moments
-        volMomentFieldSet& meanMomentsVariance_;
+        volScalarMomentFieldSet& meanMomentsVariance_;
 
         //- Quadrature approximation of the PBE in the first environment
         scalarQuadratureApproximation envOneQuadrature_;
@@ -125,10 +125,10 @@ class mixingPopulationBalance
         scalarQuadratureApproximation envTwoQuadrature_;
 
         //- Reference to moments in environment one
-        volMomentFieldSet& mEnvOne_;
+        volScalarMomentFieldSet& mEnvOne_;
 
         //- Reference to moments in environment two
-        volMomentFieldSet& mEnvTwo_;
+        volScalarMomentFieldSet& mEnvTwo_;
 
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;

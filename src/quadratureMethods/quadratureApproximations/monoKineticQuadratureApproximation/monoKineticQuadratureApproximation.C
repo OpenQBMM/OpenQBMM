@@ -113,17 +113,17 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
             )
         );
     }
-    nodesNei_ = autoPtr<PtrList<surfaceNode>>
+    nodesNei_ = autoPtr<PtrList<surfaceScalarNode>>
     (
-        new PtrList<surfaceNode>(nNodes_)
+        new PtrList<surfaceScalarNode>(nNodes_)
     );
-    nodesOwn_ = autoPtr<PtrList<surfaceNode>>
+    nodesOwn_ = autoPtr<PtrList<surfaceScalarNode>>
     (
-        new PtrList<surfaceNode>(nNodes_)
+        new PtrList<surfaceScalarNode>(nNodes_)
     );
 
-    PtrList<surfaceNode>& nodesNei = nodesNei_();
-    PtrList<surfaceNode>& nodesOwn = nodesOwn_();
+    PtrList<surfaceScalarNode>& nodesNei = nodesNei_();
+    PtrList<surfaceScalarNode>& nodesOwn = nodesOwn_();
 
     PtrList<dimensionSet> abscissaeDimensions(momentOrders_[0].size());
     labelList zeroOrder(momentOrders_[0].size(), 0);
@@ -174,7 +174,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
         nodesNei.set
         (
             nodei,
-            new surfaceNode
+            new surfaceScalarNode
             (
                 "node" + Foam::name(nodei) + "Nei",
                 name_,
@@ -213,7 +213,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
         nodesOwn.set
         (
             nodei,
-            new surfaceNode
+            new surfaceScalarNode
             (
                 "node" + Foam::name(nodei) + "Own",
                 name_,
@@ -289,15 +289,15 @@ void Foam::monoKineticQuadratureApproximation::interpolateNodes()
         dimensionedScalar("own", dimless, 1.0)
     );
 
-    const PtrList<volNode>& nodes = nodes_();
-    PtrList<surfaceNode>& nodesNei = nodesNei_();
-    PtrList<surfaceNode>& nodesOwn = nodesOwn_();
+    const PtrList<volScalarNode>& nodes = nodes_();
+    PtrList<surfaceScalarNode>& nodesNei = nodesNei_();
+    PtrList<surfaceScalarNode>& nodesOwn = nodesOwn_();
 
     forAll(nodes, nodei)
     {
-        const volNode& node(nodes[nodei]);
-        surfaceNode& nodeNei(nodesNei[nodei]);
-        surfaceNode& nodeOwn(nodesOwn[nodei]);
+        const volScalarNode& node(nodes[nodei]);
+        surfaceScalarNode& nodeNei(nodesNei[nodei]);
+        surfaceScalarNode& nodeOwn(nodesOwn[nodei]);
 
         nodes_()[nodei].primaryWeight().correctBoundaryConditions();
         nodes_()[nodei].primaryAbscissae()[0].correctBoundaryConditions();

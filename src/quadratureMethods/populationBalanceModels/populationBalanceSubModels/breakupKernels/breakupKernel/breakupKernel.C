@@ -108,7 +108,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 {
     scalar bSource = 0.0;
 
-    const PtrList<volNode>& nodes = quadrature.nodes();
+    const PtrList<volScalarNode>& nodes = quadrature.nodes();
     bool massBased = nodes[0].massBased();
     label sizeIndex = nodes[0].sizeIndex();
 
@@ -126,7 +126,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     {
         forAll(nodes, pNodei)
         {
-             const volNode& node = nodes[pNodei];
+             const volScalarNode& node = nodes[pNodei];
 
             scalar bAbscissa =
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
@@ -165,7 +165,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
     forAll(nodes, pNodei)
     {
-        const volNode& node = nodes[pNodei];
+        const volScalarNode& node = nodes[pNodei];
 
         forAll(node.secondaryWeights()[0], sNodei)
         {

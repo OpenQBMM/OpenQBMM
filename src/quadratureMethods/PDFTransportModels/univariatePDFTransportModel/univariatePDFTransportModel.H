@@ -77,7 +77,7 @@ protected:
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
-            const volMoment& moment
+            const volScalarMoment& moment
         ) = 0;
 
         //- Calculate explicit source terms with realizable ODE solver

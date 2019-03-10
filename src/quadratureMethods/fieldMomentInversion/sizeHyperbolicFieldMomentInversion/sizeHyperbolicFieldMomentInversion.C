@@ -82,8 +82,8 @@ Foam::sizeHyperbolicFieldMomentInversion::~sizeHyperbolicFieldMomentInversion()
 
 void Foam::sizeHyperbolicFieldMomentInversion::invert
 (
-    const volMomentFieldSet& moments,
-    mappedPtrList<volNode>& nodes
+    const volScalarMomentFieldSet& moments,
+    mappedPtrList<volScalarNode>& nodes
 )
 {
     NotImplemented;
@@ -91,8 +91,8 @@ void Foam::sizeHyperbolicFieldMomentInversion::invert
 
 void Foam::sizeHyperbolicFieldMomentInversion::invertBoundaryMoments
 (
-    const volMomentFieldSet& moments,
-    mappedPtrList<volNode>& nodes
+    const volScalarMomentFieldSet& moments,
+    mappedPtrList<volScalarNode>& nodes
 )
 {
     NotImplemented;
@@ -100,8 +100,8 @@ void Foam::sizeHyperbolicFieldMomentInversion::invertBoundaryMoments
 
 bool Foam::sizeHyperbolicFieldMomentInversion::invertLocalMoments
 (
-    const volMomentFieldSet& moments,
-    mappedPtrList<volNode>& nodes,
+    const volScalarMomentFieldSet& moments,
+    mappedPtrList<volScalarNode>& nodes,
     const label celli,
     const bool fatalErrorOnFailedRealizabilityTest
 )

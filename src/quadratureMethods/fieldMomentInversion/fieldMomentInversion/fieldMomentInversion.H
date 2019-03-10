@@ -138,22 +138,22 @@ public:
             //- Invert moments in the entire computational domain
             virtual void invert
             (
-                const volMomentFieldSet& moments,
-                mappedPtrList<volNode>& nodes
+                const volScalarMomentFieldSet& moments,
+                mappedPtrList<volScalarNode>& nodes
             ) = 0;
 
             //- Invert moments on boundaries
             virtual void invertBoundaryMoments
             (
-                const volMomentFieldSet& moments,
-                mappedPtrList<volNode>& nodes
+                const volScalarMomentFieldSet& moments,
+                mappedPtrList<volScalarNode>& nodes
             ) = 0;
 
             //- Invert moments in a single cell
             virtual bool invertLocalMoments
             (
-                const volMomentFieldSet& moments,
-                mappedPtrList<volNode>& nodes,
+                const volScalarMomentFieldSet& moments,
+                mappedPtrList<volScalarNode>& nodes,
                 const label celli,
                 const bool fatalErrorOnFailedRealizabilityTest = true
             ) = 0;

@@ -70,7 +70,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
     // Solve moment transport equations
     forAll(quadrature_.moments(), momenti)
     {
-        volMoment& m = quadrature_.moments()[momenti];
+        volScalarMoment& m = quadrature_.moments()[momenti];
 
         momentEqns.set
         (
@@ -92,7 +92,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
 
     forAll (momentEqns, mEqni)
     {
-        volMoment& m = quadrature_.moments()[mEqni];
+        volScalarField& m = quadrature_.moments()[mEqni];
 
         if (solveMomentSources())
         {

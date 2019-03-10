@@ -43,7 +43,7 @@ SourceFiles
 namespace Foam
 {
 
-typedef quadratureApproximation<volMoment, volNode>
+typedef quadratureApproximation<volScalarMoment, volScalarNode>
     scalarQuadratureApproximation;
 
 typedef quadratureApproximation<volVelocityMoment, volVelocityNode>

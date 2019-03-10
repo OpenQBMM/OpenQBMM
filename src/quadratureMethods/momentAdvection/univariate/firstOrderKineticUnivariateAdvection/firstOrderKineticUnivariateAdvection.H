@@ -56,19 +56,19 @@ class firstOrderKinetic
     // Private data
 
         //- List of quadrature nodes used for moment advection
-        autoPtr<mappedPtrList<volNode>> nodes_;
+        autoPtr<mappedPtrList<volScalarNode>> nodes_;
 
         //- List of interpolated nodes (neighbour)
-        autoPtr<mappedPtrList<surfaceNode>> nodesNei_;
+        autoPtr<mappedPtrList<surfaceScalarNode>> nodesNei_;
 
         //- List of interpolated nodes (owner)
-        autoPtr<mappedPtrList<surfaceNode>> nodesOwn_;
+        autoPtr<mappedPtrList<surfaceScalarNode>> nodesOwn_;
 
         //- List of interpolated moments (neighbour)
-        surfaceMomentFieldSet momentsNei_;
+        surfaceScalarMomentFieldSet momentsNei_;
 
         //- List of interpolated moments (owner)
-        surfaceMomentFieldSet momentsOwn_;
+        surfaceScalarMomentFieldSet momentsOwn_;
 
         //- Flux moment inversion method
         autoPtr<basicFieldMomentInversion> momentFieldInverter_;

@@ -238,13 +238,13 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::calcEnvironmentMoments()
 {
-    const volMomentFieldSet& mXi
+    const volScalarMomentFieldSet& mXi
     (
         mixingModel_().quadrature().moments()
     );
 
-    const volMoment& xiMean_ = mXi[1];
-    const volMoment& xiMTwo_ = mXi[2];
+    const volScalarMoment& xiMean_ = mXi[1];
+    const volScalarMoment& xiMTwo_ = mXi[2];
 
     // Compute variance of the mixture fraction
     const volScalarField xiVariance(xiMTwo_ - sqr(xiMean_));
@@ -427,7 +427,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Solve moment transport equations
     forAll(meanMomentsQuadrature_.moments(), momenti)
     {
-        volMoment& meanM
+        volScalarMoment& meanM
         (
             meanMomentsQuadrature_.moments()[momenti]
         );
@@ -443,7 +443,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             )
         );
 
-        volMoment& varM
+        volScalarMoment& varM
         (
             meanMomentsVarianceQuadrature_.moments()[momenti]
         );
@@ -480,12 +480,12 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Finish solving for moments
     forAll (meanMomentEqns, mEqni)
     {
-        const volMoment& meanM
+        const volScalarMoment& meanM
         (
             meanMomentsQuadrature_.moments()[mEqni]
         );
 
-        const volMoment& varM
+        const volScalarMoment& varM
         (
             meanMomentsVarianceQuadrature_.moments()[mEqni]
         );
