@@ -86,7 +86,13 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
             dict,
             velocityMomentOrders_,
             velocityNodeIndexes_,
-            {0, 1, 2}
+            nGeometricDimensions_ == 1
+          ? labelList({0})
+          : (
+                (nGeometricDimensions_ == 2)
+              ? labelList({0, 1})
+              : labelList({0, 1, 2})
+            )
         )
     )
 {
@@ -210,7 +216,7 @@ void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
 
         forAll(conditionalMoments, sNodei)
         {
-            if (conditionalMoments[sNodei](0) > 1e-10)
+            if (sizeWeights[sNodei] > small)
             {
                 multivariateMomentSet momentsToInvert
                 (

@@ -57,7 +57,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
         dict.lookupOrDefault
         (
             "support",
-            wordList(momentOrders[0].size(), "R")
+            wordList(nDistributionDims_, "R")
         )
     ),
     weights_(nodeIndexes.size(), nodeIndexes, 0.0),
