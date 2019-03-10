@@ -174,6 +174,7 @@ quadratureApproximation
             const quadratureApproximation<momentType, nodeType>&
         >(*this).lookup("nodes")
     ),
+    nNodes_(nodeIndexes_[0].size(), 0),
     nodes_(),
     moments_
     (
@@ -213,6 +214,13 @@ quadratureApproximation
             << "    No extended quadrature will be computed." << nl;
     }
 
+    forAll(nodeIndexes_, nodei)
+    {
+        forAll(nNodes_, dimi)
+        {
+            nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes_[nodei][dimi]);
+        }
+    }
     forAll(moments_, mi)
     {
         moments_.set

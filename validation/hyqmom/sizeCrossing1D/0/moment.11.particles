@@ -8,7 +8,7 @@
 FoamFile
 {
     version     2.0;
-    format      ascii;
+    format      binary;
     class       volScalarField;
     location    "0";
     object      moment.11.particles;
@@ -17,19 +17,69 @@ FoamFile
 
 dimensions      [0 2 -1 0 0 0 0];
 
-internalField   uniform 0;
+internalField   nonuniform List<scalar> 
+100
+(Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>Òh„àµ¯‰>-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø-CÎ‚6
+ø);
 
 boundaryField
 {
     inlet1
     {
-        type            fixedValue;
-        value           uniform 1e-05;
+        type            zeroGradient;
     }
     inlet2
     {
-        type            fixedValue;
-        value           uniform -5e-05;
+        type            zeroGradient;
     }
     defaultFaces
     {

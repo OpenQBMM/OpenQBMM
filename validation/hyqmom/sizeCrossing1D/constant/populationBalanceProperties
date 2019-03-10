@@ -22,6 +22,7 @@ sizeVelocityCoeffs
     odeCoeffs
     {
         solveOde on;
+        solveSources on;
 
         ATol    1.0e-6;
         RTol    1.0e-3;

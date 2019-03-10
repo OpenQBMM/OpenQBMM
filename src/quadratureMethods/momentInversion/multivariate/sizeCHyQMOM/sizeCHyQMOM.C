@@ -55,7 +55,7 @@ Foam::sizeCHyQMOM::sizeCHyQMOM
             nGeometricDimensions_
         )
     ),
-    nNodes_(nodeIndexes.size()),
+    nNodes_(nodeIndexes[0].size()),
     nSizeNodes_(nSizeMoments_/2),
     nodeIndexes_(nodeIndexes),
     velocityNodeIndexes_
@@ -66,9 +66,9 @@ Foam::sizeCHyQMOM::sizeCHyQMOM
         )
     ),
     supports_({"RPlus", "R", "R", "R"}),
-    weights_(nNodes_, nodeIndexes, 0.0),
-    sizeAbscissae_(nNodes_, nodeIndexes, 0.0),
-    velocityAbscissae_(nNodes_, nodeIndexes, Zero),
+    weights_(nodeIndexes.size(), nodeIndexes, 0.0),
+    sizeAbscissae_(nodeIndexes.size(), nodeIndexes, 0.0),
+    velocityAbscissae_(nodeIndexes.size(), nodeIndexes, Zero),
     sizeInverter_
     (
         univariateMomentInversion::New(dict.subDict("basicQuadrature"))
@@ -81,7 +81,15 @@ Foam::sizeCHyQMOM::sizeCHyQMOM
             nGeometricDimensions_
         )
     )
-{}
+{
+    forAll(nodeIndexes_, nodei)
+    {
+        forAll(nNodes_, dimi)
+        {
+            nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes[nodei][dimi]);
+        }
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -147,7 +155,7 @@ void Foam::sizeCHyQMOM::invert
         forAll(sizeWeights, nodei)
         {
             x[nodei] = max(sizeAbscissae[nodei], small);
-            invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], 1e-6);
+            invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], 1e-10);
         }
         Vandermonde V(x);
         scalarSquareMatrix invVR = invR*V.inv();
@@ -194,27 +202,11 @@ void Foam::sizeCHyQMOM::invert
         forAll(conditionalMoments, sNodei)
         {
             scalar conditionalM0 =  conditionalMoments[sNodei](0);
-
-            if (conditionalM0 > small)
+            forAll(velocityMomentOrders_, mi)
             {
-                forAll(velocityMomentOrders_, mi)
-                {
-                    conditionalMoments[sNodei](velocityMomentOrders_[mi]) /=
-                        conditionalM0;
-                }
+                conditionalMoments[sNodei][mi] /= max(conditionalM0, 1e-10);
             }
-            else
-            {
-                conditionalMoments[sNodei](0) = 1.0;
-                forAll(velocityMomentOrders_, mi)
-                {
-                    if (max(velocityMomentOrders_[mi]) != 0)
-                    {
-                        conditionalMoments[sNodei](velocityMomentOrders_[mi]) =
-                            0.0;
-                    }
-                }
-            }
+            conditionalMoments[sNodei](0) = 1.0;
         }
 
         forAll(conditionalMoments, sNodei)
@@ -242,10 +234,18 @@ void Foam::sizeCHyQMOM::invert
                     nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
                 }
 
-                weights_(nodeIndex) *=
-                    velocityInverter_->weights()(velocityNodeIndex);
-                velocityAbscissae_(nodeIndex) =
-                    velocityInverter_->abscissae()(velocityNodeIndex);
+                if (sizeWeights[sNodei] < 1e-10)
+                {
+                    weights_(nodeIndex) /= (weights_.size()/nSizeNodes_);
+                    velocityAbscissae_(nodeIndex) = Zero;
+                }
+                else
+                {
+                    weights_(nodeIndex) *=
+                        velocityInverter_->weights()(velocityNodeIndex);
+                    velocityAbscissae_(nodeIndex) =
+                        velocityInverter_->abscissae()(velocityNodeIndex);
+                }
             }
         }
     }

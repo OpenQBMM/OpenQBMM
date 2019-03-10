@@ -8,7 +8,7 @@
 FoamFile
 {
     version     2.0;
-    format      ascii;
+    format      binary;
     class       volScalarField;
     location    "0";
     object      moment.01.particles;
@@ -17,19 +17,19 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform 0;
+internalField   nonuniform List<scalar> 
+100
+(ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿);
 
 boundaryField
 {
     inlet1
     {
-        type            fixedValue;
-        value           uniform 0.001;
+        type            zeroGradient;
     }
     inlet2
     {
-        type            fixedValue;
-        value           uniform -0.001;
+        type            zeroGradient;
     }
     defaultFaces
     {

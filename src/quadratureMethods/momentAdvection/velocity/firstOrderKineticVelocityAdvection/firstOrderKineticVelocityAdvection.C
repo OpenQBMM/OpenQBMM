@@ -211,8 +211,6 @@ Foam::scalar
 Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
 {
     const fvMesh& mesh = this->own_.mesh();
-    const labelList& own = mesh.owner();
-    const labelList& nei = mesh.neighbour();
     surfaceVectorField Sf(mesh.Sf());
 
     scalarField maxCoNum(mesh.nCells(), 1.0);

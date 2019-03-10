@@ -26,14 +26,14 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::label Foam::sizeCHyQMOM::nMoments()
+Foam::label Foam::sizeCHyQMOM::nMoments() const
 {
     return nMoments_;
 }
 
-Foam::label Foam::sizeCHyQMOM::nNodes()
+Foam::label Foam::sizeCHyQMOM::nNodes() const
 {
-    return nNodes_;
+    return nodeIndexes_.size();
 }
 
 const Foam::mappedScalarList& Foam::sizeCHyQMOM::weights() const

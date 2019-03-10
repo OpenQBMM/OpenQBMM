@@ -82,6 +82,9 @@ protected:
         //- Node indexes used to map nodes
         const labelListList nodeIndexes_;
 
+        //- Number of nodes in each direction
+        labelList nNodes_;
+
         //- AutoPtr to the mappedPtrList of quadrature nodes
         autoPtr<mappedPtrList<nodeType>> nodes_;
 
@@ -141,6 +144,9 @@ public:
 
             //- Return name
             inline const word name() const;
+
+            //- Return the nmber of nodes in each direction
+            const labelList& nNodes() const;
 
             //- Extended moment inversion method
             inline fieldMomentInversion& momentFieldInverter();

@@ -82,7 +82,7 @@ class sizeCHyQMOM
         const labelListList velocityMomentOrders_;
 
         //- Total number of nodes
-        const label nNodes_;
+        labelList nNodes_;
 
         //-Number of nodes in size direction
         const label nSizeNodes_;
@@ -150,10 +150,10 @@ public:
         void invert(const multivariateMomentSet& moments);
 
         //- Return number of moments
-        inline label nMoments();
+        inline label nMoments() const;
 
         //- Return number of number of nodes in each dimension
-        inline label nNodes();
+        inline label nNodes() const;
 
         //- Return mapped quadrature weights for each dimension
         inline const mappedScalarList& weights() const;
