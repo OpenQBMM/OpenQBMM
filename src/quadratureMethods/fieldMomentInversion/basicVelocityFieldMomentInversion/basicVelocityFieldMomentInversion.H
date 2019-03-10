@@ -22,23 +22,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::sizeHyperbolicFieldMomentInversion
+    Foam::basicVelocityFieldMomentInversion
 
 Description
     Invert volVectorMomentFieldSet using basic hyperbolic conditional
     moment inversion.
 
 SourceFiles
-    sizeHyperbolicFieldMomentInversion.C
+    basicVelocityFieldMomentInversion.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef sizeHyperbolicFieldMomentInversion_H
-#define sizeHyperbolicFieldMomentInversion_H
+#ifndef basicVelocityFieldMomentInversion_H
+#define basicVelocityFieldMomentInversion_H
 
 #include "fieldMomentInversion.H"
 #include "multivariateMomentSet.H"
-#include "sizeCHyQMOM.H"
+#include "multivariateMomentInversion.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,46 +46,47 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                Class sizeHyperbolicFieldMomentInversion Declaration
+                Class basicVelocityFieldMomentInversion Declaration
 \*---------------------------------------------------------------------------*/
 
-class sizeHyperbolicFieldMomentInversion
+class basicVelocityFieldMomentInversion
 :
     public fieldMomentInversion
 {
     // Private Member Functions
 
         //- Moment inverter
-        autoPtr<sizeCHyQMOM> momentInverter_;
+        autoPtr<multivariateMomentInversion> momentInverter_;
 
         //- Disallow default bitwise copy construct
-        sizeHyperbolicFieldMomentInversion(const sizeHyperbolicFieldMomentInversion&);
+        basicVelocityFieldMomentInversion(const basicVelocityFieldMomentInversion&);
 
         //- Disallow default bitwise assignment
-        void operator=(const sizeHyperbolicFieldMomentInversion&);
+        void operator=(const basicVelocityFieldMomentInversion&);
 
 
 public:
 
     //- Runtime type information
-    TypeName("sizeHyperbolicFieldMomentInversion");
+    TypeName("basicVelocityFieldMomentInversion");
 
 
     // Constructors
 
         //- Construct from dictionary
-        sizeHyperbolicFieldMomentInversion
+        basicVelocityFieldMomentInversion
         (
             const dictionary& dict,
             const fvMesh& mesh,
             const labelListList& momentOrders,
             const labelListList& nodeIndexes,
+            const labelList& velocityIndexes,
             const label nSecondaryNodes
         );
 
 
     //- Destructor
-        ~sizeHyperbolicFieldMomentInversion();
+        ~basicVelocityFieldMomentInversion();
 
 
     // Public member Functions

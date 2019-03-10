@@ -96,9 +96,17 @@ public:
                 const fvMesh& mesh,
                 const labelListList& momentOrders,
                 const labelListList& nodeIndexes,
+                const labelList& velocityIndexes,
                 const label nSecondaryNodes
             ),
-            (dict, mesh, momentOrders, nodeIndexes, nSecondaryNodes)
+            (
+                dict,
+                mesh,
+                momentOrders,
+                nodeIndexes,
+                velocityIndexes,
+                nSecondaryNodes
+            )
         );
 
 
@@ -111,6 +119,7 @@ public:
             const fvMesh& mesh,
             const labelListList& momentOrders,
             const labelListList& nodeIndexes,
+            const labelList& velocityIndexes,
             const label nSecondaryNodes
         );
 
@@ -127,6 +136,7 @@ public:
             const fvMesh& mesh,
             const labelListList& momentOrders,
             const labelListList& nodeIndexes,
+            const labelList& velocityIndexes,
             const label nSecondaryNodes
         );
 

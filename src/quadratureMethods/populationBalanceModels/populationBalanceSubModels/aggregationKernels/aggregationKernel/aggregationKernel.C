@@ -101,8 +101,7 @@ Foam::populationBalanceSubModels::aggregationKernel::massNodeSource
             abscissa1 + abscissa2,
             momentOrder
         )
-      - pow(abscissa1, momentOrder)
-      - pow(abscissa2, momentOrder);
+      - pow(abscissa1, momentOrder);
 }
 
 

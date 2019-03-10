@@ -65,17 +65,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     (
         name_, nMoments_, nodesOwn_, nDimensions_, moments_.map(), support
     ),
-    momentFieldInverter_
-    (
-        new basicFieldMomentInversion
-        (
-            quadrature.subDict("momentAdvection"),
-            own_.mesh(),
-            quadrature.momentOrders(),
-            quadrature.nodeIndexes(),
-            0
-        )
-    )
+    momentFieldInverter_()
 {
     if (nMoments_ % 2 == 0)
     {
@@ -186,6 +176,19 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
             )
         );
     }
+
+    momentFieldInverter_.set
+    (
+        new basicFieldMomentInversion
+        (
+            quadrature.subDict("momentAdvection"),
+            moments_[0].mesh(),
+            quadrature.momentOrders(),
+            quadrature.nodeIndexes(),
+            nodes_()[0].velocityIndexes(),
+            0
+        )
+    );
 
     {
         IStringStream weightLimiter("upwind");

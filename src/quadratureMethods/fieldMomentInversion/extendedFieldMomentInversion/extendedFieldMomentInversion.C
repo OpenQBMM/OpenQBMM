@@ -48,6 +48,7 @@ Foam::extendedFieldMomentInversion::extendedFieldMomentInversion
     const fvMesh& mesh,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
+    const labelList& velocityIndexes,
     const label nSecondaryNodes
 )
 :
@@ -57,6 +58,7 @@ Foam::extendedFieldMomentInversion::extendedFieldMomentInversion
         mesh,
         momentOrders,
         nodeIndexes,
+        velocityIndexes,
         nSecondaryNodes
     ),
     momentInverter_

@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+basicQuadrature
+{
+    univariateMomentInversion   Gauss;
+}
+
+moments
+(
+    (0 0 0)
+    (1 0 0)
+    (2 0 0)
+    (3 0 0)
+    (4 0 0)
+    (5 0 0)
+
+    (0 1 0)
+    (1 1 0)
+    (2 1 0)
+
+    (0 0 1)
+    (1 0 1)
+    (2 0 1)
+);
+
+nodes
+(
+    (1)
+    (2)
+    (3)
+);
+
+// ************************************************************************* //

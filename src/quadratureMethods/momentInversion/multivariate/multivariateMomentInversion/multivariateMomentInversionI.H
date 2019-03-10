@@ -26,27 +26,20 @@ License
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::label Foam::sizeCHyQMOM::nMoments() const
-{
-    return nMoments_;
-}
-
-Foam::label Foam::sizeCHyQMOM::nNodes() const
-{
-    return nodeIndexes_.size();
-}
-
-const Foam::mappedScalarList& Foam::sizeCHyQMOM::weights() const
+const Foam::mappedScalarList&
+Foam::multivariateMomentInversion::weights() const
 {
     return weights_;
 }
 
-const Foam::mappedScalarList& Foam::sizeCHyQMOM::sizeAbscissae() const
+const Foam::mappedList<Foam::scalarList>&
+Foam::multivariateMomentInversion::abscissae() const
 {
-    return sizeAbscissae_;
+    return abscissae_;
 }
 
-const Foam::mappedVectorList& Foam::sizeCHyQMOM::velocityAbscissae() const
+const Foam::mappedVectorList&
+Foam::multivariateMomentInversion::velocityAbscissae() const
 {
     return velocityAbscissae_;
 }

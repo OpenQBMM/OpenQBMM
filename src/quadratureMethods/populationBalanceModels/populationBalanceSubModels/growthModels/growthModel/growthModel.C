@@ -99,17 +99,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
             scalar bAbscissa =
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
 
-            scalar gSourcei = 2.0;
-//             if (massBased)
-//             {
-//                 gSourcei = nodeSource(bAbscissa, sizeOrder);
-//             }
-//             else
-//             {
-//                 gSourcei = massNodeSource(bAbscissa, sizeOrder);
-//             }
-
-            gSourcei *=
+            scalar gSourcei =
                 node.primaryWeight()[celli]
                *Kg(node.primaryAbscissae()[0][celli])
                *sizeOrder*pow(bAbscissa, sizeOrder - 1);
@@ -136,20 +126,10 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     {
         const volScalarNode& node = nodes[pNodeI];
 
-        forAll(node.secondaryWeights()[0], sNodei)
+        forAll(node.secondaryWeights()[sizeIndex], sNodei)
         {
             scalar bAbscissa =
                 max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
-
-//             scalar gSourcei = 0.0;
-//             if (massBased)
-//             {
-//                 gSourcei = nodeSource(bAbscissa, sizeOrder);
-//             }
-//             else
-//             {
-//                 gSourcei = massNodeSource(bAbscissa, sizeOrder);
-//             }
 
             scalar gSourcei =
                 node.primaryWeight()[celli]
@@ -214,16 +194,6 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
             scalar bAbscissa =
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
 
-//             scalar gSourcei = 0.0;
-//             if (massBased)
-//             {
-//                 gSourcei = nodeSource(bAbscissa, sizeOrder);
-//             }
-//             else
-//             {
-//                 gSourcei = massNodeSource(bAbscissa, sizeOrder);
-//             }
-
             scalar gSourcei =
                 node.primaryWeight()[celli]
                *Kg(node.primaryAbscissae()[0][celli])
@@ -264,20 +234,10 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     {
         const volVelocityNode& node = nodes[pNodeI];
 
-        forAll(node.secondaryWeights()[0], sNodei)
+        forAll(node.secondaryWeights()[sizeIndex], sNodei)
         {
             scalar bAbscissa =
                 max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
-
-//             scalar gSourcei = 0.0;
-//             if (massBased)
-//             {
-//                 gSourcei = nodeSource(bAbscissa, sizeOrder);
-//             }
-//             else
-//             {
-//                 gSourcei = massNodeSource(bAbscissa, sizeOrder);
-//             }
 
             scalar gSourcei =
                 node.primaryWeight()[celli]

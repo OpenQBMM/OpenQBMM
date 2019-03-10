@@ -48,6 +48,7 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     const fvMesh& mesh,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
+    const labelList& velocityIndexes,
     const label nSecondaryNodes
 )
 :
@@ -57,6 +58,7 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
         mesh,
         momentOrders,
         nodeIndexes,
+        velocityIndexes,
         nSecondaryNodes
     ),
     minKnownAbscissa_(dict.lookupOrDefault("minKnownAbscissa", 0.0)),

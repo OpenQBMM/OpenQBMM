@@ -22,43 +22,43 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::sizeCHyQMOM
+    Foam::multivariateMomentInversion
 
 Description
     Implementation of the hyperbolic conditional quadrature method of moment
     for velocity with conditioning on size.
 
 SourceFiles
-    sizeCHyQMOM.C
-    sizeCHyQMOMI.H
+    multivariateMomentInversion.C
+    multivariateMomentInversionI.H
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef sizeCHyQMOM_H
-#define sizeCHyQMOM_H
+#ifndef multivariateMomentInversion_H
+#define multivariateMomentInversion_H
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "scalar.H"
-#include "vector2D.H"
-#include "vector.H"
-#include "scalarMatrices.H"
+#include "scalarList.H"
+#include "vectorList.H"
 #include "dictionary.H"
 #include "mappedLists.H"
 #include "Vandermonde.H"
-#include "hyperbolicConditionalMomentInversion.H"
+#include "multivariateMomentSet.H"
+#include "runTimeSelectionTables.H"
 
 
 namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                        Class sizeCHyQMOM Declaration
+                 Class multivariateMomentInversion Declaration
 \*---------------------------------------------------------------------------*/
-class sizeCHyQMOM
+class multivariateMomentInversion
 {
-    // Private member data
+protected:
+    // Protected member data
 
         //- Number of dimensions in distribution
         const label nDistributionDims_;
@@ -66,100 +66,101 @@ class sizeCHyQMOM
         //- Number of dimensions in velocity space
         const label nGeometricDimensions_;
 
-        //- Number of moments
-        const label nMoments_;
-
-        //- Number of size moments
-        const label nSizeMoments_;
-
-        //- Number of velocity moments
-        const label nVelocityMoments_;
-
         //- Moment orders of full distribution
         const labelListList& momentOrders_;
-
-        //- Moment orders of conditional velocity distribution
-        const labelListList velocityMomentOrders_;
-
-        //- Total number of nodes
-        labelList nNodes_;
-
-        //-Number of nodes in size direction
-        const label nSizeNodes_;
 
         //- Node indexes of full distribution
         const labelListList& nodeIndexes_;
 
-        //- Node indexes of conditional velocity distribution
-        const labelListList velocityNodeIndexes_;
+        //- List of velocity indexes
+        const labelList velocityIndexes_;
+
+        //- Number of nodes in each direction
+        labelList nNodes_;
 
         //- Support of the NDF
-        const wordList supports_;
+        wordList supports_;
 
         //- Quadratrure weights
         mappedScalarList weights_;
 
         //- Quadratrure size abscissae
-        mappedScalarList sizeAbscissae_;
+        mappedList<scalarList> abscissae_;
 
         //- Quadratrure velocity abscissae
         mappedVectorList velocityAbscissae_;
 
-        //- Univariate moment inversion method
-        autoPtr<univariateMomentInversion> sizeInverter_;
 
-        //- Velocity moment inversion method
-        autoPtr<hyperbolicConditionalMomentInversion> velocityInverter_;
-
-
-    // Private member functions
-
-        //- Calculate the number of pure size moments
-        label calcNSizeMoments(const labelListList& momentOrders);
+    // Protected member functions
 
         //- Reset inverter
         void reset();
 
         //- Disallow default bitwise copy construct
-        //hyperbolicConditionalMomentInversion(const hyperbolicConditionalMomentInversion&);
+//         multivariateMomentInversion(const multivariateMomentInversion&);
 
         //- Disallow default bitwise assignment
-        //void operator=(const hyperbolicConditionalMomentInversion&);
+//         void operator=(const multivariateMomentInversion&);
 
 
 public:
 
-    // Constructors
+    //- Runtime type information
+    TypeName("multivariateMomentInversion");
 
-        // Construct from nMoments, momentMap, nNodes, and support type
-        sizeCHyQMOM
+    // Declare runtime constructor selection table
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        multivariateMomentInversion,
+        dictionary,
         (
             const dictionary& dict,
             const labelListList& momentOrders,
-            const labelListList& nodeIndexes
+            const labelListList& nodeIndexes,
+            const labelList& velocityIndexes
+        ),
+        (dict, momentOrders, nodeIndexes, velocityIndexes)
+    );
+
+
+    // Constructors
+
+        // Construct from nMoments, momentMap, nNodes, and support type
+        multivariateMomentInversion
+        (
+            const dictionary& dict,
+            const labelListList& momentOrders,
+            const labelListList& nodeIndexes,
+            const labelList& velocityIndexes
+        );
+
+
+    // Selectors
+
+        static autoPtr<multivariateMomentInversion> New
+        (
+            const dictionary& dict,
+            const labelListList& momentOrders,
+            const labelListList& nodeIndexes,
+            const labelList& velocityIndexes
         );
 
 
     //- Destructor
-    virtual ~sizeCHyQMOM();
+    virtual ~multivariateMomentInversion();
 
 
     // Member Functions
 
         //- Invert moments to find weights and  abscissae
-        void invert(const multivariateMomentSet& moments);
-
-        //- Return number of moments
-        inline label nMoments() const;
-
-        //- Return number of number of nodes in each dimension
-        inline label nNodes() const;
+        virtual void invert(const multivariateMomentSet& moments) = 0;
 
         //- Return mapped quadrature weights for each dimension
         inline const mappedScalarList& weights() const;
 
         //- Return mapped quadrature size abscissae for each dimension
-        inline const mappedScalarList& sizeAbscissae() const;
+        inline const mappedList<scalarList>& abscissae() const;
 
         //- Return mapped quadrature velocity abscissae for each dimension
         inline const mappedVectorList& velocityAbscissae() const;
@@ -173,7 +174,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "sizeCHyQMOMI.H"
+#include "multivariateMomentInversionI.H"
 
 #endif
 

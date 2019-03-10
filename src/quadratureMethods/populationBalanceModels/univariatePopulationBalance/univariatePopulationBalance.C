@@ -60,33 +60,13 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
     name_(name),
-    aggregation_(dict.lookup("aggregation")),
-    breakup_(dict.lookup("breakup")),
-    growth_(dict.lookup("growth")),
-    nucleation_(dict.lookup("nucleation")),
-    aggregationKernel_
-    (
-        Foam::populationBalanceSubModels::aggregationKernel::New
-        (
-            dict.subDict("aggregationKernel"),
-            phi_.mesh()
-        )
-    ),
-    breakupKernel_
-    (
-        Foam::populationBalanceSubModels::breakupKernel::New
-        (
-            dict.subDict("breakupKernel"),
-            phi_.mesh()
-        )
-    ),
-    growthModel_
-    (
-        Foam::populationBalanceSubModels::growthModel::New
-        (
-            dict.subDict("growthModel")
-        )
-    ),
+    aggregation_(dict.lookupOrDefault("aggregation", false)),
+    breakup_(dict.lookupOrDefault("breakup", false)),
+    growth_(dict.lookupOrDefault("growth", false)),
+    nucleation_(dict.lookupOrDefault("nucleation", false)),
+    aggregationKernel_(),
+    breakupKernel_(),
+    growthModel_(),
     diffusionModel_
     (
         Foam::populationBalanceSubModels::diffusionModel::New
@@ -94,15 +74,44 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
             dict.subDict("diffusionModel")
         )
     ),
-    nucleationModel_
-    (
-        Foam::populationBalanceSubModels::nucleationModel::New
-        (
-            dict.subDict("nucleationModel"),
-            phi_.mesh()
-        )
-    )
-{}
+    nucleationModel_()
+{
+    if (aggregation_)
+    {
+        aggregationKernel_ =
+            Foam::populationBalanceSubModels::aggregationKernel::New
+            (
+                dict.subDict("aggregationKernel"),
+                phi_.mesh()
+            );
+    }
+    if (breakup_)
+    {
+        breakupKernel_ =
+            Foam::populationBalanceSubModels::breakupKernel::New
+            (
+                dict.subDict("breakupKernel"),
+                phi_.mesh()
+            );
+    }
+    if (growth_)
+    {
+        growthModel_ =
+            Foam::populationBalanceSubModels::growthModel::New
+            (
+                dict.subDict("growthModel")
+            );
+    }
+    if (nucleation_)
+    {
+        nucleationModel_ =
+            Foam::populationBalanceSubModels::nucleationModel::New
+            (
+                dict.subDict("nucleationModel"),
+                phi_.mesh()
+            );
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

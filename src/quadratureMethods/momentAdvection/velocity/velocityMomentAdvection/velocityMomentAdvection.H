@@ -43,7 +43,6 @@ SourceFiles
 #include "surfaceFields.H"
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
-#include "hyperbolicFieldMomentInversion.H"
 #include "quadratureApproximations.H"
 #include "surfaceInterpolationScheme.H"
 

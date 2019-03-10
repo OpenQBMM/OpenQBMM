@@ -80,20 +80,11 @@ quadratureApproximation
         lookupOrDefault<label>("nSecondaryNodes", nMoments_ + 1)
     ),
     support_(support),
-    momentFieldInverter_
-    (
-        fieldMomentInversion::New
-        (
-            (*this),
-            mesh_,
-            momentOrders_,
-            nodeIndexes_,
-            nSecondaryNodes_
-        )
-    )
+    momentFieldInverter_()
 {
     PtrList<dimensionSet> abscissaeDimensions(momentOrders_[0].size());
     labelList zeroOrder(momentOrders_[0].size(), 0);
+    labelList velocityIndexes;
 
     forAll(abscissaeDimensions, dimi)
     {
@@ -108,7 +99,22 @@ quadratureApproximation
                 moments_(firstOrder).dimensions()/moments_(0).dimensions()
             )
         );
+        if (abscissaeDimensions[dimi] == dimVelocity)
+        {
+            velocityIndexes.append(dimi);
+        }
     }
+
+    momentFieldInverter_ =
+        fieldMomentInversion::New
+        (
+            (*this),
+            mesh_,
+            momentOrders_,
+            nodeIndexes_,
+            velocityIndexes,
+            nSecondaryNodes_
+        );
 
     // Allocating nodes
     nodes_ = autoPtr<mappedPtrList<nodeType>>
@@ -192,17 +198,7 @@ quadratureApproximation
         lookupOrDefault<label>("nSecondaryNodes", nMoments_ + 1)
     ),
     support_(mFieldSet.support()),
-    momentFieldInverter_
-    (
-        fieldMomentInversion::New
-        (
-            (*this),
-            mesh_,
-            momentOrders_,
-            nodeIndexes_,
-            nSecondaryNodes_
-        )
-    )
+    momentFieldInverter_()
 {
     if (nSecondaryNodes_ != 0 && !momentFieldInverter_().extended())
     {
@@ -238,6 +234,7 @@ quadratureApproximation
 
     PtrList<dimensionSet> abscissaeDimensions(momentOrders_[0].size());
     labelList zeroOrder(momentOrders_[0].size(), 0);
+    labelList velocityIndexes;
 
     forAll(abscissaeDimensions, dimi)
     {
@@ -252,7 +249,22 @@ quadratureApproximation
                 moments_(firstOrder).dimensions()/moments_(0).dimensions()
             )
         );
+        if (abscissaeDimensions[dimi] == dimVelocity)
+        {
+            velocityIndexes.append(dimi);
+        }
     }
+
+    momentFieldInverter_ =
+        fieldMomentInversion::New
+        (
+            (*this),
+            mesh_,
+            momentOrders_,
+            nodeIndexes_,
+            velocityIndexes,
+            nSecondaryNodes_
+        );
 
     // Allocating nodes
     nodes_ = autoPtr<mappedPtrList<nodeType>>

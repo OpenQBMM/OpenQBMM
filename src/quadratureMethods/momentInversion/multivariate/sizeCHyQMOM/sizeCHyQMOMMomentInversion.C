@@ -23,65 +23,74 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "sizeCHyQMOM.H"
-#include "mappedLists.H"
+#include "sizeCHyQMOMMomentInversion.H"
+#include "addToRunTimeSelectionTable.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace multivariateMomentInversions
+{
+    defineTypeNameAndDebug(sizeCHyQMOM, 0);
+    addToRunTimeSelectionTable
+    (
+        multivariateMomentInversion,
+        sizeCHyQMOM,
+        dictionary
+    );
+}
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::sizeCHyQMOM::sizeCHyQMOM
+Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
 (
     const dictionary& dict,
     const labelListList& momentOrders,
-    const labelListList& nodeIndexes
+    const labelListList& nodeIndexes,
+    const labelList& velocityIndexes
 )
 :
-    nDistributionDims_(momentOrders[0].size()),
-    nGeometricDimensions_(nDistributionDims_ - 1),
-    nMoments_(momentOrders.size()),
-    nSizeMoments_(calcNSizeMoments(momentOrders)),
-    nVelocityMoments_
+    multivariateMomentInversion
     (
-        hyperbolicConditionalMomentInversion::getNMoments
-        (
-            nGeometricDimensions_
-        )
+        dict,
+        momentOrders,
+        nodeIndexes,
+        velocityIndexes
     ),
-    momentOrders_(momentOrders),
+    nSizeMoments_(calcNSizeMoments(momentOrders)),
     velocityMomentOrders_
     (
-        hyperbolicConditionalMomentInversion::getMomentOrders
+        multivariateMomentInversions::CHyQMOM::getMomentOrders
         (
             nGeometricDimensions_
         )
     ),
-    nNodes_(nodeIndexes[0].size()),
     nSizeNodes_(nSizeMoments_/2),
-    nodeIndexes_(nodeIndexes),
     velocityNodeIndexes_
     (
-        hyperbolicConditionalMomentInversion::getNodeIndexes
+        multivariateMomentInversions::CHyQMOM::getNodeIndexes
         (
             nGeometricDimensions_
         )
     ),
-    supports_({"RPlus", "R", "R", "R"}),
-    weights_(nodeIndexes.size(), nodeIndexes, 0.0),
-    sizeAbscissae_(nodeIndexes.size(), nodeIndexes, 0.0),
-    velocityAbscissae_(nodeIndexes.size(), nodeIndexes, Zero),
     sizeInverter_
     (
         univariateMomentInversion::New(dict.subDict("basicQuadrature"))
     ),
     velocityInverter_
     (
-        new hyperbolicConditionalMomentInversion
+        new multivariateMomentInversions::CHyQMOM
         (
             dict,
-            nGeometricDimensions_
+            velocityMomentOrders_,
+            velocityNodeIndexes_,
+            {0, 1, 2}
         )
     )
 {
+    supports_[0] = "RPlus";
     forAll(nodeIndexes_, nodei)
     {
         forAll(nNodes_, dimi)
@@ -94,13 +103,13 @@ Foam::sizeCHyQMOM::sizeCHyQMOM
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::sizeCHyQMOM::~sizeCHyQMOM()
+Foam::multivariateMomentInversions::sizeCHyQMOM::~sizeCHyQMOM()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::label Foam::sizeCHyQMOM::calcNSizeMoments
+Foam::label Foam::multivariateMomentInversions::sizeCHyQMOM::calcNSizeMoments
 (
     const labelListList& momentOrders
 )
@@ -118,7 +127,7 @@ Foam::label Foam::sizeCHyQMOM::calcNSizeMoments
 }
 
 
-void Foam::sizeCHyQMOM::invert
+void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
 (
     const multivariateMomentSet& moments
 )
@@ -142,7 +151,7 @@ void Foam::sizeCHyQMOM::invert
         if (sizeNode < sizeInverter_->nNodes())
         {
             weights_(nodeIndex) = sizeWeights[sizeNode];
-            sizeAbscissae_(nodeIndex) = sizeAbscissae[sizeNode];
+            abscissae_(nodeIndex)[0] = sizeAbscissae[sizeNode];
         }
     }
     label nSizeNodes = sizeWeights.size();
@@ -169,7 +178,7 @@ void Foam::sizeCHyQMOM::invert
                 sNodei,
                 new mappedList<scalar>
                 (
-                    nVelocityMoments_,
+                    velocityMomentOrders_.size(),
                     velocityMomentOrders_,
                     0.0
                 )
@@ -205,7 +214,7 @@ void Foam::sizeCHyQMOM::invert
             {
                 multivariateMomentSet momentsToInvert
                 (
-                    nVelocityMoments_,
+                    velocityMomentOrders_.size(),
                     velocityMomentOrders_,
                     "R"
                 );
@@ -229,7 +238,10 @@ void Foam::sizeCHyQMOM::invert
                     weights_(nodeIndex) *=
                         velocityInverter_->weights()(velocityNodeIndex);
                     velocityAbscissae_(nodeIndex) =
-                        velocityInverter_->abscissae()(velocityNodeIndex);
+                        velocityInverter_->velocityAbscissae()
+                        (
+                            velocityNodeIndex
+                        );
                 }
             }
             else
@@ -247,16 +259,6 @@ void Foam::sizeCHyQMOM::invert
                 }
             }
         }
-    }
-}
-
-void Foam::sizeCHyQMOM::reset()
-{
-    forAll(weights_, nodei)
-    {
-        weights_[nodei] = 0.0;
-        sizeAbscissae_[nodei] = 0.0;
-        velocityAbscissae_[nodei] = Zero;
     }
 }
 

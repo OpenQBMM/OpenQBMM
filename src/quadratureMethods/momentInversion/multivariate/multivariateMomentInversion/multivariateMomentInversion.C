@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,43 +23,79 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "fieldMomentInversion.H"
-#include "IOmanip.H"
+#include "multivariateMomentInversion.H"
+#include "mappedLists.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    defineTypeNameAndDebug(fieldMomentInversion, 0);
-    defineRunTimeSelectionTable(fieldMomentInversion, dictionary);
+    defineTypeNameAndDebug(multivariateMomentInversion, 0);
+    defineRunTimeSelectionTable(multivariateMomentInversion, dictionary);
 }
+
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::fieldMomentInversion::fieldMomentInversion
+Foam::multivariateMomentInversion::multivariateMomentInversion
 (
     const dictionary& dict,
-    const fvMesh& mesh,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
-    const labelList& velocityIndexes,
-    const label nSecondaryNodes
+    const labelList& velocityIndexes
 )
 :
-    mesh_(mesh),
-    extended_(false),
+    nDistributionDims_(momentOrders[0].size()),
+    nGeometricDimensions_(velocityIndexes.size()),
     momentOrders_(momentOrders),
-    nodeIndexes_(nodeIndexes)
-{}
+    nodeIndexes_(nodeIndexes),
+    velocityIndexes_(velocityIndexes),
+    nNodes_(nDistributionDims_, 1),
+    supports_
+    (
+        dict.lookupOrDefault
+        (
+            "support",
+            wordList(momentOrders[0].size(), "R")
+        )
+    ),
+    weights_(nodeIndexes.size(), nodeIndexes, 0.0),
+    abscissae_
+    (
+        nodeIndexes.size(),
+        nodeIndexes,
+        scalarList(nDistributionDims_ - nGeometricDimensions_, 0.0)
+    ),
+    velocityAbscissae_(nodeIndexes.size(), nodeIndexes, Zero)
+{
+    forAll(nodeIndexes_, nodei)
+    {
+        forAll(nNodes_, dimi)
+        {
+            nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes[nodei][dimi]);
+        }
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::fieldMomentInversion::~fieldMomentInversion()
+Foam::multivariateMomentInversion::~multivariateMomentInversion()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::multivariateMomentInversion::reset()
+{
+    forAll(weights_, nodei)
+    {
+        weights_[nodei] = 0.0;
+        abscissae_[nodei] = scalarList(abscissae_[0].size(), 0.0);
+        velocityAbscissae_[nodei] = Zero;
+    }
+}
 
 
 // ************************************************************************* //
