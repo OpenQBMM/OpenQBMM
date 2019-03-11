@@ -228,7 +228,7 @@ void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
                 {
                     const labelList& velocityNodeIndex = velocityNodeIndexes_[nodei];
                     labelList nodeIndex(nDistributionDims_, 0);
-                    nodeIndex[0] = sNodei + 1;
+                    nodeIndex[0] = sNodei;
                     for (label dimi = 1; dimi < nDistributionDims_; dimi++)
                     {
                         nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
@@ -249,7 +249,7 @@ void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
                 {
                     const labelList& velocityNodeIndex = velocityNodeIndexes_[nodei];
                     labelList nodeIndex(nDistributionDims_, 0);
-                    nodeIndex[0] = sNodei + 1;
+                    nodeIndex[0] = sNodei;
                     for (label dimi = 1; dimi < nDistributionDims_; dimi++)
                     {
                         nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
