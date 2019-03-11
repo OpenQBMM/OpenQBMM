@@ -17,7 +17,7 @@ FoamFile
 
 solvers
 {
-    "moment.*|abscissa.*"
+    "moment.*|velocityAbscissa.*"
     {
         solver          diagonal;
         tolerance       1e-12;

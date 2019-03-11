@@ -15,11 +15,12 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-fieldMomentInversion sizeHyperbolicFieldMomentInversion;
+fieldMomentInversion basicVelocityFieldMomentInversion;
 
 
-basicMomentInversion
+basicVelocityMomentInversion
 {
+    type sizeCHyQMOM;
     basicQuadrature
     {
         univariateMomentInversion   Gauss;
