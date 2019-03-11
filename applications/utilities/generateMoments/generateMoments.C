@@ -106,7 +106,6 @@ int main(int argc, char *argv[])
                 "moment"
               + mappedScalarList::listToWord(momentOrders[mi])
               + "Boundary";
-                Info<<bName<<endl;
 
             boundaries.set
             (

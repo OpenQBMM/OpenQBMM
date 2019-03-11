@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "alphaAndDiameter.H"
+#include "alphaAndDiameterVelocity.H"
 #include "constants.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -33,12 +33,12 @@ namespace Foam
 {
 namespace momentGenerationSubModels
 {
-    defineTypeNameAndDebug(alphaAndDiameter, 0);
+    defineTypeNameAndDebug(alphaAndDiameterVelocity, 0);
 
     addToRunTimeSelectionTable
     (
         momentGenerationModel,
-        alphaAndDiameter,
+        alphaAndDiameterVelocity,
         dictionary
     );
 }
@@ -47,7 +47,7 @@ namespace momentGenerationSubModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
+Foam::momentGenerationSubModels::alphaAndDiameterVelocity::alphaAndDiameterVelocity
 (
     const fvMesh& mesh,
     const dictionary& dict,
@@ -55,88 +55,40 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
     const label nNodes
 )
 :
-    momentGenerationModel(mesh, dict, momentOrders, nNodes),
-    alpha_
-    (
-        IOobject
-        (
-            IOobject::groupName
-            (
-                "alpha",
-                IOobject::group(dict.name())
-            ),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        1.0
-    ),
-    scale_(dict.lookupOrDefault("scale", true)),
-    rho_
-    (
-        IOobject
-        (
-            IOobject::groupName
-            (
-                "rho",
-                IOobject::group(dict.name())
-            ),
-            mesh.time().timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedScalar::lookupOrDefault("rho", dict, dimDensity, 0.0)
-    ),
-    ds_(nNodes, 0.0),
-    alphas_(nNodes, 0.0),
-    sumAlpha_(0.0)
-{
-    if (!dict.found("rho"))
-    {
-        autoPtr<rhoThermo> thermo = rhoThermo::New(mesh, alpha_.group());
-        rho_ = thermo->rho();
-    }
-}
+    alphaAndDiameter(mesh, dict, momentOrders, nNodes),
+    Us_(nNodes, Zero)
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::momentGenerationSubModels::alphaAndDiameter::~alphaAndDiameter()
+Foam::momentGenerationSubModels::alphaAndDiameterVelocity::~alphaAndDiameterVelocity()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::alphaAndDiameter::setNodes
+void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::setNodes
 (
     const dictionary& dict
 )
 {
-    sumAlpha_ = 0.0;
+    alphaAndDiameter::setNodes(dict);
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
         if(dict.found(nodeName))
         {
-            dictionary nodeDict(dict.subDict(nodeName));
-            ds_[nodei] = nodeDict.lookupType<scalar>("dia");
-            alphas_[nodei] = nodeDict.lookupType<scalar>("alpha");
-            sumAlpha_ += alphas_[nodei];
+            Us_[nodei] = dict.subDict(nodeName).lookupType<vector>("U");
         }
         else
         {
-            ds_[nodei] = 0.0;
-            alphas_[nodei] = 0.0;
+            Us_[nodei] = Zero;
         }
     }
-    sumAlpha_ = max(sumAlpha_, 1e-8);
 }
 
-void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
+void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::updateMoments
 (
     const label celli
 )
@@ -155,6 +107,10 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 
         abscissae_[nodei][0] =
             Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
+        for (label cmpt = 1; cmpt < abscissae_[nodei].size(); cmpt++)
+        {
+            abscissae_[nodei][cmpt] = Us_[nodei][cmpt - 1];
+        }
 
         if (abscissae_[nodei][0] > SMALL)
         {
@@ -169,7 +125,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
     momentGenerationModel::updateMoments();
 }
 
-void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
+void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::updateMoments
 (
     const label patchi,
     const label facei
@@ -190,6 +146,10 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 
         abscissae_[nodei][0] =
             Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
+        for (label cmpt = 1; cmpt < abscissae_[nodei].size(); cmpt++)
+        {
+            abscissae_[nodei][cmpt] = Us_[nodei][cmpt - 1];
+        }
 
         if (abscissae_[nodei][0] > SMALL)
         {

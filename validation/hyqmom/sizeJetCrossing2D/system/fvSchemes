@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         cellLimited leastSquares 1.0;
+    default         faceLimited leastSquares 1.0;
 }
 
 divSchemes
@@ -38,9 +38,6 @@ laplacianSchemes
 interpolationSchemes
 {
     default         linear;
-
-    "reconstruct(U)"          upwind;
-    "reconstruct(weight)"     upwind;
 }
 
 snGradSchemes

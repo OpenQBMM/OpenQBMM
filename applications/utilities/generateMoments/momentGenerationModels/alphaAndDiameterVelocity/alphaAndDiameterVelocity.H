@@ -22,21 +22,22 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::momentGenerationSubModels::alphaAndDiameter
+    Foam::momentGenerationSubModels::alphaAndDiameterVelocity
 
 Description
     Moment generation done using volume fraction, density, and bubble diameter.
 
 SourceFiles
-    alphaAndDiameter.C
+    alphaAndDiameterVelocity.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef alphaAndDiameter_H
-#define alphaAndDiameter_H
+#ifndef alphaAndDiameterVelocity_H
+#define alphaAndDiameterVelocity_H
 
-#include "momentGenerationModel.H"
+#include "alphaAndDiameter.H"
 #include "rhoThermo.H"
+#include "vectorList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,44 +47,26 @@ namespace momentGenerationSubModels
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class alphaAndDiameter Declaration
+                    Class alphaAndDiameterVelocity Declaration
 \*---------------------------------------------------------------------------*/
 
-class alphaAndDiameter
+class alphaAndDiameterVelocity
 :
-    public momentGenerationModel
+    public alphaAndDiameter
 {
-protected:
-
-    //- Read alpha field
-    volScalarField alpha_;
-
-    //- Are nodes scaled by the total volume fraction
-    Switch scale_;
-
-    //- Copy of rho field
-    volScalarField rho_;
-
-    //- List of diameters
-    scalarList ds_;
-
-    //- List of volume fractions
-    scalarList alphas_;
-
-    //- Total node volume fraction
-    scalar sumAlpha_;
-
+    //- List of velocities
+    vectorList Us_;
 
 public:
 
         //- Runtime type information
-        TypeName("alphaAndDiameter");
+        TypeName("alphaAndDiameterVelocity");
 
 
     // Constructors
 
         //- Construct from components
-        alphaAndDiameter
+        alphaAndDiameterVelocity
         (
             const fvMesh& mesh,
             const dictionary& dict,
@@ -93,7 +76,7 @@ public:
 
 
     //- Destructor
-    virtual ~alphaAndDiameter();
+    virtual ~alphaAndDiameterVelocity();
 
 
     // Public member functions
