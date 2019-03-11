@@ -97,13 +97,6 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
     )
 {
     supports_[0] = "RPlus";
-    forAll(nodeIndexes_, nodei)
-    {
-        forAll(nNodes_, dimi)
-        {
-            nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes[nodei][dimi]);
-        }
-    }
 }
 
 
@@ -153,7 +146,7 @@ void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
     forAll(nodeIndexes_, nodei)
     {
         const labelList& nodeIndex = nodeIndexes_[nodei];
-        label sizeNode = nodeIndex[0] - 1;
+        label sizeNode = nodeIndex[0];
         if (sizeNode < sizeInverter_->nNodes())
         {
             weights_(nodeIndex) = sizeWeights[sizeNode];

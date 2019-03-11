@@ -135,21 +135,21 @@ void Foam::multivariateMomentInversions::monoKinetic::invert
         for (label dimi = 0; dimi < nGeometricDimensions_; dimi++)
         {
             labelList pureMomentOrder(nDistributionDims_, 0);
-            pureMomentOrder[dimi] = 1;
+            pureMomentOrder[dimi + 1] = 1;
 
             scalarRectangularMatrix M(nSizeNodes, 1, 0);
-            for (label sNodei = 0; sNodei < nSizeNodes; sNodei++)
+            for (label nodei = 0; nodei < nSizeNodes; nodei++)
             {
-                pureMomentOrder[0] = sNodei;
-                M(sNodei, 0) = moments(pureMomentOrder);
+                pureMomentOrder[0] = nodei;
+                M(nodei, 0) = moments(pureMomentOrder);
             }
             scalarRectangularMatrix nu = invVR*M;
 
-            for (label sNodei = 0; sNodei < nSizeNodes; sNodei++)
+            forAll(sizeWeights, nodei)
             {
-                if (sizeWeights[sNodei] > 1e-10)
+                if (sizeWeights[nodei] > 1e-10)
                 {
-                    velocityAbscissae_[sNodei][dimi] = nu(sNodei, 0);
+                    velocityAbscissae_[nodei][dimi] = nu(nodei, 0);
                 }
             }
         }
