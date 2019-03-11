@@ -25,7 +25,6 @@ univariateCoeffs
     }
 
     aggregation on;
-
     aggregationKernel
     {
         aggregationKernel hydrodynamic;
@@ -34,22 +33,20 @@ univariateCoeffs
     }
 
     breakup on;
-
     breakupKernel
     {
         breakupKernel exponential;
 
         expCoeff  expCoeff  [ 0 -3 0 0 0 0 0 ] 0.01;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.1;
-    }
 
-    daughterDistribution
-    {
-        daughterDistribution symmetricFragmentation;
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
     }
 
     growth off;
-
     growthModel
     {
         growthModel	constant;
@@ -59,6 +56,7 @@ univariateCoeffs
         Cg        Cg        [0 3 -1 0 0 0 0 ] 1.0;
     }
 
+    nucleation off;
     nucleationModel
     {
         nucleationModel  none;

@@ -27,7 +27,6 @@ turbulentMixingCoeffs
     }
 
     mixing on;
-
     mixingKernel
     {
         Cphi          Cphi  [ 0 0 0 0 0 0 0 ] 2.0;

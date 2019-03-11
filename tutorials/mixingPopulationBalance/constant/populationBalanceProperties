@@ -54,7 +54,6 @@ mixingPbeCoeffs
     minEnvironmentWeight 1.0e-2;
 
     aggregation on;
-
     aggregationKernel
     {
         aggregationKernel turbulentBrownian;
@@ -66,7 +65,6 @@ mixingPbeCoeffs
     }
 
     breakup off;
-
     breakupKernel
     {
         breakupKernel LuoSvendsen;
@@ -75,15 +73,14 @@ mixingPbeCoeffs
         epsilonExp          0.75;
         nuExp              -1.25;
         sizeExp             1.0;
-    }
 
-    daughterDistribution
-    {
-        daughterDistribution symmetricFragmentation;
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
     }
 
     growth off;
-
     growthModel
     {
         growthModel	constant;
@@ -94,7 +91,6 @@ mixingPbeCoeffs
     }
 
     nucleation off;
-
     nucleationModel
     {
         nucleationModel none;

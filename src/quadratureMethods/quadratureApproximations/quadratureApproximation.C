@@ -200,16 +200,6 @@ quadratureApproximation
     support_(mFieldSet.support()),
     momentFieldInverter_()
 {
-    if (nSecondaryNodes_ != 0 && !momentFieldInverter_().extended())
-    {
-        WarningInFunction
-            << "The number of secondary nodes in the quadrature" << nl
-            << "    approximation is not zero, but the selected" << nl
-            << "    inversion algorithm is not of extended type." << nl
-            << "    Proceeding with nSecondaryNodes = 0." << nl
-            << "    No extended quadrature will be computed." << nl;
-    }
-
     forAll(nodeIndexes_, nodei)
     {
         forAll(nNodes_, dimi)
@@ -265,6 +255,16 @@ quadratureApproximation
             velocityIndexes,
             nSecondaryNodes_
         );
+
+    if (nSecondaryNodes_ != 0 && !momentFieldInverter_().extended())
+    {
+        WarningInFunction
+            << "The number of secondary nodes in the quadrature" << nl
+            << "    approximation is not zero, but the selected" << nl
+            << "    inversion algorithm is not of extended type." << nl
+            << "    Proceeding with nSecondaryNodes = 0." << nl
+            << "    No extended quadrature will be computed." << nl;
+    }
 
     // Allocating nodes
     nodes_ = autoPtr<mappedPtrList<nodeType>>

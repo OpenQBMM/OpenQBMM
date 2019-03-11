@@ -20,14 +20,12 @@ populationBalanceModel univariate;
 univariateCoeffs
 {
     aggregation on;
-
     aggregationKernel
     {
         aggregationKernel turbulentBrownian;
     }
 
     breakup on;
-
     breakupKernel
     {
         breakupKernel LuoSvendsen;
@@ -36,11 +34,11 @@ univariateCoeffs
         epsilonExp          0.75;
         nuExp              -1.25;
         sizeExp             1.0;
-    }
 
-    daughterDistribution
-    {
-        daughterDistribution symmetricFragmentation;
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
     }
 
     diffusionModel
@@ -51,7 +49,6 @@ univariateCoeffs
     }
 
     growth off;
-
     growthModel
     {
         growthModel	constant;
