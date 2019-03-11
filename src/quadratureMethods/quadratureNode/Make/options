@@ -1,0 +1,11 @@
+EXE_INC = \
+    -DFULLDEBUG -g -O0 \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I../../mappedList \
+    -I../../mappedPtrList \
+    -I../momentSets/lnInclude \
+    -I../moments \
+    -I../momentInversion/univariate/basic/lnInclude \
+    -I../fieldMomentInversion/lnInclude
+
+LIB_LIBS =

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -21,36 +21,42 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+InClass
+    Foam::quadratureNodes
+
+Description
+
+SourceFiles
+
 \*---------------------------------------------------------------------------*/
 
+#ifndef quadratureNodes_H
+#define quadratureNodes_H
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+#include "volFields.H"
+#include "surfaceFields.H"
+#include "quadratureNode.H"
+#include "velocityQuadratureNode.H"
 
-//- Return the total number of moments
-Foam::label Foam::hyperbolicConditionalMomentInversion::nMoments()
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
 {
-    return nMoments_;
-}
 
-//- Return the list of nNodes
-Foam::label Foam::hyperbolicConditionalMomentInversion::nNodes()
-{
-    return nNodes_;
-}
+typedef quadratureNode<volScalarField, volVectorField>  volScalarNode;
+typedef quadratureNode<surfaceScalarField, surfaceVectorField>
+    surfaceScalarNode;
 
-//- Return mapped list of weights
-const Foam::mappedList<Foam::scalar>&
-Foam::hyperbolicConditionalMomentInversion::weights() const
-{
-    return weights_;
-}
+typedef velocityQuadratureNode<volScalarField, volVectorField> volVelocityNode;
+typedef velocityQuadratureNode<surfaceScalarField, surfaceVectorField> surfaceVelocityNode;
 
-//- Return mapped list of abscissae
-const Foam::mappedList< Foam::vector>&
-Foam::hyperbolicConditionalMomentInversion::abscissae() const
-{
-    return abscissae_;
-}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace Foam
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
 
 // ************************************************************************* //

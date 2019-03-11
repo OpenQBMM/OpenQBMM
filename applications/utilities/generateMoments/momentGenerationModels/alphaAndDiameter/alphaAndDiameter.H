@@ -53,16 +53,26 @@ class alphaAndDiameter
 :
     public momentGenerationModel
 {
+protected:
 
     //- Read alpha field
     volScalarField alpha_;
 
-    //- Build thermo object to get density
-    autoPtr<rhoThermo> thermo_;
+    //- Are nodes scaled by the total volume fraction
+    Switch scale_;
 
+    //- Copy of rho field
+    volScalarField rho_;
+
+    //- List of diameters
     scalarList ds_;
+
+    //- List of volume fractions
     scalarList alphas_;
+
+    //- Total node volume fraction
     scalar sumAlpha_;
+
 
 public:
 

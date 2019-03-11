@@ -1,8 +1,8 @@
 forAll(nodes, nodei)
 {
-    const volVectorNode& node = nodes[nodei];
+    const volVelocityNode& node = nodes[nodei];
     volScalarField alphaRho(node.primaryWeight()*rhop);
-    volVectorField& Upi = nodes[nodei].primaryAbscissa();
+    volVectorField& Upi = nodes[nodei].velocityAbscissae();
 
 
     fvVectorMatrix UpiEqn

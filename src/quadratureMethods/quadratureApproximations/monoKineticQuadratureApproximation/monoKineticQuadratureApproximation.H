@@ -60,7 +60,7 @@ namespace Foam
 
 class monoKineticQuadratureApproximation
 :
-    public quadratureApproximation<volUnivariateMomentFieldSet, volScalarNode>
+    public quadratureApproximation<volScalarMoment, volScalarNode>
 {
     // Private data
 

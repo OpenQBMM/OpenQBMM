@@ -50,6 +50,7 @@ SourceFiles
 #define mappedList_H
 
 #include "scalar.H"
+#include "vector.H"
 #include "labelList.H"
 #include "Map.H"
 

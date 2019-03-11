@@ -11,7 +11,7 @@ EXE_INC = \
     -I$../../../../src/mappedPtrList \
     -I$../../../../src/quadratureMethods/momentSets/lnInclude \
     -I$../../../../src/quadratureMethods/momentInversion/univariate/extended/lnInclude \
-    -I$../../../../src/quadratureMethods/quadratureNode \
+    -I$../../../../src/quadratureMethods/quadratureNode/lnInclude \
     -I$../../../../src/quadratureMethods/moments \
     -I$../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
     -I$../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
@@ -29,6 +29,7 @@ EXE_LIBS = \
     -lsampling \
     -lmeshTools \
     -lsampling \
+    -lquadratureNode \
     -lmomentSets \
     -lmomentInversion \
     -lfieldMomentInversion \

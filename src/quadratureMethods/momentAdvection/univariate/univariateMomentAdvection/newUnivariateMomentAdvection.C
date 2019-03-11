@@ -31,7 +31,7 @@ Foam::autoPtr<Foam::univariateMomentAdvection>
 Foam::univariateMomentAdvection::New
 (
     const dictionary& dict,
-    const univariateQuadratureApproximation& quadrature,
+    const scalarQuadratureApproximation& quadrature,
     const surfaceScalarField& phi,
     const word& support
 )

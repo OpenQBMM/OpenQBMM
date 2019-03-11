@@ -4,14 +4,17 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I../../mappedList \
     -I../../mappedPtrList \
-    -I../quadratureNode \
+    -I../../Vandermonde \
+    -I../quadratureNode/lnInclude \
     -I../moments \
     -I../momentSets/lnInclude \
-    -I../momentInversion/lnInclude \
+    -I../momentInversion/lnInclude
 
 LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
     -L$(FOAM_USER_LIBBIN) \
+    -lquadratureNode \
     -lmomentSets \
-    -lmomentInversion
+    -lmomentInversion \
+    -lvandermonde

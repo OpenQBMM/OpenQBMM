@@ -36,7 +36,7 @@ SourceFiles
 #ifndef VikasQuasiSecondOrderVelocityAdvection_H
 #define VikasQuasiSecondOrderVelocityAdvection_H
 
-#include "velocityMomentAdvection.H"
+#include "firstOrderKineticVelocityAdvection.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -52,18 +52,9 @@ namespace velocityAdvection
 
 class VikasQuasiSecondOrder
 :
-    public velocityMomentAdvection
+    public firstOrderKinetic
 {
     // Private data
-
-        //- List of quadrature nodes used for moment advection
-        const PtrList<volVectorNode>& nodes_;
-
-        //- List of interpolated nodes (neighbour)
-        autoPtr<PtrList<surfaceVectorNode>> nodesNei_;
-
-        //- List of interpolated nodes (owner)
-        autoPtr<PtrList<surfaceVectorNode>> nodesOwn_;
 
         //- Flux moment inversion method
 //         autoPtr<hyperbolicFieldMomentInversion> momentFieldInverter_;
@@ -75,9 +66,6 @@ protected:
 
         // Interpolate weights and abscissae
         void interpolateNodes();
-
-        //- Compute collisions with walls
-        void updateWallCollisions();
 
 
 public:
@@ -105,26 +93,6 @@ public:
 
         //- Return the maximum Courant number ensuring moment realizability
         virtual scalar realizableCo() const;
-
-        //- Return the maximum Courant number based on velocities
-        virtual scalar CoNum() const;
-
-        //- Update moment advection
-        virtual void update();
-
-        //- Update moment advection using a specified velocity field
-        virtual void update
-        (
-            const surfaceScalarField& U,
-            const bool wallCollisions
-        );
-
-        //- Update moment advection using a specified list of velocity fields
-        virtual void update
-        (
-            const mappedPtrList<volVectorField>& Us,
-            const bool wallCollisions
-        );
 };
 
 

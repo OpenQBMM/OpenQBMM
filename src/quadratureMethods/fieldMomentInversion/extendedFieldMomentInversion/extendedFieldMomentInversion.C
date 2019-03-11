@@ -48,6 +48,7 @@ Foam::extendedFieldMomentInversion::extendedFieldMomentInversion
     const fvMesh& mesh,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
+    const labelList& velocityIndexes,
     const label nSecondaryNodes
 )
 :
@@ -57,6 +58,7 @@ Foam::extendedFieldMomentInversion::extendedFieldMomentInversion
         mesh,
         momentOrders,
         nodeIndexes,
+        velocityIndexes,
         nSecondaryNodes
     ),
     momentInverter_
@@ -83,11 +85,11 @@ Foam::extendedFieldMomentInversion::~extendedFieldMomentInversion()
 
 void Foam::extendedFieldMomentInversion::invert
 (
-    const volUnivariateMomentFieldSet& moments,
+    const volScalarMomentFieldSet& moments,
     mappedPtrList<volScalarNode>& nodes
 )
 {
-    const volScalarField& m0(moments[0]);
+    const volScalarField& m0(moments(0));
 
     forAll(m0, celli)
     {
@@ -99,7 +101,7 @@ void Foam::extendedFieldMomentInversion::invert
 
 void Foam::extendedFieldMomentInversion::invertBoundaryMoments
 (
-    const volUnivariateMomentFieldSet& moments,
+    const volScalarMomentFieldSet& moments,
     mappedPtrList<volScalarNode>& nodes
 )
 {
@@ -137,10 +139,10 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
                 node.primaryWeight().boundaryFieldRef()[patchi][facei]
                         = momentInverter_->primaryWeights()[pNodei];
 
-                node.primaryAbscissa().boundaryFieldRef()[patchi][facei]
+                node.primaryAbscissae()[0].boundaryFieldRef()[patchi][facei]
                         = momentInverter_->primaryAbscissae()[pNodei];
 
-                node.sigma().boundaryFieldRef()[patchi][facei]
+                node.sigmas()[0].boundaryFieldRef()[patchi][facei]
                         = momentInverter_->sigma();
 
                 for
@@ -150,10 +152,10 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
                     sNodei++
                 )
                 {
-                    node.secondaryWeights()[sNodei].boundaryFieldRef()[patchi][facei]
+                    node.secondaryWeights()[0][sNodei].boundaryFieldRef()[patchi][facei]
                             = momentInverter_().secondaryWeights()[pNodei][sNodei];
 
-                    node.secondaryAbscissae()[sNodei].boundaryFieldRef()[patchi][facei]
+                    node.secondaryAbscissae()[0][sNodei].boundaryFieldRef()[patchi][facei]
                             = momentInverter_().secondaryAbscissae()[pNodei][sNodei];
                 }
             }
@@ -163,7 +165,7 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
 
 bool Foam::extendedFieldMomentInversion::invertLocalMoments
 (
-    const volUnivariateMomentFieldSet& moments,
+    const volScalarMomentFieldSet& moments,
     mappedPtrList<volScalarNode>& nodes,
     const label celli,
     const bool fatalErrorOnFailedRealizabilityTest
@@ -207,11 +209,11 @@ bool Foam::extendedFieldMomentInversion::invertLocalMoments
 
         // Copy primary node
         node.primaryWeight()[celli] = pWeights[pNodei];
-        node.primaryAbscissa()[celli] = pAbscissae[pNodei];
+        node.primaryAbscissae()[0][celli] = pAbscissae[pNodei];
 
         // Copy secondary nodes
-        PtrList<volScalarField>& sWeightFields(node.secondaryWeights());
-        PtrList<volScalarField>& sAbscissaFields(node.secondaryAbscissae());
+        PtrList<volScalarField>& sWeightFields(node.secondaryWeights()[0]);
+        PtrList<volScalarField>& sAbscissaFields(node.secondaryAbscissae()[0]);
 
         const scalarRectangularMatrix& sWeights
         (
@@ -235,7 +237,7 @@ bool Foam::extendedFieldMomentInversion::invertLocalMoments
         }
 
         // Copy sigma
-        node.sigma()[celli] = momentInverter_().sigma();
+        node.sigmas()[0][celli] = momentInverter_().sigma();
     }
 
     return true;
@@ -243,8 +245,8 @@ bool Foam::extendedFieldMomentInversion::invertLocalMoments
 
 void Foam::extendedFieldMomentInversion::invert
 (
-    const volVectorMomentFieldSet& moments,
-    mappedPtrList<volVectorNode>& nodes
+    const volVelocityMomentFieldSet& moments,
+    mappedPtrList<volVelocityNode>& nodes
 )
 {
     NotImplemented;
@@ -252,8 +254,8 @@ void Foam::extendedFieldMomentInversion::invert
 
 void Foam::extendedFieldMomentInversion::invertBoundaryMoments
 (
-    const volVectorMomentFieldSet& moments,
-    mappedPtrList<volVectorNode>& nodes
+    const volVelocityMomentFieldSet& moments,
+    mappedPtrList<volVelocityNode>& nodes
 )
 {
     NotImplemented;
@@ -261,8 +263,8 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
 
 bool Foam::extendedFieldMomentInversion::invertLocalMoments
 (
-    const volVectorMomentFieldSet& moments,
-    mappedPtrList<volVectorNode>& nodes,
+    const volVelocityMomentFieldSet& moments,
+    mappedPtrList<volVelocityNode>& nodes,
     const label celli,
     const bool fatalErrorOnFailedRealizabilityTest
 )

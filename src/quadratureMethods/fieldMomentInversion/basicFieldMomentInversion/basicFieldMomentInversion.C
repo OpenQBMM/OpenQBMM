@@ -48,6 +48,7 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     const fvMesh& mesh,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
+    const labelList& velocityIndexes,
     const label nSecondaryNodes
 )
 :
@@ -57,6 +58,7 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
         mesh,
         momentOrders,
         nodeIndexes,
+        velocityIndexes,
         nSecondaryNodes
     ),
     minKnownAbscissa_(dict.lookupOrDefault("minKnownAbscissa", 0.0)),
@@ -90,11 +92,11 @@ Foam::basicFieldMomentInversion::~basicFieldMomentInversion()
 
 void Foam::basicFieldMomentInversion::invert
 (
-    const volUnivariateMomentFieldSet& moments,
+    const volScalarMomentFieldSet& moments,
     mappedPtrList<volScalarNode>& nodes
 )
 {
-    const volUnivariateMoment& m0(moments[0]);
+    const volScalarField& m0(moments(0));
 
     forAll(m0, celli)
     {
@@ -106,7 +108,7 @@ void Foam::basicFieldMomentInversion::invert
 
 void Foam::basicFieldMomentInversion::invertBoundaryMoments
 (
-    const volUnivariateMomentFieldSet& moments,
+    const volScalarMomentFieldSet& moments,
     mappedPtrList<volScalarNode>& nodes
 )
 {
@@ -154,7 +156,7 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
                         = node.primaryWeight().boundaryFieldRef();
 
                 volScalarField::Boundary& abscissaBf
-                        = node.primaryAbscissa().boundaryFieldRef();
+                        = node.primaryAbscissae()[0].boundaryFieldRef();
 
                 if (nodei < actualNodes)
                 {
@@ -176,7 +178,7 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
 
 bool Foam::basicFieldMomentInversion::invertLocalMoments
 (
-    const volUnivariateMomentFieldSet& moments,
+    const volScalarMomentFieldSet& moments,
     mappedPtrList<volScalarNode>& nodes,
     const label celli,
     const bool fatalErrorOnFailedRealizabilityTest
@@ -226,12 +228,12 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
         if (nodei < actualNodes)
         {
             node.primaryWeight()[celli] = weights[nodei];
-            node.primaryAbscissa()[celli] = abscissae[nodei];
+            node.primaryAbscissae()[0][celli] = abscissae[nodei];
         }
         else
         {
             node.primaryWeight()[celli] = 0.0;
-            node.primaryAbscissa()[celli] = 0.0;
+            node.primaryAbscissae()[0][celli] = 0.0;
         }
     }
 
@@ -240,8 +242,8 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
 
 void Foam::basicFieldMomentInversion::invert
 (
-    const volVectorMomentFieldSet& moments,
-    mappedPtrList<volVectorNode>& nodes
+    const volVelocityMomentFieldSet& moments,
+    mappedPtrList<volVelocityNode>& nodes
 )
 {
     NotImplemented;
@@ -249,8 +251,8 @@ void Foam::basicFieldMomentInversion::invert
 
 void Foam::basicFieldMomentInversion::invertBoundaryMoments
 (
-    const volVectorMomentFieldSet& moments,
-    mappedPtrList<volVectorNode>& nodes
+    const volVelocityMomentFieldSet& moments,
+    mappedPtrList<volVelocityNode>& nodes
 )
 {
     NotImplemented;
@@ -258,8 +260,8 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
 
 bool Foam::basicFieldMomentInversion::invertLocalMoments
 (
-    const volVectorMomentFieldSet& moments,
-    mappedPtrList<volVectorNode>& nodes,
+    const volVelocityMomentFieldSet& moments,
+    mappedPtrList<volVelocityNode>& nodes,
     const label celli,
     const bool fatalErrorOnFailedRealizabilityTest
 )

@@ -72,8 +72,8 @@ Foam::mixingSubModels::mixingKernels::noMixingKernel
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::mixingSubModels::mixingKernels::noMixingKernel::K
 (
-    const volUnivariateMoment& moment,
-    const volUnivariateMomentFieldSet& moments
+    const volScalarMoment& moment,
+    const volScalarMomentFieldSet& moments
 ) const
 {
     tmp<fvScalarMatrix> mixingK

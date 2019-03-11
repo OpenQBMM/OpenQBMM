@@ -40,7 +40,6 @@ SourceFiles
 #include "populationBalanceModel.H"
 #include "aggregationKernel.H"
 #include "breakupKernel.H"
-#include "daughterDistribution.H"
 #include "growthModel.H"
 #include "diffusionModel.H"
 #include "nucleationModel.H"
@@ -63,9 +62,9 @@ class univariatePopulationBalance
 :
     public univariatePDFTransportModel,
     public populationBalanceModel,
-    private realizableOdeSolver<volUnivariateMoment, volScalarNode>
+    private realizableOdeSolver<volScalarMoment, volScalarNode>
 {
-    typedef realizableOdeSolver<volUnivariateMoment, volScalarNode> odeType;
+    typedef realizableOdeSolver<volScalarMoment, volScalarNode> odeType;
 
     // Private data
 
@@ -81,6 +80,9 @@ class univariatePopulationBalance
         //- Switch indicating the status of the growth model
         Switch growth_;
 
+        //- Switch indicating the status of the nucleation model
+        Switch nucleation_;
+
         //- Aggregation kernel model
         autoPtr
         <
@@ -92,12 +94,6 @@ class univariatePopulationBalance
         <
             Foam::populationBalanceSubModels::breakupKernel
         > breakupKernel_;
-
-        //- Daughter distribution function
-        autoPtr
-        <
-            Foam::populationBalanceSubModels::daughterDistribution
-        > daughterDistribution_;
 
         //- Growth model function
         autoPtr
@@ -119,37 +115,10 @@ class univariatePopulationBalance
 
     // Private member functions
 
-        //- Calculate aggregation source terms
-        scalar aggregationSource
-        (
-            const label& momentOrder,
-            const label& celli
-        );
-
-        //- Calculate Breakup source term
-        scalar breakupSource
-        (
-            const label& momentOrder,
-            const label& celli
-        );
-
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
-        (
-            const volUnivariateMoment& moment
-        );
-
-        //- Convect moments in phase space
-        virtual scalar phaseSpaceConvection
-        (
-            const label& momentOrder,
-            const label& celli
-        );
-
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
-            const volUnivariateMoment& moment
+            const volScalarMoment& moment
         );
 
         //- Calculate explicit source terms with realizable ODE solver
@@ -167,10 +136,10 @@ class univariatePopulationBalance
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            const label momentOrder,
+            const labelList& momentOrder,
             const label celli,
-            const mappedPtrList<volScalarNode>& nodes,
-            const label enviroment
+            const scalarQuadratureApproximation& nodes,
+            const label environment
         );
 
 

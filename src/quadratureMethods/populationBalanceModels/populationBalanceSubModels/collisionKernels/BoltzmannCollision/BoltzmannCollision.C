@@ -57,8 +57,8 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     const label node2
 )
 {
-    const vector& u1 = quadrature_.nodes()[node1].primaryAbscissa()[celli];
-    const vector& u2 = quadrature_.nodes()[node2].primaryAbscissa()[celli];
+    const vector& u1 = quadrature_.nodes()[node1].velocityAbscissae()[celli];
+    const vector& u2 = quadrature_.nodes()[node2].velocityAbscissae()[celli];
     scalar v1(u1.x());
     scalar v2(u1.y());
     scalar v3(u1.z());
@@ -184,10 +184,10 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 
     forAll(quadrature_.nodes(), nodei)
     {
-        const volVectorNode& node1 = quadrature_.nodes()[nodei];
+        const volVelocityNode& node1 = quadrature_.nodes()[nodei];
         forAll(quadrature_.nodes(), nodej)
         {
-            const volVectorNode& node2 = quadrature_.nodes()[nodej];
+            const volVelocityNode& node2 = quadrature_.nodes()[nodej];
 
             updateI(celli, nodei, nodej);
 
@@ -199,8 +199,8 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                    *node2.primaryWeight()[celli]
                    *mag
                     (
-                        node1.primaryAbscissa()[celli]
-                      - node2.primaryAbscissa()[celli]
+                        node1.velocityAbscissae()[celli]
+                      - node2.velocityAbscissae()[celli]
                     )
                    *Is_(momentOrder);
             }
@@ -226,14 +226,18 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 
 Foam::scalar
 Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
-::explicitCollisionSource(const label mi, const label celli) const
+::explicitCollisionSource
+(
+    const labelList& momentOrder,
+    const label celli
+) const
 {
-    return Cs_[mi];
+    return Cs_(momentOrder);
 }
 
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
-::implicitCollisionSource(const volVectorMoment& m) const
+::implicitCollisionSource(const volVelocityMoment& m) const
 {
     NotImplemented;
 

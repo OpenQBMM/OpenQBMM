@@ -72,8 +72,8 @@ Foam::mixingSubModels::mixingKernels::IEM
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::mixingSubModels::mixingKernels::IEM::K
 (
-    const volUnivariateMoment& moment,
-    const volUnivariateMomentFieldSet& moments
+    const volScalarMoment& moment,
+    const volScalarMomentFieldSet& moments
 ) const
 {
     typedef compressible::turbulenceModel cmpTurbModel;
@@ -115,7 +115,7 @@ Foam::mixingSubModels::mixingKernels::IEM::K
     else
     {
         mixingK.ref() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
-            *(moments[momentOrder - 1]*moments[1])
+            *(moments(momentOrder - 1)*moments(1))
             - fvm::SuSp(momentOrder*Cphi_*flTurb.epsilon()/flTurb.k(), moment);
     }
 

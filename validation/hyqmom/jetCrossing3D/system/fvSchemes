@@ -38,9 +38,6 @@ laplacianSchemes
 interpolationSchemes
 {
     default         linear;
-
-    reconstruct(U)          upwind;
-    reconstruct(weight)     upwind;
 }
 
 snGradSchemes

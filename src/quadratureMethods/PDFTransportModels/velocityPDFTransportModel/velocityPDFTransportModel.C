@@ -66,7 +66,7 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
     // Solve moment transport equations
     forAll(quadrature_.moments(), momenti)
     {
-        volVectorMoment& m = quadrature_.moments()[momenti];
+        volVelocityMoment& m = quadrature_.moments()[momenti];
         momentEqns.set
         (
             momenti,
@@ -89,7 +89,7 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
 
     forAll(quadrature_.moments(), mEqni)
     {
-        volVectorMoment& m = quadrature_.moments()[mEqni];
+        volVelocityMoment& m = quadrature_.moments()[mEqni];
 
         if (solveMomentSources())
         {
@@ -101,8 +101,8 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
             momentEqns[mEqni].relax();
             momentEqns[mEqni].solve();
 
-            //  Set moments.oldTime to moments transport is not neglected due to
-            //  large collision source terms
+            //  Set moments.oldTime to moments transport is not neglected due
+            //  to large collision source terms
             m.oldTime() = m;
 
             // Solve collisions

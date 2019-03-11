@@ -1,0 +1,41 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      binary;
+    class       volScalarField;
+    location    "0";
+    object      moment.01.particles;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+100
+(ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿);
+
+boundaryField
+{
+    inlet1
+    {
+        type            zeroGradient;
+    }
+    inlet2
+    {
+        type            zeroGradient;
+    }
+    defaultFaces
+    {
+        type            empty;
+    }
+}
+
+
+// ************************************************************************* //

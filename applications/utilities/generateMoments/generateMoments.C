@@ -61,7 +61,6 @@ int main(int argc, char *argv[])
     );
 
     List<word> phases(phaseDicts.lookup("phases"));
-    const dictionary& boundaries(phaseDicts.subDict("boundaries"));
 
     for (label phasei = 0; phasei < phases.size(); phasei++)
     {
@@ -100,6 +99,25 @@ int main(int argc, char *argv[])
                 momentOrders,
                 nNodes
             );
+        mappedPtrList<dictionary> boundaries(nMoments, momentOrders);
+        forAll(momentOrders, mi)
+        {
+            word bName =
+                "moment"
+              + mappedScalarList::listToWord(momentOrders[mi])
+              + "Boundary";
+
+            boundaries.set
+            (
+                momentOrders[mi],
+                new dictionary
+                (
+                    phaseDict.found(bName)
+                  ? phaseDict.subDict(bName)
+                  : phaseDicts.subDict("boundaries")
+                )
+            );
+        }
 
 
         mappedPtrList<volScalarField> moments(nMoments, momentOrders);
@@ -141,16 +159,16 @@ int main(int argc, char *argv[])
                             IOobject::AUTO_WRITE
                         ),
                         mesh,
-                        momentGenerator().moments()[mi]
+                        momentGenerator().moments()(momentOrder)
                     )
                 );
 
                 //  Set boundaries based oboundary section
                 //  Initial values specified in the dictionary are overwritten
-                moments[mi].boundaryFieldRef().readField
+                moments(momentOrder).boundaryFieldRef().readField
                 (
-                    moments[mi].internalField(),
-                    boundaries
+                    moments(momentOrder).internalField(),
+                    boundaries[mi]
                 );
             }
 

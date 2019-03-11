@@ -7,6 +7,7 @@ wclean libso Vandermonde
 wclean libso quadratureMethods/momentSets
 wclean libso quadratureMethods/momentInversion
 wclean libso quadratureMethods/hermiteQuadrature
+wclean libso quadratureMethods/quadratureNode
 wclean libso quadratureMethods/fieldMomentInversion
 wclean libso quadratureMethods/quadratureApproximations
 wclean libso quadratureMethods/momentAdvection

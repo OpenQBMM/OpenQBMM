@@ -20,7 +20,6 @@ populationBalanceModel univariate;
 univariateCoeffs
 {
     aggregation off;
-
     aggregationKernel
     {
         aggregationKernel hydrodynamic;
@@ -29,18 +28,17 @@ univariateCoeffs
     }
 
     breakup off;
-
     breakupKernel
     {
         breakupKernel exponential;
 
         expCoeff  expCoeff  [ 0 -3 0 0 0 0 0 ] 0.01;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.1;
-    }
 
-    daughterDistribution
-    {
-        daughterDistribution symmetricFragmentation;
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
     }
 
     diffusionModel
@@ -49,7 +47,6 @@ univariateCoeffs
     }
 
     growth on;
-
     growthModel
     {
         growthModel	constant;
@@ -59,6 +56,7 @@ univariateCoeffs
         Cg        Cg        [0 0 -1 0 0 0 0 ] 0.1;
     }
 
+    nucleation off;
     nucleationModel
     {
         nucleationModel  none;

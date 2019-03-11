@@ -70,7 +70,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
     // Solve moment transport equations
     forAll(quadrature_.moments(), momenti)
     {
-        volUnivariateMoment& m = quadrature_.moments()[momenti];
+        volScalarMoment& m = quadrature_.moments()[momenti];
 
         momentEqns.set
         (
@@ -79,7 +79,6 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             (
                 fvm::ddt(m)
               + momentAdvection_().divMoments()[momenti]
-              - momentDiffusion(m)
               ==
                 implicitMomentSource(m)
             )
@@ -93,7 +92,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
 
     forAll (momentEqns, mEqni)
     {
-        volUnivariateMoment& m = quadrature_.moments()[mEqni];
+        volScalarField& m = quadrature_.moments()[mEqni];
 
         if (solveMomentSources())
         {

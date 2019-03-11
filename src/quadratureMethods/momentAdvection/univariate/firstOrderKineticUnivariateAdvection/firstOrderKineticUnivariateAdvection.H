@@ -65,10 +65,10 @@ class firstOrderKinetic
         autoPtr<mappedPtrList<surfaceScalarNode>> nodesOwn_;
 
         //- List of interpolated moments (neighbour)
-        surfaceUnivariateMomentFieldSet momentsNei_;
+        surfaceScalarMomentFieldSet momentsNei_;
 
         //- List of interpolated moments (owner)
-        surfaceUnivariateMomentFieldSet momentsOwn_;
+        surfaceScalarMomentFieldSet momentsOwn_;
 
         //- Flux moment inversion method
         autoPtr<basicFieldMomentInversion> momentFieldInverter_;
@@ -101,7 +101,7 @@ public:
         firstOrderKinetic
         (
             const dictionary& dict,
-            const univariateQuadratureApproximation& quadrature,
+            const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
             const word& support
         );

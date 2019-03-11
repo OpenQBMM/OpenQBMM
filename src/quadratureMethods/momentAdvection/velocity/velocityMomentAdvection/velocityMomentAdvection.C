@@ -25,6 +25,7 @@ License
 
 #include "velocityMomentAdvection.H"
 #include "IOmanip.H"
+#include "wallFvPatch.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -51,10 +52,10 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
         IOobject
         (
             "own",
-            moments_[0].mesh().time().timeName(),
-            moments_[0].mesh()
+            moments_(0).mesh().time().timeName(),
+            moments_(0).mesh()
         ),
-        moments_[0].mesh(),
+        moments_(0).mesh(),
         dimensionedScalar("own", dimless, 1.0)
     ),
     nei_
@@ -62,10 +63,10 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
         IOobject
         (
             "nei",
-            moments_[0].mesh().time().timeName(),
-            moments_[0].mesh()
+            moments_(0).mesh().time().timeName(),
+            moments_(0).mesh()
         ),
-        moments_[0].mesh(),
+        moments_(0).mesh(),
         dimensionedScalar("nei", dimless, -1.0)
     ),
     support_(support),
@@ -87,16 +88,16 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
                     IOobject::groupName
                     (
                         "divMoment"
-                       + volVectorMoment::listToWord(momentOrder),
+                       + mappedList<vector>::listToWord(momentOrder),
                         name_
                     ),
-                    moments_[0].mesh().time().timeName(),
-                    moments_[0].mesh(),
+                    moments_(0).mesh().time().timeName(),
+                    moments_(0).mesh(),
                     IOobject::NO_READ,
                     IOobject::NO_WRITE,
                     false
                 ),
-                moments_[0].mesh(),
+                moments_(0).mesh(),
                 dimensionedScalar
                 (
                     "zero", moments_[momenti].dimensions()/dimTime, 0
@@ -114,5 +115,59 @@ Foam::velocityMomentAdvection::~velocityMomentAdvection()
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::velocityMomentAdvection::updateWallCollisions
+(
+    const PtrList<volVelocityNode>& nodes,
+    PtrList<surfaceVelocityNode>& nodesOwn,
+    PtrList<surfaceVelocityNode>& nodesNei
+)
+{
+    const fvMesh& mesh = own_.mesh();
+
+    forAll(mesh.boundary(), patchi)
+    {
+        const fvPatch& currPatch = mesh.boundary()[patchi];
+        if (isA<wallFvPatch>(currPatch))
+        {
+            const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
+            vectorField bfNorm(bfSf/mag(bfSf));
+
+            forAll(nodes, nodei)
+            {
+                const volVelocityNode& node = nodes[nodei];
+                surfaceVelocityNode& nodeNei(nodesNei[nodei]);
+                surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
+
+                const volScalarField& weight = node.primaryWeight();
+                surfaceScalarField& weightOwn = nodeOwn.primaryWeight();
+                surfaceScalarField& weightNei = nodeNei.primaryWeight();
+                const volVectorField& U = node.velocityAbscissae();
+                surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
+                surfaceVectorField& UNei = nodeNei.velocityAbscissae();
+
+                scalarField& bfwOwn = weightOwn.boundaryFieldRef()[patchi];
+                scalarField& bfwNei = weightNei.boundaryFieldRef()[patchi];
+                vectorField& bfUOwn = UOwn.boundaryFieldRef()[patchi];
+                vectorField& bfUNei = UNei.boundaryFieldRef()[patchi];
+
+                forAll(currPatch, facei)
+                {
+                    label faceCelli = currPatch.faceCells()[facei];
+
+                    bfwOwn[facei] = weight[faceCelli];
+                    bfUOwn[facei] = U[faceCelli];
+
+                    bfwNei[facei] = bfwOwn[facei];
+                    bfUNei[facei] =
+                        bfUOwn[facei]
+                      - (1.0 + this->ew_)*(bfUOwn[facei] & bfNorm[facei])
+                       *bfNorm[facei];
+                }
+            }
+        }
+    }
+}
+
 
 // ************************************************************************* //

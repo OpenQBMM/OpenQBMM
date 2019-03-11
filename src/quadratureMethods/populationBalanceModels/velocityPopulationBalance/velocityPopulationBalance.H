@@ -58,11 +58,13 @@ class velocityPopulationBalance
 :
     public velocityPDFTransportModel,
     public populationBalanceModel,
-    public realizableOdeSolver<volVectorMoment, volVectorNode>
+    public realizableOdeSolver<volVelocityMoment, volVelocityNode>
 {
-    typedef realizableOdeSolver<volVectorMoment, volVectorNode> odeType;
+protected:
 
-    // Private data
+    typedef realizableOdeSolver<volVelocityMoment, volVelocityNode> odeType;
+
+    // protected data
 
         //- Name of the velocityPopulationBalance
         const word name_;
@@ -85,7 +87,7 @@ class velocityPopulationBalance
          //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
-            const volVectorMoment& moment
+            const volVelocityMoment& moment
         );
 
         //- Calculate explicit source terms with realizable ODE solver
@@ -103,9 +105,9 @@ class velocityPopulationBalance
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            const label momentOrder,
+            const labelList& momentOrder,
             const label celli,
-            const mappedPtrList<volVectorNode>& nodes,
+            const velocityQuadratureApproximation& quadrature,
             const label enviroment = 0
         );
 

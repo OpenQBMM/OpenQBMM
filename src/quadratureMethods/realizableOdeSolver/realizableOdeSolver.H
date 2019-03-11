@@ -36,7 +36,7 @@ SourceFiles
 #ifndef realizableOdeSolver_H
 #define realizableOdeSolver_H
 
-#include "quadratureApproximations.H"
+#include "quadratureApproximation.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,7 +52,7 @@ class realizableOdeSolver
 {
 
     typedef momentFieldSet<momentType, nodeType> momentFieldSetType;
-    typedef quadratureApproximation<momentFieldSetType, nodeType> quadratureType;
+    typedef quadratureApproximation<momentType, nodeType> quadratureType;
 
     // Private data
 
@@ -102,9 +102,9 @@ protected:
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            const label momentOrder,
+            const labelList& momentOrder,
             const label celli,
-            const mappedPtrList<nodeType>& nodes,
+            const quadratureType& nodes,
             const label enviroment
         ) = 0;
 

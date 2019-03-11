@@ -56,5 +56,6 @@ noPopulationBalance/noPopulationBalance.C
 univariatePopulationBalance/univariatePopulationBalance.C
 mixingPopulationBalance/mixingPopulationBalance.C
 velocityPopulationBalance/velocityPopulationBalance.C
+sizeVelocityPopulationBalance/sizeVelocityPopulationBalance.C
 
 LIB = $(FOAM_USER_LIBBIN)/libpopulationBalance

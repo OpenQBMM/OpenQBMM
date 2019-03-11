@@ -25,27 +25,24 @@ univariateCoeffs
     }
 
     aggregation on;
-
     aggregationKernel
     {
         aggregationKernel constant;
     }
 
     breakup on;
-
     breakupKernel
     {
         breakupKernel constant;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.02;
-    }
 
-    daughterDistribution
-    {
-        daughterDistribution symmetricFragmentation;
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
     }
 
     growth off;
-
     growthModel
     {
         growthModel	constant;
@@ -55,6 +52,7 @@ univariateCoeffs
         Cg        Cg        [0 3 -1 0 0 0 0 ] 1.0;
     }
 
+    nucleation off;
     nucleationModel
     {
         nucleationModel  none;

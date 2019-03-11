@@ -40,7 +40,7 @@ SourceFiles
 #include "dimensionedScalar.H"
 #include "volFields.H"
 #include "phaseModel.H"
-#include "quadratureApproximations.H"
+#include "monoKineticQuadratureApproximation.H"
 
 #include "coalescenceKernel.H"
 #include "bubbleBreakupKernel.H"

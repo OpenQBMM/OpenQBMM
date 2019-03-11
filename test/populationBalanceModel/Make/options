@@ -6,7 +6,7 @@ EXE_INC = \
     -I../../src/quadratureMethods/mappedList \
     -I../../src/quadratureMethods/momentSets/lnInclude \
     -I../../src/quadratureMethods/momentInversion/lnInclude \
-    -I../../src/quadratureMethods/quadratureNode \
+    -I../../src/quadratureMethods/quadratureNode/lnInclude \
     -I../../src/quadratureMethods/moments \
     -I../../src/quadratureMethods/quadratureApproximations/lnInclude \
     -I../../src/quadratureMethods/populationBalanceModels/lnInclude
@@ -17,6 +17,7 @@ EXE_LIBS = \
     -lfvOptions \
     -lmeshTools \
     -lsampling \
+    -lquadratureNode \
     -lmomentSets \
     -lmomentInversion \
     -lfieldMomentInversion \

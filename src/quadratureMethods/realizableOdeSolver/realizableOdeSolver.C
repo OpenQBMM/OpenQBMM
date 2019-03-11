@@ -74,9 +74,9 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
     }
 
     momentFieldSetType& moments(quadrature.moments());
-    const mappedPtrList<nodeType>& nodes(quadrature.nodes());
     label nMoments = quadrature.nMoments();
     scalar globalDt = mesh_.time().deltaT().value();
+    const labelListList& momentOrders = quadrature.momentOrders();
 
     if (!solveOde_)
     {
@@ -85,8 +85,16 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             updateCellMomentSource(celli);
             forAll(moments, mi)
             {
+                const labelList& order = momentOrders[mi];
                 moments[mi][celli] +=
-                    globalDt*cellMomentSource(mi, celli, nodes, enviroment);
+                    globalDt
+                   *cellMomentSource
+                    (
+                        order,
+                        celli,
+                        quadrature,
+                        enviroment
+                    );
             }
 
             quadrature.updateLocalQuadrature(celli, true);
@@ -137,8 +145,15 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 updateCellMomentSource(celli);
                 forAll(oldMoments, mi)
                 {
+                    const labelList& order = momentOrders[mi];
                     k1[mi] =
-                        localDt*cellMomentSource(mi, celli, nodes, enviroment);
+                        localDt*cellMomentSource
+                        (
+                            order,
+                            celli,
+                            quadrature,
+                            enviroment
+                        );
                     moments[mi][celli] = oldMoments[mi] + k1[mi];
                 }
 
@@ -151,8 +166,15 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 updateCellMomentSource(celli);
                 forAll(oldMoments, mi)
                 {
+                    const labelList& order = momentOrders[mi];
                     k2[mi] =
-                        localDt*cellMomentSource(mi, celli, nodes, enviroment);
+                        localDt*cellMomentSource
+                        (
+                            order,
+                            celli,
+                            quadrature,
+                            enviroment
+                        );
                     moments[mi][celli] = oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
 
                     momentsSecondStep[mi] = moments[mi][celli];
@@ -167,8 +189,15 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 updateCellMomentSource(celli);
                 forAll(oldMoments, mi)
                 {
+                    const labelList& order = momentOrders[mi];
                     k3[mi] =
-                        localDt*cellMomentSource(mi, celli, nodes, enviroment);
+                        localDt*cellMomentSource
+                        (
+                            order,
+                            celli,
+                            quadrature,
+                            enviroment
+                        );
                     moments[mi][celli] =
                         oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
                 }
@@ -232,9 +261,15 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                         );
             }
 
-            error = sqrt(error/nMoments);
+            error = max(sqrt(error/nMoments), small);
 
-            if (error < 1)
+            if (error == 0)
+            {
+                timeComplete = true;
+                localT = 0.0;
+                break;
+            }
+            else if (error < 1)
             {
                 localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
 

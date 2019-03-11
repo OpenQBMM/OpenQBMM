@@ -151,13 +151,29 @@ void Foam::moment<fieldType, nodeType>::update()
         {
             const nodeType& node = nodes[pNodei];
             fieldType m = node.primaryWeight();
+            const labelList& scalarIndexes = node.scalarIndexes();
+            const labelList& velocityIndexes = node.velocityIndexes();
 
-            for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
+            for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
             {
-                const label cmptMomentOrder = cmptOrders()[cmpt];
+                label cmpti = scalarIndexes[cmpt];
+                const label cmptMomentOrder = cmptOrders()[cmpti];
+
+                tmp<fieldType> abscissaCmpt =
+                    node.primaryAbscissae()[cmpt];
+
+                tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
+                m.dimensions().reset(mPow().dimensions());
+
+                m == mPow;
+            }
+            for (label cmpt = 0; cmpt < velocityIndexes.size(); cmpt++)
+            {
+                label cmpti = velocityIndexes[cmpt];
+                const label cmptMomentOrder = cmptOrders()[cmpti];
 
                 tmp<fieldType> abscissaCmpt
-                        = node.primaryAbscissa().component(cmpt);
+                        = node.velocityAbscissae().component(cmpt);
 
                 tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
                 m.dimensions().reset(mPow().dimensions());
@@ -176,23 +192,42 @@ void Foam::moment<fieldType, nodeType>::update()
     {
         const nodeType& node = nodes[pNodei];
         const fieldType& pW = node.primaryWeight();
+        const labelList& scalarIndexes = node.scalarIndexes();
+        const labelList& velocityIndexes = node.velocityIndexes();
 
         for (label sNodei = 0; sNodei < node.nSecondaryNodes(); sNodei++)
         {
-            fieldType m(pW*node.secondaryWeights()[sNodei]);
+            fieldType m(pW);
 
-            for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
+            for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
             {
-                const label cmptMomentOrder = cmptOrders()[cmpt];
+                label cmpti = scalarIndexes[cmpt];
+                const label cmptMomentOrder = cmptOrders()[cmpti];
 
                 tmp<fieldType> abscissaCmpt
-                        = node.secondaryAbscissae()[sNodei].component(cmpt);
+                        = node.secondaryAbscissae()[cmpt][sNodei];
 
-                tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
+                tmp<fieldType> mPow =
+                    m
+                   *node.secondaryWeights()[cmpt][sNodei]
+                   *pow(abscissaCmpt, cmptMomentOrder);
+
                 m.dimensions().reset(mPow().dimensions());
                 m == mPow;
             }
+            for (label cmpt = 0; cmpt < velocityIndexes.size(); cmpt++)
+            {
+                label cmpti = velocityIndexes[cmpt];
+                const label cmptMomentOrder = cmptOrders()[cmpti];
 
+                tmp<fieldType> abscissaCmpt
+                        = node.velocityAbscissae().component(cmpt);
+
+                tmp<fieldType> mPow = m*pow(abscissaCmpt, cmptMomentOrder);
+                m.dimensions().reset(mPow().dimensions());
+
+                m == mPow;
+            }
             moment == moment + m;
         }
     }
@@ -213,13 +248,26 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
         {
             const nodeType& node = nodes[pNodei];
             scalar m = node.primaryWeight()[elemi];
+            const labelList& scalarIndexes = node.scalarIndexes();
+            const labelList& velocityIndexes = node.velocityIndexes();
 
-            for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
+            for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
             {
-                const label cmptMomentOrder = cmptOrders()[cmpt];
+                label cmpti = scalarIndexes[cmpt];
+                const label cmptMomentOrder = cmptOrders()[cmpti];
 
                 const scalar abscissaCmpt =
-                    component(node.primaryAbscissa()[elemi], cmpt);
+                    node.primaryAbscissae()[cmpt][elemi];
+
+                m *= pow(abscissaCmpt, cmptMomentOrder);
+            }
+            for (label cmpt = 0; cmpt < velocityIndexes.size(); cmpt++)
+            {
+                label cmpti = velocityIndexes[cmpt];
+                const label cmptMomentOrder = cmptOrders()[cmpti];
+
+                const scalar abscissaCmpt =
+                    component(node.velocityAbscissae()[elemi], cmpt);
 
                 m *= pow(abscissaCmpt, cmptMomentOrder);
             }
@@ -236,22 +284,37 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
     forAll(nodes, pNodei)
     {
         const nodeType& node = nodes[pNodei];
+        const labelList& scalarIndexes = node.scalarIndexes();
+        const labelList& velocityIndexes = node.velocityIndexes();
+
         const scalar pW = node.primaryWeight()[elemi];
 
         for (label sNodei = 0; sNodei < node.nSecondaryNodes(); sNodei++)
         {
-            scalar m = pW*node.secondaryWeights()[sNodei][elemi];
+            scalar m = pW;
 
             for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
             {
-                const label cmptMomentOrder = cmptOrders()[cmpt];
+                label cmpti = scalarIndexes[cmpt];
+                const label cmptMomentOrder = cmptOrders()[cmpti];
 
                 const scalar abscissaCmpt =
-                    component(node.secondaryAbscissae()[sNodei][elemi], cmpt);
+                    node.secondaryAbscissae()[cmpt][sNodei][elemi];
+
+                m *=
+                    node.secondaryWeights()[cmpt][sNodei][elemi]
+                   *pow(abscissaCmpt, cmptMomentOrder);
+            }
+            for (label cmpt = 0; cmpt < velocityIndexes.size(); cmpt++)
+            {
+                label cmpti = velocityIndexes[cmpt];
+                const label cmptMomentOrder = cmptOrders()[cmpti];
+
+                const scalar abscissaCmpt =
+                    component(node.velocityAbscissae()[elemi], cmpt);
 
                 m *= pow(abscissaCmpt, cmptMomentOrder);
             }
-
             moment += m;
         }
     }

@@ -76,13 +76,13 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
     {
         const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
-        scalar abscissa1 = Foam::max(node1.primaryAbscissa()[celli], 0.0);
+        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], 0.0);
 
         forAll(nodes, nodej)
         {
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
-            scalar abscissa2 = Foam::max(node2.primaryAbscissa()[celli], 0.0);
+            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], 0.0);
 
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa, handled inside kernel
@@ -123,13 +123,13 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
     {
         const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
-        scalar abscissa1 = Foam::max(node1.primaryAbscissa()[celli], 0.0);
+        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], 0.0);
 
         forAll(nodes, nodej)
         {
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
-            scalar abscissa2 = Foam::max(node2.primaryAbscissa()[celli], 0.0);
+            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], 0.0);
 
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa, handled inside kernel
@@ -171,7 +171,7 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
     forAll(nodes, nodei)
     {
         const volScalarNode& node = nodes[nodei];
-        scalar abscissa = Foam::max(node.primaryAbscissa()[celli], 0.0);
+        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], 0.0);
 
         //- Diameter is used to calculate the breakup kernel in place
         //  of the abscissa
@@ -208,7 +208,7 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
     forAll(nodes, nodei)
     {
         const volScalarNode& node = nodes[nodei];
-        scalar abscissa = Foam::max(node.primaryAbscissa()[celli], 0.0);
+        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], 0.0);
 
         //- Diameter is used to calculate the breakup kernel in place
         //  of the abscissa
@@ -238,7 +238,7 @@ void Foam::polydispersePhaseModel::solveSourceOde()
     coalescenceKernel_.update();
     breakupKernel_->update();
 
-    volUnivariateMomentFieldSet& moments = quadrature_.moments();
+    volScalarMomentFieldSet& moments = quadrature_.moments();
     label nMoments = quadrature_.nMoments();
     PtrList<volVectorField>& Ups = quadrature_.velocityMoments();
     label nVelocityMoments = Ups.size();
@@ -770,7 +770,7 @@ void Foam::polydispersePhaseModel::correct()
                 (
                     Foam::pow
                     (
-                        quadrature_.nodes()[0].primaryAbscissa()*6.0
+                        quadrature_.nodes()[0].primaryAbscissae()[0]*6.0
                        /(rho()*Foam::constant::mathematical::pi)
                       + dimensionedScalar("smallVolume", dimVolume, SMALL),
                         1.0/3.0
@@ -802,7 +802,7 @@ void Foam::polydispersePhaseModel::correct()
             // Set alpha values such that the moment.1 is equal to the bounded
             // alpha
             alphas_[nodei] =
-                node.primaryWeight()*node.primaryAbscissa()/rho()*scale;
+                node.primaryWeight()*node.primaryAbscissae()[0]/rho()*scale;
             alphas_[nodei].max(0);
             alphas_[nodei].min(1);
 
@@ -814,7 +814,7 @@ void Foam::polydispersePhaseModel::correct()
                     (
                         Foam::pow
                         (
-                            node.primaryAbscissa()*6.0
+                            node.primaryAbscissae()[0]*6.0
                            /(rho()*Foam::constant::mathematical::pi)
                           + dimensionedScalar("smallVolume", dimVolume, SMALL),
                             1.0/3.0
@@ -880,14 +880,14 @@ void Foam::polydispersePhaseModel::relativeTransport()
                *(
                     pow
                     (
-                        nodesNei[nodei].primaryAbscissa(),
+                        nodesNei[nodei].primaryAbscissae()[0],
                         mEqni
                     )
                 )*Foam::min(phiv, zeroPhi)
               + nodesOwn[nodei].primaryWeight()
                *pow
                 (
-                    nodesOwn[nodei].primaryAbscissa(),
+                    nodesOwn[nodei].primaryAbscissae()[0],
                     mEqni
                 )*Foam::max(phiv, zeroPhi)
             );
@@ -941,7 +941,7 @@ void Foam::polydispersePhaseModel::relativeTransport()
                *(
                     pow
                     (
-                        nodesNei[nodei].primaryAbscissa(),
+                        nodesNei[nodei].primaryAbscissae()[0],
                         mEqni
                     )
                 )*Foam::min(phiv, zeroPhi)
@@ -949,7 +949,7 @@ void Foam::polydispersePhaseModel::relativeTransport()
                *nodesOwn[nodei].primaryWeight()
                *pow
                 (
-                    nodesOwn[nodei].primaryAbscissa(),
+                    nodesOwn[nodei].primaryAbscissae()[0],
                     mEqni
                 )*Foam::max(phiv, zeroPhi)
             );
@@ -1013,10 +1013,10 @@ void Foam::polydispersePhaseModel::averageTransport
                     fvc::surfaceIntegrate
                     (
                         nodesNei[nodei].primaryWeight()
-                       *nodesNei[nodei].primaryAbscissa()
+                       *nodesNei[nodei].primaryAbscissae()[0]
                        *Foam::min(phi, zeroPhi)
                       + nodesOwn[nodei].primaryWeight()
-                       *nodesOwn[nodei].primaryAbscissa()
+                       *nodesOwn[nodei].primaryAbscissae()[0]
                        *Foam::max(phi, zeroPhi)
                     );
             }
@@ -1078,14 +1078,14 @@ void Foam::polydispersePhaseModel::averageTransport
                *(
                     pow
                     (
-                        nodesNei[nodei].primaryAbscissa(),
+                        nodesNei[nodei].primaryAbscissae()[0],
                         mEqni
                     )
                 )*Foam::min(phi, zeroPhi)
               + nodesOwn[nodei].primaryWeight()
                *pow
                 (
-                    nodesOwn[nodei].primaryAbscissa(),
+                    nodesOwn[nodei].primaryAbscissae()[0],
                     mEqni
                 )*Foam::max(phi, zeroPhi)
             );
@@ -1144,7 +1144,7 @@ void Foam::polydispersePhaseModel::averageTransport
                *(
                     pow
                     (
-                        nodesNei[nodei].primaryAbscissa(),
+                        nodesNei[nodei].primaryAbscissae()[0],
                         mEqni
                     )
                 )*Foam::min(phi, zeroPhi)
@@ -1152,7 +1152,7 @@ void Foam::polydispersePhaseModel::averageTransport
                *nodesOwn[nodei].primaryWeight()
                *pow
                 (
-                    nodesOwn[nodei].primaryAbscissa(),
+                    nodesOwn[nodei].primaryAbscissae()[0],
                     mEqni
                 )*Foam::max(phi, zeroPhi)
             );
@@ -1188,7 +1188,7 @@ void Foam::polydispersePhaseModel::averageTransport
             "tauC",
             Foam::max
             (
-                (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE,
+                (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*great,
                 residualAlpha_
             )
         );

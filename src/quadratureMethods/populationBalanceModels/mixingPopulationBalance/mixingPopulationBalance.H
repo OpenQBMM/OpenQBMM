@@ -64,9 +64,9 @@ namespace populationBalanceModels
 class mixingPopulationBalance
 :
     public populationBalanceModel,
-    private realizableOdeSolver<volUnivariateMoment, volScalarNode>
+    private realizableOdeSolver<volScalarMoment, volScalarNode>
 {
-    typedef realizableOdeSolver<volUnivariateMoment, volScalarNode> odeType;
+    typedef realizableOdeSolver<volScalarMoment, volScalarNode> odeType;
 
     // Private data
 
@@ -101,10 +101,10 @@ class mixingPopulationBalance
         const volScalarField& meanXi_;
 
         //- Quadrature for the mean moments
-        univariateQuadratureApproximation meanMomentsQuadrature_;
+        scalarQuadratureApproximation meanMomentsQuadrature_;
 
         //- Quadrature for the mean moment variance
-        univariateQuadratureApproximation meanMomentsVarianceQuadrature_;
+        scalarQuadratureApproximation meanMomentsVarianceQuadrature_;
 
         //- Moment advection for mean moments
         autoPtr<univariateMomentAdvection> meanMomentsAdvection_;
@@ -113,22 +113,22 @@ class mixingPopulationBalance
         autoPtr<univariateMomentAdvection> meanMomentsVarianceAdvection_;
 
         //- Mean moments
-        volUnivariateMomentFieldSet& meanMoments_;
+        volScalarMomentFieldSet& meanMoments_;
 
         //- Variance of mean moments
-        volUnivariateMomentFieldSet& meanMomentsVariance_;
+        volScalarMomentFieldSet& meanMomentsVariance_;
 
         //- Quadrature approximation of the PBE in the first environment
-        univariateQuadratureApproximation envOneQuadrature_;
+        scalarQuadratureApproximation envOneQuadrature_;
 
         //- Quadrature approximation of the PBE in the second environment
-        univariateQuadratureApproximation envTwoQuadrature_;
+        scalarQuadratureApproximation envTwoQuadrature_;
 
         //- Reference to moments in environment one
-        volUnivariateMomentFieldSet& mEnvOne_;
+        volScalarMomentFieldSet& mEnvOne_;
 
         //- Reference to moments in environment two
-        volUnivariateMomentFieldSet& mEnvTwo_;
+        volScalarMomentFieldSet& mEnvTwo_;
 
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
@@ -138,6 +138,9 @@ class mixingPopulationBalance
 
         //- Switch indicating the status of the growth model
         Switch growth_;
+
+        //- Switch indicating the status of the nucleation model
+        Switch nucleation_;
 
         //- Aggregation kernel model
         autoPtr
@@ -150,12 +153,6 @@ class mixingPopulationBalance
         <
             Foam::populationBalanceSubModels::breakupKernel
         > breakupKernel_;
-
-        //- Daughter distribution function
-        autoPtr
-        <
-            Foam::populationBalanceSubModels::daughterDistribution
-        > daughterDistribution_;
 
         //- Growth model function
         autoPtr
@@ -190,48 +187,15 @@ class mixingPopulationBalance
         //- Calculated mixed moments
         void calcMixedMoments();
 
-        //- Calculate aggregation source terms
-        scalar aggregationSource
-        (
-            const label momentOrder,
-            const label celli,
-            const Foam::mappedPtrList<volScalarNode>& nodes,
-            const label environment
-        );
-
-        //- Calculate Breakup source term
-        scalar breakupSource
-        (
-            const label momentOrder,
-            const label celli,
-            const Foam::mappedPtrList<volScalarNode>& nodes,
-            const label environment
-        );
-
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
-        (
-            const volUnivariateMoment& moment
-        );
-
-        //- Convect moments in phase space
-        virtual scalar phaseSpaceConvection
-        (
-            const label momentOrder,
-            const label celli,
-            const Foam::mappedPtrList<volScalarNode>& nodes,
-            const label environment
-        );
-
         //- Update explicit collison source terms
         virtual void updateCellMomentSource(const label celli);
 
         //- Calculate source term for moment equation in the specified cell
         virtual scalar cellMomentSource
         (
-            const label momentOrder,
+            const labelList& momentOrder,
             const label celli,
-            const mappedPtrList<volScalarNode>& nodes,
+            const scalarQuadratureApproximation& nodes,
             const label enviroment
         );
 

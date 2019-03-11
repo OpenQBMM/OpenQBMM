@@ -41,8 +41,8 @@ namespace Foam
 {
 
 typedef mappedList<label> mappedLabelList;
-
 typedef mappedList<scalar> mappedScalarList;
+typedef mappedList<vector> mappedVectorList;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

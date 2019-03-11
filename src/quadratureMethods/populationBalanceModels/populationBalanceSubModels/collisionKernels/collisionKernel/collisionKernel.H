@@ -182,14 +182,14 @@ public:
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource
         (
-            const label mi,
+            const labelList& momentOrder,
             const label celli
         ) const = 0;
 
         //- Return implicit collision source matrix
         virtual tmp<fvScalarMatrix> implicitCollisionSource
         (
-            const volVectorMoment& m
+            const volVelocityMoment& m
         ) const = 0;
 };
 

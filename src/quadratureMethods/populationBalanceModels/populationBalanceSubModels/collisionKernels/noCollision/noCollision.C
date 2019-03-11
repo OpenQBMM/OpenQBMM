@@ -80,14 +80,14 @@ Foam::populationBalanceSubModels::collisionKernels::noCollision::updateFields()
 
 Foam::scalar
 Foam::populationBalanceSubModels::collisionKernels::noCollision
-::explicitCollisionSource(const label mi, const label celli) const
+::explicitCollisionSource(const labelList&, const label) const
 {
     return 0.0;
 }
 
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::populationBalanceSubModels::collisionKernels::noCollision
-::implicitCollisionSource(const volVectorMoment& m) const
+::implicitCollisionSource(const volVelocityMoment& m) const
 {
     return tmp<fvScalarMatrix>
     (

@@ -48,40 +48,23 @@ SourceFiles
 #include "dictionary.H"
 #include "mappedList.H"
 #include "univariateMomentSet.H"
-#include "multivariateMomentSet.H"
+#include "multivariateMomentInversion.H"
 #include "hyperbolicMomentInversion.H"
 
 
 namespace Foam
 {
+namespace multivariateMomentInversions
+{
 
 /*---------------------------------------------------------------------------*\
-            Class hyperbolicConditionalMomentInversion Declaration
+                    Class CHyQMOM Declaration
 \*---------------------------------------------------------------------------*/
-class hyperbolicConditionalMomentInversion
+class CHyQMOM
+:
+    public multivariateMomentInversion
 {
     // Private member data
-
-        //- Number of dimensions in velocity space
-        const label nDimensions_;
-
-        //- Number of moments
-        const label nMoments_;
-
-        //- List of the number of nodes
-        const label nNodes_;
-
-        //- Support of the NDF
-        const word support_;
-
-        //- Moments
-        mappedList<scalar> moments_;
-
-        //- Quadratrure abscissae
-        mappedList<vector> abscissae_;
-
-        //- Quadratrure weights
-        mappedList<scalar> weights_;
 
         //- Univariate moment inversion method
         autoPtr<hyperbolicMomentInversion> univariateInverter_;
@@ -137,44 +120,47 @@ class hyperbolicConditionalMomentInversion
             const multivariateMomentSet& moments
         );
 
-        //- Reset inverter
-        void reset();
-
-        //- Return the number of moments given a number of dimensions
-        label getNMoments(const label nDims) const;
-
-        //- Return the moment orders give a number of dimensions
-        labelListList getMomentOrders(const label nDims) const;
-
-        //- Return the number of nodes given a number of dimensions
-        label getNNodes(const label nDims) const;
-
-        //- Return the node indexes give a number of dimensions
-        labelListList getNodeIndexes(const label nDims) const;
-
         //- Disallow default bitwise copy construct
-        //hyperbolicConditionalMomentInversion(const hyperbolicConditionalMomentInversion&);
+        //CHyQMOM(const CHyQMOM&);
 
         //- Disallow default bitwise assignment
-        //void operator=(const hyperbolicConditionalMomentInversion&);
+        //void operator=(const CHyQMOM&);
 
 
 public:
 
+    //- Runtime type information
+    TypeName("CHyQMOM");
+
+
     // Constructors
 
         // Construct from nMoments, momentMap, nNodes, and support type
-        hyperbolicConditionalMomentInversion
+        CHyQMOM
         (
             const dictionary& dict,
-            const label nDimensions
+            const labelListList& momentOrders,
+            const labelListList& nodeIndexes,
+            const labelList& velocityIndexes
         );
 
 
     //- Destructor
-    virtual ~hyperbolicConditionalMomentInversion();
+    virtual ~CHyQMOM();
 
     // Static data
+
+        //- Return the number of moments given a number of dimensions
+        static label getNMoments(const label nDims);
+
+        //- Return the moment orders give a number of dimensions
+        static labelListList getMomentOrders(const label nDims);
+
+        //- Return the number of nodes given a number of dimensions
+        static label getNNodes(const label nDims);
+
+        //- Return the node indexes give a number of dimensions
+        static labelListList getNodeIndexes(const label nDims);
 
         //- List of moment orders in two dimensions
         static const labelListList twoDimMomentOrders;
@@ -192,32 +178,17 @@ public:
     // Member Functions
 
         //- Invert moments to find weights and  abscissae
-        void invert(const multivariateMomentSet& moments);
-
-        //- Return number of moments
-        inline label nMoments();
-
-        //- Return number of number of nodes in each dimension
-        inline label nNodes();
-
-        //- Return mapped quadrature weights for each dimension
-        inline const mappedList<scalar>& weights() const;
-
-        //- Return mapped quadrature abscissae for each dimension
-        inline const mappedList<vector>& abscissae() const;
+        virtual void invert(const multivariateMomentSet& moments);
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace multivariateMomentInversions
 } // End namespace Foam
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "hyperbolicConditionalMomentInversionI.H"
-
 #endif
-
 
 // ************************************************************************* //

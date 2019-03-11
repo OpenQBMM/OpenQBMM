@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::quadratureNode
+    Foam::velocityQuadratureNode
 
 Description
     Extended version of the quadrature node, which stores the list of secondary
@@ -30,15 +30,15 @@ Description
     the sigma parameter.
 
 SourceFiles
-    quadratureNode.C
-    quadratureNodeI.H
+    velocityQuadratureNode.C
+    velocityQuadratureNodeI.H
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef quadratureNode_H
-#define quadratureNode_H
+#ifndef velocityQuadratureNode_H
+#define velocityQuadratureNode_H
 
-#include "fvMesh.H"
+#include "quadratureNode.H"
 #include "PtrList.H"
 #include "dictionary.H"
 #include "dictionaryEntry.H"
@@ -50,68 +50,60 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                       Class quadratureNode Declaration
+                       Class velocityQuadratureNode Declaration
 \*---------------------------------------------------------------------------*/
-template <class weightType, class abscissaType, class sigmaType>
-class quadratureNode
+template<class scalarType, class vectorType>
+class velocityQuadratureNode
+:
+    public quadratureNode<scalarType, vectorType>
 {
     // Private data
 
-        //- Name of the quadrature node
-        word name_;
-
-        //- Primary weight of the node
-        weightType weight_;
-
         //- Primary abscissa of the node
-        abscissaType abscissa_;
+        vectorType velocityAbscissae_;
 
-        //- List of secondary weights of the node
-        PtrList<weightType> secondaryWeights_;
 
-        //- List of secondary abscissae of the node
-        PtrList<abscissaType> secondaryAbscissae_;
+    // Private functions
 
-        //- Parameter of the kernel density function used in EQMOM
-        autoPtr<sigmaType> sigma_;
+        //- Lookup boundary conditions and return velocity abscissae field
+        tmp<vectorType> createVelocityAbscissae
+        (
+            const scalarType& weight,
+            const bool boundary = false
+        ) const;
 
-        //- Number of secondary nodes
-        label nSecondaryNodes_;
-
-        //- Boolean variable to identify extended nodes
-        bool extended_;
 
 public:
 
     // Constructors
 
         //- Construct from name, mesh and dimensions
-        quadratureNode
+        velocityQuadratureNode
         (
             const word& name,
             const word& distributionName,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
-            const dimensionSet& abscissaDimensions,
+            const PtrList<dimensionSet>& abscissaDimensions,
             const wordList& boundaryTypes,
             const bool extended = false,
             const label nSecondaryNodes = 0
         );
 
         //- Construct from name, number of secondary nodes, mesh and dimensions
-        quadratureNode
+        velocityQuadratureNode
         (
             const word& name,
             const word& distributionName,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
-            const dimensionSet& abscissaDimensions,
+            const PtrList<dimensionSet>& abscissaDimensions,
             const bool extended = false,
             const label nSecondaryNodes = 0
         );
 
         //- Return clone
-        autoPtr<quadratureNode<weightType, abscissaType, sigmaType>>
+        autoPtr<velocityQuadratureNode<scalarType, vectorType>>
             clone() const;
 
         //- Return a pointer to a new quadrature node created on freestore
@@ -121,7 +113,7 @@ public:
             const word distributionName_;
             const fvMesh& mesh_;
             const dimensionSet& weightDimensions_;
-            const dimensionSet& abscissaDimensions_;
+            const PtrList<dimensionSet>& abscissaeDimensions_;
             const wordList& boundaryTypes_;
             const bool extended_;
             const label nSecondaryNodes_;
@@ -133,7 +125,7 @@ public:
                 const word& distributionName,
                 const fvMesh& mesh,
                 const dimensionSet& weightDimensions,
-                const dimensionSet& abscissaDimensions,
+                const PtrList<dimensionSet>& abscissaeDimensions,
                 const wordList& boundaryTypes,
                 const bool extended,
                 const label nSecondaryNodes
@@ -142,37 +134,28 @@ public:
                 distributionName_(distributionName),
                 mesh_(mesh),
                 weightDimensions_(weightDimensions),
-                abscissaDimensions_(abscissaDimensions),
+                abscissaeDimensions_(abscissaeDimensions),
                 boundaryTypes_(boundaryTypes),
                 extended_(extended),
                 nSecondaryNodes_(nSecondaryNodes)
             {}
 
-            autoPtr
-            <
-                quadratureNode<weightType, abscissaType, sigmaType>
-            >
+            autoPtr<velocityQuadratureNode<scalarType, vectorType>>
             operator()
             (
                 Istream& is
             ) const
             {
                 labelList ent(is);
-                return autoPtr
-                <
-                    quadratureNode<weightType, abscissaType, sigmaType>
-                >
+                return autoPtr<velocityQuadratureNode<scalarType, vectorType>>
                 (
-                    new quadratureNode
-                    <
-                        weightType, abscissaType, sigmaType
-                    >
+                    new velocityQuadratureNode<scalarType, vectorType>
                     (
                         "node" + mappedList<scalar>::listToWord(ent),
                         distributionName_,
                         mesh_,
                         weightDimensions_,
-                        abscissaDimensions_,
+                        abscissaeDimensions_,
                         boundaryTypes_,
                         extended_,
                         nSecondaryNodes_
@@ -183,50 +166,18 @@ public:
 
 
     //- Destructor
-    virtual ~quadratureNode();
+    virtual ~velocityQuadratureNode();
 
 
     // Member Functions
 
         // Access
 
-            //- Return the name of the node
-            inline const word& name() const;
+            //- Const access to the velocity abscissa of the node
+            virtual const vectorType& velocityAbscissae() const;
 
-            inline bool extended() const;
-
-            //- Returns the number of secondary nodes
-            inline label nSecondaryNodes() const;
-
-            //- Const access to the weight of the node
-            inline const weightType& primaryWeight() const;
-
-            //- Non-const access to the weight of the node
-            inline weightType& primaryWeight();
-
-            //- Const access to the abscissa of the node
-            inline const abscissaType& primaryAbscissa() const;
-
-            //- Non-const access to the abscissa of the node
-            inline abscissaType& primaryAbscissa();
-
-            //- Const access to the secondary weights of the node
-            inline const PtrList<weightType>& secondaryWeights() const;
-
-            //- Non-const access to the secondary weights of the node
-            inline PtrList<weightType>& secondaryWeights();
-
-            //- Const access to the list of secondary abscissae of the node
-            inline const PtrList<abscissaType>& secondaryAbscissae() const;
-
-            //- Non-const access to the list of secondary abscissae of the node
-            inline PtrList<abscissaType>& secondaryAbscissae();
-
-            //- Const access to sigma
-            inline const sigmaType& sigma() const;
-
-            //- Non-const access to sigma
-            inline sigmaType& sigma();
+            //- Non-const access to the velcity abscissa of the node
+            virtual vectorType& velocityAbscissae();
 };
 
 
@@ -236,8 +187,8 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 #ifdef NoRepository
-#   include "quadratureNodeI.H"
-#   include "quadratureNode.C"
+#   include "velocityQuadratureNodeI.H"
+#   include "velocityQuadratureNode.C"
 #endif
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

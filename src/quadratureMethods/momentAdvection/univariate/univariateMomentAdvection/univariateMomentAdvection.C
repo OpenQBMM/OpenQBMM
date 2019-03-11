@@ -39,7 +39,7 @@ namespace Foam
 Foam::univariateMomentAdvection::univariateMomentAdvection
 (
     const dictionary& dict,
-    const univariateQuadratureApproximation& quadrature,
+    const scalarQuadratureApproximation& quadrature,
     const surfaceScalarField& phi,
     const word& support
 )
@@ -53,10 +53,10 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
         IOobject
         (
             "own",
-            moments_[0].mesh().time().timeName(),
-            moments_[0].mesh()
+            moments_(0).mesh().time().timeName(),
+            moments_(0).mesh()
         ),
-        moments_[0].mesh(),
+        moments_(0).mesh(),
         dimensionedScalar("own", dimless, 1.0)
     ),
     nei_
@@ -64,10 +64,10 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
         IOobject
         (
             "nei",
-            moments_[0].mesh().time().timeName(),
-            moments_[0].mesh()
+            moments_(0).mesh().time().timeName(),
+            moments_(0).mesh()
         ),
-        moments_[0].mesh(),
+        moments_(0).mesh(),
         dimensionedScalar("nei", dimless, -1.0)
     ),
     phi_(phi),
@@ -84,13 +84,13 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
                 IOobject
                 (
                     "divMoment" + Foam::name(momenti) + name_,
-                    moments_[0].mesh().time().timeName(),
-                    moments_[0].mesh(),
+                    moments_(0).mesh().time().timeName(),
+                    moments_(0).mesh(),
                     IOobject::NO_READ,
                     IOobject::NO_WRITE,
                     false
                 ),
-                moments_[0].mesh(),
+                moments_(0).mesh(),
                 dimensionedScalar
                 (
                     "zero", moments_[momenti].dimensions()/dimTime, 0
