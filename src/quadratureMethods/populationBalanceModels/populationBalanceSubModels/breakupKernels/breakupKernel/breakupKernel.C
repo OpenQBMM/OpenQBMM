@@ -60,7 +60,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupKernel
     (
         Foam::populationBalanceSubModels::daughterDistribution::New
         (
-            dict
+            dict.subDict("daughterDistribution")
         )
     )
 {}
