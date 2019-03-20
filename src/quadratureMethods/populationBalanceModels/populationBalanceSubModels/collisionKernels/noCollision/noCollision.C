@@ -74,9 +74,6 @@ void Foam::populationBalanceSubModels::collisionKernels::noCollision
 ::updateCells(const label celli)
 {}
 
-void
-Foam::populationBalanceSubModels::collisionKernels::noCollision::updateFields()
-{}
 
 Foam::scalar
 Foam::populationBalanceSubModels::collisionKernels::noCollision
@@ -84,6 +81,7 @@ Foam::populationBalanceSubModels::collisionKernels::noCollision
 {
     return 0.0;
 }
+
 
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::populationBalanceSubModels::collisionKernels::noCollision

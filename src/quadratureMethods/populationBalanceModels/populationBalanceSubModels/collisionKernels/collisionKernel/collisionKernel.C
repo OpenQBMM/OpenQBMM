@@ -134,4 +134,19 @@ Foam::populationBalanceSubModels::collisionKernel::~collisionKernel()
 {}
 
 
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::populationBalanceSubModels::collisionKernel::preUpdate()
+{}
+
+
+void Foam::populationBalanceSubModels::collisionKernel::updateFields()
+{
+    forAll(quadrature_.moments()[0], celli)
+    {
+        updateCells(celli);
+    }
+}
+
 // ************************************************************************* //

@@ -32,6 +32,11 @@ boundaries
         type    fixedValue;
         value   uniform 0;
     }
+    inlet3
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
     defaultFaces
     {
         type    empty;
@@ -48,11 +53,11 @@ boundaries
 
 particles
 {
-    type                weightsAndAbscissae;
-    weightDimension     [0 0 0 0 0 0 0];
-    abscissaeDim0Dimensions       [0 1 0 0 0 0 0];
-    abscissaeDim1Dimensions       [0 1 -1 0 0 0 0];
-    abscissaeDim2Dimensions       [0 1 -1 0 0 0 0];
+    type                        weightsAndAbscissae;
+    weightDimension             [0 0 0 0 0 0 0];
+    abscissaeDim0Dimensions     [0 1 0 0 0 0 0];
+    abscissaeDim1Dimensions     [0 1 -1 0 0 0 0];
+    abscissaeDim2Dimensions     [0 1 -1 0 0 0 0];
 
     default
     {}
@@ -60,16 +65,39 @@ particles
     {
         node0
         {
-            weight  .001;
-            abscissa (0.001 1 0.5);
+            weight  .005;
+            abscissa (0.001 0.5 0.5);
+        }
+        node1
+        {
+            weight  .005;
+            abscissa (0.002 0.5 0.5);
         }
     }
     inlet2
     {
         node0
         {
-            weight  .001;
-            abscissa (0.01 -1 0.5);
+            weight  .005;
+            abscissa (0.002 0 0.5);
+        }
+        node1
+        {
+            weight  .005;
+            abscissa (0.003 0 0.5);
+        }
+    }
+    inlet3
+    {
+        node0
+        {
+            weight  .005;
+            abscissa (0.001 -0.5 0.5);
+        }
+        node1
+        {
+            weight  .005;
+            abscissa (0.003 -0.5 0.5);
         }
     }
 }

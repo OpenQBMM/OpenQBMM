@@ -119,16 +119,6 @@ void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 }
 
 
-void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
-::updateFields()
-{
-    forAll(quadrature_.moments()[0], celli)
-    {
-        updateCells(celli);
-    }
-}
-
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::populationBalanceSubModels::collisionKernels::esBGKCollision

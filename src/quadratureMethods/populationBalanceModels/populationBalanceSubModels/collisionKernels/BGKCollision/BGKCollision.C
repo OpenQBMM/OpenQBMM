@@ -93,14 +93,6 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     }
 }
 
-void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
-::updateFields()
-{
-    forAll(quadrature_.moments()[0], celli)
-    {
-        updateCells(celli);
-    }
-}
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision

@@ -117,9 +117,6 @@ public:
         //- Update equilibrium moments
         virtual void updateCells(const label celli);
 
-        //- Update equilibrium moments
-        virtual void updateFields();
-
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource
         (

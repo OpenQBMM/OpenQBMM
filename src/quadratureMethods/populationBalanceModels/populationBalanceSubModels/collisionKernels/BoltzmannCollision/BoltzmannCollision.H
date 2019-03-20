@@ -59,21 +59,44 @@ class BoltzmannCollision
 {
     // Private data
 
-        //- Refrence to particle diameter
-        tmp<volScalarField> dp_;
-
         //- Coefficient of restitution
         scalar e_;
 
         //- Modified coefficient of restitution
         scalar omega_;
 
-        //- Collisional coefficients sources
-        mappedList<scalar> Is_;
+        //- Is the Enskog term used
+        Switch Enskog_;
+
+        //- List of scalar indexes
+        const labelList& scalarIndexes_;
+
+        //- Size index
+        const label sizeIndex_;
+
+        //- List of velocity indexes
+        const labelList& velocityIndexes_;
+
+        //- Conditional velocity moment orders
+        labelListList velocityMomentOrders_;
+
+        //- Zero order collisional coefficients sources
+        mappedScalarList Is_;
+
+        //- Enskog (first order) collisional coefficients sources
+        PtrList<mappedScalarList> I1s_;
 
         //- Collision sources
         mappedList<scalar> Cs_;
 
+        //- Refrence to particle diameter
+        tmp<volScalarField> dp_;
+
+        //- Refrence to particle diameter
+        tmp<volScalarField> rhop_;
+
+        //- Gradients of weights
+        PtrList<volVectorField> gradWs_;
 
     // Protected functions
 
@@ -82,7 +105,8 @@ class BoltzmannCollision
         (
             const label celli,
             const label node1,
-            const label node2
+            const label node2,
+            const scalar omega
         );
 
 
@@ -110,11 +134,11 @@ public:
 
     // Member Functions
 
-        //- Update equilibrium moments
-        virtual void updateCells(const label celli);
+        //- Update unchanged fields before solving ode system
+        virtual void preUpdate();
 
         //- Update equilibrium moments
-        virtual void updateFields();
+        virtual void updateCells(const label celli);
 
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource

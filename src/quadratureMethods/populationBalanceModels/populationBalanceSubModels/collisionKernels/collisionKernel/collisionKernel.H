@@ -173,11 +173,14 @@ public:
 
     // Member Functions
 
+        //- Update unchanged fields before solving ode system
+        virtual void preUpdate();
+
         //- Update collision sources in a cell
         virtual void updateCells(const label celli) = 0;
 
         //- Update collision sources
-        virtual void updateFields() = 0;
+        virtual void updateFields();
 
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource
