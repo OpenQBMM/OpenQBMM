@@ -78,9 +78,6 @@ protected:
         //- Number of nodes in each direction
         labelList nNodes_;
 
-        //- Support of the NDF
-        wordList supports_;
-
         //- Quadratrure weights
         mappedScalarList weights_;
 

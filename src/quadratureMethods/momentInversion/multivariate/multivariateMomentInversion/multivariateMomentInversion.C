@@ -52,14 +52,6 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
     nodeIndexes_(nodeIndexes),
     velocityIndexes_(velocityIndexes),
     nNodes_(nDistributionDims_, 1),
-    supports_
-    (
-        dict.lookupOrDefault
-        (
-            "support",
-            wordList(nDistributionDims_, "R")
-        )
-    ),
     weights_(nodeIndexes.size(), nodeIndexes, 0.0),
     abscissae_
     (
