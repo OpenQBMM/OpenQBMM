@@ -22,10 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Test-ExtendedMomentInversion.C
+    Test-monokineticMomentInversion
 
 Description
-    Test the extendedMomentInversion class and its subclasses.
+    Test the monoKinetic multivariate moment inversion.
 
 \*---------------------------------------------------------------------------*/
 
@@ -34,7 +34,7 @@ Description
 #include "IFstream.H"
 #include "OFstream.H"
 #include "mappedLists.H"
-#include "monoKinetic.H"
+#include "monoKineticMomentInversion.H"
 #include "Random.H"
 
 using namespace Foam;
@@ -97,9 +97,9 @@ int main(int argc, char *argv[])
         Info<< ": " << moments(momentOrder) << endl;
     }
 
-    monoKinetic momentInverter
+    multivariateMomentInversions::monoKinetic momentInverter
     (
-        quadratureProperties, momentOrders, nodeIndexes
+        quadratureProperties, momentOrders, nodeIndexes, velocityIndexes
     );
 
     Info<< "\nInverting moments" << endl;
@@ -108,9 +108,9 @@ int main(int argc, char *argv[])
 
     Info<< "\nReconstructed moments:" << endl;
 
-    const scalarList& weights = momentInverter.weights();
-    const scalarList& sizeAbscissae = momentInverter.sizeAbscissae();
-    const vectorList& velocityAbscissae =
+    const mappedScalarList& weights = momentInverter.weights();
+    const mappedList<scalarList>& sizeAbscissae = momentInverter.abscissae();
+    const mappedVectorList& velocityAbscissae =
         momentInverter.velocityAbscissae();
 
     mappedList<scalar> newMoments(nMoments, momentOrders);
@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
         forAll(nodeIndexes, nodei)
         {
             scalar cmpt = weights[nodei];
-            cmpt *= pow(sizeAbscissae[nodei], momentOrder[0]);
-            for(label dimi = 0; dimi < momentOrder.size() - 1; dimi++)
+            cmpt *= pow(sizeAbscissae[nodei][0], momentOrder[0]);
+            forAll(velocityIndexes, dimi)
             {
                 cmpt *=
                     pow

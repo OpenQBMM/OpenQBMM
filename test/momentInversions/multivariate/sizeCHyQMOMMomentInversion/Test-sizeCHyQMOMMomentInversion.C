@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Test-sizeCHyQMOM.C
+    Test-sizeCHyQMOM
 
 Description
     Test the size conditioned velocity moment inversion class

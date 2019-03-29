@@ -22,10 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Test-ExtendedMomentInversion.C
+    Test-TensorProductMomentInversion
 
 Description
-    Test the extendedMomentInversion class and its subclasses.
+    Test the tensor product moment inversion.
 
 \*---------------------------------------------------------------------------*/
 
