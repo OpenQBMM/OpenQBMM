@@ -132,6 +132,9 @@ void Foam::multivariateMomentInversions::TensorProduct::invert
 
     labelList nNonZeroNodes(nNodes_.size(), 0);
     labelList zeroOrder(momentOrders_[0].size(), 0);
+
+    label vi = 0;
+    label si = 0;
     forAll(univariateInverters_, dimi)
     {
         univariateMomentSet unvariateMoments
@@ -160,9 +163,25 @@ void Foam::multivariateMomentInversions::TensorProduct::invert
                 label nodeIndex = nodeIndexes_[nodei][dimi];
                 if (nodeIndex < abscissae.size())
                 {
-                    abscissae_[nodei][dimi] = abscissae[nodeIndex];
+                    if (dimi == velocityIndexes_[vi])
+                    {
+                        velocityAbscissae_[nodei][vi] = abscissae[nodeIndex];
+                    }
+                    else
+                    {
+                        abscissae_[nodei][si] = abscissae[nodeIndex];
+                    }
                 }
             }
+        }
+
+        if (dimi == velocityIndexes_[vi])
+        {
+            vi++;
+        }
+        else
+        {
+            si++;
         }
     }
 
@@ -199,14 +218,30 @@ void Foam::multivariateMomentInversions::TensorProduct::invert
     {
         forAll(nonZeroNodeIndexes, nodei)
         {
+            vi = 0;
+            si = 0;
             forAll(nonZeroNodeIndexes[nodei], dimi)
             {
-                R(mi, nodei) *=
-                    pow
-                    (
-                        abscissae_(nonZeroNodeIndexes[nodei])[dimi],
-                        nonZeroNodeIndexes[mi][dimi]
-                    );
+                if (dimi == velocityIndexes_[vi])
+                {
+                    R(mi, nodei) *=
+                        pow
+                        (
+                            velocityAbscissae_(nonZeroNodeIndexes[nodei])[vi],
+                            nonZeroNodeIndexes[mi][dimi]
+                        );
+                    vi++;
+                }
+                else
+                {
+                    R(mi, nodei) *=
+                        pow
+                        (
+                            abscissae_(nonZeroNodeIndexes[nodei])[si],
+                            nonZeroNodeIndexes[mi][dimi]
+                        );
+                    si++;
+                }
             }
         }
     }

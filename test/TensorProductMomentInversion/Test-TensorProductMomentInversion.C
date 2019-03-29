@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
     multivariateMomentInversions::TensorProduct momentInverter
     (
-        quadratureProperties, momentOrders, nodeIndexes, labelList()
+        quadratureProperties, momentOrders, nodeIndexes, velocityIndexes
     );
 
     Info<< "\nInverting moments" << endl;
@@ -103,7 +103,8 @@ int main(int argc, char *argv[])
     Info<< "\nReconstructed moments:" << endl;
 
     const mappedScalarList& weights = momentInverter.weights();
-    const mappedList<scalarList>& sizeAbscissae = momentInverter.abscissae();
+    const mappedList<scalarList>& abscissae = momentInverter.abscissae();
+    const mappedVectorList& velocityAbscissae =
         momentInverter.velocityAbscissae();
 
     mappedList<scalar> newMoments(nMoments, momentOrders);
@@ -117,14 +118,25 @@ int main(int argc, char *argv[])
             const labelList& nodeIndex = nodeIndexes[nodei];
 
             scalar cmpt = weights(nodeIndex);
+            label vi = 0;
+            label si = 0;
             for(label dimi = 0; dimi < momentOrder.size(); dimi++)
             {
-                cmpt *=
-                    pow
-                    (
-                        sizeAbscissae(nodeIndex)[dimi],
-                        momentOrder[dimi]
-                    );
+                if (velocityIndexes[vi] == dimi)
+                {
+                     cmpt *=
+                        pow
+                        (
+                            velocityAbscissae(nodeIndex)[vi],
+                            momentOrder[dimi]
+                        );
+                    vi++;
+                }
+                else
+                {
+                    cmpt *= pow(abscissae(nodeIndex)[si], momentOrder[dimi]);
+                    si++;
+                }
             }
             newMoments(momentOrder) += cmpt;
         }

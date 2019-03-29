@@ -72,7 +72,7 @@ protected:
         const labelListList& nodeIndexes_;
 
         //- List of velocity indexes
-        const labelList velocityIndexes_;
+        labelList velocityIndexes_;
 
         //- Number of nodes in each direction
         labelList nNodes_;

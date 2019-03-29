@@ -28,6 +28,8 @@ basicQuadrature2
     univariateMomentInversion   Gauss;
 }
 
+velocityIndexes (0 1 2);
+
 moments
 (
     (0 0 0)

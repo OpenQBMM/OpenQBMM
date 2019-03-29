@@ -68,6 +68,10 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
             nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes[nodei][dimi]);
         }
     }
+    if (velocityIndexes_.size() == 0)
+    {
+        velocityIndexes_.append(-1);
+    }
 }
 
 
