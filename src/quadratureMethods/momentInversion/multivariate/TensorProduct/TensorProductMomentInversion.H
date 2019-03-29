@@ -28,8 +28,7 @@ Description
     Tensor product moment inversion for multidimensional moment sets
 
 SourceFiles
-    TensorProduct.C
-    TensorProductI.H
+    TensorProductMomentInversion.C
 
 \*---------------------------------------------------------------------------*/
 

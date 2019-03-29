@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::hyperbolicConditionalMomentInversion
+    Foam::multivariateMomentInversions::CHyQMOM
 
 Description
     Implementation of the hyperbolic conditional quadrature method of moment
@@ -31,7 +31,6 @@ Description
 
 SourceFiles
     hyperbolicConditionalMomentInversion.C
-    hyperbolicConditionalMomentInversionI.C
 
 \*---------------------------------------------------------------------------*/
 

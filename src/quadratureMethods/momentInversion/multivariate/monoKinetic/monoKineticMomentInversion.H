@@ -30,7 +30,6 @@ Description
 
 SourceFiles
     monoKineticmonoKineticMomentInversion.C
-    monoKineticmonoKineticMomentInversionI.H
 
 \*---------------------------------------------------------------------------*/
 
