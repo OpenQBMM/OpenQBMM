@@ -44,7 +44,7 @@ tmp<volVectorField>
 velocityQuadratureNode<volScalarField, volVectorField>::createVelocityAbscissae
 (
     const volScalarField& weight,
-    const bool boundary
+    const wordList& boundaryTypes
 ) const;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

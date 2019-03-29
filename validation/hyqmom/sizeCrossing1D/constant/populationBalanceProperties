@@ -15,13 +15,13 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-populationBalanceModel sizeVelocity;
+populationBalanceModel velocity;
 
-sizeVelocityCoeffs
+velocityCoeffs
 {
     odeCoeffs
     {
-        solveOde on;
+        solveOde off;
         solveSources on;
 
         ATol    1.0e-6;
@@ -32,14 +32,15 @@ sizeVelocityCoeffs
         minLocalDt 1.0e-4;
     }
 
-    collision  off;
+    collision  on;
 
     collisionKernel
     {
-        collisionKernel noCollision;
-        e           0.9;
-        d           600e-6;
-        tau         10;
+        collisionKernel Boltzmann;
+        e           0.5;
+        rho         2000;
+        Enskog      on;
+        implicit    off;
     }
 
     diffusionModel
@@ -47,7 +48,7 @@ sizeVelocityCoeffs
         diffusionModel  none;
     }
 
-    aggregation on;
+    aggregation off;
     aggregationKernel
     {
         aggregationKernel differentialForce;

@@ -8,30 +8,20 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
-    class       volScalarField;
-    location    "0";
-    object      moment.40.particles;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 4 0 0 0 0 0];
-
-internalField   uniform 6.26e-08;
-
-boundaryField
+solvers
 {
-    inlet1
+    "moment.*|velocityAbscissa.*"
     {
-        type            cyclic;
-    }
-    inlet2
-    {
-        type            cyclic;
-    }
-    defaultFaces
-    {
-        type            empty;
+        solver          diagonal;
+        tolerance       1e-12;
+        relTol          0;
     }
 }
 

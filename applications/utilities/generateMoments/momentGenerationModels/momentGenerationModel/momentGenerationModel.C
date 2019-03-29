@@ -101,7 +101,7 @@ Foam::momentGenerationModel::momentGenerationModel
         dimensionSet absCmptDims(dimless);
         forAll(momentOrders_[mi], cmpti)
         {
-            word absName ="abscissaeDim" + Foam::name(cmpti) + "Dimensions";
+            word absName ="abscissaDimension" + Foam::name(cmpti);
             dimensionSet absDim
             (
                 (

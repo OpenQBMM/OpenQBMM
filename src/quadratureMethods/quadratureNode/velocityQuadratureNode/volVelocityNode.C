@@ -43,13 +43,13 @@ velocityQuadratureNode<volScalarField, volVectorField>::
 createVelocityAbscissae
 (
     const volScalarField& weight,
-    const bool boundary
+    const wordList& boundaryTypes
 ) const
 {
     const fvMesh& mesh = weight.mesh();
     word UName = IOobject::groupName("U", weight.group());
 
-    if (mesh.foundObject<volVectorField>(UName) && boundary)
+    if (mesh.foundObject<volVectorField>(UName) && boundaryTypes.size() > 0)
     {
         const volVectorField& Umean =
             mesh.lookupObject<volVectorField>(UName);
@@ -96,7 +96,8 @@ createVelocityAbscissae
                 "zeroVelocityAbscissa",
                 dimVelocity,
                 Zero
-            )
+            ),
+            boundaryTypes
         )
     );
 }

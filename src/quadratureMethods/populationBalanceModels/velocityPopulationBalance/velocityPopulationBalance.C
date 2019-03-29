@@ -66,8 +66,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
         (
             dict.subDict("collisionKernel"),
             phi_.mesh(),
-            quadrature_,
-            dict.subDict("odeCoeffs").lookupOrDefault("solveODESource", false)
+            quadrature_
         )
     )
 {}
@@ -185,6 +184,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels
 ::velocityPopulationBalance::solve()
 {
+    collisionKernel_->preUpdate();
     velocityPDFTransportModel::solve();
 }
 

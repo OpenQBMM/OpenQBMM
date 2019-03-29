@@ -34,6 +34,7 @@ Description
 
 #include "fvCFD.H"
 #include "populationBalanceModel.H"
+#include "quadratureApproximations.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
         {
             populationBalance->solve();
+            #include "computeParticleFields.H"
         }
 
         runTime.write();

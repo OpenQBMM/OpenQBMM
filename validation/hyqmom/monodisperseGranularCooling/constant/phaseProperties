@@ -8,32 +8,13 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
-    class       volScalarField;
-    location    "0";
-    object      moment.40.particles;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      phaseProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 4 0 0 0 0 0];
-
-internalField   uniform 6.26e-08;
-
-boundaryField
-{
-    inlet1
-    {
-        type            cyclic;
-    }
-    inlet2
-    {
-        type            cyclic;
-    }
-    defaultFaces
-    {
-        type            empty;
-    }
-}
-
-
-// ************************************************************************* //
+dilutePhase particles;
+rhop    2500;
+e       0.2;

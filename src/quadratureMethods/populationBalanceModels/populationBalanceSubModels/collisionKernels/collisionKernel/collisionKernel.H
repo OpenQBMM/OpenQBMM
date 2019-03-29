@@ -84,6 +84,9 @@ protected:
         //- Number of dimensions
         const label nDimensions_;
 
+        //- Is an implicit solution used
+        const Switch implicit_;
+
 
     // Protected functions
 
@@ -137,10 +140,9 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         ),
-        (dict, mesh, quadrature, ode)
+        (dict, mesh, quadrature)
     );
 
 
@@ -151,8 +153,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -162,8 +163,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 

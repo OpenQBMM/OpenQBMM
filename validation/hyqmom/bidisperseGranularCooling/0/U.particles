@@ -8,30 +8,44 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
-    class       volScalarField;
+    format      ascii;
+    class       volVectorField;
     location    "0";
-    object      moment.40.particles;
+    object      U.particles;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 4 0 0 0 0 0];
+dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform 6.26e-08;
+internalField   uniform (0 0 0);
 
 boundaryField
 {
-    inlet1
+    left
+    {
+        type            zeroGradient;
+        value           uniform (0 0 0);
+    }
+    right
+    {
+        type            zeroGradient;
+        value           uniform (0 0 0);
+    }
+    bottom
     {
         type            cyclic;
     }
-    inlet2
+    top
     {
         type            cyclic;
     }
-    defaultFaces
+    front
     {
-        type            empty;
+        type            cyclic;
+    }
+    back
+    {
+        type            cyclic;
     }
 }
 

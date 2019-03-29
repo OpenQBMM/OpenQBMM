@@ -69,7 +69,7 @@ class velocityQuadratureNode
         tmp<vectorType> createVelocityAbscissae
         (
             const scalarType& weight,
-            const bool boundary = false
+            const wordList& boundaryTypes = wordList()
         ) const;
 
 

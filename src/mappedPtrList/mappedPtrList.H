@@ -151,6 +151,15 @@ public:
             inline const Map<label>& map() const;
 
 
+        // Return functions
+
+            //- Is index i set
+            bool set(const label i) const;
+
+            //- Is label list index set
+            bool set(const labelList& l) const;
+
+
         // Edit functions
 
             //- Set map after PtrList has been constructed

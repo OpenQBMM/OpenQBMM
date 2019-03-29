@@ -87,7 +87,7 @@ class BoltzmannCollision
         PtrList<mappedScalarList> I1s_;
 
         //- Collision sources
-        mappedList<scalar> Cs_;
+        mappedPtrList<volScalarField> Cs_;
 
         //- Refrence to particle diameter
         tmp<volScalarField> dp_;
@@ -97,6 +97,9 @@ class BoltzmannCollision
 
         //- Gradients of weights
         PtrList<volVectorField> gradWs_;
+
+        //- Collisional fluxes
+        mappedPtrList<volVectorField> Gs_;
 
     // Protected functions
 
@@ -123,8 +126,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -152,7 +154,6 @@ public:
         (
             const volVelocityMoment& m
         ) const;
-
 };
 
 

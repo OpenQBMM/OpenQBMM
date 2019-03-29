@@ -17,17 +17,17 @@ FoamFile
 
 dimensions      [0 4 -4 0 0 0 0];
 
-internalField   uniform 0.001;
+internalField   uniform 0.02;
 
 boundaryField
 {
     inlet1
     {
-        type            zeroGradient;
+        type            cyclic;
     }
     inlet2
     {
-        type            zeroGradient;
+        type            cyclic;
     }
     defaultFaces
     {

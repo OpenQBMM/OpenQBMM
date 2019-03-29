@@ -54,11 +54,10 @@ Foam::populationBalanceSubModels::collisionKernels::noCollision::noCollision
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const velocityQuadratureApproximation& quadrature,
-    const bool ode
+    const velocityQuadratureApproximation& quadrature
 )
 :
-    collisionKernel(dict, mesh, quadrature, ode)
+    collisionKernel(dict, mesh, quadrature)
 {}
 
 

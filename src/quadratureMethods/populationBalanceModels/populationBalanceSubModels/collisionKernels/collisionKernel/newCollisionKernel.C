@@ -32,8 +32,7 @@ Foam::populationBalanceSubModels::collisionKernel::New
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const velocityQuadratureApproximation& quadrature,
-    const bool ode
+    const velocityQuadratureApproximation& quadrature
 )
 {
     word collisionKernelType(dict.lookup("collisionKernel"));
@@ -60,8 +59,7 @@ Foam::populationBalanceSubModels::collisionKernel::New
         (
             dict,
             mesh,
-            quadrature,
-            ode
+            quadrature
         )
     );
 }

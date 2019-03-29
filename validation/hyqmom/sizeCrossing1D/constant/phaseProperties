@@ -18,4 +18,4 @@ FoamFile
 dilutePhase particles;
 rhop    2500;
 d       300e-6;
-e       0.9;
+e       0.2;

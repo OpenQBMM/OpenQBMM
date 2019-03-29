@@ -335,14 +335,13 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const velocityQuadratureApproximation& quadrature,
-    const bool ode
+    const velocityQuadratureApproximation& quadrature
 )
 :
-    collisionKernel(dict, mesh, quadrature, ode),
+    collisionKernel(dict, mesh, quadrature),
     e_(dict.lookupType<scalar>("e")),
     omega_((1.0 + e_)*0.5),
-    Enskog_(dict.lookupOrDefault("Enskog", true)),
+    Enskog_(dict.lookupOrDefault("Enskog", false)),
     scalarIndexes_(quadrature.nodes()[0].scalarIndexes()),
     sizeIndex_(quadrature.nodes()[0].sizeIndex()),
     velocityIndexes_(quadrature.nodes()[0].velocityIndexes()),
@@ -355,8 +354,18 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
     ),
     Is_(velocityMomentOrders_.size(), velocityMomentOrders_, 0.0),
     I1s_(velocityIndexes_.size()),
-    Cs_(momentOrders_.size(), momentOrders_, 0.0),
-    dp_(),
+    Cs_(momentOrders_.size(), momentOrders_),
+    dp_
+    (
+        lookupOrInitialize
+        (
+            mesh,
+            IOobject::groupName("d", quadrature.moments()[0].group()),
+            dict,
+            "d",
+            dimLength
+        )
+    ),
     rhop_
     (
         lookupOrInitialize
@@ -368,19 +377,35 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
             dimDensity
         )
     ),
-    gradWs_()
+    gradWs_(),
+    Gs_(momentOrders_.size(), momentOrders_)
 {
-    if (sizeIndex_ == -1)
+    forAll(Cs_, mi)
     {
-        dp_ = lookupOrInitialize
+        const labelList& momentOrder = momentOrders_[mi];
+        Cs_.set
         (
-            mesh,
-            IOobject::groupName("d", quadrature.moments()[0].group()),
-            dict,
-            "d",
-            dimLength
+            momentOrder,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "collisionalSource."
+                  + mappedList<scalar>::listToWord(momentOrder),
+                    mesh_.time().timeName(),
+                    mesh_
+                ),
+                mesh_,
+                dimensionedScalar
+                (
+                    "zero",
+                    quadrature.moments()[mi].dimensions()/dimTime,
+                    0.0
+                )
+            )
         );
     }
+
     if (Enskog_)
     {
         forAll(velocityIndexes_, cmpt)
@@ -406,6 +431,40 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
                 new volVectorField
                 (
                     fvc::grad(quadrature.nodes()[nodei].primaryWeight())
+                )
+            );
+        }
+
+        forAll(Gs_, mi)
+        {
+            const labelList& momentOrder = momentOrders_[mi];
+            Gs_.set
+            (
+                mi,
+                new volVectorField
+                (
+                    IOobject
+                    (
+                        IOobject::groupName
+                        (
+                            IOobject::groupName
+                            (
+                                "collisionalFlux",
+                                mappedScalarList::listToWord(momentOrder)
+                            ),
+                            quadrature_.moments()[0].group()
+                        ),
+                        mesh.time().timeName(),
+                        mesh
+                    ),
+                    mesh,
+                    dimensionedVector
+                    (
+                        "zero",
+                        quadrature_.moments()(momentOrder).dimensions()*dimLength/dimTime,
+                        Zero
+                    ),
+                    wordList(quadrature_.moments()[0].boundaryField().size(), "zeroGradient")
                 )
             );
         }
@@ -443,26 +502,111 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 {
     forAll(Cs_, momenti)
     {
-        Cs_[momenti] = 0.0;
+        Cs_[momenti][celli] = 0.0;
+    }
+    if (Enskog_)
+    {
+        forAll(Gs_, momenti)
+        {
+            Gs_[momenti][celli] = Zero;
+        }
+    }
+
+    scalar alpha = quadrature_.moments()(labelList(nDimensions_, 0))[celli];
+    scalar c = min(alpha/0.63, 0.999);
+    scalar alphac = 1.0 - alpha;
+    scalar g0 = (2.0 - c)/(2.0*pow3(1.0 - c));
+
+    if (sizeIndex_ == -1)
+    {
+        forAll(quadrature_.nodes(), nodei)
+        {
+            const volVelocityNode& node1 = quadrature_.nodes()[nodei];
+            forAll(quadrature_.nodes(), nodej)
+            {
+                const volVelocityNode& node2 = quadrature_.nodes()[nodej];
+
+                updateI(celli, nodei, nodej, omega_);
+
+                forAll(Cs_, momenti)
+                {
+                    const labelList& momentOrder = momentOrders_[momenti];
+                    labelList vMomentOrder(velocityIndexes_.size(), 0);
+                    forAll(velocityIndexes_, cmpt)
+                    {
+                        vMomentOrder[cmpt] = momentOrder[velocityIndexes_[cmpt]];
+                    }
+
+                    //- Zero order
+                    scalar cSource =
+                        6.0*g0/dp_()[celli]
+                       *node1.primaryWeight()[celli]
+                       *node2.primaryWeight()[celli]
+                       *mag
+                        (
+                            node1.velocityAbscissae()[celli]
+                          - node2.velocityAbscissae()[celli]
+                        )
+                       *Is_(vMomentOrder);
+
+                    //- Enskog term
+                    if (Enskog_)
+                    {
+                        scalar eSource = 0.0;
+                        forAll(velocityIndexes_, m)
+                        {
+                            scalar I1m = I1s_[m](vMomentOrder);
+                            eSource +=
+                                I1m
+                               *(
+                                    node2.primaryWeight()[celli]
+                                   *gradWs_[nodei][celli][m]
+                                  - node1.primaryWeight()[celli]
+                                   *gradWs_[nodej][celli][m]
+                                );
+                            Gs_[momenti][celli][m] +=
+                                3.0*g0
+                               *I1m
+                               *node1.primaryWeight()[celli]
+                               *node2.primaryWeight()[celli];
+                        }
+                        cSource += 3.0*g0*eSource;
+                    }
+
+                    forAll(scalarIndexes_, cmpt)
+                    {
+                        scalar absCmpt =
+                            pow
+                            (
+                                node1.primaryAbscissae()[scalarIndexes_[cmpt]][celli],
+                                momentOrder[scalarIndexes_[cmpt]]
+                            );
+                        cSource *= absCmpt;
+
+                        if (Enskog_)
+                        {
+                            Gs_[momenti][celli] *= absCmpt;
+                        }
+                    }
+                    Cs_[momenti][celli] += cSource;
+                }
+            }
+        }
+
+        return;
+    }
+
+    scalar alphard = 0.0;
+
+    forAll(quadrature_.nodes(), nodei)
+    {
+        const volVelocityNode& node = quadrature_.nodes()[nodei];
+        alphard +=
+            node.primaryWeight()[celli]
+            /max(node.primaryAbscissae()[sizeIndex_][celli], 1e-6);
     }
 
     scalar pi = Foam::constant::mathematical::pi;
-    scalar omega = omega_;
-    scalar XiSqr = 1.0;
-    scalar d1 = small;
-    scalar d2 = small;
-    scalar d12 = small;
-    if (sizeIndex_ == -1)
-    {
-        d1 = dp_()[celli];
-        d2 = dp_()[celli];
-        d12 = d12;
-    }
-    scalar alpha = quadrature_.moments()(labelList(nDimensions_, 0))[celli];
-    scalar g0 = 1.0/(1 - alpha)
-      + 3*alpha/(2*sqr(1 - alpha))
-      + sqr(alpha)/(2*pow3(1 - alpha));
-    scalar g012 = g0;
 
     forAll(quadrature_.nodes(), nodei)
     {
@@ -471,73 +615,83 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
         {
             const volVelocityNode& node2 = quadrature_.nodes()[nodej];
 
-            if (sizeIndex_ != -1)
+
+            scalar d1 = max(node1.primaryAbscissae()[sizeIndex_][celli], 1e-10);
+            scalar d2 = max(node2.primaryAbscissae()[sizeIndex_][celli], 1e-10);
+            scalar d12 = (d1 + d2)*0.5;
+            scalar XiSqr = sqr(d12/d2);
+            scalar mass1 = pi/6.0*pow3(d1)*rhop_()[celli];
+            scalar mass2 = pi/6.0*pow3(d2)*rhop_()[celli];
+            scalar omega = mass2*(1.0 + e_)/max(mass1 + mass2, small);
+            scalar g012 = 1.0/alphac + 3.0*d1*d2*alphard/(sqr(alphac)*(d1 + d2));
+
+            if (omega > 1e-10)
             {
-                d1 = node1.primaryAbscissae()[sizeIndex_][celli];
-                d2 = node2.primaryAbscissae()[sizeIndex_][celli];
-                d12 = (d1 + d2)*0.5;
-                XiSqr = sqr(d12/max(d2, 1e-10));
-                scalar m1 = pi/6.0*pow3(d1)*rhop_()[celli];
-                scalar m2 = pi/6.0*pow3(d2)*rhop_()[celli];
-                omega = m2*(1.0 + e_)/max(m1 + m2, small);
-            }
+                updateI(celli, nodei, nodej, omega);
 
-            updateI(celli, nodei, nodej, omega);
-
-            forAll(Cs_, momenti)
-            {
-                const labelList& momentOrder = momentOrders_[momenti];
-                labelList vMomentOrder(velocityIndexes_.size(), 0);
-                forAll(velocityIndexes_, cmpt)
+                forAll(Cs_, momenti)
                 {
-                    vMomentOrder[cmpt] = momentOrder[velocityIndexes_[cmpt]];
-                }
-
-                //- Zero order
-                scalar cSource =
-                    6.0*XiSqr*g012/d2
-                   *node1.primaryWeight()[celli]
-                   *node2.primaryWeight()[celli]
-                   *mag
-                    (
-                        node1.velocityAbscissae()[celli]
-                      - node2.velocityAbscissae()[celli]
-                    )
-                   *Is_(vMomentOrder);
-
-                //- Enskog term
-                if (Enskog_)
-                {
-                    scalar eSource = 0.0;
-                    for (label m = 0; m < 3; m++)
+                    const labelList& momentOrder = momentOrders_[momenti];
+                    labelList vMomentOrder(velocityIndexes_.size(), 0);
+                    forAll(velocityIndexes_, cmpt)
                     {
-                        eSource +=
-                            I1s_[m](vMomentOrder)
-                           *(
-                               d1
-                              *node2.primaryWeight()[celli]
-                              *gradWs_[nodei][celli][m]
-                             - d2
-                              *node1.primaryWeight()[celli]
-                              *gradWs_[nodej][celli][m]
-                            );
+                        vMomentOrder[cmpt] = momentOrder[velocityIndexes_[cmpt]];
                     }
-                     cSource += 3.0*XiSqr*g012*d1/d2*eSource;
-                }
 
-                if (scalarIndexes_.size())
-                {
+                    //- Zero order
+                    scalar cSource =
+                        6.0*XiSqr*g012/d2
+                       *node1.primaryWeight()[celli]
+                       *node2.primaryWeight()[celli]
+                       *mag
+                        (
+                            node1.velocityAbscissae()[celli]
+                          - node2.velocityAbscissae()[celli]
+                        )
+                       *Is_(vMomentOrder);
+
+                    //- Enskog term
+                    if (Enskog_)
+                    {
+                        scalar enskogCoeff = 3.0*XiSqr*g012*d1/d2;
+                        scalar eSource = 0.0;
+                        forAll(velocityIndexes_, m)
+                        {
+                            scalar I1m = I1s_[m](vMomentOrder);
+                            eSource +=
+                                I1m
+                               *(
+                                    d1*node2.primaryWeight()[celli]
+                                   *gradWs_[nodei][celli][m]
+                                  - d2*node1.primaryWeight()[celli]
+                                   *gradWs_[nodej][celli][m]
+                                );
+                            Gs_[momenti][celli][m] =
+                                enskogCoeff
+                               *I1m
+                               *node1.primaryWeight()[celli]
+                               *node2.primaryWeight()[celli];
+                        }
+                        cSource += enskogCoeff*eSource;
+                    }
+
                     forAll(scalarIndexes_, cmpt)
                     {
-                        cSource *=
+                        scalar absCmpt =
                             pow
                             (
                                 node1.primaryAbscissae()[scalarIndexes_[cmpt]][celli],
                                 momentOrder[scalarIndexes_[cmpt]]
                             );
+                        cSource *= absCmpt;
+
+                        if (Enskog_)
+                        {
+                            Gs_[momenti][celli] *= absCmpt;
+                        }
                     }
+                    Cs_[momenti][celli] += cSource;
                 }
-                Cs_(momentOrder) += cSource;
             }
         }
     }
@@ -552,7 +706,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
     const label celli
 ) const
 {
-    return Cs_(momentOrder);
+    return Cs_(momentOrder)[celli];
 }
 
 
@@ -560,12 +714,7 @@ Foam::tmp<Foam::fvScalarMatrix>
 Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 ::implicitCollisionSource(const volVelocityMoment& m) const
 {
-    FatalErrorInFunction
-        << "Boltzmann collision kernel does not support implicit" << nl
-        << "solutions to the collisional source term."
-        << abort(FatalError);
-
-    return tmp<fvScalarMatrix>
+    tmp<fvScalarMatrix> iSource
     (
         new fvScalarMatrix
         (
@@ -573,5 +722,14 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
             m.dimensions()*dimVolume/dimTime
         )
     );
+
+    if (sizeIndex_ != -1 && Enskog_)
+    {
+        iSource.ref() -= fvc::div(Gs_(m.cmptOrders()))();
+    }
+    return iSource;
+
 }
+
+
 // ************************************************************************* //

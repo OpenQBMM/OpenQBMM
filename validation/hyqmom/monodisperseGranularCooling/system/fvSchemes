@@ -8,32 +8,41 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
-    class       volScalarField;
-    location    "0";
-    object      moment.40.particles;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 4 0 0 0 0 0];
-
-internalField   uniform 6.26e-08;
-
-boundaryField
+ddtSchemes
 {
-    inlet1
-    {
-        type            cyclic;
-    }
-    inlet2
-    {
-        type            cyclic;
-    }
-    defaultFaces
-    {
-        type            empty;
-    }
+    default         Euler;
 }
 
+gradSchemes
+{
+    default         faceLimited leastSquares 1.0;
+}
+
+divSchemes
+{
+    default         Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         none;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
 
 // ************************************************************************* //

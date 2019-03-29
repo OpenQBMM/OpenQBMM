@@ -84,10 +84,7 @@ protected:
     // Protected data
 
         //- Equilibrium moments (fields)
-        mappedPtrList<volScalarField> Meqf_;
-
-        //- Equilibrium moments (fields)
-        mappedList<scalar> Meq_;
+        mappedPtrList<volScalarField> Meq_;
 
 
 public:
@@ -103,8 +100,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 

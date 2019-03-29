@@ -10,55 +10,44 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      momentGenerationDict;
+    location    "constant";
+    object      populationaBalanceProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-phases
-(
-    particles
-);
+populationBalanceModel sizeVelocity;
 
-boundaries
+sizeVelocityCoeffs
 {
-    inlet1
+    odeCoeffs
     {
-        type    cyclic;
-        value   uniform 0;
+        solveOde off;
+        solveSources on;
+
+        ATol    1.0e-6;
+        RTol    1.0e-3;
+        fac     0.9;
+        facMin  0.1;
+        facMax  5.0;
+        minLocalDt 1.0e-7;
     }
-    inlet2
+
+    collision  on;
+
+    collisionKernel
     {
-        type    cyclic;
-        value   uniform 0;
+        collisionKernel Boltzmann;
+        d           0.03;
+        e           1;
+        rho         2000;
+        Enskog      off;
+        implicit    on;
     }
-    defaultFaces
+
+    diffusionModel
     {
-        type    empty;
+        diffusionModel none;
     }
 }
-
-particles
-{
-    type                weightsAndAbscissae;
-    weightDimension     [0 0 0 0 0 0 0];
-    abscissaeDim0Dimensions       [0 1 0 0 0 0 0];
-    abscissaeDim1Dimensions       [0 1 -1 0 0 0 0];
-
-    default
-    {
-        node0
-        {
-            weight  .01;
-            abscissa (0.01 1);
-        }
-        node1
-        {
-            weight  .01;
-            abscissa (0.05 -1);
-        }
-    }
-}
-
 
 // ************************************************************************* //

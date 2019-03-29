@@ -60,11 +60,11 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     scalar uSqr = sqr(u);
     scalar sigma11 = max(moments(2)[celli]/m0 - uSqr, 0.0);
 
-    Meq_(0) = moments(0)[celli];
-    Meq_(1) = moments(1)[celli];
-    Meq_(2) = moments(2)[celli];
-    Meq_(3) = m0*(3.0*sigma11*u + u*uSqr);
-    Meq_(4) = m0*(6.0*uSqr*sigma11 + 3.0*sqr(sigma11) + uSqr*uSqr);
+    Meq_(0)[celli] = moments(0)[celli];
+    Meq_(1)[celli] = moments(1)[celli];
+    Meq_(2)[celli] = moments(2)[celli];
+    Meq_(3)[celli] = m0*(3.0*sigma11*u + u*uSqr);
+    Meq_(4)[celli] = m0*(6.0*uSqr*sigma11 + 3.0*sqr(sigma11) + uSqr*uSqr);
 
     if (nDimensions_ > 1)
     {
@@ -72,11 +72,11 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         scalar vSqr = sqr(v);
         scalar sigma22 = max(moments(0,2)[celli]/m0 - vSqr, 0.0);
 
-        Meq_(0,1) = moments(0,1)[celli];
-        Meq_(1,1) = moments(1,1)[celli];
-        Meq_(0,2) = moments(0,2)[celli];
-        Meq_(0,3) = m0*(3.0*sigma22*v + v*vSqr);
-        Meq_(0,4) = m0*(6.0*vSqr*sigma22 + 3.0*sqr(sigma22) + vSqr*vSqr);
+        Meq_(0,1)[celli] = moments(0,1)[celli];
+        Meq_(1,1)[celli] = moments(1,1)[celli];
+        Meq_(0,2)[celli] = moments(0,2)[celli];
+        Meq_(0,3)[celli] = m0*(3.0*sigma22*v + v*vSqr);
+        Meq_(0,4)[celli] = m0*(6.0*vSqr*sigma22 + 3.0*sqr(sigma22) + vSqr*vSqr);
     }
     if (nDimensions_ > 2)
     {
@@ -84,12 +84,12 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         scalar wSqr = sqr(w);
         scalar sigma33 = max(moments(0,0,2)[celli]/m0 - wSqr, 0.0);
 
-        Meq_(0,0,1) = moments(0,0,1)[celli];
-        Meq_(1,0,1) = moments(1,0,1)[celli];
-        Meq_(0,1,1) = moments(0,1,1)[celli];
-        Meq_(0,0,2) = moments(0,0,2)[celli];
-        Meq_(0,0,3) = m0*(3.0*sigma33*w + w*wSqr);
-        Meq_(0,0,4) = m0*(6.0*wSqr*sigma33 + 3.0*sqr(sigma33) + wSqr*wSqr);
+        Meq_(0,0,1)[celli] = moments(0,0,1)[celli];
+        Meq_(1,0,1)[celli] = moments(1,0,1)[celli];
+        Meq_(0,1,1)[celli] = moments(0,1,1)[celli];
+        Meq_(0,0,2)[celli] = moments(0,0,2)[celli];
+        Meq_(0,0,3)[celli] = m0*(3.0*sigma33*w + w*wSqr);
+        Meq_(0,0,4)[celli] = m0*(6.0*wSqr*sigma33 + 3.0*sqr(sigma33) + wSqr*wSqr);
     }
 }
 
@@ -99,41 +99,36 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const velocityQuadratureApproximation& quadrature,
-    const bool ode
+    const velocityQuadratureApproximation& quadrature
 )
 :
-    collisionKernel(dict, mesh, quadrature, ode),
+    collisionKernel(dict, mesh, quadrature),
     tauCollisional_("tau", dimTime, dict),
-    Meqf_(quadrature.moments().size(), momentOrders_),
     Meq_(quadrature.moments().size(), momentOrders_)
 {
-    if (!ode)
+    forAll(Meq_, mi)
     {
-        forAll(Meqf_, mi)
-        {
-            const labelList& momentOrder = momentOrders_[mi];
-            Meqf_.set
+        const labelList& momentOrder = momentOrders_[mi];
+        Meq_.set
+        (
+            momentOrder,
+            new volScalarField
             (
-                momentOrder,
-                new volScalarField
+                IOobject
                 (
-                    IOobject
-                    (
-                        "Meq" + mappedList<scalar>::listToWord(momentOrder),
-                        mesh_.time().timeName(),
-                        mesh_
-                    ),
-                    mesh_,
-                    dimensionedScalar
-                    (
-                        "zero",
-                        quadrature.moments()[mi].dimensions(),
-                        0.0
-                    )
+                    "Meq" + mappedList<scalar>::listToWord(momentOrder),
+                    mesh_.time().timeName(),
+                    mesh_
+                ),
+                mesh_,
+                dimensionedScalar
+                (
+                    "zero",
+                    quadrature.moments()[mi].dimensions(),
+                    0.0
                 )
-            );
-        }
+            )
+        );
     }
 }
 
@@ -155,9 +150,15 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     const label celli
 ) const
 {
+    if (implicit_)
+    {
+        return 0.0;
+    }
+
     return
     (
-        Meq_(momentOrder) - quadrature_.moments()(momentOrder)[celli]
+        Meq_(momentOrder)[celli]
+      - quadrature_.moments()(momentOrder)[celli]
     )/tauCollisional_.value();
 }
 
@@ -165,10 +166,22 @@ Foam::tmp<Foam::fvScalarMatrix>
 Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 ::implicitCollisionSource(const volVelocityMoment& m) const
 {
-    return
+    if (implicit_)
+    {
+        return
+        (
+            Meq_(m.cmptOrders())/tauCollisional_
+          - fvm::Sp(1/tauCollisional_, m)
+        );
+    }
+
+    return tmp<fvScalarMatrix>
     (
-        Meqf_(m.cmptOrders())/tauCollisional_
-      - fvm::Sp(1/tauCollisional_, m)
+        new fvScalarMatrix
+        (
+            m,
+            m.dimensions()*dimVolume/dimTime
+        )
     );
 }
 // ************************************************************************* //
