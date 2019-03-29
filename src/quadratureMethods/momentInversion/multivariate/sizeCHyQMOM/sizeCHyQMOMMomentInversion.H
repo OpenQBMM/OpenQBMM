@@ -22,15 +22,14 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::sizeCHyQMOM
+    Foam::multivariateMomentInversions::sizeCHyQMOM
 
 Description
     Implementation of the hyperbolic conditional quadrature method of moment
     for velocity with conditioning on size.
 
 SourceFiles
-    sizeCHyQMOM.C
-    sizeCHyQMOMI.H
+    sizeCHyQMOMMomentInversion.C
 
 \*---------------------------------------------------------------------------*/
 

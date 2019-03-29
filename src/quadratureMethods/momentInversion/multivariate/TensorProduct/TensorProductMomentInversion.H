@@ -22,31 +22,31 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::multivariateMomentInversions::monoKinetic
+    Foam::multivariateMomentInversions::TensorProduct
 
 Description
-    Implementation of the monokinetic velocity distribution moment set
-    inversion
+    Tensor product moment inversion for multidimensional moment sets
 
 SourceFiles
-    monoKineticmonoKineticMomentInversion.C
+    TensorProductMomentInversion.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef monoKineticMomentInversion_H
-#define monoKineticMomentInversion_H
+#ifndef TensorProductMomentInversion_H
+#define TensorProductMomentInversion_H
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include "scalar.H"
-#include "vectorList.H"
+#include "vector2D.H"
+#include "vector.H"
 #include "scalarMatrices.H"
 #include "dictionary.H"
 #include "mappedLists.H"
 #include "Vandermonde.H"
 #include "multivariateMomentInversion.H"
-#include "univariateMomentInversion.H"
+#include "hyperbolicConditionalMomentInversion.H"
 
 
 namespace Foam
@@ -55,46 +55,53 @@ namespace multivariateMomentInversions
 {
 
 /*---------------------------------------------------------------------------*\
-                        Class monoKinetic Declaration
+                        Class TensorProduct Declaration
 \*---------------------------------------------------------------------------*/
-class monoKinetic
+class TensorProduct
 :
     public multivariateMomentInversion
 {
     // Private member data
 
-        //- Number of size moments
-        const label nSizeMoments_;
+        //- Number of pure moments in each direction
+        labelList nPureMoments_;
 
-        //- Moment orders of conditional velocity distribution
-        const labelListList velocityMomentOrders_;
+        //- Support of the NDF
+        wordList supports_;
 
         //- Univariate moment inversion method
-        autoPtr<univariateMomentInversion> sizeInverter_;
+        PtrList<univariateMomentInversion> univariateInverters_;
 
 
     // Private member functions
 
-        //- Calculate the number of pure size moments
-        label calcNSizeMoments(const labelListList& momentOrders);
+        //- Construct non-zero nodes indexes
+        void buildIndexes
+        (
+            labelListList& nodeIndexes,
+            const labelList& nNodes,
+            label dimi,
+            label& nodei,
+            labelList& index
+        );
 
         //- Disallow default bitwise copy construct
-        //hyperbolicConditionalMomentInversion(const hyperbolicConditionalMomentInversion&);
+        //TensorProduct(const TensorProduct&);
 
         //- Disallow default bitwise assignment
-        //void operator=(const hyperbolicConditionalMomentInversion&);
+        //void operator=(const TensorProduct&);
 
 
 public:
 
     //- Runtime type information
-    TypeName("monoKinetic");
+    TypeName("TensorProduct");
 
 
     // Constructors
 
         // Construct from nMoments, momentMap, nNodes, and support type
-        monoKinetic
+        TensorProduct
         (
             const dictionary& dict,
             const labelListList& momentOrders,
@@ -104,7 +111,7 @@ public:
 
 
     //- Destructor
-    virtual ~monoKinetic();
+    virtual ~TensorProduct();
 
 
     // Member Functions
@@ -119,8 +126,10 @@ public:
 } // End namespace multivariateMomentInversions
 } // End namespace Foam
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
+
 
 // ************************************************************************* //

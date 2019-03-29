@@ -95,9 +95,7 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
             )
         )
     )
-{
-    supports_[0] = "RPlus";
-}
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -133,7 +131,7 @@ void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
 {
     reset();
 
-    univariateMomentSet sizeMoments(nSizeMoments_, supports_[0], 0.0);
+    univariateMomentSet sizeMoments(nSizeMoments_, "RPlus", 0.0);
     forAll(sizeMoments, mi)
     {
         sizeMoments[mi] = moments(mi);

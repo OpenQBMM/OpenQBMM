@@ -170,18 +170,6 @@ public:
 
         //- Invert moments to find weights and  abscissae
         void invert(const multivariateMomentSet& moments);
-
-        //- Return number of moments
-        inline label nMoments();
-
-        //- Return number of number of nodes in each dimension
-        inline const labelList& nNodes();
-
-        //- Return mapped quadrature weights for each dimension
-        inline const PtrList<mappedList<scalar>>& weights() const;
-
-        //- Return mapped quadrature abscissae for each dimension
-        inline const PtrList<mappedList<scalar>>& abscissae() const;
 };
 
 
@@ -192,7 +180,6 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "conditionalMomentInversionI.H"
 
 #endif
 

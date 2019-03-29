@@ -25,8 +25,7 @@ Class
     Foam::multivariateMomentInversion
 
 Description
-    Implementation of the hyperbolic conditional quadrature method of moment
-    for velocity with conditioning on size.
+    General class for multivariate moment inversions
 
 SourceFiles
     multivariateMomentInversion.C
@@ -73,13 +72,10 @@ protected:
         const labelListList& nodeIndexes_;
 
         //- List of velocity indexes
-        const labelList velocityIndexes_;
+        labelList velocityIndexes_;
 
         //- Number of nodes in each direction
         labelList nNodes_;
-
-        //- Support of the NDF
-        wordList supports_;
 
         //- Quadratrure weights
         mappedScalarList weights_;
