@@ -22,11 +22,11 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::monoKineticmonoKineticMomentInversion
+    Foam::multivariateMomentInversions::monoKinetic
 
 Description
-    Implementation of the hyperbolic conditional quadrature method of moment
-    for velocity with conditioning on size.
+    Implementation of the monokinetic velocity distribution moment set
+    inversion
 
 SourceFiles
     monoKineticmonoKineticMomentInversion.C

@@ -34,7 +34,7 @@ Description
 #include "IFstream.H"
 #include "OFstream.H"
 #include "scalarMatrices.H"
-#include "nDimensionalMappedList.H"
+#include "mappedList.H"
 #include "conditionalMomentInversion.H"
 #include "Random.H"
 

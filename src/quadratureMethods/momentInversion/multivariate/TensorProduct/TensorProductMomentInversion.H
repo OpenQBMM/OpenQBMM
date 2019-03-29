@@ -22,11 +22,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::TensorProduct
+    Foam::multivariateMomentInversions::TensorProduct
 
 Description
-    Implementation of the hyperbolic conditional quadrature method of moment
-    for velocity with conditioning on size.
+    Tensor product moment inversion for multidimensional moment sets
 
 SourceFiles
     TensorProduct.C
