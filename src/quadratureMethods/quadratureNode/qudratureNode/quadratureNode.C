@@ -100,10 +100,6 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
             }
         }
     }
-    if (velocityIndexes_.size() == 0)
-    {
-        velocityIndexes_.append(-1);
-    }
 
     abscissae_.resize(scalarIndexes_.size());
     if (extended_)
@@ -314,10 +310,6 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 }
             }
         }
-    }
-    if (velocityIndexes_.size() == 0)
-    {
-        velocityIndexes_.append(-1);
     }
 
     abscissae_.resize(scalarIndexes_.size());

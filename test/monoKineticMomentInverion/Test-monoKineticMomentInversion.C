@@ -34,7 +34,7 @@ Description
 #include "IFstream.H"
 #include "OFstream.H"
 #include "mappedLists.H"
-#include "monoKinetic.H"
+#include "monoKineticMomentInversion.H"
 #include "Random.H"
 
 using namespace Foam;
@@ -97,9 +97,9 @@ int main(int argc, char *argv[])
         Info<< ": " << moments(momentOrder) << endl;
     }
 
-    monoKinetic momentInverter
+    multivariateMomentInversions::monoKinetic momentInverter
     (
-        quadratureProperties, momentOrders, nodeIndexes
+        quadratureProperties, momentOrders, nodeIndexes, velocityIndexes
     );
 
     Info<< "\nInverting moments" << endl;
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     Info<< "\nReconstructed moments:" << endl;
 
     const scalarList& weights = momentInverter.weights();
-    const scalarList& sizeAbscissae = momentInverter.sizeAbscissae();
+    const mappedList<scalarList>& sizeAbscissae = momentInverter.abscissae();
     const vectorList& velocityAbscissae =
         momentInverter.velocityAbscissae();
 
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         forAll(nodeIndexes, nodei)
         {
             scalar cmpt = weights[nodei];
-            cmpt *= pow(sizeAbscissae[nodei], momentOrder[0]);
+            cmpt *= pow(sizeAbscissae[nodei][0], momentOrder[0]);
             for(label dimi = 0; dimi < momentOrder.size() - 1; dimi++)
             {
                 cmpt *=

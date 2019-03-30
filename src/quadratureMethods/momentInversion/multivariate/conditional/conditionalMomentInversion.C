@@ -246,6 +246,10 @@ void Foam::multivariateMomentInversions::conditional::invert
         if (velocityIndexes_[vi_] == dimi - 1)
         {
             vi_++;
+            if (vi_ >= velocityIndexes_.size())
+            {
+                vi_ = 0;
+            }
         }
         else
         {
@@ -327,9 +331,20 @@ Foam::multivariateMomentInversions::conditional::cycleAlphaCM
     }
     else
     {
-        scalarRectangularMatrix nu(nNodes_[dimj], 1, 0.0);
+        labelList posVR(max(1, dimj), 0);
+        if (dimj != 0)
+        {
+            for (label i = 0; i < posVR.size(); i++)
+            {
+                posVR[i] = pos[i];
+            }
+        }
 
-        for (label i = 0; i < nNodes_[dimj]; i++)
+        const scalarSquareMatrix& invVR = invVR_[dimj](posVR);
+        label size = invVR.m();
+        scalarRectangularMatrix nu(size, 1, 0.0);
+
+        for (label i = 0; i < size; i++)
         {
             pos[dimj] = i;
 
@@ -348,21 +363,19 @@ Foam::multivariateMomentInversions::conditional::cycleAlphaCM
             }
         }
 
-        labelList posVR(max(1, dimj), 0);
-        if (dimj != 0)
-        {
-            for (label i = 0; i < posVR.size(); i++)
-            {
-                posVR[i] = pos[i];
-            }
-        }
-
-        scalarRectangularMatrix gamma = invVR_[dimj](posVR)*nu;
+        scalarRectangularMatrix gamma = invVR*nu;
 
         for (label i = 0; i < nNodes_[dimj]; i++)
         {
             pos[dimj] = i;
-            conditionalMoments_[dimi][dimj](pos) = gamma(i, 0);
+            if (i < size)
+            {
+                conditionalMoments_[dimi][dimj](pos) = gamma(i, 0);
+            }
+            else
+            {
+                conditionalMoments_[dimi][dimj](pos) = 0.0;
+            }
         }
     }
 }
@@ -384,28 +397,37 @@ void Foam::multivariateMomentInversions::conditional::setVR
     }
     else
     {
+        scalarDiagonalMatrix weights(nNodes_[dimj], 0.0);
         scalarDiagonalMatrix x(nNodes_[dimj], 0.0);
-        scalarSquareMatrix invR(nNodes_[dimj], 0.0);
-
-        for (label nodei = 0; nodei < nNodes_[dimj]; nodei++)
+        label size = 0;
+        forAll(weights, nodei)
         {
             pos[dimj] = nodei;
+            scalar abscissa = 0.0;
+            scalar weight = conditionalWeights_[dimj](pos);
             if (velocityIndexes_[vi_] == dimj)
             {
-                x[nodei] = velocityAbscissae_(pos)[vi_] + small;
+                abscissa = velocityAbscissae_(pos)[vi_];
             }
             else
             {
-                x[nodei] = abscissae_(pos)[si_] + small;
+                abscissa = abscissae_(pos)[si_];
             }
-            invR[nodei][nodei] =
-                1.0
-               /max
-                (
-                    conditionalWeights_[dimj](pos),
-                    1e-10
-                );
+            if (mag(abscissa) > small && weight > small)
+            {
+                x[nodei] = abscissa;
+                weights[nodei] = weight;
+                size++;
+            }
         }
+        x.resize(size);
+        weights.resize(size);
+        scalarSquareMatrix invR(size, 0.0);
+        forAll(weights, nodei)
+        {
+            invR[nodei][nodei] = 1.0/weights[nodei];
+        }
+
 
         Vandermonde V(x);
         scalarSquareMatrix invV(V.inv());
@@ -442,13 +464,20 @@ void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
     }
     else
     {
-        if (conditionalMoments_[dimi][dimi - 1](0) < small)
+        pos[dimi] = 0;
+        scalar cm0 = conditionalMoments_[dimi][dimi - 1](pos);
+        if (cm0 < small)
         {
+            for (label nodei = 0; nodei < nNodes_[dimi]; nodei++)
+            {
+                pos[dimi] = nodei;
+                conditionalWeights_[dimi](pos) = cm0/nNodes_[dimi];
+            }
+
             forAll(nodeIndexes_, nodei)
             {
                 const labelList& nodeIndex = nodeIndexes_[nodei];
-                label index = nodeIndex[dimi];
-                pos[dimi] = index;
+                pos[dimi] = nodeIndex[dimi];
 
                 if (compare(pos, nodeIndex))
                 {

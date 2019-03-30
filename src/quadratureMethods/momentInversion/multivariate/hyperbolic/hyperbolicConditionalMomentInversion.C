@@ -1149,11 +1149,11 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert
 )
 {
     reset();
-    if (nGeometricDimensions_ == 3)
+    if (nvelocityDimensions_ == 3)
     {
         invert3D(moments);
     }
-    else if (nGeometricDimensions_ == 2)
+    else if (nvelocityDimensions_ == 2)
     {
         mappedScalarList w
         (

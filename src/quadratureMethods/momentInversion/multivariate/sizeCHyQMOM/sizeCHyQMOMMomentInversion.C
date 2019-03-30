@@ -64,7 +64,7 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
     (
         multivariateMomentInversions::CHyQMOM::getMomentOrders
         (
-            nGeometricDimensions_
+            nvelocityDimensions_
         )
     ),
     nSizeNodes_(nSizeMoments_/2),
@@ -72,7 +72,7 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
     (
         multivariateMomentInversions::CHyQMOM::getNodeIndexes
         (
-            nGeometricDimensions_
+            nvelocityDimensions_
         )
     ),
     sizeInverter_
@@ -86,10 +86,10 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
             dict,
             velocityMomentOrders_,
             velocityNodeIndexes_,
-            nGeometricDimensions_ == 1
+            nvelocityDimensions_ == 1
           ? labelList({0})
           : (
-                (nGeometricDimensions_ == 2)
+                (nvelocityDimensions_ == 2)
               ? labelList({0, 1})
               : labelList({0, 1, 2})
             )

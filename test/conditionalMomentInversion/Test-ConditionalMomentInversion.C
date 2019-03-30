@@ -56,10 +56,10 @@ int main(int argc, char *argv[])
 
     forAll(x, nodei)
     {
-        w[nodei] = scalar(rand())/scalar(RAND_MAX);
+        w[nodei] = 10.0*scalar(rand())/scalar(RAND_MAX);
         forAll(x[nodei], dimi)
         {
-            x[nodei][dimi] = scalar(rand())/scalar(RAND_MAX);
+            x[nodei][dimi] = 10.0*scalar(rand())/scalar(RAND_MAX);
         }
     }
 

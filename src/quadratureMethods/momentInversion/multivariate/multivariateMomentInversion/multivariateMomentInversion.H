@@ -63,7 +63,7 @@ protected:
         const label nDistributionDims_;
 
         //- Number of dimensions in velocity space
-        const label nGeometricDimensions_;
+        const label nvelocityDimensions_;
 
         //- Moment orders of full distribution
         const labelListList& momentOrders_;

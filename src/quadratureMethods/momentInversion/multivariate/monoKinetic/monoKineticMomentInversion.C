@@ -85,10 +85,7 @@ Foam::label Foam::multivariateMomentInversions::monoKinetic::calcNSizeMoments
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
-        if (momentOrder[0] > maxOrder)
-        {
-            maxOrder = momentOrder[0];
-        }
+        maxOrder = max(maxOrder, momentOrder[0]);
     }
     return maxOrder + 1;
 }
@@ -132,7 +129,7 @@ void Foam::multivariateMomentInversions::monoKinetic::invert
         scalarSquareMatrix invVR = invR*V.inv();
 
         // Compute conditional velocity moments and invert
-        for (label dimi = 0; dimi < nGeometricDimensions_; dimi++)
+        for (label dimi = 0; dimi < nvelocityDimensions_; dimi++)
         {
             labelList pureMomentOrder(nDistributionDims_, 0);
             pureMomentOrder[dimi + 1] = 1;

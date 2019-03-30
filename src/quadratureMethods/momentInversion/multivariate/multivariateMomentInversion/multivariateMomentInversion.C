@@ -84,7 +84,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
 )
 :
     nDistributionDims_(momentOrders[0].size()),
-    nGeometricDimensions_
+    nvelocityDimensions_
     (
         velocityIndexes[0] == -1 ? 0 : velocityIndexes.size()
     ),
@@ -97,13 +97,13 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
     (
         nodeIndexes.size(),
         nodeIndexes,
-        scalarList(nDistributionDims_ - nGeometricDimensions_, 0.0)
+        scalarList(nDistributionDims_ - nvelocityDimensions_, 0.0)
     ),
     velocityAbscissae_(nodeIndexes.size(), nodeIndexes, Zero)
 {
     forAll(nodeIndexes_, nodei)
     {
-        forAll(nNodes_, dimi)
+        forAll(nodeIndexes_[nodei], dimi)
         {
             nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes[nodei][dimi] + 1);
         }
