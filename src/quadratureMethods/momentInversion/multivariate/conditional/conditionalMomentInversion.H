@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::conditionalMomentInversion
+    Foam::multivariateMomentInversions::conditional
 
 Description
     Implementation of the conditional quadrature method of moments
@@ -37,7 +37,6 @@ Description
 
 SourceFiles
     conditionalMomentInversion.C
-    conditionalMomentInversionI.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -50,52 +49,52 @@ SourceFiles
 #include "scalar.H"
 #include "scalarMatrices.H"
 #include "dictionary.H"
+#include "multivariateMomentInversion.H"
 #include "univariateMomentSet.H"
 #include "univariateMomentInversion.H"
 #include "multivariateMomentSet.H"
 #include "Vandermonde.H"
-#include "mappedList.H"
+#include "mappedLists.H"
 #include "PtrList.H"
 
 namespace Foam
+{
+namespace multivariateMomentInversions
 {
 
 /*---------------------------------------------------------------------------*\
                      Class conditionalMomentInversion Declaration
 \*---------------------------------------------------------------------------*/
-class conditionalMomentInversion
+class conditional
+:
+    public multivariateMomentInversion
 {
     // Private member data
 
-        //- Number of moments
-        const label nMoments_;
-
-        //- List of the number of nodes
-        const labelList nNodes_;
-
-        //- Number of dimensions
-        const label nDims_;
+        //- Number of pure moments in each direction
+        labelList nPureMoments_;
 
         //- Type of support for each direction
-        const List<word> support_;
-
-        //- Quadratrure abscissae
-        PtrList<mappedList<scalar> > abscissae_;
-
-        //- Quadratrure weights
-        PtrList<mappedList<scalar> > weights_;
+        wordList supports_;
 
         //- Stored moments
         multivariateMomentSet moments_;
 
+        //- Conditional weights
+        PtrList<mappedList<scalar>> conditionalWeights_;
+
         //- Stored conditional moments
-        PtrList<PtrList<mappedList<scalar> > > conditionalMoments_;
+        PtrList<PtrList<mappedList<scalar>>> conditionalMoments_;
 
         //- Inverted VanderMonde matricies
         PtrList<mappedList<scalarSquareMatrix> > invVR_;
 
         //- Univariate moment inversion method
-        autoPtr<univariateMomentInversion> momentInverter_;
+        PtrList<univariateMomentInversion> momentInverters_;
+
+        //- Current indexes
+        label vi_;
+        label si_;
 
 
     // Private member functions
@@ -137,14 +136,11 @@ class conditionalMomentInversion
             labelList& pos
         );
 
-        //- Reset inverter
-        void reset();
-
         //- Disallow default bitwise copy construct
-        //conditionalMomentInversion(const conditionalMomentInversion&);
+        //conditional(const conditional&);
 
         //- Disallow default bitwise assignment
-        //void operator=(const conditionalMomentInversion&);
+        //void operator=(const conditional&);
 
 
 public:
@@ -152,18 +148,17 @@ public:
     // Constructors
 
         // Construct from nMoments, momentMap, nNodes, and support type
-        conditionalMomentInversion
+        conditional
         (
             const dictionary& dict,
             const labelListList& momentOrders,
             const labelListList& nodeIndexes,
-            const labelList& nNodes,
-            const List<word>& support
+            const labelList& velocityIndexes
         );
 
 
     //- Destructor
-    virtual ~conditionalMomentInversion();
+    virtual ~conditional();
 
 
     // Member Functions
@@ -175,6 +170,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace multivariateMomentInversions
 } // End namespace Foam
 
 

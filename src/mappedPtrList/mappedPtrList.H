@@ -169,7 +169,6 @@ public:
             void set(const labelList& l, tmp<mappedType> entry);
 };
 
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam

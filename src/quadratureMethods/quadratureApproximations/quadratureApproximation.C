@@ -104,6 +104,10 @@ quadratureApproximation
             velocityIndexes.append(dimi);
         }
     }
+    if (velocityIndexes.size() == 0)
+    {
+        velocityIndexes.append(-1);
+    }
 
     momentFieldInverter_ =
         fieldMomentInversion::New

@@ -238,4 +238,5 @@ void Foam::mappedPtrList<mappedType>::set
 {
     PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
+
 // ************************************************************************* //

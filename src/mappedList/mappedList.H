@@ -139,10 +139,10 @@ public:
         // Modifiers
 
             //- Resize mapped list
-            void resize (const label newSize);
+            void resize(const label newSize);
 
             //- Set mapped list size
-            void setSize (const label newSize);
+            void setSize(const label newSize);
 
 
         // Access

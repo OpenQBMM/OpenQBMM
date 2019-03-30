@@ -28,42 +28,68 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::conditionalMomentInversion::conditionalMomentInversion
+Foam::multivariateMomentInversions::conditional::conditional
 (
     const dictionary& dict,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
-    const labelList& nNodes,
-    const List<word>& support
+    const labelList& velocityIndexes
 )
 :
-    nMoments_(momentOrders.size()),
-    nNodes_(nNodes),
-    nDims_(momentOrders[0].size()),
-    support_(support),
-    abscissae_(nDims_),
-    weights_(nDims_),
-    moments_(nMoments_, momentOrders, support[0], 0.0),
-    conditionalMoments_(nDims_),
-    invVR_(nDims_ - 1),
-    momentInverter_
+    multivariateMomentInversion
     (
-        univariateMomentInversion::New(dict.subDict("basicQuadrature"))
-    )
+        dict,
+        momentOrders,
+        nodeIndexes,
+        velocityIndexes
+    ),
+    nPureMoments_(nNodes_.size(), 0),
+    supports_(dict.lookup("supports")),
+    moments_(momentOrders.size(), momentOrders, supports_[0], 0.0),
+    conditionalWeights_(nNodes_.size()),
+    conditionalMoments_(nNodes_.size()),
+    invVR_(nNodes_.size() - 1),
+    momentInverters_(nNodes_.size())
 {
-    labelList nNodesCM = nNodes_;
+    forAll(momentInverters_, dimi)
+    {
+        momentInverters_.set
+        (
+            dimi,
+            univariateMomentInversion::New
+            (
+                dict.subDict("basicQuadrature" + Foam::name(dimi))
+            ).ptr()
+        );
+    }
+    forAll(momentOrders_, mi)
+    {
+        forAll(nPureMoments_, dimi)
+        {
+            nPureMoments_[dimi] =
+                max
+                (
+                    nPureMoments_[dimi],
+                    momentOrders_[mi][dimi] + 1
+                );
+        }
+    }
 
+    labelList nNodesCM = nNodes_;
     forAll(nNodes_, dimi)
     {
         label nDimensions = dimi + 1;
         labelList pos(nDimensions);
         label mi = 0;
         Map<label> nodeMap(0);
-        setNodeMap(nodeMap, nDimensions, nNodes, 0, mi, pos);
+        setNodeMap(nodeMap, nDimensions, nNodes_, 0, mi, pos);
         label nCmpts = nodeMap.size();
 
-        weights_.set(dimi, new mappedList<scalar>(nCmpts, nodeMap, 0.0));
-        abscissae_.set(dimi, new mappedList<scalar>(nCmpts, nodeMap, 0.0));
+        conditionalWeights_.set
+        (
+            dimi,
+            new mappedScalarList(nCmpts, nodeMap, 0.0)
+        );
     }
 
     forAll(conditionalMoments_, dimi)
@@ -115,65 +141,115 @@ Foam::conditionalMomentInversion::conditionalMomentInversion
             )
         );
     }
-
-    // Set all lists to zero
-    reset();
 }
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::conditionalMomentInversion::~conditionalMomentInversion()
+Foam::multivariateMomentInversions::conditional::~conditional()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::conditionalMomentInversion::invert
+void Foam::multivariateMomentInversions::conditional::invert
 (
     const multivariateMomentSet& moments
 )
 {
     reset();
-
-    forAll(moments, mi)
+    forAll(invVR_, dimi)
     {
-        moments_[mi] = moments[mi];
+        forAll(invVR_[dimi], ai)
+        {
+            for (label i = 0; i < nNodes_[dimi]; i++)
+            {
+                for (label j = 0; j < nNodes_[dimi]; j++)
+                {
+                    invVR_[dimi][ai](i, j) = 0.0;
+                }
+            }
+        }
+
+        forAll(conditionalMoments_[dimi], dimj)
+        {
+            forAll(conditionalMoments_[dimi][dimj], ai)
+            {
+                conditionalMoments_[dimi][dimj][ai] = 0.0;
+            }
+        }
     }
+    forAll(conditionalWeights_, dimi)
+    {
+        forAll(conditionalWeights_[dimi], ai)
+        {
+            conditionalWeights_[dimi][ai] = 0.0;
+        }
+    }
+
+    moments_ = moments;
 
     // Invert primary direction first
-    labelList pos(nDims_, 0);
+    labelList pos(nNodes_.size(), 0);
 
-    univariateMomentSet momentsToInvert(2*nNodes_[0], support_[0]);
+    univariateMomentSet momentsToInvert(nPureMoments_[0], supports_[0]);
 
-    for (label mi = 0; mi < 2*nNodes_[0]; mi++)
+    forAll(momentsToInvert, mi)
     {
-        pos[0] = mi;
-        momentsToInvert[mi] = moments_(pos);
+        momentsToInvert[mi] = moments(mi);
     }
 
-    momentInverter_().invert(momentsToInvert);
+    momentInverters_[0].invert(momentsToInvert);
 
-    for (label nodei = 0; nodei < nNodes_[0]; nodei++)
+    const scalarList& weights = momentInverters_[0].weights();
+    const scalarList& abscissae = momentInverters_[0].abscissae();
+
+    vi_ = 0;
+    si_ = 0;
+    forAll(weights, nodei)
     {
-        // First component of the weights and abscissae only have one direction
-        // Copy from univariateMomentSet to stored copy
-        weights_[0](nodei) = momentInverter_().weights()[nodei];
-        abscissae_[0](nodei) = momentInverter_().abscissae()[nodei];
+        conditionalWeights_[0](nodei) = weights[nodei];
+    }
+    forAll(nodeIndexes_, nodei)
+    {
+        label index = nodeIndexes_[nodei][0];
+        if (index < weights.size())
+        {
+            weights_[nodei] = weights[index];
+
+            if (velocityIndexes_[vi_] == 0)
+            {
+                velocityAbscissae_[nodei][0] = abscissae[index];
+            }
+            else
+            {
+                abscissae_[nodei][0] = abscissae[index];
+            }
+        }
     }
 
     // Solve remaining directions
-    for (label dimi = 1; dimi < nDims_; dimi++)
+    for (label dimi = 1; dimi < nNodes_.size(); dimi++)
     {
+        //- Set invVR matrices
+        {
+            labelList pos(dimi, 0);
+            setVR(dimi - 1, pos, 0);
+        }
+
         for (label dimj = 0; dimj < dimi; dimj++)
         {
-            if (dimj == 0)
-            {
-                labelList pos(dimi, 0);
-                setVR(dimi - 1, pos, 0);
-            }
             labelList posC(dimi + 1, 0);
             cycleAlphaCM(dimi, dimj, 0, posC);
+        }
+
+        if (velocityIndexes_[vi_] == dimi - 1)
+        {
+            vi_++;
+        }
+        else
+        {
+            si_++;
         }
 
         labelList posW(dimi + 1, 0);
@@ -181,7 +257,7 @@ void Foam::conditionalMomentInversion::invert
     }
 }
 
-void Foam::conditionalMomentInversion::setNodeMap
+void Foam::multivariateMomentInversions::conditional::setNodeMap
 (
     Map<label>& map,
     const label nDimensions,
@@ -217,7 +293,8 @@ void Foam::conditionalMomentInversion::setNodeMap
     }
 }
 
-void Foam::conditionalMomentInversion::cycleAlphaCM
+void
+Foam::multivariateMomentInversions::conditional::cycleAlphaCM
 (
     const label dimi,
     const label dimj,
@@ -241,7 +318,7 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
     }
     else if (ai == dimi)
     {
-        for (label i = 0; i < 2*nNodes_[dimi]; i++)
+        for (label i = 0; i < nPureMoments_[dimi]; i++)
         {
             pos[dimi] = i;
             cycleAlphaCM(dimi, dimj, ai+1, pos);
@@ -250,7 +327,7 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
     }
     else
     {
-        scalarRectangularMatrix Yold(nNodes_[dimj], 1, 0.0);
+        scalarRectangularMatrix nu(nNodes_[dimj], 1, 0.0);
 
         for (label i = 0; i < nNodes_[dimj]; i++)
         {
@@ -258,24 +335,20 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
 
             if (dimj == 0)
             {
-                labelList posM(nDims_, 0);
-
+                labelList posM(nNodes_.size(), 0);
                 for (label mi = 0; mi < pos.size(); mi++)
                 {
                     posM[mi] = pos[mi];
                 }
-
-                Yold(i, 0) = moments_(posM);
+                nu(i, 0) = moments_(posM);
             }
             else
             {
-                Yold(i, 0) =
-                    conditionalMoments_[dimi][dimj - 1](pos);
+                nu(i, 0) = conditionalMoments_[dimi][dimj - 1](pos);
             }
         }
 
         labelList posVR(max(1, dimj), 0);
-
         if (dimj != 0)
         {
             for (label i = 0; i < posVR.size(); i++)
@@ -284,56 +357,61 @@ void Foam::conditionalMomentInversion::cycleAlphaCM
             }
         }
 
-        scalarRectangularMatrix Ynew = invVR_[dimj](posVR)*Yold;
+        scalarRectangularMatrix gamma = invVR_[dimj](posVR)*nu;
 
         for (label i = 0; i < nNodes_[dimj]; i++)
         {
             pos[dimj] = i;
-            conditionalMoments_[dimi][dimj](pos) = Ynew(i, 0);
+            conditionalMoments_[dimi][dimj](pos) = gamma(i, 0);
         }
     }
 }
 
-void Foam::conditionalMomentInversion::setVR
+void Foam::multivariateMomentInversions::conditional::setVR
 (
-    const label dimi,
+    const label dimj,
     labelList& pos,
     label ai
 )
 {
-    if (ai < dimi)
+    if (ai < dimj)
     {
         for (label i = 0; i < nNodes_[ai]; i++)
         {
             pos[ai] = i;
-
-            setVR(dimi, pos, ai + 1);
+            setVR(dimj, pos, ai + 1);
         }
     }
     else
     {
-        scalarDiagonalMatrix x(nNodes_[dimi], 0.0);
-        scalarSquareMatrix invR(nNodes_[dimi], 0.0);
+        scalarDiagonalMatrix x(nNodes_[dimj], 0.0);
+        scalarSquareMatrix invR(nNodes_[dimj], 0.0);
 
-        for (label nodei = 0; nodei < nNodes_[dimi]; nodei++)
+        for (label nodei = 0; nodei < nNodes_[dimj]; nodei++)
         {
-            if (nodei >= momentInverter_().nNodes())
+            pos[dimj] = nodei;
+            if (velocityIndexes_[vi_] == dimj)
             {
-                weights_[dimi](pos) = scalar(0);
-                abscissae_[dimi](pos) = scalar(0);
-                continue;
+                x[nodei] = velocityAbscissae_(pos)[vi_] + small;
             }
-
-            pos[dimi] = nodei;
-            x[nodei] = abscissae_[dimi](pos);
-            invR[nodei][nodei] = 1.0/weights_[dimi](pos);
+            else
+            {
+                x[nodei] = abscissae_(pos)[si_] + small;
+            }
+            invR[nodei][nodei] =
+                1.0
+               /max
+                (
+                    conditionalWeights_[dimj](pos),
+                    1e-10
+                );
         }
 
         Vandermonde V(x);
         scalarSquareMatrix invV(V.inv());
-        labelList posVR(max(1, dimi), 0);
+        labelList posVR(max(1, dimj), 0);
 
-        if (dimi > 0)
+        if (dimj > 0)
         {
             for (label ai = 0; ai < posVR.size(); ai++)
             {
@@ -341,11 +419,11 @@ void Foam::conditionalMomentInversion::setVR
             }
         }
 
-        invVR_[dimi](posVR) = invR*invV;
+        invVR_[dimj](posVR) = invR*invV;
     }
 }
 
-void Foam::conditionalMomentInversion::cycleAlphaWheeler
+void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
 (
     const label dimi,
     label ai,
@@ -357,7 +435,6 @@ void Foam::conditionalMomentInversion::cycleAlphaWheeler
         for (label i = 0; i < nNodes_[ai]; i++)
         {
             pos[ai] = i;
-
             cycleAlphaWheeler(dimi, ai + 1, pos);
         }
 
@@ -365,67 +442,71 @@ void Foam::conditionalMomentInversion::cycleAlphaWheeler
     }
     else
     {
-        univariateMomentSet momentsToInvert(2*nNodes_[dimi], support_[dimi]);
+        if (conditionalMoments_[dimi][dimi - 1](0) < small)
+        {
+            forAll(nodeIndexes_, nodei)
+            {
+                const labelList& nodeIndex = nodeIndexes_[nodei];
+                label index = nodeIndex[dimi];
+                pos[dimi] = index;
+
+                if (compare(pos, nodeIndex))
+                {
+                    weights_(nodeIndex) /= nNodes_[dimi];
+                }
+            }
+            return;
+        }
+
+        univariateMomentSet momentsToInvert
+        (
+            nPureMoments_[dimi],
+            supports_[dimi]
+        );
 
         forAll(momentsToInvert, mi)
         {
             pos[dimi] = mi;
-            momentsToInvert[mi] =
-                conditionalMoments_[dimi][dimi - 1](pos);
+            momentsToInvert[mi] = conditionalMoments_[dimi][dimi - 1](pos);
         }
 
-        momentInverter_().invert(momentsToInvert);
+        momentInverters_[dimi].invert(momentsToInvert);
+        const scalarList& weights = momentInverters_[dimi].weights();
+        const scalarList& abscissae = momentInverters_[dimi].abscissae();
 
-        for (label nodei = 0; nodei < nNodes_[ai]; nodei++)
+        forAll(weights, nodei)
         {
             pos[dimi] = nodei;
-
-            weights_[dimi](pos) =
-                momentInverter_().weights()[nodei];
-
-            abscissae_[dimi](pos) =
-                momentInverter_().abscissae()[nodei];
+            conditionalWeights_[dimi](pos) = weights[nodei];
         }
-        return;
-    }
-}
 
-void Foam::conditionalMomentInversion::reset()
-{
-    forAll(moments_, mi)
-    {
-        moments_[mi] = 0.0;
-    }
-
-    forAll(invVR_, dimi)
-    {
-        forAll(invVR_[dimi], ai)
+        forAll(nodeIndexes_, nodei)
         {
-            for (label i = 0; i < nNodes_[dimi]; i++)
+            const labelList& nodeIndex = nodeIndexes_[nodei];
+            label index = nodeIndex[dimi];
+            pos[dimi] = index;
+
+            bool sameNode = compare(pos, nodeIndex);
+            if (index < weights.size() && sameNode)
             {
-                for (label j = 0; j < nNodes_[dimi]; j++)
+                weights_(nodeIndex) *= weights[index];
+
+                if (velocityIndexes_[vi_] == dimi)
                 {
-                    invVR_[dimi][ai](i, j) = 0.0;
+                    velocityAbscissae_(nodeIndex)[vi_] = abscissae[index];
+                }
+                else
+                {
+                    abscissae_(nodeIndex)[si_] = abscissae[index];
                 }
             }
-        }
-
-        forAll(conditionalMoments_[dimi], dimj)
-        {
-            forAll(conditionalMoments_[dimi][dimj], ai)
+            else if (sameNode && nodei != 0)
             {
-                conditionalMoments_[dimi][dimj][ai] = 0.0;
+                weights_(nodeIndex) = 0;
             }
         }
-    }
 
-    forAll(abscissae_, dimi)
-    {
-        forAll(abscissae_[dimi], ai)
-        {
-            weights_[dimi][ai] = 0.0;
-            abscissae_[dimi][ai] = 0.0;
-        }
+        return;
     }
 }
 

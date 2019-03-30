@@ -35,6 +35,43 @@ namespace Foam
 }
 
 
+// * * * * * * * * * * * * * *  Static Functions * * * * * * * * * * * * * * //
+
+bool Foam::multivariateMomentInversion::compare
+(
+    const labelList& index1,
+    const labelList& index2
+)
+{
+    label size = min(index1.size(), index2.size());
+    for (label i = 0; i < size; i++)
+    {
+        if (index1[i] != index2[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool Foam::multivariateMomentInversion::compare
+(
+    const labelList& index1,
+    const labelList& index2,
+    const label size
+)
+{
+    for (label i = 0; i < size; i++)
+    {
+        if (index1[i] != index2[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -47,7 +84,10 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
 )
 :
     nDistributionDims_(momentOrders[0].size()),
-    nGeometricDimensions_(velocityIndexes.size()),
+    nGeometricDimensions_
+    (
+        velocityIndexes[0] == -1 ? 0 : velocityIndexes.size()
+    ),
     momentOrders_(momentOrders),
     nodeIndexes_(nodeIndexes),
     velocityIndexes_(velocityIndexes),
@@ -65,7 +105,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
     {
         forAll(nNodes_, dimi)
         {
-            nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes[nodei][dimi]);
+            nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes[nodei][dimi] + 1);
         }
     }
     if (velocityIndexes_.size() == 0)

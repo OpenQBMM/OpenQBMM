@@ -34,7 +34,7 @@ Description
 #include "IFstream.H"
 #include "OFstream.H"
 #include "scalarMatrices.H"
-#include "mappedList.H"
+#include "mappedLists.H"
 #include "conditionalMomentInversion.H"
 #include "Random.H"
 
@@ -46,319 +46,109 @@ int main(int argc, char *argv[])
 {
     #include "createFields.H"
 
-    label nMoments = 1;
-    label nDims = 4;
+    mappedList<scalarList> x
+    (
+        nNodes,
+        nodeIndexes,
+        scalarField(nDims, 0)
+    );
+    mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 
-    // Set number of nodes in each direction
-    labelList nNodes(nDims);
-
-    nNodes[0] = 1;
-    nNodes[1] = 2;
-    nNodes[2] = 3;
-    nNodes[3] = 4;
-
-    // Declaration of permutation ([0 1 2 3] is normal).
-    labelList permutation(nDims);
-
-    permutation[0] = 0;
-    permutation[1] = 1;
-    permutation[2] = 2;
-    permutation[3] = 3;
-
-
-    labelList nNodesP = nNodes;
-
-    for (label dimi = 0; dimi < nDims; dimi++)
+    forAll(x, nodei)
     {
-        nNodesP[dimi] = nNodes[permutation[dimi]];
-    }
-
-    // Set number of moments corresponding to 2*nNodes[i] in each direction
-    // (Worst case senario)
-    for (int i = 0; i < nDims; i++)
-    {
-        nMoments *= 2*nNodes[i];
-    }
-
-    List<word> support(nDims, "RPlus");
-
-    PtrList<nDimensionalMappedList<scalar>> x(nDims);
-    PtrList<nDimensionalMappedList<scalar>> w(nDims);
-
-    forAll(x, i)
-    {
-        x.set
-        (
-            i,
-            new nDimensionalMappedList<scalar>
-            (
-                i + 1,
-                nNodes
-            )
-        );
-
-        w.set
-        (
-            i,
-            new nDimensionalMappedList<scalar>
-            (
-                i + 1,
-                nNodes
-            )
-        );
-
-        forAll(x[i], j)
+        w[nodei] = scalar(rand())/scalar(RAND_MAX);
+        forAll(x[nodei], dimi)
         {
-            x[i].set
-            (
-                j,
-                new scalar(0.0)
-            );
-
-            w[i].set
-            (
-                j,
-                new scalar(0.0)
-            );
-        }
-    }
-
-    forAll(x, dimi)
-    {
-        forAll(x[dimi], cmpti)
-        {
-            x[dimi][cmpti] = scalar(rand())/scalar(RAND_MAX);
-            w[dimi][cmpti] = scalar(rand())/scalar(RAND_MAX);
-        }
-    }
-
-    Map<label> map(nMoments);
-    Map<label> mapP(nMoments);
-
-    labelList pos(nDims);
-    labelList posP(nDims);
-
-    label mi = 0;
-
-    for (label i = 0; i < 2*nNodes[0]; i++)
-    {
-        for (label j = 0; j < 2*nNodes[1]; j++)
-        {
-            for (label k = 0; k < 2*nNodes[2]; k++)
-            {
-                for (label l = 0; l < 2*nNodes[3]; l++)
-                {
-                    pos[0] = i;
-                    pos[1] = j;
-                    pos[2] = k;
-                    pos[3] = l;
-
-                    map.insert
-                    (
-                        Foam::nDimensionalMappedList<scalar>::listToLabel
-                        (
-                            pos
-                        ),
-                        mi
-                    );
-
-                    posP[0] = pos[permutation[0]];
-                    posP[1] = pos[permutation[1]];
-                    posP[2] = pos[permutation[2]];
-                    posP[3] = pos[permutation[3]];
-
-                    mapP.insert
-                    (
-                        Foam::nDimensionalMappedList<scalar>::listToLabel
-                        (
-                            posP
-                        ),
-                        mi
-                    );
-
-                    mi++;
-                }
-            }
+            x[nodei][dimi] = scalar(rand())/scalar(RAND_MAX);
         }
     }
 
     Info<< "Original moments:" << endl;
 
-    nDimensionalMappedList<scalar> moments(nMoments, nDims, map);
-    nDimensionalMappedList<scalar> momentsP(nMoments, nDims, mapP);
-
-    forAll(moments, mi)
+    multivariateMomentSet moments(nMoments, momentOrders, "R");
+    forAll(momentOrders, mi)
     {
-        moments.set
-        (
-            mi,
-            new scalar(0.0)
-        );
+        const labelList& momentOrder = momentOrders[mi];
+        moments(momentOrder) = 0.0;
 
-        momentsP.set
-        (
-            mi,
-            new scalar(0.0)
-        );
-    }
-
-    scalar sum = 0.0;
-
-    for (label l = 0; l < 2*nNodes[0]; l++)
-    {
-        pos[0] = l;
-
-        for (label m = 0; m < 2*nNodes[1]; m++)
+        forAll(nodeIndexes, nodei)
         {
-            pos[1] = m;
+            const labelList& nodeIndex = nodeIndexes[nodei];
 
-            for (label n = 0; n < 2*nNodes[2]; n++)
+            scalar cmpt = w(nodeIndex);
+            forAll(nodeIndex, dimi)
             {
-                pos[2] = n;
-
-                for (label nn = 0; nn < 2*nNodes[3]; nn++)
-                {
-                    pos[3] = nn;
-
-                    sum = 0.0;
-
-                    for (label i = 0; i < nNodes[0]; i++)
-                    {
-                        for (label j = 0; j < nNodes[1]; j++)
-                        {
-                            for (label k = 0; k < nNodes[2]; k++)
-                            {
-                                for (label kk = 0; kk < nNodes[3]; kk++)
-                                {
-                                    sum += w[0](i)*w[1](i, j)*w[2](i, j, k)
-                                        *w[3](i, j, k, kk)
-                                        *pow(x[0](i), l)*pow(x[1](i, j), m)
-                                        *pow(x[2](i, j, k), n)
-                                        *pow(x[3](i, j, k, kk), nn);
-                                }
-                            }
-                        }
-                    }
-
-                    moments(l, m, n, nn) = sum;
-
-                    Info<< "moment." << l << m << n << nn <<": "
-                        << moments(l, m, n, nn) << endl;
-                }
+                cmpt *= pow(x(nodeIndex)[dimi], momentOrder[dimi]);
             }
+            moments(momentOrder) += cmpt;
         }
-    }
 
-    // Premutation 213
-    for (label l = 0; l < 2*nNodes[0]; l++)
-    {
-        for (label m = 0; m < 2*nNodes[1]; m++)
+        Info<< "moment.";
+        forAll(momentOrder, dimi)
         {
-            for (label n = 0; n < 2*nNodes[2]; n++)
-            {
-                for (label nn = 0; nn < 2*nNodes[3]; nn++)
-                {
-                    pos[0] = l;
-                    pos[1] = m;
-                    pos[2] = n;
-                    pos[3] = nn;
-
-                    posP[0] = pos[permutation[0]];
-                    posP[1] = pos[permutation[1]];
-                    posP[2] = pos[permutation[2]];
-                    posP[3] = pos[permutation[3]];
-
-                    momentsP(posP) = moments(pos);
-                }
-            }
+            Info<< momentOrder[dimi];
         }
+        Info<< ": " << moments(momentOrder) << endl;
     }
 
-    conditionalMomentInversion momentInverter
+    multivariateMomentInversions::conditional momentInverter
     (
-        quadratureProperties, nMoments, mapP, nNodesP, support
+        quadratureProperties, momentOrders, nodeIndexes, velocityIndexes
     );
 
     Info<< "\nInverting moments" << endl;
 
-    momentInverter.invert(momentsP);
+    momentInverter.invert(moments);
 
     Info<< "\nReconstructed moments:" << endl;
 
-    const PtrList<nDimensionalMappedList<scalar> >& weights =
-        momentInverter.weights();
+    const mappedScalarList& weights = momentInverter.weights();
+    const mappedList<scalarList>& abscissae = momentInverter.abscissae();
+    const mappedVectorList& velocityAbscissae =
+        momentInverter.velocityAbscissae();
 
-    const PtrList<nDimensionalMappedList<scalar> >& abscissae =
-        momentInverter.abscissae();
-
-    for (label l = 0; l < 2*nNodesP[0]; l++)
+    mappedList<scalar> newMoments(nMoments, momentOrders);
+    forAll(momentOrders, mi)
     {
-        pos[0] = l;
+        const labelList& momentOrder = momentOrders[mi];
+        newMoments(momentOrder) = 0.0;
 
-        for (label m = 0; m < 2*nNodesP[1]; m++)
+        forAll(nodeIndexes, nodei)
         {
-            pos[1] = m;
+            const labelList& nodeIndex = nodeIndexes[nodei];
 
-            for (label n = 0; n < 2*nNodesP[2]; n++)
+            scalar cmpt = weights(nodeIndex);
+            label vi = 0;
+            label si = 0;
+            for(label dimi = 0; dimi < momentOrder.size(); dimi++)
             {
-                pos[2] = n;
-
-                for (label nn = 0; nn < 2*nNodesP[3]; nn++)
+                if (velocityIndexes[vi] == dimi)
                 {
-                    pos[3] = nn;
-                    sum = 0.0;
-
-                    for (label i = 0; i < nNodesP[0]; i++)
-                    {
-                        for (label j = 0; j < nNodesP[1]; j++)
-                        {
-                            for (label k = 0; k < nNodesP[2]; k++)
-                            {
-                                for (label kk = 0; kk < nNodesP[3]; kk++)
-                                {
-                                    sum += weights[0](i)*weights[1](i, j)
-                                        *weights[2](i, j, k)
-                                        *weights[3](i, j, k, kk)
-                                        *pow(abscissae[0](i), l)
-                                        *pow(abscissae[1](i, j), m)
-                                        *pow(abscissae[2](i, j, k), n)
-                                        *pow(abscissae[3](i, j, k, kk), nn);
-                                }
-                            }
-                        }
-                    }
-
-                    momentsP(l, m, n, nn) = sum;
+                     cmpt *=
+                        pow
+                        (
+                            velocityAbscissae(nodeIndex)[vi],
+                            momentOrder[dimi]
+                        );
+                    vi++;
+                }
+                else
+                {
+                    cmpt *= pow(abscissae(nodeIndex)[si], momentOrder[dimi]);
+                    si++;
                 }
             }
+            newMoments(momentOrder) += cmpt;
         }
-    }
 
-    for (label l = 0; l < 2*nNodes[0]; l++)
-    {
-        for (label m = 0; m < 2*nNodes[1]; m++)
+        Info<< "moment.";
+        forAll(momentOrder, dimi)
         {
-            for (label n = 0; n < 2*nNodes[2]; n++)
-            {
-                for (label nn = 0; nn < 2*nNodes[3]; nn++)
-                {
-                    pos[0] = l;
-                    pos[1] = m;
-                    pos[2] = n;
-                    pos[3] = nn;
-
-                    posP[0] = pos[permutation[0]];
-                    posP[1] = pos[permutation[1]];
-                    posP[2] = pos[permutation[2]];
-                    posP[3] = pos[permutation[3]];
-
-                    moments(pos) = momentsP(posP);
-
-                    Info<< "moment." << l << m << n << nn << ": "
-                        << moments(pos) << endl;
-                }
-            }
+            Info<< momentOrder[dimi];
         }
+        Info<< ": " << newMoments(momentOrder)
+            << ",\trel error: "
+            << (mag(moments(momentOrder) - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
 
     Info << "\nEnd\n" << endl;

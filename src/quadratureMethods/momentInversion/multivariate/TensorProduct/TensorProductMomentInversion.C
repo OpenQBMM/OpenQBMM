@@ -111,7 +111,6 @@ Foam::multivariateMomentInversions::TensorProduct::TensorProduct
                 );
         }
     }
-    Info<<nPureMoments_<<endl;
 }
 
 

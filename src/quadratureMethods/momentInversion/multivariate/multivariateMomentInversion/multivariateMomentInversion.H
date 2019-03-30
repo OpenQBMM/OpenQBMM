@@ -92,6 +92,17 @@ protected:
         //- Reset inverter
         void reset();
 
+        //- Compare indexes up to the minimum size
+        static bool compare(const labelList& index1, const labelList& index2);
+
+        //- Compare indexes up to dimi
+        static bool compare
+        (
+            const labelList& index1,
+            const labelList& index2,
+            const label size
+        );
+
         //- Disallow default bitwise copy construct
 //         multivariateMomentInversion(const multivariateMomentInversion&);
 
