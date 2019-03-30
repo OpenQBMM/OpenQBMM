@@ -45,7 +45,7 @@ velocityQuadratureNode<surfaceScalarField, surfaceVectorField>::
 createVelocityAbscissae
 (
     const surfaceScalarField& weight,
-    const bool boundary
+    const wordList& boundaryTypes
 ) const;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

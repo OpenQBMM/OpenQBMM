@@ -24,12 +24,12 @@ boundaries
 {
     inlet1
     {
-        type    zeroGradient;
+        type    cyclic;
         value   uniform 0;
     }
     inlet2
     {
-        type    zeroGradient;
+        type    cyclic;
         value   uniform 0;
     }
     defaultFaces
@@ -49,29 +49,15 @@ particles
     {
         node0
         {
-            weight  .001;
+            weight  .01;
             abscissa (0.01 1);
         }
-    }
-    inlet1
-    {
-    }
-    inlet2
-    {
-    }
-    regions
-    (
-        boxToCell
+        node1
         {
-            boxes ((0.05 0 0) (0.1 0.1 0.1));
-
-            node0
-            {
-                weight  .001;
-                abscissa (0.05 -1);
-            }
+            weight  .01;
+            abscissa (0.05 -1);
         }
-    );
+    }
 }
 
 

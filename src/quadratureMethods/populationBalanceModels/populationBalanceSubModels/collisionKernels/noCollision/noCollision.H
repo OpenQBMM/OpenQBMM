@@ -69,8 +69,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -82,9 +81,6 @@ public:
 
         //- Update equilibrium moments
         virtual void updateCells(const label celli);
-
-        //- Update equilibrium moments
-        virtual void updateFields();
 
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource

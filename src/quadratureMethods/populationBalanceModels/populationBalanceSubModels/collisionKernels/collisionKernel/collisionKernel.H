@@ -84,6 +84,9 @@ protected:
         //- Number of dimensions
         const label nDimensions_;
 
+        //- Is an implicit solution used
+        const Switch implicit_;
+
 
     // Protected functions
 
@@ -137,10 +140,9 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         ),
-        (dict, mesh, quadrature, ode)
+        (dict, mesh, quadrature)
     );
 
 
@@ -151,8 +153,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -162,8 +163,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -173,11 +173,14 @@ public:
 
     // Member Functions
 
+        //- Update unchanged fields before solving ode system
+        virtual void preUpdate();
+
         //- Update collision sources in a cell
         virtual void updateCells(const label celli) = 0;
 
         //- Update collision sources
-        virtual void updateFields() = 0;
+        virtual void updateFields();
 
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource

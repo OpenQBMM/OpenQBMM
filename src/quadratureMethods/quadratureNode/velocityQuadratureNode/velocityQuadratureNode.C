@@ -72,10 +72,11 @@ Foam::velocityQuadratureNode<scalarType, vectorType>::velocityQuadratureNode
         mesh,
         weightDimensions,
         abscissaeDimensions,
+        boundaryTypes,
         extended,
         nSecondaryNodes
     ),
-    velocityAbscissae_(createVelocityAbscissae(this->weight_, true))
+    velocityAbscissae_(createVelocityAbscissae(this->weight_, boundaryTypes))
 {}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

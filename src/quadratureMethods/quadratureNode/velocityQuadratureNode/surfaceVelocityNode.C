@@ -43,11 +43,35 @@ velocityQuadratureNode<surfaceScalarField, surfaceVectorField>::
 createVelocityAbscissae
 (
     const surfaceScalarField& weight,
-    const bool boundary
+    const wordList& boundaryTypes
 ) const
 {
     const fvMesh& mesh = weight.mesh();
 
+    if (boundaryTypes.size() == 0)
+    {
+        return tmp<surfaceVectorField>
+        (
+            new surfaceVectorField
+            (
+                IOobject
+                (
+                    IOobject::groupName("velocityAbscissae", this->name_),
+                    mesh.time().timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                mesh,
+                dimensionedVector
+                (
+                    "zeroVelocityAbscissa",
+                    dimVelocity,
+                    Zero
+                )
+            )
+        );
+    }
     return tmp<surfaceVectorField>
     (
         new surfaceVectorField
@@ -66,7 +90,8 @@ createVelocityAbscissae
                 "zeroVelocityAbscissa",
                 dimVelocity,
                 Zero
-            )
+            ),
+            boundaryTypes
         )
     );
 }

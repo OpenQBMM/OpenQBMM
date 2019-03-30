@@ -19,7 +19,7 @@ application     polydisperseBubbleFoam;
 
 startFrom       startTime;
 
-startTime       0;
+startTime       0.8;
 
 stopAt          endTime;
 

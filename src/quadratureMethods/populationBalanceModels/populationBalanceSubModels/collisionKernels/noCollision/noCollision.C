@@ -54,11 +54,10 @@ Foam::populationBalanceSubModels::collisionKernels::noCollision::noCollision
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const velocityQuadratureApproximation& quadrature,
-    const bool ode
+    const velocityQuadratureApproximation& quadrature
 )
 :
-    collisionKernel(dict, mesh, quadrature, ode)
+    collisionKernel(dict, mesh, quadrature)
 {}
 
 
@@ -74,9 +73,6 @@ void Foam::populationBalanceSubModels::collisionKernels::noCollision
 ::updateCells(const label celli)
 {}
 
-void
-Foam::populationBalanceSubModels::collisionKernels::noCollision::updateFields()
-{}
 
 Foam::scalar
 Foam::populationBalanceSubModels::collisionKernels::noCollision
@@ -84,6 +80,7 @@ Foam::populationBalanceSubModels::collisionKernels::noCollision
 {
     return 0.0;
 }
+
 
 Foam::tmp<Foam::fvScalarMatrix>
 Foam::populationBalanceSubModels::collisionKernels::noCollision

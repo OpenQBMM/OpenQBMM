@@ -42,6 +42,7 @@ Foam::mappedPtrList<mappedType>::listToWord(const labelList& lst)
     return w;
 }
 
+
 template <class mappedType>
 Foam::label
 Foam::mappedPtrList<mappedType>::listToLabel
@@ -89,6 +90,7 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
     }
 }
 
+
 template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 (
     const label size,
@@ -111,6 +113,7 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
         nDims_ = max(nDims_, nD);
     }
 }
+
 
 template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 (
@@ -182,6 +185,7 @@ Foam::label Foam::mappedPtrList<mappedType>::calcMapIndex
     return mapIndex;
 }
 
+
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::setMap(const Map<label>& map)
 {
@@ -199,6 +203,21 @@ void Foam::mappedPtrList<mappedType>::setMap(const Map<label>& map)
     }
 }
 
+
+template <class mappedType>
+bool Foam::mappedPtrList<mappedType>::set(const label i) const
+{
+    return PtrList<mappedType>::set(i);
+}
+
+
+template <class mappedType>
+bool Foam::mappedPtrList<mappedType>::set(const labelList& l) const
+{
+    return PtrList<mappedType>::set(map_[listToLabel(l, nDims_)]);
+}
+
+
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
 (
@@ -209,6 +228,7 @@ void Foam::mappedPtrList<mappedType>::set
     PtrList<mappedType>::set(i, entry);
 }
 
+
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
 (
@@ -218,6 +238,7 @@ void Foam::mappedPtrList<mappedType>::set
 {
     PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
+
 
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
@@ -229,6 +250,7 @@ void Foam::mappedPtrList<mappedType>::set
     PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
 
+
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
 (
@@ -238,5 +260,6 @@ void Foam::mappedPtrList<mappedType>::set
 {
     PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
+
 
 // ************************************************************************* //

@@ -47,7 +47,8 @@ boundary
 (
     inlet1
     {
-        type            patch;
+        type            cyclic;
+        neighbourPatch  inlet2;
         faces
         (
             (0 3 7 4)
@@ -55,7 +56,8 @@ boundary
     }
     inlet2
     {
-        type            patch;
+        type            cyclic;
+        neighbourPatch  inlet1;
         faces
         (
             (1 2 6 5)

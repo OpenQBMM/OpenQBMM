@@ -104,6 +104,12 @@ protected:
         //- Advection terms for moment transport equations
         PtrList<volScalarField> divMoments_;
 
+        //- List of boundaries using fixed temperatures
+        wordList fixedWalls_;
+
+        //- List of temperatures used at walls
+        scalarList wallTemperatures_;
+
         //- Coefficient of restitution
         scalar ew_;
 

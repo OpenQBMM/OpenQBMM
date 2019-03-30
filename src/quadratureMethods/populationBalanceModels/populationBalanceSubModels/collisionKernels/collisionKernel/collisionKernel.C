@@ -116,15 +116,15 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const velocityQuadratureApproximation& quadrature,
-    const bool ode
+    const velocityQuadratureApproximation& quadrature
 )
 :
     dict_(dict),
     mesh_(mesh),
     quadrature_(quadrature),
     momentOrders_(quadrature.momentOrders()),
-    nDimensions_(momentOrders_[0].size())
+    nDimensions_(quadrature.nodes()[0].velocityIndexes().size()),
+    implicit_(dict_.lookupOrDefault("implicit", true))
 {}
 
 
@@ -132,6 +132,27 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
 
 Foam::populationBalanceSubModels::collisionKernel::~collisionKernel()
 {}
+
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::populationBalanceSubModels::collisionKernel::preUpdate()
+{}
+
+
+void Foam::populationBalanceSubModels::collisionKernel::updateFields()
+{
+    if (!implicit_)
+    {
+        return;
+    }
+
+    forAll(quadrature_.moments()[0], celli)
+    {
+        updateCells(celli);
+    }
+}
 
 
 // ************************************************************************* //

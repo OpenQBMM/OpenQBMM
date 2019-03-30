@@ -12,6 +12,7 @@ EXE_INC = \
     -I../../eigenSolver/lnInclude \
     -I../../mappedList \
     -I../../mappedPtrList \
+    -I../../Vandermonde \
     -I../momentSets/lnInclude \
     -I../quadratureNode/lnInclude \
     -I../moments \

@@ -17,19 +17,17 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField   nonuniform List<scalar> 
-100
-(ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP?ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿ü©ñÒMbP¿);
+internalField   uniform 0;
 
 boundaryField
 {
     inlet1
     {
-        type            zeroGradient;
+        type            cyclic;
     }
     inlet2
     {
-        type            zeroGradient;
+        type            cyclic;
     }
     defaultFaces
     {

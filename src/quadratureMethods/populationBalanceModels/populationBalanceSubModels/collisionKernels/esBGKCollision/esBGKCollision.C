@@ -87,21 +87,21 @@ void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     Theta_[celli] /= nDimensions_;
 
     scalar sigma11 = a1_*Theta_[celli] + b1_*sigma1;
-    Meq_(0) = moments(0)[celli];
-    Meq_(1) = moments(1)[celli];
-    Meq_(2) = m0*(sigma11 + uSqr);
-    Meq_(3) = m0*(3.0*sigma11*u + u*uSqr);
-    Meq_(4) = m0*(6.0*uSqr*sigma11 + 3.0*sqr(sigma11) + uSqr*uSqr);
+    Meq_(0)[celli] = moments(0)[celli];
+    Meq_(1)[celli] = moments(1)[celli];
+    Meq_(2)[celli] = m0*(sigma11 + uSqr);
+    Meq_(3)[celli] = m0*(3.0*sigma11*u + u*uSqr);
+    Meq_(4)[celli] = m0*(6.0*uSqr*sigma11 + 3.0*sqr(sigma11) + uSqr*uSqr);
 
     if (nDimensions_ > 1)
     {
         scalar sigma22 = a1_*Theta_[celli] + b1_*sigma2;
         scalar sigma12 = b1_*(moments(1,1)[celli]/m0 - u*v);
-        Meq_(0,1) = moments(0,1)[celli];
-        Meq_(1,1) = m0*(sigma12 + u*v);
-        Meq_(0,2) = m0*(sigma22 + vSqr);
-        Meq_(0,3) = m0*(3.0*sigma22*v + v*vSqr);
-        Meq_(0,4) = m0*(6.0*vSqr*sigma22 + 3.0*sqr(sigma22) + vSqr*vSqr);
+        Meq_(0,1)[celli] = moments(0,1)[celli];
+        Meq_(1,1)[celli] = m0*(sigma12 + u*v);
+        Meq_(0,2)[celli] = m0*(sigma22 + vSqr);
+        Meq_(0,3)[celli] = m0*(3.0*sigma22*v + v*vSqr);
+        Meq_(0,4)[celli] = m0*(6.0*vSqr*sigma22 + 3.0*sqr(sigma22) + vSqr*vSqr);
     }
 
     if (nDimensions_ > 2)
@@ -109,22 +109,12 @@ void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
         scalar sigma33 = a1_*Theta_[celli] + b1_*sigma3;
         scalar sigma13 = b1_*(moments(1,0,1)[celli]/m0 - u*w);
         scalar sigma23 = b1_*(moments(0,1,1)[celli]/m0 - v*w);
-        Meq_(0,0,1) = moments(0,0,1)[celli];
-        Meq_(1,0,1) = m0*(sigma13 + u*w);
-        Meq_(0,1,1) = m0*(sigma23 + v*w);
-        Meq_(0,0,2) = m0*(sigma33 + wSqr);
-        Meq_(0,0,3) = m0*(3.0*sigma33*w + w*wSqr);
-        Meq_(0,0,4) = m0*(6.0*wSqr*sigma33 + 3.0*sqr(sigma33) + wSqr*wSqr);
-    }
-}
-
-
-void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
-::updateFields()
-{
-    forAll(quadrature_.moments()[0], celli)
-    {
-        updateCells(celli);
+        Meq_(0,0,1)[celli] = moments(0,0,1)[celli];
+        Meq_(1,0,1)[celli] = m0*(sigma13 + u*w);
+        Meq_(0,1,1)[celli] = m0*(sigma23 + v*w);
+        Meq_(0,0,2)[celli] = m0*(sigma33 + wSqr);
+        Meq_(0,0,3)[celli] = m0*(3.0*sigma33*w + w*wSqr);
+        Meq_(0,0,4)[celli] = m0*(6.0*wSqr*sigma33 + 3.0*sqr(sigma33) + wSqr*wSqr);
     }
 }
 
@@ -136,11 +126,10 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const velocityQuadratureApproximation& quadrature,
-    const bool ode
+    const velocityQuadratureApproximation& quadrature
 )
 :
-    collisionKernel(dict, mesh, quadrature, ode),
+    collisionKernel(dict, mesh, quadrature),
     e_(dict.lookupType<scalar>("e")),
     b_(dict.lookupOrDefault<scalar>("b", 0)),
     Theta_
@@ -166,7 +155,6 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
             dimLength
         )
     ),
-    Meqf_(quadrature.moments().size(), momentOrders_),
     Meq_(quadrature.moments().size(), momentOrders_)
 {
     scalar omega = (1.0 + e_)/2.0;
@@ -174,32 +162,29 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     a1_ = gamma*sqr(omega);
     b1_ = a1_ - 2.0*gamma*omega + 1.0;
 
-    if (!ode)
+    forAll(Meq_, mi)
     {
-        forAll(Meqf_, mi)
-        {
-            const labelList& momentOrder = momentOrders_[mi];
-            Meqf_.set
+        const labelList& momentOrder = momentOrders_[mi];
+        Meq_.set
+        (
+            momentOrder,
+            new volScalarField
             (
-                momentOrder,
-                new volScalarField
+                IOobject
                 (
-                    IOobject
-                    (
-                        "Meq" + mappedList<scalar>::listToWord(momentOrder),
-                        mesh_.time().timeName(),
-                        mesh_
-                    ),
-                    mesh_,
-                    dimensionedScalar
-                    (
-                        "zero",
-                        quadrature.moments()[mi].dimensions(),
-                        0.0
-                    )
+                    "Meq" + mappedList<scalar>::listToWord(momentOrder),
+                    mesh_.time().timeName(),
+                    mesh_
+                ),
+                mesh_,
+                dimensionedScalar
+                (
+                    "zero",
+                    quadrature.moments()[mi].dimensions(),
+                    0.0
                 )
-            );
-        }
+            )
+        );
     }
 }
 
@@ -221,6 +206,11 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     const label celli
 ) const
 {
+    if (implicit_)
+    {
+        return 0.0;
+    }
+
     scalar c = quadrature_.moments()(0)[celli]/0.63;
     scalar gs0 = (2.0 - c)/(2.0*pow3(1.0 - c)) + 1.1603*c;
     scalar tauC =
@@ -233,7 +223,8 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 
     return
         (
-            Meq_(momentOrder) - quadrature_.moments()(momentOrder)[celli]
+            Meq_(momentOrder)[celli]
+          - quadrature_.moments()(momentOrder)[celli]
         )/tauC;
 }
 
@@ -241,6 +232,18 @@ Foam::tmp<Foam::fvScalarMatrix>
 Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 ::implicitCollisionSource(const volVelocityMoment& m) const
 {
+    if (!implicit_)
+    {
+        return tmp<fvScalarMatrix>
+        (
+            new fvScalarMatrix
+            (
+                m,
+                m.dimensions()*dimVolume/dimTime
+            )
+        );
+    }
+
     volScalarField c(quadrature_.moments()[0]/0.63);
     volScalarField gs0((2.0 - c)/(2.0*pow3(1.0 - c)) + 1.1603*c);
     volScalarField tauC
@@ -255,7 +258,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 
     return
     (
-        Meqf_(m.cmptOrders())/tauC
+        Meq_(m.cmptOrders())/tauC
       - fvm::Sp(1/tauC, m)
     );
 }
