@@ -37,7 +37,7 @@ boundaryField
     {
         type            cyclic;
     }
-    frontBack
+    defaultFaces
     {
         type            empty;
     }

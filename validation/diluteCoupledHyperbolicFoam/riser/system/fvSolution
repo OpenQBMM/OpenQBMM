@@ -17,7 +17,7 @@ FoamFile
 
 solvers
 {
-    p
+    p_rgh
     {
         solver          PCG;
         smoother        DIC;
@@ -34,13 +34,13 @@ solvers
         relTol          0.1;
     }
 
-    pFinal
+    p_rghFinal
     {
-        $p;
+        $p_rgh;
         relTol          0;
     }
 
-    U
+    "(U|e).air"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
@@ -48,10 +48,24 @@ solvers
         relTol          0;
     }
 
-    UFinal
+    "(U|e).airFinal"
     {
-        $U;
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-8;
         relTol          0;
+    }
+
+    rho
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-8;
+        relTol          0;
+    }
+    rhoFinal
+    {
+        $rho;
     }
 
     "(moment.*|velocityAbscissa.*)"
@@ -64,22 +78,11 @@ solvers
 
 PIMPLE
 {
-    momentumPredictor   yes;
-    consistent          yes;
-    nOuterCorrectors    10;
-    nCorrectors         3;
+    nOuterCorrectors    4;
+    nCorrectors         2;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
-    pRefValue 0;
-
-    outerCorrectorResidualControl
-    {
-        p
-        {
-            tolerance 1e-3;
-            relTol    0;
-        }
-    }
+    pRefValue 1e5;
 }
 
 relaxationFactors

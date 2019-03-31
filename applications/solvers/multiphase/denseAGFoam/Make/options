@@ -42,6 +42,6 @@ EXE_LIBS = \
     -lincompressibleTransportModels \
     -lfiniteVolume \
     -lfvOptions \
-    -lfvOptionPhaseMeanVelocityForce_denseAGFoam \
+    -lfvOptionPhaseMeanVelocityForce \
     -lmeshTools \
     -lsampling

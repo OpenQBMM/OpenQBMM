@@ -17,10 +17,11 @@ FoamFile
 
 momentumSource
 {
-    type      meanVelocityForce;
+    type      phaseIncompressibleMeanVelocityForce;
 
     Ubar            (0 0.5 0);
-    fields          (U);
+    alphaName       alpha.air;
+    fieldNames          (U.air);
     selectionMode   all;
 
     volumeMode      specific;

@@ -15,6 +15,35 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+continuousPhase fluid;
 dilutePhase     particles;
 residualAlpha   1e-6;
 St              0.1;
+
+fluid
+{
+    residualAlpha   0;
+    d 1e-6;
+}
+particles
+{
+    residualAlpha   1e-6;
+    d 1e-6;
+}
+
+aspectRatio
+{
+    type constant;
+    E0   1.0;
+}
+
+drag
+{
+    type        Stokes;
+    dragTime    0.1;
+
+    swarmCorrection
+    {
+        type none;
+    }
+}

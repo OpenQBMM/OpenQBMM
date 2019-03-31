@@ -38,14 +38,6 @@ boundaries
     {
         type    cyclic;
     }
-    walls
-    {
-        type    zeroGradient;
-    }
-    frontBack
-    {
-        type    empty;
-    }
 }
 
 particles

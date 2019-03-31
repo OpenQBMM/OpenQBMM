@@ -1,0 +1,40 @@
+EXE_INC = \
+    -I$(LIB_SRC)/transportModels/compressible/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+    -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/phaseCompressible/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I../interfacialModels/lnInclude \
+    -I../../../../src/quadratureMethods/momentSets/lnInclude \
+    -I../../../../src/quadratureMethods/momentInversion/lnInclude \
+    -I../../../../src/quadratureMethods/quadratureNode/lnInclude \
+    -I../../../../src/quadratureMethods/moments \
+    -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
+    -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I../../../../src/quadratureMethods/momentAdvection/lnInclude \
+    -I../../../../src/quadratureMethods/PDFTransportModels/lnInclude \
+    -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
+    -I../../../../src/Vandermonde/lnInclude \
+    -I../../../../src/mappedList \
+    -I../../../../src/mappedPtrList
+
+EXE_LIBS = \
+    -lincompressibleTransportModels \
+    -lcompressibleTransportModels \
+    -lfluidThermophysicalModels \
+    -lspecie \
+    -L$(FOAM_USER_LIBBIN) \
+    -lquadratureNode \
+    -lmomentSet \
+    -lfieldMomentInversion \
+    -lquadratureApproximation \
+    -lfieldMomentInversion \
+    -lmomentAdvection \
+    -lPDFTransportModel \
+    -lpopulationBalance \
+    -lvandermonde
