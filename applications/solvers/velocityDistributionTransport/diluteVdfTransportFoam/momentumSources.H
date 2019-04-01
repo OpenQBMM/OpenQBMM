@@ -98,8 +98,7 @@ volVectorField F
         // Interfacial forces
         AEqns[nodei] +=
             // Buoyancy
-            g*alphaRho
-          + (
+            (
                - gh*fvc::grad(rho) - alpha1*(rho2 - rho1)*g
                + fvc::div(taul)
             )*alpha

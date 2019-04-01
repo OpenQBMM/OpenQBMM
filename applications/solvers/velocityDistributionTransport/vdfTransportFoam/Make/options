@@ -1,8 +1,9 @@
 EXE_INC = \
-    -DFULLDEBUG -g -O0 \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
-    -I$(LIB_SRC)/sampling/lnInclude \
+    -I../../../../src/mappedList \
+    -I../../../../src/mappedPtrList \
+    -I../../../../src/Vandermonde/lnInclude \
     -I../../../../src/quadratureMethods/momentSets/lnInclude \
     -I../../../../src/quadratureMethods/momentInversion/lnInclude \
     -I../../../../src/quadratureMethods/quadratureNode/lnInclude \
@@ -14,11 +15,11 @@ EXE_INC = \
 
 
 EXE_LIBS = \
-    -L$(FOAM_USER_LIBBIN) \
     -lfiniteVolume \
     -lfvOptions \
     -lmeshTools \
-    -lsampling \
+    -L$(FOAM_USER_LIBBIN) \
+    -lvandermonde \
     -lquadratureNode \
     -lmomentSets \
     -lmomentInversion \
