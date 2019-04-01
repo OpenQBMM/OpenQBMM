@@ -1,7 +1,4 @@
 EXE_INC = \
-    -DFULLDEBUG -g -O0 \
-    -I../lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude
 
-LIB_LIBS = \
-    -lOpenFOAM
+LIB_LIBS = 

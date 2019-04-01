@@ -34,17 +34,7 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (32 130 1)
-    simpleGrading
-    (
-        (
-            (0.1    0.15     4.0)  // 20% y-dir, 30% cells, expansion = 4
-            (0.80    0.7     1.0)  // 60% y-dir, 40% cells, expansion = 1
-            (0.1    0.15     0.25)  // 20% y-dir, 30% cells, expansion = 1/4
-        )
-        1
-        1
-    )
+    hex (0 1 2 3 4 5 6 7) (32 130 1) simpleGrading (1 1 1)
 );
 
 edges

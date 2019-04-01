@@ -294,11 +294,9 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::write
 ) const
 {
     fvPatchVectorField::write(os);
-    os.writeKeyword("specularityCoefficient")
-        << specularityCoefficient_ << token::END_STATEMENT << nl;
-    os.writeKeyword("internalFrictionAngle")
-        << internalFrictionAngle_ << token::END_STATEMENT << nl;
-    writeEntry("value", os);
+    writeEntry(os, "specularityCoefficient", specularityCoefficient_);
+    writeEntry(os, "internalFrictionAngle", internalFrictionAngle_);
+    writeEntry(os, "value", *this);
 }
 
 
