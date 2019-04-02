@@ -17,30 +17,33 @@ IOdictionary phaseProperties
 
 word dilutePhaseName(phaseProperties.lookup("dilutePhase"));
 word fluidName(phaseProperties.lookup("continuousPhase"));
-phaseModel fluid
+autoPtr<phaseModel> phase1
 (
-    mesh,
-    phaseProperties,
-    fluidName
+    new phaseModel
+    (
+        mesh,
+        phaseProperties,
+        fluidName
+    )
 );
-rhoThermo& thermo1 = fluid.thermo();
+rhoThermo& thermo1 = phase1->thermo();
 volScalarField& p = thermo1.p();
-volScalarField& alpha1 = fluid;
-volVectorField& U1 = fluid.U();
-surfaceScalarField& phi1 = fluid.phi();
-surfaceScalarField& alphaPhi1 = fluid.alphaPhi();
-surfaceScalarField& alphaRhoPhi1 = fluid.alphaRhoPhi();
+volScalarField& alpha1 = phase1();
+volVectorField& U1 = phase1->U();
+surfaceScalarField& phi1 = phase1->phi();
+surfaceScalarField& alphaPhi1 = phase1->alphaPhi();
+surfaceScalarField& alphaRhoPhi1 = phase1->alphaRhoPhi();
 volScalarField& rho1 = thermo1.rho();
 const volScalarField psi1 = thermo1.psi();
 
 Info<< "Creating field kinetic energy K\n" << endl;
 volScalarField K1
 (
-    IOobject::groupName("K", fluid.name()),
+    IOobject::groupName("K", phase1->name()),
     0.5*magSqr(U1)
 );
 
-autoPtr<phaseModel> dilutePhase
+autoPtr<phaseModel> phase2
 (
     new vdfPhaseModel
     (
@@ -49,17 +52,17 @@ autoPtr<phaseModel> dilutePhase
         dilutePhaseName
     )
 );
-volScalarField& alpha2(dilutePhase());
-rhoThermo& thermo2 = dilutePhase->thermo();
+volScalarField& alpha2(phase2());
+rhoThermo& thermo2 = phase2->thermo();
 const volScalarField& rho2 = thermo2.rho();
-const volVectorField& U2 = dilutePhase->U();
-surfaceScalarField& phi2 = dilutePhase->phi();
-surfaceScalarField& alphaPhi2 = dilutePhase->alphaPhi();
-surfaceScalarField& alphaRhoPhi2 = dilutePhase->alphaRhoPhi();
+const volVectorField& U2 = phase2->U();
+surfaceScalarField& phi2 = phase2->phi();
+surfaceScalarField& alphaPhi2 = phase2->alphaPhi();
+surfaceScalarField& alphaRhoPhi2 = phase2->alphaRhoPhi();
 
 volScalarField K2
 (
-    IOobject::groupName("K", dilutePhase->name()),
+    IOobject::groupName("K", phase2->name()),
     0.5*magSqr(U2)
 );
 
@@ -139,8 +142,8 @@ autoPtr<phasePair> pair
 (
     new orderedPhasePair
     (
-        dilutePhase,
-        fluid,
+        phase2,
+        phase1,
         g,
         dimensionedScalar::lookupOrDefault
         (

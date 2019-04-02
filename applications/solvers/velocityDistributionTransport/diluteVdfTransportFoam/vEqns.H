@@ -1,7 +1,7 @@
-for (label nodei = 0; nodei < dilutePhase->nNodes(); nodei++)
+for (label nodei = 0; nodei < phase2->nNodes(); nodei++)
 {
-    volScalarField alphaRho(dilutePhase->volumeFraction(nodei)*rho2);
-    const volVectorField& Ui = dilutePhase->U(nodei);
+    volScalarField alphaRho(phase2->volumeFraction(nodei)*rho2);
+    const volVectorField& Ui = phase2->U(nodei);
 
     fvVectorMatrix UEqn
     (
@@ -14,5 +14,5 @@ for (label nodei = 0; nodei < dilutePhase->nNodes(); nodei++)
     UEqn.relax();
     UEqn.solve();
 }
-dilutePhase->correct();
+phase2->correct();
 K2 = 0.5*magSqr(U2);

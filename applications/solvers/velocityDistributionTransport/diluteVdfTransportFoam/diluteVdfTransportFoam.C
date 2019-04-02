@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        dilutePhase->solve();
+        phase2->solve();
         alpha1 = 1.0 - alpha2;
         alphaPhi1 = fvc::interpolate(alpha1)*phi1;
         alphaRhoPhi1 = fvc::interpolate(rho1)*alphaPhi1;
@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
 
             if (pimple.turbCorr())
             {
-                fluid.correct();
-                fluid.turbulence().correct();
+                phase1->correct();
+                phase1->turbulence().correct();
             }
         }
         #include "vEqns.H"

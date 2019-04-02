@@ -29,13 +29,13 @@ deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 
-writeInterval   .05;
+writeInterval   .01;
 
 purgeWrite      0;
 
 writeFormat     ascii;
 
-writePrecision  6;
+writePrecision  10;
 
 writeCompression uncompressed;
 

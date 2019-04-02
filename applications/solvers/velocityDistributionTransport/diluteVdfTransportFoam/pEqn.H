@@ -3,18 +3,13 @@ surfaceScalarField alphaf2("alphaf2", scalar(1) - alphaf1);
 
 volScalarField rAU1
 (
-    IOobject::groupName("rAU", fluid.name()),
-    1.0
-   /(
-        U1Eqn.A()
-      + max(fluid.residualAlpha() - alpha1, scalar(0))
-       *rho1/runTime.deltaT()
-    )
+    IOobject::groupName("rAU", phase1->name()),
+    1.0/(U1Eqn.A())
 );
 
 surfaceScalarField alpharAUf1
 (
-    fvc::interpolate(max(alpha1, fluid.residualAlpha())*rAU1)
+    fvc::interpolate(alpha1*rAU1)
 );
 
 // --- Pressure corrector loop
@@ -33,16 +28,10 @@ while (pimple.correct())
 
     volVectorField HbyA1
     (
-        IOobject::groupName("HbyA", fluid.name()),
+        IOobject::groupName("HbyA", phase1->name()),
         U1
     );
-    HbyA1 =
-        rAU1
-       *(
-            U1Eqn.H()
-          + max(fluid.residualAlpha() - alpha1, scalar(0))
-           *rho1*U1.oldTime()/runTime.deltaT()
-        );
+    HbyA1 = rAU1*U1Eqn.H();
 
     surfaceScalarField ghSnGradRho
     (
@@ -61,37 +50,37 @@ while (pimple.correct())
 
 
     // ddtPhiCorr filter -- only apply in pure(ish) phases
-    surfaceScalarField alphaf1Bar(fvc::interpolate(fvc::average(alphaf1)));
-    surfaceScalarField phiCorrCoeff1(pos0(alphaf1Bar - 0.99));
-
-    {
-        surfaceScalarField::Boundary& phiCorrCoeff1Bf =
-            phiCorrCoeff1.boundaryFieldRef();
-
-        forAll(mesh.boundary(), patchi)
-        {
-            // Set ddtPhiCorr to 0 on non-coupled boundaries
-            if
-            (
-               !mesh.boundary()[patchi].coupled()
-             || isA<cyclicAMIFvPatch>(mesh.boundary()[patchi])
-            )
-            {
-                phiCorrCoeff1Bf[patchi] = 0;
-            }
-        }
-    }
+//     surfaceScalarField alphaf1Bar(fvc::interpolate(fvc::average(alphaf1)));
+//     surfaceScalarField phiCorrCoeff1(pos0(alphaf1Bar - 0.99));
+//
+//     {
+//         surfaceScalarField::Boundary& phiCorrCoeff1Bf =
+//             phiCorrCoeff1.boundaryFieldRef();
+//
+//         forAll(mesh.boundary(), patchi)
+//         {
+//             // Set ddtPhiCorr to 0 on non-coupled boundaries
+//             if
+//             (
+//                !mesh.boundary()[patchi].coupled()
+//              || isA<cyclicAMIFvPatch>(mesh.boundary()[patchi])
+//             )
+//             {
+//                 phiCorrCoeff1Bf[patchi] = 0;
+//             }
+//         }
+//     }
 
     // Phase-1 predicted flux
     surfaceScalarField phiHbyA1
     (
-        IOobject::groupName("phiHbyA", fluid.name()),
+        IOobject::groupName("phiHbyA", phase1->name()),
         fvc::flux(HbyA1)
-      + phiCorrCoeff1*fvc::interpolate(alpha1.oldTime()*rho1.oldTime()*rAU1)
-       *(
-            MRF.absolute(phi1.oldTime())
-          - fvc::flux(U1.oldTime())
-        )/runTime.deltaT()
+//       + phiCorrCoeff1*fvc::interpolate(alpha1.oldTime()*rho1.oldTime()*rAU1)
+//        *(
+//             MRF.absolute(phi1.oldTime())
+//           - fvc::flux(U1.oldTime())
+//         )/runTime.deltaT()
       - phig1
     );
 
@@ -123,7 +112,7 @@ while (pimple.correct())
     {
         surfaceScalarField phid1
         (
-            IOobject::groupName("phid", fluid.name()),
+            IOobject::groupName("phid", phase1->name()),
             fvc::interpolate(psi1)*phi1
         );
 
@@ -170,7 +159,7 @@ while (pimple.correct())
 
         solve
         (
-            pEqnComp1() + pEqnIncomp
+            pEqnIncomp
         );
 
         // Correct fluxes and velocities on last non-orthogonal iteration

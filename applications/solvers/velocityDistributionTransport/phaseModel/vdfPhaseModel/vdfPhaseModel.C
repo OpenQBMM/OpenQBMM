@@ -96,14 +96,14 @@ Foam::vdfPhaseModel::vdfPhaseModel
             (
                 IOobject
                 (
-                    IOobject::groupName("sigma", name_),
+                    IOobject::groupName("Sigma", name_),
                     mesh.time().timeName(),
                     mesh,
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
                 ),
                 mesh,
-                dimensionedTensor("sigma", sqr(dimVelocity), Zero)
+                dimensionedTensor("Sigma", sqr(dimVelocity), Zero)
             )
         );
         Theta_ = tmp<volScalarField>

@@ -29,7 +29,7 @@ basicVelocityMomentInversion
 
 momentAdvection
 {
-    velocityMomentAdvection   Vikas;
+    velocityMomentAdvection   firstOrderKinetic;
 }
 
 moments

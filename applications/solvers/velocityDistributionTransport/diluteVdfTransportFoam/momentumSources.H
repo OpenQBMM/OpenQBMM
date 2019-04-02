@@ -1,4 +1,4 @@
-PtrList<fvVectorMatrix> AEqns(dilutePhase->nNodes());
+PtrList<fvVectorMatrix> AEqns(phase2->nNodes());
 volScalarField Kd
 (
     IOobject
@@ -67,7 +67,7 @@ volVectorField F
 
 {
     // Liquid viscous stress
-    volSymmTensorField taul(fluid.turbulence().devRhoReff());
+    volSymmTensorField taul(phase1->turbulence().devRhoReff());
 
     // Acceleration of liquid phase
     volVectorField DDtU
@@ -79,10 +79,10 @@ volVectorField F
 
     forAll(AEqns, nodei)
     {
-        volScalarField alpha(dilutePhase->volumeFraction(nodei));
+        volScalarField alpha(phase2->volumeFraction(nodei));
         volScalarField alphaRho(alpha*rho2);
 
-        const volVectorField& Ui = dilutePhase->U(nodei);
+        const volVectorField& Ui = phase2->U(nodei);
 
         // WenYu drag
         AEqns.set
@@ -99,6 +99,7 @@ volVectorField F
         AEqns[nodei] +=
             // Buoyancy
             (
+               - fvc::grad(p_rgh)
                - gh*fvc::grad(rho) - alpha1*(rho2 - rho1)*g
                + fvc::div(taul)
             )*alpha

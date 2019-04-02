@@ -25,7 +25,7 @@ if (solveEnergy)
       - fvm::laplacian
         (
             fvc::interpolate(alpha1)
-           *fvc::interpolate(thermo1.alphaEff(fluid.turbulence().mut())),
+           *fvc::interpolate(thermo1.alphaEff(phase1->turbulence().mut())),
             he1
         )
     );
@@ -58,7 +58,7 @@ if (solveEnergy)
       - fvm::laplacian
         (
             fvc::interpolate(alpha2)
-           *fvc::interpolate(thermo2.alphaEff(dilutePhase->turbulence().mut())),
+           *fvc::interpolate(thermo2.alphaEff(phase2->turbulence().mut())),
             he2
         )
     );
