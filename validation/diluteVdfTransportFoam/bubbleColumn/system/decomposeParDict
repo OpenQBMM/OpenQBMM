@@ -10,22 +10,36 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      fvOptions;
+    location    "system";
+    object      decomposeParDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-momentumSource
+numberOfSubdomains 4;
+
+method          simple;
+
+simpleCoeffs
 {
-    type      phaseIncompressibleMeanVelocityForce;
-
-    Ubar            (0 0.5 0);
-    alphaName       alpha.air;
-    fields          (U.air);
-    selectionMode   all;
-
-    volumeMode      specific;
+    n               (1 $numberOfSubdomains 1);
+    delta           0.001;
 }
+
+hierarchicalCoeffs
+{
+    n               (1 1 1);
+    delta           0.001;
+    order           xyz;
+}
+
+manualCoeffs
+{
+    dataFile        "";
+}
+
+distributed     no;
+
+roots           ( );
 
 
 // ************************************************************************* //

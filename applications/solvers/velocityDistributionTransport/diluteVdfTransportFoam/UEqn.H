@@ -17,7 +17,6 @@ fvVectorMatrix U1Eqn
     )
   + dragSource
   - fvm::Sp(Kd, U1)
-  + F
   + fvOptions(alpha1, rho1, U1)
 );
 

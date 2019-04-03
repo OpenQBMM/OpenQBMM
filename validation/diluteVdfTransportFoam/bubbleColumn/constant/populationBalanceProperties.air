@@ -11,21 +11,38 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      fvOptions;
+    object      populationaBalanceProperties.air;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-momentumSource
+populationBalanceModel sizeVelocity;
+
+sizeVelocityCoeffs
 {
-    type      phaseIncompressibleMeanVelocityForce;
+    odeCoeffs
+    {
+        solveOde off;
 
-    Ubar            (0 0.5 0);
-    alphaName       alpha.air;
-    fields          (U.air);
-    selectionMode   all;
+        ATol    1.0e-6;
+        RTol    1.0e-4;
+        fac     0.9;
+        facMin  0.1;
+        facMax  5.0;
+        minLocalDt 1.0e-4;
+    }
 
-    volumeMode      specific;
+    diffusionModel
+    {
+        diffusionModel none;
+    }
+
+    collision  off;
+
+    collisionKernel
+    {
+        collisionKernel noCollision;
+        e           0.9;
+    }
 }
-
 
 // ************************************************************************* //

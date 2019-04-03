@@ -9,23 +9,36 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "constant";
-    object      fvOptions;
+    class       volScalarField;
+    object      p_rgh;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-momentumSource
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 1e5;
+
+boundaryField
 {
-    type      phaseIncompressibleMeanVelocityForce;
-
-    Ubar            (0 0.5 0);
-    alphaName       alpha.air;
-    fields          (U.air);
-    selectionMode   all;
-
-    volumeMode      specific;
+    inlet
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+    outlet
+    {
+        type            prghPressure;
+        p               $internalField;
+        value           $internalField;
+    }
+    left
+    {
+        type            cyclic;
+    }
+    right
+    {
+        type            cyclic;
+    }
 }
-
 
 // ************************************************************************* //

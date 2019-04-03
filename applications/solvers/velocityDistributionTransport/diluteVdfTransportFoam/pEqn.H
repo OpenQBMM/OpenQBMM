@@ -50,37 +50,38 @@ while (pimple.correct())
 
 
     // ddtPhiCorr filter -- only apply in pure(ish) phases
-//     surfaceScalarField alphaf1Bar(fvc::interpolate(fvc::average(alphaf1)));
-//     surfaceScalarField phiCorrCoeff1(pos0(alphaf1Bar - 0.99));
-//
-//     {
-//         surfaceScalarField::Boundary& phiCorrCoeff1Bf =
-//             phiCorrCoeff1.boundaryFieldRef();
-//
-//         forAll(mesh.boundary(), patchi)
-//         {
-//             // Set ddtPhiCorr to 0 on non-coupled boundaries
-//             if
-//             (
-//                !mesh.boundary()[patchi].coupled()
-//              || isA<cyclicAMIFvPatch>(mesh.boundary()[patchi])
-//             )
-//             {
-//                 phiCorrCoeff1Bf[patchi] = 0;
-//             }
-//         }
-//     }
+    surfaceScalarField alphaf1Bar(fvc::interpolate(fvc::average(alphaf1)));
+    surfaceScalarField phiCorrCoeff1(pos0(alphaf1Bar - 0.99));
+
+    {
+        surfaceScalarField::Boundary& phiCorrCoeff1Bf =
+            phiCorrCoeff1.boundaryFieldRef();
+
+        forAll(mesh.boundary(), patchi)
+        {
+            // Set ddtPhiCorr to 0 on non-coupled boundaries
+            if
+            (
+               !mesh.boundary()[patchi].coupled()
+             || isA<cyclicAMIFvPatch>(mesh.boundary()[patchi])
+            )
+            {
+                phiCorrCoeff1Bf[patchi] = 0;
+            }
+        }
+    }
 
     // Phase-1 predicted flux
     surfaceScalarField phiHbyA1
     (
         IOobject::groupName("phiHbyA", phase1->name()),
         fvc::flux(HbyA1)
-//       + phiCorrCoeff1*fvc::interpolate(alpha1.oldTime()*rho1.oldTime()*rAU1)
-//        *(
-//             MRF.absolute(phi1.oldTime())
-//           - fvc::flux(U1.oldTime())
-//         )/runTime.deltaT()
+      + phiCorrCoeff1*fvc::interpolate(alpha1.oldTime()*rho1.oldTime()*rAU1)
+       *(
+            MRF.absolute(phi1.oldTime())
+          - fvc::flux(U1.oldTime())
+        )/runTime.deltaT()
+      + fvc::flux(rAU1*F)
       - phig1
     );
 

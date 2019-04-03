@@ -87,7 +87,7 @@ protected:
         PtrList<volScalarField> ds_;
 
         //- Minimum diameter
-        scalar minD_;
+        dimensionedScalar minD_;
 
 
 public:

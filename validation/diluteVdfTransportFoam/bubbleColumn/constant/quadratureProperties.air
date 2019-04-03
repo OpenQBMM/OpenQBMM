@@ -11,21 +11,49 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      fvOptions;
+    object      quadratureProperties.particles;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-momentumSource
+fieldMomentInversion basicVelocityFieldMomentInversion;
+
+
+basicVelocityMomentInversion
 {
-    type      phaseIncompressibleMeanVelocityForce;
-
-    Ubar            (0 0.5 0);
-    alphaName       alpha.air;
-    fields          (U.air);
-    selectionMode   all;
-
-    volumeMode      specific;
+    type monoKinetic;
+    basicQuadrature
+    {
+        univariateMomentInversion   Gauss;
+    }
 }
 
+momentAdvection
+{
+    velocityMomentAdvection   firstOrderKinetic;
+}
+
+moments
+(
+    (0 0 0)
+    (1 0 0)
+    (2 0 0)
+    (3 0 0)
+    (4 0 0)
+    (5 0 0)
+
+    (0 1 0)
+    (0 0 1)
+    (1 1 0)
+    (1 0 1)
+    (2 1 0)
+    (2 0 1)
+);
+
+nodes
+(
+    (0)
+    (1)
+    (2)
+);
 
 // ************************************************************************* //

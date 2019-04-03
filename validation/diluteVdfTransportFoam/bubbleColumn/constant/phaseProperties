@@ -11,21 +11,44 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      fvOptions;
+    object      phaseProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-momentumSource
+continuousPhase water;
+dilutePhase     air;
+pMin 1e3;
+air
 {
-    type      phaseIncompressibleMeanVelocityForce;
-
-    Ubar            (0 0.5 0);
-    alphaName       alpha.air;
-    fields          (U.air);
-    selectionMode   all;
-
-    volumeMode      specific;
+    residualAlpha   1e-6;
+    d 2.5e-3;
+}
+water
+{
+    residualAlpha   0;
+    d 1e-2;
 }
 
+sigma 0.07;
+aspectRatio
+{
+    type constant;
+    E0   1.0;
+}
 
-// ************************************************************************* //
+drag
+{
+    type        TomiyamaCorrelated;
+    A 24.0;
+    residualRe  1e-4;
+
+    swarmCorrection
+    {
+        type none;
+    }
+}
+virtualMass
+{
+    type constantCoefficient;
+    Cvm 0.5;
+}

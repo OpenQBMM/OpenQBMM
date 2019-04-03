@@ -71,7 +71,16 @@ Foam::vdfPhaseModel::vdfPhaseModel
         )
     ),
     computeVariance_(false),
-    minD_(phaseDict_.lookupOrDefault("minD", 1e-6))
+    minD_
+    (
+        dimensionedScalar::lookupOrDefault
+        (
+            "minD",
+            phaseDict_,
+            dimLength,
+            1e-6
+        )
+    )
 {
     const labelList& velocityIndexes =
         quadrature_.nodes()[0].velocityIndexes();
@@ -160,7 +169,12 @@ Foam::vdfPhaseModel::d(const label nodei) const
     {
         return d_;
     }
-    return quadrature_.nodes()[nodei].primaryAbscissae()[sizeIndex];
+    return
+        Foam::max
+        (
+            quadrature_.nodes()[nodei].primaryAbscissae()[sizeIndex],
+            minD_
+        );
 
 }
 

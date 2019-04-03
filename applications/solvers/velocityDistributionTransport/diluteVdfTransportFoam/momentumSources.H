@@ -100,7 +100,7 @@ volVectorField F
             // Buoyancy
             (
                - fvc::grad(p_rgh)
-               - gh*fvc::grad(rho) - alpha1*(rho2 - rho1)*g
+               - gh*fvc::grad(rho) + alpha1*(rho2 - rho1)*g
                + fvc::div(taul)
             )*alpha
 

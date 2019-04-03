@@ -99,22 +99,18 @@ volScalarField p_rgh
     ),
     mesh
 );
-p_rgh = p - rho*gh;
 
 label pRefCell = 0;
 scalar pRefValue = 0.0;
-
-if (thermo1.incompressible())
-{
-    setRefCell
-    (
-        p,
-        p_rgh,
-        pimple.dict(),
-        pRefCell,
-        pRefValue
-    );
-}
+setRefCell
+(
+    p,
+    p_rgh,
+    pimple.dict(),
+    pRefCell,
+    pRefValue
+);
+mesh.setFluxRequired(p_rgh.name());
 
 dimensionedScalar pMin
 (
@@ -122,8 +118,6 @@ dimensionedScalar pMin
     dimPressure,
     phaseProperties
 );
-
-mesh.setFluxRequired(p_rgh.name());
 
 Info<< "Creating field dpdt\n" << endl;
 volScalarField dpdt

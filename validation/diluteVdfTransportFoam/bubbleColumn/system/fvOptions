@@ -15,17 +15,17 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-momentumSource
-{
-    type      phaseIncompressibleMeanVelocityForce;
-
-    Ubar            (0 0.5 0);
-    alphaName       alpha.air;
-    fields          (U.air);
-    selectionMode   all;
-
-    volumeMode      specific;
-}
+// momentumSource
+// {
+//     type      phaseIncompressibleMeanVelocityForce;
+//
+//     Ubar            (0 0.0001 0);
+//     alphaName       alpha.water;
+//     fields          (U.water);
+//     selectionMode   all;
+//
+//     volumeMode      specific;
+// }
 
 
 // ************************************************************************* //
