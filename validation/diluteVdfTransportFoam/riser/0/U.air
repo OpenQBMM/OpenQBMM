@@ -28,13 +28,10 @@ boundaryField
     {
         type            cyclic;
     }
-    left
+    walls
     {
-        type            noSlip;
-    }
-    right
-    {
-        type            noSlip;
+        type            fixedValue;
+        value           uniform (0 0 0);
     }
 }
 

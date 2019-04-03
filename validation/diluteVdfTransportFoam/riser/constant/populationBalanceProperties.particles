@@ -31,11 +31,12 @@ velocityCoeffs
         minLocalDt 1.0e-4;
     }
 
-    collision  on;
+    collision  off;
 
     collisionKernel
     {
-        collisionKernel Boltzmann;
+        implicit yes;
+        collisionKernel noCollision;
         e           0.9;
     }
 }

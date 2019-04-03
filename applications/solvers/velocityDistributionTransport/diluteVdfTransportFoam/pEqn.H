@@ -99,10 +99,7 @@ while (pimple.correct())
         p_rgh.boundaryFieldRef(),
         (
             phiHbyA.boundaryField()
-          - (
-                alphaf1.boundaryField()*phi1.boundaryField()
-              + alphaf2.boundaryField()*phi2.boundaryField()
-            )
+          - alphaf1.boundaryField()*phi1.boundaryField()
         )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
     );
 
@@ -139,7 +136,11 @@ while (pimple.correct())
                 contErr1
               - fvc::Sp(fvc::ddt(alpha1) + fvc::div(alphaPhi1), rho1)
             )/rho1
-          + (alpha1*psi1/rho1)*correction(fvm::ddt(p_rgh));
+          + max
+            (
+                dimensionedScalar(dimensionSet(-1, 1, 2, 0, 0), 1e-10),
+                alpha1*psi1/rho1
+            )*correction(fvm::ddt(p_rgh));
     }
 
     // Cache p prior to solve for density update
@@ -156,11 +157,9 @@ while (pimple.correct())
           + fvc::ddt(alpha1)
         );
 
-        pEqnIncomp.setReference(pRefCell, pRefValue);
-
         solve
         (
-            pEqnIncomp
+            pEqnComp1() + pEqnIncomp
         );
 
         // Correct fluxes and velocities on last non-orthogonal iteration

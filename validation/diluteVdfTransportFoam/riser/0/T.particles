@@ -28,11 +28,7 @@ boundaryField
     {
         type            cyclic;
     }
-    left
-    {
-        type            zeroGradient;
-    }
-    right
+    walls
     {
         type            zeroGradient;
     }

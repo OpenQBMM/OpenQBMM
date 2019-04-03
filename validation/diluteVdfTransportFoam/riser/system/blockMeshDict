@@ -61,22 +61,15 @@ boundary
             (2 3 7 6)
         );
     }
-    left
+    walls
     {
         type            patch;
-        neighbourPatch  right;
         faces
         (
             (0 3 7 4)
-        );
-    }
-    right
-    {
-        type            patch;
-        neighbourPatch  left;
-        faces
-        (
             (1 2 6 5)
+            (0 1 2 3)
+            (4 5 6 7)
         );
     }
 );

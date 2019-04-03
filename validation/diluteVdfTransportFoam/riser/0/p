@@ -28,12 +28,7 @@ boundaryField
     {
         type            cyclic;
     }
-    left
-    {
-        type            calculated;
-        value           $internalField;
-    }
-    right
+    walls
     {
         type            calculated;
         value           $internalField;
