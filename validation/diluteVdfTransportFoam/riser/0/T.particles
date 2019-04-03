@@ -30,11 +30,11 @@ boundaryField
     }
     left
     {
-        type            cyclic;
+        type            zeroGradient;
     }
     right
     {
-        type            cyclic;
+        type            zeroGradient;
     }
 }
 

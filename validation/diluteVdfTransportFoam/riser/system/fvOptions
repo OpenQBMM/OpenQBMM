@@ -19,7 +19,7 @@ momentumSource
 {
     type      phaseIncompressibleMeanVelocityForce;
 
-    Ubar            (0 0.5 0);
+    Ubar            (0 1.0 0);
     alphaName       alpha.air;
     fields          (U.air);
     selectionMode   all;

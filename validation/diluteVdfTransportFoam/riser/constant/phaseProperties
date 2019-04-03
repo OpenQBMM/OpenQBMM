@@ -26,7 +26,7 @@ air
 particles
 {
     residualAlpha   1e-6;
-    d 90e-6;
+    d 150e-6;
 }
 
 aspectRatio
@@ -37,7 +37,7 @@ aspectRatio
 
 drag
 {
-    type        SchillerNaumann;
+    type        WenYu;
     residualRe  1e-4;
 
     swarmCorrection

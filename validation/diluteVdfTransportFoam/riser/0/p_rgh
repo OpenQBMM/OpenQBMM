@@ -30,11 +30,11 @@ boundaryField
     }
     left
     {
-        type            cyclic;
+        type            fixedFluxPressure;
     }
     right
     {
-        type            cyclic;
+        type            fixedFluxPressure;
     }
 }
 

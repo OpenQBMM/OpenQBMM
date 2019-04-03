@@ -30,11 +30,13 @@ boundaryField
     }
     left
     {
-        type            cyclic;
+        type            calculated;
+        value           $internalField;
     }
     right
     {
-        type            cyclic;
+        type            calculated;
+        value           $internalField;
     }
 }
 

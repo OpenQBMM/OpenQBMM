@@ -32,11 +32,11 @@ boundaries
     }
     left
     {
-        type    cyclic;
+        type    zeroGradient;
     }
     right
     {
-        type    cyclic;
+        type    zeroGradient;
     }
 }
 
@@ -45,13 +45,19 @@ particles
     type                weightsAndAbscissae;
     weightDimension     [0 0 0 0 0 0 0];
     abscissaDimension   [0 1 -1 0 0 0 0];
+    abscissaDimension0  [0 1 0 0 0 0 0];
 
     default
     {
         node0
         {
-            weight  0.01;
-            abscissa (0 0);
+            weight  0.015;
+            abscissa (120e-6 0 0 0);
+        }
+        node1
+        {
+            weight  0.015;
+            abscissa (185e-6 0 0 0);
         }
     }
 }

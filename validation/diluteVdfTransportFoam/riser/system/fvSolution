@@ -56,18 +56,6 @@ solvers
         relTol          0;
     }
 
-    rho
-    {
-        solver          PBiCGStab;
-        preconditioner  DILU;
-        tolerance       1e-8;
-        relTol          0;
-    }
-    rhoFinal
-    {
-        $rho;
-    }
-
     "(moment.*|velocityAbscissa.*)"
     {
         solver          diagonal;
@@ -93,7 +81,7 @@ relaxationFactors
     }
     equations
     {
-        "u.*"       0.7;
+        "U.*"       0.7;
     }
 }
 
