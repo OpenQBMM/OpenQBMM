@@ -6,8 +6,6 @@ if (solveEnergy)
     volScalarField Cpv1("Cpv1", thermo1.Cpv());
     volScalarField Cpv2("Cpv2", thermo2.Cpv());
 
-//     volScalarField Kh(fluid.Kh());
-
     fvScalarMatrix E1Eqn
     (
         fvm::ddt(alpha1, rho1, he1) + fvm::div(alphaRhoPhi1, he1)
@@ -34,10 +32,10 @@ if (solveEnergy)
 
     E1Eqn -=
     (
-//         Kh*(thermo2.T() - thermo1.T())
-//       + Kh*he1/Cpv1
-//       - fvm::Sp(Kh/Cpv1, he1)
-        alpha1*rho1*(U1&g)
+        Kh*(thermo2.T() - thermo1.T())
+      + Kh*he1/Cpv1
+      - fvm::Sp(Kh/Cpv1, he1)
+      + alpha1*rho1*(U1&g)
       + fvOptions(alpha1, rho1, he1)
     );
 
@@ -67,10 +65,10 @@ if (solveEnergy)
 
     E2Eqn -=
     (
-//         Kh*(thermo1.T() - thermo2.T())
-//       + Kh*he2/Cpv2
-//       - fvm::Sp(Kh/Cpv2, he2)
-        alpha2*rho2*(U2&g)
+        Kh*(thermo1.T() - thermo2.T())
+      + Kh*he2/Cpv2
+      - fvm::Sp(Kh/Cpv2, he2)
+      + alpha2*rho2*(U2&g)
       + fvOptions(alpha2, rho2, he2)
     );
 

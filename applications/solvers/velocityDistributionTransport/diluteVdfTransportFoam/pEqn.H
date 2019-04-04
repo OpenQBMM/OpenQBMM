@@ -1,5 +1,6 @@
 // Thermodynamic density needs to be updated by psi*d(p) after the
 // pressure solution
+rho = alpha1*rho1 + alpha2*rho2;
 const volScalarField psip0(psi1*p);
 
 volScalarField rAU(1.0/UEqn.A());
@@ -86,9 +87,9 @@ if (!thermo1.incompressible())
     fvScalarMatrix rhoEqn
     (
         fvm::ddt(alpha1, rho1)
-      + fvc::div(alphaPhi, rho1)
+      + fvc::div(alphaPhi1, rho1)
       ==
-        fvOptions(alpha1, rho)
+        fvOptions(alpha1, rho1)
     );
 
     fvOptions.constrain(rhoEqn);

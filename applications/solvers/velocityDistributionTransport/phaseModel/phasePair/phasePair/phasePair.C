@@ -122,6 +122,7 @@ Foam::tmp<Foam::volVectorField> Foam::phasePair::Ur
     return dispersed().U(nodei) - continuous().U(nodej);
 }
 
+
 Foam::tmp<Foam::volScalarField> Foam::phasePair::Re
 (
     const label nodei, const label nodej
@@ -130,6 +131,19 @@ Foam::tmp<Foam::volScalarField> Foam::phasePair::Re
     return magUr(nodei, nodej)*dispersed().d(nodei)/continuous().nu();
 }
 
+
+Foam::tmp<Foam::volScalarField> Foam::phasePair::Pr
+(
+    const label nodei,
+    const label nodej
+) const
+{
+    return
+         continuous().nu()
+        *continuous().thermo().Cpv()
+        *continuous().rho()
+        /continuous().kappa();
+}
 
 Foam::tmp<Foam::volScalarField> Foam::phasePair::We
 (

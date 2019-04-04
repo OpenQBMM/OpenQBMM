@@ -202,5 +202,16 @@ if (phaseProperties.found("turbulentDispersion"))
         );
 }
 
+autoPtr<heatTransferModel> heatTransfer;
+if (phaseProperties.found("heatTransfer"))
+{
+    heatTransfer =
+        heatTransferModel::New
+        (
+            phaseProperties.subDict("heatTransfer"),
+            pair()
+        );
+}
+
 #include "createMRF.H"
 #include "createFvOptions.H"

@@ -53,6 +53,14 @@ Foam::phasePairKey::~phasePairKey()
 {}
 
 
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+bool Foam::phasePairKey::ordered() const
+{
+    return ordered_;
+}
+
+
 // * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * * //
 
 Foam::label Foam::phasePairKey::hash::operator()

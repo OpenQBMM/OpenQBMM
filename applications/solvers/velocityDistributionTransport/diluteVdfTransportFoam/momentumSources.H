@@ -64,6 +64,19 @@ volVectorField F
     mesh,
     dimensionedVector("zero", dimAcceleration*dimDensity, Zero)
 );
+volScalarField Kh
+(
+    IOobject
+    (
+        "Kh",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("zero", dimensionSet(1, -1, -3, -1, 0), 0.0)
+);
 
 {
     // Liquid viscous stress
@@ -160,5 +173,10 @@ volVectorField F
 
         F += Fi;
         AEqns[nodei] -= Fi;
+
+        if (heatTransfer.valid())
+        {
+            Kh += heatTransfer->K(nodei, 0);
+        }
     }
 }

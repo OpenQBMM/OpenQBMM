@@ -103,6 +103,12 @@ public:
     virtual ~phasePairKey();
 
 
+    // Access
+
+        //- Return the ordered flag
+        bool ordered() const;
+
+
     // Friend Operators
 
         //- Test if keys are equal

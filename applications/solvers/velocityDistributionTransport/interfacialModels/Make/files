@@ -14,6 +14,12 @@ dragModels/TomiyamaAnalytic/TomiyamaAnalytic.C
 dragModels/WenYu/WenYu.C
 dragModels/IshiiZuber/IshiiZuber.C
 
+heatTransferModels/heatTransferModel/heatTransferModel.C
+heatTransferModels/heatTransferModel/newHeatTransferModel.C
+heatTransferModels/constantNu/constantNuHeatTransfer.C
+heatTransferModels/sphericalHeatTransfer/sphericalHeatTransfer.C
+heatTransferModels/RanzMarshall/RanzMarshall.C
+
 swarmCorrections/swarmCorrection/swarmCorrection.C
 swarmCorrections/swarmCorrection/newSwarmCorrection.C
 swarmCorrections/noSwarm/noSwarm.C

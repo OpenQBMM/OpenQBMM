@@ -129,6 +129,9 @@ public:
          //- Reynolds number
         tmp<volScalarField> Re(const label nodei, const label nodej) const;
 
+        //- Prandtl number
+        tmp<volScalarField> Pr(const label nodei, const label nodej) const;
+
          //- Weber number
         tmp<volScalarField> We(const label nodei, const label nodej) const;
 

@@ -49,6 +49,7 @@ Description
 #include "liftModel.H"
 #include "wallLubricationModel.H"
 #include "turbulentDispersionModel.H"
+#include "heatTransferModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -96,6 +97,7 @@ int main(int argc, char *argv[])
             #include "EEqn.H"
 
             // --- Pressure corrector loop
+            while (pimple.correct())
             {
                 #include "pEqn.H"
             }
