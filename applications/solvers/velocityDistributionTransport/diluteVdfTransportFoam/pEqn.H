@@ -1,209 +1,106 @@
-surfaceScalarField alphaf1("alphaf1", fvc::interpolate(alpha1));
-surfaceScalarField alphaf2("alphaf2", scalar(1) - alphaf1);
+// Thermodynamic density needs to be updated by psi*d(p) after the
+// pressure solution
+const volScalarField psip0(psi1*p);
 
-volScalarField rAU1
+volScalarField rAU(1.0/UEqn.A());
+surfaceScalarField alpharAUf("alpharAUf", fvc::interpolate(alpha1*rAU));
+volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U1, p_rgh));
+
+surfaceScalarField phig
 (
-    IOobject::groupName("rAU", phase1->name()),
-    1.0/(U1Eqn.A())
+    alpharAUf
+   *(
+       -ghf*fvc::snGrad(rho)*mesh.magSf()
+      + fvc::interpolate(alpha2*(rho1 - rho2))*(g & mesh.Sf())
+    )
 );
 
-surfaceScalarField alpharAUf1
+surfaceScalarField phiHbyA
 (
-    fvc::interpolate(alpha1*rAU1)
+    "phiHbyA",
+    (
+        fvc::flux(alpha1*HbyA)
+      + MRF.zeroFilter(alpharAUf*fvc::ddtCorr(alphaRho1, U1, alphaRhoPhi1))
+    )
+  + phig
 );
 
-// --- Pressure corrector loop
-while (pimple.correct())
+MRF.makeRelative(fvc::interpolate(alphaRho1), phiHbyA);
+
+// Update the pressure BCs to ensure flux consistency
+constrainPressure(p_rgh, alphaRho1, U1, phiHbyA, alpharAUf, MRF);
+
+// fvScalarMatrix p_rghDDtEqn
+// (
+//     fvc::ddt(alphaRho1) + psi1*correction(fvm::ddt(p_rgh))
+//   + fvc::div(phiHbyA)
+//   ==
+//     fvOptions(psi1, p_rgh, rho.name())
+// );
+
+while (pimple.correctNonOrthogonal())
 {
-    // Update continuity errors due to temperature changes
-    #include "correctContErrs.H"
-
-    rho = alpha1*rho1 + alpha2*rho2;
-
-    // Correct p_rgh for consistency with p and the updated densities
-    p_rgh = p - rho*gh;
-
-    // Correct fixed-flux BCs to be consistent with the velocity BCs
-    MRF.correctBoundaryFlux(U1, phi1);
-
-    volVectorField HbyA1
+    fvScalarMatrix p_rghEqn
     (
-        IOobject::groupName("HbyA", phase1->name()),
-        U1
-    );
-    HbyA1 = rAU1*U1Eqn.H();
-
-    surfaceScalarField ghSnGradRho
-    (
-        "ghSnGradRho",
-        ghf*fvc::snGrad(rho)*mesh.magSf()
+        fvc::div(phiHbyA)
+      - fvm::laplacian(alpharAUf, p_rgh)
+      + fvc::ddt(alpha1)
     );
 
-    surfaceScalarField phig1
-    (
-        alpharAUf1
-       *(
-           ghSnGradRho
-         - alphaf2*fvc::interpolate(rho1 - rho2)*(g & mesh.Sf())
-        )
-    );
-
-
-    // ddtPhiCorr filter -- only apply in pure(ish) phases
-    surfaceScalarField alphaf1Bar(fvc::interpolate(fvc::average(alphaf1)));
-    surfaceScalarField phiCorrCoeff1(pos0(alphaf1Bar - 0.99));
-
+    if (thermo1.incompressible())
     {
-        surfaceScalarField::Boundary& phiCorrCoeff1Bf =
-            phiCorrCoeff1.boundaryFieldRef();
-
-        forAll(mesh.boundary(), patchi)
-        {
-            // Set ddtPhiCorr to 0 on non-coupled boundaries
-            if
-            (
-               !mesh.boundary()[patchi].coupled()
-             || isA<cyclicAMIFvPatch>(mesh.boundary()[patchi])
-            )
-            {
-                phiCorrCoeff1Bf[patchi] = 0;
-            }
-        }
+        p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
     }
 
-    // Phase-1 predicted flux
-    surfaceScalarField phiHbyA1
-    (
-        IOobject::groupName("phiHbyA", phase1->name()),
-        fvc::flux(HbyA1)
-      + phiCorrCoeff1*fvc::interpolate(alpha1.oldTime()*rho1.oldTime()*rAU1)
-       *(
-            MRF.absolute(phi1.oldTime())
-          - fvc::flux(U1.oldTime())
-        )/runTime.deltaT()
-      + fvc::flux(rAU1*F)
-      - phig1
-    );
+    p_rghEqn.solve();
 
-    // Construct the mean predicted flux
-    // including explicit drag contributions based on absolute fluxes
-    surfaceScalarField phiHbyA("phiHbyA", alphaf1*phiHbyA1);
-    MRF.makeRelative(phiHbyA);
-
-    // Construct pressure "diffusivity"
-    surfaceScalarField rAUf("rAUf", mag(alphaf1*alpharAUf1));
-
-    // Update the fixedFluxPressure BCs to ensure flux consistency
-    setSnGrad<fixedFluxPressureFvPatchScalarField>
-    (
-        p_rgh.boundaryFieldRef(),
-        (
-            phiHbyA.boundaryField()
-          - alphaf1.boundaryField()*phi1.boundaryField()
-        )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
-    );
-
-    tmp<fvScalarMatrix> pEqnComp1;
-
-    // Construct the compressibility parts of the pressure equation
-    if (pimple.transonic())
+    if (pimple.finalNonOrthogonalIter())
     {
-        surfaceScalarField phid1
-        (
-            IOobject::groupName("phid", phase1->name()),
-            fvc::interpolate(psi1)*phi1
-        );
+        // Calculate the conservative fluxes
+        phi1 = phiHbyA + p_rghEqn.flux();
 
-        pEqnComp1 =
-            (
-                contErr1
-              - fvc::Sp(fvc::ddt(alpha1) + fvc::div(alphaPhi1), rho1)
-            )/rho1
-          + correction
-            (
-                (alpha1/rho1)*
-                (
-                    psi1*fvm::ddt(p_rgh)
-                  + fvm::div(phid1, p_rgh) - fvm::Sp(fvc::div(phid1), p_rgh)
-                )
-            );
-        pEqnComp1.ref().relax();
+        // Explicitly relax pressure for momentum corrector
+        p_rgh.relax();
+
+        // Correct the momentum source with the pressure gradient flux
+        // calculated from the relaxed pressure
+        U1 = HbyA + rAU*fvc::reconstruct((phig + p_rghEqn.flux())/alpharAUf);
+        U1.correctBoundaryConditions();
+        fvOptions.correct(U1);
+        K1 = 0.5*magSqr(U1);
     }
-    else
-    {
-        pEqnComp1 =
-            (
-                contErr1
-              - fvc::Sp(fvc::ddt(alpha1) + fvc::div(alphaPhi1), rho1)
-            )/rho1
-          + max
-            (
-                dimensionedScalar(dimensionSet(-1, 1, 2, 0, 0), 1e-10),
-                alpha1*psi1/rho1
-            )*correction(fvm::ddt(p_rgh));
-    }
-
-    // Cache p prior to solve for density update
-    volScalarField p_rgh_0(p_rgh);
-
-    // Iterate over the pressure equation to correct for non-orthogonality
-    while (pimple.correctNonOrthogonal())
-    {
-        // Construct the transport part of the pressure equation
-        fvScalarMatrix pEqnIncomp
-        (
-            fvc::div(phiHbyA)
-          - fvm::laplacian(rAUf, p_rgh)
-          + fvc::ddt(alpha1)
-        );
-
-        solve
-        (
-            pEqnComp1() + pEqnIncomp
-        );
-
-        // Correct fluxes and velocities on last non-orthogonal iteration
-        if (pimple.finalNonOrthogonalIter())
-        {
-            // Calculate the conservative fluxes
-            phi1 = phiHbyA1 + alphaf1*pEqnIncomp.flux();
-
-            // Explicitly relax pressure for momentum corrector
-            p_rgh.relax();
-
-            // Correct the momentum source with the pressure gradient flux
-            // calculated from the relaxed pressure
-            U1 = fvc::reconstruct(phi1);
-            U1.correctBoundaryConditions();
-            fvOptions.correct(U1);
-        }
-    }
-
-    // Update and limit the static pressure
-    p = max(p_rgh + rho*gh, pMin);
-
-    // Limit p_rgh
-    p_rgh = p - rho*gh;
-
-    // Update densities from change in p_rgh
-    rho1 += psi1*(p_rgh - p_rgh_0);
-
-    // Correct p_rgh for consistency with p and the updated densities
-    rho = alpha1*rho1 + alpha2*rho2;
-    p_rgh = p - rho*gh;
-    p_rgh.correctBoundaryConditions();
-
-
 }
 
-// Update the phase kinetic energies
-K1 = 0.5*magSqr(U1);
+p = p_rgh + rho*gh;
 
-// Update the pressure time-derivative if required
+// Thermodynamic density update
+thermo1.correctRho(psi1*p - psip0);
+
 if (thermo1.dpdt())
 {
     dpdt = fvc::ddt(p);
 }
 
+if (!thermo1.incompressible())
+{
+    fvScalarMatrix rhoEqn
+    (
+        fvm::ddt(alpha1, rho1)
+      + fvc::div(alphaPhi, rho1)
+      ==
+        fvOptions(alpha1, rho)
+    );
+
+    fvOptions.constrain(rhoEqn);
+
+    rhoEqn.solve();
+
+    fvOptions.correct(rho1);
+}
+
 alphaPhi1 = fvc::interpolate(alpha1)*phi1;
 alphaRhoPhi1 = fvc::interpolate(rho1)*alphaPhi1;
+
+#include "contErrs.H"
+
+
