@@ -133,6 +133,11 @@ Foam::vdfPhaseModel::vdfPhaseModel
         );
     }
 
+    if (quadrature_.nodes()[0].sizeIndex() != -1)
+    {
+        d_.writeOpt() = IOobject::AUTO_WRITE;
+    }
+
     correct();
 }
 
@@ -232,7 +237,7 @@ void Foam::vdfPhaseModel::solve()
     volScalarField m0(quadrature_.moments()(0));
     volScalarField& alpha = *this;
     alpha = m0;
-    m0.max(1e-10);
+    m0.max(residualAlpha_.value());
 
     forAll(velocityIndexes, cmpt)
     {
@@ -263,7 +268,7 @@ void Foam::vdfPhaseModel::correct()
         quadrature_.nodes()[0].velocityIndexes();
     labelList orderZero(quadrature_.momentOrders()[0].size(), 0);
     volScalarField m0(quadrature_.moments()(orderZero));
-    m0.max(1e-10);
+    m0.max(residualAlpha_.value());
 
     forAll(velocityIndexes, cmpt)
     {

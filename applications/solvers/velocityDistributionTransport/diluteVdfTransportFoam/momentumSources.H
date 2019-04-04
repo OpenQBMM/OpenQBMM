@@ -160,15 +160,15 @@ volScalarField Kh
 
         if (turbulentDispersion.valid())
         {
-            Fi -= turbulentDispersion->F(nodei, 0);
+            Fi += turbulentDispersion->F(nodei, 0);
         }
         if (lift.valid())
         {
-            Fi -= lift->F(nodei, 0);
+            Fi += lift->F(nodei, 0);
         }
         if (wallLubrication.valid())
         {
-            Fi -= wallLubrication->F(nodei, 0);
+            Fi += wallLubrication->F(nodei, 0);
         }
 
         F += Fi;

@@ -68,7 +68,7 @@ Foam::turbulentDispersionModel::F
     const label nodej
 ) const
 {
-    return -D(nodei, nodej)*fvc::grad(pair_.dispersed().volumeFraction(nodei));
+    return D(nodei, nodej)*fvc::grad(pair_.dispersed().volumeFraction(nodei));
 }
 
 // ************************************************************************* //
