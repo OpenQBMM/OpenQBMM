@@ -27,15 +27,13 @@ boundaryField
     }
     outlet
     {
-        type            zeroGradient;
+        type            calculated;
+        value           $internalField;
     }
-    left
+    walls
     {
-        type            cyclic;
-    }
-    right
-    {
-        type            cyclic;
+        type            calculated;
+        value           $internalField;
     }
 }
 

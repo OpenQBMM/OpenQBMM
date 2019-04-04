@@ -29,7 +29,7 @@ deltaT          5e-4;
 
 writeControl    adjustableRunTime;
 
-writeInterval   .01;
+writeInterval   .05;
 
 purgeWrite      0;
 
@@ -58,9 +58,39 @@ functions
         type            fieldAverage;
         functionObjectLibs ( "libfieldFunctionObjects.so" );
         writeControl    writeTime;
-        timeStart       2;
+        timeStart       5;
         fields
         (
+            moment.0000.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            moment.1000.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            moment.2000.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            moment.3000.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            alpha.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
             U.particles
             {
                  mean        on;
@@ -68,12 +98,6 @@ functions
                  base        time;
             }
             Theta.particles
-            {
-                 mean        on;
-                 prime2Mean  off;
-                 base        time;
-            }
-            moment.00.particles
             {
                  mean        on;
                  prime2Mean  off;

@@ -21,22 +21,19 @@ boundaries
 {
     inlet
     {
-        type    fixedValue;
-        value   uniform 0.0;
+        type        fixedValue;
+        value       uniform 0.0;
     }
     outlet
     {
-        type    inletOutlet;
-        phi     phi.air;
-        inletValue uniform 0;
+        type        inletOutlet;
+        phi         phi.air;
+        inletValue  uniform 0;
     }
-    left
+    walls
     {
-        type    cyclic;
-    }
-    right
-    {
-        type    cyclic;
+        type        fixedValue;
+        value       uniform 0.0;
     }
 }
 
@@ -44,29 +41,47 @@ air
 {
     type                weightsAndAbscissae;
     weightDimension     [0 0 0 0 0 0 0];
-    abscissaDimension0   [0 1 0 0 0 0 0];
+    abscissaDimension0  [0 1 0 0 0 0 0];
     abscissaDimension   [0 1 -1 0 0 0 0];
 
-    default
+    "moment.*00Boundary"
     {
+        inlet
+        {
+            type        fixedValue;
+            value       uniform 0.0;
+        }
+        outlet
+        {
+            type        inletOutlet;
+            phi         phi.air;
+            inletValue  uniform 0;
+        }
+        walls
+        {
+            type        zeroGradient;
+        }
     }
+
+    default
+    {}
 
     inlet
     {
         node0
         {
-            weight  0.033;
-            abscissa (1e-3 0 0.2);
+            weight      0.033;
+            abscissa    (3.5e-3 0 0.2);
         }
         node1
         {
-            weight  0.034;
-            abscissa (3e-3 0 0.2);
+            weight      0.034;
+            abscissa    (4.0e-3 0 0.2);
         }
         node2
         {
-            weight  0.033;
-            abscissa (5e-3 0 0.2);
+            weight      0.033;
+            abscissa    (4.3e-3 0 0.2);
         }
     }
 }

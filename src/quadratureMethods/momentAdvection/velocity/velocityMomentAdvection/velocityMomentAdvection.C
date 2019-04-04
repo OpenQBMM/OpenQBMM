@@ -175,13 +175,16 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                     label faceCelli = currPatch.faceCells()[facei];
 
                     bfwOwn[facei] = weight[faceCelli];
-                    bfUOwn[facei] = U[faceCelli];
-
                     bfwNei[facei] = bfwOwn[facei];
-                    bfUNei[facei] =
-                        bfUOwn[facei]
-                      - (1.0 + this->ew_)*(bfUOwn[facei] & bfNorm[facei])
-                       *bfNorm[facei];
+
+                    if (!U.boundaryField()[patchi].fixesValue())
+                    {
+                        bfUOwn[facei] = U[faceCelli];
+                        bfUNei[facei] =
+                            bfUOwn[facei]
+                          - (1.0 + this->ew_)*(bfUOwn[facei] & bfNorm[facei])
+                           *bfNorm[facei];
+                    }
 
                 }
             }

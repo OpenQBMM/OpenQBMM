@@ -19,9 +19,8 @@ solvers
 {
     p_rgh
     {
-        solver          PCG;
+        solver          GAMG;
         smoother        DIC;
-        preconditioner  DIC;
         nPreSweeps      0;
         nPostSweeps     2;
         nFinestSweeps   2;
@@ -40,32 +39,28 @@ solvers
         relTol          0;
     }
 
-    "(U|e).air"
+    "(U|e).*"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-8;
+        tolerance       1e-08;
         relTol          0;
     }
 
-    "(U|e).airFinal"
+    "(U|e).*Final"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-8;
+        tolerance       1e-08;
         relTol          0;
     }
 
-    rho
+    "thermo:rho.*"
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-8;
+        tolerance       1e-08;
         relTol          0;
-    }
-    rhoFinal
-    {
-        $rho;
     }
 
     "moment.*"
@@ -78,7 +73,7 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-12;
+        tolerance       1e-08;
         relTol          0;
     }
 }
@@ -100,7 +95,7 @@ relaxationFactors
     }
     equations
     {
-        "u.*"       0.7;
+        "U.*"       0.7;
     }
 }
 

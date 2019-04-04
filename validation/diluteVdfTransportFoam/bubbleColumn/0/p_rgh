@@ -31,13 +31,10 @@ boundaryField
         p               $internalField;
         value           $internalField;
     }
-    left
+    walls
     {
-        type            cyclic;
-    }
-    right
-    {
-        type            cyclic;
+        type            fixedFluxPressure;
+        value           $internalField;
     }
 }
 

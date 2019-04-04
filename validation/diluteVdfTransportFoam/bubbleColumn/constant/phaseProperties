@@ -21,12 +21,12 @@ pMin 1e3;
 air
 {
     residualAlpha   1e-6;
-    d 2.5e-3;
+    d 4.0e-3;
 }
 water
 {
     residualAlpha   0;
-    d 1e-2;
+    d 1e-4;
 }
 
 sigma 0.07;
@@ -51,4 +51,21 @@ virtualMass
 {
     type constantCoefficient;
     Cvm 0.5;
+}
+lift
+{
+    type Tomiyama;
+}
+wallLubrication
+{
+    type            Antal;
+    Cw1             -0.01;
+    Cw2             0.05;
+    Cwc             10.0;
+    Cwd             6.8;
+    p               1.7;
+}
+turbulentDispersion
+{
+    type Panicker;
 }

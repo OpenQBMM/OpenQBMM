@@ -16,9 +16,9 @@ FoamFile
 
 convertToMeters 0.001;
 
-W       400;
-H       2000;
-depth   20;
+W       243;
+H       990;
+depth   41;
 
 vertices
 (
@@ -61,21 +61,12 @@ boundary
             (2 3 7 6)
         );
     }
-    left
+    walls
     {
-        type            cyclic;
-        neighbourPatch  right;
+        type            wall;
         faces
         (
             (0 3 7 4)
-        );
-    }
-    right
-    {
-        type            cyclic;
-        neighbourPatch  left;
-        faces
-        (
             (1 2 6 5)
         );
     }
