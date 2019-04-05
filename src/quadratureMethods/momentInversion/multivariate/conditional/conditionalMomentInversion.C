@@ -24,7 +24,24 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "conditionalMomentInversion.H"
+#include "addToRunTimeSelectionTable.H"
 
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace multivariateMomentInversions
+{
+    defineTypeNameAndDebug(conditional, 0);
+    addToRunTimeSelectionTable
+    (
+        multivariateMomentInversion,
+        conditional,
+        dictionary
+    );
+}
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -162,13 +179,7 @@ void Foam::multivariateMomentInversions::conditional::invert
     {
         forAll(invVR_[dimi], ai)
         {
-            for (label i = 0; i < nNodes_[dimi]; i++)
-            {
-                for (label j = 0; j < nNodes_[dimi]; j++)
-                {
-                    invVR_[dimi][ai](i, j) = 0.0;
-                }
-            }
+            invVR_[dimi][ai] = scalarSquareMatrix(nNodes_[dimi]);
         }
 
         forAll(conditionalMoments_[dimi], dimj)
@@ -397,10 +408,9 @@ void Foam::multivariateMomentInversions::conditional::setVR
     }
     else
     {
-        scalarDiagonalMatrix weights(nNodes_[dimj], 0.0);
-        scalarDiagonalMatrix x(nNodes_[dimj], 0.0);
-        label size = 0;
-        forAll(weights, nodei)
+        scalarDiagonalMatrix weights;
+        scalarDiagonalMatrix x;
+        for (label nodei = 0; nodei < nNodes_[dimj]; nodei++)
         {
             pos[dimj] = nodei;
             scalar abscissa = 0.0;
@@ -413,16 +423,14 @@ void Foam::multivariateMomentInversions::conditional::setVR
             {
                 abscissa = abscissae_(pos)[si_];
             }
+
             if (mag(abscissa) > small && weight > small)
             {
-                x[nodei] = abscissa;
-                weights[nodei] = weight;
-                size++;
+                x.append(abscissa);
+                weights.append(weight);
             }
         }
-        x.resize(size);
-        weights.resize(size);
-        scalarSquareMatrix invR(size, 0.0);
+        scalarSquareMatrix invR(weights.size(), 0.0);
         forAll(weights, nodei)
         {
             invR[nodei][nodei] = 1.0/weights[nodei];
@@ -466,7 +474,7 @@ void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
     {
         pos[dimi] = 0;
         scalar cm0 = conditionalMoments_[dimi][dimi - 1](pos);
-        if (cm0 < small)
+        if (mag(cm0) < small)
         {
             for (label nodei = 0; nodei < nNodes_[dimi]; nodei++)
             {
@@ -481,7 +489,7 @@ void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
 
                 if (compare(pos, nodeIndex))
                 {
-                    weights_(nodeIndex) /= nNodes_[dimi];
+                    weights_[nodei] /= nNodes_[dimi];
                 }
             }
             return;
@@ -518,20 +526,20 @@ void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
             bool sameNode = compare(pos, nodeIndex);
             if (index < weights.size() && sameNode)
             {
-                weights_(nodeIndex) *= weights[index];
+                weights_[nodei] *= weights[index];
 
                 if (velocityIndexes_[vi_] == dimi)
                 {
-                    velocityAbscissae_(nodeIndex)[vi_] = abscissae[index];
+                    velocityAbscissae_[nodei][vi_] = abscissae[index];
                 }
                 else
                 {
-                    abscissae_(nodeIndex)[si_] = abscissae[index];
+                    abscissae_[nodei][si_] = abscissae[index];
                 }
             }
             else if (sameNode && nodei != 0)
             {
-                weights_(nodeIndex) = 0;
+                weights_[nodei] = 0;
             }
         }
 

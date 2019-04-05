@@ -145,6 +145,10 @@ class conditional
 
 public:
 
+    //- Runtime type information
+    TypeName("conditional");
+
+
     // Constructors
 
         // Construct from nMoments, momentMap, nNodes, and support type

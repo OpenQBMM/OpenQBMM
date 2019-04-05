@@ -154,6 +154,10 @@ void Foam::multivariateMomentInversions::TensorProduct::invert
             univariateInverters_[dimi].abscissae();
 
         nNonZeroNodes[dimi] = abscissae.size();
+        if (max(univariateInverters_[dimi].weights()) < small)
+        {
+            nNonZeroNodes[dimi] = 0;
+        }
 
         if (nNonZeroNodes[dimi] > 0)
         {

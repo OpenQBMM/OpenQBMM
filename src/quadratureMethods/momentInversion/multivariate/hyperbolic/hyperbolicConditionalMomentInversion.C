@@ -233,7 +233,7 @@ Foam::multivariateMomentInversions::CHyQMOM::CHyQMOM
     ),
     univariateInverter_
     (
-        new hyperbolicMomentInversion(dict.subDict("basicQuadrature"))
+        new hyperbolicMomentInversion(dict)
     ),
     etaMin_(dict.lookupOrDefault("etaMin", 1.0e-10)),
     qMax_(dict.lookupOrDefault("qMax", 30.0)),

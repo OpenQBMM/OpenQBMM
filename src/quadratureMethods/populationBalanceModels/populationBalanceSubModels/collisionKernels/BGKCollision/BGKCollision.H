@@ -152,12 +152,9 @@ protected:
         defineMFunc(1,5,0);
         defineMFunc(1,0,5);
         defineMFunc(0,1,5);
-//         defineMFunc(2,2,0);
-//         defineMFunc(2,0,2);
-//         defineMFunc(0,2,2);
-//         defineMFunc(2,2,0);
-//         defineMFunc(2,0,2);
-//         defineMFunc(0,2,2);
+        defineMFunc(2,2,0);
+        defineMFunc(2,0,2);
+        defineMFunc(0,2,2);
 //         defineMFunc(3,2,0);
 //         defineMFunc(3,0,2);
 //         defineMFunc(0,3,2);

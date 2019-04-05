@@ -107,7 +107,13 @@ void Foam::hyperbolicMomentInversion::invert
 {
     if (moments[0] < SMALL)
     {
+        weights_[0] = 0.0;
         weights_[1] = moments[0];
+        weights_[2] = 0.0;
+
+        abscissae_[0] = 0.0;
+        abscissae_[1] = 0.0;
+        abscissae_[2] = 0.0;
 
         return;
     }

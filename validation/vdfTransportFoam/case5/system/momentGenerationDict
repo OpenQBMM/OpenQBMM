@@ -37,8 +37,43 @@ particles
     {
         node0
         {
-            weight  1.0;
-            abscissa (1.0 0 0 0);
+            weight  0.125;
+            abscissa (1.0 -1.0 -1.0 -1.0);
+        }
+        node1
+        {
+            weight  0.125;
+            abscissa (1.0 1.0 -1.0 -1.0);
+        }
+        node2
+        {
+            weight  0.125;
+            abscissa (1.0 1.0 1.0 -1.0);
+        }
+        node3
+        {
+            weight  0.125;
+            abscissa (1.0 1.0 1.0 1.0);
+        }
+        node4
+        {
+            weight  0.125;
+            abscissa (1.0 -1.0 1.0 1.0);
+        }
+        node5
+        {
+            weight  0.125;
+            abscissa (1.0 -1.0 -1.0 1.0);
+        }
+        node6
+        {
+            weight  0.125;
+            abscissa (1.0 -1.0 1.0 1.0);
+        }
+        node7
+        {
+            weight  0.125;
+            abscissa (1.0 -1.0 1.0 -1.0);
         }
     }
 }

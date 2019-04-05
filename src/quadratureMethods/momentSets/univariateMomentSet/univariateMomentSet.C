@@ -463,9 +463,11 @@ void Foam::univariateMomentSet::checkRealizability
             }
         }
 
-        alpha_[zetai] = zRecurrence[zetai][zetai + 1]/zRecurrence[zetai][zetai]
-                - zRecurrence[zetai - 1][zetai]
-                /zRecurrence[zetai - 1][zetai - 1];
+        alpha_[zetai] =
+            zRecurrence[zetai][zetai + 1]
+           /max(zRecurrence[zetai][zetai], small)
+          - zRecurrence[zetai - 1][zetai]
+           /zRecurrence[zetai - 1][zetai - 1];
 
         if (!(support_ == "R"))
         {
@@ -509,12 +511,12 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 
-    beta_[nD] = zRecurrence[nD][nD]/zRecurrence[nD - 1][nD - 1];
+    beta_[nD] = zRecurrence[nD][nD]/max(zRecurrence[nD - 1][nD - 1], small);
 
     if (support_ == "R")
     {
-        alpha_[nD] = zRecurrence[nD][nD + 1]/zRecurrence[nD][nD]
-                    - zRecurrence[nD - 1][nD]/zRecurrence[nD - 1][nD - 1];
+        alpha_[nD] = zRecurrence[nD][nD + 1]/max(zRecurrence[nD][nD], small)
+                    - zRecurrence[nD - 1][nD]/max(zRecurrence[nD - 1][nD - 1], small);
 
         if (beta_[nD] < 0.0)
         {

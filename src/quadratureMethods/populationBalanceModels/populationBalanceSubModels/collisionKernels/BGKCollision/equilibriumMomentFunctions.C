@@ -388,4 +388,46 @@ momentFuncHeader(0,1,5)
           + 5.0*sigma.yz()*pow4(w)
         );
 }
+
+momentFuncHeader(2,2,0)
+{
+    moments(2,2,0)[celli] =
+        m0
+       *(
+            2.0*sqr(sigma.xy())
+          + 4.0*sigma.xy()*u*v
+          + sqr(u*v)
+          + sigma.yy()*sqr(u)
+          + sigma.xx()*sqr(v)
+          + sigma.xx()*sigma.yy()
+        );
+}
+
+momentFuncHeader(2,0,2)
+{
+    moments(2,0,2)[celli] =
+        m0
+       *(
+            2.0*sqr(sigma.xz())
+          + 4.0*sigma.xz()*u*w
+          + sqr(u*w)
+          + sigma.zz()*sqr(u) + sigma.xx()*sqr(w)
+          + sigma.xx()*sigma.zz()
+        );
+}
+
+momentFuncHeader(0,2,2)
+{
+    moments(0,2,2)[celli] =
+        m0
+       *(
+            2.0*sqr(sigma.yz())
+          + 4.0*sigma.yz()*v*w
+          + sqr(v*w)
+          + sigma.zz()*sqr(v)
+          + sigma.yy()*sqr(w)
+          + sigma.yy()*sigma.zz()
+
+        );
+}
 // ************************************************************************* //
