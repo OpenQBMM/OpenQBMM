@@ -220,6 +220,10 @@ bool Foam::mappedPtrList<mappedType>::set(const labelList& l) const
 template <class mappedType>
 bool Foam::mappedPtrList<mappedType>::found(const labelList& l) const
 {
+    if (l.size() > nDims_)
+    {
+        return false;
+    }
     forAllConstIter(Map<label>, map_, iter)
     {
         label x = iter.key();
@@ -235,6 +239,10 @@ template <class mappedType>
 template <typename ...ArgsT>
 bool Foam::mappedPtrList<mappedType>::found(ArgsT...args) const
 {
+    if (std::initializer_list<Foam::label>({args...}).size() > nDims_)
+    {
+        return false;
+    }
     forAllConstIter(Map<label>, map_, iter)
     {
         label x = iter.key();

@@ -149,6 +149,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
 
     if (Meq_.found(0))
     {
+        Info<<"0"<<endl;
         equilibriumMomentFunctions_.append(&moment000);
     }
     if (Meq_.found(1))
@@ -215,11 +216,11 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
     {
         equilibriumMomentFunctions_.append(&moment110);
     }
-    if (Meq_.found(1,1,0))
+    if (Meq_.found(1,0,1))
     {
         equilibriumMomentFunctions_.append(&moment101);
     }
-    if (Meq_.found(1,0,1))
+    if (Meq_.found(0,1,1))
     {
         equilibriumMomentFunctions_.append(&moment011);
     }
