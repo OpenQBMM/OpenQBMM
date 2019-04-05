@@ -47,7 +47,37 @@ namespace collisionKernels
 }
 
 
-// * * * * * * * * * * * * * * Static Functions  * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * Protected Functions * * * * * * * * * * * * * * //
+
+Foam::symmTensor
+Foam::populationBalanceSubModels::collisionKernels::BGKCollision::covariance
+(
+    const label celli,
+    const scalar& u,
+    const scalar& v,
+    const scalar& w
+)
+{
+    symmTensor sigma;
+
+    const volVelocityMomentFieldSet& moments = quadrature_.moments();
+    scalar m0 = max(moments(0)[celli], SMALL);
+
+    sigma.xx() = max(moments(2)[celli]/m0 - sqr(u), 0.0);
+
+    if (nDimensions_ > 1)
+    {
+        sigma.yy() = max(moments(0,2)[celli]/m0 - sqr(v), 0.0);
+        if (nDimensions_ > 2)
+        {
+            sigma.zz() = max(moments(0,0,2)[celli]/m0 - sqr(w), 0.0);
+        }
+    }
+
+    return sigma;
+}
+
+// * * * * * * * * * * * * * * Private Functions * * * * * * * * * * * * * * //
 
 void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 ::updateCells(const label celli)
@@ -56,40 +86,23 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     scalar m0 = max(moments(0)[celli], SMALL);
 
     // Mean velocity
-    scalar u = meanVelocity(m0, moments(1)[celli]);
-    scalar uSqr = sqr(u);
-    scalar sigma11 = max(moments(2)[celli]/m0 - uSqr, 0.0);
-
-    Meq_(0)[celli] = moments(0)[celli];
-    Meq_(1)[celli] = moments(1)[celli];
-    Meq_(2)[celli] = moments(2)[celli];
-    Meq_(3)[celli] = m0*(3.0*sigma11*u + u*uSqr);
-    Meq_(4)[celli] = m0*(6.0*uSqr*sigma11 + 3.0*sqr(sigma11) + uSqr*uSqr);
-
-    if (nDimensions_ > 1)
+    scalar u = moments(1)[celli]/m0;
+    scalar v = 0.0;
+    scalar w = 0.0;
+    if (nDimensions_ > 0)
     {
-        scalar v = meanVelocity(m0, moments(0,1)[celli]);
-        scalar vSqr = sqr(v);
-        scalar sigma22 = max(moments(0,2)[celli]/m0 - vSqr, 0.0);
+        v = moments(0,1)[celli]/m0;
 
-        Meq_(0,1)[celli] = moments(0,1)[celli];
-        Meq_(1,1)[celli] = moments(1,1)[celli];
-        Meq_(0,2)[celli] = moments(0,2)[celli];
-        Meq_(0,3)[celli] = m0*(3.0*sigma22*v + v*vSqr);
-        Meq_(0,4)[celli] = m0*(6.0*vSqr*sigma22 + 3.0*sqr(sigma22) + vSqr*vSqr);
+        if (nDimensions_ > 1)
+        {
+            w = moments(0,0,1)[celli]/m0;
+        }
     }
-    if (nDimensions_ > 2)
-    {
-        scalar w = meanVelocity(m0, moments(0,0,1)[celli]);
-        scalar wSqr = sqr(w);
-        scalar sigma33 = max(moments(0,0,2)[celli]/m0 - wSqr, 0.0);
+    symmTensor sigma = covariance(celli, u, v, w);
 
-        Meq_(0,0,1)[celli] = moments(0,0,1)[celli];
-        Meq_(1,0,1)[celli] = moments(1,0,1)[celli];
-        Meq_(0,1,1)[celli] = moments(0,1,1)[celli];
-        Meq_(0,0,2)[celli] = moments(0,0,2)[celli];
-        Meq_(0,0,3)[celli] = m0*(3.0*sigma33*w + w*wSqr);
-        Meq_(0,0,4)[celli] = m0*(6.0*wSqr*sigma33 + 3.0*sqr(sigma33) + wSqr*wSqr);
+    forAllIter(List<mf>, equilibriumMomentFunctions_, iter)
+    {
+        (*iter)(Meq_, celli, m0, u, v, w, sigma);
     }
 }
 
@@ -103,12 +116,15 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
 )
 :
     collisionKernel(dict, mesh, quadrature),
-    tauCollisional_("tau", dimTime, dict),
-    Meq_(quadrature.moments().size(), momentOrders_)
+    tauCollisional_
+    (
+        dimensionedScalar::lookupOrDefault("tau", dict, dimTime, 0.0)
+    ),
+    Meq_(velocityMomentOrders_.size(), velocityMomentOrders_)
 {
     forAll(Meq_, mi)
     {
-        const labelList& momentOrder = momentOrders_[mi];
+        const labelList& momentOrder = velocityMomentOrders_[mi];
         Meq_.set
         (
             momentOrder,
@@ -129,6 +145,83 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
                 )
             )
         );
+    }
+
+    if (Meq_.found(0))
+    {
+        equilibriumMomentFunctions_.append(&moment000);
+    }
+    if (Meq_.found(1))
+    {
+        equilibriumMomentFunctions_.append(&moment100);
+    }
+    if (Meq_.found(2))
+    {
+        equilibriumMomentFunctions_.append(&moment200);
+    }
+    if (Meq_.found(3))
+    {
+        equilibriumMomentFunctions_.append(&moment300);
+    }
+    if (Meq_.found(4))
+    {
+        equilibriumMomentFunctions_.append(&moment400);
+    }
+    if (Meq_.found(5))
+    {
+        equilibriumMomentFunctions_.append(&moment500);
+    }
+    if (Meq_.found(0,1))
+    {
+        equilibriumMomentFunctions_.append(&moment010);
+    }
+    if (Meq_.found(0,2))
+    {
+        equilibriumMomentFunctions_.append(&moment020);
+    }
+    if (Meq_.found(0,3))
+    {
+        equilibriumMomentFunctions_.append(&moment030);
+    }
+    if (Meq_.found(0,4))
+    {
+        equilibriumMomentFunctions_.append(&moment040);
+    }
+    if (Meq_.found(0,5))
+    {
+        equilibriumMomentFunctions_.append(&moment050);
+    }
+    if (Meq_.found(0,0,1))
+    {
+        equilibriumMomentFunctions_.append(&moment001);
+    }
+    if (Meq_.found(0,0,2))
+    {
+        equilibriumMomentFunctions_.append(&moment002);
+    }
+    if (Meq_.found(0,0,3))
+    {
+        equilibriumMomentFunctions_.append(&moment003);
+    }
+    if (Meq_.found(0,0,4))
+    {
+        equilibriumMomentFunctions_.append(&moment004);
+    }
+    if (Meq_.found(0,0,5))
+    {
+        equilibriumMomentFunctions_.append(&moment005);
+    }
+    if (Meq_.found(1,1,0))
+    {
+        equilibriumMomentFunctions_.append(&moment110);
+    }
+    if (Meq_.found(1,1,0))
+    {
+        equilibriumMomentFunctions_.append(&moment101);
+    }
+    if (Meq_.found(1,0,1))
+    {
+        equilibriumMomentFunctions_.append(&moment011);
     }
 }
 

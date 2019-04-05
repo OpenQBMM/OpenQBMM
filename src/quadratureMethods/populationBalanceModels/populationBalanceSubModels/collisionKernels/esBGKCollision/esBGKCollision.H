@@ -36,7 +36,7 @@ SourceFiles
 #ifndef esBGKCollision_H
 #define esBGKCollision_H
 
-#include "collisionKernel.H"
+#include "BGKCollision.H"
 #include "mappedPtrList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -54,7 +54,7 @@ namespace collisionKernels
 
 class esBGKCollision
 :
-    public collisionKernel
+    public BGKCollision
 {
     // Private data
 
@@ -81,10 +81,17 @@ class esBGKCollision
 
 
 protected:
-    // Protected data
 
-        //- Equilibrium moments (fields)
-        mappedPtrList<volScalarField> Meq_;
+    // Protected Functions
+
+        //- Return the covariance tensor
+        virtual symmTensor covariance
+        (
+            const label celli,
+            const scalar& u,
+            const scalar& v,
+            const scalar& w
+        );
 
 
 public:
@@ -109,9 +116,6 @@ public:
 
 
     // Member Functions
-
-        //- Update equilibrium moments
-        virtual void updateCells(const label celli);
 
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource

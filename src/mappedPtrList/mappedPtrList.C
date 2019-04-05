@@ -217,6 +217,34 @@ bool Foam::mappedPtrList<mappedType>::set(const labelList& l) const
     return PtrList<mappedType>::set(map_[listToLabel(l, nDims_)]);
 }
 
+template <class mappedType>
+bool Foam::mappedPtrList<mappedType>::found(const labelList& l) const
+{
+    forAllConstIter(Map<label>, map_, iter)
+    {
+        label x = iter.key();
+        if (x == listToLabel(l, nDims_))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class mappedType>
+template <typename ...ArgsT>
+bool Foam::mappedPtrList<mappedType>::found(ArgsT...args) const
+{
+    forAllConstIter(Map<label>, map_, iter)
+    {
+        label x = iter.key();
+        if (x == calcMapIndex({args...}))
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set

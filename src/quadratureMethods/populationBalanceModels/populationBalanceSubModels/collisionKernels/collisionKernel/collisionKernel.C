@@ -70,45 +70,6 @@ Foam::populationBalanceSubModels::collisionKernel::lookupOrInitialize
     );
 }
 
-Foam::scalar Foam::populationBalanceSubModels::collisionKernel::meanVelocity
-(
-    const scalar& m0,
-    const scalar& m1
-) const
-{
-    return m1/m0;
-}
-
-Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::collisionKernel::meanVelocity
-(
-    const volScalarField& m0,
-    const volScalarField& m1
-)
-{
-    return m1/m0;
-}
-
-Foam::scalar Foam::populationBalanceSubModels::collisionKernel::variance
-(
-    const scalar& m0,
-    const scalar& sqrM1,
-    const scalar& m2
-) const
-{
-    return max(m2/m0 - sqrM1, 0.0);
-}
-
-Foam::tmp<Foam::volScalarField>
-Foam::populationBalanceSubModels::collisionKernel::variance
-(
-    const volScalarField& m0,
-    const volScalarField& sqrM1,
-    const volScalarField& m2
-)
-{
-    return max(m2/m0 - sqrM1, dimensionedScalar("zero", sqr(dimVelocity), 0.0));
-}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -123,9 +84,51 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
     mesh_(mesh),
     quadrature_(quadrature),
     momentOrders_(quadrature.momentOrders()),
-    nDimensions_(quadrature.nodes()[0].velocityIndexes().size()),
+    nodeIndexes_(quadrature.nodeIndexes()),
+    velocityIndexes_(quadrature.nodes()[0].velocityIndexes()),
+    nDimensions_(velocityIndexes_.size()),
+    sizeIndex_(quadrature.nodes()[0].sizeIndex()),
     implicit_(dict_.lookupOrDefault("implicit", true))
-{}
+{
+    if (sizeIndex_ != -1)
+    {
+        forAll(nodeIndexes_, nodei)
+        {
+            nSizes_ = max(nSizes_, nodeIndexes_[nodei][sizeIndex_] + 1);
+        }
+    }
+
+    forAll(momentOrders_, mi)
+    {
+        const labelList& momentOrder = momentOrders_[mi];
+        labelList order(nDimensions_, 0);
+        forAll(velocityIndexes_, cmpt)
+        {
+            order[cmpt] = momentOrder[velocityIndexes_[cmpt]];
+        }
+
+        bool found = false;
+        forAll(velocityMomentOrders_, vmi)
+        {
+            bool same = true;
+            forAll(velocityMomentOrders_[vmi], cmpt)
+            {
+                if (velocityMomentOrders_[vmi][cmpt] != order[cmpt])
+                {
+                    same = false;
+                }
+            }
+            if (same)
+            {
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            velocityMomentOrders_.append(order);
+        }
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

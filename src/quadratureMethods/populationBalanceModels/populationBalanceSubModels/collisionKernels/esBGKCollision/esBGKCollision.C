@@ -46,76 +46,56 @@ namespace collisionKernels
 }
 }
 
+// * * * * * * * * * * * * * Protected Functions * * * * * * * * * * * * * * //
 
-// * * * * * * * * * * * * * * Static Functions  * * * * * * * * * * * * * * //
-
-void Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
-::updateCells(const label celli)
+Foam::symmTensor
+Foam::populationBalanceSubModels::collisionKernels::esBGKCollision::covariance
+(
+    const label celli,
+    const scalar& u,
+    const scalar& v,
+    const scalar& w
+)
 {
+    symmTensor sigma;
+
     const volVelocityMomentFieldSet& moments = quadrature_.moments();
     scalar m0 = max(moments(0)[celli], SMALL);
 
-    // Mean velocity
-    scalar u = meanVelocity(m0, moments(1)[celli]);
-    scalar v = 0.0;
-    scalar w = 0.0;
-
-    scalar uSqr = sqr(u);
-    scalar vSqr = 0.0;
-    scalar wSqr = 0.0;
-
     // Variances of velocities
-    scalar sigma1 = max(moments(2)[celli]/m0 - uSqr, 0.0);
+    scalar sigma1 = max(moments(2)[celli]/m0 - sqr(u), 0.0);
     scalar sigma2 = 0.0;
     scalar sigma3 = 0.0;
     Theta_[celli] = sigma1;
 
     if (nDimensions_ > 1)
     {
-        v = meanVelocity(m0, moments(0,1)[celli]);
-        vSqr = sqr(v);
-        sigma2 = max(moments(0,2)[celli]/m0 - vSqr, 0.0);
+        sigma2 = max(moments(0,2)[celli]/m0 - sqr(v), 0.0);
         Theta_[celli] += sigma2;
     }
     if (nDimensions_ > 2)
     {
-        w = meanVelocity(m0, moments(0,0,1)[celli]);
-        wSqr = sqr(w);
-        sigma3 = max(moments(0,0,2)[celli]/m0 - wSqr, 0.0);
+        sigma3 = max(moments(0,0,2)[celli]/m0 - sqr(w), 0.0);
         Theta_[celli] += sigma3;
     }
     Theta_[celli] /= nDimensions_;
 
-    scalar sigma11 = a1_*Theta_[celli] + b1_*sigma1;
-    Meq_(0)[celli] = moments(0)[celli];
-    Meq_(1)[celli] = moments(1)[celli];
-    Meq_(2)[celli] = m0*(sigma11 + uSqr);
-    Meq_(3)[celli] = m0*(3.0*sigma11*u + u*uSqr);
-    Meq_(4)[celli] = m0*(6.0*uSqr*sigma11 + 3.0*sqr(sigma11) + uSqr*uSqr);
+    sigma.xx() = a1_*Theta_[celli] + b1_*sigma1;
 
     if (nDimensions_ > 1)
     {
-        scalar sigma22 = a1_*Theta_[celli] + b1_*sigma2;
-        scalar sigma12 = b1_*(moments(1,1)[celli]/m0 - u*v);
-        Meq_(0,1)[celli] = moments(0,1)[celli];
-        Meq_(1,1)[celli] = m0*(sigma12 + u*v);
-        Meq_(0,2)[celli] = m0*(sigma22 + vSqr);
-        Meq_(0,3)[celli] = m0*(3.0*sigma22*v + v*vSqr);
-        Meq_(0,4)[celli] = m0*(6.0*vSqr*sigma22 + 3.0*sqr(sigma22) + vSqr*vSqr);
+        sigma.yy() = a1_*Theta_[celli] + b1_*sigma2;
+        sigma.xy() = b1_*(moments(1,1)[celli]/m0 - u*v);
     }
 
     if (nDimensions_ > 2)
     {
-        scalar sigma33 = a1_*Theta_[celli] + b1_*sigma3;
-        scalar sigma13 = b1_*(moments(1,0,1)[celli]/m0 - u*w);
-        scalar sigma23 = b1_*(moments(0,1,1)[celli]/m0 - v*w);
-        Meq_(0,0,1)[celli] = moments(0,0,1)[celli];
-        Meq_(1,0,1)[celli] = m0*(sigma13 + u*w);
-        Meq_(0,1,1)[celli] = m0*(sigma23 + v*w);
-        Meq_(0,0,2)[celli] = m0*(sigma33 + wSqr);
-        Meq_(0,0,3)[celli] = m0*(3.0*sigma33*w + w*wSqr);
-        Meq_(0,0,4)[celli] = m0*(6.0*wSqr*sigma33 + 3.0*sqr(sigma33) + wSqr*wSqr);
+        sigma.zz() = a1_*Theta_[celli] + b1_*sigma3;
+        sigma.xz() = b1_*(moments(1,0,1)[celli]/m0 - u*w);
+        sigma.yz() = b1_*(moments(0,1,1)[celli]/m0 - v*w);
     }
+
+    return sigma;
 }
 
 
@@ -129,7 +109,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     const velocityQuadratureApproximation& quadrature
 )
 :
-    collisionKernel(dict, mesh, quadrature),
+    BGKCollision(dict, mesh, quadrature),
     e_(dict.lookupType<scalar>("e")),
     b_(dict.lookupOrDefault<scalar>("b", 0)),
     Theta_
@@ -154,38 +134,12 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
             "d",
             dimLength
         )
-    ),
-    Meq_(quadrature.moments().size(), momentOrders_)
+    )
 {
     scalar omega = (1.0 + e_)/2.0;
     scalar gamma = 1.0 - b_;
     a1_ = gamma*sqr(omega);
     b1_ = a1_ - 2.0*gamma*omega + 1.0;
-
-    forAll(Meq_, mi)
-    {
-        const labelList& momentOrder = momentOrders_[mi];
-        Meq_.set
-        (
-            momentOrder,
-            new volScalarField
-            (
-                IOobject
-                (
-                    "Meq" + mappedList<scalar>::listToWord(momentOrder),
-                    mesh_.time().timeName(),
-                    mesh_
-                ),
-                mesh_,
-                dimensionedScalar
-                (
-                    "zero",
-                    quadrature.moments()[mi].dimensions(),
-                    0.0
-                )
-            )
-        );
-    }
 }
 
 

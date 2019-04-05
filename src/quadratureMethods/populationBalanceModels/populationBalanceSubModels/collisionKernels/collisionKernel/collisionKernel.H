@@ -79,42 +79,31 @@ protected:
         const velocityQuadratureApproximation& quadrature_;
 
         //- Moment indicies ues to map moments
-        const labelListList momentOrders_;
+        const labelListList& momentOrders_;
+
+        //- Nodes indexes
+        const labelListList& nodeIndexes_;
+
+        //- Velocity indexes
+        const labelList& velocityIndexes_;
 
         //- Number of dimensions
         const label nDimensions_;
+
+        //- List of velocity moment orders
+        labelListList velocityMomentOrders_;
+
+        //- Size index
+        label sizeIndex_;
+
+        //- Number of sizes
+        label nSizes_;
 
         //- Is an implicit solution used
         const Switch implicit_;
 
 
     // Protected functions
-
-        //- Variances for a cell
-        scalar meanVelocity(const scalar& m0, const scalar& m1) const;
-
-        //- Mean velocities for a field
-        tmp<volScalarField> meanVelocity
-        (
-            const volScalarField& m0,
-            const volScalarField& m1
-        );
-
-        //- Variances for a cell
-        scalar variance
-        (
-            const scalar& m0,
-            const scalar& sqrM1,
-            const scalar& m2
-        ) const;
-
-        //- Variance for a field
-        tmp<volScalarField> variance
-        (
-            const volScalarField& m0,
-            const volScalarField& sqrM1,
-            const volScalarField& m2
-        );
 
         static tmp<volScalarField> lookupOrInitialize
         (
@@ -172,6 +161,12 @@ public:
 
 
     // Member Functions
+
+        //- Is an implicit source used
+        bool implicit() const
+        {
+            return implicit_;
+        }
 
         //- Update unchanged fields before solving ode system
         virtual void preUpdate();

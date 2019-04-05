@@ -147,6 +147,13 @@ public:
 
         // Access
 
+            //- Is label list index used
+            bool found(const labelList& l) const;
+
+            //- Is label list index used
+            template <typename ...ArgsT>
+            bool found(ArgsT ...args) const;
+
             //- Non-const access to a moment given the list of orders
             template <typename ...ArgsT>
             inline mappedType& operator()(ArgsT ...args);

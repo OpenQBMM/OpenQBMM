@@ -207,4 +207,33 @@ void Foam::mappedList<mappedType>::resize(const label newSize)
     (*this).setSize(newSize);
 }
 
+template <class mappedType>
+bool Foam::mappedList<mappedType>::found(const labelList& l) const
+{
+    forAllConstIter(Map<label>, map_, iter)
+    {
+        label x = iter.key();
+        if (x == listToLabel(l, nDims_))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class mappedType>
+template <typename ...ArgsT>
+bool Foam::mappedList<mappedType>::found(ArgsT...args) const
+{
+    forAllConstIter(Map<label>, map_, iter)
+    {
+        label x = iter.key();
+        if (x == calcMapIndex({args...}))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 // ************************************************************************* //

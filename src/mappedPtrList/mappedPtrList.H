@@ -159,6 +159,13 @@ public:
             //- Is label list index set
             bool set(const labelList& l) const;
 
+            //- Is label list index used
+            bool found(const labelList& l) const;
+
+            //- Is label list index used
+            template <typename ...ArgsT>
+            bool found(ArgsT ...args) const;
+
 
         // Edit functions
 
