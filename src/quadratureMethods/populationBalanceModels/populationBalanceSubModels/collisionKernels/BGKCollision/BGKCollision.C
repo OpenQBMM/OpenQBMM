@@ -83,19 +83,19 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 ::updateCells(const label celli)
 {
     const volVelocityMomentFieldSet& moments = quadrature_.moments();
-    scalar m0 = max(moments(0)[celli], SMALL);
+    scalar m0 = moments(0)[celli];
 
     // Mean velocity
-    scalar u = moments(1)[celli]/m0;
+    scalar u = moments(1)[celli]/max(m0, small);
     scalar v = 0.0;
     scalar w = 0.0;
     if (nDimensions_ > 0)
     {
-        v = moments(0,1)[celli]/m0;
+        v = moments(0,1)[celli]/max(m0, small);
 
         if (nDimensions_ > 1)
         {
-            w = moments(0,0,1)[celli]/m0;
+            w = moments(0,0,1)[celli]/max(m0, small);
         }
     }
     symmTensor sigma = covariance(celli, u, v, w);
@@ -147,83 +147,51 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
         );
     }
 
-    if (Meq_.found(0))
-    {
-        Info<<"0"<<endl;
-        equilibriumMomentFunctions_.append(&moment000);
-    }
-    if (Meq_.found(1))
-    {
-        equilibriumMomentFunctions_.append(&moment100);
-    }
-    if (Meq_.found(2))
-    {
-        equilibriumMomentFunctions_.append(&moment200);
-    }
-    if (Meq_.found(3))
-    {
-        equilibriumMomentFunctions_.append(&moment300);
-    }
-    if (Meq_.found(4))
-    {
-        equilibriumMomentFunctions_.append(&moment400);
-    }
-    if (Meq_.found(5))
-    {
-        equilibriumMomentFunctions_.append(&moment500);
-    }
-    if (Meq_.found(0,1))
-    {
-        equilibriumMomentFunctions_.append(&moment010);
-    }
-    if (Meq_.found(0,2))
-    {
-        equilibriumMomentFunctions_.append(&moment020);
-    }
-    if (Meq_.found(0,3))
-    {
-        equilibriumMomentFunctions_.append(&moment030);
-    }
-    if (Meq_.found(0,4))
-    {
-        equilibriumMomentFunctions_.append(&moment040);
-    }
-    if (Meq_.found(0,5))
-    {
-        equilibriumMomentFunctions_.append(&moment050);
-    }
-    if (Meq_.found(0,0,1))
-    {
-        equilibriumMomentFunctions_.append(&moment001);
-    }
-    if (Meq_.found(0,0,2))
-    {
-        equilibriumMomentFunctions_.append(&moment002);
-    }
-    if (Meq_.found(0,0,3))
-    {
-        equilibriumMomentFunctions_.append(&moment003);
-    }
-    if (Meq_.found(0,0,4))
-    {
-        equilibriumMomentFunctions_.append(&moment004);
-    }
-    if (Meq_.found(0,0,5))
-    {
-        equilibriumMomentFunctions_.append(&moment005);
-    }
-    if (Meq_.found(1,1,0))
-    {
-        equilibriumMomentFunctions_.append(&moment110);
-    }
-    if (Meq_.found(1,0,1))
-    {
-        equilibriumMomentFunctions_.append(&moment101);
-    }
-    if (Meq_.found(0,1,1))
-    {
-        equilibriumMomentFunctions_.append(&moment011);
-    }
+    addMomentFunction1(Meq_,equilibriumMomentFunctions_,0)
+    addMomentFunction1(Meq_,equilibriumMomentFunctions_,1)
+    addMomentFunction1(Meq_,equilibriumMomentFunctions_,2)
+    addMomentFunction1(Meq_,equilibriumMomentFunctions_,3)
+    addMomentFunction1(Meq_,equilibriumMomentFunctions_,4)
+    addMomentFunction1(Meq_,equilibriumMomentFunctions_,5)
+
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,0,1)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,1,1)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,0,2)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,1,2)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,2,1)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,0,3)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,1,3)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,3,1)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,0,4)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,1,4)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,4,1)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,0,5)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,1,5)
+    addMomentFunction2(Meq_,equilibriumMomentFunctions_,5,1)
+
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,0,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,0,2)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,0,3)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,0,4)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,0,5)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,1,0,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,1,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,2,0,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,2,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,1,0,2)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,1,2)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,3,0,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,3,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,1,0,3)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,1,3)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,4,0,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,4,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,1,0,4)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,1,4)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,5,0,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,5,1)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,1,0,5)
+    addMomentFunction3(Meq_,equilibriumMomentFunctions_,0,1,5)
 }
 
 

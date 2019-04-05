@@ -24,384 +24,368 @@ License
 \*---------------------------------------------------------------------------*/
 #include "BGKCollision.H"
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment000
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,0,0)
 {
     moments(0)[celli] = m0;
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment100
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(1,0,0)
 {
     moments(1)[celli] = m0*u;
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment010
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,1,0)
 {
     moments(0,1)[celli] = m0*v;
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment001
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,0,1)
 {
     moments(0,0,1)[celli] = m0*w;
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment200
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(2,0,0)
 {
     moments(2)[celli] = m0*(sigma.xx() + sqr(u));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment020
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,2,0)
 {
     moments(0,2)[celli] = m0*(sigma.yy() + sqr(v));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment002
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,0,2)
 {
     moments(0,0,2)[celli] = m0*(sigma.zz() + sqr(w));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment300
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(3,0,0)
 {
     moments(3)[celli] = m0*(3.0*sigma.xx()*u + pow3(u));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment030
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,3,0)
 {
     moments(0,3)[celli] = m0*(3.0*sigma.yy()*v + pow3(v));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment003
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,0,3)
 {
     moments(0,0,3)[celli] = m0*(3.0*sigma.zz()*w + pow3(w));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment400
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(4,0,0)
 {
     moments(4)[celli] =
         m0*(6.0*sqr(u)*sigma.xx() + 3.0*sqr(sigma.xx()) + pow4(u));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment040
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,4,0)
 {
     moments(0,4)[celli] =
         m0*(6.0*sqr(v)*sigma.yy() + 3.0*sqr(sigma.yy()) + pow4(v));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment004
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,0,4)
 {
     moments(0,0,4)[celli] =
         m0*(6.0*sqr(w)*sigma.zz() + 3.0*sqr(sigma.zz()) + pow4(w));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment500
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(5,0,0)
 {
     moments(5)[celli] =
         m0*(15.0*u*sqr(sigma.xx()) + 10.0*sigma.xx()*pow3(u) + pow5(u));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment050
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,5,0)
 {
     moments(0,5)[celli] =
         m0*(15.0*v*sqr(sigma.yy()) + 10.0*sigma.yy()*pow3(v) + pow5(v));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment005
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,0,5)
 {
     moments(0,0,5)[celli] =
         m0*(15.0*w*sqr(sigma.zz()) + 10.0*sigma.zz()*pow3(w) + pow5(w));
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment110
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(1,1,0)
 {
     moments(1,1,0)[celli] = m0*(sigma.xy() + u*v);
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment101
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(1,0,1)
 {
     moments(1,0,1)[celli] = m0*(sigma.xz() + u*w);
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment011
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,1,1)
 {
     moments(0,1,1)[celli] = m0*(sigma.yz() + v*w);
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment210
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(2,1,0)
 {
     moments(2,1,0)[celli] = m0*(v*sqr(u) + 2.0*sigma.xy()*u + sigma.xx()*v);
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment201
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(2,0,1)
 {
     moments(2,0,1)[celli] = m0*(w*sqr(u) + 2.0*sigma.xz()*u + sigma.xx()*w);
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment021
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,2,1)
 {
     moments(0,2,1)[celli] = m0*(w*sqr(v) + 2.0*sigma.yz()*v + sigma.yy()*w);
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment120
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(1,2,0)
 {
     moments(1,2,0)[celli] = m0*(u*sqr(v) + 2.0*sigma.xy()*v + sigma.yy()*u);
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment102
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(1,0,2)
 {
     moments(1,0,2)[celli] = m0*(u*sqr(w) + 2.0*sigma.xz()*w + sigma.zz()*u);
 }
 
-void
-Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment012
-(
-    mappedPtrList<volScalarField>& moments,
-    const label celli,
-    const scalar& m0,
-    const scalar& u,
-    const scalar& v,
-    const scalar& w,
-    const symmTensor& sigma
-)
+momentFuncHeader(0,1,2)
 {
     moments(0,1,2)[celli] = m0*(v*sqr(w) + 2.0*sigma.yz()*w + sigma.zz()*v);
+}
+
+momentFuncHeader(3,1,0)
+{
+    moments(3,1,0)[celli] =
+        m0
+       *(
+            v*pow3(u)
+          + 3.0*sigma.xy()*sqr(u)
+          + 3.0*sigma.xx()*u*v
+          + 3.0*sigma.xx()*sigma.xy()
+        );
+}
+
+momentFuncHeader(3,0,1)
+{
+    moments(3,0,1)[celli] =
+        m0
+       *(
+            w*pow3(u)
+          + 3.0*sigma.xz()*sqr(u)
+          + 3.0*sigma.xx()*u*w
+          + 3.0*sigma.xx()*sigma.xz()
+        );
+}
+
+momentFuncHeader(0,3,1)
+{
+    moments(0,3,1)[celli] =
+        m0
+       *(
+            w*pow3(v)
+          + 3.0*sigma.yz()*sqr(v)
+          + 3.0*sigma.yy()*v*w
+          + 3.0*sigma.yy()*sigma.yz()
+        );
+}
+
+momentFuncHeader(1,3,0)
+{
+    moments(1,3,0)[celli] =
+        m0
+       *(
+            u*pow3(v)
+          + 3.0*sigma.xy()*sqr(v)
+          + 3.0*sigma.yy()*v*u
+          + 3.0*sigma.yy()*sigma.xy()
+        );
+}
+
+momentFuncHeader(1,0,3)
+{
+    moments(1,0,3)[celli] =
+        m0
+       *(
+            u*pow3(w)
+          + 3.0*sigma.xz()*sqr(w)
+          + 3.0*sigma.zz()*w*u
+          + 3.0*sigma.zz()*sigma.xz()
+        );
+}
+
+momentFuncHeader(0,1,3)
+{
+    moments(0,1,3)[celli] =
+        m0
+       *(
+            v*pow3(w)
+          + 3.0*sigma.yz()*sqr(w)
+          + 3.0*sigma.zz()*w*v
+          + 3.0*sigma.zz()*sigma.yz()
+        );
+}
+
+momentFuncHeader(4,1,0)
+{
+    moments(4,1,0)[celli] =
+        m0
+       *(
+            3.0*v*sqr(sigma.xx())
+          + 6.0*v*sigma.xx()*sqr(u)
+          + 12.0*sigma.xy()*sigma.xx()*u
+          + v*pow4(u)
+          + 4.0*sigma.xy()*pow3(u)
+        );
+}
+
+momentFuncHeader(4,0,1)
+{
+    moments(4,0,1)[celli] =
+        m0
+       *(
+            3.0*w*sqr(sigma.xx())
+          + 6.0*w*sigma.xx()*sqr(u)
+          + 12.0*sigma.xz()*sigma.xx()*u
+          + w*pow4(u)
+          + 4.0*sigma.xz()*pow3(u)
+        );
+}
+
+momentFuncHeader(0,4,1)
+{
+    moments(0,4,1)[celli] =
+        m0
+       *(
+            3.0*w*sqr(sigma.yy())
+          + 6.0*w*sigma.yy()*sqr(v)
+          + 12.0*sigma.yz()*sigma.yy()*v
+          + w*pow4(v)
+          + 4.0*sigma.yz()*pow3(v)
+        );
+}
+
+momentFuncHeader(1,4,0)
+{
+    moments(1,4,0)[celli] =
+        m0
+       *(
+            3.0*u*sqr(sigma.yy())
+          + 6.0*u*sigma.yy()*sqr(v)
+          + 12.0*sigma.xy()*sigma.yy()*v
+          + u*pow4(v)
+          + 4.0*sigma.xy()*pow3(v)
+        );
+}
+
+momentFuncHeader(1,0,4)
+{
+    moments(1,0,4)[celli] =
+        m0
+       *(
+            3.0*u*sqr(sigma.zz())
+          + 6.0*u*sigma.zz()*sqr(w)
+          + 12.0*sigma.xz()*sigma.zz()*w
+          + u*pow4(w)
+          + 4.0*sigma.xz()*pow3(w)
+        );
+}
+
+momentFuncHeader(0,1,4)
+{
+    moments(0,1,4)[celli] =
+        m0
+       *(
+            3.0*v*sqr(sigma.zz())
+          + 6.0*v*sigma.zz()*sqr(w)
+          + 12.0*sigma.yz()*sigma.zz()*w
+          + v*pow4(w)
+          + 4.0*sigma.yz()*pow3(w)
+        );
+}
+
+momentFuncHeader(5,1,0)
+{
+    moments(5,1,0)[celli] =
+        m0
+       *(
+            15.0*v*u*sqr(sigma.xx())
+          + 15.0*sigma.xy()*sqr(sigma.xx())
+          + 10.0*v*sigma.xx()*pow3(u)
+          + 30.0*sigma.xy()*sigma.xx()*sqr(u)
+          + v*pow5(u)
+          + 5.0*sigma.xy()*pow4(u)
+        );
+}
+
+momentFuncHeader(5,0,1)
+{
+    moments(5,0,1)[celli] =
+        m0
+       *(
+            15.0*w*u*sqr(sigma.xx())
+          + 15.0*sigma.xz()*sqr(sigma.xx())
+          + 10.0*w*sigma.xx()*pow3(u)
+          + 30.0*sigma.xz()*sigma.xx()*sqr(u)
+          + w*pow5(u)
+          + 5.0*sigma.xz()*pow4(u)
+        );
+}
+
+momentFuncHeader(0,5,1)
+{
+    moments(0,5,1)[celli] =
+        m0
+       *(
+            15.0*w*v*sqr(sigma.yy())
+          + 15.0*sigma.yz()*sqr(sigma.yy())
+          + 10.0*w*sigma.yy()*pow3(v)
+          + 30.0*sigma.yz()*sigma.yy()*sqr(v)
+          + w*pow5(v)
+          + 5.0*sigma.yz()*pow4(v)
+        );
+}
+
+momentFuncHeader(1,5,0)
+{
+    moments(1,5,0)[celli] =
+        m0
+       *(
+            15.0*u*v*sqr(sigma.yy())
+          + 15.0*sigma.xy()*sqr(sigma.yy())
+          + 10.0*u*sigma.yy()*pow3(v)
+          + 30.0*sigma.xy()*sigma.yy()*sqr(v)
+          + u*pow5(v)
+          + 5.0*sigma.xy()*pow4(v)
+        );
+}
+
+momentFuncHeader(1,0,5)
+{
+    moments(1,0,5)[celli] =
+        m0
+       *(
+            15.0*u*w*sqr(sigma.zz())
+          + 15.0*sigma.xz()*sqr(sigma.zz())
+          + 10.0*u*sigma.zz()*pow3(w)
+          + 30.0*sigma.xz()*sigma.zz()*sqr(w)
+          + u*pow5(w)
+          + 5.0*sigma.xz()*pow4(w)
+        );
+}
+
+momentFuncHeader(0,1,5)
+{
+    moments(0,1,5)[celli] =
+        m0
+       *(
+            15.0*v*w*sqr(sigma.zz())
+          + 15.0*sigma.yz()*sqr(sigma.zz())
+          + 10.0*v*sigma.zz()*pow3(w)
+          + 30.0*sigma.yz()*sigma.zz()*sqr(w)
+          + v*pow5(w)
+          + 5.0*sigma.yz()*pow4(w)
+        );
 }
 // ************************************************************************* //

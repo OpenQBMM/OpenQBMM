@@ -38,13 +38,6 @@ laplacianSchemes
 interpolationSchemes
 {
     default         linear;
-    
-    "interpolate\(moment.*\)" linear;
-    
-    reconstruct(U)          upwind;
-    reconstruct(weight)     upwind;
-    reconstruct(abscissa)   upwind;
-    reconstruct(sigma)      upwind;
 }
 
 snGradSchemes

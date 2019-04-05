@@ -163,7 +163,7 @@ public:
     // Member Functions
 
         //- Is an implicit source used
-        bool implicit() const
+        virtual bool implicit() const
         {
             return implicit_;
         }

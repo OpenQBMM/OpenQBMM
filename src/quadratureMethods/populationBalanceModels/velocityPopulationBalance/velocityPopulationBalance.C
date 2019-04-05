@@ -100,7 +100,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     const volVelocityMoment& moment
 )
 {
-    if (!collision_ || !collisionKernel_->implicit())
+    if (!collision_)
     {
         return tmp<fvScalarMatrix>
         (

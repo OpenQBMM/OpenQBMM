@@ -24,7 +24,7 @@ solvers
         tolerance       1e-06;
         relTol          0;
     }
-    
+
     "moment.*"
     {
         solver          PBiCG;
@@ -33,11 +33,5 @@ solvers
         relTol          0;
     }
 }
-
-SIMPLE
-{
-    nNonOrthogonalCorrectors 0;
-}
-
 
 // ************************************************************************* //

@@ -63,13 +63,6 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
     aggregationKernel_(),
     breakupKernel_(),
     growthModel_(),
-    diffusionModel_
-    (
-        Foam::populationBalanceSubModels::diffusionModel::New
-        (
-            dict.subDict("diffusionModel")
-        )
-    ),
     nucleationModel_()
 {
     if (aggregation_)
@@ -118,21 +111,6 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-Foam::tmp<Foam::fvScalarMatrix>
-Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
-::implicitMomentSource
-(
-    const volVelocityMoment& moment
-)
-{
-    tmp<fvScalarMatrix> implicitSource(diffusionModel_->momentDiff(moment));
-    if (!collision_)
-    {
-        return implicitSource;
-    }
-    return implicitSource + collisionKernel_->implicitCollisionSource(moment);
-}
 
 void Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
 ::explicitMomentSource()

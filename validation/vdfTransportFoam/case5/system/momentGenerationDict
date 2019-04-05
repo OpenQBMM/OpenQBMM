@@ -15,16 +15,13 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-phases
-(
-    particles
-);
+phases (particles);
 
 boundaries
 {
     ".*"
     {
-        type empty;
+        type calculated;
     }
 }
 
@@ -32,7 +29,7 @@ boundaries
 particles
 {
     type                weightsAndAbscissae;
-    weightDimension     [0 0 0 0 0 0 0];
+    weightDimension     [0 -3 0 0 0 0 0];
     abscissaDimension   [0 1 -1 0 0 0 0];
     abscissaDimension0  [0 1 0 0 0 0 0];
 
@@ -40,8 +37,8 @@ particles
     {
         node0
         {
-            weight  1;
-            abscissa (1 0 0 0);
+            weight  1.0;
+            abscissa (1.0 0 0 0);
         }
     }
 }

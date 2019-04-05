@@ -49,16 +49,16 @@ namespace populationBalanceSubModels
 namespace collisionKernels
 {
 
-#define defineMFunc(i,j,k) \
-static void moment##i##j##k \
-( \
-    mappedPtrList<volScalarField>& Meq_,\
-    const label,\
-    const scalar&,\
-    const scalar&,\
-    const scalar&,\
-    const scalar&,\
-    const symmTensor& \
+#define defineMFunc(i,j,k)                                                      \
+static void moment##i##j##k                                                     \
+(                                                                               \
+    mappedPtrList<volScalarField>& Meq_,                                        \
+    const label,                                                                \
+    const scalar&,                                                              \
+    const scalar&,                                                              \
+    const scalar&,                                                              \
+    const scalar&,                                                              \
+    const symmTensor&                                                           \
 )
 
 /*---------------------------------------------------------------------------*\
@@ -134,6 +134,48 @@ protected:
         defineMFunc(1,2,0);
         defineMFunc(1,0,2);
         defineMFunc(0,1,2);
+        defineMFunc(3,1,0);
+        defineMFunc(3,0,1);
+        defineMFunc(0,3,1);
+        defineMFunc(1,3,0);
+        defineMFunc(1,0,3);
+        defineMFunc(0,1,3);
+        defineMFunc(4,1,0);
+        defineMFunc(4,0,1);
+        defineMFunc(0,4,1);
+        defineMFunc(1,4,0);
+        defineMFunc(1,0,4);
+        defineMFunc(0,1,4);
+        defineMFunc(5,1,0);
+        defineMFunc(5,0,1);
+        defineMFunc(0,5,1);
+        defineMFunc(1,5,0);
+        defineMFunc(1,0,5);
+        defineMFunc(0,1,5);
+//         defineMFunc(2,2,0);
+//         defineMFunc(2,0,2);
+//         defineMFunc(0,2,2);
+//         defineMFunc(2,2,0);
+//         defineMFunc(2,0,2);
+//         defineMFunc(0,2,2);
+//         defineMFunc(3,2,0);
+//         defineMFunc(3,0,2);
+//         defineMFunc(0,3,2);
+//         defineMFunc(2,3,0);
+//         defineMFunc(2,0,3);
+//         defineMFunc(0,2,3);
+//         defineMFunc(4,2,0);
+//         defineMFunc(4,0,2);
+//         defineMFunc(0,4,2);
+//         defineMFunc(2,4,0);
+//         defineMFunc(2,0,4);
+//         defineMFunc(0,2,4);
+//         defineMFunc(5,2,0);
+//         defineMFunc(5,0,2);
+//         defineMFunc(0,5,2);
+//         defineMFunc(2,5,0);
+//         defineMFunc(2,0,5);
+//         defineMFunc(0,2,5);
 
 
 
@@ -160,6 +202,12 @@ public:
 
     // Member Functions
 
+        //- Is an implicit source used
+        virtual bool implicit() const
+        {
+            return implicit_;
+        }
+
         //- Update equilibrium moments
         virtual void updateCells(const label celli);
 
@@ -178,6 +226,36 @@ public:
 
 };
 
+#define addMomentFunction1(map,funcs,i)                                         \
+if (map.found(i))                                                               \
+{                                                                               \
+    funcs.append(&moment##i##00);                                               \
+}
+
+#define addMomentFunction2(map,funcs,i,j)                                       \
+if (map.found(i,j))                                                             \
+{                                                                               \
+    funcs.append(&moment##i##j##0);                                             \
+}
+
+#define addMomentFunction3(map,funcs,i,j,k)                                     \
+if (map.found(i,j,k))                                                           \
+{                                                                               \
+    funcs.append(&moment##i##j##k);                                             \
+}
+
+#define momentFuncHeader(i,j,k)                                                 \
+void                                                                            \
+Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment##i##j##k\
+(                                                                               \
+    mappedPtrList<volScalarField>& moments,                                     \
+    const label celli,                                                          \
+    const scalar& m0,                                                           \
+    const scalar& u,                                                            \
+    const scalar& v,                                                            \
+    const scalar& w,                                                            \
+    const symmTensor& sigma                                                     \
+)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
