@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -419,7 +419,7 @@ void Foam::univariateMomentSet::checkRealizability
 
         if (support_ == "R")
         {
-            if (beta_[zetai] < 0.0)
+            if (beta_[zetai] <= 0.0)
             {
                 realizabilityChecked_ = true;
                 nRealizableMoments_ = 2*zetai;
@@ -518,7 +518,7 @@ void Foam::univariateMomentSet::checkRealizability
         alpha_[nD] = zRecurrence[nD][nD + 1]/max(zRecurrence[nD][nD], small)
                     - zRecurrence[nD - 1][nD]/max(zRecurrence[nD - 1][nD - 1], small);
 
-        if (beta_[nD] < 0.0)
+        if (beta_[nD] <= 0.0)
         {
             realizabilityChecked_ = true;
             nRealizableMoments_ = 2*nD;
