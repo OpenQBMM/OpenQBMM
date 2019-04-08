@@ -229,7 +229,7 @@ template <class mappedType>
 template <typename ...ArgsT>
 bool Foam::mappedList<mappedType>::found(ArgsT...args) const
 {
-    if (std::initializer_list<Foam::label>({args...}).size() > nDims_)
+    if (label(std::initializer_list<Foam::label>({args...}).size()) > nDims_)
     {
         return false;
     }

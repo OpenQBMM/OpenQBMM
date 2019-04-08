@@ -15,13 +15,14 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-populationBalanceModel velocity;
+populationBalanceModel sizeVelocity;
 
-velocityCoeffs
+sizeVelocityCoeffs
 {
     odeCoeffs
     {
-        solveSources off;
+        solveOde off;
+        solveSources on;
 
         ATol    1.0e-6;
         RTol    1.0e-4;
@@ -38,6 +39,24 @@ velocityCoeffs
         collisionKernel noCollision;
         e           0.8;
         tau         tau     [0 0 1 0 0 0 0]     0.3;
+    }
+
+    aggregation on;
+    aggregationKernel
+    {
+        aggregationKernel constant;
+    }
+
+    breakup on;
+    breakupKernel
+    {
+        breakupKernel constant;
+        Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.02;
+
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
     }
 }
 
