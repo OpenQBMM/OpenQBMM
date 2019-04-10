@@ -93,6 +93,9 @@ protected:
         //- List of velocity moment orders
         labelListList velocityMomentOrders_;
 
+        //- List of velocity node indexes
+        labelListList velocityNodeIndexes_;
+
         //- Size index
         label sizeIndex_;
 
@@ -100,7 +103,7 @@ protected:
         label nSizes_;
 
         //- Is an implicit solution used
-        const Switch implicit_;
+        Switch implicit_;
 
 
     // Protected functions

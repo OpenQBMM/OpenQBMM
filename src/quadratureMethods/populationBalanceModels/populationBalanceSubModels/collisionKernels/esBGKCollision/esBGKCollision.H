@@ -84,7 +84,7 @@ protected:
 
     // Protected Functions
 
-        //- Return the covariance tensor
+        //- Return the covariance tensor using quadrature moments
         virtual symmTensor covariance
         (
             const label celli,
@@ -92,6 +92,22 @@ protected:
             const scalar& v,
             const scalar& w
         );
+
+        //- Return the covariance tensor given a list of moments
+        virtual symmTensor covariance
+        (
+            const mappedPtrList<volScalarField>& moments,
+            const label celli,
+            const scalar& u,
+            const scalar& v,
+            const scalar& w
+        );
+
+        //- Return the coefficient of restitution
+        virtual scalar e() const
+        {
+            return e_;
+        }
 
 
 public:

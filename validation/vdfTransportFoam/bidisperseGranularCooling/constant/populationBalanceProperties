@@ -36,7 +36,7 @@ sizeVelocityCoeffs
 
     collisionKernel
     {
-        collisionKernel Boltzmann;
+        collisionKernel esBGK;
         d           0.03;
         e           1;
         rho         2000;

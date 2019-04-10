@@ -53,12 +53,12 @@ namespace collisionKernels
 static void moment##i##j##k                                                     \
 (                                                                               \
     mappedPtrList<volScalarField>& Meq_,                                        \
-    const label,                                                                \
-    const scalar&,                                                              \
-    const scalar&,                                                              \
-    const scalar&,                                                              \
-    const scalar&,                                                              \
-    const symmTensor&                                                           \
+    const label celli,                                                          \
+    const scalar& m0,                                                           \
+    const scalar& u,                                                            \
+    const scalar& v,                                                            \
+    const scalar& w,                                                            \
+    const symmTensor& sigma                                                     \
 )
 
 /*---------------------------------------------------------------------------*\
@@ -78,7 +78,7 @@ class BGKCollision
 protected:
 
     //- Typedef of function pointer list
-    typedef void (*mf)
+    typedef void (*momentFunction)
     (
         mappedPtrList<volScalarField>& Meq_,
         const label,
@@ -91,16 +91,25 @@ protected:
 
     // Protected data
 
-        //- Equilibrium moments (fields)
+        //- Refrence to particle diameter
+        tmp<volScalarField> rhop_;
+
+        //- Equilibrium velocity moments (for each size)
         mappedPtrList<volScalarField> Meq_;
 
         //- List of functions used to calculate equilibrium moments
-        List<mf> equilibriumMomentFunctions_;
+        List<momentFunction> equilibriumMomentFunctions_;
+
+        //- Conditioned velocity moments
+        PtrList<mappedPtrList<volScalarField>> velocityMoments_;
+
+        //- Size conditioned equilibrium veloicity moments (Gaussian)
+        PtrList<PtrList<mappedPtrList<volScalarField>>> Gs_;
 
 
     // Protected functions
 
-        //- Return the covariance tensor
+        //- Return the covariance tensor using quadrature moments
         virtual symmTensor covariance
         (
             const label celli,
@@ -109,6 +118,23 @@ protected:
             const scalar& w
         );
 
+        //- Return the covariance tensor given a list of moments
+        virtual symmTensor covariance
+        (
+            const mappedPtrList<volScalarField>& moments,
+            const label celli,
+            const scalar& u,
+            const scalar& v,
+            const scalar& w
+        );
+
+        //- Return the coefficient of restitution
+        virtual scalar e() const
+        {
+            return 1.0;
+        }
+
+        //- Functions used to define equilibrium moments
         defineMFunc(0,0,0);
 
         defineMFunc(0,0,1);

@@ -137,6 +137,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
             const volScalarField& pWeight1 = node1.primaryWeight();
             const PtrList<volScalarField>& pAbscissae1 =
                 node1.primaryAbscissae();
+            scalar aSourcei = 0.0;
 
             forAll(nodes, pNode2i)
             {
@@ -157,36 +158,38 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                         0.0
                     );
 
-                scalar aSourcei = 0.0;
+                scalar aSrc = 0.0;
                 if (massBased)
                 {
-                    aSourcei =
+                    aSrc =
                         massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                 }
                 else
                 {
-                    aSourcei = nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
+                    aSrc = nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                 }
 
-                aSourcei *=
+                aSrc *=
                     pWeight1[celli]
                    *pWeight2[celli]
                    *Ka(bAbscissa1, bAbscissa2, celli, enviroment);
 
-                forAll(scalarIndexes, cmpt)
-                {
-                    if (scalarIndexes[cmpt] != sizeIndex)
-                    {
-                        aSourcei *=
-                            pow
-                            (
-                                pAbscissae1[cmpt][celli],
-                                momentOrder[scalarIndexes[cmpt]]
-                            );
-                    }
-                }
-                aSource += aSourcei;
+                aSourcei += aSrc;
             }
+
+            forAll(scalarIndexes, cmpt)
+            {
+                if (scalarIndexes[cmpt] != sizeIndex)
+                {
+                    aSourcei *=
+                        pow
+                        (
+                            pAbscissae1[cmpt][celli],
+                            momentOrder[scalarIndexes[cmpt]]
+                        );
+                }
+            }
+            aSource += aSourcei;
         }
 
         return aSource;
@@ -199,8 +202,10 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 
         forAll(node1.secondaryWeights()[0], sNode1i)
         {
-            const volScalarField& sAbscissa1
-                = node1.secondaryAbscissae()[sizeIndex][sNode1i];
+            const volScalarField& sAbscissa1 =
+                node1.secondaryAbscissae()[sizeIndex][sNode1i];
+
+            scalar aSourcei = 0.0;
 
             forAll(nodes, pNode2i)
             {
@@ -216,46 +221,42 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                     scalar bAbscissa1 = max(sAbscissa1[celli], 0.0);
                     scalar bAbscissa2 = max(sAbscissa2[celli], 0.0);
 
-                    scalar aSourcei = 0.0;
+                    scalar aSrc = 0.0;
                     if (massBased)
                     {
-                        aSourcei =
+                        aSrc =
                             massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                     }
                     else
                     {
-                        aSourcei =
-                            nodeSource
-                            (
-                                bAbscissa1,
-                                bAbscissa2,
-                                sizeOrder
-                            );
+                        aSrc = nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                     }
 
-                    aSourcei *=
+                    aSrc *=
                         pWeight1[celli]
                        *node1.secondaryWeights()[sizeIndex][sNode1i][celli]
                        *pWeight2[celli]
                        *node2.secondaryWeights()[sizeIndex][sNode2i][celli]
                        *Ka(bAbscissa1, bAbscissa2, celli, enviroment);
 
-                    forAll(scalarIndexes, cmpt)
-                    {
-                        if (scalarIndexes[cmpt] != sizeIndex)
-                        {
-                            aSourcei *=
-                                node1.secondaryWeights()[cmpt][sNode1i][celli]
-                               *pow
-                                (
-                                    node1.secondaryAbscissae()[cmpt][sNode1i][celli],
-                                    momentOrder[scalarIndexes[cmpt]]
-                                );
-                        }
-                    }
-                    aSource += aSourcei;
+                    aSourcei += aSrc;
                 }
             }
+
+            forAll(scalarIndexes, cmpt)
+            {
+                if (scalarIndexes[cmpt] != sizeIndex)
+                {
+                    aSourcei *=
+                        node1.secondaryWeights()[cmpt][sNode1i][celli]
+                       *pow
+                        (
+                            node1.secondaryAbscissae()[cmpt][sNode1i][celli],
+                            momentOrder[scalarIndexes[cmpt]]
+                        );
+                }
+            }
+            aSource += aSourcei;
         }
     }
 
@@ -291,14 +292,15 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
     {
         forAll(nodes, pNode1i)
         {
-            const volVelocityNode& node1 = nodes[pNode1i];
+            const volScalarNode& node1 = nodes[pNode1i];
             const volScalarField& pWeight1 = node1.primaryWeight();
             const PtrList<volScalarField>& pAbscissae1 =
                 node1.primaryAbscissae();
+            scalar aSourcei = 0.0;
 
             forAll(nodes, pNode2i)
             {
-                const volVelocityNode& node2 = nodes[pNode2i];
+                const volScalarNode& node2 = nodes[pNode2i];
                 const volScalarField& pWeight2 = node2.primaryWeight();
 
                 // Remove small negative values in abscissae
@@ -315,49 +317,46 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                         0.0
                     );
 
-                scalar aSourcei = 0.0;
+                scalar aSrc = 0.0;
                 if (massBased)
                 {
-                    aSourcei =
+                    aSrc =
                         massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                 }
                 else
                 {
-                    aSourcei = nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
+                    aSrc = nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                 }
 
-                aSourcei *=
+                aSrc *=
                     pWeight1[celli]
                    *pWeight2[celli]
                    *Ka(bAbscissa1, bAbscissa2, celli, enviroment);
 
-                forAll(scalarIndexes, cmpt)
-                {
-                    if (scalarIndexes[cmpt] != sizeIndex)
-                    {
-                        aSourcei *=
-                            pow
-                            (
-                                pAbscissae1[cmpt][celli],
-                                momentOrder[scalarIndexes[cmpt]]
-                            );
-                    }
-                }
-                forAll(velocityIndexes, cmpt)
+                aSourcei += aSrc;
+            }
+            forAll(scalarIndexes, cmpt)
+            {
+                if (scalarIndexes[cmpt] != sizeIndex)
                 {
                     aSourcei *=
                         pow
                         (
-                            component
-                            (
-                                node1.velocityAbscissae()[celli],
-                                cmpt
-                            ),
-                            momentOrder[velocityIndexes[cmpt]]
+                            pAbscissae1[cmpt][celli],
+                            momentOrder[scalarIndexes[cmpt]]
                         );
                 }
-                aSource += aSourcei;
             }
+            forAll(velocityIndexes, cmpt)
+            {
+                aSourcei *=
+                    pow
+                    (
+                        node1.velocityAbscissae()[celli][cmpt],
+                        momentOrder[velocityIndexes[cmpt]]
+                    );
+            }
+            aSource += aSourcei;
         }
 
         return aSource;
@@ -370,12 +369,14 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 
         forAll(node1.secondaryWeights()[0], sNode1i)
         {
-            const volScalarField& sAbscissa1
-                = node1.secondaryAbscissae()[sizeIndex][sNode1i];
+            const volScalarField& sAbscissa1 =
+                node1.secondaryAbscissae()[sizeIndex][sNode1i];
+
+            scalar aSourcei = 0.0;
 
             forAll(nodes, pNode2i)
             {
-                const volVelocityNode& node2 = nodes[pNode2i];
+                const volScalarNode& node2 = nodes[pNode2i];
                 const volScalarField& pWeight2 = node2.primaryWeight();
 
                 forAll(node2.secondaryWeights()[0], sNode2i)
@@ -387,15 +388,15 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                     scalar bAbscissa1 = max(sAbscissa1[celli], 0.0);
                     scalar bAbscissa2 = max(sAbscissa2[celli], 0.0);
 
-                    scalar aSourcei = 0.0;
+                    scalar aSrc = 0.0;
                     if (massBased)
                     {
-                        aSourcei =
+                        aSrc =
                             massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                     }
                     else
                     {
-                        aSourcei =
+                        aSrc =
                             nodeSource
                             (
                                 bAbscissa1,
@@ -404,42 +405,39 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                             );
                     }
 
-                    aSourcei *=
+                    aSrc *=
                         pWeight1[celli]
                        *node1.secondaryWeights()[sizeIndex][sNode1i][celli]
                        *pWeight2[celli]
                        *node2.secondaryWeights()[sizeIndex][sNode2i][celli]
                        *Ka(bAbscissa1, bAbscissa2, celli, enviroment);
 
-                    forAll(scalarIndexes, cmpt)
-                    {
-                        if (scalarIndexes[cmpt] != sizeIndex)
-                        {
-                            aSourcei *=
-                                node1.secondaryWeights()[cmpt][sNode1i][celli]
-                               *pow
-                                (
-                                    node1.secondaryAbscissae()[cmpt][sNode1i][celli],
-                                    momentOrder[scalarIndexes[cmpt]]
-                                );
-                        }
-                    }
-                    forAll(velocityIndexes, cmpt)
-                    {
-                        aSourcei *=
-                            pow
-                            (
-                                component
-                                (
-                                    node1.velocityAbscissae()[celli],
-                                    cmpt
-                                ),
-                                momentOrder[velocityIndexes[cmpt]]
-                            );
-                    }
-                    aSource += aSourcei;
+                    aSourcei += aSrc;
                 }
             }
+            forAll(scalarIndexes, cmpt)
+            {
+                if (scalarIndexes[cmpt] != sizeIndex)
+                {
+                    aSourcei *=
+                        node1.secondaryWeights()[cmpt][sNode1i][celli]
+                       *pow
+                        (
+                            node1.secondaryAbscissae()[cmpt][sNode1i][celli],
+                            momentOrder[scalarIndexes[cmpt]]
+                        );
+                }
+            }
+            forAll(velocityIndexes, cmpt)
+            {
+                aSourcei *=
+                    pow
+                    (
+                        node1.velocityAbscissae()[celli][cmpt],
+                        momentOrder[velocityIndexes[cmpt]]
+                    );
+            }
+            aSource += aSourcei;
         }
     }
 

@@ -128,6 +128,37 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
             velocityMomentOrders_.append(order);
         }
     }
+
+    forAll(nodeIndexes_, nodei)
+    {
+        const labelList& nodeIndex = nodeIndexes_[nodei];
+        labelList index(nDimensions_, 0);
+        forAll(velocityIndexes_, cmpt)
+        {
+            index[cmpt] = nodeIndex[velocityIndexes_[cmpt]];
+        }
+
+        bool found = false;
+        forAll(velocityNodeIndexes_, vmi)
+        {
+            bool same = true;
+            forAll(velocityNodeIndexes_[vmi], cmpt)
+            {
+                if (velocityNodeIndexes_[vmi][cmpt] != index[cmpt])
+                {
+                    same = false;
+                }
+            }
+            if (same)
+            {
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            velocityNodeIndexes_.append(index);
+        }
+    }
 }
 
 
