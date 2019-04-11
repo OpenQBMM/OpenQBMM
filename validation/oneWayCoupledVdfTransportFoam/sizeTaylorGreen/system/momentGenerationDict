@@ -70,12 +70,7 @@ particles
             node0
             {
                 weight  5e-3;
-                abscissa (120e-6 0 0);
-            }
-            node1
-            {
-                weight  5e-3;
-                abscissa (185e-6 0 0);
+                abscissa (0.0001 0 0);
             }
         }
     );

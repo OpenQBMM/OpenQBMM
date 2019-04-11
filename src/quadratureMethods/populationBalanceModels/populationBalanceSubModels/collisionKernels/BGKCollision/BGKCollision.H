@@ -80,7 +80,7 @@ protected:
     //- Typedef of function pointer list
     typedef void (*momentFunction)
     (
-        mappedPtrList<volScalarField>& Meq_,
+        mappedPtrList<volScalarField>& Meq,
         const label,
         const scalar&,
         const scalar&,

@@ -49,6 +49,47 @@ namespace populationBalanceSubModels
 namespace collisionKernels
 {
 
+#define defineIFuncs(i,j,k)                                                     \
+static void I##i##j##k                                                          \
+(                                                                               \
+    mappedScalarList& Is,                                                       \
+    const label celli,                                                          \
+    const scalar& omega,                                                        \
+    const vector& g,                                                            \
+    const scalar& magg,                                                         \
+    const vector& v                                                             \
+);                                                                              \
+                                                                                \
+static void Ix##i##j##k                                                         \
+(                                                                               \
+    mappedScalarList& Is,                                                       \
+    const label celli,                                                          \
+    const scalar& omega,                                                        \
+    const vector& g,                                                            \
+    const scalar& magg,                                                         \
+    const vector& v                                                             \
+);                                                                              \
+                                                                                \
+static void Iy##i##j##k                                                         \
+(                                                                               \
+    mappedScalarList& Is,                                                       \
+    const label celli,                                                          \
+    const scalar& omega,                                                        \
+    const vector& g,                                                            \
+    const scalar& magg,                                                         \
+    const vector& v                                                             \
+);                                                                              \
+                                                                                \
+static void Iz##i##j##k                                                         \
+(                                                                               \
+    mappedScalarList& Is,                                                       \
+    const label celli,                                                          \
+    const scalar& omega,                                                        \
+    const vector& g,                                                            \
+    const scalar& magg,                                                         \
+    const vector& v                                                             \
+);
+
 /*---------------------------------------------------------------------------*\
                     Class BoltzmannCollision Declaration
 \*---------------------------------------------------------------------------*/
@@ -57,6 +98,16 @@ class BoltzmannCollision
 :
     public collisionKernel
 {
+    //- Typedef of function pointer list
+    typedef void (*momentFunction)
+    (
+        mappedScalarList& Is,
+        const label,
+        const scalar& omega,
+        const vector& g,
+        const vector& v
+    );
+
     // Private data
 
         //- Coefficient of restitution
@@ -71,20 +122,17 @@ class BoltzmannCollision
         //- List of scalar indexes
         const labelList& scalarIndexes_;
 
-        //- Size index
-        const label sizeIndex_;
-
-        //- List of velocity indexes
-        const labelList& velocityIndexes_;
-
-        //- Conditional velocity moment orders
-        labelListList velocityMomentOrders_;
-
         //- Zero order collisional coefficients sources
         mappedScalarList Is_;
 
+        //- List of functions used to calculate equilibrium moments
+        List<momentFunction> coefficientFunctions_;
+
         //- Enskog (first order) collisional coefficients sources
         PtrList<mappedScalarList> I1s_;
+
+        //- List of functions used to calculate equilibrium moments
+        List<List<momentFunction>> enskogFunctions_;
 
         //- Collision sources
         mappedPtrList<volScalarField> Cs_;
@@ -102,6 +150,80 @@ class BoltzmannCollision
         mappedPtrList<volVectorField> Gs_;
 
     // Protected functions
+
+        //- Functions used to define equilibrium moments
+//         defineIFuncs(0,0,0)
+//
+//         defineIFuncs(0,0,1)
+//         defineIFuncs(0,1,0)
+//         defineIFuncs(1,0,0)
+//
+//         defineIFuncs(0,0,2)
+//         defineIFuncs(0,1,1)
+//         defineIFuncs(0,2,0)
+//         defineIFuncs(1,0,1)
+//         defineIFuncs(1,1,0)
+//         defineIFuncs(2,0,0)
+//
+//         defineIFuncs(0,0,3)
+//         defineIFuncs(0,1,2)
+//         defineIFuncs(0,2,1)
+//         defineIFuncs(0,3,0)
+//         defineIFuncs(1,0,2)
+//         defineIFuncs(1,1,1)
+//         defineIFuncs(1,2,0)
+//         defineIFuncs(2,0,1)
+//         defineIFuncs(2,1,0)
+//         defineIFuncs(3,0,0)
+//
+//         defineIFuncs(0,0,4)
+//         defineIFuncs(0,1,3)
+//         defineIFuncs(0,2,2)
+//         defineIFuncs(0,3,1)
+//         defineIFuncs(0,4,0)
+//         defineIFuncs(1,0,3)
+//         defineIFuncs(1,3,0)
+//         defineIFuncs(2,0,2)
+//         defineIFuncs(2,2,0)
+//         defineIFuncs(3,0,1)
+//         defineIFuncs(3,1,0)
+//         defineIFuncs(4,0,0)
+//
+//         defineIFuncs(0,0,5)
+//         defineIFuncs(0,1,4)
+//         defineIFuncs(0,2,3)
+//         defineIFuncs(0,3,2)
+//         defineIFuncs(0,4,1)
+//         defineIFuncs(0,5,0)
+//         defineIFuncs(1,0,4)
+//         defineIFuncs(1,4,0)
+//         defineIFuncs(2,0,3)
+//         defineIFuncs(2,3,0)
+//         defineIFuncs(3,0,2)
+//         defineIFuncs(3,2,0)
+//         defineIFuncs(4,0,1)
+//         defineIFuncs(4,1,0)
+//         defineIFuncs(5,0,0)
+//
+//         defineIFuncs(0,1,5)
+//         defineIFuncs(0,2,4)
+//         defineIFuncs(0,4,2)
+//         defineIFuncs(0,5,1)
+//         defineIFuncs(2,0,4)
+//         defineIFuncs(2,4,0)
+//         defineIFuncs(1,0,5)
+//         defineIFuncs(1,5,0)
+//         defineIFuncs(4,0,2)
+//         defineIFuncs(4,2,0)
+//         defineIFuncs(5,0,1)
+//         defineIFuncs(5,1,0)
+//
+//         defineIFuncs(0,2,5)
+//         defineIFuncs(0,5,2)
+//         defineIFuncs(2,0,5)
+//         defineIFuncs(2,5,0)
+//         defineIFuncs(5,0,2)
+//         defineIFuncs(5,2,0)
 
         //- Update equilibrium moments for a cell
         void updateI
@@ -156,6 +278,107 @@ public:
         ) const;
 };
 
+#define addIFunction1(map,i)                                                    \
+if (map.found(i))                                                               \
+{                                                                               \
+    coefficientFunctions_.append(&I##i##00);                                    \
+    if (Enskog_)                                                                \
+    {                                                                           \
+        enskogFunctions_[0].append(&Ix##i##00);                                 \
+        if (velocityIndexes_.size() > 1)                                        \
+        {                                                                       \
+            enskogFunctions_[1].append(&Iy##i##00);                             \
+        }                                                                       \
+        if (velocityIndexes_.size() > 2)                                        \
+        {                                                                       \
+            enskogFunctions_[2].append(&Iz##i##00);                             \
+        }                                                                       \
+    }                                                                           \
+}
+
+#define addIFunction2(map,i,j)                                                  \
+if (map.found(i))                                                               \
+{                                                                               \
+    coefficientFunctions_.append(&I##i##j##0);                                  \
+    if (Enskog_)                                                                \
+    {                                                                           \
+        enskogFunctions_[0].append(&Ix##i##j##0);                               \
+        if (velocityIndexes_.size() > 1)                                        \
+        {                                                                       \
+            enskogFunctions_[1].append(&Iy##i##j##0);                           \
+        }                                                                       \
+        if (velocityIndexes_.size() > 2)                                        \
+        {                                                                       \
+            enskogFunctions_[2].append(&Iz##i##j##0);                           \
+        }                                                                       \
+    }                                                                           \
+}
+
+#define addIFunction3(map,i,j,k)                                                \
+if (map.found(i))                                                               \
+{                                                                               \
+    coefficientFunctions_.append(&I##i##j##k);                                  \
+    if (Enskog_)                                                                \
+    {                                                                           \
+        enskogFunctions_[0].append(&Ix##i##j##k);                               \
+        if (velocityIndexes_.size() > 1)                                        \
+        {                                                                       \
+            enskogFunctions_[1].append(&Iy##i##j##k);                           \
+        }                                                                       \
+        if (velocityIndexes_.size() > 2)                                        \
+        {                                                                       \
+            enskogFunctions_[2].append(&Iz##i##j##k);                           \
+        }                                                                       \
+    }                                                                           \
+}
+
+#define IFuncHeader(i,j,k)                                                      \
+void                                                                            \
+Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::        \
+I##i##j##k                                                                      \
+(                                                                               \
+    mappedScalarList& Is,                                                       \
+    const scalar& omega,                                                        \
+    const vector& g,                                                            \
+    const scalar& magg,                                                         \
+    const vector& v                                                             \
+)
+
+#define IxFuncHeader(i,j,k)                                                     \
+void                                                                            \
+Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::        \
+Ix##i##j##k                                                                     \
+(                                                                               \
+    mappedScalarList& Is,                                                       \
+    const scalar& omega,                                                        \
+    const vector& g,                                                            \
+    const scalar& magg,                                                         \
+    const vector& v                                                             \
+)
+
+#define IyFuncHeader(i,j,k)                                                     \
+void                                                                            \
+Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::        \
+Iy##i##j##k                                                                     \
+(                                                                               \
+    mappedScalarList& Is,                                                       \
+    const scalar& omega,                                                        \
+    const vector& g,                                                            \
+    const scalar& magg,                                                         \
+    const vector& v                                                             \
+)
+
+#define IzFuncHeader(i,j,k)                                                     \
+void                                                                            \
+Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::        \
+Iz##i##j##k                                                                     \
+(                                                                               \
+    mappedScalarList& Is,                                                       \
+    const scalar& omega,                                                        \
+    const vector& g,                                                            \
+    const scalar& magg,                                                         \
+    const vector& v                                                             \
+)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -132,6 +132,24 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 )
 {
     scalar source = 0.0;
+
+//     if (nucleation_)
+//     {
+//         source += nucleationModel_->nucleationSource(momentOrder[0], celli);
+//     }
+
+    //- Do not add sources to zero moment sets
+    //  Prevents poor conditioning
+    if (quadrature.moments()(0)[celli] < small)
+    {
+        return source;
+    }
+
+
+    if (collision_)
+    {
+        source += collisionKernel_->explicitCollisionSource(momentOrder, celli);
+    }
     if (aggregation_)
     {
         source +=
@@ -162,14 +180,6 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
                 celli,
                 quadrature
             );
-    }
-//     if (nucleation_)
-//     {
-//         source += nucleationModel_->nucleationSource(momentOrder[0], celli);
-//     }
-    if (collision_)
-    {
-        source += collisionKernel_->explicitCollisionSource(momentOrder, celli);
     }
 
     return source;

@@ -343,15 +343,6 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
     omega_((1.0 + e_)*0.5),
     Enskog_(dict.lookupOrDefault("Enskog", false)),
     scalarIndexes_(quadrature.nodes()[0].scalarIndexes()),
-    sizeIndex_(quadrature.nodes()[0].sizeIndex()),
-    velocityIndexes_(quadrature.nodes()[0].velocityIndexes()),
-    velocityMomentOrders_
-    (
-        multivariateMomentInversions::CHyQMOM::getMomentOrders
-        (
-            velocityIndexes_.size()
-        )
-    ),
     Is_(velocityMomentOrders_.size(), velocityMomentOrders_, 0.0),
     I1s_(velocityIndexes_.size()),
     Cs_(momentOrders_.size(), momentOrders_),
@@ -469,6 +460,81 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
             );
         }
     }
+
+//     mappedLabelList map(velocityMomentOrders_.size(), velocityMomentOrders_, 0);
+//
+//     addIFunction1(map, 0)
+//
+//     addIFunction3(map, 0,0,1)
+//     addIFunction2(map, 0,1)
+//     addIFunction1(map, 1)
+//
+//     addIFunction3(map, 0,0,2)
+//     addIFunction3(map, 0,1,1)
+//     addIFunction2(map, 0,2)
+//     addIFunction3(map, 1,0,1)
+//     addIFunction2(map, 1,1)
+//     addIFunction1(map, 2)
+//
+//     addIFunction3(map, 0,0,3)
+//     addIFunction3(map, 0,1,2)
+//     addIFunction3(map, 0,2,1)
+//     addIFunction2(map, 0,3)
+//     addIFunction3(map, 1,0,2)
+//     addIFunction3(map, 1,1,1)
+//     addIFunction2(map, 1,2)
+//     addIFunction3(map, 2,0,1)
+//     addIFunction2(map, 2,1)
+//     addIFunction1(map, 3)
+//
+//     addIFunction3(map, 0,0,4)
+//     addIFunction3(map, 0,1,3)
+//     addIFunction3(map, 0,2,2)
+//     addIFunction3(map, 0,3,1)
+//     addIFunction2(map, 0,4)
+//     addIFunction3(map, 1,0,3)
+//     addIFunction2(map, 1,3)
+//     addIFunction3(map, 2,0,2)
+//     addIFunction2(map, 2,2)
+//     addIFunction3(map, 3,0,1)
+//     addIFunction2(map, 3,1)
+//     addIFunction1(map, 4)
+//
+//     addIFunction3(map, 0,0,5)
+//     addIFunction3(map, 0,1,4)
+//     addIFunction3(map, 0,2,3)
+//     addIFunction3(map, 0,3,2)
+//     addIFunction3(map, 0,4,1)
+//     addIFunction2(map, 0,5)
+//     addIFunction3(map, 1,0,4)
+//     addIFunction2(map, 1,4)
+//     addIFunction3(map, 2,0,3)
+//     addIFunction2(map, 2,3)
+//     addIFunction3(map, 3,0,2)
+//     addIFunction2(map, 3,2)
+//     addIFunction3(map, 4,0,1)
+//     addIFunction2(map, 4,1)
+//     addIFunction1(map, 5)
+//
+//     addIFunction3(map, 0,1,5)
+//     addIFunction3(map, 0,2,4)
+//     addIFunction3(map, 0,4,2)
+//     addIFunction3(map, 0,5,1)
+//     addIFunction3(map, 1,0,5)
+//     addIFunction2(map, 1,5)
+//     addIFunction3(map, 2,0,4)
+//     addIFunction2(map, 2,4)
+//     addIFunction3(map, 4,0,2)
+//     addIFunction2(map, 4,2)
+//     addIFunction3(map, 5,0,1)
+//     addIFunction2(map, 5,1)
+//
+//     addIFunction3(map, 0,2,5)
+//     addIFunction3(map, 0,5,1)
+//     addIFunction3(map, 2,0,5)
+//     addIFunction2(map, 2,5)
+//     addIFunction3(map, 5,0,2)
+//     addIFunction2(map, 5,2)
 }
 
 

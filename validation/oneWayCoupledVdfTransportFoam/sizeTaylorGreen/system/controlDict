@@ -23,15 +23,15 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         10;
+endTime         100;
 
 deltaT          .001;
 
 writeControl    adjustableRunTime;
 
-writeInterval   .1;
+writeInterval   0.5;
 
-purgeWrite      250;
+purgeWrite      0;
 
 writeFormat     ascii;
 

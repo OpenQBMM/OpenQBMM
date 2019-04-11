@@ -44,37 +44,19 @@ sizeVelocityCoeffs
     aggregation on;
     aggregationKernel
     {
-        aggregationKernel sum;
-
-        Ca        Ca        [ 0 0 -1 0 0 0 0 ] 1.0;
+        aggregationKernel constant;
     }
 
     breakup on;
     breakupKernel
     {
-        breakupKernel powerLaw;
+        breakupKernel constant;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.02;
 
         daughterDistribution
         {
             daughterDistribution symmetricFragmentation;
         }
-    }
-
-    growth off;
-    growthModel
-    {
-        growthModel	constant;
-        minAbscissa     minAbscissa [0 -2 0 0 0 0 0] 0.0;
-        maxAbscissa     maxAbscissa [0 -2 0 0 0 0 0] 1.0;
-
-        Cg        Cg        [0 3 -1 0 0 0 0 ] 1.0;
-    }
-
-    nucleation off;
-    nucleationModel
-    {
-        nucleationModel  none;
     }
 }
 
