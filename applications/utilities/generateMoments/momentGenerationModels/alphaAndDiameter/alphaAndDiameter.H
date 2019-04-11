@@ -73,6 +73,9 @@ protected:
     //- Total node volume fraction
     scalar sumAlpha_;
 
+    //- Is the moment set mass based
+    Switch massBased_;
+
 
 public:
 

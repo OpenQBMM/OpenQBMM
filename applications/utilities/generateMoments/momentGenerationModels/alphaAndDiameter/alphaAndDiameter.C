@@ -93,9 +93,10 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
     ),
     ds_(nNodes, 0.0),
     alphas_(nNodes, 0.0),
-    sumAlpha_(0.0)
+    sumAlpha_(0.0),
+    massBased_(dict.lookupOrDefault("massBased", false))
 {
-    if (!dict.found("rho"))
+    if (!dict.found("rho") && !massBased_)
     {
         autoPtr<rhoThermo> thermo = rhoThermo::New(mesh, alpha_.group());
         rho_ = thermo->rho();
@@ -151,18 +152,26 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
             alpha /= sumAlpha_;
         }
 
-        scalar rho = rho_[celli];
-
-        abscissae_[nodei][0] =
-            Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
-
-        if (abscissae_[nodei][0] > SMALL)
+        if (massBased_)
         {
-            weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+            scalar rho = rho_[celli];
+
+            abscissae_[nodei][0] =
+                Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
+
+            if (abscissae_[nodei][0] > small)
+            {
+                weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+            }
         }
         else
         {
-            weights_[nodei] = 0.0;
+            abscissae_[nodei][0] = ds_[nodei];
+            scalar V = Foam::constant::mathematical::pi/6.0*pow3(ds_[nodei]);
+            if (V > small)
+            {
+                weights_[nodei] = alpha/V;
+            }
         }
     }
 
@@ -186,18 +195,26 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
             alpha /= sumAlpha_;
         }
 
-        scalar rho = rho_.boundaryField()[patchi][facei];
-
-        abscissae_[nodei][0] =
-            Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
-
-        if (abscissae_[nodei][0] > SMALL)
+        if (massBased_)
         {
-            weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+            scalar rho = rho_.boundaryField()[patchi][facei];
+
+            abscissae_[nodei][0] =
+                Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
+
+            if (abscissae_[nodei][0] > small)
+            {
+                weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+            }
         }
         else
         {
-            weights_[nodei] = 0.0;
+            abscissae_[nodei][0] = ds_[nodei];
+            scalar V = Foam::constant::mathematical::pi/6.0*pow3(ds_[nodei]);
+            if (V > small)
+            {
+                weights_[nodei] = alpha/V;
+            }
         }
     }
 
