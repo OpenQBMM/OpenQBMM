@@ -50,7 +50,7 @@ createEpsD43()
     set key left bottom
     set size 1,1
     set xrange [1:200]
-    #set yrange [1:5]
+    set yrange [1:5]
     plot \
         "$verif" using 1:(\$6/\$5) title "Madadi and Passalacqua (2015)" \
             with lines linetype -1 linewidth 2 linecolor rgb 'blue', \
@@ -86,8 +86,8 @@ VERIFICATIONDATAROOT=./verificationData
 VALIDATIONDATAROOT=./validationData
 
 echo "    processing d43 profile" > log.createGraphs 2>&1
-OPENQBMMM3="$OPENQBMMDATAROOT/moment.0.populationBalance"
-OPENQBMMM4="$OPENQBMMDATAROOT/moment.1.populationBalance"
+OPENQBMMM3="$OPENQBMMDATAROOT/moment.3.populationBalance"
+OPENQBMMM4="$OPENQBMMDATAROOT/moment.4.populationBalance"
 VERIFICATION="$VERIFICATIONDATAROOT/MadadiPassalacqua2015_d43.dat"
 VALIDATION="$VALIDATIONDATAROOT/Vanni2000_d43.dat"
 

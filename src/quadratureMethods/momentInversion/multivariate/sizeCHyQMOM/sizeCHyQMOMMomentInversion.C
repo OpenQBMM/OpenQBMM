@@ -177,7 +177,7 @@ void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
         forAll(sizeWeights, nodei)
         {
             x[nodei] = max(sizeAbscissae[nodei], small);
-            invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], 1e-10);
+            invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], small);
         }
         Vandermonde V(x);
         scalarSquareMatrix invVR = invR*V.inv();

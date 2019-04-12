@@ -140,7 +140,7 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 
     //- Do not add sources to zero moment sets
     //  Prevents poor conditioning
-    if (quadrature.moments()(0)[celli] < small)
+    if (quadrature.moments()(0)[celli] < 1e-10)
     {
         return source;
     }

@@ -165,7 +165,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                 }
                 else
                 {
-                    bSourcei /= max(pow3(bAbscissa), small);
+                    bSourcei /= pow3(max(bAbscissa, small));
                 }
             }
 
@@ -310,8 +310,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                 }
                 else
                 {
-                    bSourcei /= max(pow3(bAbscissa), small);
-                }
+                    bSourcei /= pow3(max(bAbscissa, small));                }
             }
 
             forAll(scalarIndexes, nodei)

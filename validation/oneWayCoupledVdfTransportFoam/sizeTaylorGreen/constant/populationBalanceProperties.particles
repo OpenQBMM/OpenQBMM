@@ -44,13 +44,15 @@ sizeVelocityCoeffs
     aggregation on;
     aggregationKernel
     {
-        aggregationKernel constant;
+        aggregationKernel sum;
+
+        Ca        Ca        [ 0 0 -1 0 0 0 0 ] 1.0;
     }
 
     breakup on;
     breakupKernel
     {
-        breakupKernel constant;
+        breakupKernel powerLaw;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.02;
 
         daughterDistribution

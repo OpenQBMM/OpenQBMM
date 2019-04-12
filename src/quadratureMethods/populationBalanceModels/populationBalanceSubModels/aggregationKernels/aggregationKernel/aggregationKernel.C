@@ -194,8 +194,8 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                     else
                     {
                         aSrc /=
-                            max(pow3(bAbscissa1), small)
-                           *max(pow3(bAbscissa2), small);
+                            pow3(max(bAbscissa1, small))
+                           *pow3(max(bAbscissa2, small));
                     }
                 }
 
@@ -388,12 +388,13 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                 {
                     if (massBased)
                     {
-                        aSrc /=  max(bAbscissa1, small)*max(bAbscissa2, small);
+                        aSrc /=  max(bAbscissa1, small);
                     }
                     else
                     {
                         aSrc /=
-                            max(pow3(bAbscissa1)*pow3(bAbscissa2), small);
+                            pow3(max(bAbscissa1, small))
+                           *pow3(max(bAbscissa2, small));
                     }
                 }
 

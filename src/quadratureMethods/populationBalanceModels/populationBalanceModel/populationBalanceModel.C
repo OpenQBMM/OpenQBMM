@@ -58,10 +58,15 @@ Foam::populationBalanceModel::populationBalanceModel
     name_(name),
     populationBalanceProperties_
     (
-        phi.mesh().lookupObject<IOdictionary>
+        phi.mesh().foundObject<IOdictionary>
         (
             IOobject::groupName("populationBalanceProperties", name)
         )
+      ? phi.mesh().lookupObject<IOdictionary>
+        (
+            IOobject::groupName("populationBalanceProperties", name)
+        )
+      : phi.mesh().lookupObject<IOdictionary>("populationBalanceProperties")
     ),
     phi_(phi)
 {}
