@@ -59,9 +59,6 @@ class realizableOdeSolver
         //- Reference to mesh
         const fvMesh& mesh_;
 
-        //- Ode coefficient dictionary
-        const dictionary& odeDict_;
-
         //- Absolute tolerance for realizable ODE solver
         scalar ATol_;
 
@@ -131,7 +128,7 @@ public:
         void solve(quadratureType& quadrature, const label enviroment);
 
         //- Read coefficients from dictionary
-        void read();
+        void read(const dictionary& dict);
 };
 
 

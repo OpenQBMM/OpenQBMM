@@ -505,4 +505,19 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 }
 
 
+bool Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
+::readIfModified()
+{
+    if (populationBalanceProperties_.modified())
+    {
+        odeType::read
+        (
+            populationBalanceProperties_.subDict(type() + "Coeffs")
+        );
+        return true;
+    }
+
+    return false;
+}
+
 // ************************************************************************* //

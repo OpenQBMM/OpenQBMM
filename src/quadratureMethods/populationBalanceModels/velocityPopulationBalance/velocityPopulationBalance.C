@@ -189,4 +189,20 @@ void Foam::PDFTransportModels::populationBalanceModels
 }
 
 
+bool Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
+::readIfModified()
+{
+    if (populationBalanceProperties_.modified())
+    {
+        odeType::read
+        (
+            populationBalanceProperties_.subDict(type() + "Coeffs")
+        );
+        return true;
+    }
+
+    return false;
+}
+
+
 // ************************************************************************* //

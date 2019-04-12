@@ -43,7 +43,26 @@ Foam::populationBalanceModel::populationBalanceModel
     const surfaceScalarField& phi
 )
 :
+    regIOobject
+    (
+        IOobject
+        (
+            IOobject::groupName("populationBalance", name),
+            phi.mesh().time().constant(),
+            phi.mesh(),
+            IOobject::NO_READ,
+            IOobject::NO_WRITE,
+            true
+        )
+    ),
     name_(name),
+    populationBalanceProperties_
+    (
+        phi.mesh().lookupObject<IOdictionary>
+        (
+            IOobject::groupName("populationBalanceProperties", name)
+        )
+    ),
     phi_(phi)
 {}
 

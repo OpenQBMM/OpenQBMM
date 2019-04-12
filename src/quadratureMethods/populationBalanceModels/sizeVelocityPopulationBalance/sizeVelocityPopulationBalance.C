@@ -185,5 +185,4 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
     return source;
 }
 
-
 // ************************************************************************* //

@@ -35,21 +35,20 @@ Foam::realizableOdeSolver<momentType, nodeType>::realizableOdeSolver
 )
 :
     mesh_(mesh),
-    odeDict_(dict.subDict("odeCoeffs")),
-    ATol_(readScalar(odeDict_.lookup("ATol"))),
-    RTol_(readScalar(odeDict_.lookup("RTol"))),
-    fac_(readScalar(odeDict_.lookup("fac"))),
-    facMin_(readScalar(odeDict_.lookup("facMin"))),
-    facMax_(readScalar(odeDict_.lookup("facMax"))),
-    minLocalDt_(readScalar(odeDict_.lookup("minLocalDt"))),
+    ATol_(readScalar(dict.subDict("odeCoeffs").lookup("ATol"))),
+    RTol_(readScalar(dict.subDict("odeCoeffs").lookup("RTol"))),
+    fac_(readScalar(dict.subDict("odeCoeffs").lookup("fac"))),
+    facMin_(readScalar(dict.subDict("odeCoeffs").lookup("facMin"))),
+    facMax_(readScalar(dict.subDict("odeCoeffs").lookup("facMax"))),
+    minLocalDt_(readScalar(dict.subDict("odeCoeffs").lookup("minLocalDt"))),
     localDt_(mesh.nCells(), mesh.time().deltaTValue()/10.0),
     solveSources_
     (
-        odeDict_.lookupOrDefault("solveSources", true)
+        dict.subDict("odeCoeffs").lookupOrDefault("solveSources", true)
     ),
     solveOde_
     (
-        odeDict_.lookupOrDefault("solveOde", true)
+        dict.subDict("odeCoeffs").lookupOrDefault("solveOde", true)
     )
 {}
 
@@ -309,17 +308,18 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
 
 template<class momentType, class nodeType>
-void Foam::realizableOdeSolver<momentType, nodeType>::read()
+void Foam::realizableOdeSolver<momentType, nodeType>::read(const dictionary& dict)
 {
-    odeDict_.lookupOrDefault("solveSources", true) >> solveSources_;
-    odeDict_.lookupOrDefault("solveOde", true) >> solveOde_;
+    const dictionary& odeDict = dict.subDict("odeCoeffs");
+    solveSources_ = odeDict.lookupOrDefault<Switch>("solveSources", true);
+    solveOde_ = odeDict.lookupOrDefault<Switch>("solveOde", true);
 
-    (odeDict_.lookup("ATol")) >> ATol_;
-    (odeDict_.lookup("RTol")) >> RTol_;
-    (odeDict_.lookup("fac")) >> fac_;
-    (odeDict_.lookup("facMin")) >> facMin_;
-    (odeDict_.lookup("facMax")) >> facMax_;
-    (odeDict_.lookup("minLocalDt")) >> minLocalDt_;
+    (odeDict.lookup("ATol")) >> ATol_;
+    (odeDict.lookup("RTol")) >> RTol_;
+    (odeDict.lookup("fac")) >> fac_;
+    (odeDict.lookup("facMin")) >> facMin_;
+    (odeDict.lookup("facMax")) >> facMax_;
+    (odeDict.lookup("minLocalDt")) >> minLocalDt_;
 }
 
 

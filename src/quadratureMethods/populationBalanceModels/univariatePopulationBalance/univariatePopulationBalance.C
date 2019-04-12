@@ -239,4 +239,20 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 }
 
 
+bool Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+::readIfModified()
+{
+    if (populationBalanceProperties_.modified())
+    {
+        odeType::read
+        (
+            populationBalanceProperties_.subDict(type() + "Coeffs")
+        );
+        return true;
+    }
+
+    return false;
+}
+
+
 // ************************************************************************* //

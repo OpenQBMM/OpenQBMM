@@ -142,6 +142,9 @@ public:
 
         //- Solve population balance equation
         virtual void solve();
+
+        //- Read
+        virtual bool readIfModified();
 };
 
 
