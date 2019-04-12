@@ -118,6 +118,18 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     }
 
     label sizeOrder = momentOrder[sizeIndex];
+    bool volumeFraction = (quadrature.moments()(0).dimensions() == dimless);
+    if (volumeFraction)
+    {
+        if (massBased)
+        {
+            sizeOrder += 1;
+        }
+        else
+        {
+            sizeOrder += 3;
+        }
+    }
 
     const labelList& scalarIndexes = nodes[0].scalarIndexes();
 
@@ -143,7 +155,19 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
             bSourcei *=
                 node.primaryWeight()[celli]
-                *Kb(bAbscissa, celli);
+               *Kb(bAbscissa, celli);
+
+            if (volumeFraction)
+            {
+                if (massBased)
+                {
+                    bSourcei /= max(bAbscissa, small);
+                }
+                else
+                {
+                    bSourcei /= max(pow3(bAbscissa), small);
+                }
+            }
 
             forAll(scalarIndexes, nodei)
             {
@@ -187,6 +211,18 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                *node.secondaryWeights()[sizeIndex][sNodei][celli]
                *Kb(bAbscissa, celli);
 
+            if (volumeFraction)
+            {
+                if (massBased)
+                {
+                    bSourcei /= max(bAbscissa, small);
+                }
+                else
+                {
+                    bSourcei /= max(pow3(bAbscissa), small);
+                }
+            }
+
             forAll(scalarIndexes, cmpt)
             {
                 if (scalarIndexes[cmpt] != sizeIndex)
@@ -227,6 +263,18 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     }
 
     label sizeOrder = momentOrder[sizeIndex];
+    bool volumeFraction = (quadrature.moments()(0).dimensions() == dimless);
+    if (volumeFraction)
+    {
+        if (massBased)
+        {
+            sizeOrder += 1;
+        }
+        else
+        {
+            sizeOrder += 3;
+        }
+    }
 
     const labelList& scalarIndexes = nodes[0].scalarIndexes();
     const labelList& velocityIndexes = nodes[0].velocityIndexes();
@@ -253,6 +301,18 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
             bSourcei *=
                 node.primaryWeight()[celli]
                 *Kb(bAbscissa, celli);
+
+            if (volumeFraction)
+            {
+                if (massBased)
+                {
+                    bSourcei /= max(bAbscissa, small);
+                }
+                else
+                {
+                    bSourcei /= max(pow3(bAbscissa), small);
+                }
+            }
 
             forAll(scalarIndexes, nodei)
             {
@@ -304,6 +364,18 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                 node.primaryWeight()[celli]
                *node.secondaryWeights()[sizeIndex][sNodei][celli]
                *Kb(bAbscissa, celli);
+
+            if (volumeFraction)
+            {
+                if (massBased)
+                {
+                    bSourcei /= max(bAbscissa, small);
+                }
+                else
+                {
+                    bSourcei /= max(pow3(bAbscissa), small);
+                }
+            }
 
             forAll(scalarIndexes, cmpt)
             {
