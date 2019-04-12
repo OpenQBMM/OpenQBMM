@@ -96,7 +96,7 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
     sumAlpha_(0.0),
     massBased_(dict.lookupOrDefault("massBased", false))
 {
-    if (!dict.found("rho") && !massBased_)
+    if (!dict.found("rho") && massBased_)
     {
         autoPtr<rhoThermo> thermo = rhoThermo::New(mesh, alpha_.group());
         rho_ = thermo->rho();
@@ -167,7 +167,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         else
         {
             abscissae_[nodei][0] = ds_[nodei];
-            scalar V = Foam::constant::mathematical::pi/6.0*pow3(ds_[nodei]);
+            scalar V = pow3(ds_[nodei]);
             if (V > small)
             {
                 weights_[nodei] = alpha/V;
@@ -210,7 +210,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         else
         {
             abscissae_[nodei][0] = ds_[nodei];
-            scalar V = Foam::constant::mathematical::pi/6.0*pow3(ds_[nodei]);
+            scalar V = pow3(ds_[nodei]);
             if (V > small)
             {
                 weights_[nodei] = alpha/V;

@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
             forAll(moments, mi)
             {
-                const labelList& momentOrder= momentOrders[mi];
+                const labelList& momentOrder = momentOrders[mi];
                 moments.set
                 (
                     momentOrder,

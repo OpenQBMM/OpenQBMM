@@ -80,7 +80,10 @@ Foam::vdfPhaseModel::vdfPhaseModel
             dimLength,
             1e-6
         )
-    )
+    ),
+    sizeIndex_(quadrature_.nodes()[0].sizeIndex()),
+    volumeFractionMoment_(quadrature_.momentOrders()[0].size(), 0),
+    sizeMoment_(quadrature_.momentOrders()[0].size(), 0)
 {
     const labelList& velocityIndexes =
         quadrature_.nodes()[0].velocityIndexes();
@@ -138,6 +141,73 @@ Foam::vdfPhaseModel::vdfPhaseModel
         d_.writeOpt() = IOobject::AUTO_WRITE;
     }
 
+    dimensionSet sizeDim
+    (
+        quadrature_.nodes()[0].primaryAbscissae()[sizeIndex_].dimensions()
+    );
+    dimensionSet weightDim
+    (
+        quadrature_.nodes()[0].primaryWeight().dimensions()
+    );
+
+    if (weightDim == dimless)
+    {
+        m0VolumeFraction_ = true;
+    }
+
+    sizeMoment_[sizeIndex_] = 1;
+
+    if (sizeDim == dimLength)
+    {
+        sizeType_ = length;
+
+        if (weightDim == dimless)
+        {
+            momentSetType_ = volumeFractionLength;
+        }
+        else if (weightDim == inv(dimVolume))
+        {
+            momentSetType_ = numberDensityLength;
+            volumeFractionMoment_[sizeIndex_] = 3;
+        }
+    }
+    else if (sizeDim == dimVolume)
+    {
+        sizeType_ = volume;
+
+        if (weightDim == dimless)
+        {
+            momentSetType_ = volumeFractionVolume;
+        }
+        else if (weightDim == inv(dimVolume))
+        {
+            momentSetType_ = numberDensityVolume;
+            volumeFractionMoment_[sizeIndex_] = 1;
+        }
+    }
+    else if (sizeDim == dimMass)
+    {
+        sizeType_ = mass;
+
+        if (weightDim == dimless)
+        {
+            momentSetType_ = volumeFractionMass;
+        }
+        else if (weightDim == inv(dimVolume))
+        {
+            momentSetType_ = numberDensityMass;
+            volumeFractionMoment_[sizeIndex_] = 1;
+        }
+    }
+    else
+    {
+        FatalErrorInFunction
+            << "Unknown weight and abscissae dimension combination." << nl
+            << "Weight can use dimensions of volume fraction or number " << nl << "density and size abscissa can use dimensions of mass, "<< nl
+            << "length or volume."
+            << abort(FatalError);
+    }
+
     correct();
 }
 
@@ -161,26 +231,92 @@ Foam::tmp<Foam::volScalarField> Foam::vdfPhaseModel::volumeFraction
 {
     if (nodei == -1)
     {
-        return quadrature_.moments()(0);
+        if (m0VolumeFraction_)
+        {
+            return quadrature_.moments()(0);
+        }
+        else if (momentSetType_ == numberDensityMass)
+        {
+            return quadrature_.moments()(volumeFractionMoment_)/rho();
+        }
+        else
+        {
+            return quadrature_.moments()(volumeFractionMoment_);
+        }
     }
-    return quadrature_.nodes()[nodei].primaryWeight();
+
+    if (m0VolumeFraction_)
+    {
+        return quadrature_.nodes()[nodei].primaryWeight();
+    }
+
+    const volVelocityNode& node = quadrature_.nodes()[nodei];
+    if (momentSetType_ == numberDensityMass)
+    {
+        return
+            node.primaryAbscissae()[sizeIndex_]
+           *node.primaryWeight()
+           /rho();
+    }
+    else if (momentSetType_ == numberDensityVolume)
+    {
+        return
+            node.primaryAbscissae()[sizeIndex_]
+           *node.primaryWeight();
+    }
+    else if (momentSetType_ == numberDensityLength)
+    {
+        return
+            pow3(node.primaryAbscissae()[sizeIndex_])
+           *node.primaryWeight();
+    }
+
+    NotImplemented;
+    return *this;
 }
 
 Foam::tmp<Foam::volScalarField>
 Foam::vdfPhaseModel::d(const label nodei) const
 {
-    label sizeIndex = quadrature_.nodes()[0].sizeIndex();
-    if (nodei == -1 || sizeIndex == -1)
+    if (nodei == -1 && sizeIndex_ == -1)
     {
         return d_;
     }
-    return
-        Foam::max
-        (
-            quadrature_.nodes()[nodei].primaryAbscissae()[sizeIndex],
-            minD_
-        );
 
+    if (nodei == -1)
+    {
+        volScalarField m0 = quadrature_.moments()(0);
+        m0.max(small);
+
+        tmp<volScalarField> dtmp(quadrature_.moments()(sizeMoment_)/m0);
+
+        if (sizeType_ == mass)
+        {
+            return dtmp/rho();
+        }
+        return dtmp;
+    }
+
+    const volScalarField& size =
+        quadrature_.nodes()[sizeIndex_].primaryAbscissae()[sizeIndex_];
+
+    if (sizeType_ == length)
+    {
+        return Foam::max(size, minD_);
+    }
+
+    scalar pi = Foam::constant::mathematical::pi;
+    if (sizeType_ == volume)
+    {
+        return Foam::max(pi/6.0*cbrt(size), minD_);
+    }
+    else if (sizeType_ == numberDensityLength)
+    {
+        return Foam::max(pi/6.0*cbrt(size/rho()), minD_);
+    }
+
+    NotImplemented;
+    return size;
 }
 
 const Foam::volVectorField& Foam::vdfPhaseModel::U(const label nodei) const
@@ -233,10 +369,12 @@ void Foam::vdfPhaseModel::solve()
 
     const labelList& velocityIndexes =
         quadrature_.nodes()[0].velocityIndexes();
+
+    volScalarField& alpha = *this;
+    alpha = volumeFraction();
+
     labelList orderZero(quadrature_.momentOrders()[0].size(), 0);
     volScalarField m0(quadrature_.moments()(0));
-    volScalarField& alpha = *this;
-    alpha = m0;
     m0.max(residualAlpha_.value());
 
     forAll(velocityIndexes, cmpt)
@@ -256,7 +394,7 @@ void Foam::vdfPhaseModel::solve()
     {
         labelList orderOne(orderZero);
         orderOne[sizeIndex] = 1;
-        d_ = quadrature_.moments()(orderOne)/Foam::max(alpha, residualAlpha_);
+        d_ = d();
     }
 }
 
@@ -266,9 +404,10 @@ void Foam::vdfPhaseModel::correct()
 
     const labelList& velocityIndexes =
         quadrature_.nodes()[0].velocityIndexes();
+
     labelList orderZero(quadrature_.momentOrders()[0].size(), 0);
     volScalarField m0(quadrature_.moments()(orderZero));
-    m0.max(residualAlpha_.value());
+    m0.max(small);
 
     forAll(velocityIndexes, cmpt)
     {
@@ -304,15 +443,12 @@ void Foam::vdfPhaseModel::correct()
         Theta_.ref() = tr(sigma_())/3.0;
     }
 
-    label sizeIndex = quadrature_.nodes()[0].sizeIndex();
     volScalarField& alpha = *this;
-    alpha = quadrature_.moments()(0);
+    alpha = volumeFraction();
 
-    if (sizeIndex != -1)
+    if (sizeIndex_ != -1)
     {
-        labelList orderOne(quadrature_.momentOrders()[0].size(), 0);
-        orderOne[sizeIndex] = 1;
-        d_ = quadrature_.moments()(orderOne)/Foam::max(alpha, residualAlpha_);
+        d_ = d()();
     }
 }
 

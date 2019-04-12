@@ -95,30 +95,12 @@ void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::updateMoments
 {
     reset();
 
+    alphaAndDiameter::updateMoments(celli);
     forAll(weights_, nodei)
     {
-        scalar alpha = alpha_[celli]*alphas_[nodei];
-        if (scale_)
-        {
-            alpha /= sumAlpha_;
-        }
-
-        scalar rho = rho_[celli];
-
-        abscissae_[nodei][0] =
-            Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
         for (label cmpt = 1; cmpt < abscissae_[nodei].size(); cmpt++)
         {
             abscissae_[nodei][cmpt] = Us_[nodei][cmpt - 1];
-        }
-
-        if (abscissae_[nodei][0] > SMALL)
-        {
-            weights_[nodei] = rho*alpha/abscissae_[nodei][0];
-        }
-        else
-        {
-            weights_[nodei] = 0.0;
         }
     }
 
@@ -133,31 +115,12 @@ void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::updateMoments
 {
     reset();
 
+    alphaAndDiameter::updateMoments(patchi, facei);
     forAll(weights_, nodei)
     {
-        scalar alpha =
-            alpha_.boundaryField()[patchi][facei]*alphas_[nodei];
-        if (scale_)
-        {
-            alpha /= sumAlpha_;
-        }
-
-        scalar rho = rho_.boundaryField()[patchi][facei];
-
-        abscissae_[nodei][0] =
-            Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
         for (label cmpt = 1; cmpt < abscissae_[nodei].size(); cmpt++)
         {
             abscissae_[nodei][cmpt] = Us_[nodei][cmpt - 1];
-        }
-
-        if (abscissae_[nodei][0] > SMALL)
-        {
-            weights_[nodei] = rho*alpha/abscissae_[nodei][0];
-        }
-        else
-        {
-            weights_[nodei] = 0.0;
         }
     }
 

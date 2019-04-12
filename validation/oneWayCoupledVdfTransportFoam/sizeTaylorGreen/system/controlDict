@@ -25,15 +25,15 @@ stopAt          endTime;
 
 endTime         100;
 
-deltaT          .001;
+deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 
-writeInterval   0.5;
+writeInterval   0.1;
 
 purgeWrite      0;
 
-writeFormat     ascii;
+writeFormat     binary;
 
 writePrecision  6;
 

@@ -50,10 +50,11 @@ boundaries
 
 particles
 {
-    type                weightsAndAbscissae;
-    weightDimension     [0 0 0 0 0 0 0];
+    type                alphaAndDiameterVelocity;
+    weightDimension     [0 -3 0 0 0 0 0];
     abscissaDimension0  [0 1 0 0 0 0 0];
     abscissaDimension   [0 1 -1 0 0 0 0];
+    scale false;
 
     default
     {
@@ -69,6 +70,9 @@ particles
 
             node0
             {
+                alpha   5e-3;
+                dia     1e-3;
+                U       (0 0 0);
                 weight  5e-3;
                 abscissa (0.0001 0 0);
             }

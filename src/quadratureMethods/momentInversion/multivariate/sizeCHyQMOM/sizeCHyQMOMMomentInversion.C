@@ -126,10 +126,26 @@ Foam::label Foam::multivariateMomentInversions::sizeCHyQMOM::calcNSizeMoments
 
 void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
 (
-    const multivariateMomentSet& moments
+    const multivariateMomentSet& m
 )
 {
     reset();
+    scalar m0 = m(0);
+    if (m(0) < small)
+    {
+        forAll(weights_, nodei)
+        {
+            weights_[nodei] = m0/weights_.size();
+        }
+        return;
+    }
+
+    // Create temporary moment set and scale by m0
+    multivariateMomentSet moments(m);
+    forAll(moments, mi)
+    {
+        moments[mi] /= m0;
+    }
 
     univariateMomentSet sizeMoments(nSizeMoments_, "RPlus", 0.0);
     forAll(sizeMoments, mi)
@@ -256,6 +272,10 @@ void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
                 }
             }
         }
+    }
+    forAll(weights_, nodei)
+    {
+        weights_[nodei] *= m0;
     }
 }
 

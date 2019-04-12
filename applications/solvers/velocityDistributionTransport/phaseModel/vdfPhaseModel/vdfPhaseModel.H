@@ -62,6 +62,25 @@ class vdfPhaseModel
 protected:
     // Protected data
 
+        //- Enumeration of moment set type
+        enum sizeTypeEnum
+        {
+            length,
+            volume,
+            mass
+        };
+
+        //- Enumeration of moment set type
+        enum momentSetTypeEnum
+        {
+            volumeFractionLength,
+            volumeFractionVolume,
+            volumeFractionMass,
+            numberDensityLength,
+            numberDensityVolume,
+            numberDensityMass
+        };
+
         //- Population balance dictionary
         IOdictionary pbeDict_;
 
@@ -83,11 +102,28 @@ protected:
         //- Granular temperature
         tmp<volScalarField> Theta_;
 
-        //- PtrList of diameters
-        PtrList<volScalarField> ds_;
-
         //- Minimum diameter
         dimensionedScalar minD_;
+
+        //- Size index
+        label sizeIndex_;
+
+        //- Moment set type
+        label momentSetType_;
+
+        //- Is the zero order moment equal to volume fraction
+        bool m0VolumeFraction_;
+
+        //- Size abscissa type
+        label sizeType_;
+
+        //- Stored labelList used to access volumeFraction index
+        labelList volumeFractionMoment_;
+
+        //- Stored labelList used to access diameter
+        labelList sizeMoment_;
+
+
 
 
 public:
