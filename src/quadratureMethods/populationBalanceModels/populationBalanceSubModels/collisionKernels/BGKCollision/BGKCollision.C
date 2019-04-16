@@ -118,7 +118,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     const volVelocityMomentFieldSet& moments = quadrature_.moments();
 
     //- Monodisperse case
-    if (nSizes_ <= 1)
+    if (nSizes_ < 0)
     {
         scalar m0 = moments(0)[celli];
 
@@ -149,56 +149,53 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 //     scalar g0 = (2.0 - c)/(2.0*pow3(1.0 - c));
 
     // Size conditioned mean velocities
-    List<vector> Us;
+    List<vector> Us(nSizes_, Zero);
 
     // Size conditioned covariance tensors
-    List<symmTensor> Sigmas;
+    List<symmTensor> Sigmas(nSizes_, Zero);
 
     // Volume fraction of sizes
-    scalarList weights;
-
-    label sizei = 0;
+    scalarList weights(nSizes_, 0.0);
 
     // Construct conditional moments
-    for (label cmi = 0; cmi < nSizes_; cmi++)
+    forAll(velocityMoments_, sizei)
     {
-        forAll(velocityMoments_, vmi)
+        forAll(velocityMomentOrders_, mi)
         {
-            velocityMoments_[sizei][vmi][celli] = 0.0;
-        }
-
-        labelList index(nodeIndexes_[0].size(), 0);
-        index[sizeIndex_] = cmi;
-
-        forAll(velocityNodeIndexes_, nodei)
-        {
-            forAll(velocityIndexes_, cmpt)
+            velocityMoments_[sizei][mi][celli] = 0.0;
+            forAll(velocityMoments_, sizej)
             {
-                index[velocityIndexes_[cmpt]] =
-                    velocityNodeIndexes_[nodei][cmpt];
-            }
-
-            const volVelocityNode& node = quadrature_.nodes()(index);
-
-            forAll(velocityMomentOrders_, mi)
-            {
-                const labelList& vOrder = velocityMomentOrders_[mi];
-
-                scalar mCmpt = node.primaryWeight()[celli];
-                forAll(vOrder, cmpt)
-                {
-                    mCmpt *=
-                        pow(node.velocityAbscissae()[celli][cmpt], vOrder[cmpt]);
-                }
-                velocityMoments_[sizei](vOrder)[celli] += mCmpt;
+                Gs_[sizei][sizej][mi][celli] = 0.0;
             }
         }
+    }
 
+    forAll(quadrature_.nodes(), nodei)
+    {
+        const labelList& nodeIndex = nodeIndexes_[nodei];
+        const volVelocityNode& node = quadrature_.nodes()[nodei];
+        label sizei = nodeIndex[sizeIndex_];
+
+        forAll(velocityMomentOrders_, mi)
+        {
+            const labelList& vOrder = velocityMomentOrders_[mi];
+
+            scalar mCmpt = node.primaryWeight()[celli];
+            forAll(vOrder, cmpt)
+            {
+                mCmpt *=
+                    pow(node.velocityAbscissae()[celli][cmpt], vOrder[cmpt]);
+            }
+            velocityMoments_[sizei](vOrder)[celli] += mCmpt;
+        }
+    }
+
+    forAll(velocityMoments_, sizei)
+    {
         scalar m0 = velocityMoments_[sizei](0)[celli];
-        if (m0 > 1e-10)
+        weights[sizei] = m0;
+        if (m0 > small)
         {
-            weights.append(m0);
-
             scalar u = velocityMoments_[sizei](1)[celli]/m0;
             scalar v = 0.0;
             scalar w = 0.0;
@@ -211,76 +208,95 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                     w = velocityMoments_[sizei](0,0,1)[celli]/m0;
                 }
             }
-            Us.append(vector(u,v,w));
-            Sigmas.append(covariance(velocityMoments_[sizei], celli, u, v, w));
-            sizei++;
+            Us[sizei] = vector(u,v,w);
+            Sigmas[sizei] =
+                covariance(velocityMoments_[sizei], celli, u, v, w);
         }
     }
 
-    label nSizes = Us.size();
 
-    scalarListList Ks(nSizes, scalarList(nSizes, 0.0));
+    scalarListList Ks(nSizes_, scalarList(nSizes_, 0.0));
     scalar alphard = 0.0;
-    for (label cmi = 0; cmi < nSizes; cmi++)
+    forAll(velocityMoments_, sizei)
     {
-        const volVelocityNode& node = quadrature_.nodes()(cmi);
+        const volVelocityNode& node = quadrature_.nodes()(sizei);
         alphard +=
-            weights[cmi]
-           /max(node.primaryAbscissae()[sizeIndex_][celli], 1e-10);
+            weights[sizei]
+           /max(node.primaryAbscissae()[sizeIndex_][celli], small);
     }
 
     scalar pi = Foam::constant::mathematical::pi;
-    for (label cmi = 0; cmi < nSizes; cmi++)
+    forAll(velocityMoments_, sizei)
     {
-        const volVelocityNode& nodei = quadrature_.nodes()(cmi);
+        const volVelocityNode& nodei = quadrature_.nodes()(sizei);
+        scalar Thetai = max(tr(Sigmas[sizei])/3.0, 0.0);
+        scalar di = nodei.primaryAbscissae()[sizeIndex_][celli];
+        symmTensor Sigmai = Sigmas[sizei] + Thetai*symmTensor::I;
 
-        scalar Thetai = max(tr(Sigmas[cmi])/3.0, 0.0);
-
-        for (label cmj = 0; cmj < nSizes; cmj++)
+        forAll(velocityMoments_, sizej)
         {
-            const volVelocityNode& nodej = quadrature_.nodes()(cmj);
-
-            scalar Thetaj = max(tr(Sigmas[cmj])/3.0, 0.0);
-
-            scalar Thetaij = Thetai + Thetaj;
-            symmTensor Sij =
-                0.5*(Sigmas[cmi] + Sigmas[cmj] + symmTensor::one*Thetaij);
-
-            scalar di = max(nodei.primaryAbscissae()[sizeIndex_][celli], 1e-10);
-            scalar dj = max(nodej.primaryAbscissae()[sizeIndex_][celli], 1e-10);
-            scalar dij = (di + dj)*0.5;
-            scalar XiPow3 = pow3(dij/dj);
-            scalar massi = pi/6.0*pow3(di)*rhop_()[celli];
-            scalar massj = pi/6.0*pow3(dj)*rhop_()[celli];
-
-            scalar muij = 2.0*massj/(massi + massj);
-            scalar g0ij = 1.0/alphac + 3.0*di*dj*alphard/(sqr(alphac)*(di + dj));
-
-            Ks[cmi][cmj] =
-                24.0*g0ij*weights[cmj]*XiPow3*sqrt(Thetaij)/(sqrt(pi)*dij);
-
-            symmTensor Sigmaij =
-                Sigmas[cmi]
-              + 0.5*(1.0 + e())*muij*(0.25*(1.0 + e())*muij*Sij - Sigmas[cmi]);
-
-            vector Uij = Us[cmi];
-            if (cmi != cmj)
+            const volVelocityNode& nodej = quadrature_.nodes()(sizej);
+            scalar dj = nodej.primaryAbscissae()[sizeIndex_][celli];
+            if
+            (
+                weights[sizei] > small && di > small
+             && weights[sizej] > small && dj > small
+            )
             {
-                Us[cmi] += 0.25*(1.0 + e())*muij*(Us[cmj] - Us[cmi]);
-            }
+                scalar Thetaj = max(tr(Sigmas[sizej])/3.0, 0.0);
 
-            forAllIter(List<momentFunction>, equilibriumMomentFunctions_, iter)
-            {
-                (*iter)
+                scalar Thetaij = Thetai + Thetaj;
+                symmTensor Sigmaij =
+                    0.5
+                   *(
+                        Sigmas[sizei]
+                      + Sigmas[sizej]
+                      + symmTensor::one*Thetaij
+                    );
+
+                scalar dij = (di + dj)*0.5;
+                scalar XiPow3 = pow3(dij/dj);
+                scalar massi = pi/6.0*pow3(di);
+                scalar massj = pi/6.0*pow3(dj);
+
+                scalar muij = 2.0*massj/(massi + massj);
+                scalar g0ij =
+                    1.0/alphac
+                  + 3.0*di*dj*alphard/(sqr(alphac)*(di + dj));
+
+                Ks[sizei][sizej] =
+                    24.0*g0ij*weights[sizej]*XiPow3*sqrt(Thetaij)
+                   /(sqrt(pi)*dij);
+
+                symmTensor Sigma =
+                    Sigmai
+                  + 0.5*(1.0 + e())
+                   *muij*(0.25*(1.0 + e())*muij*Sigmaij - Sigmai);
+
+                vector Uij = Us[sizei];
+                if (sizei != sizej)
+                {
+                    Uij +=
+                        0.25*(1.0 + e())*muij*(Us[sizej] - Us[sizei]);
+                }
+
+                forAllIter
                 (
-                    Gs_[cmi][cmj],
-                    celli,
-                    1.0,
-                    Uij.x(),
-                    Uij.y(),
-                    Uij.z(),
-                    Sigmaij
-                );
+                    List<momentFunction>, equilibriumMomentFunctions_,
+                    iter
+                )
+                {
+                    (*iter)
+                    (
+                        Gs_[sizei][sizej],
+                        celli,
+                        1.0,
+                        Uij.x(),
+                        Uij.y(),
+                        Uij.z(),
+                        Sigma
+                    );
+                }
             }
         }
     }
@@ -296,22 +312,25 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         }
         Meq_[mi][celli] = 0.0;
 
-        for (label cmi = 0; cmi < nSizes; cmi++)
+        forAll(velocityMoments_, sizei)
         {
-            for (label cmj = 0; cmj < nSizes; cmj++)
+            scalar mCmpt = 0.0;
+            forAll(velocityMoments_, sizej)
             {
-                Meq_[mi][celli] +=
-                    Ks[cmi][cmj]
+                mCmpt +=
+                    Ks[sizei][sizej]
                    *(
-                        Gs_[cmi][cmj](order)[celli]*weights[cmi]
-                      - velocityMoments_[cmi](order)[celli]
-                    )
-                   *pow
-                    (
-                        quadrature_.nodes()(cmi).primaryAbscissae()[sizeIndex_][celli],
-                        si
+                        Gs_[sizei][sizej](order)[celli]*weights[sizei]
+                      - velocityMoments_[sizei](order)[celli]
                     );
             }
+            mCmpt *=
+                pow
+                (
+                    quadrature_.nodes()(sizei).primaryAbscissae()[sizeIndex_][celli],
+                    si
+                );
+            Meq_[mi][celli] += mCmpt;
         }
     }
 }
@@ -328,22 +347,11 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
     collisionKernel(dict, mesh, quadrature),
     tauCollisional_
     (
-        dimensionedScalar::lookupOrDefault("tau", dict, dimTime, 0.0)
-    ),
-    rhop_
-    (
-        lookupOrInitialize
-        (
-            mesh,
-            IOobject::groupName("thermo:rho", quadrature.moments()[0].group()),
-            dict,
-            "rho",
-            dimDensity
-        )
+        dimensionedScalar::lookupOrDefault("tau", dict, dimTime, small)
     ),
     Meq_(momentOrders_.size(), momentOrders_)
 {
-    if (nSizes_ > 1)
+    if (nSizes_ > 0)
     {
         implicit_ = false;
     }
@@ -451,7 +459,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
     addMomentFunction3(map, equilibriumMomentFunctions_, 5,0,2)
     addMomentFunction2(map, equilibriumMomentFunctions_, 5,2)
 
-    if (nSizes_ > 1)
+    if (nSizes_ > 0)
     {
         // Equilibrium conditional distributions
         velocityMoments_.resize(nSizes_);
@@ -503,6 +511,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
                     );
                 }
             }
+
             velocityMoments_.set
             (
                 cmi,
@@ -524,7 +533,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
                         (
                             IOobject::groupName
                             (
-                                "conditinoedVelocityMoment" + Foam::name(cmi),
+                                "conditionedVelocityMoment" + Foam::name(cmi),
                                 mappedList<scalar>::listToWord(momentOrder)
                             ),
                             mesh_.time().timeName(),
@@ -568,7 +577,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     }
 
     //- Return calculated source
-    if (nSizes_ > 1)
+    if (nSizes_ > 0)
     {
         return Meq_(momentOrder)[celli];
     }
@@ -589,7 +598,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         return
         (
             Meq_(m.cmptOrders())/tauCollisional_
-          - fvm::Sp(1/tauCollisional_, m)
+          - fvm::Sp(1.0/tauCollisional_, m)
         );
     }
 

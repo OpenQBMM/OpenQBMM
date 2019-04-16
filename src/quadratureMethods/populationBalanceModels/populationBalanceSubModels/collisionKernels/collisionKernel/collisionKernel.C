@@ -88,6 +88,7 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
     velocityIndexes_(quadrature.nodes()[0].velocityIndexes()),
     nDimensions_(velocityIndexes_.size()),
     sizeIndex_(quadrature.nodes()[0].sizeIndex()),
+    nSizes_(0),
     implicit_(dict_.lookupOrDefault("implicit", true))
 {
     if (sizeIndex_ != -1)
@@ -129,34 +130,37 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
         }
     }
 
-    forAll(nodeIndexes_, nodei)
+    if (nodeIndexes_[0].size() >= velocityIndexes_.size())
     {
-        const labelList& nodeIndex = nodeIndexes_[nodei];
-        labelList index(nDimensions_, 0);
-        forAll(velocityIndexes_, cmpt)
+        forAll(nodeIndexes_, nodei)
         {
-            index[cmpt] = nodeIndex[velocityIndexes_[cmpt]];
-        }
-
-        bool found = false;
-        forAll(velocityNodeIndexes_, vmi)
-        {
-            bool same = true;
-            forAll(velocityNodeIndexes_[vmi], cmpt)
+            const labelList& nodeIndex = nodeIndexes_[nodei];
+            labelList index(nDimensions_, 0);
+            forAll(velocityIndexes_, cmpt)
             {
-                if (velocityNodeIndexes_[vmi][cmpt] != index[cmpt])
+                index[cmpt] = nodeIndex[velocityIndexes_[cmpt]];
+            }
+
+            bool found = false;
+            forAll(velocityNodeIndexes_, vmi)
+            {
+                bool same = true;
+                forAll(velocityNodeIndexes_[vmi], cmpt)
                 {
-                    same = false;
+                    if (velocityNodeIndexes_[vmi][cmpt] != index[cmpt])
+                    {
+                        same = false;
+                    }
+                }
+                if (same)
+                {
+                    found = true;
                 }
             }
-            if (same)
+            if (!found)
             {
-                found = true;
+                velocityNodeIndexes_.append(index);
             }
-        }
-        if (!found)
-        {
-            velocityNodeIndexes_.append(index);
         }
     }
 }

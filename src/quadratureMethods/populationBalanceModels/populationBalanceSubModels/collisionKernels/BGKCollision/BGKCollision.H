@@ -91,9 +91,6 @@ protected:
 
     // Protected data
 
-        //- Refrence to particle diameter
-        tmp<volScalarField> rhop_;
-
         //- Equilibrium velocity moments (for each size)
         mappedPtrList<volScalarField> Meq_;
 

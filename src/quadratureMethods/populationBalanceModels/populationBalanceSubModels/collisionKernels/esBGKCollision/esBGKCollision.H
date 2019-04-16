@@ -76,6 +76,9 @@ class esBGKCollision
         //- Coefficient related to Prandtl number
         scalar zeta_;
 
+        //- Refrence to particle diameter
+        tmp<volScalarField> rhop_;
+
         //- Diameter
         tmp<volScalarField> dp_;
 

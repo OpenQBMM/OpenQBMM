@@ -348,7 +348,8 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
     Cs_(momentOrders_.size(), momentOrders_),
     dp_
     (
-        lookupOrInitialize
+        nSizes_ <= 0
+      ? lookupOrInitialize
         (
             mesh,
             IOobject::groupName("d", quadrature.moments()[0].group()),
@@ -356,6 +357,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
             "d",
             dimLength
         )
+      : tmp<volScalarField>()
     ),
     rhop_
     (

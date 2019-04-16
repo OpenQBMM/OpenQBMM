@@ -43,7 +43,7 @@ Foam::vdfPhaseModel::vdfPhaseModel
     (
         IOobject
         (
-            IOobject::groupName("populationBalanceProperties", phaseName),
+            "populationBalanceProperties",
             mesh.time().constant(),
             mesh,
             IOobject::MUST_READ_IF_MODIFIED,
@@ -139,73 +139,76 @@ Foam::vdfPhaseModel::vdfPhaseModel
     if (quadrature_.nodes()[0].sizeIndex() != -1)
     {
         d_.writeOpt() = IOobject::AUTO_WRITE;
-    }
 
-    dimensionSet sizeDim
-    (
-        quadrature_.nodes()[0].primaryAbscissae()[sizeIndex_].dimensions()
-    );
-    dimensionSet weightDim
-    (
-        quadrature_.nodes()[0].primaryWeight().dimensions()
-    );
-
-    if (weightDim == dimless)
-    {
-        m0VolumeFraction_ = true;
-    }
-
-    sizeMoment_[sizeIndex_] = 1;
-
-    if (sizeDim == dimLength)
-    {
-        sizeType_ = length;
+        dimensionSet sizeDim
+        (
+            quadrature_.nodes()[0].primaryAbscissae()[sizeIndex_].dimensions()
+        );
+        dimensionSet weightDim
+        (
+            quadrature_.nodes()[0].primaryWeight().dimensions()
+        );
 
         if (weightDim == dimless)
         {
-            momentSetType_ = volumeFractionLength;
+            m0VolumeFraction_ = true;
         }
-        else if (weightDim == inv(dimVolume))
-        {
-            momentSetType_ = numberDensityLength;
-            volumeFractionMoment_[sizeIndex_] = 3;
-        }
-    }
-    else if (sizeDim == dimVolume)
-    {
-        sizeType_ = volume;
 
-        if (weightDim == dimless)
-        {
-            momentSetType_ = volumeFractionVolume;
-        }
-        else if (weightDim == inv(dimVolume))
-        {
-            momentSetType_ = numberDensityVolume;
-            volumeFractionMoment_[sizeIndex_] = 1;
-        }
-    }
-    else if (sizeDim == dimMass)
-    {
-        sizeType_ = mass;
+        sizeMoment_[sizeIndex_] = 1;
 
-        if (weightDim == dimless)
+        if (sizeDim == dimLength)
         {
-            momentSetType_ = volumeFractionMass;
+            sizeType_ = length;
+
+            if (weightDim == dimless)
+            {
+                momentSetType_ = volumeFractionLength;
+            }
+            else if (weightDim == inv(dimVolume))
+            {
+                momentSetType_ = numberDensityLength;
+                volumeFractionMoment_[sizeIndex_] = 3;
+            }
         }
-        else if (weightDim == inv(dimVolume))
+        else if (sizeDim == dimVolume)
         {
-            momentSetType_ = numberDensityMass;
-            volumeFractionMoment_[sizeIndex_] = 1;
+            sizeType_ = volume;
+
+            if (weightDim == dimless)
+            {
+                momentSetType_ = volumeFractionVolume;
+            }
+            else if (weightDim == inv(dimVolume))
+            {
+                momentSetType_ = numberDensityVolume;
+                volumeFractionMoment_[sizeIndex_] = 1;
+            }
         }
-    }
-    else
-    {
-        FatalErrorInFunction
-            << "Unknown weight and abscissae dimension combination." << nl
-            << "Weight can use dimensions of volume fraction or number " << nl << "density and size abscissa can use dimensions of mass, "<< nl
-            << "length or volume."
-            << abort(FatalError);
+        else if (sizeDim == dimMass)
+        {
+            sizeType_ = mass;
+
+            if (weightDim == dimless)
+            {
+                momentSetType_ = volumeFractionMass;
+            }
+            else if (weightDim == inv(dimVolume))
+            {
+                momentSetType_ = numberDensityMass;
+                volumeFractionMoment_[sizeIndex_] = 1;
+            }
+        }
+        else
+        {
+            FatalErrorInFunction
+                << "Unknown weight and abscissae dimension combination." << nl
+                << "Weight can use dimensions of volume fraction or" << nl
+                << "number density and size abscissa can use dimensions" << nl
+                << "of mass, length or volume."
+                << "Weight dimensions: " << weightDim <<nl
+                << "Size dimensions: " << sizeDim
+                << abort(FatalError);
+        }
     }
 
     correct();

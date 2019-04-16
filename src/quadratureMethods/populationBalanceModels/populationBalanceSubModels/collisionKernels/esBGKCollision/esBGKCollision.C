@@ -174,9 +174,21 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
         dimensionedScalar("0", sqr(dimVelocity), 0.0)
     ),
     zeta_(dict_.lookupOrDefault("zeta", 1.0)),
-    dp_
+    rhop_
     (
         lookupOrInitialize
+        (
+            mesh,
+            IOobject::groupName("thermo:rho", quadrature.moments()[0].group()),
+            dict,
+            "rho",
+            dimDensity
+        )
+    ),
+    dp_
+    (
+        nSizes_ < 0
+      ? lookupOrInitialize
         (
             mesh,
             IOobject::groupName("d", quadrature.moments()[0].group()),
@@ -184,6 +196,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
             "d",
             dimLength
         )
+      : tmp<volScalarField>()
     )
 {
     scalar omega = (1.0 + e_)/2.0;
@@ -213,6 +226,10 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     if (implicit_)
     {
         return 0.0;
+    }
+    if (nSizes_ > 0)
+    {
+        return Meq_(momentOrder)[celli];
     }
 
     scalar c = quadrature_.moments()(0)[celli]/0.63;

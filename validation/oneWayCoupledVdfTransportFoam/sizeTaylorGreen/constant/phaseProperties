@@ -38,7 +38,7 @@ aspectRatio
 drag
 {
     type        SchillerNaumann;
-    residualRe  1e-4;
+    residualRe  1e-3;
 
     swarmCorrection
     {
