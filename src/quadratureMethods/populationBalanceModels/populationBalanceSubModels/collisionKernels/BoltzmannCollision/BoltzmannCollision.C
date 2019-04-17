@@ -266,7 +266,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
 //     addIFunction3(map, 0,2,1)
     addIFunction2(map, 0,3)
 //     addIFunction3(map, 1,0,2)
-    addIFunction3(map, 1,1,1)
+//     addIFunction3(map, 1,1,1)
 //     addIFunction2(map, 1,2)
 //     addIFunction3(map, 2,0,1)
 //     addIFunction2(map, 2,1)

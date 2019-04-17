@@ -139,23 +139,23 @@ IFuncHeader(0,3,0)
 //       - omegaPow[1]*gPow[1].z()*vPow[1].z()*vPow[1].x();
 // }
 
-IFuncHeader(1,1,1)
-{
-    Is(1,1,1) =
-      - omegaPow[3]/8.0*gPow[1].x()*gPow[1].y()*gPow[1].z()
-      + omegaPow[3]/4.0
-       *(
-            gPow[1].x()*gPow[1].y()*vPow[1].z()
-          + gPow[1].y()*gPow[1].z()*vPow[1].x()
-          + gPow[1].z()*gPow[1].x()*vPow[1].y()
-        )
-      - omegaPow[1]/2.0
-       *(
-            gPow[1].x()*vPow[1].y()*vPow[1].z()
-          + gPow[1].y()*vPow[1].z()*vPow[1].x()
-          + gPow[1].z()*vPow[1].x()*vPow[1].y()
-        );
-}
+// IFuncHeader(1,1,1)
+// {
+//     Is(1,1,1) =
+//       - omegaPow[3]/8.0*gPow[1].x()*gPow[1].y()*gPow[1].z()
+//       + omegaPow[3]/4.0
+//        *(
+//             gPow[1].x()*gPow[1].y()*vPow[1].z()
+//           + gPow[1].y()*gPow[1].z()*vPow[1].x()
+//           + gPow[1].z()*gPow[1].x()*vPow[1].y()
+//         )
+//       - omegaPow[1]/2.0
+//        *(
+//             gPow[1].x()*vPow[1].y()*vPow[1].z()
+//           + gPow[1].y()*vPow[1].z()*vPow[1].x()
+//           + gPow[1].z()*vPow[1].x()*vPow[1].y()
+//         );
+// }
 
 // IFuncHeader(1,2,0)
 // {
