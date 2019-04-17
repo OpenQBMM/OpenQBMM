@@ -32,6 +32,10 @@ boundaryField
     {
         type            fixedFluxPressure;
     }
+    defaultFaces
+    {
+        type            empty;
+    }
 }
 
 // ************************************************************************* //

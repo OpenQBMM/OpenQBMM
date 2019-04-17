@@ -63,267 +63,49 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     const vector& u1 = quadrature_.nodes()[node1].velocityAbscissae()[celli];
     const vector& u2 = quadrature_.nodes()[node2].velocityAbscissae()[celli];
 
-    scalar v1(u1.x());
-    scalar v2(u1.y());
-    scalar v3(u1.z());
+    // Store powers of velocities
     vector g = u1 - u2;
-    scalar g1(g.x());
-    scalar g1Sqr(sqr(g1));
-    scalar g1Pow4(sqr(g1Sqr));
-    scalar g2(g.y());
-    scalar g2Sqr(sqr(g2));
-    scalar g2Pow4(sqr(g2Sqr));
-    scalar g3(g.z());
-    scalar g3Sqr(sqr(g3));
-    scalar g3Pow4(sqr(g3Sqr));
-    scalar gMag = mag(g);
-    scalar gMagSqr = sqr(gMag);
-    scalar gPow4 = sqr(gMagSqr);
-    scalar omegaSqr = sqr(omega);
-    scalar omegaPow3 = omega*omegaSqr;
-    scalar omegaPow4 = omegaSqr*omegaSqr;
+    scalarList omegaPow(6, omega);
+    vectorList gPow(6, g);
+    scalarList gMagPow(6, mag(g));
+    vectorList vPow(6, u1);
 
-    Is_(1) = -(omega/2.0)*g1;
-    Is_(2) = (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g1Sqr - omega*g1*v1;
-    Is_(3) =
-      - (omegaPow3/8.0)*(gMagSqr + g1Sqr)*g1
-      + (omegaSqr/4.0)*(gMagSqr + 3.0*g1Sqr)*v1
-      - (1.5*omega)*g1*sqr(v1);
-    Is_(4) =
-        (omegaPow4/80.0)*(gPow4 + 10.0*gMagSqr*g1Sqr + 5.0*g1Pow4)
-      - (omegaPow3/2.0)*(gMagSqr + g1Sqr)*g1*v1
-      + (omegaSqr/2.0)*(gMagSqr + 3.0*g1Sqr)*sqr(v1)
-      - 2.0*omega*g1*pow3(v1);
-
-    if (nDimensions_ > 1)
+    for (label powi = 2; powi < gPow.size(); powi++)
     {
-        Is_(0,1) = -(omega/2.0)*g2;
-        Is_(1,1) = (omegaSqr/4.0)*g1*g2 - (omega/2.0)*(v1*g2 + g1*v2);
-        Is_(0,2) =
-            (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g2Sqr - omega*g2*v2;
-        Is_(0,3) =
-          - (omegaPow3/8.0)*(gMagSqr + g2Sqr)*g2
-          + (omegaSqr/4.0)*(gMagSqr + 3.0*g2Sqr)*v2
-          - (1.5*omega)*g2*sqr(v2);
-        Is_(0,4) =
-            (omegaPow4/80.0)*(gPow4 + 10.0*gMagSqr*g2Sqr + 5.0*g2Pow4)
-          - (omegaPow3/2.0)*(gMagSqr + g2Sqr)*g2*v2
-          + (omegaSqr/2.0)*(gMagSqr + 3.0*g2Sqr)*sqr(v2)
-          - 2.0*omega*g2*pow3(v2);
+        omegaPow[powi] = pow(omegaPow[powi], powi);
+        gMagPow[powi] = pow(gMagPow[powi], powi);
+        for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
+        {
+            gPow[powi][cmpt] = pow(gPow[powi][cmpt], powi);
+            vPow[powi][cmpt] = pow(vPow[powi][cmpt], powi);
+        }
     }
-    if (nDimensions_ > 2)
+
+    forAllIter(List<momentFunction>, coefficientFunctions_, iter)
     {
-        Is_(0,0,1) = -(omega/2.0)*g3;
-        Is_(1,0,1) = (omegaSqr/4.0)*g1*g3 - (omega/2.0)*(v1*g3 + g1*v3);
-        Is_(0,1,1) = (omegaSqr/4.0)*g2*g3 - (omega/2.0)*(v2*g3 + g2*v3);
-        Is_(0,0,2) =
-            (omegaSqr/12.0)*gMagSqr + (omegaSqr/4.0)*g3Sqr - omega*g3*v3;
-        Is_(0,0,3) =
-          - (omegaPow3/8.0)*(gMagSqr + g3Sqr)*g3
-          + (omegaSqr/4.0)*(gMagSqr + 3.0*g3Sqr)*v3
-          - (1.5*omega)*g3*sqr(v3);
-        Is_(0,0,4) =
-            (omegaPow4/80.0)*(gPow4 + 10.0*gMagSqr*g3Sqr + 5.0*g3Pow4)
-          - (omegaPow3/2.0)*(gMagSqr + g3Sqr)*g3*v3
-          + (omegaSqr/2.0)*(gMagSqr + 3.0*g3Sqr)*sqr(v3)
-          - 2.0*omega*g3*pow3(v3);
+        (*iter)(Is_, omegaPow, gPow, gMagPow, vPow);
     }
 
     if (Enskog_)
     {
-        I1s_[0](1) = (2.0*omega/15.0)*(gMagSqr + 2.0*g1Sqr);
-        I1s_[0](2) =
-          - (2.0*omegaSqr/35.0)*(3.0*gMagSqr + 2.0*g1Sqr)*g1
-          + (4.0*omega/15.0)*(gMagSqr + 2.0*g1Sqr)*v1;
-        I1s_[0](3) =
-            (2.0*omegaSqr/315.0)
-           *(3.0*gPow4 + 24.0*gMagSqr*g1Sqr + 8.0*pow4(g1))
-          - (6.0*omegaSqr/35.0)*(3.0*gMagSqr + 2.0*g1Sqr)*g1*v1
-          + (2.0*omega/5.0)*(gMagSqr + 2.0*g1Sqr)*sqr(v1);
-        I1s_[0](4) =
-          - (2.0*omegaPow4/693.0)
-           *(15.0*gPow4 + 40.0*gMagSqr*g1Sqr + 8.0*pow4(g1))*g1
-          + (8.0*omegaPow3/315.0)*(3.0*gPow4 + 24.0*gMagSqr*g1Sqr + 8.0*g1Pow4)*v1
-          - (12.0*omegaSqr/35.0)*(3.0*gMagSqr + 2.0*g1Sqr)*g1*sqr(v1)
-          + (8.0*omega/15.0)*(gMagSqr + 2.0*g1Sqr)*pow3(v1);
+        forAllIter(List<momentFunction>, enskogFunctions_[0], iter)
+        {
+            (*iter)(I1s_[0], omegaPow, gPow, gMagPow, vPow);
+        }
 
         if (nDimensions_ > 1)
         {
-            I1s_[1](1) = (4.0*omega/15.0)*g1*g2;
-
-            I1s_[0](0, 1) = (4.0*omega/15.0)*g1*g2;
-            I1s_[1](0, 1) = (2.0*omega/15.0)*(gMagSqr + 2.0*g2Sqr);
-
-            I1s_[0](1,1) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g1Sqr)*g2
-              + (4.0*omega/15.0)*g1*g2*v1
-              + (2.0*omega/15.0)*(gMagSqr + 2.0*g1Sqr)*v2;
-            I1s_[1](1,1) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g2Sqr)*g1
-              + (4.0*omega/15.0)*g2*g1*v2
-              + (2.0*omega/15.0)*(gMagSqr + 2.0*g2Sqr)*v1;
-
-            I1s_[1](2) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g1Sqr)*g2
-              + (8.0*omega/15.0)*g2*g1*v1;
-
-            I1s_[0](0,2) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g2Sqr)*g1
-              + (8.0*omega/15.0)*g1*g2*v2;
-            I1s_[1](0,2) =
-              - (2.0*omegaSqr/35.0)*(3.0*gMagSqr + 2.0*g2Sqr)*g2
-              + (4.0*omega/15.0)*(gMagSqr + 2.0*g2Sqr)*v2;
-
-            I1s_[1](3) =
-                (8.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g1Sqr)*g2*g1
-              - (6.0*omegaSqr/35.0)*(gMagSqr + 2.0*g1Sqr)*g2*v1
-              + (4.0*omega/5.0)*g1*g2*sqr(v1);
-
-            I1s_[0](0,3) =
-                (8.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g2Sqr)*g1*g2
-              - (6.0*omegaSqr/35.0)*(gMagSqr + 2.0*g2Sqr)*g1*v2
-              + (4.0*omega/5.0)*g1*g2*sqr(v2);
-            I1s_[1](0,3) =
-                (2.0*omegaSqr/315.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g2Sqr + 8.0*g2Pow4)
-              - (6.0*omegaSqr/35.0)*(3.0*gMagSqr + 2.0*g2Sqr)*g2*v2
-              + (2.0*omega/5.0)*(gMagSqr + 2.0*g2Sqr)*sqr(v2);
-
-            I1s_[1](4) =
-              - (2.0*omegaPow4/693.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g1Sqr + 8.0*g1Pow4)*g2
-              + (32.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g1Sqr)*g2*g1*v1
-              - (12.0*omegaSqr/35.0)*(gMagSqr + 2.0*g1Sqr)*g2*sqr(v1)
-              + (16.0*omega/15.0)*g2*g1*pow3(v1);
-
-            I1s_[0](0,4) =
-              - (2.0*omegaPow4/693.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g2Sqr + 8.0*g2Pow4)*g1
-              + (32.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g2Sqr)*g1*g2*v2
-              - (12.0*omegaSqr/35.0)*(gMagSqr + 2.0*g2Sqr)*g1*sqr(v2)
-              + (16.0*omega/15.0)*g1*g2*pow3(v2);
-            I1s_[1](0,4) =
-              - (2.0*omegaPow4/693.0)
-               *(15.0*gPow4 + 40.0*gMagSqr*g2Sqr + 8.0*g2Pow4)*g2
-              + (8.0*omegaPow3/315.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g2Sqr + 8.0*g2Pow4)*v2
-              - (12.0*omegaSqr/35.0)*(3.0*gMagSqr + 2.0*g2Sqr)*g2*sqr(v2)
-              + (8.0*omega/15.0)*(gMagSqr + 2.0*g2Sqr)*pow3(v2);
+            forAllIter(List<momentFunction>, enskogFunctions_[1], iter)
+            {
+                (*iter)(I1s_[1], omegaPow, gPow, gMagPow, vPow);
+            }
         }
         if (nDimensions_ > 2)
         {
-            I1s_[2](1) = (4.0*omega/15.0)*g1*g3;
-            I1s_[2](0,1) = (4.0*omega/15.0)*g2*g3;
-
-            I1s_[0](0,0,1) = (4.0*omega/15.0)*g1*g3;
-            I1s_[1](0,0,1) = (4.0*omega/15.0)*g2*g3;
-            I1s_[2](0,0,1) = (2.0*omega/15.0)*(gMagSqr + 2.0*g3Sqr);
-
-            I1s_[2](1,1) =
-              - (4.0*omegaSqr/35.0)*g1*g2*g3
-              + (4.0*omega/15.0)*g3*(g1*v2 + g2*v1);
-
-
-            I1s_[0](1,0,1) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g1Sqr)*g3
-              + (4.0*omega/15.0)*g1*g3*v1
-              + (2.0*omega/15.0)*(gMagSqr + 2.0*g1Sqr)*v3;
-            I1s_[1](1,0,1) =
-              - (4.0*omegaSqr/35.0)*g1*g2*g3
-              + (4.0*omega/15.0)*g2*(g1*v3 + g3*v1);
-            I1s_[2](1,0,1) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g3Sqr)*g1
-              + (4.0*omega/15.0)*g3*g1*v3
-              + (2.0*omega/15.0)*(gMagSqr + 2.0*g3Sqr)*v1;
-
-            I1s_[0](0,1,1) =
-              - (4.0*omegaSqr/35.0)*g1*g2*g3
-              + (4.0*omega/15.0)*g1*(g2*v3 + g3*v2);
-            I1s_[1](0,1,1) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g2Sqr)*g3
-              + (4.0*omega/15.0)*g2*g3*v2
-              + (2.0*omega/15.0)*(gMagSqr + 2.0*g2Sqr)*v3;
-            I1s_[2](0,1,1) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g3Sqr)*g2
-              + (4.0*omega/15.0)*g2*g3*v3
-              + (2.0*omega/15.0)*(gMagSqr + 2.0*g3Sqr)*v2;
-
-            I1s_[2](2) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g1Sqr)*g3
-              + (8.0*omega/15.0)*g1*g3*v1;
-
-            I1s_[2](0, 2) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g2Sqr)*g3
-              + (8.0*omega/15.0)*g2*g3*v2;
-
-            I1s_[0](0,0,2) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g3Sqr)*g1
-              + (8.0*omega/15.0)*g1*g3*v3;
-            I1s_[1](0,0,2) =
-              - (2.0*omegaSqr/35.0)*(gMagSqr + 2.0*g3Sqr)*g2
-              + (8.0*omega/15.0)*g2*g3*v3;
-            I1s_[2](0,0,2) =
-              - (2.0*omegaSqr/35.0)*(3.0*gMagSqr + 2.0*g3Sqr)*g3
-              + (4.0*omega/15.0)*(gMagSqr + 2.0*g3Sqr)*v3;
-
-            I1s_[2](3) =
-                (8.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g1Sqr)*g3*g1
-              - (6.0*omegaSqr/35.0)*(gMagSqr + 2.0*g1Sqr)*g3*v1
-              + (4.0*omega/5.0)*g1*g3*sqr(v1);
-
-            I1s_[2](0,3) =
-                (8.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g2Sqr)*g3*g2
-              - (6.0*omegaSqr/35.0)*(gMagSqr + 2.0*g2Sqr)*g3*v2
-              + (4.0*omega/5.0)*g3*g2*sqr(v2);
-
-            I1s_[0](0,0,3) =
-                (8.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g3Sqr)*g1*g3
-              - (6.0*omegaSqr/35.0)*(gMagSqr + 2.0*g3Sqr)*g1*v3
-              + (4.0*omega/5.0)*g1*g3*sqr(v3);
-            I1s_[1](0,0,3) =
-                (8.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g3Sqr)*g2*g3
-              - (6.0*omegaSqr/35.0)*(gMagSqr + 2.0*g3Sqr)*g2*v3
-              + (4.0*omega/5.0)*g2*g3*sqr(v3);
-            I1s_[2](0,0,3) =
-                (2.0*omegaSqr/315.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g3Sqr + 8.0*pow4(g3))
-              - (6.0*omegaSqr/35.0)*(3.0*gMagSqr + 2.0*g3Sqr)*g3*v3
-              + (2.0*omega/5.0)*(gMagSqr + 2.0*g3Sqr)*sqr(v3);
-
-            I1s_[2](4) =
-              - (2.0*omegaPow4/693.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g1Sqr + 8.0*g1Pow4)*g3
-              + (32.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g1Sqr)*g3*g1*v1
-              - (12.0*omegaSqr/35.0)*(gMagSqr + 2.0*g1Sqr)*g3*sqr(v1)
-              + (16.0*omega/15.0)*g3*g1*pow3(v1);
-
-            I1s_[2](0,4) =
-              - (2.0*omegaPow4/693.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g2Sqr + 8.0*g2Pow4)*g3
-              + (32.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g2Sqr)*g3*g2*v2
-              - (12.0*omegaSqr/35.0)*(gMagSqr + 2.0*g2Sqr)*g3*sqr(v2)
-              + (16.0*omega/15.0)*g3*g2*pow3(v2);
-
-
-            I1s_[0](0,0,4) =
-              - (2.0*omegaPow4/693.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g3Sqr + 8.0*g3Pow4)*g1
-              + (32.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g3Sqr)*g1*g3*v3
-              - (12.0*omegaSqr/35.0)*(gMagSqr + 2.0*g3Sqr)*g1*sqr(v3)
-              + (16.0*omega/15.0)*g1*g3*pow3(v3);
-            I1s_[1](0,0,4) =
-              - (2.0*omegaPow4/693.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g3Sqr + 8.0*g3Pow4)*g2
-              + (32.0*omegaPow3/315.0)*(3.0*gMagSqr + 2.0*g3Sqr)*g2*g3*v3
-              - (12.0*omegaSqr/35.0)*(gMagSqr + 2.0*g3Sqr)*g2*sqr(v3)
-              + (16.0*omega/15.0)*g2*g3*pow3(v3);
-            I1s_[2](0,0,4) =
-              - (2.0*omegaPow4/693.0)
-               *(15.0*gPow4 + 40.0*gMagSqr*g3Sqr + 8.0*g3Pow4)*g3
-              + (8.0*omegaPow3/315.0)
-               *(3.0*gPow4 + 24.0*gMagSqr*g3Sqr + 8.0*g3Pow4)*v3
-              - (12.0*omegaSqr/35.0)*(3.0*gMagSqr + 2.0*g3Sqr)*g3*sqr(v3)
-              + (8.0*omega/15.0)*(gMagSqr + 2.0*g3Sqr)*pow3(v3);
+            forAllIter(List<momentFunction>, enskogFunctions_[2], iter)
+            {
+                (*iter)(I1s_[2], omegaPow, gPow, gMagPow, vPow);
+            }
         }
     }
 }
@@ -373,6 +155,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
     gradWs_(),
     Gs_(momentOrders_.size(), momentOrders_)
 {
+    implicit_ = false;
     forAll(Cs_, mi)
     {
         const labelList& momentOrder = momentOrders_[mi];
@@ -463,44 +246,44 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
         }
     }
 
-//     mappedLabelList map(velocityMomentOrders_.size(), velocityMomentOrders_, 0);
+    mappedLabelList map(velocityMomentOrders_.size(), velocityMomentOrders_, 0);
 //
-//     addIFunction1(map, 0)
+    addIFunction1(map, 0)
 //
-//     addIFunction3(map, 0,0,1)
-//     addIFunction2(map, 0,1)
-//     addIFunction1(map, 1)
+    addIFunction3(map, 0,0,1)
+    addIFunction2(map, 0,1)
+    addIFunction1(map, 1)
 //
-//     addIFunction3(map, 0,0,2)
-//     addIFunction3(map, 0,1,1)
-//     addIFunction2(map, 0,2)
-//     addIFunction3(map, 1,0,1)
-//     addIFunction2(map, 1,1)
-//     addIFunction1(map, 2)
+    addIFunction3(map, 0,0,2)
+    addIFunction3(map, 0,1,1)
+    addIFunction2(map, 0,2)
+    addIFunction3(map, 1,0,1)
+    addIFunction2(map, 1,1)
+    addIFunction1(map, 2)
 //
-//     addIFunction3(map, 0,0,3)
+    addIFunction3(map, 0,0,3)
 //     addIFunction3(map, 0,1,2)
 //     addIFunction3(map, 0,2,1)
-//     addIFunction2(map, 0,3)
+    addIFunction2(map, 0,3)
 //     addIFunction3(map, 1,0,2)
-//     addIFunction3(map, 1,1,1)
+    addIFunction3(map, 1,1,1)
 //     addIFunction2(map, 1,2)
 //     addIFunction3(map, 2,0,1)
 //     addIFunction2(map, 2,1)
-//     addIFunction1(map, 3)
+    addIFunction1(map, 3)
 //
-//     addIFunction3(map, 0,0,4)
+    addIFunction3(map, 0,0,4)
 //     addIFunction3(map, 0,1,3)
 //     addIFunction3(map, 0,2,2)
 //     addIFunction3(map, 0,3,1)
-//     addIFunction2(map, 0,4)
+    addIFunction2(map, 0,4)
 //     addIFunction3(map, 1,0,3)
 //     addIFunction2(map, 1,3)
 //     addIFunction3(map, 2,0,2)
 //     addIFunction2(map, 2,2)
 //     addIFunction3(map, 3,0,1)
 //     addIFunction2(map, 3,1)
-//     addIFunction1(map, 4)
+    addIFunction1(map, 4)
 //
 //     addIFunction3(map, 0,0,5)
 //     addIFunction3(map, 0,1,4)

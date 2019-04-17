@@ -125,6 +125,15 @@ protected:
             const scalar& w
         );
 
+        //- Return the covariance tensor given a list of moments
+        virtual symmTensor covariance
+        (
+            const mappedScalarList& moments,
+            const scalar& u,
+            const scalar& v,
+            const scalar& w
+        );
+
         //- Return the coefficient of restitution
         virtual scalar e() const
         {

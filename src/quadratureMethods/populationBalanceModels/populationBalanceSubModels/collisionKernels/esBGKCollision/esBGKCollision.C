@@ -149,6 +149,54 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision::covariance
 }
 
 
+Foam::symmTensor
+Foam::populationBalanceSubModels::collisionKernels::esBGKCollision::covariance
+(
+    const mappedScalarList& moments,
+    const scalar& u,
+    const scalar& v,
+    const scalar& w
+)
+{
+    symmTensor sigma(Zero);
+    scalar m0 = max(moments(0), SMALL);
+
+    // Variances of velocities
+    scalar sigma1 = max(moments(2)/m0 - sqr(u), 0.0);
+    scalar sigma2 = 0.0;
+    scalar sigma3 = 0.0;
+    scalar Theta = sigma1;
+
+    if (nDimensions_ > 1)
+    {
+        sigma2 = max(moments(0,2)/m0 - sqr(v), 0.0);
+        Theta += sigma2;
+    }
+    if (nDimensions_ > 2)
+    {
+        sigma3 = max(moments(0,0,2)/m0 - sqr(w), 0.0);
+        Theta += sigma3;
+    }
+    Theta /= nDimensions_;
+
+    sigma.xx() = a1_*Theta + b1_*sigma1;
+
+    if (nDimensions_ > 1)
+    {
+        sigma.yy() = a1_*Theta + b1_*sigma2;
+        sigma.xy() = b1_*(moments(1,1)/m0 - u*v);
+    }
+
+    if (nDimensions_ > 2)
+    {
+        sigma.zz() = a1_*Theta + b1_*sigma3;
+        sigma.xz() = b1_*(moments(1,0,1)/m0 - u*w);
+        sigma.yz() = b1_*(moments(0,1,1)/m0 - v*w);
+    }
+
+    return sigma;
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
@@ -187,7 +235,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     ),
     dp_
     (
-        nSizes_ < 0
+        nSizes_ <= 0
       ? lookupOrInitialize
         (
             mesh,
@@ -234,6 +282,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 
     scalar c = quadrature_.moments()(0)[celli]/0.63;
     scalar gs0 = (2.0 - c)/(2.0*pow3(1.0 - c)) + 1.1603*c;
+
     scalar tauC =
         zeta_*sqrt(Foam::constant::mathematical::pi)*dp_()[celli]
        /max

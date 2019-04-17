@@ -31,7 +31,7 @@ solvers
         mergeLevels     2;
         tolerance       1e-10;
         maxIter         1000;
-        relTol          0.1;
+        relTol          0.01;
     }
 
     p_rghFinal
@@ -66,8 +66,8 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors    5;
-    nCorrectors         2;
+    nOuterCorrectors    15;
+    nCorrectors         3;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
     pRefValue 1e5;
@@ -75,14 +75,14 @@ PIMPLE
 
 relaxationFactors
 {
-    fields
-    {
-        p_rgh       0.3;
-    }
-    equations
-    {
-        "U.*"       0.7;
-    }
+//     fields
+//     {
+//         p_rgh       0.3;
+//     }
+//     equations
+//     {
+//         "U.*"       0.7;
+//     }
 }
 
 

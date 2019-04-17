@@ -119,7 +119,7 @@ void Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBa
     {
         odeType::solve(quadrature_, 0);
     }
-    return ;
+    return;
 }
 
 Foam::scalar Foam::PDFTransportModels::populationBalanceModels
@@ -140,10 +140,10 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 
     //- Do not add sources to zero moment sets
     //  Prevents poor conditioning
-    if (quadrature.moments()(0)[celli] < 1e-10)
-    {
-        return source;
-    }
+//     if (quadrature.moments()(0)[celli] < small)
+//     {
+//         return source;
+//     }
 
 
     if (collision_)

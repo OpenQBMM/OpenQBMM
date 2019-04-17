@@ -47,7 +47,7 @@ runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           0.5;
+maxCo           0.25;
 
 maxDeltaT       1;
 
@@ -61,7 +61,7 @@ functions
         timeStart       5;
         fields
         (
-            moment.0000.particles
+            d.particles
             {
                  mean        on;
                  prime2Mean  off;

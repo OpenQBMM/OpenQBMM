@@ -22,295 +22,174 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "BGKCollision.H"
+#include "BoltzmannCollision.H"
 
 // Zero order
 IzFuncHeader(0,0,0)
 {
-    Is(0)[2][celli] = 0.0;
+    Iz(0) = 0.0;
 }
 
 // First order
 IzFuncHeader(0,0,1)
 {
-    Is(0,0,1)[2][celli] = -(2.0*omega/15.0)*(sqr(magg) + 2.0*sqr(g.z()))
+    Iz(0,0,1) = -(2.0*omegaPow[1]/15.0)*(gMagPow[2] + 2.0*gPow[2].z());
 }
 
 IzFuncHeader(0,1,0)
 {
-    Is(0,1)[2][celli] = (4.0*omega/15.0)*g.y()*g.z();
+    Iz(0,1) = (4.0*omegaPow[1]/15.0)*gPow[1].y()*gPow[1].z();
 }
 
 IzFuncHeader(1,0,0)
 {
-    Is(1)[2][celli] = (4.0*omega/15.0)*g.x()*g.z();
+    Iz(1) = (4.0*omegaPow[1]/15.0)*gPow[1].x()*gPow[1].z();
 }
 
 // Second order
 IzFuncHeader(0,0,2)
 {
-    Is(0,0,2)[2][celli] =
-        (sqr(omega)/12.0)*sqr(magg)
-      + (sqr(omega)/4.0)*sqr(g.z())
-      - omega*g.z()*v.z();
+    Iz(0,0,2) =
+      - (2.0*omegaPow[2]/35.0)*(3.0*gMagPow[2] + 2.0*gPow[2].z())*gPow[1].z()
+      + (4.0*omegaPow[1]/15.0)*(gMagPow[2] + 2.0*gPow[2].z())*vPow[1].z();
 }
 
 IzFuncHeader(0,1,1)
 {
-    Is(0,1,1)[2][celli] =
-        (sqr(omega)/4.0)*g.y()*g.z()
-      - (omega/2.0)*(v.y()*g.z() + g.y()*v.z());
+    Iz(0,1,1) =
+      - (2.0*omegaPow[2]/35.0)*(gMagPow[2] + 2.0*gPow[2].z())*gPow[1].y()
+      + (4.0*omegaPow[1]/15.0)*gPow[1].y()*gPow[1].z()*vPow[1].z()
+      + (2.0*omegaPow[1]/15.0)*(gMagPow[2] + 2.0*gPow[2].z())*vPow[1].y();
 }
 
 IzFuncHeader(1,0,1)
 {
-    Is(1,0,1)[2][celli] =
-        (sqr(omega)/4.0)*g.x()*g.z()
-      - (omega/2.0)*(v1*g.z() + g.x()*v.z());
+    Iz(1,0,1) =
+      - (2.0*omegaPow[2]/35.0)*(gMagPow[2] + 2.0*gPow[2].z())*gPow[1].x()
+      + (4.0*omegaPow[1]/15.0)*gPow[1].z()*gPow[1].x()*vPow[1].z()
+      + (2.0*omegaPow[1]/15.0)*(gMagPow[2] + 2.0*gPow[2].z())*vPow[1].x();
 }
 
 IzFuncHeader(1,1,0)
 {
-    Is(1,1)[2][celli] =
-        (sqr(omega)/4.0)*g.x()*g.y()
-      - (omega/2.0)*(v.x()*g.y() + g.x()*v.y());
+    Iz(1,1) =
+      - (4.0*omegaPow[2]/35.0)*gPow[1].x()*gPow[1].y()*gPow[1].z()
+      + (4.0*omegaPow[1]/15.0)
+       *gPow[1].z()*(gPow[1].x()*vPow[1].y() + gPow[1].y()*vPow[1].x());
 }
 
 IzFuncHeader(0,2,0)
 {
-    Is(0,2)[2][celli] =
-        (sqr(omega)/12.0)*sqr(magg)
-      + (sqr(omega)/4.0)*sqr(g.y())
-      - omega*g.y()*v.y();
+    Iz(0,2) =
+      - (2.0*omegaPow[2]/35.0)*(gMagPow[2] + 2.0*gPow[2].y())*gPow[1].z()
+      + (8.0*omegaPow[1]/15.0)*gPow[1].y()*gPow[1].z()*vPow[1].y();
 }
 
 IzFuncHeader(2,0,0)
 {
-    Is(2)[2][celli] =
-        (sqr(omega)/12.0)*sqr(magg)
-      + (sqr(omega)/4.0)*sqr(g.x())
-      - omega*g.x()*v1;
+    Iz(2) =
+      - (2.0*omegaPow[2]/35.0)*(gMagPow[2] + 2.0*gPow[2].x())*gPow[1].z()
+      + (8.0*omegaPow[1]/15.0)*gPow[1].x()*gPow[1].z()*vPow[1].x();
 }
 
 // Third order
 IzFuncHeader(0,0,3)
 {
-    Is(0,0,3)[2][celli] =
-      - (pow3(omega)/8.0)*(sqr(magg) + sqr(g.z()))*g.z()
-      + (sqr(omega)/4.0)*(sqr(magg) + 3.0*sqr(g.z()))*v.z()
-      - (1.5*omega)*g.z()*sqr(v.z());
+    Iz(0,0,3) =
+        (2.0*omegaPow[2]/315.0)
+       *(3.0*gMagPow[4] + 24.0*gMagPow[2]*gPow[2].z() + 8.0*gPow[4].z())
+      - (6.0*omegaPow[2]/35.0)
+       *(3.0*gMagPow[2] + 2.0*gPow[2].z())*gPow[1].z()*vPow[1].z()
+      + (2.0*omegaPow[1]/5.0)*(gMagPow[2] + 2.0*gPow[2].z())*vPow[2].z();
 }
 
-IzFuncHeader(0,1,2)
-{
-    Is(0,1,2)[2][celli] =
-      - pow3(omega)/8.0*(sqr(magg) + 3.0*sqr(g.z()))*g.y()
-      + sqr(omega)/2.0*g.z()*g.y()*v.z()
-      + sqr(omega)/12.0*(sqr(magg) + 3.0*sqr(g.z()))*v.y()
-      - omega/2.0*g.y()*sqr(v.z())
-      - omega*g.z()*v.z()*v.y();
-}
+// IzFuncHeader(0,1,2)
 
-IzFuncHeader(0,2,1)
-{
-    Is(0,2,1)[2][celli] =
-      - pow3(omega)/8.0*(sqr(magg) + 3.0*sqr(g.y()))*g.z()
-      + sqr(omega)/2.0*g.y()*g.z()*v.y()
-      + sqr(omega)/12.0*(sqr(magg) + 3.0*sqr(g.y()))*v.z()
-      - omega/2.0*g.z()*sqr(v.y())
-      - omega*g.y()*v.y()*v.z();
-}
+// IzFuncHeader(0,2,1)
+
 
 IzFuncHeader(0,3,0)
 {
-    Is(0,3)[2][celli] =
-      - (pow3(omega)/8.0)*(sqr(magg) + sqr(g.y()))*g.y()
-      + (sqr(omega)/4.0)*(sqr(magg) + 3.0*sqr(g.y()))*v.y()
-      - (1.5*omega)*g.y()*sqr(v.y());
+    Iz(0,3) =
+        (8.0*omegaPow[3]/315.0)
+       *(3.0*gMagPow[2] + 2.0*gPow[2].y())*gPow[1].z()*gPow[1].y()
+      - (6.0*omegaPow[2]/35.0)
+       *(gMagPow[2] + 2.0*gPow[2].y())*gPow[1].z()*vPow[1].y()
+      + (4.0*omegaPow[1]/5.0)*gPow[1].z()*gPow[1].y()*vPow[2].y();
 }
 
-IzFuncHeader(1,0,2)
-{
-    Is(1,0,2)[2][celli] =
-      - pow3(omega)/8.0*(sqr(magg) + 3.0*sqr(g.z()))*g.x()
-      + sqr(omega)/2.0*g.z()*g.x()*v.z()
-      + sqr(omega)/12.0*(sqr(magg) + 3.0*sqr(g.z()))*v.x()
-      - omega/2.0*g.x()*sqr(v.z())
-      - omega*g.z()*v.z()*v.x();
-}
+// IzFuncHeader(1,0,2)
 
-IzFuncHeader(1,1,1)
-{
-    Is(1,1,1)[2][celli] =
-      - pow3(omega)/8.0*g.x()*g.y()*g.z()
-      + sqr(omega)/4.0
-       *(
-            g.x()*g.y()*v.z()
-          + g.y()*g.z()*v.x()
-          + g.z()*g.x()*v.y()
-        )
-      - omega/2.0
-       *(
-            g.x()*v.y()*v.z()
-          + g.y()*v.z()*v.x()
-          + g.z()*v.x()*v.y()
-        );
-}
+// IzFuncHeader(1,1,1)
 
-IzFuncHeader(1,2,0)
-{
-    Is(1,2)[2][celli] =
-      - pow3(omega)/8.0*(sqr(magg) + 3.0*sqr(g.y()))*g.x()
-      + sqr(omega)/2.0*g.y()*g.x()*v.y()
-      + sqr(omega)/12.0*(sqr(magg) + 3.0*sqr(g.y()))*v.x()
-      - omega/2.0*g.x()*sqr(v.y())
-      - omega*g.y()*v.y()*v.x();
-}
+// IzFuncHeader(1,2,0)
 
-IzFuncHeader(2,0,1)
-{
-    Is(2,0,1)[2][celli] =
-      - pow3(omega)/8.0*(sqr(magg) + 3.0*sqr(g.x()))*g.z()
-      + sqr(omega)/2.0*g.x()*g.z()*v.x()
-      + sqr(omega)/12.0*(sqr(magg) + 3.0*sqr(g.x()))*v.z()
-      - omega/2.0*g.z()*sqr(v.x())
-      - omega*g.x()*v.x()*v.z();
-}
+// IzFuncHeader(2,0,1)
 
-IzFuncHeader(2,1,0)
-{
-    Is(2,1)[2][celli] =
-      - pow3(omega)/8.0*(sqr(magg) + 3.0*sqr(g.x()))*g.y()
-      + sqr(omega)/2.0*g.x()*g.y()*v.x()
-      + sqr(omega)/12.0*(sqr(magg) + 3.0*sqr(g.x()))*v.y()
-      - omega/2.0*g.y()*sqr(v.x())
-      - omega*g.x()*v.x()*v.y();
-}
+// IzFuncHeader(2,1,0)
+// {
+//     Iz(2,1) =
+//         (8.0*omegaPow[3]/315.0)*(3.0*gMagPow[2] + 2.0*gPow[2].x())*gPow[1].x()*gPow[1].y()
+//       - (2.0*omegaPow[2]/35.0)
+//        *(
+//            2.0*(gMagPow[2] + 2.0*gPow[2].x())*gPow[1].y()*vPow[1].x()
+//          + (3.0*gMagPow[2] + 2.0*gPow[2].x())*gPow[1].x()*vPow[1].y()
+//         )
+//       + (4.0*omegaPow[1]/15.0)
+//        *(
+//             (gMagPow[2] + 2.0*gPow[2].x())*vPow[1].x()*vPow[1].y()
+//           + gPow[1].x()*gPow[1].y()*vPow[2].x()
+//         );
+// }
+
 
 IzFuncHeader(3,0,0)
 {
-    Is(3)[2][celli] =
-      - (pow3(omega)/8.0)*(sqr(magg) + sqr(g.x()))*g.x()
-      + (sqr(omega)/4.0)*(sqr(magg) + 3.0*sqr(g.x()))*v1
-      - (1.5*omega)*g.x()*sqr(v1);
+    Iz(3) =
+        (8.0*omegaPow[3]/315.0)
+       *(3.0*gMagPow[2] + 2.0*gPow[2].x())*gPow[1].z()*gPow[1].x()
+      - (6.0*omegaPow[2]/35.0)
+       *(gMagPow[2] + 2.0*gPow[2].x())*gPow[1].z()*vPow[1].x()
+      + (4.0*omegaPow[1]/5.0)*gPow[1].x()*gPow[1].z()*vPow[2].x();
 }
 
 // Fourth order
 IzFuncHeader(0,0,4)
 {
-    Is(0,0,4)[2][celli] =
-        (pow4(omega)/80.0)*(pow4(magg) + 10.0*sqr(magg)*sqr(g.z()) + 5.0*pow4(g.z()))
-      - (pow3(omega)/2.0)*(sqr(magg) + sqr(g.z()))*g.z()*v.z()
-      + (sqr(omega)/2.0)*(sqr(magg) + 3.0*sqr(g.z()))*sqr(v.z())
-      - 2.0*omega*g.z()*pow3(v.z());
+    Iz(0,0,4) =
+      - (2.0*omegaPow[4]/693.0)
+       *(15.0*gMagPow[4] + 40.0*gMagPow[2]*gPow[2].z() + 8.0*gPow[4].z())
+       *gPow[1].z()
+      + (8.0*omegaPow[3]/315.0)
+       *(3.0*gMagPow[4] + 24.0*gMagPow[2]*gPow[2].z() + 8.0*gPow[4].z())
+       *vPow[1].z()
+      - (12.0*omegaPow[2]/35.0)
+       *(3.0*gMagPow[2] + 2.0*gPow[2].z())*gPow[1].z()*vPow[2].z()
+      + (8.0*omegaPow[1]/15.0)*(gMagPow[2] + 2.0*gPow[2].z())*pow3(vPow[1].z());
 }
-
-// IzFuncHeader(0,1,3)
-
-// IzFuncHeader(0,2,2)
-
-// IzFuncHeader(0,3,1)
 
 IzFuncHeader(0,4,0)
 {
-    Is(0,4)[2][celli] =
-        (pow4(omega)/80.0)*(pow4(magg) + 10.0*sqr(magg)*sqr(g.y()) + 5.0*pow4(g.y()))
-      - (pow3(omega)/2.0)*(sqr(magg) + sqr(g.y()))*g.y()*v.y()
-      + (sqr(omega)/2.0)*(sqr(magg) + 3.0*sqr(g.y()))*sqr(v.y())
-      - 2.0*omega*g.y()*pow3(v.y());
+    Iz(0,4) =
+      - (2.0*omegaPow[4]/693.0)
+       *(3.0*gMagPow[4] + 24.0*gMagPow[2]*gPow[2].y() + 8.0*gPow[4].y())*gPow[1].z()
+      + (32.0*omegaPow[3]/315.0)
+       *(3.0*gMagPow[2] + 2.0*gPow[2].y())*gPow[1].z()*gPow[1].y()*vPow[1].y()
+      - (12.0*omegaPow[2]/35.0)
+       *(gMagPow[2] + 2.0*gPow[2].y())*gPow[1].z()*vPow[2].y()
+      + (16.0*omegaPow[1]/15.0)*gPow[1].z()*gPow[1].y()*vPow[3].y();
 }
-
-// IzFuncHeader(1,0,3)
-
-// IzFuncHeader(2,0,2)
-
-// IzFuncHeader(2,2,0)
-
-// IzFuncHeader(1,3,0)
-
-// IzFuncHeader(3,0,1)
-
-// IzFuncHeader(3,1,0)
-
 
 IzFuncHeader(4,0,0)
 {
-    Is(4)[2][celli] =
-        (pow4(omega)/80.0)*(pow4(magg) + 10.0*sqr(magg)*sqr(g.x()) + 5.0*pow4(g.x()))
-      - (pow3(omega)/2.0)*(sqr(magg) + sqr(g.x()))*g.x()*v1
-      + (sqr(omega)/2.0)*(sqr(magg) + 3.0*sqr(g.x()))*sqr(v1)
-      - 2.0*omega*g.x()*pow3(v1);
+    Iz(4) =
+      - (2.0*omegaPow[4]/693.0)
+       *(3.0*gMagPow[4] + 24.0*gMagPow[2]*gPow[2].x() + 8.0*gPow[4].x())*gPow[1].z()
+      + (32.0*omegaPow[3]/315.0)
+       *(3.0*gMagPow[2] + 2.0*gPow[2].x())*gPow[1].z()*gPow[1].x()*vPow[1].x()
+      - (12.0*omegaPow[2]/35.0)
+       *(gMagPow[2] + 2.0*gPow[2].x())*gPow[1].z()*vPow[2].x()
+      + (16.0*omegaPow[1]/15.0)*gPow[1].z()*gPow[1].x()*vPow[3].x();
 }
-
-
-// // Fith order
-// IzFuncHeader(0,0,5)
-
-// IzFuncHeader(0,1,4)
-
-// IzFuncHeader(0,2,3)
-
-// IzFuncHeader(0,3,2)
-
-// IzFuncHeader(0,4,1)
-
-// IzFuncHeader(0,5,0)
-
-// IzFuncHeader(1,0,4)
-
-// IzFuncHeader(1,4,0)
-
-// IzFuncHeader(2,0,3)
-
-// IzFuncHeader(2,3,0)
-
-// IzFuncHeader(3,0,2)
-
-// IzFuncHeader(3,2,0)
-
-// IzFuncHeader(4,0,1)
-
-// IzFuncHeader(4,1,0)
-
-// IzFuncHeader(5,0,0)
-
-
-// // Sixth order
-
-// IzFuncHeader(0,1,5)
-
-// IzFuncHeader(0,2,4)
-
-// IzFuncHeader(0,4,2)
-
-// IzFuncHeader(0,5,1)
-
-// IzFuncHeader(1,0,5)
-
-// IzFuncHeader(1,5,0)
-
-// IzFuncHeader(2,0,4)
-
-// IzFuncHeader(2,4,0)
-
-// IzFuncHeader(4,0,2)
-
-// IzFuncHeader(4,2,0)
-
-// IzFuncHeader(5,0,1)
-
-// IzFuncHeader(5,1,0)
-
-// IzFuncHeader(0,2,5)
-
-// IzFuncHeader(0,5,2)
-
-// IzFuncHeader(2,0,5)
-
-// IzFuncHeader(2,5,0)
-
-// IzFuncHeader(5,0,2)
-
-// IzFuncHeader(5,2,0)
 
 // ************************************************************************* //

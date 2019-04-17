@@ -46,7 +46,7 @@ sizeVelocityCoeffs
     {
         aggregationKernel sum;
 
-        Ca        Ca        [ 0 0 -1 0 0 0 0 ] 1000.0;
+        Ca        Ca        [ 0 0 -1 0 0 0 0 ] 1.0;
     }
 
     breakup on;

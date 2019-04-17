@@ -71,10 +71,6 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
         );
         momentEqn.relax();
         momentEqn.solve();
-
-        //  Set moments.oldTime to moments transport is not neglected due
-        //  to large collision source terms
-        m.oldTime() = m;
     }
     quadrature_.updateQuadrature();
 
@@ -92,6 +88,10 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
 
             if (max(mag(iSource.source())) > small)
             {
+                //  Set moments.oldTime to moments transport is not neglected due
+                //  to large collision source terms
+                quadrature_.moments()[mEqni].oldTime() = m;
+
                 update = true;
 
                 // Solve collisions

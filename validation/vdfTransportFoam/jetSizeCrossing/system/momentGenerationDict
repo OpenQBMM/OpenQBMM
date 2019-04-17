@@ -22,29 +22,27 @@ phases
 
 boundaries
 {
-    top
+    inlet1
     {
-        type cyclic;
+        type    fixedValue;
+        value   uniform 0;
     }
-    bottom
+    inlet2
     {
-        type cyclic;
+        type    fixedValue;
+        value   uniform 0;
     }
-    left
+    defaultFaces
     {
-        type cyclic;
+        type    empty;
     }
-    right
+    walls
     {
-        type cyclic;
+        type    zeroGradient;
     }
-    front
+    outlet
     {
-        type empty;
-    }
-    back
-    {
-        type empty;
+        type    zeroGradient;
     }
 }
 
@@ -56,24 +54,33 @@ particles
     abscissaDimension   [0 1 -1 0 0 0 0];
 
     default
+    {}
+    inlet1
     {
-    }
-
-    regions
-    (
-        cylinderToCell
+        node0
         {
-            p1 (0 0.05 -0.5);
-            p2 (0 0.05 0.5);
-            radius 0.05;
-
-            node0
-            {
-                weight  0.1;
-                abscissa (0.00025 0 0);
-            }
+            weight  .0005;
+            abscissa (1.0 1.0 0.5);
         }
-    );
+        node1
+        {
+            weight  .0005;
+            abscissa (10.0 1.0 0.25);
+        }
+    }
+    inlet2
+    {
+        node0
+        {
+            weight  .0005;
+            abscissa (1.0 -1.0 0.5);
+        }
+        node1
+        {
+            weight  .0005;
+            abscissa (10.0 -1.0 0.25);
+        }
+    }
 }
 
 

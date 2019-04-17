@@ -9,34 +9,21 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volVectorField;
-    object      U.air;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
-
-internalField   uniform (0 1.0 0);
-
-boundaryField
+solvers
 {
-    inlet
+    "moment.*|velocityAbscissa.*"
     {
-        type            cyclic;
-    }
-    outlet
-    {
-        type            cyclic;
-    }
-    walls
-    {
-        type            fixedValue;
-        value           uniform (0 0 0);
-    }
-    defaultFaces
-    {
-        type            empty;
+        solver          diagonal;
+        tolerance       1e-12;
+        relTol          0;
     }
 }
+
 
 // ************************************************************************* //

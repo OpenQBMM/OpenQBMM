@@ -38,7 +38,8 @@ SourceFiles
 #define BoltzmannCollision_H
 
 #include "collisionKernel.H"
-#include "mappedList.H"
+#include "mappedLists.H"
+#include "vectorList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,41 +54,37 @@ namespace collisionKernels
 static void I##i##j##k                                                          \
 (                                                                               \
     mappedScalarList& Is,                                                       \
-    const label celli,                                                          \
-    const scalar& omega,                                                        \
-    const vector& g,                                                            \
-    const scalar& magg,                                                         \
-    const vector& v                                                             \
+    const scalarList& omegaPow,                                                 \
+    const vectorList& gPow,                                                     \
+    const scalarList& gMagPow,                                                  \
+    const vectorList& vPow                                                      \
 );                                                                              \
                                                                                 \
 static void Ix##i##j##k                                                         \
 (                                                                               \
     mappedScalarList& Is,                                                       \
-    const label celli,                                                          \
-    const scalar& omega,                                                        \
-    const vector& g,                                                            \
-    const scalar& magg,                                                         \
-    const vector& v                                                             \
+    const scalarList& omegaPow,                                                 \
+    const vectorList& gPow,                                                     \
+    const scalarList& gMagPow,                                                  \
+    const vectorList& vPow                                                      \
 );                                                                              \
                                                                                 \
 static void Iy##i##j##k                                                         \
 (                                                                               \
     mappedScalarList& Is,                                                       \
-    const label celli,                                                          \
-    const scalar& omega,                                                        \
-    const vector& g,                                                            \
-    const scalar& magg,                                                         \
-    const vector& v                                                             \
+    const scalarList& omegaPow,                                                 \
+    const vectorList& gPow,                                                     \
+    const scalarList& gMagPow,                                                  \
+    const vectorList& vPow                                                      \
 );                                                                              \
                                                                                 \
 static void Iz##i##j##k                                                         \
 (                                                                               \
     mappedScalarList& Is,                                                       \
-    const label celli,                                                          \
-    const scalar& omega,                                                        \
-    const vector& g,                                                            \
-    const scalar& magg,                                                         \
-    const vector& v                                                             \
+    const scalarList& omegaPow,                                                 \
+    const vectorList& gPow,                                                     \
+    const scalarList& gMagPow,                                                  \
+    const vectorList& vPow                                                      \
 );
 
 /*---------------------------------------------------------------------------*\
@@ -102,10 +99,10 @@ class BoltzmannCollision
     typedef void (*momentFunction)
     (
         mappedScalarList& Is,
-        const label,
-        const scalar& omega,
-        const vector& g,
-        const vector& v
+        const scalarList& omegaPow,
+        const vectorList& gPow,
+        const scalarList& gMmagPow,
+        const vectorList& vPow
     );
 
     // Private data
@@ -166,64 +163,29 @@ class BoltzmannCollision
         defineIFuncs(2,0,0)
 
         defineIFuncs(0,0,3)
-        defineIFuncs(0,1,2)
-        defineIFuncs(0,2,1)
+//         defineIFuncs(0,1,2)
+//         defineIFuncs(0,2,1)
         defineIFuncs(0,3,0)
-        defineIFuncs(1,0,2)
+//         defineIFuncs(1,0,2)
         defineIFuncs(1,1,1)
-        defineIFuncs(1,2,0)
-        defineIFuncs(2,0,1)
-        defineIFuncs(2,1,0)
+//         defineIFuncs(1,2,0)
+//         defineIFuncs(2,0,1)
+//         defineIFuncs(2,1,0)
         defineIFuncs(3,0,0)
 
         defineIFuncs(0,0,4)
-        defineIFuncs(0,1,3)
-        defineIFuncs(0,2,2)
-        defineIFuncs(0,3,1)
+// //         defineIFuncs(0,1,3)
+//         defineIFuncs(0,2,2)
+//         defineIFuncs(0,3,1)
         defineIFuncs(0,4,0)
-        defineIFuncs(1,0,3)
-        defineIFuncs(1,3,0)
-        defineIFuncs(2,0,2)
-        defineIFuncs(2,2,0)
-        defineIFuncs(3,0,1)
-        defineIFuncs(3,1,0)
+//         defineIFuncs(1,0,3)
+//         defineIFuncs(1,3,0)
+//         defineIFuncs(2,0,2)
+//         defineIFuncs(2,2,0)
+//         defineIFuncs(3,0,1)
+//         defineIFuncs(3,1,0)
         defineIFuncs(4,0,0)
-//
-//         defineIFuncs(0,0,5)
-//         defineIFuncs(0,1,4)
-//         defineIFuncs(0,2,3)
-//         defineIFuncs(0,3,2)
-//         defineIFuncs(0,4,1)
-//         defineIFuncs(0,5,0)
-//         defineIFuncs(1,0,4)
-//         defineIFuncs(1,4,0)
-//         defineIFuncs(2,0,3)
-//         defineIFuncs(2,3,0)
-//         defineIFuncs(3,0,2)
-//         defineIFuncs(3,2,0)
-//         defineIFuncs(4,0,1)
-//         defineIFuncs(4,1,0)
-//         defineIFuncs(5,0,0)
-//
-//         defineIFuncs(0,1,5)
-//         defineIFuncs(0,2,4)
-//         defineIFuncs(0,4,2)
-//         defineIFuncs(0,5,1)
-//         defineIFuncs(2,0,4)
-//         defineIFuncs(2,4,0)
-//         defineIFuncs(1,0,5)
-//         defineIFuncs(1,5,0)
-//         defineIFuncs(4,0,2)
-//         defineIFuncs(4,2,0)
-//         defineIFuncs(5,0,1)
-//         defineIFuncs(5,1,0)
-//
-//         defineIFuncs(0,2,5)
-//         defineIFuncs(0,5,2)
-//         defineIFuncs(2,0,5)
-//         defineIFuncs(2,5,0)
-//         defineIFuncs(5,0,2)
-//         defineIFuncs(5,2,0)
+
 
         //- Update equilibrium moments for a cell
         void updateI
@@ -297,7 +259,7 @@ if (map.found(i))                                                               
 }
 
 #define addIFunction2(map,i,j)                                                  \
-if (map.found(i))                                                               \
+if (map.found(i,j))                                                             \
 {                                                                               \
     coefficientFunctions_.append(&I##i##j##0);                                  \
     if (Enskog_)                                                                \
@@ -315,7 +277,7 @@ if (map.found(i))                                                               
 }
 
 #define addIFunction3(map,i,j,k)                                                \
-if (map.found(i))                                                               \
+if (map.found(i,j,k))                                                           \
 {                                                                               \
     coefficientFunctions_.append(&I##i##j##k);                                  \
     if (Enskog_)                                                                \
@@ -338,10 +300,10 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::        
 I##i##j##k                                                                      \
 (                                                                               \
     mappedScalarList& Is,                                                       \
-    const scalar& omega,                                                        \
-    const vector& g,                                                            \
-    const scalar& magg,                                                         \
-    const vector& v                                                             \
+    const scalarList& omegaPow,                                                 \
+    const vectorList& gPow,                                                     \
+    const scalarList& gMagPow,                                                  \
+    const vectorList& vPow                                                      \
 )
 
 #define IxFuncHeader(i,j,k)                                                     \
@@ -349,11 +311,11 @@ void                                                                            
 Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::        \
 Ix##i##j##k                                                                     \
 (                                                                               \
-    mappedScalarList& Is,                                                       \
-    const scalar& omega,                                                        \
-    const vector& g,                                                            \
-    const scalar& magg,                                                         \
-    const vector& v                                                             \
+    mappedScalarList& Ix,                                                       \
+    const scalarList& omegaPow,                                                 \
+    const vectorList& gPow,                                                     \
+    const scalarList& gMagPow,                                                  \
+    const vectorList& vPow                                                      \
 )
 
 #define IyFuncHeader(i,j,k)                                                     \
@@ -361,11 +323,11 @@ void                                                                            
 Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::        \
 Iy##i##j##k                                                                     \
 (                                                                               \
-    mappedScalarList& Is,                                                       \
-    const scalar& omega,                                                        \
-    const vector& g,                                                            \
-    const scalar& magg,                                                         \
-    const vector& v                                                             \
+    mappedScalarList& Iy,                                                       \
+    const scalarList& omegaPow,                                                 \
+    const vectorList& gPow,                                                     \
+    const scalarList& gMagPow,                                                  \
+    const vectorList& vPow                                                      \
 )
 
 #define IzFuncHeader(i,j,k)                                                     \
@@ -373,11 +335,11 @@ void                                                                            
 Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::        \
 Iz##i##j##k                                                                     \
 (                                                                               \
-    mappedScalarList& Is,                                                       \
-    const scalar& omega,                                                        \
-    const vector& g,                                                            \
-    const scalar& magg,                                                         \
-    const vector& v                                                             \
+    mappedScalarList& Iz,                                                       \
+    const scalarList& omegaPow,                                                 \
+    const vectorList& gPow,                                                     \
+    const scalarList& gMagPow,                                                  \
+    const vectorList& vPow                                                      \
 )
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
