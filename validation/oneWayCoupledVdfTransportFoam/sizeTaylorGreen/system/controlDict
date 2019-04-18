@@ -19,7 +19,7 @@ application     oneWayCoupledVdfTransportFoam;
 
 startFrom       startTime;
 
-startTime       0.3;
+startTime       0;
 
 stopAt          endTime;
 
