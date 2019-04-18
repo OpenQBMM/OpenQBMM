@@ -17,13 +17,13 @@ FoamFile
 
 application     oneWayCoupledVdfTransportFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
-startTime       0;
+startTime       0.3;
 
 stopAt          endTime;
 
-endTime         100;
+endTime         30;
 
 deltaT          1e-3;
 

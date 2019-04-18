@@ -12,7 +12,6 @@ for (label nodei = 0; nodei < dilutePhase->nNodes(); nodei++)
         Kd*U
       - fvm::Sp(Kd, Ui)
     );
-
     UEqn.relax();
     UEqn.solve();
 }

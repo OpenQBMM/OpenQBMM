@@ -313,7 +313,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 {
     scalar aSource = 0.0;
 
-    const PtrList<volVelocityNode>& nodes = quadrature.nodes();
+    const mappedPtrList<volVelocityNode>& nodes = quadrature.nodes();
     bool massBased = nodes[0].massBased();
     label sizeIndex = nodes[0].sizeIndex();
 
@@ -336,37 +336,33 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
         }
     }
 
+    label nSizes = quadrature.nNodes()[sizeIndex];
     const labelList& scalarIndexes = nodes[0].scalarIndexes();
     const labelList& velocityIndexes = nodes[0].velocityIndexes();
 
     if (!nodes[0].extended())   // Non-extended quadrature case
     {
-        forAll(nodes, pNode1i)
+        scalarList weights(nSizes, 0.0);
+        scalarList sizeAbscissae(nSizes, 0.0);
+        scalarList aSources(nSizes, 0.0);
+
+        forAll(nodes, nodei)
         {
-            const volScalarNode& node1 = nodes[pNode1i];
-            const volScalarField& pWeight1 = node1.primaryWeight();
-            const PtrList<volScalarField>& pAbscissae1 =
-                node1.primaryAbscissae();
+            const volScalarNode& node = nodes[nodei];
+            label sizei = quadrature.nodeIndexes()[nodei][sizeIndex];
+            weights[sizei] += node.primaryWeight()[celli];
+            sizeAbscissae[sizei] = node.primaryAbscissae()[sizeIndex][celli];
+        }
+
+        forAll(weights, pNode1i)
+        {
             scalar aSourcei = 0.0;
 
-            forAll(nodes, pNode2i)
+            forAll(weights, pNode2i)
             {
-                const volScalarNode& node2 = nodes[pNode2i];
-                const volScalarField& pWeight2 = node2.primaryWeight();
-
                 // Remove small negative values in abscissae
-                scalar bAbscissa1 =
-                    max
-                    (
-                        node1.primaryAbscissae()[sizeIndex][celli],
-                        0.0
-                    );
-                scalar bAbscissa2 =
-                    max
-                    (
-                        node2.primaryAbscissae()[sizeIndex][celli],
-                        0.0
-                    );
+                scalar bAbscissa1 = max(sizeAbscissae[pNode1i], 0.0);
+                scalar bAbscissa2 = max(sizeAbscissae[pNode2i], 0.0);
 
                 scalar aSrc = 0.0;
                 if (massBased)
@@ -380,8 +376,8 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                 }
 
                 aSrc *=
-                    pWeight1[celli]
-                   *pWeight2[celli]
+                    weights[pNode1i]
+                   *weights[pNode2i]
                    *Ka(bAbscissa1, bAbscissa2, celli, enviroment);
 
                 if (volumeFraction)
@@ -400,6 +396,18 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 
                 aSourcei += aSrc;
             }
+            aSources[pNode1i] = aSourcei;
+        }
+
+        forAll(nodes, nodei)
+        {
+            const volScalarNode& node = nodes[nodei];
+            label sizei = quadrature.nodeIndexes()[nodei][sizeIndex];
+
+            scalar aSourcei =
+                aSources[sizei]
+               *node.primaryWeight()[celli]
+               /max(weights[sizei], small);
             forAll(scalarIndexes, cmpt)
             {
                 if (scalarIndexes[cmpt] != sizeIndex)
@@ -407,7 +415,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                     aSourcei *=
                         pow
                         (
-                            pAbscissae1[cmpt][celli],
+                            node.primaryAbscissae()[cmpt][celli],
                             momentOrder[scalarIndexes[cmpt]]
                         );
                 }
@@ -417,7 +425,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                 aSourcei *=
                     pow
                     (
-                        node1.velocityAbscissae()[celli][cmpt],
+                        node.velocityAbscissae()[celli][cmpt],
                         momentOrder[velocityIndexes[cmpt]]
                     );
             }

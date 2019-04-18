@@ -100,10 +100,33 @@ IxFuncHeader(0,0,3)
       + (4.0*omegaPow[1]/5.0)*gPow[1].x()*gPow[1].z()*vPow[2].z();
 }
 
-// IxFuncHeader(0,1,2)
+IxFuncHeader(0,1,2)
+{
+    Ix(0,1,2) =
+        (8.0*omegaPow[3]/315.0)
+       *(3.0*gMagPow[2] + 2.0*gPow[2].z())*gPow[1].x()*gPow[1].y()
+      - (2.0*omegaPow[2]/35.0)
+       *(
+           (gMagPow[2] + 2.0*gPow[2].z())*gPow[1].x()*vPow[1].y()
+         + 4.0*gPow[1].x()*gPow[1].y()*gPow[1].z()*vPow[1].z()
+        )
+      + (4.0*omegaPow[1]/15.0)*gPow[1].x()*vPow[1].z()
+       *(gPow[1].y()*vPow[1].z() + 2.0*gPow[1].z()*vPow[1].y());
+}
 
-// IxFuncHeader(0,2,1)
-
+IxFuncHeader(0,2,1)
+{
+    Ix(0,1,2) =
+        (8.0*omegaPow[3]/315.0)
+       *(3.0*gMagPow[2] + 2.0*gPow[2].y())*gPow[1].x()*gPow[1].z()
+      - (2.0*omegaPow[2]/35.0)
+       *(
+           (gMagPow[2] + 2.0*gPow[2].y())*gPow[1].x()*vPow[1].z()
+         + 4.0*gPow[1].x()*gPow[1].z()*gPow[1].y()*vPow[1].y()
+        )
+      + (4.0*omegaPow[1]/15.0)*gPow[1].x()*vPow[1].y()
+       *(gPow[1].z()*vPow[1].y() + 2.0*gPow[1].y()*vPow[1].z());
+}
 
 IxFuncHeader(0,3,0)
 {
@@ -115,15 +138,98 @@ IxFuncHeader(0,3,0)
       + (4.0*omegaPow[1]/5.0)*gPow[1].x()*gPow[1].y()*sqr(vPow[1].y());
 }
 
-// IxFuncHeader(1,0,2)
+IxFuncHeader(1,0,2)
+{
+    Ix(1,0,2) =
+        (2.0*omegaPow[3]/315.0)
+       *(
+            gMagPow[4]
+          + 4.0*gMagPow[2]*(gPow[2].x() + gPow[2].z())
+          + 8.0*gPow[2].x()*gPow[2].z()
+        )
+      - (2.0*omegaPow[2]/35.0)
+       *(
+           (gMagPow[2] + 2.0*gPow[2].z())*gPow[1].x()*vPow[1].x()
+         + (gMagPow[2] + 2.0*gPow[2].x())*gPow[1].z()*vPow[1].z()
+        )
+      + (2.0*omegaPow[1]/15.0)
+       *(
+            (gMagPow[2] + 2.0*gPow[2].x())*vPow[2].z()
+          + 4.0*gPow[1].x()*gPow[1].z()*vPow[1].x()*vPow[1].z()
+        );
+}
 
-// IxFuncHeader(1,1,1)
+IxFuncHeader(1,1,1)
+{
+    Ix(1,1,1) =
+        (8.0*omegaPow[3]/315.0)
+       *(3.0*gMagPow[2] + 2.0*gPow[2].x())*gPow[1].y()*gPow[1].z()
+      - (2.0*omegaPow[2]/35.0)
+       *(
+            2.0*gPow[1].x()*gPow[1].y()*gPow[1].z()*vPow[1].x()
+          + (gMagPow[2] + 2.0*gPow[2].x())
+           *(gPow[1].y()*vPow[1].z() + gPow[1].z()*vPow[1].y())
+        )
+      + (4.0*omegaPow[1]/15.0)
+       *(
+           2.0*gPow[1].x()*vPow[1].x()
+          *(gPow[1].y()*vPow[1].z() + gPow[1].z()*vPow[1].y())
+         + (gMagPow[2] + 2.0*gPow[2].x())*vPow[1].y()*vPow[1].z()
+        );
+}
 
-// IxFuncHeader(1,2,0)
+IxFuncHeader(1,2,0)
+{
+    Ix(1,2,0) =
+        (2.0*omegaPow[3]/315.0)
+       *(
+            gMagPow[4]
+          + 4.0*gMagPow[2]*(gPow[2].x() + gPow[2].y())
+          + 8.0*gPow[2].x()*gPow[2].y()
+        )
+      - (2.0*omegaPow[2]/35.0)
+       *(
+           (gMagPow[2] + 2.0*gPow[2].y())*gPow[1].x()*vPow[1].x()
+         + (gMagPow[2] + 2.0*gPow[2].x())*gPow[1].y()*vPow[1].y()
+        )
+      + (2.0*omegaPow[1]/15.0)
+       *(
+            (gMagPow[2] + 2.0*gPow[2].x())*vPow[2].y()
+          + 4.0*gPow[1].x()*gPow[1].y()*vPow[1].x()*vPow[1].y()
+        );
+}
 
-// IxFuncHeader(2,0,1)
+IxFuncHeader(2,0,1)
+{
+    Ix(2,0,1) =
+        (8.0*omegaPow[3]/315.0)*(3.0*gMagPow[2] + 2.0*gPow[2].x())*gPow[1].x()*gPow[1].z()
+      - (2.0*omegaPow[2]/35.0)
+       *(
+           2.0*(gMagPow[2] + 2.0*gPow[2].x())*gPow[1].z()*vPow[1].x()
+         + (3.0*gMagPow[2] + 2.0*gPow[2].x())*gPow[1].x()*vPow[1].z()
+        )
+      + (4.0*omegaPow[1]/15.0)
+       *(
+            (gMagPow[2] + 2.0*gPow[2].x())*vPow[1].x()*vPow[1].z()
+          + gPow[1].x()*gPow[1].z()*vPow[2].x()
+        );
+}
 
-// IxFuncHeader(2,1,0)
+IxFuncHeader(2,1,0)
+{
+    Ix(2,1) =
+        (8.0*omegaPow[3]/315.0)*(3.0*gMagPow[2] + 2.0*gPow[2].x())*gPow[1].x()*gPow[1].y()
+      - (2.0*omegaPow[2]/35.0)
+       *(
+           2.0*(gMagPow[2] + 2.0*gPow[2].x())*gPow[1].y()*vPow[1].x()
+         + (3.0*gMagPow[2] + 2.0*gPow[2].x())*gPow[1].x()*vPow[1].y()
+        )
+      + (4.0*omegaPow[1]/15.0)
+       *(
+            (gMagPow[2] + 2.0*gPow[2].x())*vPow[1].x()*vPow[1].y()
+          + gPow[1].x()*gPow[1].y()*vPow[2].x()
+        );
+}
 
 IxFuncHeader(3,0,0)
 {

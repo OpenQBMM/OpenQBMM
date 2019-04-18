@@ -134,12 +134,15 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         bool realizableUpdate2 = false;
         bool realizableUpdate3 = false;
 
-        scalarList momentsSecondStep(nMoments, 0.0);
+        scalarList diff23(nMoments, 0.0);
+        label nItt = 0;
 
         while (!timeComplete)
         {
             do
             {
+                nItt++;
+
                 // First intermediate update
                 updateCellMomentSource(celli);
                 forAll(oldMoments, mi)
@@ -175,8 +178,6 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                             enviroment
                         );
                     moments[mi][celli] = oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
-
-                    momentsSecondStep[mi] = moments[mi][celli];
                 }
 
                 realizableUpdate2 =
@@ -199,6 +200,8 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                         );
                     moments[mi][celli] =
                         oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
+
+                    diff23[mi] = (8.0*k3[mi] - k1[mi] - k2[mi])/12.0;
                 }
 
                 realizableUpdate3 =
@@ -250,19 +253,15 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                         ATol_
                     + max
                         (
-                            mag(momentsSecondStep[mi]), mag(oldMoments[mi])
+                            mag(moments[mi][celli]), mag(oldMoments[mi])
                         )*RTol_;
 
-                error +=
-                        sqr
-                        (
-                            (momentsSecondStep[mi] - moments[mi][celli])/scalei
-                        );
+                error += sqr(diff23[mi]/scalei);
             }
 
-            error = max(sqrt(error/nMoments), small);
+            error = sqrt(error/nMoments);
 
-            if (error == 0)
+            if (error < small)
             {
                 timeComplete = true;
                 localT = 0.0;
@@ -301,6 +300,14 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                 // Updating local quadrature with old moments
                 quadrature.updateLocalQuadrature(celli);
+            }
+
+            if (localDt < minLocalDt_)
+            {
+                FatalErrorInFunction
+                    << "Reached minimum local step in realizable ODE" << nl
+                    << "    solver. Cannot ensure accuracy." << nl
+                    << abort(FatalError);
             }
         }
     }

@@ -71,6 +71,7 @@ quadratureApproximation
             const quadratureApproximation<momentType, nodeType>&
         >(*this).lookup("nodes")
     ),
+    nNodes_(momentOrders_[0].size(), 1),
     nodes_(),
     moments_(name_, *this, mesh_, nodes_, support),
     nDimensions_(moments_[0].cmptOrders().size()),
@@ -82,6 +83,14 @@ quadratureApproximation
     support_(support),
     momentFieldInverter_()
 {
+    forAll(nodeIndexes_, nodei)
+    {
+        forAll(nNodes_, dimi)
+        {
+            nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes_[nodei][dimi] + 1);
+        }
+    }
+
     PtrList<dimensionSet> abscissaeDimensions(momentOrders_[0].size());
     labelList zeroOrder(momentOrders_[0].size(), 0);
     labelList velocityIndexes;
@@ -184,7 +193,7 @@ quadratureApproximation
             const quadratureApproximation<momentType, nodeType>&
         >(*this).lookup("nodes")
     ),
-    nNodes_(nodeIndexes_[0].size(), 0),
+    nNodes_(momentOrders_[0].size(), 1),
     nodes_(),
     moments_
     (
@@ -208,7 +217,7 @@ quadratureApproximation
     {
         forAll(nNodes_, dimi)
         {
-            nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes_[nodei][dimi]);
+            nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes_[nodei][dimi] + 1);
         }
     }
     forAll(moments_, mi)

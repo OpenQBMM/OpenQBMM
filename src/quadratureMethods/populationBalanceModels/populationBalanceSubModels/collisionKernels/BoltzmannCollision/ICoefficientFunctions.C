@@ -101,25 +101,25 @@ IFuncHeader(0,0,3)
       - (1.5*omegaPow[1])*gPow[1].z()*vPow[2].z();
 }
 
-// IFuncHeader(0,1,2)
-// {
-//     Is(0,1,2) =
-//       - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].z())*gPow[1].y()
-//       + omegaPow[3]/2.0*gPow[1].z()*gPow[1].y()*vPow[1].z()
-//       + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].z())*vPow[1].y()
-//       - omegaPow[1]/2.0*gPow[1].y()*vPow[2].z()
-//       - omegaPow[1]*gPow[1].z()*vPow[1].z()*vPow[1].y();
-// }
+IFuncHeader(0,1,2)
+{
+    Is(0,1,2) =
+      - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].z())*gPow[1].y()
+      + omegaPow[3]/2.0*gPow[1].z()*gPow[1].y()*vPow[1].z()
+      + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].z())*vPow[1].y()
+      - omegaPow[1]/2.0*gPow[1].y()*vPow[2].z()
+      - omegaPow[1]*gPow[1].z()*vPow[1].z()*vPow[1].y();
+}
 
-// IFuncHeader(0,2,1)
-// {
-//     Is(0,2,1) =
-//       - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].y())*gPow[1].z()
-//       + omegaPow[3]/2.0*gPow[1].y()*gPow[1].z()*vPow[1].y()
-//       + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].y())*vPow[1].z()
-//       - omegaPow[1]/2.0*gPow[1].z()*vPow[2].y()
-//       - omegaPow[1]*gPow[1].y()*vPow[1].y()*vPow[1].z();
-// }
+IFuncHeader(0,2,1)
+{
+    Is(0,2,1) =
+      - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].y())*gPow[1].z()
+      + omegaPow[3]/2.0*gPow[1].y()*gPow[1].z()*vPow[1].y()
+      + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].y())*vPow[1].z()
+      - omegaPow[1]/2.0*gPow[1].z()*vPow[2].y()
+      - omegaPow[1]*gPow[1].y()*vPow[1].y()*vPow[1].z();
+}
 
 IFuncHeader(0,3,0)
 {
@@ -129,63 +129,63 @@ IFuncHeader(0,3,0)
       - (1.5*omegaPow[1])*gPow[1].y()*vPow[2].y();
 }
 
-// IFuncHeader(1,0,2)
-// {
-//     Is(1,0,2) =
-//       - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].z())*gPow[1].x()
-//       + omegaPow[3]/2.0*gPow[1].z()*gPow[1].x()*vPow[1].z()
-//       + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].z())*vPow[1].x()
-//       - omegaPow[1]/2.0*gPow[1].x()*vPow[2].z()
-//       - omegaPow[1]*gPow[1].z()*vPow[1].z()*vPow[1].x();
-// }
+IFuncHeader(1,0,2)
+{
+    Is(1,0,2) =
+      - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].z())*gPow[1].x()
+      + omegaPow[3]/2.0*gPow[1].z()*gPow[1].x()*vPow[1].z()
+      + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].z())*vPow[1].x()
+      - omegaPow[1]/2.0*gPow[1].x()*vPow[2].z()
+      - omegaPow[1]*gPow[1].z()*vPow[1].z()*vPow[1].x();
+}
 
-// IFuncHeader(1,1,1)
-// {
-//     Is(1,1,1) =
-//       - omegaPow[3]/8.0*gPow[1].x()*gPow[1].y()*gPow[1].z()
-//       + omegaPow[3]/4.0
-//        *(
-//             gPow[1].x()*gPow[1].y()*vPow[1].z()
-//           + gPow[1].y()*gPow[1].z()*vPow[1].x()
-//           + gPow[1].z()*gPow[1].x()*vPow[1].y()
-//         )
-//       - omegaPow[1]/2.0
-//        *(
-//             gPow[1].x()*vPow[1].y()*vPow[1].z()
-//           + gPow[1].y()*vPow[1].z()*vPow[1].x()
-//           + gPow[1].z()*vPow[1].x()*vPow[1].y()
-//         );
-// }
+IFuncHeader(1,1,1)
+{
+    Is(1,1,1) =
+      - omegaPow[3]/8.0*gPow[1].x()*gPow[1].y()*gPow[1].z()
+      + omegaPow[3]/4.0
+       *(
+            gPow[1].x()*gPow[1].y()*vPow[1].z()
+          + gPow[1].y()*gPow[1].z()*vPow[1].x()
+          + gPow[1].z()*gPow[1].x()*vPow[1].y()
+        )
+      - omegaPow[1]/2.0
+       *(
+            gPow[1].x()*vPow[1].y()*vPow[1].z()
+          + gPow[1].y()*vPow[1].z()*vPow[1].x()
+          + gPow[1].z()*vPow[1].x()*vPow[1].y()
+        );
+}
 
-// IFuncHeader(1,2,0)
-// {
-//     Is(1,2) =
-//       - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].y())*gPow[1].x()
-//       + omegaPow[3]/2.0*gPow[1].y()*gPow[1].x()*vPow[1].y()
-//       + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].y())*vPow[1].x()
-//       - omegaPow[1]/2.0*gPow[1].x()*vPow[2].y()
-//       - omegaPow[1]*gPow[1].y()*vPow[1].y()*vPow[1].x();
-// }
+IFuncHeader(1,2,0)
+{
+    Is(1,2) =
+      - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].y())*gPow[1].x()
+      + omegaPow[3]/2.0*gPow[1].y()*gPow[1].x()*vPow[1].y()
+      + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].y())*vPow[1].x()
+      - omegaPow[1]/2.0*gPow[1].x()*vPow[2].y()
+      - omegaPow[1]*gPow[1].y()*vPow[1].y()*vPow[1].x();
+}
 
-// IFuncHeader(2,0,1)
-// {
-//     Is(2,0,1) =
-//       - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].x())*gPow[1].z()
-//       + omegaPow[3]/2.0*gPow[1].x()*gPow[1].z()*vPow[1].x()
-//       + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].x())*vPow[1].z()
-//       - omegaPow[1]/2.0*gPow[1].z()*vPow[2].x()
-//       - omegaPow[1]*gPow[1].x()*vPow[1].x()*vPow[1].z();
-// }
+IFuncHeader(2,0,1)
+{
+    Is(2,0,1) =
+      - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].x())*gPow[1].z()
+      + omegaPow[3]/2.0*gPow[1].x()*gPow[1].z()*vPow[1].x()
+      + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].x())*vPow[1].z()
+      - omegaPow[1]/2.0*gPow[1].z()*vPow[2].x()
+      - omegaPow[1]*gPow[1].x()*vPow[1].x()*vPow[1].z();
+}
 
-// IFuncHeader(2,1,0)
-// {
-//     Is(2,1) =
-//       - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].x())*gPow[1].y()
-//       + omegaPow[3]/2.0*gPow[1].x()*gPow[1].y()*vPow[1].x()
-//       + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].x())*vPow[1].y()
-//       - omegaPow[1]/2.0*gPow[1].y()*vPow[2].x()
-//       - omegaPow[1]*gPow[1].x()*vPow[1].x()*vPow[1].y();
-// }
+IFuncHeader(2,1,0)
+{
+    Is(2,1) =
+      - omegaPow[3]/8.0*(gMagPow[2] + 3.0*gPow[2].x())*gPow[1].y()
+      + omegaPow[3]/2.0*gPow[1].x()*gPow[1].y()*vPow[1].x()
+      + omegaPow[3]/12.0*(gMagPow[2] + 3.0*gPow[2].x())*vPow[1].y()
+      - omegaPow[1]/2.0*gPow[1].y()*vPow[2].x()
+      - omegaPow[1]*gPow[1].x()*vPow[1].x()*vPow[1].y();
+}
 
 IFuncHeader(3,0,0)
 {

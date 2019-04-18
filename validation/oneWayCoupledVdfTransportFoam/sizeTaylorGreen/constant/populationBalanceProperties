@@ -21,15 +21,15 @@ sizeVelocityCoeffs
 {
     odeCoeffs
     {
-        solveOde off;
+        solveOde on;
         solveSources on;
 
-        ATol    1.0e-3;
-        RTol    1.0e-2;
-        fac     0.9;
-        facMin  0.1;
-        facMax  5.0;
-        minLocalDt 1.0e-4;
+        ATol    1.0e-6;
+        RTol    1.0e-4;
+        fac     0.7;
+        facMin  0.5;
+        facMax  2.0;
+        minLocalDt 1.0e-6;
     }
 
     collision  off;
@@ -46,7 +46,7 @@ sizeVelocityCoeffs
     {
         aggregationKernel sum;
 
-        Ca        Ca        [ 0 0 -1 0 0 0 0 ] 1.0;
+        Ca        Ca        [ 0 0 -1 0 0 0 0 ] 20.0;
     }
 
     breakup on;
