@@ -55,9 +55,15 @@ Foam::quadratureNode<scalarType, vectorType>::sizeIndex() const
 }
 
 template<class scalarType, class vectorType>
-bool Foam::quadratureNode<scalarType, vectorType>::massBased() const
+bool Foam::quadratureNode<scalarType, vectorType>::lengthBased() const
 {
-    return massBased_;
+    return lengthBased_;
+}
+
+template<class scalarType, class vectorType>
+bool Foam::quadratureNode<scalarType, vectorType>::useVolumeFraction() const
+{
+    return useVolumeFraction_;
 }
 
 template<class scalarType, class vectorType>

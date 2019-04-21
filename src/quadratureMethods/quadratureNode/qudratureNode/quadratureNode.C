@@ -57,13 +57,18 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     scalarIndexes_(),
     velocityIndexes_(),
     sizeIndex_(-1),
-    massBased_(false),
+    lengthBased_(false),
     secondaryWeights_(),
     secondaryAbscissae_(),
     sigmas_(),
     nSecondaryNodes_(nSecondaryNodes),
     extended_(extended)
 {
+    if (weightDimensions == dimless)
+    {
+        useVolumeFraction_ = true;
+    }
+
     forAll(abscissaeDimensions, dimi)
     {
         if (abscissaeDimensions[dimi] == dimVelocity)
@@ -89,13 +94,9 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 }
                 sizeIndex_ = dimi;
 
-                if
-                (
-                    (abscissaeDimensions[dimi] == dimMass)
-                 || (abscissaeDimensions[dimi] == dimVolume)
-                )
+                if (abscissaeDimensions[dimi] == dimLength)
                 {
-                    massBased_ = true;
+                    lengthBased_ = true;
                 }
             }
         }
@@ -268,13 +269,18 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     scalarIndexes_(),
     velocityIndexes_(),
     sizeIndex_(-1),
-    massBased_(false),
+    lengthBased_(false),
     secondaryWeights_(),
     secondaryAbscissae_(),
     sigmas_(),
     nSecondaryNodes_(nSecondaryNodes),
     extended_(extended)
 {
+    if (weightDimensions == dimless)
+    {
+        useVolumeFraction_ = true;
+    }
+
     forAll(abscissaeDimensions, dimi)
     {
         if (abscissaeDimensions[dimi] == dimVelocity)
@@ -300,13 +306,9 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 }
                 sizeIndex_ = dimi;
 
-                if
-                (
-                    (abscissaeDimensions[dimi] == dimMass)
-                 || (abscissaeDimensions[dimi] == dimVolume)
-                )
+                if (abscissaeDimensions[dimi] == dimLength)
                 {
-                    massBased_ = true;
+                    lengthBased_ = true;
                 }
             }
         }

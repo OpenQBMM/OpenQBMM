@@ -92,8 +92,11 @@ protected:
         //- Index of size component
         label sizeIndex_;
 
-        //- Is the size mass based
-        bool massBased_;
+        //- Is the size length based
+        bool lengthBased_;
+
+        //- Are weights in volume fraction
+        bool useVolumeFraction_;
 
         //- List of secondary weights of the node
         secondaryWeightsType secondaryWeights_;
@@ -226,8 +229,11 @@ public:
             //- Return size index
             label sizeIndex() const;
 
-            //- Is the node mass based
-            bool massBased() const;
+            //- Is the node length based
+            bool lengthBased() const;
+
+            //- Is the weight in terms of volume fraction
+            bool useVolumeFraction() const;
 
             //- Is the node extended
             bool extended() const;

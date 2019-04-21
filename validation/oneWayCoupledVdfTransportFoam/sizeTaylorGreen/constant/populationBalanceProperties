@@ -29,7 +29,7 @@ sizeVelocityCoeffs
         fac     0.7;
         facMin  0.5;
         facMax  2.0;
-        minLocalDt 1.0e-6;
+        minLocalDt 1.0e-10;
     }
 
     collision  off;

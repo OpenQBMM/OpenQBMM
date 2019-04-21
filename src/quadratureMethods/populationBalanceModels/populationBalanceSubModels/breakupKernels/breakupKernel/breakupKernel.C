@@ -109,7 +109,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     scalar bSource = 0.0;
 
     const PtrList<volScalarNode>& nodes = quadrature.nodes();
-    bool massBased = nodes[0].massBased();
+    bool lengthBased = nodes[0].lengthBased();
     label sizeIndex = nodes[0].sizeIndex();
 
     if (sizeIndex == -1)
@@ -121,13 +121,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     bool volumeFraction = (quadrature.moments()(0).dimensions() == dimless);
     if (volumeFraction)
     {
-        if (massBased)
+        if (lengthBased)
         {
-            sizeOrder += 1;
+            sizeOrder += 3;
         }
         else
         {
-            sizeOrder += 3;
+            sizeOrder += 1;
         }
     }
 
@@ -144,13 +144,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
 
             scalar bSourcei = 0.0;
-            if (massBased)
+            if (lengthBased)
             {
-                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+                bSourcei = nodeSource(bAbscissa, sizeOrder);
             }
             else
             {
-                bSourcei = nodeSource(bAbscissa, sizeOrder);
+                bSourcei = massNodeSource(bAbscissa, sizeOrder);
             }
 
             bSourcei *=
@@ -159,13 +159,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
             if (volumeFraction)
             {
-                if (massBased)
+                if (lengthBased)
                 {
-                    bSourcei /= max(bAbscissa, small);
+                    bSourcei /= pow3(max(bAbscissa, small));
                 }
                 else
                 {
-                    bSourcei /= pow3(max(bAbscissa, small));
+                    bSourcei /= max(bAbscissa, small);
                 }
             }
 
@@ -197,13 +197,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                 max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
 
             scalar bSourcei = 0.0;
-            if (massBased)
+            if (lengthBased)
             {
-                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+                bSourcei = nodeSource(bAbscissa, sizeOrder);
             }
             else
             {
-                bSourcei = nodeSource(bAbscissa, sizeOrder);
+                bSourcei = massNodeSource(bAbscissa, sizeOrder);
             }
 
             bSourcei *=
@@ -213,13 +213,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
             if (volumeFraction)
             {
-                if (massBased)
+                if (lengthBased)
                 {
-                    bSourcei /= max(bAbscissa, small);
+                    bSourcei /= pow3(max(bAbscissa, small));
                 }
                 else
                 {
-                    bSourcei /= max(pow3(bAbscissa), small);
+                    bSourcei /= max(bAbscissa, small);
                 }
             }
 
@@ -254,7 +254,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     scalar bSource = 0.0;
 
     const PtrList<volVelocityNode>& nodes = quadrature.nodes();
-    bool massBased = nodes[0].massBased();
+    bool lengthBased = nodes[0].lengthBased();
     label sizeIndex = nodes[0].sizeIndex();
 
     if (sizeIndex == -1)
@@ -266,13 +266,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     bool volumeFraction = (quadrature.moments()(0).dimensions() == dimless);
     if (volumeFraction)
     {
-        if (massBased)
+        if (lengthBased)
         {
-            sizeOrder += 1;
+            sizeOrder += 3;
         }
         else
         {
-            sizeOrder += 3;
+            sizeOrder += 1;
         }
     }
 
@@ -289,13 +289,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
 
             scalar bSourcei = 0.0;
-            if (massBased)
+            if (lengthBased)
             {
-                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+                bSourcei = nodeSource(bAbscissa, sizeOrder);
             }
             else
             {
-                bSourcei = nodeSource(bAbscissa, sizeOrder);
+                bSourcei = massNodeSource(bAbscissa, sizeOrder);
             }
 
             bSourcei *=
@@ -304,13 +304,14 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
             if (volumeFraction)
             {
-                if (massBased)
+                if (lengthBased)
                 {
-                    bSourcei /= max(bAbscissa, small);
+                    bSourcei /= pow3(max(bAbscissa, small));
                 }
                 else
                 {
-                    bSourcei /= pow3(max(bAbscissa, small));                }
+                    bSourcei /= max(bAbscissa, small);
+                }
             }
 
             forAll(scalarIndexes, nodei)
@@ -350,13 +351,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                 max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
 
             scalar bSourcei = 0.0;
-            if (massBased)
+            if (lengthBased)
             {
-                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+                bSourcei = nodeSource(bAbscissa, sizeOrder);
             }
             else
             {
-                bSourcei = nodeSource(bAbscissa, sizeOrder);
+                bSourcei = massNodeSource(bAbscissa, sizeOrder);
             }
 
             bSourcei *=
@@ -366,13 +367,13 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
             if (volumeFraction)
             {
-                if (massBased)
+                if (lengthBased)
                 {
-                    bSourcei /= max(bAbscissa, small);
+                    bSourcei /= pow3(max(bAbscissa, small));
                 }
                 else
                 {
-                    bSourcei /= max(pow3(bAbscissa), small);
+                    bSourcei /= max(bAbscissa, small);
                 }
             }
 

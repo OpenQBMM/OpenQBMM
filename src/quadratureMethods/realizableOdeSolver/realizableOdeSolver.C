@@ -311,6 +311,10 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             }
         }
     }
+    forAll(moments, mi)
+    {
+        moments[mi].correctBoundaryConditions();
+    }
 }
 
 

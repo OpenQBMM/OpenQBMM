@@ -117,7 +117,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
     scalar aSource = 0.0;
 
     const PtrList<volScalarNode>& nodes = quadrature.nodes();
-    bool massBased = nodes[0].massBased();
+    bool lengthBased = nodes[0].lengthBased();
     label sizeIndex = nodes[0].sizeIndex();
 
     if (sizeIndex == -1)
@@ -126,16 +126,16 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
     }
 
     label sizeOrder = momentOrder[sizeIndex];
-    bool volumeFraction = (quadrature.moments()(0).dimensions() == dimless);
+    bool volumeFraction = nodes[0].useVolumeFraction();
     if (volumeFraction)
     {
-        if (massBased)
+        if (lengthBased)
         {
-            sizeOrder += 1;
+            sizeOrder += 3;
         }
         else
         {
-            sizeOrder += 3;
+            sizeOrder += 1;
         }
     }
 
@@ -171,13 +171,13 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                     );
 
                 scalar aSrc = 0.0;
-                if (massBased)
+                if (lengthBased)
                 {
-                    aSrc = massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
+                    aSrc = nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                 }
                 else
                 {
-                    aSrc = nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
+                    aSrc = massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                 }
 
                 aSrc *=
@@ -187,15 +187,15 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 
                 if (volumeFraction)
                 {
-                    if (massBased)
-                    {
-                        aSrc /=  max(bAbscissa1, small)*max(bAbscissa2, small);
-                    }
-                    else
+                    if (lengthBased)
                     {
                         aSrc /=
                             pow3(max(bAbscissa1, small))
                            *pow3(max(bAbscissa2, small));
+                    }
+                    else
+                    {
+                        aSrc /=  max(bAbscissa1, small)*max(bAbscissa2, small);
                     }
                 }
 
@@ -247,14 +247,15 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                     scalar bAbscissa2 = max(sAbscissa2[celli], 0.0);
 
                     scalar aSrc = 0.0;
-                    if (massBased)
+                    if (lengthBased)
                     {
                         aSrc =
-                            massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
+                            nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                     }
                     else
                     {
-                        aSrc = nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
+                        aSrc =
+                            massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                     }
 
                     aSrc *=
@@ -266,15 +267,15 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 
                     if (volumeFraction)
                     {
-                        if (massBased)
-                        {
-                            aSrc /=  max(bAbscissa1, small)*max(bAbscissa2, small);
-                        }
-                        else
+                        if (lengthBased)
                         {
                             aSrc /=
                                 max(pow3(bAbscissa1), small)
                                *max(pow3(bAbscissa2), small);
+                        }
+                        else
+                        {
+                            aSrc /=  max(bAbscissa1, small)*max(bAbscissa2, small);
                         }
                     }
 
@@ -314,7 +315,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
     scalar aSource = 0.0;
 
     const mappedPtrList<volVelocityNode>& nodes = quadrature.nodes();
-    bool massBased = nodes[0].massBased();
+    bool lengthBased = nodes[0].lengthBased();
     label sizeIndex = nodes[0].sizeIndex();
 
     if (sizeIndex == -1)
@@ -326,13 +327,13 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
     bool volumeFraction = (quadrature.moments()(0).dimensions() == dimless);
     if (volumeFraction)
     {
-        if (massBased)
+        if (lengthBased)
         {
-            sizeOrder += 1;
+            sizeOrder += 3;
         }
         else
         {
-            sizeOrder += 3;
+            sizeOrder += 1;
         }
     }
 
@@ -365,14 +366,15 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                 scalar bAbscissa2 = max(sizeAbscissae[pNode2i], 0.0);
 
                 scalar aSrc = 0.0;
-                if (massBased)
+                if (lengthBased)
                 {
                     aSrc =
-                        massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
+                        nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                 }
                 else
                 {
-                    aSrc = nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
+                    aSrc =
+                        massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                 }
 
                 aSrc *=
@@ -382,15 +384,15 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 
                 if (volumeFraction)
                 {
-                    if (massBased)
-                    {
-                        aSrc /=  max(bAbscissa1, small);
-                    }
-                    else
+                    if (lengthBased)
                     {
                         aSrc /=
                             pow3(max(bAbscissa1, small))
                            *pow3(max(bAbscissa2, small));
+                    }
+                    else
+                    {
+                        aSrc /=  max(bAbscissa1, small);
                     }
                 }
 
@@ -462,15 +464,15 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                     scalar bAbscissa2 = max(sAbscissa2[celli], 0.0);
 
                     scalar aSrc = 0.0;
-                    if (massBased)
+                    if (lengthBased)
                     {
                         aSrc =
-                            massNodeSource(bAbscissa1, bAbscissa2, sizeOrder);
+                            nodeSource(bAbscissa1, bAbscissa2, sizeOrder);
                     }
                     else
                     {
                         aSrc =
-                            nodeSource
+                            massNodeSource
                             (
                                 bAbscissa1,
                                 bAbscissa2,
@@ -487,15 +489,15 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
 
                     if (volumeFraction)
                     {
-                        if (massBased)
-                        {
-                            aSrc /=  max(bAbscissa1, small)*max(bAbscissa2, small);
-                        }
-                        else
+                        if (lengthBased)
                         {
                             aSrc /=
                                 max(pow3(bAbscissa1), small)
                                *max(pow3(bAbscissa2), small);
+                        }
+                        else
+                        {
+                            aSrc /=  max(bAbscissa1, small)*max(bAbscissa2, small);
                         }
                     }
 

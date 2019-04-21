@@ -74,7 +74,6 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     scalar gSource = 0.0;
 
     const PtrList<volScalarNode>& nodes = quadrature.nodes();
-    bool massBased = nodes[0].massBased();
     label sizeIndex = nodes[0].sizeIndex();
 
     if (sizeIndex == -1)
@@ -168,7 +167,6 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     scalar gSource = 0.0;
 
     const PtrList<volVelocityNode>& nodes = quadrature.nodes();
-    bool massBased = nodes[0].massBased();
     label sizeIndex = nodes[0].sizeIndex();
 
     if (sizeIndex == -1)
