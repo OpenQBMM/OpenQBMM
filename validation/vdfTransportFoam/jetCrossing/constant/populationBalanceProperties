@@ -36,7 +36,7 @@ velocityCoeffs
     collisionKernel
     {
         collisionKernel esBGK;
-        implicit    on;
+        implicit    off;
         e           0.9;
         d           100e-6;
         rho         2500;

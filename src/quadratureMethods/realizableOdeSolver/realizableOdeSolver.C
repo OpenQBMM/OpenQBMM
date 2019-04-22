@@ -77,6 +77,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
     scalar globalDt = mesh_.time().deltaT().value();
     const labelListList& momentOrders = quadrature.momentOrders();
 
+    //- Use Euler explicit to update moments due to sources
     if (!solveOde_)
     {
         forAll(moments[0], celli)
@@ -99,17 +100,19 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             quadrature.updateLocalQuadrature(celli, true);
             quadrature.updateLocalMoments(celli);
         }
+
+        forAll(moments, mi)
+        {
+            moments[mi].correctBoundaryConditions();
+        }
         return;
     }
 
     Info << "Solving source terms in realizable ODE solver." << endl;
-
     forAll(moments[0], celli)
     {
         // Storing old moments to recover from failed step
-
         scalarList oldMoments(nMoments, 0.0);
-
         forAll(oldMoments, mi)
         {
             oldMoments[mi] = moments[mi][celli];

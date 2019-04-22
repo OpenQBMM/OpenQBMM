@@ -10,36 +10,36 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      populationaBalanceProperties;
+    location    "system";
+    object      decomposeParDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-populationBalanceModel sizeVelocity;
+numberOfSubdomains 15;
 
-sizeVelocityCoeffs
+method          scotch;
+
+simpleCoeffs
 {
-    odeCoeffs
-    {
-        solveOde on;
-
-        ATol    1.0e-6;
-        RTol    1.0e-3;
-        fac     0.5;
-        facMin  0.5;
-        facMax  5.0;
-        minLocalDt 1.0e-10;
-    }
-
-    collision  on;
-
-    collisionKernel
-    {
-        collisionKernel esBGK;
-        implicit off;
-        e           0.7;
-        rho         2500;
-    }
+    n               (1 12 1);
+    delta           0.001;
 }
+
+hierarchicalCoeffs
+{
+    n               (1 1 1);
+    delta           0.001;
+    order           xyz;
+}
+
+manualCoeffs
+{
+    dataFile        "";
+}
+
+distributed     no;
+
+roots           ( );
+
 
 // ************************************************************************* //

@@ -138,13 +138,6 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 //         source += nucleationModel_->nucleationSource(momentOrder[0], celli);
 //     }
 
-    //- Do not add sources to zero moment sets
-    //  Prevents poor conditioning
-//     if (quadrature.moments()(0)[celli] < small)
-//     {
-//         return source;
-//     }
-
 
     if (collision_)
     {

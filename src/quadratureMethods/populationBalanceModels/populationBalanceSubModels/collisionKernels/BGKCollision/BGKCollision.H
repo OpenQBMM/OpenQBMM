@@ -52,8 +52,7 @@ namespace collisionKernels
 #define defineMFunc(i,j,k)                                                      \
 static void moment##i##j##k                                                     \
 (                                                                               \
-    mappedPtrList<volScalarField>& Meq_,                                        \
-    const label celli,                                                          \
+    mappedScalarList& Meq_,                                                     \
     const scalar& m0,                                                           \
     const scalar& u,                                                            \
     const scalar& v,                                                            \
@@ -80,8 +79,7 @@ protected:
     //- Typedef of function pointer list
     typedef void (*momentFunction)
     (
-        mappedPtrList<volScalarField>& Meq,
-        const label,
+        mappedScalarList& Meq,
         const scalar&,
         const scalar&,
         const scalar&,
@@ -98,10 +96,13 @@ protected:
         List<momentFunction> equilibriumMomentFunctions_;
 
         //- Conditioned velocity moments
-        PtrList<mappedPtrList<volScalarField>> velocityMoments_;
+        PtrList<mappedScalarList> velocityMoments_;
 
         //- Size conditioned equilibrium veloicity moments (Gaussian)
-        PtrList<PtrList<mappedPtrList<volScalarField>>> Gs_;
+        PtrList<PtrList<mappedScalarList>> Gs_;
+
+        //- Collisional times
+        scalarListList Ks_;
 
 
     // Protected functions
@@ -109,16 +110,6 @@ protected:
         //- Return the covariance tensor using quadrature moments
         virtual symmTensor covariance
         (
-            const label celli,
-            const scalar& u,
-            const scalar& v,
-            const scalar& w
-        );
-
-        //- Return the covariance tensor given a list of moments
-        virtual symmTensor covariance
-        (
-            const mappedPtrList<volScalarField>& moments,
             const label celli,
             const scalar& u,
             const scalar& v,
@@ -284,8 +275,7 @@ if (map.found(i,j,k))                                                           
 void                                                                            \
 Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment##i##j##k\
 (                                                                               \
-    mappedPtrList<volScalarField>& moments,                                     \
-    const label celli,                                                          \
+    mappedScalarList& moments,                                                 \
     const scalar& m0,                                                           \
     const scalar& u,                                                            \
     const scalar& v,                                                            \

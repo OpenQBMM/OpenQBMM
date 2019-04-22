@@ -59,26 +59,26 @@ particles
     {
         node0
         {
-            weight  .0005;
-            abscissa (1.0 1.0 0.5);
+            weight  .01;
+            abscissa (1.0e-3 1.0 0.5);
         }
-        node1
-        {
-            weight  .0005;
-            abscissa (10.0 1.0 0.25);
-        }
+//         node1
+//         {
+//             weight  .0005;
+//             abscissa (10.0 1.0 0.25);
+//         }
     }
     inlet2
     {
-        node0
-        {
-            weight  .0005;
-            abscissa (1.0 -1.0 0.5);
-        }
+//         node0
+//         {
+//             weight  .0005;
+//             abscissa (1.0 -1.0 0.5);
+//         }
         node1
         {
-            weight  .0005;
-            abscissa (10.0 -1.0 0.25);
+            weight  .01;
+            abscissa (2.0e-3 -1.0 0.5);
         }
     }
 }

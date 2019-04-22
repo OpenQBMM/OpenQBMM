@@ -88,7 +88,7 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
 
             if (max(mag(iSource.source())) > small)
             {
-                //  Set moments.oldTime to moments transport is not neglected due
+                //  Set moments.oldTime so moments transport is not neglected due
                 //  to large collision source terms
                 quadrature_.moments()[mEqni].oldTime() = m;
 
@@ -98,7 +98,6 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
                 fvScalarMatrix momentEqn
                 (
                     fvm::ddt(m)
-                  - fvc::ddt(m)
                  ==
                     implicitMomentSource(m)
                 );

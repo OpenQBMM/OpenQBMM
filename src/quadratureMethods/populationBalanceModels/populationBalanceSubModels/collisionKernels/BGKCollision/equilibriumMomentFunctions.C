@@ -27,117 +27,117 @@ License
 // Zero order
 momentFuncHeader(0,0,0)
 {
-    moments(0)[celli] = m0;
+    moments(0) = m0;
 }
 
 // First order
 momentFuncHeader(0,0,1)
 {
-    moments(0,0,1)[celli] = m0*w;
+    moments(0,0,1) = m0*w;
 }
 
 momentFuncHeader(0,1,0)
 {
-    moments(0,1)[celli] = m0*v;
+    moments(0,1) = m0*v;
 }
 
 momentFuncHeader(1,0,0)
 {
-    moments(1)[celli] = m0*u;
+    moments(1) = m0*u;
 }
 
 // Second order
 momentFuncHeader(0,0,2)
 {
-    moments(0,0,2)[celli] = m0*(sigma.zz() + sqr(w));
+    moments(0,0,2) = m0*(sigma.zz() + sqr(w));
 }
 
 momentFuncHeader(0,1,1)
 {
-    moments(0,1,1)[celli] = m0*(sigma.yz() + v*w);
+    moments(0,1,1) = m0*(sigma.yz() + v*w);
 }
 
 momentFuncHeader(1,0,1)
 {
-    moments(1,0,1)[celli] = m0*(sigma.xz() + u*w);
+    moments(1,0,1) = m0*(sigma.xz() + u*w);
 }
 
 momentFuncHeader(1,1,0)
 {
-    moments(1,1)[celli] = m0*(sigma.xy() + u*v);
+    moments(1,1) = m0*(sigma.xy() + u*v);
 }
 
 momentFuncHeader(0,2,0)
 {
-    moments(0,2)[celli] = m0*(sigma.yy() + sqr(v));
+    moments(0,2) = m0*(sigma.yy() + sqr(v));
 }
 
 momentFuncHeader(2,0,0)
 {
-    moments(2)[celli] = m0*(sigma.xx() + sqr(u));
+    moments(2) = m0*(sigma.xx() + sqr(u));
 }
 
 // Third order
 momentFuncHeader(0,0,3)
 {
-    moments(0,0,3)[celli] = m0*(3.0*sigma.zz()*w + pow3(w));
+    moments(0,0,3) = m0*(3.0*sigma.zz()*w + pow3(w));
 }
 
 momentFuncHeader(0,1,2)
 {
-    moments(0,1,2)[celli] = m0*(v*sqr(w) + 2.0*sigma.yz()*w + sigma.zz()*v);
+    moments(0,1,2) = m0*(v*sqr(w) + 2.0*sigma.yz()*w + sigma.zz()*v);
 }
 
 momentFuncHeader(0,2,1)
 {
-    moments(0,2,1)[celli] = m0*(w*sqr(v) + 2.0*sigma.yz()*v + sigma.yy()*w);
+    moments(0,2,1) = m0*(w*sqr(v) + 2.0*sigma.yz()*v + sigma.yy()*w);
 }
 
 momentFuncHeader(0,3,0)
 {
-    moments(0,3)[celli] = m0*(3.0*sigma.yy()*v + pow3(v));
+    moments(0,3) = m0*(3.0*sigma.yy()*v + pow3(v));
 }
 
 momentFuncHeader(1,0,2)
 {
-    moments(1,0,2)[celli] = m0*(u*sqr(w) + 2.0*sigma.xz()*w + sigma.zz()*u);
+    moments(1,0,2) = m0*(u*sqr(w) + 2.0*sigma.xz()*w + sigma.zz()*u);
 }
 
 momentFuncHeader(1,1,1)
 {
-    moments(1,1,1)[celli] = m0*(sigma.xy()*w + sigma.xz()*v + sigma.yz()*u);
+    moments(1,1,1) = m0*(sigma.xy()*w + sigma.xz()*v + sigma.yz()*u);
 }
 
 momentFuncHeader(1,2,0)
 {
-    moments(1,2)[celli] = m0*(u*sqr(v) + 2.0*sigma.xy()*v + sigma.yy()*u);
+    moments(1,2) = m0*(u*sqr(v) + 2.0*sigma.xy()*v + sigma.yy()*u);
 }
 
 momentFuncHeader(2,0,1)
 {
-    moments(2,0,1)[celli] = m0*(w*sqr(u) + 2.0*sigma.xz()*u + sigma.xx()*w);
+    moments(2,0,1) = m0*(w*sqr(u) + 2.0*sigma.xz()*u + sigma.xx()*w);
 }
 
 momentFuncHeader(2,1,0)
 {
-    moments(2,1)[celli] = m0*(v*sqr(u) + 2.0*sigma.xy()*u + sigma.xx()*v);
+    moments(2,1) = m0*(v*sqr(u) + 2.0*sigma.xy()*u + sigma.xx()*v);
 }
 
 momentFuncHeader(3,0,0)
 {
-    moments(3)[celli] = m0*(3.0*sigma.xx()*u + pow3(u));
+    moments(3) = m0*(3.0*sigma.xx()*u + pow3(u));
 }
 
 // Fourth order
 momentFuncHeader(0,0,4)
 {
-    moments(0,0,4)[celli] =
+    moments(0,0,4) =
         m0*(6.0*sqr(w)*sigma.zz() + 3.0*sqr(sigma.zz()) + pow4(w));
 }
 
 momentFuncHeader(0,1,3)
 {
-    moments(0,1,3)[celli] =
+    moments(0,1,3) =
         m0
        *(
             v*pow3(w)
@@ -149,7 +149,7 @@ momentFuncHeader(0,1,3)
 
 momentFuncHeader(0,2,2)
 {
-    moments(0,2,2)[celli] =
+    moments(0,2,2) =
         m0
        *(
             2.0*sqr(sigma.yz())
@@ -164,7 +164,7 @@ momentFuncHeader(0,2,2)
 
 momentFuncHeader(0,3,1)
 {
-    moments(0,3,1)[celli] =
+    moments(0,3,1) =
         m0
        *(
             w*pow3(v)
@@ -176,13 +176,13 @@ momentFuncHeader(0,3,1)
 
 momentFuncHeader(0,4,0)
 {
-    moments(0,4)[celli] =
+    moments(0,4) =
         m0*(6.0*sqr(v)*sigma.yy() + 3.0*sqr(sigma.yy()) + pow4(v));
 }
 
 momentFuncHeader(1,0,3)
 {
-    moments(1,0,3)[celli] =
+    moments(1,0,3) =
         m0
        *(
             u*pow3(w)
@@ -194,7 +194,7 @@ momentFuncHeader(1,0,3)
 
 momentFuncHeader(2,0,2)
 {
-    moments(2,0,2)[celli] =
+    moments(2,0,2) =
         m0
        *(
             2.0*sqr(sigma.xz())
@@ -207,7 +207,7 @@ momentFuncHeader(2,0,2)
 
 momentFuncHeader(2,2,0)
 {
-    moments(2,2)[celli] =
+    moments(2,2) =
         m0
        *(
             2.0*sqr(sigma.xy())
@@ -221,7 +221,7 @@ momentFuncHeader(2,2,0)
 
 momentFuncHeader(1,3,0)
 {
-    moments(1,3)[celli] =
+    moments(1,3) =
         m0
        *(
             u*pow3(v)
@@ -233,7 +233,7 @@ momentFuncHeader(1,3,0)
 
 momentFuncHeader(3,0,1)
 {
-    moments(3,0,1)[celli] =
+    moments(3,0,1) =
         m0
        *(
             w*pow3(u)
@@ -245,7 +245,7 @@ momentFuncHeader(3,0,1)
 
 momentFuncHeader(3,1,0)
 {
-    moments(3,1)[celli] =
+    moments(3,1) =
         m0
        *(
             v*pow3(u)
@@ -257,7 +257,7 @@ momentFuncHeader(3,1,0)
 
 momentFuncHeader(4,0,0)
 {
-    moments(4)[celli] =
+    moments(4) =
         m0*(6.0*sqr(u)*sigma.xx() + 3.0*sqr(sigma.xx()) + pow4(u));
 }
 
@@ -265,13 +265,13 @@ momentFuncHeader(4,0,0)
 // Fith order
 momentFuncHeader(0,0,5)
 {
-    moments(0,0,5)[celli] =
+    moments(0,0,5) =
         m0*(15.0*w*sqr(sigma.zz()) + 10.0*sigma.zz()*pow3(w) + pow5(w));
 }
 
 momentFuncHeader(0,1,4)
 {
-    moments(0,1,4)[celli] =
+    moments(0,1,4) =
         m0
        *(
             3.0*v*sqr(sigma.zz())
@@ -284,7 +284,7 @@ momentFuncHeader(0,1,4)
 
 momentFuncHeader(0,2,3)
 {
-    moments(0,2,3)[celli] =
+    moments(0,2,3) =
         m0
        *(
             sqr(v)*pow3(w)
@@ -299,7 +299,7 @@ momentFuncHeader(0,2,3)
 
 momentFuncHeader(0,3,2)
 {
-    moments(0,3,2)[celli] =
+    moments(0,3,2) =
         m0
        *(
             pow3(v)*sqr(w)
@@ -314,7 +314,7 @@ momentFuncHeader(0,3,2)
 
 momentFuncHeader(0,4,1)
 {
-    moments(0,4,1)[celli] =
+    moments(0,4,1) =
         m0
        *(
             3.0*w*sqr(sigma.yy())
@@ -327,13 +327,13 @@ momentFuncHeader(0,4,1)
 
 momentFuncHeader(0,5,0)
 {
-    moments(0,5)[celli] =
+    moments(0,5) =
         m0*(15.0*v*sqr(sigma.yy()) + 10.0*sigma.yy()*pow3(v) + pow5(v));
 }
 
 momentFuncHeader(1,0,4)
 {
-    moments(1,0,4)[celli] =
+    moments(1,0,4) =
         m0
        *(
             3.0*u*sqr(sigma.zz())
@@ -346,7 +346,7 @@ momentFuncHeader(1,0,4)
 
 momentFuncHeader(1,4,0)
 {
-    moments(1,4)[celli] =
+    moments(1,4) =
         m0
        *(
             3.0*u*sqr(sigma.yy())
@@ -359,7 +359,7 @@ momentFuncHeader(1,4,0)
 
 momentFuncHeader(2,0,3)
 {
-    moments(2,0,3)[celli] =
+    moments(2,0,3) =
         m0
        *(
             sqr(u)*pow3(w)
@@ -374,7 +374,7 @@ momentFuncHeader(2,0,3)
 
 momentFuncHeader(2,3,0)
 {
-    moments(2,3)[celli] =
+    moments(2,3) =
         m0
        *(
             sqr(u)*pow3(v)
@@ -389,7 +389,7 @@ momentFuncHeader(2,3,0)
 
 momentFuncHeader(3,0,2)
 {
-    moments(3,0,2)[celli] =
+    moments(3,0,2) =
         m0
        *(
             pow3(u)*sqr(w)
@@ -404,7 +404,7 @@ momentFuncHeader(3,0,2)
 
 momentFuncHeader(3,2,0)
 {
-    moments(3,2)[celli] =
+    moments(3,2) =
         m0
        *(
             pow3(u)*sqr(v)
@@ -419,7 +419,7 @@ momentFuncHeader(3,2,0)
 
 momentFuncHeader(4,0,1)
 {
-    moments(4,0,1)[celli] =
+    moments(4,0,1) =
         m0
        *(
             3.0*w*sqr(sigma.xx())
@@ -432,7 +432,7 @@ momentFuncHeader(4,0,1)
 
 momentFuncHeader(4,1,0)
 {
-    moments(4,1)[celli] =
+    moments(4,1) =
         m0
        *(
             3.0*v*sqr(sigma.xx())
@@ -445,7 +445,7 @@ momentFuncHeader(4,1,0)
 
 momentFuncHeader(5,0,0)
 {
-    moments(5)[celli] =
+    moments(5) =
         m0*(15.0*u*sqr(sigma.xx()) + 10.0*sigma.xx()*pow3(u) + pow5(u));
 }
 
@@ -453,7 +453,7 @@ momentFuncHeader(5,0,0)
 // Sixth order
 momentFuncHeader(0,1,5)
 {
-    moments(0,1,5)[celli] =
+    moments(0,1,5) =
         m0
        *(
             15.0*v*w*sqr(sigma.zz())
@@ -467,7 +467,7 @@ momentFuncHeader(0,1,5)
 
 momentFuncHeader(0,2,4)
 {
-    moments(0,2,4)[celli] =
+    moments(0,2,4) =
         m0
        *(
             12.0*sqr(sigma.yz())*sigma.zz()
@@ -485,7 +485,7 @@ momentFuncHeader(0,2,4)
 
 momentFuncHeader(0,4,2)
 {
-    moments(0,4,2)[celli] =
+    moments(0,4,2) =
         m0
        *(
             3.0*sqr(sigma.yy()*w)
@@ -503,7 +503,7 @@ momentFuncHeader(0,4,2)
 
 momentFuncHeader(0,5,1)
 {
-    moments(0,5,1)[celli] =
+    moments(0,5,1) =
         m0
        *(
             15.0*w*v*sqr(sigma.yy())
@@ -517,7 +517,7 @@ momentFuncHeader(0,5,1)
 
 momentFuncHeader(1,0,5)
 {
-    moments(1,0,5)[celli] =
+    moments(1,0,5) =
         m0
        *(
             15.0*u*w*sqr(sigma.zz())
@@ -531,7 +531,7 @@ momentFuncHeader(1,0,5)
 
 momentFuncHeader(1,5,0)
 {
-    moments(1,5)[celli] =
+    moments(1,5) =
         m0
        *(
             15.0*u*v*sqr(sigma.yy())
@@ -545,7 +545,7 @@ momentFuncHeader(1,5,0)
 
 momentFuncHeader(2,0,4)
 {
-    moments(2,0,4)[celli] =
+    moments(2,0,4) =
         m0
        *(
             3.0*sqr(sigma.zz()*u)
@@ -563,7 +563,7 @@ momentFuncHeader(2,0,4)
 
 momentFuncHeader(2,4,0)
 {
-    moments(2,4)[celli] =
+    moments(2,4) =
         m0
        *(
             3.0*sqr(sigma.yy()*u)
@@ -581,7 +581,7 @@ momentFuncHeader(2,4,0)
 
 momentFuncHeader(4,0,2)
 {
-    moments(4,0,2)[celli] =
+    moments(4,0,2) =
         m0
        *(
             12.0*sqr(sigma.xz()*u)
@@ -599,7 +599,7 @@ momentFuncHeader(4,0,2)
 
 momentFuncHeader(4,2,0)
 {
-    moments(4,2)[celli] =
+    moments(4,2) =
         m0
        *(
             12.0*sqr(sigma.xy()*u)
@@ -617,7 +617,7 @@ momentFuncHeader(4,2,0)
 
 momentFuncHeader(5,0,1)
 {
-    moments(5,0,1)[celli] =
+    moments(5,0,1) =
         m0
        *(
             15.0*sqr(sigma.xx())*sigma.xz()
@@ -631,7 +631,7 @@ momentFuncHeader(5,0,1)
 
 momentFuncHeader(5,1,0)
 {
-    moments(5,1)[celli] =
+    moments(5,1) =
         m0
        *(
             15.0*sqr(sigma.xx())*sigma.xy()
@@ -645,7 +645,7 @@ momentFuncHeader(5,1,0)
 
 momentFuncHeader(0,2,5)
 {
-    moments(0,2,5)[celli] =
+    moments(0,2,5) =
         m0
        *(
             20.0*sqr(sigma.yz())*pow3(w)
@@ -664,7 +664,7 @@ momentFuncHeader(0,2,5)
 
 momentFuncHeader(0,5,2)
 {
-    moments(0,5,2)[celli] =
+    moments(0,5,2) =
         m0
        *(
             20.0*sqr(sigma.yz())*pow3(v)
@@ -683,7 +683,7 @@ momentFuncHeader(0,5,2)
 
 momentFuncHeader(2,0,5)
 {
-    moments(2,0,5)[celli] =
+    moments(2,0,5) =
         m0
        *(
             20.0*sqr(sigma.xz())*pow3(w)
@@ -702,7 +702,7 @@ momentFuncHeader(2,0,5)
 
 momentFuncHeader(2,5,0)
 {
-    moments(2,5)[celli] =
+    moments(2,5) =
         m0
        *(
             20.0*sqr(sigma.xy())*pow3(v)
@@ -721,7 +721,7 @@ momentFuncHeader(2,5,0)
 
 momentFuncHeader(5,0,2)
 {
-    moments(5,0,2)[celli] =
+    moments(5,0,2) =
         m0
        *(
             20.0*sqr(sigma.xz())*pow3(u)
@@ -740,7 +740,7 @@ momentFuncHeader(5,0,2)
 
 momentFuncHeader(5,2,0)
 {
-    moments(5,2)[celli] =
+    moments(5,2) =
         m0
        *(
             20.0*sqr(sigma.xy())*pow3(u)
