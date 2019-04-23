@@ -1,0 +1,92 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pbeTransportFoam;
+
+startFrom       startTime;//latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         5000;
+
+deltaT          10;
+
+writeControl    adjustableRunTime;
+
+writeInterval   10;
+
+purgeWrite      10;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   12;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           0.9;
+
+maxDeltaT       10;
+
+functions
+{
+    d43Average
+    {
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                d43VolumeAverage;
+        writeControl        timeStep;
+
+        codeExecute
+        #{
+        const volScalarField& m3 =
+            mesh().lookupObject<volScalarField>("moment.3.populationBalance");
+
+        const volScalarField& m4 =
+            mesh().lookupObject<volScalarField>("moment.4.populationBalance");
+
+        volScalarField d43(m4/m3);
+
+        scalar volAverage = 0;
+        scalar totalVolume = 0;
+
+        forAll (d43, cellI)
+        {
+            totalVolume += mesh().V()[cellI];
+        }
+
+        forAll (d43, cellI)
+        {
+            volAverage += d43[cellI]*mesh().V()[cellI]/totalVolume;
+        }
+
+        Info<<"Volume averaged normalized d43: " << volAverage/(2.0e-6) << endl;
+
+        #};
+    }
+}
+
+
+// ************************************************************************* //

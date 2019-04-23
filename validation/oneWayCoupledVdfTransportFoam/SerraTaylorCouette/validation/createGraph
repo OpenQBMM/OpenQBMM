@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# Read d43average from pbeTransportFoam for 75 rpm
+createEpsD43()
+{
+
+    gnuplot<<EOF
+    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+        dl 8.0
+    set output "OpenQBMM_validation_d43_75rpm.eps"
+    set xlabel "Time [s]"
+    set ylabel "d"
+    set grid
+    set key right bottom
+    set size 2,2
+    set autoscale
+    set xrange [0:15000]
+    set yrange [0:25]
+
+    plot    "$1" using 1:2 title 'Experiments (Serra et al., 1997)'\
+                with points pointtype 7 ps 3 linecolor rgb 'black',\
+            "$3" using 1:2 every 5000 title 'OpenQBMM C_{Br} = 0.6e-3'\
+                with points pointtype 7 ps 3 linecolor rgb '#9db668',\
+            "$2" using 1:2 every 3 title 'Marchisio et al. (2003) C_{Br} = 0.6e-3'\
+                with points pointtype 5 ps 2 linecolor rgb 'blue',\
+
+EOF
+}
+
+# Test if gnuplot exists on the system
+if ! which gnuplot > /dev/null 2>&1
+then
+    echo "gnuplot not found - skipping graph creation" >&2
+    exit 1
+fi
+
+# Extract data from log file and put them in a text file for gnuplot
+#cat ../log.pbeTransportFoam | grep '^Time = ' | cut -c8-15 > time.tmp
+#cat ../log.pbeTransportFoam | grep 'Volume averaged normalized d43' | cut -d':' -f2 > d43.tmp
+#paste time.tmp d43.tmp > volumeAveragedD43.dat
+
+#Remove temporary files
+#rm time.tmp d43.tmp
+
+# paths to data
+VALIDATIONDATAROOT=./validationData
+
+echo "    processing d43 profile" > log.createGraphs 2>&1
+OPENQBMMM="volumeAveragedD43.dat"
+VALIDATION="$VALIDATIONDATAROOT/SerraEtAl1997_d43_75rpm.dat"
+MARCHISIO="$VALIDATIONDATAROOT/Marchisio_75_6.dat"
+
+createEpsD43 $VALIDATION $MARCHISIO $OPENQBMMM
+
+echo Done
