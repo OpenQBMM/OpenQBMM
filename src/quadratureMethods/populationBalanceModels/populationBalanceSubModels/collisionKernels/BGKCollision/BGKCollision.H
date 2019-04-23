@@ -104,6 +104,10 @@ protected:
         //- Collisional times
         scalarListList Ks_;
 
+        //- Second order velocity moment orders
+        //  (Used in calculating multi-component velocity variance)
+        labelListList vMomentOrders2_;
+
 
     // Protected functions
 

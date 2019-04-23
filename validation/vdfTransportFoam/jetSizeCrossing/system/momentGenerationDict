@@ -59,8 +59,8 @@ particles
     {
         node0
         {
-            weight  .01;
-            abscissa (1.0e-3 1.0 0.5);
+            weight  .001;
+            abscissa (100.0e-6 1.0 0.5);
         }
 //         node1
 //         {
@@ -77,8 +77,8 @@ particles
 //         }
         node1
         {
-            weight  .01;
-            abscissa (2.0e-3 -1.0 0.5);
+            weight  .001;
+            abscissa (300.0e-6 -1.0 0.5);
         }
     }
 }

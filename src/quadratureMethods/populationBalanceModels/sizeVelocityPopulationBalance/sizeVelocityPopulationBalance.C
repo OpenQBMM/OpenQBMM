@@ -138,11 +138,13 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 //         source += nucleationModel_->nucleationSource(momentOrder[0], celli);
 //     }
 
-
+    // Collision source term
     if (collision_)
     {
         source += collisionKernel_->explicitCollisionSource(momentOrder, celli);
     }
+
+    // Aggregation source term
     if (aggregation_)
     {
         source +=
@@ -154,6 +156,8 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
                 environment
             );
     }
+
+    // Breaku source term
     if (breakup_)
     {
         source +=
@@ -164,6 +168,8 @@ Foam::scalar Foam::PDFTransportModels::populationBalanceModels
                 quadrature
             );
     }
+
+    // Phase space convection/growth source term
     if (growth_)
     {
         source +=

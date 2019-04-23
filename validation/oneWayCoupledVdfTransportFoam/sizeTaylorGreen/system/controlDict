@@ -17,7 +17,7 @@ FoamFile
 
 application     oneWayCoupledVdfTransportFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 

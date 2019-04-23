@@ -112,6 +112,9 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
     forAll(moments[0], celli)
     {
         // Storing old moments to recover from failed step
+        quadrature.updateLocalQuadrature(celli);
+        quadrature.updateLocalMoments(celli);
+
         scalarList oldMoments(nMoments, 0.0);
         forAll(oldMoments, mi)
         {
@@ -305,13 +308,13 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 quadrature.updateLocalQuadrature(celli);
             }
 
-            if (localDt < minLocalDt_)
-            {
-                FatalErrorInFunction
-                    << "Reached minimum local step in realizable ODE" << nl
-                    << "    solver. Cannot ensure accuracy." << nl
-                    << abort(FatalError);
-            }
+//             if (localDt < minLocalDt_)
+//             {
+//                 FatalErrorInFunction
+//                     << "Reached minimum local step in realizable ODE" << nl
+//                     << "    solver. Cannot ensure accuracy." << nl
+//                     << abort(FatalError);
+//             }
         }
     }
     forAll(moments, mi)
