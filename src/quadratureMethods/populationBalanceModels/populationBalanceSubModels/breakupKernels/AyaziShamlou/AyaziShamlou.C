@@ -57,16 +57,27 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
 )
 :
     breakupKernel(dict, mesh),
+    continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
     A_(dict.lookup("A")),
     df_(dict.lookup("df")),
     H0_(dict.lookup("H0")),
     primarySize_(dict.lookup("primarySize")),
-    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
+    flThermo_
+    (
+        mesh_.lookupObject<fluidThermo>
+        (
+            IOobject::groupName(basicThermo::dictName, continuousPhase_)
+        )
+    ),
     flTurb_
     (
-        mesh_.lookupObject<compressible::turbulenceModel>
+        mesh_.lookupObject<turbulenceModel>
         (
-            turbulenceModel::propertiesName
+            IOobject::groupName
+            (
+                turbulenceModel::propertiesName,
+                continuousPhase_
+            )
         )
     ),
     epsilon_(flTurb_.epsilon()),

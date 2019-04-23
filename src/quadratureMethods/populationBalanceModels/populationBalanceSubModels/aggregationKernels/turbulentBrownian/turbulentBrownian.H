@@ -94,11 +94,14 @@ class turbulentBrownian
 {
     // Private data
 
+        //- Continuous phase name
+        const word continuousPhase_;
+
         //- Thermo model
         const fluidThermo& flThermo_;
 
         //- Turbulence model
-        const compressible::turbulenceModel& flTurb_;
+        const turbulenceModel& flTurb_;
 
         //- Temperature field
         const volScalarField& T_;

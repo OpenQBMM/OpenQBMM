@@ -68,6 +68,9 @@ private:
 
     // Private data
 
+        //- Continuous phase name
+        const word continuousPhase_;
+
         //- Hamaker constant
         dimensionedScalar A_;
 
@@ -84,7 +87,7 @@ private:
         const fluidThermo& flThermo_;
 
         //- Turbulence model
-        const compressible::turbulenceModel& flTurb_;
+        const turbulenceModel& flTurb_;
 
         //- Turbulent dissipation rate
         const volScalarField& epsilon_;

@@ -58,12 +58,23 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
 )
 :
     aggregationKernel(dict, mesh),
-    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
+    continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
+    flThermo_
+    (
+        mesh_.lookupObject<fluidThermo>
+        (
+            IOobject::groupName(basicThermo::dictName, continuousPhase_)
+        )
+    ),
     flTurb_
     (
-        mesh_.lookupObject<compressible::turbulenceModel>
+        mesh_.lookupObject<turbulenceModel>
         (
-            turbulenceModel::propertiesName
+            IOobject::groupName
+            (
+                turbulenceModel::propertiesName,
+                continuousPhase_
+            )
         )
     ),
     T_(flThermo_.T()),

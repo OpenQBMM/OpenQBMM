@@ -221,6 +221,12 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     {
         scalar m0i = velocityMoments_[sizei](0);
         weights[sizei] = m0i;
+        ds[sizei] =
+            max
+            (
+                quadrature_.nodes()(sizei).primaryAbscissae()[sizeIndex_][celli],
+                1e-8
+            );
         if (m0i > 1e-10)
         {
             Us[sizei].x() = velocityMoments_[sizei](1)/m0i;
@@ -241,9 +247,6 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                     Us[sizei].y(),
                     Us[sizei].z()
                 );
-
-            ds[sizei] =
-                quadrature_.nodes()(sizei).primaryAbscissae()[sizeIndex_][celli];
         }
     }
 
