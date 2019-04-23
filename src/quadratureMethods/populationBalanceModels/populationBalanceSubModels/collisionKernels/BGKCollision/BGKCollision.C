@@ -160,12 +160,6 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         Meq_[mi][celli] = 0.0;
     }
 
-    // Return if small volume fraction
-    if (m0 < 1e-10)
-    {
-        return;
-    }
-
     // Construct conditional moments
     forAll(velocityMoments_, sizei)
     {
@@ -184,7 +178,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     scalar alphac = 1.0 - m0;
 
     // Particle diameters
-    scalarList ds(nSizes_, 1e-6);
+    scalarList ds(nSizes_);
 
     // Size conditioned mean velocities
     List<vector> Us(nSizes_, Zero);
@@ -225,9 +219,9 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
             max
             (
                 quadrature_.nodes()(sizei).primaryAbscissae()[sizeIndex_][celli],
-                1e-8
+                minD_
             );
-        if (m0i > 1e-10)
+        if (m0i > minM0_)
         {
             Us[sizei].x() = velocityMoments_[sizei](1)/m0i;
             if (nDimensions_ > 1)
@@ -264,69 +258,86 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 
         forAll(velocityMoments_, sizej)
         {
-            scalar dj = ds[sizej];
-            if (weights[sizei] > 1e-10 && weights[sizej] > 1e-10)
+            scalar m0ij = weights[sizei] + weights[sizej];
+
+            if (m0ij > minM0_)
             {
-                mappedScalarList momentsij
-                (
-                    vMomentOrders2_.size(),
-                    vMomentOrders2_
-                );
-
-                // Pair second order moments
-                forAll(momentsij, mi)
-                {
-                    momentsij[mi] =
-                        velocityMoments_[sizei](vMomentOrders2_[mi])
-                      + velocityMoments_[sizej](vMomentOrders2_[mi]);
-                }
-                scalar m0ij = momentsij(0);
-                scalar uij = momentsij(1)/m0ij;
-                scalar vij = 0.0;
-                scalar wij = 0.0;
-                if (nDimensions_ > 1)
-                {
-                    vij = momentsij(0,1)/m0ij;
-
-                    if (nDimensions_ > 2)
-                    {
-                        wij = momentsij(0,0,1)/m0ij;
-                    }
-                }
-                symmTensor Sij = covariance(momentsij, uij, vij, wij);
-                scalar Thetaij = max(tr(Sij)/nDimensions_, 0.0);
-                Sij =
-                    0.5
-                   *(
-                        Sigmas[sizei]
-                      + Sigmas[sizej]
-                      + symmTensor::one*Thetaij
-                    );
-
-                scalar dij = (di + dj)*0.5;
-                scalar XiPow3 = pow3(dij/dj);
-                scalar Vi = pow3(di);
-                scalar Vj = pow3(dj);
-
-                scalar muij = 2.0*Vj/(Vi + Vj);
+                vector Uij = Us[sizei];
+                symmTensor Sigmaij = Sigmas[sizei];
                 scalar g0ij =
                     1.0/alphac
-                  + 3.0*di*dj*alphard/(sqr(alphac)*(di + dj));
+                  + 3.0*di*di*alphard/(sqr(alphac)*(di + di));
 
-                Ks_[sizei][sizej] =
-                    24.0*g0ij*weights[sizej]*XiPow3*sqrt(Thetaij)
-                   /(sqrt(pi)*dij);
-
-                symmTensor Sigmaij =
-                    Sigmas[sizei]
-                  + 0.5*(1.0 + e())
-                   *muij*(0.25*(1.0 + e())*muij*Sij - Sigmas[sizei]);
-
-                vector Uij = Us[sizei];
-                if (sizei != sizej)
+                if (sizei == sizej)
                 {
-                    Uij +=
-                        0.25*(1.0 + e())*muij*(Us[sizej] - Us[sizei]);
+                    scalar Thetai = max(tr(Sigmas[sizei]), 0.0);
+                    symmTensor Si = Sigmas[sizei] + symmTensor::I*Thetai;
+
+                    Sigmaij +=
+                        0.5*(1.0 + e())*(0.25*(1.0 + e())*Si - Sigmas[sizei]);
+
+                    Ks_[sizei][sizej] =
+                        24.0*g0ij*weights[sizej]*sqrt(Thetai)
+                       /(sqrt(pi)*di);
+                }
+                else
+                {
+                    const mappedScalarList& vmi = velocityMoments_[sizei];
+                    const mappedScalarList& vmj = velocityMoments_[sizej];
+                    scalar dj = ds[sizej];
+                    scalar Thetaij =
+                        max
+                        (
+                            (vmi(2) + vmj(2))/m0ij
+                          - sqr((vmi(1) + vmj(1))/m0ij),
+                            0.0
+                        );
+
+                    if (nDimensions_ > 1)
+                    {
+                        Thetaij +=
+                            max
+                            (
+                                (vmi(0,2) + vmj(0,2))/m0ij
+                              - sqr((vmi(0,1) + vmj(0,1))/m0ij),
+                                0.0
+                            );
+                    }
+                    if (nDimensions_ > 2)
+                    {
+                        Thetaij +=
+                            max
+                            (
+                                (vmi(0,0,2) + vmj(0,0,2))/m0ij
+                              - sqr((vmi(0,0,1) + vmj(0,0,1))/m0ij),
+                                0.0
+                            );
+                    }
+                    symmTensor Sij =
+                        0.5
+                       *(
+                            Sigmas[sizei]
+                          + Sigmas[sizej]
+                          + symmTensor::one*Thetaij/nDimensions_
+                        );
+
+                    scalar dij = (di + dj)*0.5;
+                    scalar XiPow3 = pow3(dij/dj);
+                    scalar Vi = pow3(di);
+                    scalar Vj = pow3(dj);
+
+                    scalar muij = 2.0*Vj/(Vi + Vj);
+
+
+                    Ks_[sizei][sizej] =
+                        24.0*g0ij*weights[sizej]*XiPow3*sqrt(Thetaij)
+                       /(sqrt(pi)*dij);
+
+                    Sigmaij +=
+                        0.5*(1.0 + e())
+                       *muij*(0.25*(1.0 + e())*muij*Sij - Sigmas[sizei]);
+
+                    Uij += 0.25*(1.0 + e())*muij*(Us[sizej] - Us[sizei]);
                 }
 
                 forAllIter
@@ -403,37 +414,13 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
         dimensionedScalar::lookupOrDefault("tau", dict, dimTime, small)
     ),
     Meq_(momentOrders_.size(), momentOrders_),
-    Ks_(nSizes_, scalarList(nSizes_, 0.0))
+    Ks_(nSizes_, scalarList(nSizes_, 0.0)),
+    minM0_(dict.lookupOrDefault("minM0", small)),
+    minD_(dict.lookupOrDefault("minD", small))
 {
     if (nSizes_ > 0)
     {
         implicit_ = false;
-
-        // Build map for second order moments
-        if (nDimensions_ == 1)
-        {
-            vMomentOrders2_ = {{0}, {1}, {2}};
-        }
-        else if (nDimensions_ == 2)
-        {
-            vMomentOrders2_ = {{0,0}, {1,0}, {0,1}, {2,0}, {1,1}, {0,2}};
-        }
-        else
-        {
-            vMomentOrders2_ =
-            {
-                {0,0,0},
-                {1,0,0},
-                {0,1,0},
-                {0,0,1},
-                {2,0,0},
-                {0,2,0},
-                {0,0,2},
-                {1,1,0},
-                {1,0,1},
-                {0,1,1}
-            };
-        }
     }
 
     forAll(momentOrders_, mi)
