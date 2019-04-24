@@ -1,0 +1,43 @@
+EXE_INC = \
+    -I$(LIB_SRC)/transportModels/compressible/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/dynamicFvMesh/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I../../../../../src/quadratureMethods/momentSets/lnInclude \
+    -I../../../../../src/quadratureMethods/momentInversion/lnInclude \
+    -I../../../../../src/quadratureMethods/quadratureNode/lnInclude \
+    -I../../../../../src/quadratureMethods/moments \
+    -I../../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I../../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
+    -I../../../../../src/quadratureMethods/momentAdvection/lnInclude \
+    -I../../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
+    -I../compressibleSystem/lnInclude \
+    -I../../ButcherTable/lnInclue \
+    -I../../../../utilities/errorEstimator/lnInclude
+
+EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lcompressibleTransportModels \
+    -lfluidThermophysicalModels \
+    -lspecie \
+    -lturbulenceModels \
+    -lcompressibleTurbulenceModels \
+    -lfiniteVolume \
+    -ldynamicFvMesh \
+    -lmeshTools \
+    -lsampling \
+    -lfvOptions \
+    -lquadratureNode \
+    -lmomentSets \
+    -lmomentInversion \
+    -lfieldMomentInversion \
+    -lquadratureApproximation \
+    -lmomentAdvection \
+    -lpopulationBalance \
+    -lcompressibleSystem \
+    -lButcherTable \
+    -lerrorEstimator

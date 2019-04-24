@@ -242,7 +242,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 bool Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::readIfModified()
 {
-    if (populationBalanceProperties_.modified())
+    if (populationBalanceProperties_.readIfModified())
     {
         odeType::read
         (

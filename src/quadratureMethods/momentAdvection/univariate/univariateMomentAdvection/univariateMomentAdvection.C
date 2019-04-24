@@ -52,7 +52,7 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
     (
         IOobject
         (
-            "own",
+            "univariateMomentAdvection:own",
             moments_(0).mesh().time().timeName(),
             moments_(0).mesh()
         ),
@@ -63,7 +63,7 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
     (
         IOobject
         (
-            "nei",
+            "univariateMomentAdvection:nei",
             moments_(0).mesh().time().timeName(),
             moments_(0).mesh()
         ),
@@ -87,8 +87,7 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
                     moments_(0).mesh().time().timeName(),
                     moments_(0).mesh(),
                     IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    false
+                    IOobject::NO_WRITE
                 ),
                 moments_(0).mesh(),
                 dimensionedScalar

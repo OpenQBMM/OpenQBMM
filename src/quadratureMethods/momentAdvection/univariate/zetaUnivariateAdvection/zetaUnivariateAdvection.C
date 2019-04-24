@@ -76,9 +76,9 @@ Foam::univariateAdvection::zeta::zeta
     zetasCorrOwn_(nZetas_),
     momentsNei_(nMoments_),
     momentsOwn_(nMoments_),
-    nFacesOutgoingFlux_(m0_.mesh().nCells(), 0),
-    nRealizableMoments_(m0_.mesh().nCells(), 0),
-    nRealizableMomentsStar_(m0_.mesh().nCells(), 0),
+    nFacesOutgoingFlux_(m0_.size(), 0),
+    nRealizableMoments_(m0_.size(), 0),
+    nRealizableMomentsStar_(m0_.size(), 0),
     limiters_(nZetas_),
     cellLimiters_(nZetas_),
     phi_(phi)
@@ -496,7 +496,6 @@ void Foam::univariateAdvection::zeta::limitZetas()
     const labelUList& neighb = phi_.mesh().neighbour();
     const scalarField& phiIf = phi_;
     const surfaceScalarField::Boundary& phiBf = phi_.boundaryField();
-    const label nCells = phi_.mesh().nCells();
     const label nInternalFaces = phi_.mesh().nInternalFaces();
 
     countFacesWithOutgoingFlux();
@@ -510,7 +509,7 @@ void Foam::univariateAdvection::zeta::limitZetas()
     }
 
     // First check on m* to identify cells in need of additional limitation
-    scalarRectangularMatrix mPluses(nMoments_, nCells, 0.0);
+    scalarRectangularMatrix mPluses(nMoments_, m0_.size(), 0.0);
 
     // Find m+ (moments reconstructed on cell faces with outgoing flux)
     for (label facei = 0; facei < nInternalFaces; facei++)
@@ -762,7 +761,7 @@ Foam::scalar Foam::univariateAdvection::zeta::realizableCo() const
     const labelList& own = mesh.faceOwner();
     const labelList& nei = mesh.faceNeighbour();
 
-    scalarField internalCo(mesh.nCells(), 0.0);
+    scalarField internalCo(m0_.size(), 0.0);
 
     for (label facei = 0; facei < mesh.nInternalFaces(); facei++)
     {
@@ -783,6 +782,13 @@ Foam::scalar Foam::univariateAdvection::zeta::realizableCo() const
 
 void Foam::univariateAdvection::zeta::update()
 {
+    if (m0_.size() != nFacesOutgoingFlux_.size())
+    {
+        nFacesOutgoingFlux_.resize(m0_.size());
+        nRealizableMoments_.resize(m0_.size());
+        nRealizableMomentsStar_.resize(m0_.size());
+    }
+
     // Compute zeta fields
     computeZetaFields();
 
@@ -805,37 +811,23 @@ void Foam::univariateAdvection::zeta::update()
 
     forAll(divMoments_, divi)
     {
-        volScalarField divMoment
-        (
-            IOobject
-            (
-                "divMoment",
-                moments_(0).mesh().time().timeName(),
-                moments_(0).mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            moments_(0).mesh(),
-            dimensionedScalar("zero", dimless, 0.0)
-        );
-
         surfaceScalarField mFlux
         (
-            momentsNei_[divi]*min(phi_, zeroPhi)
-          + momentsOwn_[divi]*max(phi_, zeroPhi)
+
         );
 
-        fvc::surfaceIntegrate(divMoment.ref(), mFlux);
-        divMoment.ref().dimensions().reset(moments_(divi).dimensions()/dimTime);
-
-        divMoments_(divi).replace(0, divMoment);
+        divMoments_(divi) =
+            fvc::surfaceIntegrate
+            (
+                momentsNei_[divi]*min(phi_, zeroPhi)
+              + momentsOwn_[divi]*max(phi_, zeroPhi)
+            );
     }
 }
 
 void Foam::univariateAdvection::zeta::updateMomentFieldsFromZetas
 (
-    const surfaceScalarField m0f,
+    const surfaceScalarField& m0f,
     const PtrList<surfaceScalarField>& zetaf,
     PtrList<surfaceScalarField>& mf
 )

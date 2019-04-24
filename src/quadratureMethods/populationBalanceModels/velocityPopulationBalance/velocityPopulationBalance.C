@@ -192,7 +192,7 @@ void Foam::PDFTransportModels::populationBalanceModels
 bool Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::readIfModified()
 {
-    if (populationBalanceProperties_.modified())
+    if (populationBalanceProperties_.readIfModified())
     {
         odeType::read
         (
@@ -200,7 +200,6 @@ bool Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalanc
         );
         return true;
     }
-
     return false;
 }
 

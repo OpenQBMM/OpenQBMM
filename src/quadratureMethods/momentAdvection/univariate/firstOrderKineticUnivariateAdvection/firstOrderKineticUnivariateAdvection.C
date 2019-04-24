@@ -274,8 +274,7 @@ void Foam::univariateAdvection::firstOrderKinetic::update()
                 moments_(0).mesh().time().timeName(),
                 moments_(0).mesh(),
                 IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
+                IOobject::NO_WRITE
             ),
             moments_(0).mesh(),
             dimensionedScalar("zero", dimless, 0.0)

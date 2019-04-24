@@ -41,7 +41,17 @@ Foam::realizableOdeSolver<momentType, nodeType>::realizableOdeSolver
     facMin_(readScalar(dict.subDict("odeCoeffs").lookup("facMin"))),
     facMax_(readScalar(dict.subDict("odeCoeffs").lookup("facMax"))),
     minLocalDt_(readScalar(dict.subDict("odeCoeffs").lookup("minLocalDt"))),
-    localDt_(mesh.nCells(), mesh.time().deltaTValue()/10.0),
+    localDt_
+    (
+        IOobject
+        (
+            "realizableOde:localDt",
+            mesh.time().timeName(),
+            mesh
+        ),
+        mesh,
+        mesh.time().deltaT()/100.0
+    ),
     solveSources_
     (
         dict.subDict("odeCoeffs").lookupOrDefault("solveSources", true)
@@ -307,14 +317,6 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 // Updating local quadrature with old moments
                 quadrature.updateLocalQuadrature(celli);
             }
-
-//             if (localDt < minLocalDt_)
-//             {
-//                 FatalErrorInFunction
-//                     << "Reached minimum local step in realizable ODE" << nl
-//                     << "    solver. Cannot ensure accuracy." << nl
-//                     << abort(FatalError);
-//             }
         }
     }
     forAll(moments, mi)
@@ -330,7 +332,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::read(const dictionary& dic
     const dictionary& odeDict = dict.subDict("odeCoeffs");
     solveSources_ = odeDict.lookupOrDefault<Switch>("solveSources", true);
     solveOde_ = odeDict.lookupOrDefault<Switch>("solveOde", true);
-
+Info<<solveOde_<<endl;
     (odeDict.lookup("ATol")) >> ATol_;
     (odeDict.lookup("RTol")) >> RTol_;
     (odeDict.lookup("fac")) >> fac_;

@@ -324,7 +324,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
     }
 
     label sizeOrder = momentOrder[sizeIndex];
-    bool volumeFraction = (quadrature.moments()(0).dimensions() == dimless);
+    bool volumeFraction = nodes[0].useVolumeFraction();
     if (volumeFraction)
     {
         if (lengthBased)

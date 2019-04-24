@@ -59,6 +59,7 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
 )
 :
     diffusionModel(dict),
+    continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
     gammaLam_(dict.lookup("gammaLam")),
     Sc_(readScalar(dict.lookup("Sc")))
 {}
@@ -97,7 +98,11 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
         const cmpTurbModel& turb =
             moment.mesh().lookupObject<cmpTurbModel>
             (
-                cmpTurbModel::propertiesName
+                IOobject::groupName
+                (
+                    cmpTurbModel::propertiesName,
+                    continuousPhase_
+                )
             );
 
         return turb.mut()/turb.rho();
@@ -110,7 +115,11 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
         const incompressible::turbulenceModel& turb =
             moment.mesh().lookupObject<icoTurbModel>
             (
-                icoTurbModel::propertiesName
+                IOobject::groupName
+                (
+                    icoTurbModel::propertiesName,
+                    continuousPhase_
+                )
             );
 
         return turb.nut();

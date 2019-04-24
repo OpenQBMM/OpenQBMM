@@ -136,7 +136,7 @@ class zeta
         //- Updates reconstructed moments from the corresponding values of zeta
         void updateMomentFieldsFromZetas
         (
-            const surfaceScalarField m0f,
+            const surfaceScalarField& m0f,
             const PtrList<surfaceScalarField>& zetaf,
             PtrList<surfaceScalarField>& mf
         );

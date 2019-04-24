@@ -84,25 +84,17 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             )
         );
     }
+    forAll (momentEqns, mEqni)
+    {
+        momentEqns[mEqni].relax();
+        momentEqns[mEqni].solve();
+    }
+    quadrature_.updateQuadrature();
 
     if (solveMomentSources())
     {
         this->explicitMomentSource();
     }
-
-    forAll (momentEqns, mEqni)
-    {
-        volScalarField& m = quadrature_.moments()[mEqni];
-
-        if (solveMomentSources())
-        {
-            momentEqns[mEqni] -= fvc::ddt(m);
-        }
-
-        momentEqns[mEqni].relax();
-        momentEqns[mEqni].solve();
-    }
-
     quadrature_.updateQuadrature();
 }
 

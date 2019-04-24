@@ -50,7 +50,7 @@ Foam::populationBalanceModel::populationBalanceModel
             IOobject::groupName("populationBalance", name),
             phi.mesh().time().constant(),
             phi.mesh(),
-            IOobject::NO_READ,
+            IOobject::MUST_READ_IF_MODIFIED,
             IOobject::NO_WRITE,
             true
         )
@@ -58,7 +58,7 @@ Foam::populationBalanceModel::populationBalanceModel
     name_(name),
     populationBalanceProperties_
     (
-        phi.mesh().lookupObject<IOdictionary>("populationBalanceProperties")
+        phi.mesh().lookupObjectRef<IOdictionary>("populationBalanceProperties")
     ),
     phi_(phi)
 {}

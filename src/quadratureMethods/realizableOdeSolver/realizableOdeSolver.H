@@ -78,7 +78,7 @@ class realizableOdeSolver
         scalar minLocalDt_;
 
         //- Stored time step values
-        scalarField localDt_;
+        volScalarField localDt_;
 
 
 protected:

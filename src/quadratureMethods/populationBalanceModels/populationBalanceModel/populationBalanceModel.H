@@ -73,7 +73,8 @@ protected:
     // Protected data
 
         //- Reference to populationBalanceProperties
-        const IOdictionary& populationBalanceProperties_;
+        //  Non-const so ode solver can read on modification
+        IOdictionary& populationBalanceProperties_;
 
         //- Fluid-phase face-normal velocity
         const surfaceScalarField& phi_;
@@ -135,6 +136,7 @@ public:
 
         //- Solve population balance equation
         virtual void solve() = 0;
+
 
     // regIOobject functions
 
