@@ -55,7 +55,10 @@ Foam::velocityAdvection::firstOrderKinetic::firstOrderKinetic
     velocityMomentAdvection(dict, quadrature, support),
     nodes_(quadrature.nodes()),
     nodesNei_(),
-    nodesOwn_()
+    nodesOwn_(),
+    weightScheme_("upwind"),
+    scalarAbscissaeScheme_("upwind"),
+    velocityAbscissaeScheme_("upwind")
 {
     PtrList<dimensionSet> abscissaeDimensions(momentOrders_[0].size());
     labelList zeroOrder(momentOrders_[0].size(), 0);
@@ -120,44 +123,6 @@ Foam::velocityAdvection::firstOrderKinetic::firstOrderKinetic
             )
         );
     }
-
-    {
-        IStringStream weightLimiter("upwind");
-        IStringStream scalarAbscissaeLimiter("upwind");
-        IStringStream velocityAbscissaeLimiter("upwind");
-        weightOwnScheme_ = fvc::scheme<scalar>(own_, weightLimiter);
-        scalarAbscissaeOwnScheme_ =
-            fvc::scheme<scalar>
-            (
-                own_,
-                scalarAbscissaeLimiter
-            );
-        velocityAbscissaeOwnScheme_ =
-            fvc::scheme<vector>
-            (
-                own_,
-                velocityAbscissaeLimiter
-            );
-    }
-
-    {
-        IStringStream weightLimiter("upwind");
-        IStringStream scalarAbscissaeLimiter("upwind");
-        IStringStream velocityAbscissaeLimiter("upwind");
-        weightNeiScheme_ = fvc::scheme<scalar>(nei_, weightLimiter);
-        scalarAbscissaeNeiScheme_ =
-            fvc::scheme<scalar>
-            (
-                nei_,
-                scalarAbscissaeLimiter
-            );
-        velocityAbscissaeNeiScheme_ =
-            fvc::scheme<vector>
-            (
-                nei_,
-                velocityAbscissaeLimiter
-            );
-    }
 }
 
 
@@ -171,6 +136,54 @@ Foam::velocityAdvection::firstOrderKinetic::~firstOrderKinetic()
 
 void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
 {
+    IStringStream weightOwnLimiter(weightScheme_);
+    IStringStream scalarAbscissaeOwnLimiter(scalarAbscissaeScheme_);
+    IStringStream velocityAbscissaeOwnLimiter(velocityAbscissaeScheme_);
+    tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme
+    (
+        fvc::scheme<scalar>(own_, weightOwnLimiter)
+    );
+    tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeOwnScheme
+    (
+        fvc::scheme<scalar>
+        (
+            own_,
+            scalarAbscissaeOwnLimiter
+        )
+    );
+    tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeOwnScheme
+    (
+        fvc::scheme<vector>
+        (
+            own_,
+            velocityAbscissaeOwnLimiter
+        )
+    );
+
+    IStringStream weightNeiLimiter(weightScheme_);
+    IStringStream scalarAbscissaeNeiLimiter(scalarAbscissaeScheme_);
+    IStringStream velocityAbscissaeNeiLimiter(velocityAbscissaeScheme_);
+    tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme
+    (
+        fvc::scheme<scalar>(nei_, weightNeiLimiter)
+    );
+    tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeNeiScheme
+    (
+        fvc::scheme<scalar>
+        (
+            nei_,
+            scalarAbscissaeNeiLimiter
+        )
+    );
+    tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeNeiScheme
+    (
+        fvc::scheme<vector>
+        (
+            nei_,
+            velocityAbscissaeNeiLimiter
+        )
+    );
+
     PtrList<surfaceVelocityNode>& nodesNei = nodesNei_();
     PtrList<surfaceVelocityNode>& nodesOwn = nodesOwn_();
 
@@ -181,24 +194,24 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
         surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
 
         nodeOwn.primaryWeight() =
-            weightOwnScheme_().interpolate(node.primaryWeight());
+            weightOwnScheme().interpolate(node.primaryWeight());
         nodeOwn.velocityAbscissae() =
-            velocityAbscissaeOwnScheme_().interpolate(node.velocityAbscissae());
+            velocityAbscissaeOwnScheme().interpolate(node.velocityAbscissae());
 
         nodeNei.primaryWeight() =
-            weightNeiScheme_().interpolate(node.primaryWeight());
+            weightNeiScheme().interpolate(node.primaryWeight());
         nodeNei.velocityAbscissae() =
-            velocityAbscissaeNeiScheme_().interpolate(node.velocityAbscissae());
+            velocityAbscissaeNeiScheme().interpolate(node.velocityAbscissae());
 
         forAll(node.primaryAbscissae(), cmpt)
         {
             nodeOwn.primaryAbscissae()[cmpt] =
-                scalarAbscissaeOwnScheme_().interpolate
+                scalarAbscissaeOwnScheme().interpolate
                 (
                     node.primaryAbscissae()[cmpt]
                 );
             nodeNei.primaryAbscissae()[cmpt] =
-                scalarAbscissaeNeiScheme_().interpolate
+                scalarAbscissaeNeiScheme().interpolate
                 (
                     node.primaryAbscissae()[cmpt]
                 );

@@ -83,7 +83,7 @@ Foam::moment<fieldType, nodeType>::moment
     (
         IOobject
         (
-            momentName(listToWord(cmptOrders), distributionName),
+            momentName("moment", listToWord(cmptOrders), distributionName),
             mesh.time().timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -94,7 +94,7 @@ Foam::moment<fieldType, nodeType>::moment
     distributionName_(distributionName),
     nodes_(nodes),
     cmptOrders_(cmptOrders),
-    name_(momentName(listToWord(cmptOrders_), distributionName_)),
+    name_(momentName("moment", listToWord(cmptOrders_), distributionName_)),
     nDimensions_(cmptOrders_.size()),
     order_(sum(cmptOrders_))
 {}
@@ -105,14 +105,32 @@ Foam::moment<fieldType, nodeType>::moment
     const word& distributionName,
     const labelList& cmptOrders,
     const autoPtr<mappedPtrList<nodeType>>& nodes,
-    const fieldType& initMoment
+    const fieldType& initMoment,
+    const word momentSetName
 )
 :
-    fieldType(initMoment),
+    fieldType
+    (
+        momentName
+        (
+            "moment" + momentSetName,
+            listToWord(cmptOrders),
+            distributionName
+        ),
+        initMoment
+    ),
     distributionName_(distributionName),
     nodes_(nodes),
     cmptOrders_(cmptOrders),
-    name_(momentName(listToWord(cmptOrders_), distributionName_)),
+    name_
+    (
+        momentName
+        (
+            "moment" + momentSetName,
+            listToWord(cmptOrders),
+            distributionName
+        )
+    ),
     nDimensions_(cmptOrders_.size()),
     order_(sum(cmptOrders_))
 {}

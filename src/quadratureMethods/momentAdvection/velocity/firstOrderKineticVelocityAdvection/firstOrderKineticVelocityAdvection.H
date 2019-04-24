@@ -65,6 +65,11 @@ protected:
         //- List of interpolated nodes (owner)
         autoPtr<PtrList<surfaceVelocityNode>> nodesOwn_;
 
+        //- Interpolation schemes
+        word weightScheme_;
+        word scalarAbscissaeScheme_;
+        word velocityAbscissaeScheme_;
+
         //- Flux moment inversion method
 //         autoPtr<hyperbolicFieldMomentInversion> momentFieldInverter_;
 
@@ -72,6 +77,7 @@ protected:
 
         // Interpolate weights and abscissae
         void interpolateNodes();
+
 
 
 public:

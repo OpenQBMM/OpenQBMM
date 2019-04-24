@@ -52,7 +52,7 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
     (
         IOobject
         (
-            "univariateMomentAdvection:own",
+            IOobject::groupName("univariateMomentAdvection:own", name_),
             moments_(0).mesh().time().timeName(),
             moments_(0).mesh()
         ),
@@ -63,7 +63,7 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
     (
         IOobject
         (
-            "univariateMomentAdvection:nei",
+            IOobject::groupName("univariateMomentAdvection:nei", name_),
             moments_(0).mesh().time().timeName(),
             moments_(0).mesh()
         ),
@@ -83,7 +83,7 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
             (
                 IOobject
                 (
-                    "divMoment" + Foam::name(momenti) + name_,
+                    fieldName("divMoment", {momenti}),
                     moments_(0).mesh().time().timeName(),
                     moments_(0).mesh(),
                     IOobject::NO_READ,
@@ -108,6 +108,22 @@ Foam::univariateMomentAdvection::~univariateMomentAdvection()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-
+Foam::word Foam::univariateMomentAdvection::fieldName
+(
+    const word& name,
+    const labelList& order
+) const
+{
+    return
+        IOobject::groupName
+        (
+            IOobject::groupName
+            (
+                name,
+                mappedPtrList<label>::listToWord(order)
+            ),
+            name_
+        );
+}
 
 // ************************************************************************* //

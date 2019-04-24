@@ -28,7 +28,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        GaussSeidel;
-        tolerance       1e-06;
+        tolerance       1e-08;
         relTol          0;
     }
 
@@ -43,16 +43,14 @@ solvers
     "(k|epsilon)"
     {
         $U;
-        tolerance       1e-07;
-        relTol          0.1;
+        tolerance       1e-08;
+        relTol          0;
     }
 }
 
 errorEstimate
 {
     scalarFields ("rho");
-    vectorFields ();
     scalarScaleFactors (1.0);
-    vectorScaleFactors ();
 }
 // ************************************************************************* //

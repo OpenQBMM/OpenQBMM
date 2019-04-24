@@ -92,35 +92,22 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
 {
     typedef compressible::turbulenceModel cmpTurbModel;
     typedef incompressible::turbulenceModel icoTurbModel;
-
-    if (moment.mesh().foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
+    word turbName = IOobject::groupName
+        (
+            turbulenceModel::propertiesName,
+            continuousPhase_
+        );
+    if (moment.mesh().foundObject<cmpTurbModel>(turbName))
     {
         const cmpTurbModel& turb =
-            moment.mesh().lookupObject<cmpTurbModel>
-            (
-                IOobject::groupName
-                (
-                    cmpTurbModel::propertiesName,
-                    continuousPhase_
-                )
-            );
+            moment.mesh().lookupObject<cmpTurbModel>(turbName);
 
         return turb.mut()/turb.rho();
     }
-    else if
-    (
-        moment.mesh().foundObject<icoTurbModel>(icoTurbModel::propertiesName)
-    )
+    else if (moment.mesh().foundObject<icoTurbModel>(turbName))
     {
         const incompressible::turbulenceModel& turb =
-            moment.mesh().lookupObject<icoTurbModel>
-            (
-                IOobject::groupName
-                (
-                    icoTurbModel::propertiesName,
-                    continuousPhase_
-                )
-            );
+            moment.mesh().lookupObject<icoTurbModel>(turbName);
 
         return turb.nut();
     }

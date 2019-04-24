@@ -54,14 +54,7 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::VikasQuasiSecondOrder
 :
     firstOrderKinetic(dict, quadrature, support)
 {
-    {
-        IStringStream weightLimiter("Minmod");
-        weightOwnScheme_ = fvc::scheme<scalar>(own_, weightLimiter);
-    }
-    {
-        IStringStream weightLimiter("Minmod");
-        weightNeiScheme_ = fvc::scheme<scalar>(nei_, weightLimiter);
-    }
+    weightScheme_ = "minMod";
 }
 
 

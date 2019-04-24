@@ -58,12 +58,12 @@ Foam::univariateAdvection::zeta::zeta
     m0_(moments_(0)),
     m0Own_
     (
-        "m0Own",
+        IOobject::groupName("m0OwnZeta", name_),
         fvc::interpolate(m0_, own_, "reconstruct(m0)")
     ),
     m0Nei_
     (
-        "m0Nei",
+        IOobject::groupName("m0NeiZeta", name_),
         fvc::interpolate(m0_, nei_, "reconstruct(m0)")
     ),
     nZetas_(nMoments_ - 1),
@@ -100,11 +100,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    IOobject::groupName
-                    (
-                        IOobject::groupName("zeta", Foam::name(zetai)),
-                        name_
-                    ),
+                    fieldName("zeta", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -122,7 +118,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaNei" + Foam::name(zetai),
+                    fieldName("zetaNei", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -140,7 +136,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaOwn" + Foam::name(zetai),
+                    fieldName("zetaOwn", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -158,7 +154,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaUpwindNei" + Foam::name(zetai),
+                    fieldName("zetaUpwindNei", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -176,7 +172,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaUpwindOwn" + Foam::name(zetai),
+                    fieldName("zetaUpwindOwn", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -194,7 +190,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaCorrNei" + Foam::name(zetai),
+                    fieldName("zetaCorrNei", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -212,7 +208,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaCorrOwn" + Foam::name(zetai),
+                    fieldName("zetaCorrOwn", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -230,7 +226,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaLimiters" + Foam::name(zetai),
+                    fieldName("zetaLimiter", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -248,7 +244,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaCellLimiters" + Foam::name(zetai),
+                    fieldName("zetaCellLimiter", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -268,7 +264,7 @@ Foam::univariateAdvection::zeta::zeta
             momenti,
             new surfaceScalarField
             (
-                "momentNei" + Foam::name(momenti),
+                fieldName("momentNeiZeta", {momenti}),
                 fvc::interpolate(moments_(momenti))
             )
         );
@@ -278,25 +274,10 @@ Foam::univariateAdvection::zeta::zeta
             momenti,
             new surfaceScalarField
             (
-                "momentOwn" + Foam::name(momenti),
+                fieldName("momentOwnZeta", {momenti}),
                 fvc::interpolate(moments_(momenti))
             )
         );
-    }
-    {
-        IStringStream m0Limiter("Minmod");
-        IStringStream zetaLimiter("Minmod");
-
-        m0OwnScheme_ = fvc::scheme<scalar>(own_, m0Limiter);
-        zetaOwnScheme_ = fvc::scheme<scalar>(own_, zetaLimiter);
-    }
-
-    {
-        IStringStream m0Limiter("Minmod");
-        IStringStream zetaLimiter("Minmod");
-
-        m0NeiScheme_ = fvc::scheme<scalar>(nei_, m0Limiter);
-        zetaNeiScheme_ = fvc::scheme<scalar>(nei_, zetaLimiter);
     }
 }
 
@@ -311,14 +292,37 @@ Foam::univariateAdvection::zeta::~zeta()
 
 void Foam::univariateAdvection::zeta::interpolateFields()
 {
-    m0Own_ = m0OwnScheme_().interpolate(moments_(0));
-    m0Nei_ = m0NeiScheme_().interpolate(moments_(0));
+    IStringStream m0OwnLimiter("Minmod");
+    IStringStream zetaOwnLimiter("Minmod");
+
+    tmp<surfaceInterpolationScheme<scalar>> m0OwnScheme
+    (
+        fvc::scheme<scalar>(own_, m0OwnLimiter)
+    );
+    tmp<surfaceInterpolationScheme<scalar>> zetaOwnScheme
+    (
+        fvc::scheme<scalar>(own_, zetaOwnLimiter)
+    );
+
+    IStringStream m0NeiLimiter("Minmod");
+    IStringStream zetaNeiLimiter("Minmod");
+
+    tmp<surfaceInterpolationScheme<scalar>> m0NeiScheme
+    (
+        fvc::scheme<scalar>(nei_, m0NeiLimiter)
+    );
+    tmp<surfaceInterpolationScheme<scalar>> zetaNeiScheme
+    (
+        fvc::scheme<scalar>(nei_, zetaNeiLimiter)
+    );
+
+    m0Own_ = m0OwnScheme().interpolate(moments_(0));
+    m0Nei_ = m0NeiScheme().interpolate(moments_(0));
 
     forAll(zetas_, zetai)
     {
-        zetasNei_[zetai] = zetaOwnScheme_().interpolate(zetas_[zetai]);
-
-        zetasOwn_[zetai] = zetaNeiScheme_().interpolate(zetas_[zetai]);
+        zetasNei_[zetai] = zetaOwnScheme().interpolate(zetas_[zetai]);
+        zetasOwn_[zetai] = zetaNeiScheme().interpolate(zetas_[zetai]);
 
         zetasUpwindNei_[zetai] =
             upwind<scalar>(zetas_[zetai].mesh(), nei_).flux(zetas_[zetai]);
@@ -811,11 +815,6 @@ void Foam::univariateAdvection::zeta::update()
 
     forAll(divMoments_, divi)
     {
-        surfaceScalarField mFlux
-        (
-
-        );
-
         divMoments_(divi) =
             fvc::surfaceIntegrate
             (

@@ -98,6 +98,13 @@ protected:
         //- Dimensions of the underlying distribution
         label nDimensions_;
 
+        //- Construct field name from name, order
+        word fieldName
+        (
+            const word& name,
+            const labelList& order
+        ) const;
+
 
 public:
 

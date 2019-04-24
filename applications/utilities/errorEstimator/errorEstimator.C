@@ -52,10 +52,26 @@ Foam::errorEstimator::errorEstimator(const fvMesh& mesh)
 {
     if (needError_)
     {
-        scalarFields_ = wordList(dict_.lookup("scalarFields"));
-        vectorFields_ = wordList(dict_.lookup("vectorFields"));
-        scalarScales_ = scalarField(dict_.lookup("scalarScaleFactors"));
-        vectorScales_ = vectorField(dict_.lookup("vectorScaleFactors"));
+        scalarFields_ =
+            wordList
+            (
+                dict_.lookupOrDefault("scalarFields", wordList())
+            );
+        vectorFields_ =
+            wordList
+            (
+                dict_.lookupOrDefault("vectorFields", wordList())
+            );
+        scalarScales_ =
+            scalarField
+            (
+                dict_.lookupOrDefault("scalarScaleFactors", scalarField())
+            );
+        vectorScales_ =
+            vectorField
+            (
+                dict_.lookupOrDefault("vectorScaleFactors", vectorField())
+            );
     }
 }
 

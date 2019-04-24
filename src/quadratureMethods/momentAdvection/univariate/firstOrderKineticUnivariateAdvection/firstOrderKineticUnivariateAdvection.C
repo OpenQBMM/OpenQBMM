@@ -160,7 +160,8 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
                 name_,
                 moments_(momenti).cmptOrders(),
                 nodesNei_,
-                fvc::interpolate(moments_(momenti))
+                fvc::interpolate(moments_(momenti)),
+                "Nei"
             )
         );
 
@@ -172,7 +173,8 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
                 name_,
                 moments_(momenti).cmptOrders(),
                 nodesOwn_,
-                fvc::interpolate(moments_(momenti))
+                fvc::interpolate(moments_(momenti)),
+                "Own"
             )
         );
     }
@@ -189,20 +191,6 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
             0
         )
     );
-
-    {
-        IStringStream weightLimiter("upwind");
-        IStringStream abscissaLimiter("upwind");
-        weightOwnScheme_ = fvc::scheme<scalar>(own_, weightLimiter);
-        abscissaOwnScheme_ = fvc::scheme<scalar>(own_, abscissaLimiter);
-    }
-
-    {
-        IStringStream weightLimiter("upwind");
-        IStringStream abscissaLimiter("upwind");
-        weightNeiScheme_ = fvc::scheme<scalar>(nei_, weightLimiter);
-        abscissaNeiScheme_ = fvc::scheme<scalar>(nei_, abscissaLimiter);
-    }
 }
 
 
@@ -220,6 +208,28 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
     PtrList<surfaceScalarNode>& nodesNei = nodesNei_();
     PtrList<surfaceScalarNode>& nodesOwn = nodesOwn_();
 
+    IStringStream weightOwnLimiter("upwind");
+    IStringStream abscissaOwnLimiter("upwind");
+    tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme
+    (
+        fvc::scheme<scalar>(own_, weightOwnLimiter)
+    );
+    tmp<surfaceInterpolationScheme<scalar>> abscissaOwnScheme
+    (
+        fvc::scheme<scalar>(own_, abscissaOwnLimiter)
+    );
+
+    IStringStream weightNeiLimiter("upwind");
+    IStringStream abscissaNeiLimiter("upwind");
+    tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme
+    (
+        fvc::scheme<scalar>(nei_, weightNeiLimiter)
+    );
+    tmp<surfaceInterpolationScheme<scalar>> abscissaNeiScheme
+    (
+        fvc::scheme<scalar>(nei_, abscissaNeiLimiter)
+    );
+
     forAll(nodes, rNodei)
     {
         const volScalarNode& node(nodes[rNodei]);
@@ -227,19 +237,19 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
         surfaceScalarNode& nodeOwn(nodesOwn[rNodei]);
 
         nodeOwn.primaryWeight() =
-            weightOwnScheme_().interpolate(node.primaryWeight());
+            weightOwnScheme().interpolate(node.primaryWeight());
         nodeNei.primaryWeight() =
-            weightNeiScheme_().interpolate(node.primaryWeight());
+            weightNeiScheme().interpolate(node.primaryWeight());
 
         forAll(node.primaryAbscissae(), cmpt)
         {
             nodeOwn.primaryAbscissae()[cmpt] =
-                abscissaOwnScheme_().interpolate
+                abscissaOwnScheme().interpolate
                 (
                     node.primaryAbscissae()[cmpt]
                 );
             nodeNei.primaryAbscissae()[cmpt] =
-                abscissaNeiScheme_().interpolate
+                abscissaNeiScheme().interpolate
                 (
                     node.primaryAbscissae()[cmpt]
                 );
@@ -266,30 +276,12 @@ void Foam::univariateAdvection::firstOrderKinetic::update()
 
     forAll(divMoments_, divi)
     {
-        volScalarField divMoment
-        (
-            IOobject
+        divMoments_(divi) =
+            fvc::surfaceIntegrate
             (
-                "divMoment",
-                moments_(0).mesh().time().timeName(),
-                moments_(0).mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            moments_(0).mesh(),
-            dimensionedScalar("zero", dimless, 0.0)
-        );
-
-        surfaceScalarField mFlux
-        (
-            momentsNei_(divi)*min(phi_, zeroPhi)
-          + momentsOwn_(divi)*max(phi_, zeroPhi)
-        );
-
-        fvc::surfaceIntegrate(divMoment.ref(), mFlux);
-        divMoment.ref().dimensions().reset(moments_(divi).dimensions()/dimTime);
-
-        divMoments_(divi).replace(0, divMoment);
+                momentsNei_[divi]*min(phi_, zeroPhi)
+              + momentsOwn_[divi]*max(phi_, zeroPhi)
+            );
     }
 }
 

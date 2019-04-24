@@ -54,6 +54,8 @@ interpolationSchemes
     reconstruct(p)      vanLeer;
     reconstruct(rho)    vanLeer;
     reconstruct(c)      vanLeer;
+
+    "interpolate\(moment.*\)" upwind phi;
 }
 
 snGradSchemes
