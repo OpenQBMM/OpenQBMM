@@ -19,7 +19,7 @@ simulationType  RAS;
 
 RAS
 {
-    RASModel        LRR;
+    RASModel        kEpsilon;
 
     turbulence      on;
 

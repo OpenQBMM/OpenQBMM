@@ -16,14 +16,14 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 continuousPhase fluid;
-dilutePhase     particles;
+dilutePhase     populationBalance;
 
 fluid
 {
     residualAlpha   0;
     d 1e-6;
 }
-particles
+populationBalance
 {
     residualAlpha   1e-6;
     d 1e-6;

@@ -54,7 +54,7 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::VikasQuasiSecondOrder
 :
     firstOrderKinetic(dict, quadrature, support)
 {
-    weightScheme_ = "minMod";
+    weightScheme_ = "Minmod";
 }
 
 

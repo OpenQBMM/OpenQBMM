@@ -17,7 +17,7 @@ FoamFile
 
 phases
 (
-    particles
+    populationBalance
 );
 
 boundaries
@@ -48,7 +48,7 @@ boundaries
     }
 }
 
-particles
+populationBalance
 {
     type                weightsAndAbscissae;
     weightDimension     [0 0 0 0 0 0 0];
@@ -57,23 +57,13 @@ particles
 
     default
     {
+        node0
+        {
+            weight  0.00025;
+            abscissa (2e-6 0 0 0);
+        }
     }
 
-    regions
-    (
-        cylinderToCell
-        {
-            p1 (0 0.05 -0.5);
-            p2 (0 0.05 0.5);
-            radius 0.05;
-
-            node0
-            {
-                weight  0.1;
-                abscissa (0.00025 0 0);
-            }
-        }
-    );
 }
 
 

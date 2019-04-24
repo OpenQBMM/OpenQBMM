@@ -30,7 +30,7 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (18 360 1) simpleGrading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) (18 180 1) simpleGrading (1 1 1)
 );
 
 edges
@@ -43,27 +43,27 @@ patches
     (
         (1 5 4 0)
     )
-    
+
     wall outlet
     (
         (3 7 6 2)
     )
-    
+
     wall outerWall
     (
         (2 6 5 1)
     )
-    
+
     wall innerWall
     (
         (0 4 7 3)
     )
-    
+
     wedge wedge1
     (
         (0 1 2 3)
     )
-    
+
     wedge wedge2
     (
         (4 5 6 7)

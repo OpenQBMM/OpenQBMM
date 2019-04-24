@@ -90,24 +90,15 @@ Foam::tmp<Foam::volScalarField>
 Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
 ::turbViscosity(const volScalarField& moment) const
 {
-    typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
     word turbName = IOobject::groupName
         (
             turbulenceModel::propertiesName,
             continuousPhase_
         );
-    if (moment.mesh().foundObject<cmpTurbModel>(turbName))
+    if (moment.mesh().foundObject<turbulenceModel>(turbName))
     {
-        const cmpTurbModel& turb =
-            moment.mesh().lookupObject<cmpTurbModel>(turbName);
-
-        return turb.mut()/turb.rho();
-    }
-    else if (moment.mesh().foundObject<icoTurbModel>(turbName))
-    {
-        const incompressible::turbulenceModel& turb =
-            moment.mesh().lookupObject<icoTurbModel>(turbName);
+        const turbulenceModel& turb =
+            moment.mesh().lookupObject<turbulenceModel>(turbName);
 
         return turb.nut();
     }

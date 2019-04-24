@@ -22,42 +22,42 @@ FoamFile
         type            symmetry;
         inGroups        List<word> 1(symmetry);
         nFaces          18;
-        startFace       12582;
+        startFace       6282;
     }
     outlet
     {
         type            wall;
         inGroups        List<word> 1(wall);
         nFaces          18;
-        startFace       12600;
+        startFace       6300;
     }
     outerWall
     {
         type            wall;
         inGroups        List<word> 1(wall);
-        nFaces          360;
-        startFace       12618;
+        nFaces          180;
+        startFace       6318;
     }
     innerWall
     {
         type            wall;
         inGroups        List<word> 1(wall);
-        nFaces          360;
-        startFace       12978;
+        nFaces          180;
+        startFace       6498;
     }
     wedge1
     {
         type            wedge;
         inGroups        List<word> 1(wedge);
-        nFaces          6480;
-        startFace       13338;
+        nFaces          3240;
+        startFace       6678;
     }
     wedge2
     {
         type            wedge;
         inGroups        List<word> 1(wedge);
-        nFaces          6480;
-        startFace       19818;
+        nFaces          3240;
+        startFace       9918;
     }
 )
 

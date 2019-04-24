@@ -61,6 +61,7 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
     momentAdvection_().update();
 
     // Solve moment transport equations
+    updateImplicitMomentSource();
     forAll(quadrature_.moments(), momenti)
     {
         volVelocityMoment& m = quadrature_.moments()[momenti];
@@ -68,6 +69,8 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
         (
             fvm::ddt(m)
           + momentAdvection_().divMoments()[momenti]
+         ==
+            implicitMomentSource(m)
         );
         momentEqn.relax();
         momentEqn.solve();
@@ -77,40 +80,6 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
     if (solveMomentSources())
     {
         this->explicitMomentSource();
-        updateImplicitMomentSource();
-
-
-        bool update = false;
-        forAll(quadrature_.moments(), mEqni)
-        {
-            const volVelocityMoment& m = quadrature_.moments()[mEqni];
-            fvScalarMatrix iSource(implicitMomentSource(m));
-
-            if (max(mag(iSource.source())) > small)
-            {
-                //  Set moments.oldTime so moments transport is not neglected due
-                //  to large collision source terms
-                quadrature_.moments()[mEqni].oldTime() = m;
-
-                update = true;
-
-                // Solve collisions
-                fvScalarMatrix momentEqn
-                (
-                    fvm::ddt(m)
-                 ==
-                    implicitMomentSource(m)
-                );
-
-                momentEqn.relax();
-                momentEqn.solve();
-            }
-        }
-
-        if (update)
-        {
-            quadrature_.updateQuadrature();
-        }
     }
 }
 

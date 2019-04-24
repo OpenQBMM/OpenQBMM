@@ -91,6 +91,14 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
                 dict.subDict("growthModel")
             );
     }
+    if (dict.found("diffusionModel"))
+    {
+        diffusionModel_ =
+            Foam::populationBalanceSubModels::diffusionModel::New
+            (
+                dict.subDict("diffusionModel")
+            );
+    }
     if (nucleation_)
     {
         nucleationModel_ =
@@ -111,6 +119,25 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+Foam::tmp<Foam::fvScalarMatrix>
+Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
+::implicitMomentSource
+(
+    const volVelocityMoment& moment
+)
+{
+    tmp<fvScalarMatrix> momentEqn
+    (
+        velocityPopulationBalance::implicitMomentSource(moment)
+    );
+
+    if (diffusionModel_.valid())
+    {
+        return momentEqn + diffusionModel_->momentDiff(moment);
+    }
+    else return momentEqn;
+}
 
 void Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
 ::explicitMomentSource()

@@ -13,6 +13,15 @@ IOdictionary phaseProperties
     )
 );
 
+word fluidName(phaseProperties.lookup("continuousPhase"));
+phaseModel fluid
+(
+    mesh,
+    phaseProperties,
+    fluidName
+);
+const volVectorField& U = fluid.U();
+
 word dilutePhaseName(phaseProperties.lookup("dilutePhase"));
 autoPtr<phaseModel> dilutePhase
 (
@@ -23,15 +32,6 @@ autoPtr<phaseModel> dilutePhase
         dilutePhaseName
     )
 );
-
-word fluidName(phaseProperties.lookup("continuousPhase"));
-phaseModel fluid
-(
-    mesh,
-    phaseProperties,
-    fluidName
-);
-const volVectorField& U = fluid.U();
 
 autoPtr<phasePair> pair
 (

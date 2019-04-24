@@ -15,14 +15,15 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-populationBalanceModel univariate;
+populationBalanceModel sizeVelocity;
 
-univariateCoeffs
+sizeVelocityCoeffs
 {
     aggregation on;
     aggregationKernel
     {
         aggregationKernel turbulentBrownian;
+        continuousPhase fluid;
     }
 
     breakup on;
@@ -34,6 +35,7 @@ univariateCoeffs
         epsilonExp          0.75;
         nuExp              -1.25;
         sizeExp             1.0;
+        continuousPhase fluid;
 
         daughterDistribution
         {
@@ -46,6 +48,7 @@ univariateCoeffs
         diffusionModel  turbulentDiffusion;
         gammaLam        gammaLam    [ 0 2 -1 0 0 0 0 ] 0.0001;
         Sc              0.7;
+        continuousPhase fluid;
     }
 
     growth off;
@@ -62,6 +65,12 @@ univariateCoeffs
     nucleationModel
     {
         nucleationModel none;
+    }
+
+    collision off;
+    collisionKernel
+    {
+        collisionKernel noCollision;
     }
 
     odeCoeffs

@@ -39,7 +39,7 @@ univariateCoeffs
     {
         breakupKernel LuoSvendsen;
 
-        Cb        Cb        [ 0 0 0 0 0 0 0 ] 0.6e-3;
+        Cb        Cb        [ 0 0 0 0 0 0 0 ] 0.2;
         epsilonExp          0.75;
         nuExp              -1.25;
         sizeExp             1.0;

@@ -41,6 +41,7 @@ SourceFiles
 #include "aggregationKernel.H"
 #include "breakupKernel.H"
 #include "growthModel.H"
+#include "diffusionModel.H"
 #include "nucleationModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -92,6 +93,12 @@ class sizeVelocityPopulationBalance
             Foam::populationBalanceSubModels::growthModel
         > growthModel_;
 
+        //- Diffusion model
+        autoPtr
+        <
+            Foam::populationBalanceSubModels::diffusionModel
+        > diffusionModel_;
+
         //- Nucleation model
         autoPtr
         <
@@ -102,6 +109,12 @@ class sizeVelocityPopulationBalance
 
 //         //- Update explicit collison source terms
 //         virtual void updateCellMomentSource(const label celli);
+
+        //- Calculate implicit source terms
+        virtual tmp<fvScalarMatrix> implicitMomentSource
+        (
+            const volVelocityMoment& moment
+        );
 
         //- Calculate explicit source terms with realizable ODE solver
         virtual void explicitMomentSource();
