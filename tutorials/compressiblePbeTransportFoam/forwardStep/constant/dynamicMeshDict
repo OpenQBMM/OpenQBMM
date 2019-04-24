@@ -24,7 +24,7 @@ refineInterval  2;
 field           error;
 
 // Refine field in between lower..upper
-lowerRefineLevel 0.1;
+lowerRefineLevel 0.05;
 upperRefineLevel 100.0;
 
 // If value < unrefineLevel unrefine

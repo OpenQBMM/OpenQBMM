@@ -16,7 +16,7 @@ FoamFile
 
 application     pbeTransportFoam;
 
-startFrom       startTime;//latestTime;
+startFrom       latestTime;
 
 startTime       0;
 
@@ -28,7 +28,7 @@ deltaT          1e-3;
 
 writeControl    adjustableRunTime;
 
-writeInterval   0.1;
+writeInterval   1;
 
 purgeWrite      100;
 
