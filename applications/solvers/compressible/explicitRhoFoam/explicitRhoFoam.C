@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
 
     while (runTime.run())
     {
-        #include "CourantNo.H"
         #include "readTimeControls.H"
+        #include "eigenCourantNo.H"
         #include "setDeltaT.H"
 
         runTime++;
