@@ -95,7 +95,6 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
     {
         this->explicitMomentSource();
     }
-    quadrature_.updateQuadrature();
 }
 
 

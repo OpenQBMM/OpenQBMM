@@ -131,16 +131,24 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
             // Inverting moments for EQMOM
             momentInverter_->invert(momentsToInvert);
 
+            // Recovering primary weights and abscissae from moment inverter
+            const scalarList& pWeights(momentInverter_().primaryWeights());
+
+            const scalarList& pAbscissae
+            (
+                momentInverter_().primaryAbscissae()
+            );
+
             // Copying quadrature data to boundary face
-            for (label pNodei = 0; pNodei < nodes.size(); pNodei++)
+            for (label pNodei = 0; pNodei < pWeights.size(); pNodei++)
             {
                 volScalarNode& node = nodes[pNodei];
 
                 node.primaryWeight().boundaryFieldRef()[patchi][facei]
-                        = momentInverter_->primaryWeights()[pNodei];
+                        = pWeights[pNodei];
 
                 node.primaryAbscissae()[0].boundaryFieldRef()[patchi][facei]
-                        = momentInverter_->primaryAbscissae()[pNodei];
+                        = pAbscissae[pNodei];
 
                 node.sigmas()[0].boundaryFieldRef()[patchi][facei]
                         = momentInverter_->sigma();
@@ -157,6 +165,32 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
 
                     node.secondaryAbscissae()[0][sNodei].boundaryFieldRef()[patchi][facei]
                             = momentInverter_().secondaryAbscissae()[pNodei][sNodei];
+                }
+            }
+            for (label pNodei = pWeights.size(); pNodei < nodes.size(); pNodei++)
+            {
+                volScalarNode& node = nodes[pNodei];
+
+                node.primaryWeight().boundaryFieldRef()[patchi][facei]
+                        = 0.0;
+                node.primaryAbscissae()[0].boundaryFieldRef()[patchi][facei]
+                        = 0.0;
+
+                node.sigmas()[0].boundaryFieldRef()[patchi][facei]
+                        = 0.0;
+
+                for
+                (
+                    label sNodei = 0;
+                    sNodei < node.nSecondaryNodes();
+                    sNodei++
+                )
+                {
+                    node.secondaryWeights()[0][sNodei].boundaryFieldRef()[patchi][facei]
+                            = 0.0;
+
+                    node.secondaryAbscissae()[0][sNodei].boundaryFieldRef()[patchi][facei]
+                            = 0.0;
                 }
             }
         }
@@ -203,7 +237,7 @@ bool Foam::extendedFieldMomentInversion::invertLocalMoments
     );
 
     // Copying EQMOM quadrature to fields
-    for (label pNodei = 0; pNodei < nodes.size(); pNodei++)
+    for (label pNodei = 0; pNodei < pWeights.size(); pNodei++)
     {
         volScalarNode& node(nodes[pNodei]);
 

@@ -181,6 +181,9 @@ public:
             //- Recalculate the quadrature nodes from the moments
             void updateQuadrature();
 
+            //- Recalculate the quadrature nodes from the moments
+            //  on boundaries
+            void updateBoundaryQuadrature();
             //- Recalculate the moments from the quadrature nodes
             void updateMoments();
 

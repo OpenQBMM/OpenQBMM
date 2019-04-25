@@ -161,7 +161,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                 // First intermediate update
                 updateCellMomentSource(celli);
-                forAll(oldMoments, mi)
+                forAll(k1, mi)
                 {
                     const labelList& order = momentOrders[mi];
                     k1[mi] =
@@ -182,7 +182,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                 // Second moment update
                 updateCellMomentSource(celli);
-                forAll(oldMoments, mi)
+                forAll(k2, mi)
                 {
                     const labelList& order = momentOrders[mi];
                     k2[mi] =
@@ -203,7 +203,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                 // Third moment update
                 updateCellMomentSource(celli);
-                forAll(oldMoments, mi)
+                forAll(k3, mi)
                 {
                     const labelList& order = momentOrders[mi];
                     k3[mi] =
@@ -267,7 +267,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             {
                 scalar scalei =
                         ATol_
-                    + max
+                      + max
                         (
                             mag(moments[mi][celli]), mag(oldMoments[mi])
                         )*RTol_;
@@ -323,6 +323,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
     {
         moments[mi].correctBoundaryConditions();
     }
+    quadrature.updateBoundaryQuadrature();
 }
 
 
@@ -332,7 +333,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::read(const dictionary& dic
     const dictionary& odeDict = dict.subDict("odeCoeffs");
     solveSources_ = odeDict.lookupOrDefault<Switch>("solveSources", true);
     solveOde_ = odeDict.lookupOrDefault<Switch>("solveOde", true);
-Info<<solveOde_<<endl;
+
     (odeDict.lookup("ATol")) >> ATol_;
     (odeDict.lookup("RTol")) >> RTol_;
     (odeDict.lookup("fac")) >> fac_;

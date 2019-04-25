@@ -161,6 +161,8 @@ void Foam::moment<fieldType, nodeType>::update()
     moment == dimensionedScalar("moment", (*this).dimensions(), 0);
 
     const mappedPtrList<nodeType>& nodes = nodes_();
+    const labelList& scalarIndexes = nodes[0].scalarIndexes();
+    const labelList& velocityIndexes = nodes[0].velocityIndexes();
 
     // If nodes are not of extended type, only use primary quadrature.
     if (!nodes[0].extended())
@@ -169,8 +171,6 @@ void Foam::moment<fieldType, nodeType>::update()
         {
             const nodeType& node = nodes[pNodei];
             fieldType m = node.primaryWeight();
-            const labelList& scalarIndexes = node.scalarIndexes();
-            const labelList& velocityIndexes = node.velocityIndexes();
 
             for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
             {
@@ -210,8 +210,6 @@ void Foam::moment<fieldType, nodeType>::update()
     {
         const nodeType& node = nodes[pNodei];
         const fieldType& pW = node.primaryWeight();
-        const labelList& scalarIndexes = node.scalarIndexes();
-        const labelList& velocityIndexes = node.velocityIndexes();
 
         for (label sNodei = 0; sNodei < node.nSecondaryNodes(); sNodei++)
         {
@@ -252,12 +250,103 @@ void Foam::moment<fieldType, nodeType>::update()
 }
 
 template <class fieldType, class nodeType>
+void Foam::moment<fieldType, nodeType>::updateBoundaries()
+{
+    const mappedPtrList<nodeType>& nodes = nodes_();
+    const labelList& scalarIndexes = nodes[0].scalarIndexes();
+    const labelList& velocityIndexes = nodes[0].velocityIndexes();
+
+    // If nodes are not of extended type, only use primary quadrature.
+    if (!nodes[0].extended())
+    {
+        forAll(this->boundaryField(), patchi)
+        {
+            this->boundaryFieldRef()[patchi] = 0.0;
+            forAll(nodes, pNodei)
+            {
+                const nodeType& node = nodes[pNodei];
+                scalarField m(node.primaryWeight().boundaryField()[patchi]);
+
+                for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
+                {
+                    label cmpti = scalarIndexes[cmpt];
+                    const label cmptMomentOrder = cmptOrders()[cmpti];
+
+                    const scalarField& abscissaCmpt =
+                        node.primaryAbscissae()[cmpt].boundaryField()[patchi];
+
+                    m *= pow(abscissaCmpt, cmptMomentOrder);
+
+                }
+                for (label cmpt = 0; cmpt < velocityIndexes.size(); cmpt++)
+                {
+                    label cmpti = velocityIndexes[cmpt];
+                    const label cmptMomentOrder = cmptOrders()[cmpti];
+
+                    tmp<scalarField> abscissaCmpt
+                            = node.velocityAbscissae().boundaryField()[patchi].component(cmpt);
+
+                    m *= pow(abscissaCmpt, cmptMomentOrder);
+                }
+
+                this->boundaryFieldRef()[patchi] += m;
+            }
+        }
+
+        return;
+    }
+
+    // Extended quadrature case
+    forAll(this->boundaryField(), patchi)
+    {
+        this->boundaryFieldRef()[patchi] = 0.0;
+        forAll(nodes, pNodei)
+        {
+            const nodeType& node = nodes[pNodei];
+            const scalarField& pW = node.primaryWeight().boundaryField()[patchi];
+
+            for (label sNodei = 0; sNodei < node.nSecondaryNodes(); sNodei++)
+            {
+                scalarField m(pW);
+
+                for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
+                {
+                    label cmpti = scalarIndexes[cmpt];
+                    const label cmptMomentOrder = cmptOrders()[cmpti];
+
+                    const scalarField& abscissaCmpt =
+                        node.secondaryAbscissae()[cmpt][sNodei].boundaryField()[patchi];
+
+                    m *=
+                        node.secondaryWeights()[cmpt][sNodei].boundaryField()[patchi]
+                       *pow(abscissaCmpt, cmptMomentOrder);
+                }
+                for (label cmpt = 0; cmpt < velocityIndexes.size(); cmpt++)
+                {
+                    label cmpti = velocityIndexes[cmpt];
+                    const label cmptMomentOrder = cmptOrders()[cmpti];
+
+                    tmp<scalarField> abscissaCmpt
+                            = node.velocityAbscissae().boundaryField()[patchi].component(cmpt);
+
+                    m *= pow(abscissaCmpt, cmptMomentOrder);
+
+                }
+                this->boundaryFieldRef()[patchi] += m;
+            }
+        }
+    }
+}
+
+template <class fieldType, class nodeType>
 void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
 {
     // Resetting the moment to zero
     scalar moment = 0;
 
     const mappedPtrList<nodeType>& nodes = nodes_();
+    const labelList& scalarIndexes = nodes[0].scalarIndexes();
+    const labelList& velocityIndexes = nodes[0].velocityIndexes();
 
     // If nodes are not of extended type, only use primary quadrature.
     if (!nodes[0].extended())
@@ -266,8 +355,6 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
         {
             const nodeType& node = nodes[pNodei];
             scalar m = node.primaryWeight()[elemi];
-            const labelList& scalarIndexes = node.scalarIndexes();
-            const labelList& velocityIndexes = node.velocityIndexes();
 
             for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
             {
@@ -302,9 +389,6 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
     forAll(nodes, pNodei)
     {
         const nodeType& node = nodes[pNodei];
-        const labelList& scalarIndexes = node.scalarIndexes();
-        const labelList& velocityIndexes = node.velocityIndexes();
-
         const scalar pW = node.primaryWeight()[elemi];
 
         for (label sNodei = 0; sNodei < node.nSecondaryNodes(); sNodei++)
