@@ -211,7 +211,11 @@ bool
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::solveMomentSources() const
 {
-    return odeType::solveSources_;
+    if (aggregation_ || breakup_ || growth_ || nucleation_)
+    {
+        return odeType::solveSources_;
+    }
+    return false;
 }
 
 
