@@ -321,8 +321,8 @@ void Foam::univariateAdvection::zeta::interpolateFields()
 
     forAll(zetas_, zetai)
     {
-        zetasNei_[zetai] = zetaOwnScheme().interpolate(zetas_[zetai]);
-        zetasOwn_[zetai] = zetaNeiScheme().interpolate(zetas_[zetai]);
+        zetasNei_[zetai] = zetaNeiScheme().interpolate(zetas_[zetai]);
+        zetasOwn_[zetai] = zetaOwnScheme().interpolate(zetas_[zetai]);
 
         zetasUpwindNei_[zetai] =
             upwind<scalar>(zetas_[zetai].mesh(), nei_).flux(zetas_[zetai]);
