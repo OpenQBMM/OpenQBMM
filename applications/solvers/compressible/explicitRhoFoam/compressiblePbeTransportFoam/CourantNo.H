@@ -44,6 +44,13 @@ Description
 
     meanCoNum =
         0.5*(gSum(sumAmaxSf)/gSum(mesh.V().field()))*runTime.deltaTValue();
+
+    scalar realizableCo = populationBalance().realizableCo();
+
+    Info<< "Max Courant Number for realizable moment transport  = "
+        << realizableCo << endl;
+
+     maxCo = min(maxCo, realizableCo);
 }
 
 Info<< "Mean and max Courant Numbers = "

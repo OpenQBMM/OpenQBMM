@@ -115,6 +115,8 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         {
             moments[mi].correctBoundaryConditions();
         }
+        quadrature.updateBoundaryQuadrature();
+
         return;
     }
 
@@ -160,6 +162,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 nItt++;
 
                 // First intermediate update
+                bool nullSource =  true;
                 updateCellMomentSource(celli);
                 forAll(k1, mi)
                 {
@@ -173,12 +176,22 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                             enviroment
                         );
                     moments[mi][celli] = oldMoments[mi] + k1[mi];
+
+                    if (mag(k1[mi]) > small)
+                    {
+                        nullSource = false;
+                    }
                 }
 
                 realizableUpdate1 =
                         quadrature.updateLocalQuadrature(celli, false);
 
-                quadrature.updateLocalMoments(celli);
+               quadrature.updateLocalMoments(celli);
+
+               if (nullSource)
+               {
+                   break;
+               }
 
                 // Second moment update
                 updateCellMomentSource(celli);
