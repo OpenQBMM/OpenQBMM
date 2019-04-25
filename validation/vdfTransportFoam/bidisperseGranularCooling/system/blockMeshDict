@@ -16,27 +16,21 @@ FoamFile
 
 convertToMeters 1.0;
 
-W       1.0;
-h       0.1;
-depth   0.1;
-
-
-
 vertices
 (
     (   0    0      0       )   //0
-    (   $W   0      0       )   //1
-    (   $W   $h     0       )   //2
-    (   0    $h     0       )   //3
-    (   0    0      $depth  )   //4
-    (   $W   0      $depth  )   //5
-    (   $W   $h     $depth  )   //6
-    (   0    $h     $depth  )   //7
+    (   1    0      0       )   //1
+    (   1    1      0       )   //2
+    (   0    1      0       )   //3
+    (   0    0      1       )   //4
+    (   1    0      1       )   //5
+    (   1    1      1       )   //6
+    (   0    1      1       )   //7
 );
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (120 1 1) simpleGrading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) (1 1 1) simpleGrading (1 1 1)
 );
 
 edges
@@ -44,60 +38,7 @@ edges
 );
 
 boundary
-(
-    left
-    {
-        type            patch;
-        faces
-        (
-            (0 3 7 4)
-        );
-    }
-    right
-    {
-        type            patch;
-        faces
-        (
-            (1 2 6 5)
-        );
-    }
-    bottom
-    {
-        type            cyclic;
-        neighbourPatch  top;
-        faces
-        (
-            (0 1 5 4)
-        );
-    }
-    top
-    {
-        type            cyclic;
-        neighbourPatch  bottom;
-        faces
-        (
-            (2 3 7 6)
-        );
-    }
-    front
-    {
-        type            cyclic;
-        neighbourPatch  back;
-        faces
-        (
-            (0 1 2 3)
-        );
-    }
-    back
-    {
-        type            cyclic;
-        neighbourPatch  front;
-        faces
-        (
-            (4 5 6 7)
-        );
-    }
-);
+();
 
 mergePatchPairs
 (

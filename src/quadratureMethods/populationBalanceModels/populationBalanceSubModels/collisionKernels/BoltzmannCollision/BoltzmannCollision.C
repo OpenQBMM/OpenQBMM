@@ -466,17 +466,16 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
         {
             const volVelocityNode& node2 = quadrature_.nodes()[nodej];
 
-
             scalar d1 = max(node1.primaryAbscissae()[sizeIndex_][celli], 1e-10);
             scalar d2 = max(node2.primaryAbscissae()[sizeIndex_][celli], 1e-10);
             scalar d12 = (d1 + d2)*0.5;
             scalar XiSqr = sqr(d12/d2);
             scalar mass1 = pi/6.0*pow3(d1)*rhop_()[celli];
             scalar mass2 = pi/6.0*pow3(d2)*rhop_()[celli];
-            scalar omega = mass2*(1.0 + e_)/max(mass1 + mass2, small);
+            scalar omega = mass2*(1.0 + e_)/(mass1 + mass2);
             scalar g012 = 1.0/alphac + 3.0*d1*d2*alphard/(sqr(alphac)*(d1 + d2));
 
-            if (omega > 1e-10)
+            if (omega > small)
             {
                 updateI(celli, nodei, nodej, omega);
 

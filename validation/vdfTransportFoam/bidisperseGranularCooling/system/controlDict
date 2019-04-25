@@ -23,17 +23,17 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         20;
+endTime         5;
 
-deltaT          1e-3;
+deltaT          .1;
 
-writeControl    adjustableRunTime;
+writeControl    timeStep;
 
-writeInterval   0.05;
+writeInterval   1;
 
 purgeWrite      100;
 
-writeFormat     ascii;
+writeFormat     binary;
 
 writePrecision  6;
 
@@ -45,11 +45,110 @@ timePrecision   6;
 
 runTimeModifiable yes;
 
-adjustTimeStep  yes;
-
-maxCo           .5;
-
-maxDeltaT       1;
+adjustTimeStep  no;
 
 
+functions
+{
+    temperatureRatio
+    {
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                temperatureRatio;
+        writeControl        timeStep;
+
+        codeInclude
+        #{
+            #include "quadratureApproximations.H"
+        #};
+
+        codeOptions
+        #{
+            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/mappedList \
+            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/mappedPtrList \
+            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/moments \
+            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/fieldMomentInversion/lnInclude \
+            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/momentSets/lnInclude \
+            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/quadratureNode/lnInclude \
+            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/quadratureApproximations/lnInclude
+        #};
+
+        codeExecute
+        #{
+        const velocityQuadratureApproximation& quadrature
+                = mesh().lookupObject<velocityQuadratureApproximation>("quadratureProperties.particles");
+
+        labelListList momentOrders
+        (
+            {{0,0,0},{1,0,0},{0,1,0},{0,0,1},{2,0,0},{0,2,0},{0,0,2}}
+        );
+        PtrList<mappedScalarList> moments(2);
+        moments.set(0, new mappedScalarList(momentOrders.size(), momentOrders, 0.0));
+        moments.set(1, new mappedScalarList(momentOrders.size(), momentOrders, 0.0));
+        scalarList ds(2, 0.0);
+        ds[0] = quadrature.nodes()(0).primaryAbscissae()[0][0];
+        ds[1] = quadrature.nodes()(1).primaryAbscissae()[0][0];
+
+        forAll(quadrature.nodes(), nodei)
+        {
+            const labelList& nodeIndex = quadrature.nodeIndexes()[nodei];
+            const volVelocityNode& node = quadrature.nodes()[nodei];
+            label sizei = nodeIndex[0];
+
+            forAll(momentOrders, mi)
+            {
+                const labelList& vOrder = momentOrders[mi];
+
+                scalar mCmpt = node.primaryWeight()[0];
+                forAll(vOrder, cmpt)
+                {
+                    mCmpt *=
+                        pow(node.velocityAbscissae()[0][cmpt], vOrder[cmpt]);
+                }
+                moments[sizei](vOrder) += mCmpt;
+            }
+        }
+        Info<<moments[0]<<' '<<moments[1]<<endl;
+
+        scalar Theta1 =
+            max
+            (
+                (moments[0](2)/moments[0](0))
+              - sqr(moments[0](1)/moments[0](0)), 0.0
+            )
+          + max
+            (
+                (moments[0](0,2)/moments[0](0))
+            - sqr(moments[0](0,1)/moments[0](0)), 0.0
+            )
+          + max
+            (
+                (moments[0](0,0,2)/moments[0](0))
+              - sqr(moments[0](0,0,1)/moments[0](0)), 0.0
+            );
+        Theta1 /= 3.0;
+        scalar Theta2 =
+            max
+            (
+                (moments[1](2)/moments[1](0))
+              - sqr(moments[1](1)/moments[1](0)), 0.0
+            )
+          + max
+            (
+                (moments[1](0,2)/moments[1](0))
+            - sqr(moments[1](0,1)/moments[1](0)), 0.0
+            )
+          + max
+            (
+                (moments[1](0,0,2)/moments[1](0))
+              - sqr(moments[1](0,0,1)/moments[1](0)), 0.0
+            );
+        Theta2 /= 3.0;
+
+        Info<<"Size ratio " << ds[1]/ds[0] << endl;
+        Info<<"Temperature ratio "<< Theta2 << ' '<<Theta1<<' '<< Theta2/Theta1<<endl;
+
+        #};
+    }
+}
 // ************************************************************************* //

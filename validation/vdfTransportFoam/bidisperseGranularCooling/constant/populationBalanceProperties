@@ -21,8 +21,7 @@ sizeVelocityCoeffs
 {
     odeCoeffs
     {
-        solveOde off;
-        solveSources on;
+        solveOde on;
 
         ATol    1.0e-6;
         RTol    1.0e-3;
@@ -36,12 +35,9 @@ sizeVelocityCoeffs
 
     collisionKernel
     {
-        collisionKernel esBGK;
-        d           0.03;
-        e           1;
+        collisionKernel Boltzmann;
+        e           0.8;
         rho         2000;
-        Enskog      off;
-        implicit    on;
     }
 
     diffusionModel

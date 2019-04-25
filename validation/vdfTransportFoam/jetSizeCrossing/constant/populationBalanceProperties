@@ -22,8 +22,7 @@ sizeVelocityCoeffs
     odeCoeffs
     {
         solveOde off;
-
-        ATol    1.0e-4;
+        ATol    1.0e-6;
         RTol    1.0e-3;
         fac     0.5;
         facMin  0.5;
@@ -32,13 +31,11 @@ sizeVelocityCoeffs
     }
 
     collision  on;
-
     collisionKernel
     {
-        collisionKernel esBGK;
+        collisionKernel Boltzmann;
         e  0.8;
         rho 2500;
-        minD 1e-6;
     }
 }
 

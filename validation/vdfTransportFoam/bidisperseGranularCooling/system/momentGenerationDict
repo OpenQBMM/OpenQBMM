@@ -22,39 +22,17 @@ phases
 
 boundaries
 {
-    left
+    ".*"
     {
-        type    zeroGradient;
-        value   uniform 0;
-    }
-    right
-    {
-        type    zeroGradient;
-        value   uniform 0;
-    }
-    bottom
-    {
-        type    cyclic;
-    }
-    top
-    {
-        type    cyclic;
-    }
-    front
-    {
-        type    cyclic;
-    }
-    back
-    {
-        type    cyclic;
+        type calculated;
     }
 }
 
-u2 1.0;
-nu2 -1.0;
-u1 #calc "sqrt(0.5)";
-nu1 #calc "-$u1";
-w  0.0125;
+U 1;
+nU -1;
+w  0.000625;
+d1 1.0e-3;
+d2 3.0e-3;
 
 particles
 {
@@ -68,53 +46,85 @@ particles
         node0
         {
             weight  $w;
-            abscissa (0.03 $u2 $u2 $u2);
+            abscissa ($d1 $U $U $U);
         }
         node1
         {
             weight  $w;
-            abscissa (0.02 $u2 $u2 $u2);
+            abscissa ($d1 $U $U $nU);
         }
         node2
         {
             weight  $w;
-            abscissa (0.03 $nu2 $nu2 $nu2);
+            abscissa ($d1 $U $nU $U);
         }
         node3
         {
             weight  $w;
-            abscissa (0.02 $nu2 $nu2 $nu2);
+            abscissa ($d1 $U $nU $nU);
+        }
+        node4
+        {
+            weight  $w;
+            abscissa ($d1 $nU $U $U);
+        }
+        node5
+        {
+            weight  $w;
+            abscissa ($d1 $nU $U $nU);
+        }
+        node6
+        {
+            weight  $w;
+            abscissa ($d1 $nU $nU $U);
+        }
+        node7
+        {
+            weight  $w;
+            abscissa ($d1 $nU $nU $nU);
+        }
+
+        node8
+        {
+            weight  $w;
+            abscissa ($d2 $U $U $U);
+        }
+        node9
+        {
+            weight  $w;
+            abscissa ($d2 $U $U $nU);
+        }
+        node10
+        {
+            weight  $w;
+            abscissa ($d2 $U $nU $U);
+        }
+        node11
+        {
+            weight  $w;
+            abscissa ($d2 $U $nU $nU);
+        }
+        node12
+        {
+            weight  $w;
+            abscissa ($d2 $nU $U $U);
+        }
+        node13
+        {
+            weight  $w;
+            abscissa ($d2 $nU $U $nU);
+        }
+        node14
+        {
+            weight  $w;
+            abscissa ($d2 $nU $nU $U);
+        }
+        node15
+        {
+            weight  $w;
+            abscissa ($d2 $nU $nU $nU);
         }
     }
-
-    regions
-    (
-        boxToCell
-        {
-            box (0 0 0) (0.5 0.1 0.1);
-
-            node0
-            {
-                weight  $w;
-                abscissa (0.03 $u1 $u1 $u1);
-            }
-            node1
-            {
-                weight  $w;
-                abscissa (0.02 $u1 $u1 $u1);
-            }
-            node2
-            {
-                weight  $w;
-                abscissa (0.03 $nu1 $nu1 $nu1);
-            }
-            node3
-            {
-                weight  $w;
-                abscissa (0.02 $nu1 $nu1 $nu1);
-            }
-        }
-    );
 }
 
 

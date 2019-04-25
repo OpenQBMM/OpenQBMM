@@ -174,7 +174,7 @@ class BoltzmannCollision
         defineIFuncs(3,0,0)
 
         defineIFuncs(0,0,4)
-// //         defineIFuncs(0,1,3)
+//         defineIFuncs(0,1,3)
 //         defineIFuncs(0,2,2)
 //         defineIFuncs(0,3,1)
         defineIFuncs(0,4,0)
