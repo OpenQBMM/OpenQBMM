@@ -17,38 +17,32 @@ FoamFile
 
 populationBalanceModel univariate;
 
-timeDependentVelocity true;
-
 univariateCoeffs
 {
     aggregation off;
-
     aggregationKernel
     {
         aggregationKernel constant;
     }
 
     breakup off;
-
     breakupKernel
     {
         breakupKernel constant;
-    }
-
-    daughterDistribution
-    {
-        daughterDistribution symmetricFragmentation;
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
     }
 
     diffusionModel
     {
         diffusionModel  none;
-        gammaLam        gammaLam l[ 1 -1 -1 0 0 0 0 ] 0.0001;
+        gammaLam        gammaLam [ 1 -1 -1 0 0 0 0 ] 0.0001;
         Sc              0.7;
     }
 
     growth off;
-
     growthModel
     {
         growthModel     constant;
@@ -65,7 +59,6 @@ univariateCoeffs
 
     odeCoeffs
     {
-        solveODESource off;
         ATol    1.0e-8;
         RTol    1.0e-4;
         fac     0.9;
@@ -74,9 +67,5 @@ univariateCoeffs
         minLocalDt 1.0e-5;
     }
 }
-
-
-
-
 
 // ************************************************************************* //

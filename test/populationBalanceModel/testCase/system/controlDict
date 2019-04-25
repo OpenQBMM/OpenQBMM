@@ -23,11 +23,11 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         1;
+endTime         10;
 
 deltaT          0.01;
 
-writeControl    timeStep;
+writeControl    adjustableRunTime;
 
 writeInterval   1;
 
