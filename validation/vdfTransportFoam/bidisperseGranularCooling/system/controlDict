@@ -23,13 +23,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         5;
+endTime         .05;
 
-deltaT          .1;
+deltaT          .001;
 
-writeControl    timeStep;
+writeControl    runTime;
 
-writeInterval   1;
+writeInterval   0.001;
 
 purgeWrite      100;
 
@@ -64,13 +64,13 @@ functions
 
         codeOptions
         #{
-            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/mappedList \
-            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/mappedPtrList \
-            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/moments \
-            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/fieldMomentInversion/lnInclude \
-            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/momentSets/lnInclude \
-            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/quadratureNode/lnInclude \
-            -I/home/jeff/OpenFOAM/OpenQBMM-dev/src/quadratureMethods/quadratureApproximations/lnInclude
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedList \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedPtrList \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/moments \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/fieldMomentInversion/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/momentSets/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureNode/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureApproximations/lnInclude
         #};
 
         codeExecute
@@ -108,45 +108,28 @@ functions
                 moments[sizei](vOrder) += mCmpt;
             }
         }
-        Info<<moments[0]<<' '<<moments[1]<<endl;
 
         scalar Theta1 =
-            max
-            (
-                (moments[0](2)/moments[0](0))
-              - sqr(moments[0](1)/moments[0](0)), 0.0
-            )
-          + max
-            (
-                (moments[0](0,2)/moments[0](0))
-            - sqr(moments[0](0,1)/moments[0](0)), 0.0
-            )
-          + max
-            (
-                (moments[0](0,0,2)/moments[0](0))
-              - sqr(moments[0](0,0,1)/moments[0](0)), 0.0
-            );
+            (moments[0](2)/moments[0](0))
+          + (moments[0](0,2)/moments[0](0))
+          + (moments[0](0,0,2)/moments[0](0));
         Theta1 /= 3.0;
+
         scalar Theta2 =
-            max
-            (
-                (moments[1](2)/moments[1](0))
-              - sqr(moments[1](1)/moments[1](0)), 0.0
-            )
-          + max
-            (
-                (moments[1](0,2)/moments[1](0))
-            - sqr(moments[1](0,1)/moments[1](0)), 0.0
-            )
-          + max
-            (
-                (moments[1](0,0,2)/moments[1](0))
-              - sqr(moments[1](0,0,1)/moments[1](0)), 0.0
-            );
+            (moments[1](2)/moments[1](0))
+          + (moments[1](0,2)/moments[1](0))
+          + (moments[1](0,0,2)/moments[1](0));
         Theta2 /= 3.0;
 
-        Info<<"Size ratio " << ds[1]/ds[0] << endl;
-        Info<<"Temperature ratio "<< Theta2 << ' '<<Theta1<<' '<< Theta2/Theta1<<endl;
+        scalar m0 = moments[0](0) + moments[1](0);
+        scalar Theta =
+            (moments[0](2) + moments[1](2))/m0
+          + (moments[0](0,2) + moments[1](0,2))/m0
+          + (moments[0](0,0,2) + moments[1](0,0,2))/m0;
+        Theta /= 3.0;
+
+        Info<< "Diameter ratio = " << ds[1]/ds[0] <<endl;
+        Info<< "Temperature ratio = "<< Theta2/Theta1 <<endl;
 
         #};
     }

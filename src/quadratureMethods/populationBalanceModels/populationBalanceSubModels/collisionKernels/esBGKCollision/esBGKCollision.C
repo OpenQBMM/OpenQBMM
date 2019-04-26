@@ -171,31 +171,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
         mesh,
         dimensionedScalar("0", sqr(dimVelocity), 0.0)
     ),
-    zeta_(dict_.lookupOrDefault("zeta", 1.0)),
-    rhop_
-    (
-        lookupOrInitialize
-        (
-            mesh,
-            IOobject::groupName("thermo:rho", quadrature.moments()[0].group()),
-            dict,
-            "rho",
-            dimDensity
-        )
-    ),
-    dp_
-    (
-        nSizes_ <= 0
-      ? lookupOrInitialize
-        (
-            mesh,
-            IOobject::groupName("d", quadrature.moments()[0].group()),
-            dict,
-            "d",
-            dimLength
-        )
-      : tmp<volScalarField>()
-    )
+    zeta_(dict_.lookupOrDefault("zeta", 1.0))
 {
     scalar omega = (1.0 + e_)/2.0;
     scalar gamma = 1.0 - b_;

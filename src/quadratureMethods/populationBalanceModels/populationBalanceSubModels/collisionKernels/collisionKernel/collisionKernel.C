@@ -89,6 +89,8 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
     nDimensions_(velocityIndexes_.size()),
     sizeIndex_(quadrature.nodes()[0].sizeIndex()),
     nSizes_(0),
+    rhos_(1),
+    minD_(dict.lookupOrDefault("minD", small)),
     implicit_(dict_.lookupOrDefault("implicit", true))
 {
     if (sizeIndex_ != -1)
@@ -97,7 +99,50 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
         {
             nSizes_ = max(nSizes_, nodeIndexes_[nodei][sizeIndex_] + 1);
         }
+        rhos_.resize(nSizes_);
     }
+    else
+    {
+        dp_=
+            lookupOrInitialize
+            (
+                mesh,
+                IOobject::groupName("d", quadrature.moments()[0].group()),
+                dict,
+                "d",
+                dimLength
+            );
+    }
+
+    scalarList rhos(dict_.lookupOrDefault("rhos", scalarList()));
+    forAll(rhos, i)
+    {
+        rhos_[i] = rhos[i];
+    }
+    if (rhos.size() < nSizes_ || nSizes_ == 0)
+    {
+        tmp<volScalarField> rho
+        (
+            lookupOrInitialize
+            (
+                mesh,
+                IOobject::groupName
+                (
+                    "thermo:rho",
+                    quadrature.moments()[0].group()
+                ),
+                dict,
+                "rho",
+                dimDensity
+            )
+        );
+
+        for (label i = rhos.size(); i < nSizes_; i++)
+        {
+            rhos_[i] = rho()[0];
+        }
+    }
+
 
     forAll(momentOrders_, mi)
     {

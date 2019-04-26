@@ -23,8 +23,8 @@ sizeVelocityCoeffs
     {
         solveOde on;
 
-        ATol    1.0e-6;
-        RTol    1.0e-3;
+        ATol    1.0e-8;
+        RTol    1.0e-4;
         fac     0.9;
         facMin  0.1;
         facMax  5.0;
@@ -37,7 +37,7 @@ sizeVelocityCoeffs
     {
         collisionKernel Boltzmann;
         e           0.8;
-        rho         2000;
+        rhos        (27.0 1.0); // Correction to keep masses the same
     }
 
     diffusionModel

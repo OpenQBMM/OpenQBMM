@@ -72,12 +72,12 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
 
     for (label powi = 2; powi < gPow.size(); powi++)
     {
-        omegaPow[powi] = pow(omegaPow[powi], powi);
-        gMagPow[powi] = pow(gMagPow[powi], powi);
+        omegaPow[powi] = pow(omega, powi);
+        gMagPow[powi] = pow(mag(g), powi);
         for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
         {
-            gPow[powi][cmpt] = pow(gPow[powi][cmpt], powi);
-            vPow[powi][cmpt] = pow(vPow[powi][cmpt], powi);
+            gPow[powi][cmpt] = pow(g[cmpt], powi);
+            vPow[powi][cmpt] = pow(u1[cmpt], powi);
         }
     }
 
@@ -128,30 +128,6 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
     Is_(velocityMomentOrders_.size(), velocityMomentOrders_, 0.0),
     I1s_(velocityIndexes_.size()),
     Cs_(momentOrders_.size(), momentOrders_),
-    dp_
-    (
-        nSizes_ <= 0
-      ? lookupOrInitialize
-        (
-            mesh,
-            IOobject::groupName("d", quadrature.moments()[0].group()),
-            dict,
-            "d",
-            dimLength
-        )
-      : tmp<volScalarField>()
-    ),
-    rhop_
-    (
-        lookupOrInitialize
-        (
-            mesh,
-            IOobject::groupName("thermo:rho", quadrature.moments()[0].group()),
-            dict,
-            "rho",
-            dimDensity
-        )
-    ),
     gradWs_(),
     Gs_(momentOrders_.size(), momentOrders_)
 {
@@ -247,20 +223,20 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
     }
 
     mappedLabelList map(velocityMomentOrders_.size(), velocityMomentOrders_, 0);
-//
+
     addIFunction1(map, 0)
-//
+
     addIFunction3(map, 0,0,1)
     addIFunction2(map, 0,1)
     addIFunction1(map, 1)
-//
+
     addIFunction3(map, 0,0,2)
     addIFunction3(map, 0,1,1)
     addIFunction2(map, 0,2)
     addIFunction3(map, 1,0,1)
     addIFunction2(map, 1,1)
     addIFunction1(map, 2)
-//
+
     addIFunction3(map, 0,0,3)
     addIFunction3(map, 0,1,2)
     addIFunction3(map, 0,2,1)
@@ -363,13 +339,13 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
         }
     }
 
-    scalar alpha = quadrature_.moments()(labelList(nDimensions_, 0))[celli];
-    scalar c = min(alpha/0.63, 0.999);
+    scalar alpha = quadrature_.moments()(0)[celli];
     scalar alphac = 1.0 - alpha;
-    scalar g0 = (2.0 - c)/(2.0*pow3(1.0 - c));
 
     if (sizeIndex_ == -1)
     {
+        scalar c = min(alpha/0.63, 0.999);
+        scalar g0 = (2.0 - c)/(2.0*pow3(1.0 - c));
         forAll(quadrature_.nodes(), nodei)
         {
             const volVelocityNode& node1 = quadrature_.nodes()[nodei];
@@ -447,33 +423,44 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
         return;
     }
 
-    scalar alphard = 0.0;
-
-    forAll(quadrature_.nodes(), nodei)
-    {
-        const volVelocityNode& node = quadrature_.nodes()[nodei];
-        alphard +=
-            node.primaryWeight()[celli]
-            /max(node.primaryAbscissae()[sizeIndex_][celli], 1e-6);
-    }
-
     scalar pi = Foam::constant::mathematical::pi;
-
     forAll(quadrature_.nodes(), nodei)
     {
+        const label sizei = nodeIndexes_[nodei][sizeIndex_];
         const volVelocityNode& node1 = quadrature_.nodes()[nodei];
+        scalar d1 =
+            max
+            (
+                node1.primaryAbscissae()[sizeIndex_][celli],
+                minD_
+            );
+        scalar V1 = pi/6.0*pow3(d1);
+        scalar mass1 = V1*rhos_[sizei];
+        scalar n1 = node1.primaryWeight()[celli]/V1;
+
         forAll(quadrature_.nodes(), nodej)
         {
+            const label sizej = nodeIndexes_[nodej][sizeIndex_];
             const volVelocityNode& node2 = quadrature_.nodes()[nodej];
+            scalar d2 =
+                max
+                (
+                    node2.primaryAbscissae()[sizeIndex_][celli],
+                    minD_
+                );
+            scalar V2 = pi/6.0*pow3(d2);
+            scalar mass2 = V2*rhos_[sizej];
+            scalar n2 = node2.primaryWeight()[celli]/V2;
 
-            scalar d1 = max(node1.primaryAbscissae()[sizeIndex_][celli], 1e-10);
-            scalar d2 = max(node2.primaryAbscissae()[sizeIndex_][celli], 1e-10);
             scalar d12 = (d1 + d2)*0.5;
             scalar XiSqr = sqr(d12/d2);
-            scalar mass1 = pi/6.0*pow3(d1)*rhop_()[celli];
-            scalar mass2 = pi/6.0*pow3(d2)*rhop_()[celli];
             scalar omega = mass2*(1.0 + e_)/(mass1 + mass2);
-            scalar g012 = 1.0/alphac + 3.0*d1*d2*alphard/(sqr(alphac)*(d1 + d2));
+
+            scalar xi = pi*(n1*sqr(d1) + n2*sqr(d2))/6.0;
+            scalar g012 =
+                1.0/alphac
+              + 1.5*xi*d1*d2/(sqr(alphac)*(d12))
+              + 0.5*sqr(xi)/pow3(alphac)*sqr(d1*d2/d12);
 
             if (omega > small)
             {

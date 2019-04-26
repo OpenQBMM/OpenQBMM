@@ -71,7 +71,7 @@ univariateCoeffs
         solveOde on;
         ATol    1.0e-6;
         RTol    1.0e-3;
-        fac     0.5;
+        fac     0.9;
         facMin  0.1;
         facMax  10.0;
         minLocalDt 1.0e-10;

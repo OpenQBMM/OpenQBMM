@@ -85,7 +85,7 @@ void
 Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::updateImplicitMomentSource()
 {
-    if (!collision_ || !collisionKernel_->implicit())
+    if (!collision_)
     {
         return;
     }
@@ -118,7 +118,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::explicitMomentSource()
 {
-    if (!collision_)
+    if (!collision_ || collisionKernel_->implicit())
     {
         return;
     }

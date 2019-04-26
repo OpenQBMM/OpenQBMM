@@ -102,6 +102,15 @@ protected:
         //- Number of sizes
         label nSizes_;
 
+        //- Refrence to particle diameter
+        tmp<volScalarField> dp_;
+
+        //- List of patricle densities
+        scalarList rhos_;
+
+        //- Minimum diameter
+        scalar minD_;
+
         //- Is an implicit solution used
         Switch implicit_;
 

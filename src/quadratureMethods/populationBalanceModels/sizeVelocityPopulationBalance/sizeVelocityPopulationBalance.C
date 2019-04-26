@@ -142,7 +142,11 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
 ::explicitMomentSource()
 {
-    if (collision_ || aggregation_ || breakup_ || growth_ || nucleation_)
+    if
+    (
+        (collision_ && !collisionKernel_->implicit())
+      || aggregation_ || breakup_ || growth_ || nucleation_
+    )
     {
         odeType::solve(quadrature_, 0);
     }

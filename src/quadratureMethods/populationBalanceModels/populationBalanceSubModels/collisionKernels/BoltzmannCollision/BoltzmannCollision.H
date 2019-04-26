@@ -134,12 +134,6 @@ class BoltzmannCollision
         //- Collision sources
         mappedPtrList<volScalarField> Cs_;
 
-        //- Refrence to particle diameter
-        tmp<volScalarField> dp_;
-
-        //- Refrence to particle diameter
-        tmp<volScalarField> rhop_;
-
         //- Gradients of weights
         PtrList<volVectorField> gradWs_;
 

@@ -107,9 +107,6 @@ protected:
         //- Minimum volume fraction
         scalar minM0_;
 
-        //- Minimum diameter
-        scalar minD_;
-
 
     // Protected functions
 

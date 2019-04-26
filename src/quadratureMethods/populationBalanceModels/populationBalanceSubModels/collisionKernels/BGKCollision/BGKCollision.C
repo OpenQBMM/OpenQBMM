@@ -323,10 +323,10 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 
                     scalar dij = (di + dj)*0.5;
                     scalar XiPow3 = pow3(dij/dj);
-                    scalar Vi = pow3(di);
-                    scalar Vj = pow3(dj);
+                    scalar massi = pi/6.0*pow3(di)*rhos_[sizei];
+                    scalar massj = pi/6.0*pow3(dj)*rhos_[sizej];
 
-                    scalar muij = 2.0*Vj/(Vi + Vj);
+                    scalar muij = 2.0*massj/(massi + massj);
 
 
                     Ks_[sizei][sizej] =
@@ -415,8 +415,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
     ),
     Meq_(momentOrders_.size(), momentOrders_),
     Ks_(nSizes_, scalarList(nSizes_, 0.0)),
-    minM0_(dict.lookupOrDefault("minM0", small)),
-    minD_(dict.lookupOrDefault("minD", small))
+    minM0_(dict.lookupOrDefault("minM0", small))
 {
     if (nSizes_ > 0)
     {

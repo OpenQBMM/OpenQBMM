@@ -24,15 +24,9 @@ boundaries
 {
     ".*"
     {
-        type calculated;
+        type empty;
     }
 }
-
-U 1;
-nU -1;
-w  0.000625;
-d1 1.0e-3;
-d2 3.0e-3;
 
 particles
 {
@@ -45,84 +39,84 @@ particles
     {
         node0
         {
-            weight  $w;
-            abscissa ($d1 $U $U $U);
+            weight  0.00625;
+            abscissa (1.0e-3 1.0 1.0 1.0);
         }
         node1
         {
-            weight  $w;
-            abscissa ($d1 $U $U $nU);
+            weight  0.00625;
+            abscissa (1.0e-3 1.0 1.0 -1.0);
         }
         node2
         {
-            weight  $w;
-            abscissa ($d1 $U $nU $U);
+            weight  0.00625;
+            abscissa (1.0e-3 1.0 -1.0 1.0);
         }
         node3
         {
-            weight  $w;
-            abscissa ($d1 $U $nU $nU);
+            weight  0.00625;
+            abscissa (1.0e-3 1.0 -1.0 -1.0);
         }
         node4
         {
-            weight  $w;
-            abscissa ($d1 $nU $U $U);
+            weight  0.00625;
+            abscissa (1.0e-3 -1.0 1.0 1.0);
         }
         node5
         {
-            weight  $w;
-            abscissa ($d1 $nU $U $nU);
+            weight  0.00625;
+            abscissa (1.0e-3 -1.0 1.0 -1.0);
         }
         node6
         {
-            weight  $w;
-            abscissa ($d1 $nU $nU $U);
+            weight  0.00625;
+            abscissa (1.0e-3 -1.0 -1.0 1.0);
         }
         node7
         {
-            weight  $w;
-            abscissa ($d1 $nU $nU $nU);
+            weight  0.00625;
+            abscissa (1.0e-3 -1.0 -1.0 -1.0);
         }
 
         node8
         {
-            weight  $w;
-            abscissa ($d2 $U $U $U);
+            weight  0.00625;
+            abscissa (3.0e-3 1.0 1.0 1.0);
         }
         node9
         {
-            weight  $w;
-            abscissa ($d2 $U $U $nU);
+            weight  0.00625;
+            abscissa (3.0e-3 1.0 1.0 -1.0);
         }
         node10
         {
-            weight  $w;
-            abscissa ($d2 $U $nU $U);
+            weight  0.00625;
+            abscissa (3.0e-3 1.0 -1.0 1.0);
         }
         node11
         {
-            weight  $w;
-            abscissa ($d2 $U $nU $nU);
+            weight  0.00625;
+            abscissa (3.0e-3 1.0 -1.0 -1.0);
         }
         node12
         {
-            weight  $w;
-            abscissa ($d2 $nU $U $U);
+            weight  0.00625;
+            abscissa (3.0e-3 -1.0 1.0 1.0);
         }
         node13
         {
-            weight  $w;
-            abscissa ($d2 $nU $U $nU);
+            weight  0.00625;
+            abscissa (3.0e-3 -1.0 1.0 -1.0);
         }
         node14
         {
-            weight  $w;
-            abscissa ($d2 $nU $nU $U);
+            weight  0.00625;
+            abscissa (3.0e-3 -1.0 -1.0 1.0);
         }
         node15
         {
-            weight  $w;
-            abscissa ($d2 $nU $nU $nU);
+            weight  0.00625;
+            abscissa (3.0e-3 -1.0 -1.0 -1.0);
         }
     }
 }
