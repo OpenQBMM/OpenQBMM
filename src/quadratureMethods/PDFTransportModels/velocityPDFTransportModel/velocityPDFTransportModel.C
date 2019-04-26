@@ -36,7 +36,6 @@ Foam::PDFTransportModels::velocityPDFTransportModel::velocityPDFTransportModel
 )
 :
     PDFTransportModel(name, dict, mesh),
-    name_(name),
     quadrature_(name, mesh, support),
     momentAdvection_
     (

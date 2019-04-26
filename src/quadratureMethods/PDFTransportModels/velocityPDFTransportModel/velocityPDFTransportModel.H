@@ -55,12 +55,6 @@ class velocityPDFTransportModel
 :
     public PDFTransportModel
 {
-    // Private data
-
-        //- Name of the velocityPDFTransportModel
-        const word name_;
-
-
 protected:
 
     // Protected data

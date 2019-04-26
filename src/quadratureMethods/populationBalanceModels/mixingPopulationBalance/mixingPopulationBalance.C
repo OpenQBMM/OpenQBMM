@@ -57,7 +57,6 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 :
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
-    name_(name),
     mixingModel_
     (
         new Foam::PDFTransportModels::mixingModels::turbulentMixing

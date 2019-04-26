@@ -70,9 +70,6 @@ class mixingPopulationBalance
 
     // Private data
 
-        //- Name of the mixingPopulationBalance
-        const word name_;
-
         //- Turbulent mixing model
         autoPtr
         <

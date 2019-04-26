@@ -59,7 +59,6 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     univariatePDFTransportModel(name, dict, phi.mesh(), phi, "RPlus"),
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
-    name_(name),
     aggregation_(dict.lookupOrDefault("aggregation", false)),
     breakup_(dict.lookupOrDefault("breakup", false)),
     growth_(dict.lookupOrDefault("growth", false)),

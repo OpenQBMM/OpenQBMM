@@ -66,9 +66,6 @@ protected:
 
     // protected data
 
-        //- Name of the velocityPopulationBalance
-        const word name_;
-
         //- Switch indicating the status of the aggregation model
         Switch collision_;
 

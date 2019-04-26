@@ -55,12 +55,6 @@ class univariatePDFTransportModel
 :
     public PDFTransportModel
 {
-    // Private data
-
-        //- Name of the univariatePDFTransportModel
-        const word name_;
-
-
 protected:
 
     // Protected data

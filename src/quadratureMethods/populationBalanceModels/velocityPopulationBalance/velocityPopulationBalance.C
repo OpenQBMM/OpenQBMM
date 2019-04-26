@@ -58,7 +58,6 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     velocityPDFTransportModel(name, dict, phi.mesh(), "R"),
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
-    name_(name),
     collision_(dict.lookup("collision")),
     collisionKernel_
     (

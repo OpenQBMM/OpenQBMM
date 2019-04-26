@@ -68,9 +68,6 @@ class univariatePopulationBalance
 
     // Private data
 
-        //- Name of the univariatePopulationBalance
-        const word name_;
-
         //- Switch indicating the status of the aggregation model
         Switch aggregation_;
 
