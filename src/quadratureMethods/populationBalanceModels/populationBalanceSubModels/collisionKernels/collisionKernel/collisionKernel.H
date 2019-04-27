@@ -126,6 +126,8 @@ protected:
             const dimensionSet& dims
         );
 
+        //- Return the diameter given a node and cell
+        scalar d(const label node, const label celli) const;
 
 public:
 

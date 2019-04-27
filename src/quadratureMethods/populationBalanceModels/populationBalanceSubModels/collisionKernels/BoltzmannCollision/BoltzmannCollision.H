@@ -22,12 +22,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::populationBalanceSubModels::collisionKernels::esBoltzmannCollision
+    Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 
 Description
-    Collision model which returns the velocity distribution to a Maxwellian
-    distribution (multivariate Gaussian) with at a given collisional time
-    scale.
+    Analytical expansion of Boltzmann collision intergral for monodisperse and
+    polydisperse particulate systems
+
+    Reference:
+    \verbatim
+        "Computational Models for Polydisperse Particulate and Multiphase Systems"
+        Marchisio, D.L., Fox, R.O.,
+        Cambridge Core, 2013
+    \endverbatim
 
 SourceFiles
     BoltzmannCollision.C

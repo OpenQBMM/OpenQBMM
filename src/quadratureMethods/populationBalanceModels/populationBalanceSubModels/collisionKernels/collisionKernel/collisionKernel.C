@@ -70,6 +70,30 @@ Foam::populationBalanceSubModels::collisionKernel::lookupOrInitialize
     );
 }
 
+Foam::scalar
+Foam::populationBalanceSubModels::collisionKernel::d
+(
+    const label nodei,
+    const label celli
+) const
+{
+    if (sizeIndex_ == -1)
+    {
+        return dp_()[celli];
+    }
+    const volVelocityNode& node = quadrature_.nodes()(nodei);
+    scalar abscissa = node.primaryAbscissae()[sizeIndex_][celli];
+
+    if (node.lengthBased())
+    {
+        return max(abscissa, minD_);
+    }
+    else
+    {
+        return cbrt(abscissa/rhos_[nodei]/Foam::constant::mathematical::pi*6.0);
+    }
+}
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

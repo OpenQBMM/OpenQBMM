@@ -35,7 +35,7 @@ sizeVelocityCoeffs
 
     collisionKernel
     {
-        collisionKernel esBGK;//Boltzmann;
+        collisionKernel Boltzmann;
         e           0.95;
         rhos        (8.0 1.0); // Correction to keep masses the same
     }

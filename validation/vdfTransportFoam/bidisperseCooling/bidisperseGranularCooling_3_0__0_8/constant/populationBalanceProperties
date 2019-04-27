@@ -35,9 +35,9 @@ sizeVelocityCoeffs
 
     collisionKernel
     {
-        collisionKernel esBGK;//Boltzmann;
-        e           0.95;
-        rhos        (8.0 1.0); // Correction to keep masses the same
+        collisionKernel Boltzmann;
+        e           0.8;
+        rhos        (27.0 1.0); // Correction to keep masses the same
     }
 
     diffusionModel

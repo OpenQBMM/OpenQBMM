@@ -10,40 +10,39 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      populationaBalanceProperties;
+    location    "system";
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-populationBalanceModel sizeVelocity;
-
-sizeVelocityCoeffs
+ddtSchemes
 {
-    odeCoeffs
-    {
-        solveOde on;
+    default         Euler;
+}
 
-        ATol    1.0e-6;
-        RTol    1.0e-3;
-        fac     0.9;
-        facMin  0.1;
-        facMax  5.0;
-        minLocalDt 1.0e-7;
-    }
+gradSchemes
+{
+    default         faceLimited leastSquares 1.0;
+}
 
-    collision  on;
+divSchemes
+{
+    default         Gauss linear;
+}
 
-    collisionKernel
-    {
-        collisionKernel esBGK;//Boltzmann;
-        e           0.95;
-        rhos        (8.0 1.0); // Correction to keep masses the same
-    }
+laplacianSchemes
+{
+    default         none;
+}
 
-    diffusionModel
-    {
-        diffusionModel none;
-    }
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
 }
 
 // ************************************************************************* //

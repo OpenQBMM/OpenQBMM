@@ -428,12 +428,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
     {
         const label sizei = nodeIndexes_[nodei][sizeIndex_];
         const volVelocityNode& node1 = quadrature_.nodes()[nodei];
-        scalar d1 =
-            max
-            (
-                node1.primaryAbscissae()[sizeIndex_][celli],
-                minD_
-            );
+        scalar d1 = d(sizei, celli);
         scalar V1 = pi/6.0*pow3(d1);
         scalar mass1 = V1*rhos_[sizei];
         scalar n1 = node1.primaryWeight()[celli]/V1;
@@ -442,12 +437,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
         {
             const label sizej = nodeIndexes_[nodej][sizeIndex_];
             const volVelocityNode& node2 = quadrature_.nodes()[nodej];
-            scalar d2 =
-                max
-                (
-                    node2.primaryAbscissae()[sizeIndex_][celli],
-                    minD_
-                );
+            scalar d2 = d(sizej, celli);
             scalar V2 = pi/6.0*pow3(d2);
             scalar mass2 = V2*rhos_[sizej];
             scalar n2 = node2.primaryWeight()[celli]/V2;

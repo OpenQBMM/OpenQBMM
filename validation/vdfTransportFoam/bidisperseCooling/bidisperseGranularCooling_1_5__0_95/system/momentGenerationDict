@@ -51,12 +51,12 @@ particles
         node2
         {
             weight  0.025;
-            abscissa (2.0e-3 1.0 1.0 1.0);
+            abscissa (1.5e-3 1.0 1.0 1.0);
         }
         node3
         {
             weight  0.025;
-            abscissa (2.0e-3 -1.0 -1.0 -1.0);
+            abscissa (1.5e-3 -1.0 -1.0 -1.0);
         }
     }
 }

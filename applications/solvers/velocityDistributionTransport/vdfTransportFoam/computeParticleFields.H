@@ -38,7 +38,7 @@
         Thetap = tr(Sigmap)/3.0;
     }
 
-    if (sizeIndex != -1)
+    if (sizeIndex != -1 && nodes[0].lengthBased())
     {
         labelList orderOne(orderZero);
         orderOne[sizeIndex] = 1;
