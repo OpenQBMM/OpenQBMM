@@ -2,11 +2,10 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2017 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2017-05-18 Jeff Heylmun:    Added additional return functions so that class can
-                            be extended to polydisperse
+2019-04-29 Jeff Heylmun:    Added population balance model
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -37,6 +37,10 @@ Description
 
 SourceFiles
     BoltzmannCollision.C
+    ICoefficientFunctions.C
+    IxCoefficientFunctions.C
+    IyCoefficientFunctions.C
+    IzCoefficientFunctions.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -148,7 +152,7 @@ class BoltzmannCollision
 
     // Protected functions
 
-        //- Functions used to define equilibrium moments
+        //- Functions used to define integral coefficients
         defineIFuncs(0,0,0)
 
         defineIFuncs(0,0,1)

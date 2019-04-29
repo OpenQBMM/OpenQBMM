@@ -2,11 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Jeff Heylmun
+    \\  /    A nd           | Copyright (C) 2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is derivative work of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -25,9 +25,8 @@ Class
     Foam::fluxIntegrator
 
 Description
-    Class used to handle encoding/decoding of primative and conservative
-    variables used in compressible flows. Also includes funcitons to calculate
-    the conservative fluxes
+    Class used to integrate the conservative fluxes using an arbirary set of
+    ode coefficients defined by a Butcher table
 
 SourceFiles
     fluxIntegrator.C

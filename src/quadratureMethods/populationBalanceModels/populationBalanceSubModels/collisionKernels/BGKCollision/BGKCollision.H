@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -27,10 +27,13 @@ Class
 Description
     Collision model which returns the velocity distribution to a Maxwellian
     distribution (multivariate Gaussian) with at a given collisional time
-    scale.
+    scale. Used as a base class for esBGK as well, but a different covariance
+    tensor is used as well a variable collision time scale.
+    Polydispersity is also handled, but a variabel time scale is used
 
 SourceFiles
     BGKCollision.C
+    equilibriumMomentFunctions.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -135,6 +138,9 @@ protected:
         }
 
         //- Functions used to define equilibrium moments
+        //  Stored in a list so that moment existance does not have to be checked
+        //  at every cell, for every itteration. The implementation of equilibrium
+        //  moment functions are in equilibriumMomentFunctions.C
         defineMFunc(0,0,0);
 
         defineMFunc(0,0,1);

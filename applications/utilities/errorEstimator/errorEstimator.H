@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,8 +25,8 @@ Class
     Foam::errorEstimator
 
 Description
-    Estimates error across faces with existing fields and scale
-    factor
+    Estimates error across faces with existing fields and scale factor for use
+    with dynamicRefineFvMesh
 
 SourceFiles
     errorEstimator.C

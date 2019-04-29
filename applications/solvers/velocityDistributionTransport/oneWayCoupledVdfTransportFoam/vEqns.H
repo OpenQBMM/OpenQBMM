@@ -1,3 +1,4 @@
+// Solve the change in velocity momentums due to drag
 for (label nodei = 0; nodei < dilutePhase->nNodes(); nodei++)
 {
     volScalarField alphaRho(dilutePhase->volumeFraction(nodei)*dilutePhase->rho());

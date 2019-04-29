@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,7 +25,8 @@ Class
     Foam::momentGenerationSubModels::alphaAndDiameterVelocity
 
 Description
-    Moment generation done using volume fraction, density, and bubble diameter.
+    Moment generation done using volume fraction, density, bubble diameter,
+    and velocity.
 
 SourceFiles
     alphaAndDiameterVelocity.C

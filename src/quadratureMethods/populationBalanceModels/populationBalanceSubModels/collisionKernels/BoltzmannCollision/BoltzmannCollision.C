@@ -63,7 +63,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     const vector& u1 = quadrature_.nodes()[node1].velocityAbscissae()[celli];
     const vector& u2 = quadrature_.nodes()[node2].velocityAbscissae()[celli];
 
-    // Store powers of velocities
+    // Store powers of velocities to reduce evaluations
     vector g = u1 - u2;
     scalarList omegaPow(6, omega);
     vectorList gPow(6, g);
@@ -81,11 +81,13 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
         }
     }
 
+    // Update coefficients for zero order terms
     forAllIter(List<momentFunction>, coefficientFunctions_, iter)
     {
         (*iter)(Is_, omegaPow, gPow, gMagPow, vPow);
     }
 
+    // Update first order (Enskog) terms if used
     if (Enskog_)
     {
         forAllIter(List<momentFunction>, enskogFunctions_[0], iter)
@@ -222,6 +224,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
         }
     }
 
+    //- Check if moments exist and add coefficient functions
     mappedLabelList map(velocityMomentOrders_.size(), velocityMomentOrders_, 0);
 
     addIFunction1(map, 0)
@@ -342,6 +345,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
     scalar alpha = quadrature_.moments()(0)[celli];
     scalar alphac = 1.0 - alpha;
 
+    // Monodisperse case
     if (sizeIndex_ == -1)
     {
         scalar c = min(alpha/0.63, 0.999);
@@ -364,7 +368,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                         vMomentOrder[cmpt] = momentOrder[velocityIndexes_[cmpt]];
                     }
 
-                    //- Zero order
+                    //- Zero order source term
                     scalar cSource =
                         6.0*g0/dp_()[celli]
                        *node1.primaryWeight()[celli]
@@ -400,6 +404,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                         cSource += 3.0*g0*eSource;
                     }
 
+                    // Integrate over non-velocity components
                     forAll(scalarIndexes_, cmpt)
                     {
                         scalar absCmpt =
@@ -423,6 +428,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
         return;
     }
 
+    // Polydisperse case
     scalar pi = Foam::constant::mathematical::pi;
     forAll(quadrature_.nodes(), nodei)
     {
@@ -465,7 +471,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                         vMomentOrder[cmpt] = momentOrder[velocityIndexes_[cmpt]];
                     }
 
-                    //- Zero order
+                    //- Zero order source term
                     scalar cSource =
                         6.0*XiSqr*g012/d2
                        *node1.primaryWeight()[celli]
@@ -502,6 +508,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                         cSource += enskogCoeff*eSource;
                     }
 
+                    // Integrate over non-velocity abscissae
                     forAll(scalarIndexes_, cmpt)
                     {
                         scalar absCmpt =

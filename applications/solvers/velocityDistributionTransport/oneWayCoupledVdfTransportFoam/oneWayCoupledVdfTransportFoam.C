@@ -2,10 +2,10 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-26-03-2018 Jeff Heylmun:    Added moment transort
+29-4-2019 Jeff Heylmun:    Added moment transort
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -27,9 +27,8 @@ Application
     oneWayCoupledHyperbolicFoam
 
 Description
-    Transient solver which couples a continuous phase with a dilute granular
-    phase through a drag time based on the stokes number. Particle advection
-    is done using quadrature based method of moments.
+    Moment transport of velocity based NDF that interacts with a constant
+    velocity field by means of drag.
 
 
 \*---------------------------------------------------------------------------*/

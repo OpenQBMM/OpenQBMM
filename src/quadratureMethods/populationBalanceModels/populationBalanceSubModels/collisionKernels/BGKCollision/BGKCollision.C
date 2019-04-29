@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -142,7 +142,8 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         // Temporay moments
         mappedScalarList tmpMoments(momentOrders_.size(), momentOrders_);
 
-        // Compute equilibrium moments
+        // Compute equilibrium distribuition moments given mean velocity
+        // and covariance tensor
         forAllIter(List<momentFunction>, equilibriumMomentFunctions_, iter)
         {
             (*iter)(tmpMoments, m0, u, v, w, sigma);
@@ -221,6 +222,8 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                 quadrature_.nodes()(sizei).primaryAbscissae()[sizeIndex_][celli],
                 minD_
             );
+
+        // Only compute variance and mean if m0 is not small
         if (m0i > minM0_)
         {
             Us[sizei].x() = velocityMoments_[sizei](1)/m0i;
@@ -260,6 +263,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         {
             scalar m0ij = weights[sizei] + weights[sizej];
 
+            //- Do not compute null moment sets
             if (m0ij > minM0_)
             {
                 vector Uij = Us[sizei];
@@ -270,12 +274,15 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 
                 if (sizei == sizej)
                 {
+                    // Total granular temperature
                     scalar Thetai = max(tr(Sigmas[sizei]), 0.0);
                     symmTensor Si = Sigmas[sizei] + symmTensor::I*Thetai;
 
+                    // Covariance tensor
                     Sigmaij +=
                         0.5*(1.0 + e())*(0.25*(1.0 + e())*Si - Sigmas[sizei]);
 
+                    // Collision time scale
                     Ks_[sizei][sizej] =
                         24.0*g0ij*weights[sizej]*sqrt(Thetai)
                        /(sqrt(pi)*di);
@@ -285,6 +292,8 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                     const mappedScalarList& vmi = velocityMoments_[sizei];
                     const mappedScalarList& vmj = velocityMoments_[sizej];
                     scalar dj = ds[sizej];
+
+                    // Total granular temperature
                     scalar Thetaij =
                         max
                         (
@@ -328,18 +337,22 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 
                     scalar muij = 2.0*massj/(massi + massj);
 
-
+                    // Collision time scale calculation
                     Ks_[sizei][sizej] =
                         24.0*g0ij*weights[sizej]*XiPow3*sqrt(Thetaij)
                        /(sqrt(pi)*dij);
 
+                    // Covariance
                     Sigmaij +=
                         0.5*(1.0 + e())
                        *muij*(0.25*(1.0 + e())*muij*Sij - Sigmas[sizei]);
 
+                    // Mean velocity
                     Uij += 0.25*(1.0 + e())*muij*(Us[sizej] - Us[sizei]);
                 }
 
+                // Compute equilibrium distribuition moments given mean velocity
+                // and covariance tensor
                 forAllIter
                 (
                     List<momentFunction>, equilibriumMomentFunctions_,

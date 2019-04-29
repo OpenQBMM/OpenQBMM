@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2017 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 02-09-2018 Jeff Heylmun:    Added Solution of moment trasporport as well as the
@@ -29,8 +29,8 @@ Application
     diluteCoupledHyperbolicFoam
 
 Description
-    Transient solver which couples a continuous phase with a dilute granular
-    phase through drag. Particle advection is done using quadrature based
+    Transient solver which couples a continuous phase with a dilute dispersed
+    phase through force terms. Particle advection is done using quadrature based
     method of moments.
 
 
