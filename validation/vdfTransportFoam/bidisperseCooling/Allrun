@@ -13,4 +13,6 @@ do
     ( cd $caseName && ./Allrun )
 done
 
+( cd validation && ./createGraph )
+
 # ----------------------------------------------------------------- end-of-file
