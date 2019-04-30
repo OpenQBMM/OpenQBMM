@@ -51,6 +51,8 @@ solvers
 errorEstimate
 {
     scalarFields ("rho");
+    vectorFields ("U");
     scalarScaleFactors (1.0);
+    vectorScaleFactors ((1.0 1.0 1.0));
 }
 // ************************************************************************* //
