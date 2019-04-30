@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -69,8 +69,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -83,20 +82,17 @@ public:
         //- Update equilibrium moments
         virtual void updateCells(const label celli);
 
-        //- Update equilibrium moments
-        virtual void updateFields();
-
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource
         (
-            const label mi,
+            const labelList& momentOrder,
             const label celli
         ) const;
 
         //- Return implicit collision source matrix
         virtual tmp<fvScalarMatrix> implicitCollisionSource
         (
-            const volVectorMoment& m
+            const volVelocityMoment& m
         ) const;
 
 };

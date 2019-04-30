@@ -1,0 +1,14 @@
+compressibleSystem.C
+
+fluxFunctions/fluxFunction/fluxFunction.C
+fluxFunctions/fluxFunction/newFluxFunction.C
+fluxFunctions/AUSMFlux/AUSMFlux.C
+fluxFunctions/AUSMPlusFlux/AUSMPlusFlux.C
+fluxFunctions/HLLFlux/HLLFlux.C
+fluxFunctions/HLLCFlux/HLLCFlux.C
+fluxFunctions/RoeFlux/RoeFlux.C
+
+fluxIntegrator/fluxIntegrator.C
+
+
+LIB = $(FOAM_USER_LIBBIN)/libcompressibleSystem

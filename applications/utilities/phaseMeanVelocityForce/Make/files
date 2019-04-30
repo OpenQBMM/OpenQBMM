@@ -1,7 +1,4 @@
-
 phaseCompressibleMeanVelocityForce/phaseCompressibleMeanVelocityForce.C
 phaseIncompressibleMeanVelocityForce/phaseIncompressibleMeanVelocityForce.C
 
-
-
-LIB = $(FOAM_USER_LIBBIN)/libfvOptionPhaseMeanVelocityForce_denseAGFoam
+LIB = $(FOAM_USER_LIBBIN)/libfvOptionPhaseMeanVelocityForce

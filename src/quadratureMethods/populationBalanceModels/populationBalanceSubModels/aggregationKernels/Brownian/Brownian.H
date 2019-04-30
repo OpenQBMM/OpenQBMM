@@ -80,6 +80,9 @@ class Brownian
 {
     //- Private data
 
+        //- Continuous phase name
+        const word continuousPhase_;
+
         //- Thermo model
         const fluidThermo& flThermo_;
 

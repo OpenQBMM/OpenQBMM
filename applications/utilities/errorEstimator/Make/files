@@ -1,0 +1,3 @@
+errorEstimator.C
+
+LIB = $(FOAM_USER_LIBBIN)/liberrorEstimator

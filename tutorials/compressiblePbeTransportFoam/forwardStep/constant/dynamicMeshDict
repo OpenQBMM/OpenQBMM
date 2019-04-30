@@ -1,0 +1,135 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      dynamicMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dynamicFvMesh   dynamicRefineFvMesh;
+
+// How often to refine
+refineInterval  2;
+
+// Field to be refinement on
+field           error;
+
+// Refine field in between lower..upper
+lowerRefineLevel 0.05;
+upperRefineLevel 100.0;
+
+// If value < unrefineLevel unrefine
+unrefineLevel   0.05;
+
+// Have slower than 2:1 refinement
+nBufferLayers   1;
+
+// Refine cells only up to maxRefinement levels
+maxRefinement   1;
+
+// Stop refinement if maxCells reached
+maxCells        200000;
+
+// Flux field and corresponding velocity field. Fluxes on changed
+// faces get recalculated by interpolating the velocity. Use 'none'
+// on surfaceScalarFields that do not need to be reinterpolated.
+correctFluxes
+(
+    (massFlux none)
+    (momentumFlux none)
+    (energyFlux none)
+    (meshPhi none)
+    (phi none)
+
+    (own none)
+    (nei none)
+
+    (univariateMomentAdvection:own.populationBalance none)
+    (univariateMomentAdvection:nei.populationBalance none)
+
+    (m0OwnZeta.populationBalance none)
+    (m0NeiZeta.populationBalance none)
+
+    (zetaOwn.0.populationBalance none)
+    (zetaNei.0.populationBalance none)
+    (zetaCorrOwn.0.populationBalance none)
+    (zetaCorrNei.0.populationBalance none)
+    (zetaUpwindOwn.0.populationBalance none)
+    (zetaUpwindNei.0.populationBalance none)
+    (zetaLimiter.0.populationBalance none)
+    (momentOwnZeta.0.populationBalance none)
+    (momentNeiZeta.0.populationBalance none)
+
+    (zetaOwn.1.populationBalance none)
+    (zetaNei.1.populationBalance none)
+    (zetaCorrOwn.1.populationBalance none)
+    (zetaCorrNei.1.populationBalance none)
+    (zetaUpwindOwn.1.populationBalance none)
+    (zetaUpwindNei.1.populationBalance none)
+    (zetaLimiter.1.populationBalance none)
+    (momentOwnZeta.1.populationBalance none)
+    (momentNeiZeta.1.populationBalance none)
+
+    (zetaOwn.2.populationBalance none)
+    (zetaNei.2.populationBalance none)
+    (zetaCorrOwn.2.populationBalance none)
+    (zetaCorrNei.2.populationBalance none)
+    (zetaUpwindOwn.2.populationBalance none)
+    (zetaUpwindNei.2.populationBalance none)
+    (zetaLimiter.2.populationBalance none)
+    (momentOwnZeta.2.populationBalance none)
+    (momentNeiZeta.2.populationBalance none)
+
+    (zetaOwn.3.populationBalance none)
+    (zetaNei.3.populationBalance none)
+    (zetaCorrOwn.3.populationBalance none)
+    (zetaCorrNei.3.populationBalance none)
+    (zetaUpwindOwn.3.populationBalance none)
+    (zetaUpwindNei.3.populationBalance none)
+    (zetaLimiter.3.populationBalance none)
+    (momentOwnZeta.3.populationBalance none)
+    (momentNeiZeta.3.populationBalance none)
+
+    (momentOwnZeta.4.populationBalance none)
+    (momentNeiZeta.4.populationBalance none)
+
+    (weight.nodeRadau0Own.populationBalance none)
+    (weight.nodeRadau0Nei.populationBalance none)
+    (weight.nodeRadau1Nei.populationBalance none)
+    (weight.nodeRadau1Own.populationBalance none)
+    (weight.nodeRadau2Nei.populationBalance none)
+    (weight.nodeRadau2Own.populationBalance none)
+
+    (abscissa0.nodeRadau0Own.populationBalance none)
+    (abscissa0.nodeRadau0Nei.populationBalance none)
+    (abscissa0.nodeRadau1Own.populationBalance none)
+    (abscissa0.nodeRadau1Nei.populationBalance none)
+    (abscissa0.nodeRadau2Own.populationBalance none)
+    (abscissa0.nodeRadau2Nei.populationBalance none)
+
+    (momentOwn.0.populationBalance none)
+    (momentNei.0.populationBalance none)
+    (momentOwn.1.populationBalance none)
+    (momentNei.1.populationBalance none)
+    (momentOwn.2.populationBalance none)
+    (momentNei.2.populationBalance none)
+    (momentOwn.3.populationBalance none)
+    (momentNei.3.populationBalance none)
+    (momentOwn.4.populationBalance none)
+    (momentNei.4.populationBalance none)
+);
+
+// Write the refinement level as a volScalarField
+dumpLevel       true;
+
+
+// ************************************************************************* //

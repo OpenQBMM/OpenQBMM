@@ -75,22 +75,10 @@ class turbulentMixing
 
     // Private member functions
 
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
-        (
-            const volUnivariateMoment& moment
-        );
-
-        //- Convect moments in phase space
-        virtual tmp<volScalarField> phaseSpaceConvection
-        (
-            const volUnivariateMoment& moment
-        );
-
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
-            const volUnivariateMoment& moment
+            const volScalarMoment& moment
         );
 
         //- Calculate explicit source terms with realizable ODE solver

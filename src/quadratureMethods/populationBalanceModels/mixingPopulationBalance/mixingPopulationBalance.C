@@ -57,7 +57,6 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 :
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
-    name_(name),
     mixingModel_
     (
         new Foam::PDFTransportModels::mixingModels::turbulentMixing
@@ -81,7 +80,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     ),
     xi1_
     (
-        mixingModel_().quadrature().nodes()[0].primaryAbscissa()
+        mixingModel_().quadrature().nodes()[0].primaryAbscissae()[0]
     ),
     p2_
     (
@@ -89,7 +88,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     ),
     xi2_
     (
-        mixingModel_().quadrature().nodes()[1].primaryAbscissa()
+        mixingModel_().quadrature().nodes()[1].primaryAbscissae()[0]
     ),
     meanXi_
     (
@@ -160,6 +159,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     aggregation_(dict.lookup("aggregation")),
     breakup_(dict.lookup("breakup")),
     growth_(dict.lookup("growth")),
+    nucleation_(dict.lookup("nucleation")),
     aggregationKernel_
     (
         Foam::populationBalanceSubModels::aggregationKernel::New
@@ -174,13 +174,6 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         (
             dict.subDict("breakupKernel"),
             phi_.mesh()
-        )
-    ),
-    daughterDistribution_
-    (
-        Foam::populationBalanceSubModels::daughterDistribution::New
-        (
-            dict.subDict("daughterDistribution")
         )
     ),
     growthModel_
@@ -244,13 +237,13 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::calcEnvironmentMoments()
 {
-    const volUnivariateMomentFieldSet& mXi
+    const volScalarMomentFieldSet& mXi
     (
         mixingModel_().quadrature().moments()
     );
 
-    const volUnivariateMoment& xiMean_ = mXi[1];
-    const volUnivariateMoment& xiMTwo_ = mXi[2];
+    const volScalarMoment& xiMean_ = mXi[1];
+    const volScalarMoment& xiMTwo_ = mXi[2];
 
     // Compute variance of the mixture fraction
     const volScalarField xiVariance(xiMTwo_ - sqr(xiMean_));
@@ -321,250 +314,9 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     {
         meanMoments_[mi] == p1_*mEnvOne_[mi] + p2_*mEnvTwo_[mi];
 
-        meanMomentsVariance_[mi]
-            == p1_*xi1_*mEnvOne_[mi] + p2_*xi2_*mEnvTwo_[mi];
+        meanMomentsVariance_[mi] ==
+            p1_*xi1_*mEnvOne_[mi] + p2_*xi2_*mEnvTwo_[mi];
     }
-}
-
-
-Foam::scalar
-Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
-::aggregationSource
-(
-    const label momentOrder,
-    const label celli,
-    const mappedPtrList<volScalarNode>& nodes,
-    const label environment
-)
-{
-    scalar aSource = 0.0;
-
-    if (!aggregation_)
-    {
-        return aSource;
-    }
-
-    if (!nodes[0].extended())   // Non-extended quadrature case
-    {
-        forAll(nodes, pNode1i)
-        {
-            const volScalarNode& node1 = nodes[pNode1i];
-            const volScalarField& pWeight1 = node1.primaryWeight();
-            const volScalarField& pAbscissa1 = node1.primaryAbscissa();
-
-            forAll(nodes, pNode2i)
-            {
-                const volScalarNode& node2 = nodes[pNode2i];
-                const volScalarField& pWeight2 = node2.primaryWeight();
-                const volScalarField& pAbscissa2 = node2.primaryAbscissa();
-
-                aSource +=
-                    pWeight1[celli]*
-                    (
-                        pWeight2[celli]*
-                        (
-                            0.5*pow // Birth
-                            (
-                                pow3(pAbscissa1[celli])
-                              + pow3(pAbscissa2[celli]),
-                                momentOrder/3.0
-                            )
-                            - pow(pAbscissa1[celli], momentOrder)
-                        )*aggregationKernel_->Ka
-                            (
-                                pAbscissa1[celli],
-                                pAbscissa2[celli],
-                                celli,
-                                environment
-                            )
-                    );
-            }
-        }
-
-        return aSource;
-    }
-
-    forAll(nodes, pNode1i)      // Extended quadrature case
-    {
-        const volScalarNode& node1 = nodes[pNode1i];
-        const volScalarField& pWeight1 = node1.primaryWeight();
-
-        forAll(node1.secondaryWeights(), sNode1i)
-        {
-            const volScalarField& sWeight1 = node1.secondaryWeights()[sNode1i];
-
-            const volScalarField& sAbscissa1
-                = node1.secondaryAbscissae()[sNode1i];
-
-            forAll(nodes, pNode2i)
-            {
-                const volScalarNode& node2 = nodes[pNode2i];
-                const volScalarField& pWeight2 = node2.primaryWeight();
-
-                forAll(node2.secondaryWeights(), sNode2i)
-                {
-                    const volScalarField& sWeight2
-                        = node2.secondaryWeights()[sNode2i];
-
-                    const volScalarField& sAbscissa2
-                        = node2.secondaryAbscissae()[sNode2i];
-
-                    aSource +=
-                        pWeight1[celli]*sWeight1[celli]*
-                        (
-                            pWeight2[celli]*sWeight2[celli]*
-                            (
-                                0.5*pow // Birth
-                                (
-                                    pow3(sAbscissa1[celli])
-                                  + pow3(sAbscissa2[celli]),
-                                    momentOrder/3.0
-                                )
-                              - pow(sAbscissa1[celli], momentOrder)
-                            )*aggregationKernel_->Ka
-                                (
-                                    sAbscissa1[celli],
-                                    sAbscissa2[celli],
-                                    celli,
-                                    environment
-                                )
-                        );
-                }
-            }
-        }
-    }
-
-    return aSource;
-}
-
-
-Foam::scalar
-Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
-::breakupSource
-(
-    const label momentOrder,
-    const label celli,
-    const mappedPtrList<volScalarNode>& nodes,
-    const label environment
-)
-{
-    scalar bSource = 0.0;
-
-    if (!breakup_)
-    {
-        return bSource;
-    }
-
-    if (!nodes[0].extended())
-    {
-        forAll(nodes, pNodeI)
-        {
-            const volScalarNode& node = nodes[pNodeI];
-
-            bSource += node.primaryWeight()[celli]
-                    *breakupKernel_->Kb(node.primaryAbscissa()[celli], celli)
-                    *(
-                        daughterDistribution_->mD                      //Birth
-                        (
-                            momentOrder,
-                            node.primaryAbscissa()[celli]
-                        )
-                    - pow(node.primaryAbscissa()[celli], momentOrder)   //Death
-                    );
-        }
-
-        return bSource;
-    }
-
-    forAll(nodes, pNodeI)
-    {
-        const volScalarNode& node = nodes[pNodeI];
-
-        forAll(node.secondaryWeights(), sNodei)
-        {
-            bSource += node.primaryWeight()[celli]
-                *node.secondaryWeights()[sNodei][celli]
-                *breakupKernel_->Kb
-                    (
-                        node.secondaryAbscissae()[sNodei][celli], celli
-                    )
-                *(
-                    daughterDistribution_->mD                      //Birth
-                    (
-                        momentOrder,
-                        node.secondaryAbscissae()[sNodei][celli]
-                    )                                               //Death
-                  - pow(node.secondaryAbscissae()[sNodei][celli], momentOrder)
-                 );
-        }
-    }
-
-    return bSource;
-}
-
-
-Foam::tmp<fvScalarMatrix> Foam::PDFTransportModels::populationBalanceModels
-::mixingPopulationBalance::momentDiffusion
-(
-    const volUnivariateMoment& moment
-)
-{
-    return diffusionModel_->momentDiff(moment);
-}
-
-
-Foam::scalar
-Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
-::phaseSpaceConvection
-(
-    const label momentOrder,
-    const label celli,
-    const mappedPtrList<volScalarNode>& nodes,
-    const label environment
-)
-{
-    scalar gSource = 0.0;
-
-    if (!growth_ || momentOrder < 1)
-    {
-        return gSource;
-    }
-
-    if (!nodes[0].extended())
-    {
-        forAll(nodes, pNodeI)
-        {
-            const volScalarNode& node = nodes[pNodeI];
-
-            gSource += node.primaryWeight()[celli]
-                    *growthModel_->Kg(node.primaryAbscissa()[celli])
-                    *momentOrder*pow
-                        (
-                            node.primaryAbscissa()[celli], momentOrder - 1
-                        );
-        }
-
-        return gSource;
-    }
-
-    forAll(nodes, pNodeI)
-    {
-        const volScalarNode& node = nodes[pNodeI];
-
-        forAll(node.secondaryWeights(), sNodei)
-        {
-            gSource += node.primaryWeight()[celli]
-                *node.secondaryWeights()[sNodei][celli]
-                *growthModel_->Kg(node.secondaryAbscissae()[sNodei][celli])
-                *momentOrder*pow
-                    (
-                        node.secondaryAbscissae()[sNodei][celli],
-                        momentOrder - 1
-                    );
-        }
-    }
-
-    return gSource;
 }
 
 
@@ -578,18 +330,51 @@ Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::cellMomentSource
 (
-    const label momentOrder,
+    const labelList& momentOrder,
     const label celli,
-    const mappedPtrList<volScalarNode>& nodes,
+    const scalarQuadratureApproximation& quadrature,
     const label environment
 )
 {
-    return aggregationSource(momentOrder, celli, nodes, environment)
-         + breakupSource(momentOrder, celli, nodes, environment)
-         + nucleationModel_->nucleationSource(momentOrder, celli)
-         + phaseSpaceConvection(momentOrder, celli, nodes, environment);
-}
+    scalar source = 0.0;
+    if (aggregation_)
+    {
+        source +=
+            aggregationKernel_->aggregationSource
+            (
+                momentOrder,
+                celli,
+                quadrature,
+                environment
+            );
+    }
+    if (breakup_)
+    {
+        source +=
+            breakupKernel_->breakupSource
+            (
+                momentOrder,
+                celli,
+                quadrature
+            );
+    }
+    if (growth_)
+    {
+        source +=
+            growthModel_->phaseSpaceConvection
+            (
+                momentOrder,
+                celli,
+                quadrature
+            );
+    }
+    if (nucleation_)
+    {
+        source += nucleationModel_->nucleationSource(momentOrder[0], celli);
+    }
 
+    return source;
+}
 
 Foam::scalar
 Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
@@ -641,7 +426,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Solve moment transport equations
     forAll(meanMomentsQuadrature_.moments(), momenti)
     {
-        volUnivariateMoment& meanM
+        volScalarMoment& meanM
         (
             meanMomentsQuadrature_.moments()[momenti]
         );
@@ -653,11 +438,11 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             (
                 fvm::ddt(meanM)
               + meanMomentsAdvection_().divMoments()[momenti]
-              - momentDiffusion(meanM)
+              - diffusionModel_->momentDiff(meanM)
             )
         );
 
-        volUnivariateMoment& varM
+        volScalarMoment& varM
         (
             meanMomentsVarianceQuadrature_.moments()[momenti]
         );
@@ -669,7 +454,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             (
                 fvm::ddt(varM)
               + meanMomentsVarianceAdvection_().divMoments()[momenti]
-              - momentDiffusion(varM)
+              - diffusionModel_->momentDiff(varM)
               ==
                 envMixingModel_->K
                     (
@@ -694,12 +479,12 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Finish solving for moments
     forAll (meanMomentEqns, mEqni)
     {
-        const volUnivariateMoment& meanM
+        const volScalarMoment& meanM
         (
             meanMomentsQuadrature_.moments()[mEqni]
         );
 
-        const volUnivariateMoment& varM
+        const volScalarMoment& varM
         (
             meanMomentsVarianceQuadrature_.moments()[mEqni]
         );
@@ -718,5 +503,20 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     meanMomentsVarianceQuadrature_.updateQuadrature();
 }
 
+
+bool Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
+::readIfModified()
+{
+    if (populationBalanceProperties_.modified())
+    {
+        odeType::read
+        (
+            populationBalanceProperties_.subDict(type() + "Coeffs")
+        );
+        return true;
+    }
+
+    return false;
+}
 
 // ************************************************************************* //

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2014 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -92,13 +92,13 @@ Foam::fv::phaseIncompressibleMeanVelocityForce::phaseIncompressibleMeanVelocityF
     ),
     Ubar_(coeffs_.lookup("Ubar")),
     magUbar_(mag(Ubar_)),
-    flowDir_(Ubar_/magUbar_),
+    flowDir_(Ubar_/max(magUbar_, small)),
     relaxation_(coeffs_.lookupOrDefault<scalar>("relaxation", 1.0)),
     gradP0_(0.0),
     dGradP_(0.0),
     rAPtr_(NULL)
 {
-    coeffs_.lookup("fieldNames") >> fieldNames_;
+    coeffs_.lookup("fields") >> fieldNames_;
 
     if (fieldNames_.size() != 1)
     {

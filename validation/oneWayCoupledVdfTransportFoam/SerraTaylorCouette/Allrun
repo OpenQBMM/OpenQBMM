@@ -1,0 +1,27 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+mkdir 0 2>&1
+cp 0.orig/* 0/ 2>&1
+
+cp -f system/controlDict.flow system/controlDict
+cp -f system/fvSchemes.flow system/fvSchemes
+runApplication blockMesh
+runApplication buoyantSimpleFoam
+
+mv 50000 50000.flow
+cp -f 50000.flow/* 0/ 2>&1
+cp -f system/controlDict.populationBalance system/controlDict
+cp -f system/fvSchemes.populationBalance system/fvSchemes
+
+runApplication decomposePar -time 0
+runParallel pbeTransportFoam
+
+runApplication reconstructPar -latestTime
+
+( cd validation && ./createGraphs )
+
+# ----------------------------------------------------------------- end-of-file

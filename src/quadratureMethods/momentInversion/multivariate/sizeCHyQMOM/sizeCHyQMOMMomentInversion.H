@@ -1,0 +1,138 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is derivative work of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Class
+    Foam::multivariateMomentInversions::sizeCHyQMOM
+
+Description
+    Implementation of the hyperbolic conditional quadrature method of moment
+    for velocity with conditioning on size.
+
+SourceFiles
+    sizeCHyQMOMMomentInversion.C
+
+\*---------------------------------------------------------------------------*/
+
+#ifndef sizeCHyQMOMMomentInversion_H
+#define sizeCHyQMOMMomentInversion_H
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "scalar.H"
+#include "vector2D.H"
+#include "vector.H"
+#include "scalarMatrices.H"
+#include "dictionary.H"
+#include "mappedLists.H"
+#include "Vandermonde.H"
+#include "multivariateMomentInversion.H"
+#include "hyperbolicConditionalMomentInversion.H"
+
+
+namespace Foam
+{
+namespace multivariateMomentInversions
+{
+
+/*---------------------------------------------------------------------------*\
+                        Class sizeCHyQMOM Declaration
+\*---------------------------------------------------------------------------*/
+class sizeCHyQMOM
+:
+    public multivariateMomentInversion
+{
+    // Private member data
+
+        //- Number of pure size moments
+        const label nSizeMoments_;
+
+        //- Moment orders of conditional velocity distribution
+        const labelListList velocityMomentOrders_;
+
+        //-Number of nodes in size direction
+        const label nSizeNodes_;
+
+        //- Node indexes of conditional velocity distribution
+        const labelListList velocityNodeIndexes_;
+
+        //- Univariate moment inversion method
+        autoPtr<univariateMomentInversion> sizeInverter_;
+
+        //- Velocity moment inversion method
+        autoPtr<multivariateMomentInversions::CHyQMOM> velocityInverter_;
+
+
+    // Private member functions
+
+        //- Calculate the number of pure size moments
+        label calcNSizeMoments(const labelListList& momentOrders);
+
+        //- Disallow default bitwise copy construct
+        //sizeCHyQMOM(const sizeCHyQMOM&);
+
+        //- Disallow default bitwise assignment
+        //void operator=(const sizeCHyQMOM&);
+
+
+public:
+
+    //- Runtime type information
+    TypeName("sizeCHyQMOM");
+
+
+    // Constructors
+
+        // Construct from nMoments, momentMap, nNodes, and support type
+        sizeCHyQMOM
+        (
+            const dictionary& dict,
+            const labelListList& momentOrders,
+            const labelListList& nodeIndexes,
+            const labelList& velocityIndexes
+        );
+
+
+    //- Destructor
+    virtual ~sizeCHyQMOM();
+
+
+    // Member Functions
+
+        //- Invert moments to find weights and  abscissae
+        virtual void invert(const multivariateMomentSet& moments);
+};
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace multivariateMomentInversions
+} // End namespace Foam
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+
+// ************************************************************************* //

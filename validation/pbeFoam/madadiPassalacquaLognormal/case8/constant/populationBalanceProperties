@@ -25,7 +25,6 @@ univariateCoeffs
     }
 
     aggregation on;
-
     aggregationKernel
     {
         aggregationKernel differentialForce;
@@ -34,21 +33,19 @@ univariateCoeffs
     }
 
     breakup on;
-
     breakupKernel
     {
         breakupKernel powerLaw;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.01;
         abscissaExponent 6;
-    }
 
-    daughterDistribution
-    {
-        daughterDistribution uniform;
+        daughterDistribution
+        {
+            daughterDistribution uniform;
+        }
     }
 
     growth off;
-
     growthModel
     {
         growthModel	constant;
@@ -58,6 +55,7 @@ univariateCoeffs
         Cg        Cg        [0 3 -1 0 0 0 0 ] 1.0;
     }
 
+    nucleation off;
     nucleationModel
     {
         nucleationModel  none;

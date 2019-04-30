@@ -103,10 +103,10 @@ public:
     // Member Operators
 
         //- Return the complete Vandermonde matrix
-        scalarSquareMatrix operator()();
+        inline scalarSquareMatrix operator()();
 
         //- Return a given component of the Vandermonde matrix
-        scalar operator()(label i, label j);
+        inline scalar operator()(label i, label j);
 };
 
 

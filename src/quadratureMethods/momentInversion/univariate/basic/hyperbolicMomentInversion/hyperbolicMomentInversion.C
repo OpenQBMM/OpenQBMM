@@ -107,7 +107,13 @@ void Foam::hyperbolicMomentInversion::invert
 {
     if (moments[0] < SMALL)
     {
+        weights_[0] = 0.0;
         weights_[1] = moments[0];
+        weights_[2] = 0.0;
+
+        abscissae_[0] = 0.0;
+        abscissae_[1] = 0.0;
+        abscissae_[2] = 0.0;
 
         return;
     }
@@ -146,7 +152,7 @@ void Foam::hyperbolicMomentInversion::invert
     // Manage unrealizable cases
     if (centralMoments[2] < 0.0)
     {
-        if (centralMoments[2] < -1e-10)
+        if (centralMoments[2] < -1e-10 && debug)
         {
             WarningInFunction
                 << "Second-order central moment is negative. C2 = "
@@ -192,7 +198,7 @@ void Foam::hyperbolicMomentInversion::invert
             centralMoments[3] = q*c2*sqrtC2;
             centralMoments[4] = eta*sqrC2;
 
-            if (realizability < smallNegRealizability_)
+            if (realizability < smallNegRealizability_ && debug)
             {
                 WarningInFunction
                     << "Fourth-order central moment is too small."

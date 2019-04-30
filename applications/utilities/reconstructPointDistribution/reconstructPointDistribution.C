@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
         word phaseName = phases[phasei];
         const dictionary& phaseDict(distDict.subDict(phaseName));
         const dictionary& probesDict(phaseDict.subDict("probes"));
+        Switch useMean(phaseDict.lookup("useMean"));
 
         Info<< "Reading quadratureProperties." << phaseName << endl;
 
@@ -150,20 +151,29 @@ int main(int argc, char *argv[])
         forAll(momentOrders, mi)
         {
             const labelList& momentOrder = momentOrders[mi];
+            word momentName
+            (
+                IOobject::groupName
+                (
+                    IOobject::groupName
+                    (
+                        "moment",
+                        mappedPtrList<scalar>::listToWord(momentOrder)
+                    ),
+                    phaseName
+                )
+            );
+            if (useMean)
+            {
+                momentName += "Mean";
+            }
+            Info<<"Reading " << momentName << endl;
 
             volScalarField momenti
             (
                 IOobject
                 (
-                    IOobject::groupName
-                    (
-                        IOobject::groupName
-                        (
-                            "moment",
-                            mappedPtrList<scalar>::listToWord(momentOrder)
-                        ),
-                        phaseName
-                    ),
+                    momentName,
                     runTime.timeName(),
                     mesh,
                     IOobject::MUST_READ,
@@ -231,7 +241,7 @@ int main(int argc, char *argv[])
                 x[i] = xMin + dx*i;
             }
 
-            scalarField w(EQMOM->f(x)/moments[labelList(1, 0)[0]]);
+            scalarField w(EQMOM->f(x)/moments(0));
 
             forAll(w, i)
             {

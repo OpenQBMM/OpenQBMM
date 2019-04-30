@@ -153,6 +153,10 @@ public:
             //- Recalculate the moments from the quadrature nodes
             void update();
 
+            //- Recalculate the moments from the quadrature nodes
+            //  on boundaries
+            void updateBoundaries();
+
             //- Recalculate the moments from the quadrature nodes in an element
             void updateLocalMoments(label elemi);
 };

@@ -35,21 +35,30 @@ Foam::realizableOdeSolver<momentType, nodeType>::realizableOdeSolver
 )
 :
     mesh_(mesh),
-    odeDict_(dict.subDict("odeCoeffs")),
-    ATol_(readScalar(odeDict_.lookup("ATol"))),
-    RTol_(readScalar(odeDict_.lookup("RTol"))),
-    fac_(readScalar(odeDict_.lookup("fac"))),
-    facMin_(readScalar(odeDict_.lookup("facMin"))),
-    facMax_(readScalar(odeDict_.lookup("facMax"))),
-    minLocalDt_(readScalar(odeDict_.lookup("minLocalDt"))),
-    localDt_(mesh.nCells(), mesh.time().deltaTValue()/10.0),
+    ATol_(readScalar(dict.subDict("odeCoeffs").lookup("ATol"))),
+    RTol_(readScalar(dict.subDict("odeCoeffs").lookup("RTol"))),
+    fac_(readScalar(dict.subDict("odeCoeffs").lookup("fac"))),
+    facMin_(readScalar(dict.subDict("odeCoeffs").lookup("facMin"))),
+    facMax_(readScalar(dict.subDict("odeCoeffs").lookup("facMax"))),
+    minLocalDt_(readScalar(dict.subDict("odeCoeffs").lookup("minLocalDt"))),
+    localDt_
+    (
+        IOobject
+        (
+            "realizableOde:localDt",
+            mesh.time().timeName(),
+            mesh
+        ),
+        mesh,
+        mesh.time().deltaT()
+    ),
     solveSources_
     (
-        odeDict_.lookupOrDefault("solveSources", true)
+        dict.subDict("odeCoeffs").lookupOrDefault("solveSources", true)
     ),
     solveOde_
     (
-        odeDict_.lookupOrDefault("solveOde", true)
+        dict.subDict("odeCoeffs").lookupOrDefault("solveOde", true)
     )
 {}
 
@@ -74,10 +83,11 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
     }
 
     momentFieldSetType& moments(quadrature.moments());
-    const mappedPtrList<nodeType>& nodes(quadrature.nodes());
     label nMoments = quadrature.nMoments();
     scalar globalDt = mesh_.time().deltaT().value();
+    const labelListList& momentOrders = quadrature.momentOrders();
 
+    //- Use Euler explicit to update moments due to sources
     if (!solveOde_)
     {
         forAll(moments[0], celli)
@@ -85,24 +95,39 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             updateCellMomentSource(celli);
             forAll(moments, mi)
             {
+                const labelList& order = momentOrders[mi];
                 moments[mi][celli] +=
-                    globalDt*cellMomentSource(mi, celli, nodes, enviroment);
+                    globalDt
+                   *cellMomentSource
+                    (
+                        order,
+                        celli,
+                        quadrature,
+                        enviroment
+                    );
             }
 
             quadrature.updateLocalQuadrature(celli, true);
             quadrature.updateLocalMoments(celli);
         }
+
+        forAll(moments, mi)
+        {
+            moments[mi].correctBoundaryConditions();
+        }
+        quadrature.updateBoundaryQuadrature();
+
         return;
     }
 
     Info << "Solving source terms in realizable ODE solver." << endl;
-
     forAll(moments[0], celli)
     {
         // Storing old moments to recover from failed step
+        quadrature.updateLocalQuadrature(celli);
+        quadrature.updateLocalMoments(celli);
 
         scalarList oldMoments(nMoments, 0.0);
-
         forAll(oldMoments, mi)
         {
             oldMoments[mi] = moments[mi][celli];
@@ -127,35 +152,61 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         bool realizableUpdate2 = false;
         bool realizableUpdate3 = false;
 
-        scalarList momentsSecondStep(nMoments, 0.0);
+        scalarList diff23(nMoments, 0.0);
+        label nItt = 0;
 
         while (!timeComplete)
         {
             do
             {
+                nItt++;
+
                 // First intermediate update
+                bool nullSource =  true;
                 updateCellMomentSource(celli);
-                forAll(oldMoments, mi)
+                forAll(k1, mi)
                 {
+                    const labelList& order = momentOrders[mi];
                     k1[mi] =
-                        localDt*cellMomentSource(mi, celli, nodes, enviroment);
+                        localDt*cellMomentSource
+                        (
+                            order,
+                            celli,
+                            quadrature,
+                            enviroment
+                        );
                     moments[mi][celli] = oldMoments[mi] + k1[mi];
+
+                    if (mag(k1[mi]) > small)
+                    {
+                        nullSource = false;
+                    }
                 }
 
                 realizableUpdate1 =
                         quadrature.updateLocalQuadrature(celli, false);
 
-                quadrature.updateLocalMoments(celli);
+               quadrature.updateLocalMoments(celli);
+
+               if (nullSource)
+               {
+                   break;
+               }
 
                 // Second moment update
                 updateCellMomentSource(celli);
-                forAll(oldMoments, mi)
+                forAll(k2, mi)
                 {
+                    const labelList& order = momentOrders[mi];
                     k2[mi] =
-                        localDt*cellMomentSource(mi, celli, nodes, enviroment);
+                        localDt*cellMomentSource
+                        (
+                            order,
+                            celli,
+                            quadrature,
+                            enviroment
+                        );
                     moments[mi][celli] = oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
-
-                    momentsSecondStep[mi] = moments[mi][celli];
                 }
 
                 realizableUpdate2 =
@@ -165,12 +216,21 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                 // Third moment update
                 updateCellMomentSource(celli);
-                forAll(oldMoments, mi)
+                forAll(k3, mi)
                 {
+                    const labelList& order = momentOrders[mi];
                     k3[mi] =
-                        localDt*cellMomentSource(mi, celli, nodes, enviroment);
+                        localDt*cellMomentSource
+                        (
+                            order,
+                            celli,
+                            quadrature,
+                            enviroment
+                        );
                     moments[mi][celli] =
                         oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
+
+                    diff23[mi] = (8.0*k3[mi] - k1[mi] - k2[mi])/12.0;
                 }
 
                 realizableUpdate3 =
@@ -220,21 +280,23 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             {
                 scalar scalei =
                         ATol_
-                    + max
+                      + max
                         (
-                            mag(momentsSecondStep[mi]), mag(oldMoments[mi])
+                            mag(moments[mi][celli]), mag(oldMoments[mi])
                         )*RTol_;
 
-                error +=
-                        sqr
-                        (
-                            (momentsSecondStep[mi] - moments[mi][celli])/scalei
-                        );
+                error += sqr(diff23[mi]/scalei);
             }
 
             error = sqrt(error/nMoments);
 
-            if (error < 1)
+            if (error < small)
+            {
+                timeComplete = true;
+                localT = 0.0;
+                break;
+            }
+            else if (error < 1)
             {
                 localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
 
@@ -270,21 +332,27 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             }
         }
     }
+    forAll(moments, mi)
+    {
+        moments[mi].correctBoundaryConditions();
+    }
+    quadrature.updateBoundaryQuadrature();
 }
 
 
 template<class momentType, class nodeType>
-void Foam::realizableOdeSolver<momentType, nodeType>::read()
+void Foam::realizableOdeSolver<momentType, nodeType>::read(const dictionary& dict)
 {
-    odeDict_.lookupOrDefault("solveSources", true) >> solveSources_;
-    odeDict_.lookupOrDefault("solveOde", true) >> solveOde_;
+    const dictionary& odeDict = dict.subDict("odeCoeffs");
+    solveSources_ = odeDict.lookupOrDefault<Switch>("solveSources", true);
+    solveOde_ = odeDict.lookupOrDefault<Switch>("solveOde", true);
 
-    (odeDict_.lookup("ATol")) >> ATol_;
-    (odeDict_.lookup("RTol")) >> RTol_;
-    (odeDict_.lookup("fac")) >> fac_;
-    (odeDict_.lookup("facMin")) >> facMin_;
-    (odeDict_.lookup("facMax")) >> facMax_;
-    (odeDict_.lookup("minLocalDt")) >> minLocalDt_;
+    (odeDict.lookup("ATol")) >> ATol_;
+    (odeDict.lookup("RTol")) >> RTol_;
+    (odeDict.lookup("fac")) >> fac_;
+    (odeDict.lookup("facMin")) >> facMin_;
+    (odeDict.lookup("facMax")) >> facMax_;
+    (odeDict.lookup("minLocalDt")) >> minLocalDt_;
 }
 
 

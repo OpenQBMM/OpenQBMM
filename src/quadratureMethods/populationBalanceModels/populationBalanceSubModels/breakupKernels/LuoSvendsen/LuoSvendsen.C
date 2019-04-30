@@ -57,16 +57,27 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen
 )
 :
     breakupKernel(dict, mesh),
+    continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
     Cb_(dict.lookup("Cb")),
     epsilonExp_(readScalar(dict.lookup("epsilonExp"))),
     nuExp_(readScalar(dict.lookup("nuExp"))),
     sizeExp_(readScalar(dict.lookup("sizeExp"))),
-    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
+    flThermo_
+    (
+        mesh_.lookupObject<fluidThermo>
+        (
+            IOobject::groupName(basicThermo::dictName, continuousPhase_)
+        )
+    ),
     flTurb_
     (
-        mesh_.lookupObject<compressible::turbulenceModel>
+        mesh_.lookupObject<turbulenceModel>
         (
-            turbulenceModel::propertiesName
+            IOobject::groupName
+            (
+                turbulenceModel::propertiesName,
+                continuousPhase_
+            )
         )
     ),
     epsilon_(flTurb_.epsilon()),

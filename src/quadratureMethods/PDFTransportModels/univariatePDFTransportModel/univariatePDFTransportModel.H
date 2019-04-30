@@ -55,34 +55,23 @@ class univariatePDFTransportModel
 :
     public PDFTransportModel
 {
-    // Private data
-
-        //- Name of the univariatePDFTransportModel
-        const word name_;
-
-
 protected:
 
     // Protected data
 
         //- Univariate quadrature approximation used to solve PDF transport
-        univariateQuadratureApproximation quadrature_;
+        scalarQuadratureApproximation quadrature_;
 
         //- Moment advection
         autoPtr<univariateMomentAdvection> momentAdvection_;
 
     // Protected member functions
 
-        //- Diffusion term
-        virtual tmp<fvScalarMatrix> momentDiffusion
-        (
-            const volUnivariateMoment& moment
-        ) = 0;
 
         //- Calculate implicit source terms
         virtual tmp<fvScalarMatrix> implicitMomentSource
         (
-            const volUnivariateMoment& moment
+            const volScalarMoment& moment
         ) = 0;
 
         //- Calculate explicit source terms with realizable ODE solver
@@ -119,7 +108,7 @@ public:
         //- Access
 
             //- Returns a const reference to the quadrature approximation
-            inline const univariateQuadratureApproximation& quadrature() const;
+            inline const scalarQuadratureApproximation& quadrature() const;
 
             //- Return the maximum Courant number ensuring moment realizability
             inline scalar realizableCo() const;

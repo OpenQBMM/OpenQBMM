@@ -1,0 +1,11 @@
+ButcherTable/ButcherTable.C
+ButcherTable/newButcherTable.C
+Euler/Euler.C
+RK2/RK2.C
+RK2SSP/RK2SSP.C
+RK3SSP/RK3SSP.C
+RK45/RK45.C
+RKF45/RKF45.C
+RK4SSP/RK4SSP.C
+
+LIB = $(FOAM_USER_LIBBIN)/libButcherTable

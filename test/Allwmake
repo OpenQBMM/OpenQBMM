@@ -5,13 +5,18 @@ cd ${0%/*} || exit 1    # Run from this directory
 . $WM_PROJECT_DIR/wmake/scripts/AllwmakeParseArguments
 
 # wmake conditionalMomentInversion
-wmake eigenSolver
-wmake extendedMomentInversion
-wmake populationBalanceModel
-wmake univariateMomentInversion
-wmake univariateQuadratureApproximation
-wmake Vandermonde
-wmake univariateMomentAdvection/setMoments1D
-wmake univariateMomentAdvection/setMoments2D
+wmake libso eigenSolver
+wmake libso populationBalanceModel
+wmake libso univariateQuadratureApproximation
+wmake libso Vandermonde
+wmake libso univariateMomentAdvection/setMoments1D
+wmake libso univariateMomentAdvection/setMoments2D
+
+wmake -all momentInversions/univariate
+wmake libso momentInversions/multivariate/monoKineticMomentInversion
+wmake libso momentInversions/multivariate/CHyQMOMMomentInversion
+wmake libso momentInversions/multivariate/sizeCHyQMOMMomentInversion
+wmake libso momentInversions/multivariate/TensorProductMomentInversion
+# conditional moment inversion needs to be updated for new structure
 
 #------------------------------------------------------------------------------

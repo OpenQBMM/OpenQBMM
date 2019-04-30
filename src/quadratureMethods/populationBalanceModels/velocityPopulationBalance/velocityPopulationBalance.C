@@ -58,7 +58,6 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     velocityPDFTransportModel(name, dict, phi.mesh(), "R"),
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
-    name_(name),
     collision_(dict.lookup("collision")),
     collisionKernel_
     (
@@ -66,8 +65,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
         (
             dict.subDict("collisionKernel"),
             phi_.mesh(),
-            quadrature_,
-            dict.subDict("odeCoeffs").lookupOrDefault("solveODESource", false)
+            quadrature_
         )
     )
 {}
@@ -98,7 +96,7 @@ Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::implicitMomentSource
 (
-    const volVectorMoment& moment
+    const volVelocityMoment& moment
 )
 {
     if (!collision_)
@@ -119,7 +117,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::explicitMomentSource()
 {
-    if (!collision_)
+    if (!collision_ || collisionKernel_->implicit())
     {
         return;
     }
@@ -142,13 +140,13 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 Foam::scalar Foam::PDFTransportModels::populationBalanceModels
 ::velocityPopulationBalance::cellMomentSource
 (
-    const label momenti,
+    const labelList& momentOrder,
     const label celli,
-    const mappedPtrList<volVectorNode>&,
+    const velocityQuadratureApproximation&,
     const label
 )
 {
-    return collisionKernel_->explicitCollisionSource(momenti, celli);
+    return collisionKernel_->explicitCollisionSource(momentOrder, celli);
 }
 
 
@@ -185,7 +183,23 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels
 ::velocityPopulationBalance::solve()
 {
+    collisionKernel_->preUpdate();
     velocityPDFTransportModel::solve();
+}
+
+
+bool Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
+::readIfModified()
+{
+    if (populationBalanceProperties_.readIfModified())
+    {
+        odeType::read
+        (
+            populationBalanceProperties_.subDict(type() + "Coeffs")
+        );
+        return true;
+    }
+    return false;
 }
 
 

@@ -33,6 +33,7 @@ Foam::autoPtr<Foam::fieldMomentInversion> Foam::fieldMomentInversion::New
     const fvMesh& mesh,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
+    const labelList& velocityIndexes,
     const label nSecondaryNodes
 )
 {
@@ -57,7 +58,15 @@ Foam::autoPtr<Foam::fieldMomentInversion> Foam::fieldMomentInversion::New
             << exit(FatalError);
     }
 
-    return cstrIter()(dict, mesh, momentOrders, nodeIndexes, nSecondaryNodes);
+    return cstrIter()
+    (
+        dict,
+        mesh,
+        momentOrders,
+        nodeIndexes,
+        velocityIndexes,
+        nSecondaryNodes
+    );
 }
 
 

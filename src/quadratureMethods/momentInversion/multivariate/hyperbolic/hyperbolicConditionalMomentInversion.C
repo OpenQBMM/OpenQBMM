@@ -25,12 +25,27 @@ License
 
 #include "hyperbolicConditionalMomentInversion.H"
 #include "mappedLists.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
+namespace Foam
+{
+namespace multivariateMomentInversions
+{
+    defineTypeNameAndDebug(CHyQMOM, 0);
+    addToRunTimeSelectionTable
+    (
+        multivariateMomentInversion,
+        CHyQMOM,
+        dictionary
+    );
+}
+}
+
+
 const Foam::labelListList
-Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
-::twoDimMomentOrders =
+Foam::multivariateMomentInversions::CHyQMOM::CHyQMOM::twoDimMomentOrders =
 {
     {0, 0},
     {1, 0},
@@ -45,8 +60,7 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 };
 
 const Foam::labelListList
-Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
-::threeDimMomentOrders =
+Foam::multivariateMomentInversions::CHyQMOM::CHyQMOM::threeDimMomentOrders =
 {
     {0, 0, 0},
     {1, 0, 0},
@@ -68,58 +82,56 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 
 
 const Foam::labelListList
-Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
-::twoDimNodeIndexes =
+Foam::multivariateMomentInversions::CHyQMOM::CHyQMOM::twoDimNodeIndexes =
 {
+    {0, 0},
+    {0, 1},
+    {0, 2},
+    {1, 0},
     {1, 1},
     {1, 2},
-    {1, 3},
+    {2, 0},
     {2, 1},
-    {2, 2},
-    {2, 3},
-    {3, 1},
-    {3, 2},
-    {3, 3}
+    {2, 2}
 };
 
 const Foam::labelListList
-Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
-::threeDimNodeIndexes =
+Foam::multivariateMomentInversions::CHyQMOM::CHyQMOM::threeDimNodeIndexes =
 {
+    {0, 0, 0},
+    {0, 0, 1},
+    {0, 0, 2},
+    {0, 1, 0},
+    {0, 1, 1},
+    {0, 1, 2},
+    {0, 2, 0},
+    {0, 2, 1},
+    {0, 2, 2},
+    {1, 0, 0},
+    {1, 0, 1},
+    {1, 0, 2},
+    {1, 1, 0},
     {1, 1, 1},
     {1, 1, 2},
-    {1, 1, 3},
+    {1, 2, 0},
     {1, 2, 1},
     {1, 2, 2},
-    {1, 2, 3},
-    {1, 3, 1},
-    {1, 3, 2},
-    {1, 3, 3},
+    {2, 0, 0},
+    {2, 0, 1},
+    {2, 0, 2},
+    {2, 1, 0},
     {2, 1, 1},
     {2, 1, 2},
-    {2, 1, 3},
+    {2, 2, 0},
     {2, 2, 1},
-    {2, 2, 2},
-    {2, 2, 3},
-    {2, 3, 1},
-    {2, 3, 2},
-    {2, 3, 3},
-    {3, 1, 1},
-    {3, 1, 2},
-    {3, 1, 3},
-    {3, 2, 1},
-    {3, 2, 2},
-    {3, 2, 3},
-    {3, 3, 1},
-    {3, 3, 2},
-    {3, 3, 3}
+    {2, 2, 2}
 };
 
 
-Foam::label Foam::hyperbolicConditionalMomentInversion::getNMoments
+Foam::label Foam::multivariateMomentInversions::CHyQMOM::getNMoments
 (
     const label nDims
-) const
+)
 {
     if (nDims == 1)
     {
@@ -137,10 +149,11 @@ Foam::label Foam::hyperbolicConditionalMomentInversion::getNMoments
 }
 
 
-Foam::labelListList Foam::hyperbolicConditionalMomentInversion::getMomentOrders
+Foam::labelListList
+Foam::multivariateMomentInversions::CHyQMOM::getMomentOrders
 (
     const label nDims
-) const
+)
 {
     if (nDims == 1)
     {
@@ -158,10 +171,10 @@ Foam::labelListList Foam::hyperbolicConditionalMomentInversion::getMomentOrders
 }
 
 
-Foam::label Foam::hyperbolicConditionalMomentInversion::getNNodes
+Foam::label Foam::multivariateMomentInversions::CHyQMOM::getNNodes
 (
     const label nDims
-) const
+)
 {
     if (nDims == 1)
     {
@@ -179,14 +192,15 @@ Foam::label Foam::hyperbolicConditionalMomentInversion::getNNodes
 }
 
 
-Foam::labelListList Foam::hyperbolicConditionalMomentInversion::getNodeIndexes
+Foam::labelListList
+Foam::multivariateMomentInversions::CHyQMOM::getNodeIndexes
 (
     const label nDims
-) const
+)
 {
     if (nDims == 1)
     {
-        return {{1}, {2}, {3}};
+        return {{0}, {1}, {2}};
     }
     else if (nDims == 2)
     {
@@ -202,22 +216,24 @@ Foam::labelListList Foam::hyperbolicConditionalMomentInversion::getNodeIndexes
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
+Foam::multivariateMomentInversions::CHyQMOM::CHyQMOM
 (
     const dictionary& dict,
-    const label nDimensions
+    const labelListList& momentOrders,
+    const labelListList& nodeIndexes,
+    const labelList& velocityIndexes
 )
 :
-    nDimensions_(nDimensions),
-     nMoments_(getNMoments(nDimensions)),
-    nNodes_(getNNodes(nDimensions)),
-    support_("R"),
-    moments_(nMoments_, getMomentOrders(nDimensions)),
-    abscissae_(nNodes_, getNodeIndexes(nDimensions)),
-    weights_(nNodes_, getNodeIndexes(nDimensions)),
+    multivariateMomentInversion
+    (
+        dict,
+        momentOrders,
+        nodeIndexes,
+        velocityIndexes
+    ),
     univariateInverter_
     (
-        new hyperbolicMomentInversion(dict.subDict("basicQuadrature"))
+        new hyperbolicMomentInversion(dict)
     ),
     etaMin_(dict.lookupOrDefault("etaMin", 1.0e-10)),
     qMax_(dict.lookupOrDefault("qMax", 30.0)),
@@ -236,13 +252,12 @@ Foam::hyperbolicConditionalMomentInversion::hyperbolicConditionalMomentInversion
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::hyperbolicConditionalMomentInversion
-::~hyperbolicConditionalMomentInversion()
+Foam::multivariateMomentInversions::CHyQMOM::~CHyQMOM()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-Foam::scalar Foam::hyperbolicConditionalMomentInversion::calcQ
+Foam::scalar Foam::multivariateMomentInversions::CHyQMOM::calcQ
 (
     scalar q,
     scalar eta
@@ -268,7 +283,8 @@ Foam::scalar Foam::hyperbolicConditionalMomentInversion::calcQ
     }
 }
 
-void Foam::hyperbolicConditionalMomentInversion::realizabilityUnivariateMoments
+void
+Foam::multivariateMomentInversions::CHyQMOM::realizabilityUnivariateMoments
 (
     scalar& c2,
     scalar& c3,
@@ -293,7 +309,7 @@ void Foam::hyperbolicConditionalMomentInversion::realizabilityUnivariateMoments
     }
 }
 
-void Foam::hyperbolicConditionalMomentInversion::invert1D
+void Foam::multivariateMomentInversions::CHyQMOM::invert1D
 (
     const multivariateMomentSet& moments,
     scalarList& weights1D,
@@ -355,12 +371,12 @@ void Foam::hyperbolicConditionalMomentInversion::invert1D
     // Store univariate quadrature in first direction
     forAll(weights1D, wi)
     {
-        weights1D[wi] = univariateInverter_().weights()[wi];
-        abscissae1D[wi] = univariateInverter_().abscissae()[wi];
+        weights1D[wi] = m0*univariateInverter_().weights()[wi];
+        abscissae1D[wi] = univariateInverter_().abscissae()[wi] + meanU;
     }
 }
 
-void Foam::hyperbolicConditionalMomentInversion::invert2D
+void Foam::multivariateMomentInversions::CHyQMOM::invert2D
 (
     const multivariateMomentSet& moments,
     mappedList<scalar>& weights2D,
@@ -539,23 +555,23 @@ void Foam::hyperbolicConditionalMomentInversion::invert2D
     }
 
     // Compute multivariate quadrature
-    for (label i = 1; i <= 3; i++)
+    for (label i = 0; i < 3; i++)
     {
-        for (label j = 1; j <= 3; j++)
+        for (label j = 0; j < 3; j++)
         {
-            weights2D(i, j) = m00*wDir1[i - 1]*wDir2[j - 1];
+            weights2D(i, j) = m00*wDir1[i]*wDir2[j];
 
             abscissae2D(i, j) =
                 vector2D
                 (
-                    absDir1[i - 1] + meanU,
-                    Vf[i - 1] + absDir2[j-1] + meanV
+                    absDir1[i] + meanU,
+                    Vf[i] + absDir2[j] + meanV
                 );
         }
     }
 }
 
-void Foam::hyperbolicConditionalMomentInversion::invert3D
+void Foam::multivariateMomentInversions::CHyQMOM::invert3D
 (
     const multivariateMomentSet& moments
 )
@@ -776,15 +792,15 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
             scalarList wDir3(univariateInverter_().weights());
             scalarList absDir3(univariateInverter_().abscissae());
 
-            for(label i = 1; i <= 3; i++)
+            for(label i = 0; i < 3; i++)
             {
-                weights_(2, 2, i) = m000*wDir3[i - 1];
-                abscissae_(2, 2, i) =
+                weights_(1, 1, i) = m000*wDir3[i];
+                velocityAbscissae_(1, 1, i) =
                     vector
                     (
                         meanU,
                         meanV,
-                        absDir3[i - 1] + meanW
+                        absDir3[i] + meanW
                     );
             }
 
@@ -821,12 +837,12 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
             invert2D(mDir23, wDir23, absDir23);
 
-            for (label j = 1; j <= 3; j++)
+            for (label j = 0; j < 3; j++)
             {
-                for (label k = 1; k <= 3; k++)
+                for (label k = 0; k < 3; k++)
                 {
-                    weights_(2, j, k) = m000*wDir23(j, k);
-                    abscissae_(2, j, k) =
+                    weights_(1, j, k) = m000*wDir23(j, k);
+                    velocityAbscissae_(1, j, k) =
                         vector
                         (
                             meanU,
@@ -870,12 +886,12 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
 
         invert2D(mDir13, wDir13, absDir13);
 
-        for (label i = 1; i <= 3; i++)
+        for (label i = 0; i < 3; i++)
         {
-            for (label k = 1; k <= 3; k++)
+            for (label k = 0; k < 3; k++)
             {
-                weights_(i, 2, k) = m000*wDir13(i, k);
-                abscissae_(i, 2, k) =
+                weights_(i, 1, k) = m000*wDir13(i, k);
+                velocityAbscissae_(i, 1, k) =
                     vector
                     (
                         absDir13(i, k).x() + meanU,
@@ -921,13 +937,15 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
         // Z direction is degenerate
         if (centralMoments(0, 0, 2) < varMin_)
         {
-            for (label i = 1; i <= 3; i++)
+            for (label i = 0; i < 3; i++)
             {
-                for (label j = 1; j <= 3; j++)
+                for (label j = 0; j < 3; j++)
                 {
-                    weights_(i, j, 2) = m000*wDir12(i, j);
-                    abscissae_(i, j, 2).x() = abscissaeDir12(i, j).x() + meanU;
-                    abscissae_(i, j, 2).y() = abscissaeDir12(i, j).y() + meanV;
+                    weights_(i, j, 1) = m000*wDir12(i, j);
+                    velocityAbscissae_(i, j, 1).x() =
+                        abscissaeDir12(i, j).x() + meanU;
+                    velocityAbscissae_(i, j, 1).y() =
+                        abscissaeDir12(i, j).y() + meanV;
                 }
             }
 
@@ -941,37 +959,35 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
             scalar sumWeights2 = 0.0;
             scalar sumWeights3 = 0.0;
 
-            for (label i = 1; i <= 3; i++)
+            for (label i = 0; i < 3; i++)
             {
-                sumWeights1 += wDir12(1, i);
-                sumWeights2 += wDir12(2, i);
-                sumWeights3 += wDir12(3, i);
+                sumWeights1 += wDir12(0, i);
+                sumWeights2 += wDir12(1, i);
+                sumWeights3 += wDir12(2, i);
             }
 
-            for (label i = 1; i <= 3; i++)
+            for (label i = 0; i < 3; i++)
             {
-                wDir12(1, i) /= sumWeights1;
-                wDir12(2, i) /= sumWeights2;
-                wDir12(3, i) /= sumWeights3;
+                wDir12(0, i) /= sumWeights1;
+                wDir12(1, i) /= sumWeights2;
+                wDir12(2, i) /= sumWeights3;
             }
 
             // Compute Vf reconstruction
             scalarList Vf(3, 0.0);
-            for (label i = 1; i <= 3; i++)
+            for (label i = 0; i < 3; i++)
             {
-                Vf[0] += wDir12(1, i)*abscissaeDir12(1, i).y();
-
-                Vf[1] += wDir12(2, i)*abscissaeDir12(2, i).y();
-
-                Vf[2] += wDir12(3, i)*abscissaeDir12(3, i).y();
+                Vf[0] += wDir12(0, i)*abscissaeDir12(0, i).y();
+                Vf[1] += wDir12(1, i)*abscissaeDir12(1, i).y();
+                Vf[2] += wDir12(2, i)*abscissaeDir12(2, i).y();
             }
 
             mappedList<scalar> absDir12(9, twoDimNodeIndexes, 0.0);
-            for (label i = 1; i <= 3; i++)
+            for (label i = 0; i < 3; i++)
             {
-                for (label j = 1; j <= 3; j++)
+                for (label j = 0; j < 3; j++)
                 {
-                    absDir12(i, j) = abscissaeDir12(i, j).y() - Vf[i-1];
+                    absDir12(i, j) = abscissaeDir12(i, j).y() - Vf[i];
                 }
             }
 
@@ -983,13 +999,13 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
             scalarSquareMatrix W2(3, 0.0);
             scalarSquareMatrix Vp(3, 0.0);
 
-            for (label i = 1; i <= 3; i++)
+            for (label i = 0; i < 3; i++)
             {
-                W1(i-1, i-1) = wDir1[i-1];
-                for (label j = 1; j <= 3; j++)
+                W1(i, i) = wDir1[i];
+                for (label j = 0; j < 3; j++)
                 {
-                    W2(i-1, j-1) = wDir12(i, j);
-                    Vp(i-1, j-1) = absDir12(i, j);
+                    W2(i, j) = wDir12(i, j);
+                    Vp(i, j) = absDir12(i, j);
                 }
             }
 
@@ -1103,21 +1119,21 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
             scalarList wDir3(univariateInverter_().weights());
             scalarList absDir3(univariateInverter_().abscissae());
 
-            for (label i = 1; i <= 3; i++)
+            for (label i = 0; i < 3; i++)
             {
-                for (label j = 1; j <= 3; j++)
+                for (label j = 0; j < 3; j++)
                 {
-                    for (label k = 1; k <= 3; k++)
+                    for (label k = 0; k < 3; k++)
                     {
                         weights_(i, j, k) =
-                            m000*wDir1[i-1]*wDir12(i, j)*wDir3[k-1];
+                            m000*wDir1[i]*wDir12(i, j)*wDir3[k];
 
-                        abscissae_(i, j, k) =
+                        velocityAbscissae_(i, j, k) =
                             vector
                             (
-                                absDir1[i-1] + meanU,
-                                Vf[i-1] + absDir12(i, j) + meanV,
-                                Wf(i-1, j-1) + absDir3[k-1] + meanW
+                                absDir1[i] + meanU,
+                                Vf[i] + absDir12(i, j) + meanV,
+                                Wf(i, j) + absDir3[k] + meanW
                             );
                     }
                 }
@@ -1127,26 +1143,26 @@ void Foam::hyperbolicConditionalMomentInversion::invert3D
     }
 }
 
-void Foam::hyperbolicConditionalMomentInversion::invert
+void Foam::multivariateMomentInversions::CHyQMOM::invert
 (
     const multivariateMomentSet& moments
 )
 {
     reset();
-    if (nDimensions_ == 3)
+    if (nvelocityDimensions_ == 3)
     {
         invert3D(moments);
     }
-    else if (nDimensions_ == 2)
+    else if (nvelocityDimensions_ == 2)
     {
-        mappedList<scalar> w
+        mappedScalarList w
         (
-            nNodes_,
+            getNNodes(2),
             twoDimNodeIndexes
         );
         mappedList<vector2D> u
         (
-            nNodes_,
+            getNNodes(2),
             twoDimNodeIndexes
         );
 
@@ -1155,7 +1171,7 @@ void Foam::hyperbolicConditionalMomentInversion::invert
         forAll(u, nodei)
         {
             weights_[nodei] = w[nodei];
-            abscissae_[nodei] =
+            velocityAbscissae_[nodei] =
                 vector
                 (
                     u[nodei].x(),
@@ -1166,25 +1182,16 @@ void Foam::hyperbolicConditionalMomentInversion::invert
     }
     else
     {
-        scalarList w(nNodes_, 0.0);
-        scalarList u(nNodes_, 0.0);
+        scalarList w(getNNodes(1), 0.0);
+        scalarList u(getNNodes(1), 0.0);
 
         invert1D(moments, w, u);
 
-        forAll(u, nodei)
+        forAll(w, nodei)
         {
             weights_[nodei] = w[nodei];
-            abscissae_[nodei] = vector(u[nodei], 0.0, 0.0);
+            velocityAbscissae_[nodei] = vector(u[nodei], 0.0, 0.0);
         }
-    }
-}
-
-void Foam::hyperbolicConditionalMomentInversion::reset()
-{
-    forAll(weights_, nodei)
-    {
-        weights_[nodei] = 0.0;
-        abscissae_[nodei] = vector::zero;
     }
 }
 

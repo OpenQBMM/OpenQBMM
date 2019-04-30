@@ -13,7 +13,7 @@ EXE_INC = \
     -I$(LIB_SRC)/sampling/lnInclude \
     -I../../../../src/quadratureMethods/momentSets/lnInclude \
     -I../../../../src/quadratureMethods/momentInversion/lnInclude \
-    -I../../../../src/quadratureMethods/quadratureNode \
+    -I../../../../src/quadratureMethods/quadratureNode/lnInclude \
     -I../../../../src/quadratureMethods/moments \
     -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
     -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
@@ -31,6 +31,7 @@ EXE_LIBS = \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie \
+    -lquadratureNode \
     -lmomentSet \
     -lfieldMomentInversion \
     -lquadratureApproximation \

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -36,7 +36,7 @@ SourceFiles
 #ifndef esBGKCollision_H
 #define esBGKCollision_H
 
-#include "collisionKernel.H"
+#include "BGKCollision.H"
 #include "mappedPtrList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -54,7 +54,7 @@ namespace collisionKernels
 
 class esBGKCollision
 :
-    public collisionKernel
+    public BGKCollision
 {
     // Private data
 
@@ -76,18 +76,34 @@ class esBGKCollision
         //- Coefficient related to Prandtl number
         scalar zeta_;
 
-        //- Diameter
-        tmp<volScalarField> dp_;
-
 
 protected:
-    // Protected data
 
-        //- Equilibrium moments (fields)
-        mappedPtrList<volScalarField> Meqf_;
+    // Protected Functions
 
-        //- Equilibrium moments (fields)
-        mappedList<scalar> Meq_;
+        //- Return the covariance tensor using quadrature moments
+        virtual symmTensor covariance
+        (
+            const label celli,
+            const scalar& u,
+            const scalar& v,
+            const scalar& w
+        );
+
+        //- Return the covariance tensor given a list of moments
+        virtual symmTensor covariance
+        (
+            const mappedScalarList& moments,
+            const scalar& u,
+            const scalar& v,
+            const scalar& w
+        );
+
+        //- Return the coefficient of restitution
+        virtual scalar e() const
+        {
+            return e_;
+        }
 
 
 public:
@@ -103,8 +119,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -114,23 +129,17 @@ public:
 
     // Member Functions
 
-        //- Update equilibrium moments
-        virtual void updateCells(const label celli);
-
-        //- Update equilibrium moments
-        virtual void updateFields();
-
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource
         (
-            const label mi,
+            const labelList& momentOrder,
             const label celli
         ) const;
 
         //- Return implicit collision source matrix
         virtual tmp<fvScalarMatrix> implicitCollisionSource
         (
-            const volVectorMoment& m
+            const volVelocityMoment& m
         ) const;
 
 };

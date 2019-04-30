@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -79,39 +79,43 @@ protected:
         const velocityQuadratureApproximation& quadrature_;
 
         //- Moment indicies ues to map moments
-        const labelListList momentOrders_;
+        const labelListList& momentOrders_;
+
+        //- Nodes indexes
+        const labelListList& nodeIndexes_;
+
+        //- Velocity indexes
+        const labelList& velocityIndexes_;
 
         //- Number of dimensions
         const label nDimensions_;
 
+        //- List of velocity moment orders
+        labelListList velocityMomentOrders_;
+
+        //- List of velocity node indexes
+        labelListList velocityNodeIndexes_;
+
+        //- Size index
+        label sizeIndex_;
+
+        //- Number of sizes
+        label nSizes_;
+
+        //- Refrence to particle diameter
+        tmp<volScalarField> dp_;
+
+        //- List of patricle densities
+        scalarList rhos_;
+
+        //- Minimum diameter
+        scalar minD_;
+
+        //- Is an implicit solution used
+        Switch implicit_;
+
 
     // Protected functions
-
-        //- Variances for a cell
-        scalar meanVelocity(const scalar& m0, const scalar& m1) const;
-
-        //- Mean velocities for a field
-        tmp<volScalarField> meanVelocity
-        (
-            const volScalarField& m0,
-            const volScalarField& m1
-        );
-
-        //- Variances for a cell
-        scalar variance
-        (
-            const scalar& m0,
-            const scalar& sqrM1,
-            const scalar& m2
-        ) const;
-
-        //- Variance for a field
-        tmp<volScalarField> variance
-        (
-            const volScalarField& m0,
-            const volScalarField& sqrM1,
-            const volScalarField& m2
-        );
 
         static tmp<volScalarField> lookupOrInitialize
         (
@@ -122,6 +126,8 @@ protected:
             const dimensionSet& dims
         );
 
+        //- Return the diameter given a node and cell
+        scalar d(const label node, const label celli) const;
 
 public:
 
@@ -137,10 +143,9 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         ),
-        (dict, mesh, quadrature, ode)
+        (dict, mesh, quadrature)
     );
 
 
@@ -151,8 +156,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -162,8 +166,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -173,23 +176,32 @@ public:
 
     // Member Functions
 
+        //- Is an implicit source used
+        virtual bool implicit() const
+        {
+            return implicit_;
+        }
+
+        //- Update unchanged fields before solving ode system
+        virtual void preUpdate();
+
         //- Update collision sources in a cell
         virtual void updateCells(const label celli) = 0;
 
         //- Update collision sources
-        virtual void updateFields() = 0;
+        virtual void updateFields();
 
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource
         (
-            const label mi,
+            const labelList& momentOrder,
             const label celli
         ) const = 0;
 
         //- Return implicit collision source matrix
         virtual tmp<fvScalarMatrix> implicitCollisionSource
         (
-            const volVectorMoment& m
+            const volVelocityMoment& m
         ) const = 0;
 };
 

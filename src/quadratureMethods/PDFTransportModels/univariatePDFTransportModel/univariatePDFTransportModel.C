@@ -38,7 +38,6 @@ Foam::PDFTransportModels::univariatePDFTransportModel
 )
 :
     PDFTransportModel(name, dict, mesh),
-    name_(name),
     quadrature_(name, mesh, support),
     momentAdvection_
     (
@@ -70,7 +69,7 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
     // Solve moment transport equations
     forAll(quadrature_.moments(), momenti)
     {
-        volUnivariateMoment& m = quadrature_.moments()[momenti];
+        volScalarMoment& m = quadrature_.moments()[momenti];
 
         momentEqns.set
         (
@@ -79,32 +78,22 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             (
                 fvm::ddt(m)
               + momentAdvection_().divMoments()[momenti]
-              - momentDiffusion(m)
               ==
                 implicitMomentSource(m)
             )
         );
     }
+    forAll (momentEqns, mEqni)
+    {
+        momentEqns[mEqni].relax();
+        momentEqns[mEqni].solve();
+    }
+    quadrature_.updateQuadrature();
 
     if (solveMomentSources())
     {
         this->explicitMomentSource();
     }
-
-    forAll (momentEqns, mEqni)
-    {
-        volUnivariateMoment& m = quadrature_.moments()[mEqni];
-
-        if (solveMomentSources())
-        {
-            momentEqns[mEqni] -= fvc::ddt(m);
-        }
-
-        momentEqns[mEqni].relax();
-        momentEqns[mEqni].solve();
-    }
-
-    quadrature_.updateQuadrature();
 }
 
 

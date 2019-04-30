@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -101,7 +101,7 @@ Foam::momentGenerationModel::momentGenerationModel
         dimensionSet absCmptDims(dimless);
         forAll(momentOrders_[mi], cmpti)
         {
-            word absName ="abscissaeDim" + Foam::name(cmpti) + "Dimensions";
+            word absName ="abscissaDimension" + Foam::name(cmpti);
             dimensionSet absDim
             (
                 (

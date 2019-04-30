@@ -43,7 +43,6 @@ SourceFiles
 #include "surfaceFields.H"
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
-#include "hyperbolicFieldMomentInversion.H"
 #include "quadratureApproximations.H"
 #include "surfaceInterpolationScheme.H"
 
@@ -74,7 +73,7 @@ protected:
         const word name_;
 
         //- Reference to the moments to advect
-        const volVectorMomentFieldSet& moments_;
+        const volVelocityMomentFieldSet& moments_;
 
         //- Number of moments
         const label nMoments_;
@@ -88,6 +87,8 @@ protected:
         //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
         tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme_;
         tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeOwnScheme_;
+        tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeNeiScheme_;
         tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeOwnScheme_;
         tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeNeiScheme_;
 
@@ -103,8 +104,25 @@ protected:
         //- Advection terms for moment transport equations
         PtrList<volScalarField> divMoments_;
 
+        //- List of boundaries using fixed temperatures
+        wordList fixedWalls_;
+
+        //- List of temperatures used at walls
+        scalarList wallTemperatures_;
+
         //- Coefficient of restitution
         scalar ew_;
+
+
+    //- Protected member function
+
+            //- Update fluxes due to wall callisions
+            void updateWallCollisions
+            (
+                const PtrList<volVelocityNode>& nodes,
+                PtrList<surfaceVelocityNode>& nodesOwn,
+                PtrList<surfaceVelocityNode>& nodesNei
+            );
 
 
 public:

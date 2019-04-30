@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -53,16 +53,29 @@ class alphaAndDiameter
 :
     public momentGenerationModel
 {
+protected:
 
     //- Read alpha field
     volScalarField alpha_;
 
-    //- Build thermo object to get density
-    autoPtr<rhoThermo> thermo_;
+    //- Are nodes scaled by the total volume fraction
+    Switch scale_;
 
+    //- Copy of rho field
+    volScalarField rho_;
+
+    //- List of diameters
     scalarList ds_;
+
+    //- List of volume fractions
     scalarList alphas_;
+
+    //- Total node volume fraction
     scalar sumAlpha_;
+
+    //- Is the moment set mass based
+    Switch massBased_;
+
 
 public:
 

@@ -35,7 +35,8 @@ SourceFiles
 #ifndef populationBalanceModel_H
 #define populationBalanceModel_H
 
-#include "dictionary.H"
+#include "IOdictionary.H"
+#include "fvCFD.H"
 #include "volFields.H"
 #include "dimensionedTypes.H"
 #include "runTimeSelectionTables.H"
@@ -50,6 +51,8 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 class populationBalanceModel
+:
+    public regIOobject
 {
     // Private data
 
@@ -68,6 +71,10 @@ class populationBalanceModel
 protected:
 
     // Protected data
+
+        //- Reference to populationBalanceProperties
+        //  Non-const so ode solver can read on modification
+        IOdictionary& populationBalanceProperties_;
 
         //- Fluid-phase face-normal velocity
         const surfaceScalarField& phi_;
@@ -130,6 +137,20 @@ public:
         //- Solve population balance equation
         virtual void solve() = 0;
 
+
+    // regIOobject functions
+
+        //- Read
+        virtual bool readIfModified()
+        {
+            return true;
+        }
+
+        //- Read
+        virtual bool writeData(Ostream&) const
+        {
+            return true;
+        }
 };
 
 

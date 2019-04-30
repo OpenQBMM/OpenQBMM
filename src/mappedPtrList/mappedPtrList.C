@@ -42,6 +42,7 @@ Foam::mappedPtrList<mappedType>::listToWord(const labelList& lst)
     return w;
 }
 
+
 template <class mappedType>
 Foam::label
 Foam::mappedPtrList<mappedType>::listToLabel
@@ -89,6 +90,7 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
     }
 }
 
+
 template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 (
     const label size,
@@ -111,6 +113,7 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
         nDims_ = max(nDims_, nD);
     }
 }
+
 
 template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 (
@@ -182,6 +185,7 @@ Foam::label Foam::mappedPtrList<mappedType>::calcMapIndex
     return mapIndex;
 }
 
+
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::setMap(const Map<label>& map)
 {
@@ -199,6 +203,57 @@ void Foam::mappedPtrList<mappedType>::setMap(const Map<label>& map)
     }
 }
 
+
+template <class mappedType>
+bool Foam::mappedPtrList<mappedType>::set(const label i) const
+{
+    return PtrList<mappedType>::set(i);
+}
+
+
+template <class mappedType>
+bool Foam::mappedPtrList<mappedType>::set(const labelList& l) const
+{
+    return PtrList<mappedType>::set(map_[listToLabel(l, nDims_)]);
+}
+
+template <class mappedType>
+bool Foam::mappedPtrList<mappedType>::found(const labelList& l) const
+{
+    if (l.size() > nDims_)
+    {
+        return false;
+    }
+    forAllConstIter(Map<label>, map_, iter)
+    {
+        label x = iter.key();
+        if (x == listToLabel(l, nDims_))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class mappedType>
+template <typename ...ArgsT>
+bool Foam::mappedPtrList<mappedType>::found(ArgsT...args) const
+{
+    if (label(std::initializer_list<Foam::label>({args...}).size()) > nDims_)
+    {
+        return false;
+    }
+    forAllConstIter(Map<label>, map_, iter)
+    {
+        label x = iter.key();
+        if (x == calcMapIndex({args...}))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
 (
@@ -209,6 +264,7 @@ void Foam::mappedPtrList<mappedType>::set
     PtrList<mappedType>::set(i, entry);
 }
 
+
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
 (
@@ -218,6 +274,7 @@ void Foam::mappedPtrList<mappedType>::set
 {
     PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
+
 
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
@@ -229,6 +286,7 @@ void Foam::mappedPtrList<mappedType>::set
     PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
 
+
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
 (
@@ -238,4 +296,6 @@ void Foam::mappedPtrList<mappedType>::set
 {
     PtrList<mappedType>::set(map_[listToLabel(l, nDims_)], entry);
 }
+
+
 // ************************************************************************* //

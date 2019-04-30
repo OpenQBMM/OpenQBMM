@@ -59,6 +59,7 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
 )
 :
     diffusionModel(dict),
+    continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
     gammaLam_(dict.lookup("gammaLam")),
     Sc_(readScalar(dict.lookup("Sc")))
 {}
@@ -89,29 +90,15 @@ Foam::tmp<Foam::volScalarField>
 Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
 ::turbViscosity(const volScalarField& moment) const
 {
-    typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
-
-    if (moment.mesh().foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
+    word turbName = IOobject::groupName
+        (
+            turbulenceModel::propertiesName,
+            continuousPhase_
+        );
+    if (moment.mesh().foundObject<turbulenceModel>(turbName))
     {
-        const cmpTurbModel& turb =
-            moment.mesh().lookupObject<cmpTurbModel>
-            (
-                cmpTurbModel::propertiesName
-            );
-
-        return turb.mut()/turb.rho();
-    }
-    else if
-    (
-        moment.mesh().foundObject<icoTurbModel>(icoTurbModel::propertiesName)
-    )
-    {
-        const incompressible::turbulenceModel& turb =
-            moment.mesh().lookupObject<icoTurbModel>
-            (
-                icoTurbModel::propertiesName
-            );
+        const turbulenceModel& turb =
+            moment.mesh().lookupObject<turbulenceModel>(turbName);
 
         return turb.nut();
     }

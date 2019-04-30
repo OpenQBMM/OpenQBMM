@@ -76,6 +76,9 @@ class turbulentDiffusion
 
     //- Private data
 
+        //- Continuous phase name
+        const word continuousPhase_;
+
         //- Laminar diffusivity
         dimensionedScalar gammaLam_;
 

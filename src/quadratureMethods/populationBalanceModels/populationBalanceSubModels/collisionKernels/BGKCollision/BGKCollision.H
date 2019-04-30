@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -27,10 +27,13 @@ Class
 Description
     Collision model which returns the velocity distribution to a Maxwellian
     distribution (multivariate Gaussian) with at a given collisional time
-    scale.
+    scale. Used as a base class for esBGK as well, but a different covariance
+    tensor is used as well a variable collision time scale.
+    Polydispersity is also handled, but a variabel time scale is used
 
 SourceFiles
     BGKCollision.C
+    equilibriumMomentFunctions.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -49,6 +52,17 @@ namespace populationBalanceSubModels
 namespace collisionKernels
 {
 
+#define defineMFunc(i,j,k)                                                      \
+static void moment##i##j##k                                                     \
+(                                                                               \
+    mappedScalarList& Meq_,                                                     \
+    const scalar& m0,                                                           \
+    const scalar& u,                                                            \
+    const scalar& v,                                                            \
+    const scalar& w,                                                            \
+    const symmTensor& sigma                                                     \
+)
+
 /*---------------------------------------------------------------------------*\
                     Class BGKCollision Declaration
 \*---------------------------------------------------------------------------*/
@@ -64,13 +78,141 @@ class BGKCollision
 
 
 protected:
+
+    //- Typedef of function pointer list
+    typedef void (*momentFunction)
+    (
+        mappedScalarList& Meq,
+        const scalar&,
+        const scalar&,
+        const scalar&,
+        const scalar&,
+        const symmTensor&
+    );
+
     // Protected data
 
-        //- Equilibrium moments (fields)
-        mappedPtrList<volScalarField> Meqf_;
+        //- Equilibrium velocity moments (for each size)
+        mappedPtrList<volScalarField> Meq_;
 
-        //- Equilibrium moments (fields)
-        mappedList<scalar> Meq_;
+        //- List of functions used to calculate equilibrium moments
+        List<momentFunction> equilibriumMomentFunctions_;
+
+        //- Conditioned velocity moments
+        PtrList<mappedScalarList> velocityMoments_;
+
+        //- Size conditioned equilibrium veloicity moments (Gaussian)
+        PtrList<PtrList<mappedScalarList>> Gs_;
+
+        //- Collisional times
+        scalarListList Ks_;
+
+        //- Minimum volume fraction
+        scalar minM0_;
+
+
+    // Protected functions
+
+        //- Return the covariance tensor using quadrature moments
+        virtual symmTensor covariance
+        (
+            const label celli,
+            const scalar& u,
+            const scalar& v,
+            const scalar& w
+        );
+
+        //- Return the covariance tensor given a list of moments
+        virtual symmTensor covariance
+        (
+            const mappedScalarList& moments,
+            const scalar& u,
+            const scalar& v,
+            const scalar& w
+        );
+
+        //- Return the coefficient of restitution
+        virtual scalar e() const
+        {
+            return 1.0;
+        }
+
+        //- Functions used to define equilibrium moments
+        //  Stored in a list so that moment existance does not have to be checked
+        //  at every cell, for every itteration. The implementation of equilibrium
+        //  moment functions are in equilibriumMomentFunctions.C
+        defineMFunc(0,0,0);
+
+        defineMFunc(0,0,1);
+        defineMFunc(0,1,0);
+        defineMFunc(1,0,0);
+
+        defineMFunc(0,0,2);
+        defineMFunc(0,1,1);
+        defineMFunc(0,2,0);
+        defineMFunc(1,0,1);
+        defineMFunc(1,1,0);
+        defineMFunc(2,0,0);
+
+        defineMFunc(0,0,3);
+        defineMFunc(0,1,2);
+        defineMFunc(0,2,1);
+        defineMFunc(0,3,0);
+        defineMFunc(1,0,2);
+        defineMFunc(1,1,1);
+        defineMFunc(1,2,0);
+        defineMFunc(2,0,1);
+        defineMFunc(2,1,0);
+        defineMFunc(3,0,0);
+
+        defineMFunc(0,0,4);
+        defineMFunc(0,1,3);
+        defineMFunc(0,2,2);
+        defineMFunc(0,3,1);
+        defineMFunc(0,4,0);
+        defineMFunc(1,0,3);
+        defineMFunc(1,3,0);
+        defineMFunc(2,0,2);
+        defineMFunc(2,2,0);
+        defineMFunc(3,0,1);
+        defineMFunc(3,1,0);
+        defineMFunc(4,0,0);
+
+        defineMFunc(0,0,5);
+        defineMFunc(0,1,4);
+        defineMFunc(0,2,3);
+        defineMFunc(0,3,2);
+        defineMFunc(0,4,1);
+        defineMFunc(0,5,0);
+        defineMFunc(1,0,4);
+        defineMFunc(1,4,0);
+        defineMFunc(2,0,3);
+        defineMFunc(2,3,0);
+        defineMFunc(3,0,2);
+        defineMFunc(3,2,0);
+        defineMFunc(4,0,1);
+        defineMFunc(4,1,0);
+        defineMFunc(5,0,0);
+
+        defineMFunc(0,1,5);
+        defineMFunc(0,2,4);
+        defineMFunc(0,4,2);
+        defineMFunc(0,5,1);
+        defineMFunc(2,0,4);
+        defineMFunc(2,4,0);
+        defineMFunc(1,0,5);
+        defineMFunc(1,5,0);
+        defineMFunc(4,0,2);
+        defineMFunc(4,2,0);
+        defineMFunc(5,0,1);
+        defineMFunc(5,1,0);
+
+        defineMFunc(0,2,5);
+        defineMFunc(0,5,2);
+        defineMFunc(2,0,5);
+        defineMFunc(2,5,0);
+        defineMFunc(5,0,2);
+        defineMFunc(5,2,0);
 
 
 public:
@@ -86,8 +228,7 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const velocityQuadratureApproximation& quadrature,
-            const bool ode
+            const velocityQuadratureApproximation& quadrature
         );
 
 
@@ -97,27 +238,59 @@ public:
 
     // Member Functions
 
-        //- Update equilibrium moments
-        virtual void updateCells(const label celli);
+        //- Is an implicit source used
+        virtual bool implicit() const
+        {
+            return implicit_;
+        }
 
         //- Update equilibrium moments
-        virtual void updateFields();
+        virtual void updateCells(const label celli);
 
         //- Return explicit collision source term
         virtual scalar explicitCollisionSource
         (
-            const label mi,
+            const labelList& momentOrder,
             const label celli
         ) const;
 
         //- Return implicit collision source matrix
         virtual tmp<fvScalarMatrix> implicitCollisionSource
         (
-            const volVectorMoment& m
+            const volVelocityMoment& m
         ) const;
 
 };
 
+#define addMomentFunction1(map,funcs,i)                                         \
+if (map.found(i))                                                               \
+{                                                                               \
+    funcs.append(&moment##i##00);                                               \
+}
+
+#define addMomentFunction2(map,funcs,i,j)                                       \
+if (map.found(i,j))                                                             \
+{                                                                               \
+    funcs.append(&moment##i##j##0);                                             \
+}
+
+#define addMomentFunction3(map,funcs,i,j,k)                                     \
+if (map.found(i,j,k))                                                           \
+{                                                                               \
+    funcs.append(&moment##i##j##k);                                             \
+}
+
+#define momentFuncHeader(i,j,k)                                                 \
+void                                                                            \
+Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment##i##j##k\
+(                                                                               \
+    mappedScalarList& moments,                                                 \
+    const scalar& m0,                                                           \
+    const scalar& u,                                                            \
+    const scalar& v,                                                            \
+    const scalar& w,                                                            \
+    const symmTensor& sigma                                                     \
+)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

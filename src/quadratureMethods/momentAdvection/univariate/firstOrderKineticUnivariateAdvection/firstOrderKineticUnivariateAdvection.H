@@ -65,22 +65,16 @@ class firstOrderKinetic
         autoPtr<mappedPtrList<surfaceScalarNode>> nodesOwn_;
 
         //- List of interpolated moments (neighbour)
-        surfaceUnivariateMomentFieldSet momentsNei_;
+        surfaceScalarMomentFieldSet momentsNei_;
 
         //- List of interpolated moments (owner)
-        surfaceUnivariateMomentFieldSet momentsOwn_;
+        surfaceScalarMomentFieldSet momentsOwn_;
 
         //- Flux moment inversion method
         autoPtr<basicFieldMomentInversion> momentFieldInverter_;
 
         //- Number of nodes used for advection
         label nNodes_;
-
-        //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
-        tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme_;
-        tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme_;
-        tmp<surfaceInterpolationScheme<scalar>> abscissaOwnScheme_;
-        tmp<surfaceInterpolationScheme<scalar>> abscissaNeiScheme_;
 
 
 protected:
@@ -101,7 +95,7 @@ public:
         firstOrderKinetic
         (
             const dictionary& dict,
-            const univariateQuadratureApproximation& quadrature,
+            const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
             const word& support
         );

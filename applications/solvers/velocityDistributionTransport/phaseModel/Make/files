@@ -1,0 +1,11 @@
+phaseModel/phaseModel.C
+phaseModel/newPhaseModel.C
+vdfPhaseModel/vdfPhaseModel.C
+phaseModel/phaseModels.C
+
+phasePair/phasePairKey/phasePairKey.C
+phasePair/phasePair/phasePair.C
+phasePair/orderedPhasePair/orderedPhasePair.C
+
+
+LIB = $(FOAM_USER_LIBBIN)/libpbePhaseModels

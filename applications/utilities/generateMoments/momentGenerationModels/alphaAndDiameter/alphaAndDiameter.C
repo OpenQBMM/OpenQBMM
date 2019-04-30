@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2016-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2016-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -67,16 +67,41 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
             ),
             mesh.time().timeName(),
             mesh,
-            IOobject::MUST_READ,
+            IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        mesh
+        mesh,
+        1.0
     ),
-    thermo_(rhoThermo::New(mesh, alpha_.group())),
+    scale_(dict.lookupOrDefault("scale", true)),
+    rho_
+    (
+        IOobject
+        (
+            IOobject::groupName
+            (
+                "rho",
+                IOobject::group(dict.name())
+            ),
+            mesh.time().timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedScalar::lookupOrDefault("rho", dict, dimDensity, 0.0)
+    ),
     ds_(nNodes, 0.0),
     alphas_(nNodes, 0.0),
-    sumAlpha_(0.0)
-{}
+    sumAlpha_(0.0),
+    massBased_(dict.lookupOrDefault("massBased", false))
+{
+    if (!dict.found("rho") && massBased_)
+    {
+        autoPtr<rhoThermo> thermo = rhoThermo::New(mesh, alpha_.group());
+        rho_ = thermo->rho();
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -121,19 +146,32 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 
     forAll(weights_, nodei)
     {
-        scalar alpha = alpha_[celli]*alphas_[nodei]/sumAlpha_;
-        scalar rho = thermo_->rho()[celli];
-
-        abscissae_[nodei][0] =
-            Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
-
-        if (abscissae_[nodei][0] > SMALL)
+        scalar alpha = alpha_[celli]*alphas_[nodei];
+        if (scale_)
         {
-            weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+            alpha /= sumAlpha_;
+        }
+
+        if (massBased_)
+        {
+            scalar rho = rho_[celli];
+
+            abscissae_[nodei][0] =
+                Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
+
+            if (abscissae_[nodei][0] > small)
+            {
+                weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+            }
         }
         else
         {
-            weights_[nodei] = 0.0;
+            abscissae_[nodei][0] = ds_[nodei];
+            scalar V = pow3(ds_[nodei]);
+            if (V > small)
+            {
+                weights_[nodei] = alpha/V;
+            }
         }
     }
 
@@ -151,20 +189,32 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
     forAll(weights_, nodei)
     {
         scalar alpha =
-            alpha_.boundaryField()[patchi][facei]*alphas_[nodei]/sumAlpha_;
-        scalar rho = thermo_->rho().boundaryField()[patchi][facei];
-
-        abscissae_[nodei][0] =
-            Foam::constant::mathematical::pi/6.0
-            *rho*pow3(ds_[nodei]);
-
-        if (abscissae_[nodei][0] > SMALL)
+            alpha_.boundaryField()[patchi][facei]*alphas_[nodei];
+        if (scale_)
         {
-            weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+            alpha /= sumAlpha_;
+        }
+
+        if (massBased_)
+        {
+            scalar rho = rho_.boundaryField()[patchi][facei];
+
+            abscissae_[nodei][0] =
+                Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
+
+            if (abscissae_[nodei][0] > small)
+            {
+                weights_[nodei] = rho*alpha/abscissae_[nodei][0];
+            }
         }
         else
         {
-            weights_[nodei] = 0.0;
+            abscissae_[nodei][0] = ds_[nodei];
+            scalar V = pow3(ds_[nodei]);
+            if (V > small)
+            {
+                weights_[nodei] = alpha/V;
+            }
         }
     }
 

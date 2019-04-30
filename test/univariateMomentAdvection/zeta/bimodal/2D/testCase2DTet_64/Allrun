@@ -9,7 +9,6 @@ cp -rf 0.orig 0
 # Set application name
 application=`getApplication`
 
-runApplication blockMesh
 runApplication setMoments2D
 runApplication decomposePar
 runParallel $application

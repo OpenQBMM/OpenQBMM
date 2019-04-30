@@ -33,7 +33,10 @@ Foam::populationBalanceSubModels::daughterDistribution::New
     const dictionary& dict
 )
 {
-    word daughterDistributionType(dict.lookup("daughterDistribution"));
+    word daughterDistributionType
+    (
+        dict.lookup("daughterDistribution")
+    );
 
     Info<< "Selecting daughterDistribution "
         << daughterDistributionType << endl;
@@ -51,7 +54,11 @@ Foam::populationBalanceSubModels::daughterDistribution::New
             << abort(FatalError);
     }
 
-    return autoPtr<daughterDistribution>(cstrIter()(dict));
+    return
+        autoPtr<daughterDistribution>
+        (
+            cstrIter()(dict)
+        );
 }
 
 

@@ -63,4 +63,217 @@ Foam::populationBalanceSubModels::growthModel::~growthModel()
 {}
 
 
+Foam::scalar
+Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
+(
+    const labelList& momentOrder,
+    const label celli,
+    const scalarQuadratureApproximation& quadrature
+)
+{
+    scalar gSource = 0.0;
+
+    const PtrList<volScalarNode>& nodes = quadrature.nodes();
+    label sizeIndex = nodes[0].sizeIndex();
+
+    if (sizeIndex == -1)
+    {
+        return gSource;
+    }
+    label sizeOrder = momentOrder[sizeIndex];
+
+    if (sizeOrder < 1)
+    {
+        return gSource;
+    }
+
+    const labelList& scalarIndexes = nodes[0].scalarIndexes();
+
+    if (!nodes[0].extended())
+    {
+        forAll(nodes, pNodeI)
+        {
+            const volScalarNode& node = nodes[pNodeI];
+
+            scalar bAbscissa =
+                max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+
+            scalar gSourcei =
+                node.primaryWeight()[celli]
+               *Kg(node.primaryAbscissae()[0][celli])
+               *sizeOrder*pow(bAbscissa, sizeOrder - 1);
+
+            forAll(scalarIndexes, nodei)
+            {
+                if (scalarIndexes[nodei] != sizeIndex)
+                {
+                    gSourcei *=
+                        pow
+                        (
+                            node.primaryAbscissae()[nodei][celli],
+                            momentOrder[scalarIndexes[nodei]]
+                        );
+                }
+            }
+            gSource += gSourcei;
+        }
+
+        return gSource;
+    }
+
+    forAll(nodes, pNodeI)
+    {
+        const volScalarNode& node = nodes[pNodeI];
+
+        forAll(node.secondaryWeights()[sizeIndex], sNodei)
+        {
+            scalar bAbscissa =
+                max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
+
+            scalar gSourcei =
+                node.primaryWeight()[celli]
+               *node.secondaryWeights()[sizeIndex][sNodei][celli]
+               *Kg(bAbscissa)
+               *sizeOrder*pow(bAbscissa, sizeOrder - 1);
+
+            forAll(scalarIndexes, cmpt)
+            {
+                if (scalarIndexes[cmpt] != sizeIndex)
+                {
+                    gSourcei *=
+                        node.secondaryWeights()[cmpt][sNodei][celli]
+                       *pow
+                        (
+                            node.secondaryAbscissae()[cmpt][sNodei][celli],
+                            momentOrder[scalarIndexes[cmpt]]
+                        );
+                }
+            }
+            gSource += gSourcei;
+        }
+    }
+
+    return gSource;
+}
+
+Foam::scalar
+Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
+(
+    const labelList& momentOrder,
+    const label celli,
+    const velocityQuadratureApproximation& quadrature
+)
+{
+    scalar gSource = 0.0;
+
+    const PtrList<volVelocityNode>& nodes = quadrature.nodes();
+    label sizeIndex = nodes[0].sizeIndex();
+
+    if (sizeIndex == -1)
+    {
+        return gSource;
+    }
+    label sizeOrder = momentOrder[sizeIndex];
+
+    if (sizeOrder < 1)
+    {
+        return gSource;
+    }
+
+    const labelList& scalarIndexes = nodes[0].scalarIndexes();
+    const labelList& velocityIndexes = nodes[0].velocityIndexes();
+
+    if (!nodes[0].extended())
+    {
+        forAll(nodes, pNodeI)
+        {
+            const volVelocityNode& node = nodes[pNodeI];
+
+            scalar bAbscissa =
+                max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+
+            scalar gSourcei =
+                node.primaryWeight()[celli]
+               *Kg(node.primaryAbscissae()[0][celli])
+               *sizeOrder*pow(bAbscissa, sizeOrder - 1);
+
+            forAll(scalarIndexes, nodei)
+            {
+                if (scalarIndexes[nodei] != sizeIndex)
+                {
+                    gSourcei *=
+                        pow
+                        (
+                            node.primaryAbscissae()[nodei][celli],
+                            momentOrder[scalarIndexes[nodei]]
+                        );
+                }
+            }
+            forAll(velocityIndexes, cmpt)
+            {
+                gSourcei *=
+                    pow
+                    (
+                        component
+                        (
+                            node.velocityAbscissae()[celli],
+                            cmpt
+                        ),
+                        momentOrder[velocityIndexes[cmpt]]
+                    );
+            }
+            gSource += gSourcei;
+        }
+
+        return gSource;
+    }
+
+    forAll(nodes, pNodeI)
+    {
+        const volVelocityNode& node = nodes[pNodeI];
+
+        forAll(node.secondaryWeights()[sizeIndex], sNodei)
+        {
+            scalar bAbscissa =
+                max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
+
+            scalar gSourcei =
+                node.primaryWeight()[celli]
+               *node.secondaryWeights()[sizeIndex][sNodei][celli]
+               *Kg(bAbscissa)
+               *sizeOrder*pow(bAbscissa, sizeOrder - 1);
+
+            forAll(scalarIndexes, cmpt)
+            {
+                if (scalarIndexes[cmpt] != sizeIndex)
+                {
+                    gSourcei *=
+                        node.secondaryWeights()[cmpt][sNodei][celli]
+                       *pow
+                        (
+                            node.secondaryAbscissae()[cmpt][sNodei][celli],
+                            momentOrder[scalarIndexes[cmpt]]
+                        );
+                }
+            }
+            forAll(velocityIndexes, cmpt)
+            {
+                gSourcei *=
+                    pow
+                    (
+                        component
+                        (
+                            node.velocityAbscissae()[celli],
+                            cmpt
+                        ),
+                        momentOrder[velocityIndexes[cmpt]]
+                    );
+            }
+            gSource += gSourcei;
+        }
+    }
+
+    return gSource;
+}
+
 // ************************************************************************* //

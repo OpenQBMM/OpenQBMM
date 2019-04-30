@@ -49,21 +49,21 @@ namespace univariateAdvection
 Foam::univariateAdvection::zeta::zeta
 (
     const dictionary& dict,
-    const univariateQuadratureApproximation& quadrature,
+    const scalarQuadratureApproximation& quadrature,
     const surfaceScalarField& phi,
     const word& support
 )
 :
     univariateMomentAdvection(dict, quadrature, phi, support),
-    m0_(moments_[0]),
+    m0_(moments_(0)),
     m0Own_
     (
-        "m0Own",
+        IOobject::groupName("m0OwnZeta", name_),
         fvc::interpolate(m0_, own_, "reconstruct(m0)")
     ),
     m0Nei_
     (
-        "m0Nei",
+        IOobject::groupName("m0NeiZeta", name_),
         fvc::interpolate(m0_, nei_, "reconstruct(m0)")
     ),
     nZetas_(nMoments_ - 1),
@@ -76,13 +76,20 @@ Foam::univariateAdvection::zeta::zeta
     zetasCorrOwn_(nZetas_),
     momentsNei_(nMoments_),
     momentsOwn_(nMoments_),
-    nFacesOutgoingFlux_(m0_.mesh().nCells(), 0),
-    nRealizableMoments_(m0_.mesh().nCells(), 0),
-    nRealizableMomentsStar_(m0_.mesh().nCells(), 0),
+    nFacesOutgoingFlux_(m0_.size(), 0),
+    nRealizableMoments_(m0_.size(), 0),
+    nRealizableMomentsStar_(m0_.size(), 0),
     limiters_(nZetas_),
     cellLimiters_(nZetas_),
     phi_(phi)
 {
+    if (quadrature.momentOrders()[0].size() > 1)
+    {
+        FatalErrorInFunction
+            << "Zeta advection scheme can only be used for" << nl
+            << "univariate distributions."
+            << abort(FatalError);
+    }
     // Populating zeta_k fields and interpolated zeta_k fields
     forAll(zetas_, zetai)
     {
@@ -93,11 +100,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    IOobject::groupName
-                    (
-                        IOobject::groupName("zeta", Foam::name(zetai)),
-                        name_
-                    ),
+                    fieldName("zeta", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -115,7 +118,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaNei" + Foam::name(zetai),
+                    fieldName("zetaNei", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -133,7 +136,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaOwn" + Foam::name(zetai),
+                    fieldName("zetaOwn", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -151,7 +154,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaUpwindNei" + Foam::name(zetai),
+                    fieldName("zetaUpwindNei", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -169,7 +172,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaUpwindOwn" + Foam::name(zetai),
+                    fieldName("zetaUpwindOwn", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -187,7 +190,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaCorrNei" + Foam::name(zetai),
+                    fieldName("zetaCorrNei", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -205,7 +208,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaCorrOwn" + Foam::name(zetai),
+                    fieldName("zetaCorrOwn", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -223,7 +226,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaLimiters" + Foam::name(zetai),
+                    fieldName("zetaLimiter", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -241,7 +244,7 @@ Foam::univariateAdvection::zeta::zeta
             (
                 IOobject
                 (
-                    "zetaCellLimiters" + Foam::name(zetai),
+                    fieldName("zetaCellLimiter", {zetai}),
                     phi.mesh().time().timeName(),
                     phi.mesh(),
                     IOobject::NO_READ,
@@ -261,8 +264,8 @@ Foam::univariateAdvection::zeta::zeta
             momenti,
             new surfaceScalarField
             (
-                "momentNei" + Foam::name(momenti),
-                fvc::interpolate(moments_[momenti])
+                fieldName("momentNeiZeta", {momenti}),
+                fvc::interpolate(moments_(momenti))
             )
         );
 
@@ -271,25 +274,10 @@ Foam::univariateAdvection::zeta::zeta
             momenti,
             new surfaceScalarField
             (
-                "momentOwn" + Foam::name(momenti),
-                fvc::interpolate(moments_[momenti])
+                fieldName("momentOwnZeta", {momenti}),
+                fvc::interpolate(moments_(momenti))
             )
         );
-    }
-    {
-        IStringStream m0Limiter("Minmod");
-        IStringStream zetaLimiter("Minmod");
-
-        m0OwnScheme_ = fvc::scheme<scalar>(own_, m0Limiter);
-        zetaOwnScheme_ = fvc::scheme<scalar>(own_, zetaLimiter);
-    }
-
-    {
-        IStringStream m0Limiter("Minmod");
-        IStringStream zetaLimiter("Minmod");
-
-        m0NeiScheme_ = fvc::scheme<scalar>(nei_, m0Limiter);
-        zetaNeiScheme_ = fvc::scheme<scalar>(nei_, zetaLimiter);
     }
 }
 
@@ -304,14 +292,37 @@ Foam::univariateAdvection::zeta::~zeta()
 
 void Foam::univariateAdvection::zeta::interpolateFields()
 {
-    m0Own_ = m0OwnScheme_().interpolate(moments_[0]);
-    m0Nei_ = m0NeiScheme_().interpolate(moments_[0]);
+    IStringStream m0OwnLimiter("Minmod");
+    IStringStream zetaOwnLimiter("Minmod");
+
+    tmp<surfaceInterpolationScheme<scalar>> m0OwnScheme
+    (
+        fvc::scheme<scalar>(own_, m0OwnLimiter)
+    );
+    tmp<surfaceInterpolationScheme<scalar>> zetaOwnScheme
+    (
+        fvc::scheme<scalar>(own_, zetaOwnLimiter)
+    );
+
+    IStringStream m0NeiLimiter("Minmod");
+    IStringStream zetaNeiLimiter("Minmod");
+
+    tmp<surfaceInterpolationScheme<scalar>> m0NeiScheme
+    (
+        fvc::scheme<scalar>(nei_, m0NeiLimiter)
+    );
+    tmp<surfaceInterpolationScheme<scalar>> zetaNeiScheme
+    (
+        fvc::scheme<scalar>(nei_, zetaNeiLimiter)
+    );
+
+    m0Own_ = m0OwnScheme().interpolate(moments_(0));
+    m0Nei_ = m0NeiScheme().interpolate(moments_(0));
 
     forAll(zetas_, zetai)
     {
-        zetasNei_[zetai] = zetaOwnScheme_().interpolate(zetas_[zetai]);
-
-        zetasOwn_[zetai] = zetaNeiScheme_().interpolate(zetas_[zetai]);
+        zetasNei_[zetai] = zetaNeiScheme().interpolate(zetas_[zetai]);
+        zetasOwn_[zetai] = zetaOwnScheme().interpolate(zetas_[zetai]);
 
         zetasUpwindNei_[zetai] =
             upwind<scalar>(zetas_[zetai].mesh(), nei_).flux(zetas_[zetai]);
@@ -390,7 +401,7 @@ void Foam::univariateAdvection::zeta::computeZetaFields()
 
             for (label mi = 0; mi < nMoments_; mi++)
             {
-                m[mi] = moments_[mi][celli];
+                m[mi] = moments_(mi)[celli];
             }
 
             nRealizableMoments_[celli] = m.nRealizableMoments();
@@ -428,7 +439,7 @@ void Foam::univariateAdvection::zeta::computeZetaFields()
 
                 for (label mi = 0; mi < nMoments_; mi++)
                 {
-                    m[mi] = moments_[mi].boundaryField()[patchi][facei];
+                    m[mi] = moments_(mi).boundaryField()[patchi][facei];
                 }
 
                 scalarList zetas(m.zetas());
@@ -489,7 +500,6 @@ void Foam::univariateAdvection::zeta::limitZetas()
     const labelUList& neighb = phi_.mesh().neighbour();
     const scalarField& phiIf = phi_;
     const surfaceScalarField::Boundary& phiBf = phi_.boundaryField();
-    const label nCells = phi_.mesh().nCells();
     const label nInternalFaces = phi_.mesh().nInternalFaces();
 
     countFacesWithOutgoingFlux();
@@ -503,7 +513,7 @@ void Foam::univariateAdvection::zeta::limitZetas()
     }
 
     // First check on m* to identify cells in need of additional limitation
-    scalarRectangularMatrix mPluses(nMoments_, nCells, 0.0);
+    scalarRectangularMatrix mPluses(nMoments_, m0_.size(), 0.0);
 
     // Find m+ (moments reconstructed on cell faces with outgoing flux)
     for (label facei = 0; facei < nInternalFaces; facei++)
@@ -558,7 +568,7 @@ void Foam::univariateAdvection::zeta::limitZetas()
             {
                 mStar[mi]
                     = scalar(nFacesOutgoingFlux_[celli] + 1)
-                        *moments_[mi][celli] - mPluses[mi][celli];
+                        *moments_(mi)[celli] - mPluses[mi][celli];
             }
 
             nRealizableMomentsStar_[celli] = mStar.nRealizableMoments(false);
@@ -624,7 +634,7 @@ void Foam::univariateAdvection::zeta::limitZetas()
                 {
                     mStar[mi]
                         = scalar(nFacesOutgoingFlux_[celli] + 1)
-                          *moments_[mi][celli] - mPlus[mi];
+                          *moments_(mi)[celli] - mPlus[mi];
                 }
 
                 nRealizableMomentsStar_[celli]
@@ -680,7 +690,7 @@ void Foam::univariateAdvection::zeta::limitZetas()
                     {
                         mStar[mi]
                             = scalar(nFacesOutgoingFlux_[celli] + 1)
-                              *moments_[mi][celli] - mPlus[mi];
+                              *moments_(mi)[celli] - mPlus[mi];
                     }
 
                     nRealizableMomentsStar_[celli]
@@ -755,7 +765,7 @@ Foam::scalar Foam::univariateAdvection::zeta::realizableCo() const
     const labelList& own = mesh.faceOwner();
     const labelList& nei = mesh.faceNeighbour();
 
-    scalarField internalCo(mesh.nCells(), 0.0);
+    scalarField internalCo(m0_.size(), 0.0);
 
     for (label facei = 0; facei < mesh.nInternalFaces(); facei++)
     {
@@ -776,6 +786,13 @@ Foam::scalar Foam::univariateAdvection::zeta::realizableCo() const
 
 void Foam::univariateAdvection::zeta::update()
 {
+    if (m0_.size() != nFacesOutgoingFlux_.size())
+    {
+        nFacesOutgoingFlux_.resize(m0_.size());
+        nRealizableMoments_.resize(m0_.size());
+        nRealizableMomentsStar_.resize(m0_.size());
+    }
+
     // Compute zeta fields
     computeZetaFields();
 
@@ -798,37 +815,18 @@ void Foam::univariateAdvection::zeta::update()
 
     forAll(divMoments_, divi)
     {
-        volScalarField divMoment
-        (
-            IOobject
+        divMoments_(divi) =
+            fvc::surfaceIntegrate
             (
-                "divMoment",
-                moments_[0].mesh().time().timeName(),
-                moments_[0].mesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            moments_[0].mesh(),
-            dimensionedScalar("zero", dimless, 0.0)
-        );
-
-        surfaceScalarField mFlux
-        (
-            momentsNei_[divi]*min(phi_, zeroPhi)
-          + momentsOwn_[divi]*max(phi_, zeroPhi)
-        );
-
-        fvc::surfaceIntegrate(divMoment.ref(), mFlux);
-        divMoment.ref().dimensions().reset(moments_[divi].dimensions()/dimTime);
-
-        divMoments_[divi].replace(0, divMoment);
+                momentsNei_[divi]*min(phi_, zeroPhi)
+              + momentsOwn_[divi]*max(phi_, zeroPhi)
+            );
     }
 }
 
 void Foam::univariateAdvection::zeta::updateMomentFieldsFromZetas
 (
-    const surfaceScalarField m0f,
+    const surfaceScalarField& m0f,
     const PtrList<surfaceScalarField>& zetaf,
     PtrList<surfaceScalarField>& mf
 )

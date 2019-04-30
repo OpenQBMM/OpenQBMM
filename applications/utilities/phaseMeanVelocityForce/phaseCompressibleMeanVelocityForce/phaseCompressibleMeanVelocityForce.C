@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2014 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -92,7 +92,7 @@ Foam::fv::phaseCompressibleMeanVelocityForce::phaseCompressibleMeanVelocityForce
     ),
     rho_(mesh.thisDb().lookupObject<volScalarField>(coeffs_.lookup("rhoName"))),
     Ubar_(coeffs_.lookup("Ubar")),
-    magUbar_(max(mag(Ubar_), SMALL) ),
+    magUbar_(max(mag(Ubar_), small) ),
     flowDir_(Ubar_/magUbar_),
     relaxation_(coeffs_.lookupOrDefault<scalar>("relaxation", 1.0)),
     gradP0_(0.0),

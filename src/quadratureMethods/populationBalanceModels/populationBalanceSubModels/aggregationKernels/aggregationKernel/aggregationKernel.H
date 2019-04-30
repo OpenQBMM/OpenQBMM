@@ -39,6 +39,7 @@ SourceFiles
 #include "volFields.H"
 #include "dimensionedTypes.H"
 #include "runTimeSelectionTables.H"
+#include "quadratureApproximations.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -74,6 +75,25 @@ protected:
 
         //- Coefficient of aggregation kernel
         const dimensionedScalar Ca_;
+
+
+    // Protected functions
+
+        //- Length based aggregation source given two abscissae and an order
+        scalar nodeSource
+        (
+            const scalar& abscissa1,
+            const scalar& abscissa2,
+            const label momentOrder
+        ) const;
+
+        //- Mass based aggregation source given two abscissae and an order
+        scalar massNodeSource
+        (
+            const scalar& abscissa1,
+            const scalar& abscissa2,
+            const label momentOrder
+        ) const;
 
 
 public:
@@ -128,6 +148,24 @@ public:
             const label celli,
             const label environment = 0
         ) const = 0;
+
+        //- Return aggregation source terms
+        scalar aggregationSource
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const scalarQuadratureApproximation& quadrature,
+            const label enviroment
+        );
+
+        //- Return aggregation source terms
+        scalar aggregationSource
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const velocityQuadratureApproximation& quadrature,
+            const label enviroment
+        );
 };
 
 

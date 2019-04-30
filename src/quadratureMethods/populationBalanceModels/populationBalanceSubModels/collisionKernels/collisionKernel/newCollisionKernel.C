@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -32,8 +32,7 @@ Foam::populationBalanceSubModels::collisionKernel::New
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const velocityQuadratureApproximation& quadrature,
-    const bool ode
+    const velocityQuadratureApproximation& quadrature
 )
 {
     word collisionKernelType(dict.lookup("collisionKernel"));
@@ -60,8 +59,7 @@ Foam::populationBalanceSubModels::collisionKernel::New
         (
             dict,
             mesh,
-            quadrature,
-            ode
+            quadrature
         )
     );
 }

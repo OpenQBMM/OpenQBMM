@@ -10,5 +10,6 @@ LIB_LIBS = \
     -lfiniteVolume \
     -L$(FOAM_USER_LIBBIN) \
     -leigenSolver \
+    -lvandermonde \
     -lmomentSets
 

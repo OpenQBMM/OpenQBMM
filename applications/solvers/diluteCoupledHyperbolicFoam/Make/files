@@ -1,3 +1,0 @@
-diluteCoupledHyperbolicFoam.C
-
-EXE = $(FOAM_USER_APPBIN)/diluteCoupledHyperbolicFoam

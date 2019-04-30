@@ -104,13 +104,13 @@ class zeta
         PtrList<surfaceScalarField> momentsOwn_;
 
         //- Field to store the number of faces with outgoing flux per each cell
-        labelField nFacesOutgoingFlux_;
+        mutable labelField nFacesOutgoingFlux_;
 
         //- Field to store the number of realizable moments in each cell
-        labelField nRealizableMoments_;
+        mutable labelField nRealizableMoments_;
 
         //- Field to store the number of realizable m* in each cell
-        labelField nRealizableMomentsStar_;
+        mutable labelField nRealizableMomentsStar_;
 
         //- List of limiters for zeta_k
         PtrList<surfaceScalarField> limiters_;
@@ -121,12 +121,6 @@ class zeta
         //- Face velocity
         const surfaceScalarField& phi_;
 
-        //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
-        tmp<surfaceInterpolationScheme<scalar>> m0OwnScheme_;
-        tmp<surfaceInterpolationScheme<scalar>> m0NeiScheme_;
-        tmp<surfaceInterpolationScheme<scalar>> zetaOwnScheme_;
-        tmp<surfaceInterpolationScheme<scalar>> zetaNeiScheme_;
-
 
     // Private member functions
 
@@ -136,7 +130,7 @@ class zeta
         //- Updates reconstructed moments from the corresponding values of zeta
         void updateMomentFieldsFromZetas
         (
-            const surfaceScalarField m0f,
+            const surfaceScalarField& m0f,
             const PtrList<surfaceScalarField>& zetaf,
             PtrList<surfaceScalarField>& mf
         );
@@ -179,7 +173,7 @@ public:
         zeta
         (
             const dictionary& dict,
-            const univariateQuadratureApproximation& quadrature,
+            const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
             const word& support
         );

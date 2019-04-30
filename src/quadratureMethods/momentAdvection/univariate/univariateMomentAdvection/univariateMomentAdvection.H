@@ -75,7 +75,7 @@ protected:
         const word name_;
 
         //- Reference to the moments to advect
-        const volUnivariateMomentFieldSet& moments_;
+        const volScalarMomentFieldSet& moments_;
 
         //- Number of moments
         const label nMoments_;
@@ -98,6 +98,13 @@ protected:
         //- Dimensions of the underlying distribution
         label nDimensions_;
 
+        //- Construct field name from name, order
+        word fieldName
+        (
+            const word& name,
+            const labelList& order
+        ) const;
+
 
 public:
 
@@ -114,7 +121,7 @@ public:
             dictionary,
             (
                 const dictionary& dict,
-                const univariateQuadratureApproximation& quadrature,
+                const scalarQuadratureApproximation& quadrature,
                 const surfaceScalarField& phi,
                 const word& support
             ),
@@ -128,7 +135,7 @@ public:
         univariateMomentAdvection
         (
             const dictionary& dict,
-            const univariateQuadratureApproximation& quadrature,
+            const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
             const word& support
         );
@@ -143,7 +150,7 @@ public:
         static autoPtr<univariateMomentAdvection> New
         (
             const dictionary& dict,
-            const univariateQuadratureApproximation& quadrature,
+            const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
             const word& support
         );

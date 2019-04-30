@@ -113,7 +113,8 @@ public:
             const word& distributionName,
             const labelList& cmptOrders,
             const autoPtr<mappedPtrList<nodeType>>& nodes,
-            const fieldType& initMoment
+            const fieldType& initMoment,
+            const word momentSetName = word::null
         );
 
         //- Return clone
@@ -168,12 +169,12 @@ public:
             //- Creates the name of the moment
             word momentName
             (
+                const word& momentSetName,
                 const word& order,
                 const word& distributionName
             )
             {
-                word tmpName = IOobject::groupName("moment", order);
-
+                word tmpName = IOobject::groupName(momentSetName, order);
                 return IOobject::groupName(tmpName, distributionName);
             }
 
@@ -199,6 +200,10 @@ public:
 
             //- Update the moment from the quadrature nodes
             void update();
+
+            //- Update the moment from the quadrature nodes
+            //  on boundaries
+            void updateBoundaries();
 
             //- Update the moment from the quadrature nodes in a single element
             void updateLocalMoment(label elemi);

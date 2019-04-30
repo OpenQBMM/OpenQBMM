@@ -36,7 +36,6 @@ Foam::PDFTransportModels::velocityPDFTransportModel::velocityPDFTransportModel
 )
 :
     PDFTransportModel(name, dict, mesh),
-    name_(name),
     quadrature_(name, mesh, support),
     momentAdvection_
     (
@@ -60,72 +59,27 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
 {
     momentAdvection_().update();
 
-    // List of moment transport equations
-    PtrList<fvScalarMatrix> momentEqns(quadrature_.nMoments());
-
     // Solve moment transport equations
+    updateImplicitMomentSource();
     forAll(quadrature_.moments(), momenti)
     {
-        volVectorMoment& m = quadrature_.moments()[momenti];
-        momentEqns.set
+        volVelocityMoment& m = quadrature_.moments()[momenti];
+        fvScalarMatrix momentEqn
         (
-            momenti,
-            new fvScalarMatrix
-            (
-                fvm::ddt(m)
-              + momentAdvection_().divMoments()[momenti]
-            )
+            fvm::ddt(m)
+          + momentAdvection_().divMoments()[momenti]
+         ==
+            implicitMomentSource(m)
         );
+        momentEqn.relax();
+        momentEqn.solve();
     }
+    quadrature_.updateQuadrature();
 
     if (solveMomentSources())
     {
         this->explicitMomentSource();
     }
-    else
-    {
-        updateImplicitMomentSource();
-    }
-
-    forAll(quadrature_.moments(), mEqni)
-    {
-        volVectorMoment& m = quadrature_.moments()[mEqni];
-
-        if (solveMomentSources())
-        {
-            momentEqns[mEqni] -= fvc::ddt(m);
-        }
-        else
-        {
-            // Solve moment transport excluding collisions
-            momentEqns[mEqni].relax();
-            momentEqns[mEqni].solve();
-
-            //  Set moments.oldTime to moments transport is not neglected due to
-            //  large collision source terms
-            m.oldTime() = m;
-
-            // Solve collisions
-            momentEqns.set
-            (
-                mEqni,
-                new fvScalarMatrix
-                (
-                    fvm::ddt(m)
-                 ==
-                    implicitMomentSource(m)
-                )
-            );
-        }
-    }
-
-    forAll(quadrature_.moments(), mEqni)
-    {
-        momentEqns[mEqni].relax();
-        momentEqns[mEqni].solve();
-    }
-
-    quadrature_.updateQuadrature();
 }
 
 

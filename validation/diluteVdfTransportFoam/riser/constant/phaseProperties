@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+continuousPhase air;
+dilutePhase     particles;
+pMin 1e3;
+air
+{
+    residualAlpha   0;
+    d 0;
+}
+particles
+{
+    residualAlpha   1e-6;
+    d 150e-6;
+}
+
+aspectRatio
+{
+    type constant;
+    E0   1.0;
+}
+
+drag
+{
+    type        WenYu;
+    residualRe  1e-4;
+
+    swarmCorrection
+    {
+        type none;
+    }
+}

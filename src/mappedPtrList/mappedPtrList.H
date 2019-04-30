@@ -151,6 +151,22 @@ public:
             inline const Map<label>& map() const;
 
 
+        // Return functions
+
+            //- Is index i set
+            bool set(const label i) const;
+
+            //- Is label list index set
+            bool set(const labelList& l) const;
+
+            //- Is label list index used
+            bool found(const labelList& l) const;
+
+            //- Is label list index used
+            template <typename ...ArgsT>
+            bool found(ArgsT ...args) const;
+
+
         // Edit functions
 
             //- Set map after PtrList has been constructed
@@ -168,7 +184,6 @@ public:
             //- Set mapped location using tmp and label list
             void set(const labelList& l, tmp<mappedType> entry);
 };
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

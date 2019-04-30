@@ -10,7 +10,7 @@ EXE_INC = \
     -I$(LIB_SRC)/sampling/lnInclude \
     -I../../../../src/quadratureMethods/momentSets/lnInclude \
     -I../../../../src/quadratureMethods/momentInversion/lnInclude \
-    -I../../../../src/quadratureMethods/quadratureNode \
+    -I../../../../src/quadratureMethods/quadratureNode/lnInclude \
     -I../../../../src/quadratureMethods/moments \
     -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
     -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
@@ -35,6 +35,7 @@ EXE_LIBS = \
     -lfvOptions \
     -lmeshTools \
     -lsampling \
+    -lquadratureNode \
     -lmomentSets \
     -lmomentInversion \
     -lfieldMomentInversion \

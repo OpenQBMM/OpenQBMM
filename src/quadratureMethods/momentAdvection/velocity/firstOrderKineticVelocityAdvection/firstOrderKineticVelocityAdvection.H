@@ -53,30 +53,31 @@ class firstOrderKinetic
 :
     public velocityMomentAdvection
 {
-    // Private data
+protected:
+    // Protected data
 
         //- List of quadrature nodes used for moment advection
-        const PtrList<volVectorNode>& nodes_;
+        const PtrList<volVelocityNode>& nodes_;
 
         //- List of interpolated nodes (neighbour)
-        autoPtr<PtrList<surfaceVectorNode>> nodesNei_;
+        autoPtr<PtrList<surfaceVelocityNode>> nodesNei_;
 
         //- List of interpolated nodes (owner)
-        autoPtr<PtrList<surfaceVectorNode>> nodesOwn_;
+        autoPtr<PtrList<surfaceVelocityNode>> nodesOwn_;
+
+        //- Interpolation schemes
+        word weightScheme_;
+        word scalarAbscissaeScheme_;
+        word velocityAbscissaeScheme_;
 
         //- Flux moment inversion method
 //         autoPtr<hyperbolicFieldMomentInversion> momentFieldInverter_;
-
-
-protected:
 
     // Protected member functions
 
         // Interpolate weights and abscissae
         void interpolateNodes();
 
-        //- Compute collisions with walls
-        void updateWallCollisions();
 
 
 public:

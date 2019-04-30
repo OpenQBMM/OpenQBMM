@@ -50,6 +50,7 @@ SourceFiles
 #define mappedList_H
 
 #include "scalar.H"
+#include "vector.H"
 #include "labelList.H"
 #include "Map.H"
 
@@ -138,13 +139,20 @@ public:
         // Modifiers
 
             //- Resize mapped list
-            void resize (const label newSize);
+            void resize(const label newSize);
 
             //- Set mapped list size
-            void setSize (const label newSize);
+            void setSize(const label newSize);
 
 
         // Access
+
+            //- Is label list index used
+            bool found(const labelList& l) const;
+
+            //- Is label list index used
+            template <typename ...ArgsT>
+            bool found(ArgsT ...args) const;
 
             //- Non-const access to a moment given the list of orders
             template <typename ...ArgsT>
