@@ -43,8 +43,6 @@ ratio="0.8 0.95"
 validationCases_0_8="bidisperseGranularCooling_1_5__0_8 bidisperseGranularCooling_2_0__0_8 bidisperseGranularCooling_3_0__0_8"
 validationCases_0_95="bidisperseGranularCooling_1_5__0_95 bidisperseGranularCooling_2_0__0_95 bidisperseGranularCooling_3_0__0_95"
 
-rm temperatureRatios_*
-
 # extract data from log file and put them in a text file for gnuplot
 for caseName in $validationCases_0_8
 do
@@ -72,8 +70,8 @@ ENSKOG_0_8="$VALIDATIONDATAROOT/Enskog_0_8.csv"
 MD_0_8="$VALIDATIONDATAROOT/MD_0_8.csv"
 OPENQBMM_0_8="temperatureRatios_0_8.dat"
 
-
-
 createEpsD43 $ENSKOG_0_95 $MD_0_95 $OPENQBMM_0_95 $ENSKOG_0_8 $MD_0_8 $OPENQBMM_0_8
+
+rm temperatureRatios_*
 
 echo Done

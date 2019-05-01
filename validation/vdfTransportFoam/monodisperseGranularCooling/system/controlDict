@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     polydisperseBubbleFoam;
+application     vdfTransportFoam;
 
 startFrom       startTime;
 
@@ -29,7 +29,7 @@ deltaT          1e-3;
 
 writeControl    adjustableRunTime;
 
-writeInterval   0.1;
+writeInterval   1;
 
 purgeWrite      100;
 
@@ -47,7 +47,7 @@ runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           .5;
+maxCo           0.5;
 
 maxDeltaT       1;
 

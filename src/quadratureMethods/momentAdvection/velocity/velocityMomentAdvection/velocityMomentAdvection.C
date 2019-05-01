@@ -204,6 +204,11 @@ void Foam::velocityMomentAdvection::updateWallCollisions
     label fixedPatchi = 0;
     forAll(mesh.boundary(), patchi)
     {
+        if (fixedPatchi >= fixedWalls_.size())
+        {
+            return;
+        }
+
         const fvPatch& currPatch = mesh.boundary()[patchi];
         if (fixedWalls_[fixedPatchi] == currPatch.name())
         {

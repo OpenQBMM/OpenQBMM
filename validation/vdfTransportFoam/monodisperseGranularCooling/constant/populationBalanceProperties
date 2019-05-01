@@ -22,9 +22,8 @@ velocityCoeffs
     odeCoeffs
     {
         solveOde off;
-        solveSources on;
 
-        ATol    1.0e-6;
+        ATol    1.0e-4;
         RTol    1.0e-3;
         fac     0.9;
         facMin  0.1;
@@ -40,8 +39,6 @@ velocityCoeffs
         d           #calc "1.0/35.0";
         e           1;
         rho         2000;
-        Enskog      off;
-        implicit    on;
     }
 }
 
