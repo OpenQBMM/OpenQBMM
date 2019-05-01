@@ -170,19 +170,13 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                 vectorField& bfUOwn = UOwn.boundaryFieldRef()[patchi];
                 vectorField& bfUNei = UNei.boundaryFieldRef()[patchi];
 
-                forAll(currPatch, facei)
-                {
-                    label faceCelli = currPatch.faceCells()[facei];
+                bfwOwn = weight.boundaryField()[patchi].patchInternalField();
+                bfwNei = bfwOwn;
 
-                    bfwOwn[facei] = weight[faceCelli];
-                    bfwNei[facei] = bfwOwn[facei];
-
-                    bfUOwn[facei] = U[faceCelli];
-                    bfUNei[facei] =
-                        bfUOwn[facei]
-                      - (1.0 + this->ew_)*(bfUOwn[facei] & bfNorm[facei])
-                       *bfNorm[facei];
-                }
+                bfUOwn = U.boundaryField()[patchi].patchInternalField();
+                bfUNei =
+                    bfUOwn
+                  - (1.0 + this->ew_)*(bfUOwn & bfNorm)*bfNorm;
             }
         }
     }
@@ -214,18 +208,23 @@ void Foam::velocityMomentAdvection::updateWallCollisions
         {
             const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
             scalarField Gin(bfSf.size(), 0.0);
-            scalarField Gout(bfSf.size(), 0.0);
+            scalarField GoutOwn(bfSf.size(), 0.0);
+            scalarField GoutNei(bfSf.size(), 0.0);
 
             forAll(nodes, nodei)
             {
                 surfaceVelocityNode& nodeNei(nodesNei[nodei]);
                 surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
 
+                tmp<scalarField> bfW =
+                    nodes[nodei].primaryWeight().boundaryField()[patchi].patchInternalField();
                 const scalarField& bfWOwn =
                     nodeOwn.primaryWeight().boundaryField()[patchi];
                 const scalarField& bfWNei =
                     nodeNei.primaryWeight().boundaryField()[patchi];
 
+                tmp<vectorField> bfU =
+                    nodes[nodei].velocityAbscissae().boundaryField()[patchi].patchInternalField();
                 vectorField& bfUOwn =
                     nodeOwn.velocityAbscissae().boundaryFieldRef()[patchi];
                 vectorField& bfUNei =
@@ -243,23 +242,24 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                 bfUOwn *= scale;
                 bfUNei *= scale;
 
-                Gin += max(0.0, bfUNei & bfSf)*bfWNei;
-                Gout -= min(0.0, bfUOwn & bfSf)*bfWOwn;
+//                 Gin -= max(0.0, bfU & bfSf)*bfW;
+//                 GoutOwn += min(0.0, bfUOwn & bfSf)*bfWOwn;
+//                 GoutNei += min(0.0, bfUNei & bfSf)*bfWNei;
             }
 
-            forAll(nodes, nodei)
-            {
-                surfaceVelocityNode& nodeNei(nodesNei[nodei]);
-                surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
-
-                scalarField& bfWOwn =
-                    nodeOwn.primaryWeight().boundaryFieldRef()[patchi];
-                scalarField& bfWNei =
-                    nodeNei.primaryWeight().boundaryFieldRef()[patchi];
-
-                bfWNei *= Gin/(Gout + small);
-                bfWOwn *= Gin/(Gout + small);
-            }
+//             forAll(nodes, nodei)
+//             {
+//                 surfaceVelocityNode& nodeNei(nodesNei[nodei]);
+//                 surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
+//
+//                 scalarField& bfWOwn =
+//                     nodeOwn.primaryWeight().boundaryFieldRef()[patchi];
+//                 scalarField& bfWNei =
+//                     nodeNei.primaryWeight().boundaryFieldRef()[patchi];
+//
+//                 bfWNei *= Gin/(GoutNei + small);
+// //                 bfWOwn *= Gin/(GoutOwn + small);
+//             }
             fixedPatchi++;
         }
     }

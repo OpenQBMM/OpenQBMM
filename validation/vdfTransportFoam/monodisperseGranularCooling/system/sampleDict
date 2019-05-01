@@ -29,17 +29,13 @@ interpolationScheme cell;
 // Fields to sample.
 fields
 (
-    Theta.particles
-    moment.000.particles
-    moment.100.particles
-    moment.200.particles
-    moment.010.particles
-	moment.020.particles
-	moment.001.particles
-	moment.002.particles
-	moment.110.particles
-	moment.101.particles
-	moment.011.particles
+    Theta.particles     //2
+    moment.100.particles//3
+    moment.000.particles//4
+    moment.300.particles//5
+    moment.120.particles//6
+    moment.102.particles//7
+	moment.200.particles//8
 );
 
 

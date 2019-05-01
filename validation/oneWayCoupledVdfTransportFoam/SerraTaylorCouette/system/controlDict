@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pbeTransportFoam;
+application     oneWayCoupledVdfTransportFoam;
 
 startFrom       latestTime;
 
@@ -30,7 +30,7 @@ writeControl    adjustableRunTime;
 
 writeInterval   1;
 
-purgeWrite      100;
+purgeWrite      1000;
 
 writeFormat     binary;
 

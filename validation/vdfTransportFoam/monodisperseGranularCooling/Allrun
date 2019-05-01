@@ -8,5 +8,6 @@ application=`getApplication`
 runApplication blockMesh
 runApplication generateMoments
 runApplication $application
-runApplication postProcess -func sampleDict
+runApplication computeMoments
+runApplication postProcess -func sampleDict -latestTime
 ( cd validation && ./createGraph )
