@@ -48,6 +48,10 @@ boundaries
     {
         type    cyclic;
     }
+    defaultFaces
+    {
+        type    empty;
+    }
 }
 
 u2 1.0;

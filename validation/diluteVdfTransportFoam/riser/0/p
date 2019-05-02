@@ -30,7 +30,7 @@ boundaryField
     }
     walls
     {
-        type            calculated;
+        type            zeroGradient;
         value           $internalField;
     }
     defaultFaces

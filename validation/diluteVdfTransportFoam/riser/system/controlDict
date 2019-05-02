@@ -25,11 +25,11 @@ stopAt          endTime;
 
 endTime         10;
 
-deltaT          5e-4;
+deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 
-writeInterval   .05;
+writeInterval   .01;
 
 purgeWrite      0;
 
@@ -53,6 +53,106 @@ maxDeltaT       1;
 
 functions
 {
+    temperatureRatio
+    {
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                temperatureRatio;
+        writeControl        timeStep;
+
+        codeInclude
+        #{
+            #include "quadratureApproximations.H"
+        #};
+
+        codeOptions
+        #{
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedList \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedPtrList \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/moments \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/fieldMomentInversion/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/momentSets/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureNode/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureApproximations/lnInclude
+        #};
+
+        codeExecute
+        #{
+        const velocityQuadratureApproximation& quadrature =
+            mesh().lookupObject<velocityQuadratureApproximation>("quadratureProperties.particles");
+
+        word name1 = "alpha.particlesSmall";
+        word name2 = "alpha.particlesLarge";
+        bool found = mesh().foundObject<volScalarField>(name1);
+        volScalarField* alpha1;
+        volScalarField* alpha2;
+
+        if (!found)
+        {
+            alpha1 =
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "alpha.particlesSmall",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    0.0
+                );
+            alpha2 =
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "alpha.particlesLarge",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    0.0
+                );
+
+            // Transfer ownership of this object to the objectRegistry
+            alpha1->store(alpha1);
+            alpha2->store(alpha2);
+        }
+        else
+        {
+            alpha1 = tmp<volScalarField>
+            (
+                mesh().lookupObjectRef<volScalarField>(name1)
+            ).ptr();
+            alpha2 = tmp<volScalarField>
+            (
+                mesh().lookupObjectRef<volScalarField>(name2)
+            ).ptr();
+        }
+
+        forAll(quadrature.nodes(), nodei)
+        {
+            const labelList& nodeIndex = quadrature.nodeIndexes()[nodei];
+            const volVelocityNode& node = quadrature.nodes()[nodei];
+            label sizei = nodeIndex[0];
+
+            if (sizei == 0)
+            {
+                (*alpha1) += node.primaryWeight();
+            }
+            else
+            {
+                (*alpha2) += node.primaryWeight();
+            }
+        }
+
+        #};
+    }
+
     fieldAverage
     {
         type            fieldAverage;
@@ -86,6 +186,18 @@ functions
                  base        time;
             }
             alpha.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            alpha.particlesSmall
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            alpha.particlesLarge
             {
                  mean        on;
                  prime2Mean  off;

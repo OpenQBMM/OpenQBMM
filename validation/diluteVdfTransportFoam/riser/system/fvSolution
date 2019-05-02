@@ -17,7 +17,7 @@ FoamFile
 
 solvers
 {
-    p_rgh
+    p
     {
         solver          PCG;
         smoother        DIC;
@@ -34,9 +34,9 @@ solvers
         relTol          0.01;
     }
 
-    p_rghFinal
+    pFinal
     {
-        $p_rgh;
+        $p;
         relTol          0;
     }
 

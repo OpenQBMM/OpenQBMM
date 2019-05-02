@@ -61,42 +61,42 @@ boundary
             (1 2 6 5)
         );
     }
-    bottom
-    {
-        type            cyclic;
-        neighbourPatch  top;
-        faces
-        (
-            (0 1 5 4)
-        );
-    }
-    top
-    {
-        type            cyclic;
-        neighbourPatch  bottom;
-        faces
-        (
-            (2 3 7 6)
-        );
-    }
-    front
-    {
-        type            cyclic;
-        neighbourPatch  back;
-        faces
-        (
-            (0 1 2 3)
-        );
-    }
-    back
-    {
-        type            cyclic;
-        neighbourPatch  front;
-        faces
-        (
-            (4 5 6 7)
-        );
-    }
+//     bottom
+//     {
+//         type            cyclic;
+//         neighbourPatch  top;
+//         faces
+//         (
+//             (0 1 5 4)
+//         );
+//     }
+//     top
+//     {
+//         type            cyclic;
+//         neighbourPatch  bottom;
+//         faces
+//         (
+//             (2 3 7 6)
+//         );
+//     }
+//     front
+//     {
+//         type            cyclic;
+//         neighbourPatch  back;
+//         faces
+//         (
+//             (0 1 2 3)
+//         );
+//     }
+//     back
+//     {
+//         type            cyclic;
+//         neighbourPatch  front;
+//         faces
+//         (
+//             (4 5 6 7)
+//         );
+//     }
 );
 
 mergePatchPairs

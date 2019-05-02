@@ -15,6 +15,7 @@ fvVectorMatrix UEqn
       + fvm::div(phi1, U1)
       - fvm::Sp(fvc::div(phi1), U1)
     )
+  + alpha1*rho1*g
   + dragSource
   - fvm::Sp(Kd, U1)
   + F
@@ -30,15 +31,8 @@ if (pimple.momentumPredictor())
     solve
     (
         UEqn
-        ==
-        fvc::reconstruct
-        (
-            (
-                - ghf*fvc::snGrad(rho)
-                - fvc::snGrad(p_rgh)
-            )*fvc::interpolate(alpha1)*mesh.magSf()
-          + fvc::interpolate(alpha2*(rho1 - rho2))*(g & mesh.Sf())
-        )
+     ==
+      - alpha1*fvc::grad(p)
     );
 
     fvOptions.correct(U1);

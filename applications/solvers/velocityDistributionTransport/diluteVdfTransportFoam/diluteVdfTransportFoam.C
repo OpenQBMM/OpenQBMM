@@ -5,7 +5,7 @@
     \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-02-09-2018 Jeff Heylmun:    Added Solution of moment trasporport as well as the
+02-09-2019 Jeff Heylmun:    Added Solution of moment trasporport as well as the
                             coupling of the continuous phase with the velocity
                             abscissae.
 -------------------------------------------------------------------------------

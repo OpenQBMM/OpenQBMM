@@ -208,58 +208,55 @@ void Foam::velocityMomentAdvection::updateWallCollisions
         {
             const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
             scalarField Gin(bfSf.size(), 0.0);
-            scalarField GoutOwn(bfSf.size(), 0.0);
-            scalarField GoutNei(bfSf.size(), 0.0);
+            scalarField Gout(bfSf.size(), 0.0);
+
+            scalarField scale
+            (
+                sqrt
+                (
+                    wallTemperatures_[fixedPatchi]
+                   /max(Theta.boundaryField()[patchi], 1e-4)
+                )
+            );
 
             forAll(nodes, nodei)
             {
                 surfaceVelocityNode& nodeNei(nodesNei[nodei]);
-                surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
 
+                // Internal cell weight field
                 tmp<scalarField> bfW =
                     nodes[nodei].primaryWeight().boundaryField()[patchi].patchInternalField();
-                const scalarField& bfWOwn =
-                    nodeOwn.primaryWeight().boundaryField()[patchi];
+
+                // Wall weight field
                 const scalarField& bfWNei =
                     nodeNei.primaryWeight().boundaryField()[patchi];
 
+                // Internal cell velocity field
                 tmp<vectorField> bfU =
                     nodes[nodei].velocityAbscissae().boundaryField()[patchi].patchInternalField();
-                vectorField& bfUOwn =
-                    nodeOwn.velocityAbscissae().boundaryFieldRef()[patchi];
+
+                // Wall velocity field
                 vectorField& bfUNei =
                     nodeNei.velocityAbscissae().boundaryFieldRef()[patchi];
 
-                scalarField scale
-                (
-                    sqrt
-                    (
-                        wallTemperatures_[fixedPatchi]
-                       /max(Theta.boundaryField()[patchi], 1e-4)
-                    )
-                );
-
-                bfUOwn *= scale;
+                // Rescale wall velocity to match total temperature
                 bfUNei *= scale;
 
-//                 Gin -= max(0.0, bfU & bfSf)*bfW;
-//                 GoutOwn += min(0.0, bfUOwn & bfSf)*bfWOwn;
-//                 GoutNei += min(0.0, bfUNei & bfSf)*bfWNei;
+                // Compute incoming and outgoing weight wall fluxes
+                Gin += max(0.0, bfU & bfSf)*bfW;
+                Gout -= min(0.0, bfUNei & bfSf)*bfWNei;
             }
 
-//             forAll(nodes, nodei)
-//             {
-//                 surfaceVelocityNode& nodeNei(nodesNei[nodei]);
-//                 surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
-//
-//                 scalarField& bfWOwn =
-//                     nodeOwn.primaryWeight().boundaryFieldRef()[patchi];
-//                 scalarField& bfWNei =
-//                     nodeNei.primaryWeight().boundaryFieldRef()[patchi];
-//
-//                 bfWNei *= Gin/(GoutNei + small);
-// //                 bfWOwn *= Gin/(GoutOwn + small);
-//             }
+            // Scale weights to ensure zero flux through walls
+            forAll(nodes, nodei)
+            {
+                surfaceVelocityNode& nodeNei(nodesNei[nodei]);
+
+                scalarField& bfWNei =
+                    nodeNei.primaryWeight().boundaryFieldRef()[patchi];
+
+                bfWNei *= Gin/(Gout + small);
+            }
             fixedPatchi++;
         }
     }

@@ -19,7 +19,7 @@ createEpsAlpha()
                 with lines linewidth 3 linecolor rgb 'black',\
             "$2" using 1:2 title 'Passalacqua et. al. 2011'\
                 with lines dt 2 linewidth 2 linecolor rgb 'black',\
-            "$3" using 1:4 every 5 title 'OpenQBMM'\
+            "$3" using 1:3 every 5 title 'OpenQBMM'\
                 with points pointtype 5 ps 2 linecolor rgb '#9db668'
 EOF
 }
@@ -63,8 +63,12 @@ createEpsQ()
     set autoscale
     set xrange [0:1]
 
-    plot    "$3" using 1:(0.5*(\$5+\$6+\$7)*0.5*(\$3/\$4)**3 - (\$3/\$4)*(\$8+\$4*\$2)) every 5 title 'OpenQBMM'\
-                with points pointtype 5 ps 2 linecolor rgb '#9db668'
+    plot    "$3" using 1:(0.5*(\$6 + \$7 + \$8 + \$3*(\$4/\$3)**3) - (\$4/\$3)*(\$5 + \$3*\$2)) every 5 title 'OpenQBMM'\
+                with points pointtype 5 ps 2 linecolor rgb '#9db668',\
+            "$1" using 1:2 title 'MD(Galvin et. al. 2007)'\
+                with lines linewidth 3 linecolor rgb 'black',\
+            "$2" using 1:2 title 'Passalacqua et. al. 2011'\
+                with lines dt 2 linewidth 2 linecolor rgb 'black'
 EOF
 }
 
@@ -77,16 +81,18 @@ fi
 
 # paths to data
 VALIDATIONDATAROOT=./validationData
-time=12.1 # $(cd ../ && foamListTimes -latestTime)
+time=$(cd ../ && foamListTimes -latestTime)
 
 TP_alpha="$VALIDATIONDATAROOT/case1_alpha_TP.csv"
 MD_alpha="$VALIDATIONDATAROOT/case1_alpha_MD.csv"
 TP_T="$VALIDATIONDATAROOT/case1_T_TP.csv"
 MD_T="$VALIDATIONDATAROOT/case1_T_MD.csv"
+TP_Q="$VALIDATIONDATAROOT/case1_Q_TP.csv"
+MD_Q="$VALIDATIONDATAROOT/case1_Q_MD.csv"
 OPENQBMM="../postProcessing/sampleDict/$time/Centerline*"
 
 createEpsAlpha $TP_alpha $MD_alpha $OPENQBMM
 createEpsT $TP_T $MD_T $OPENQBMM
-createEpsQ $TP_T $MD_T $OPENQBMM
+createEpsQ $TP_Q $MD_Q $OPENQBMM
 
 echo Done

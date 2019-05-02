@@ -136,11 +136,13 @@ int main(int argc, char *argv[])
                         mesh
                     ),
                     mesh,
-                    dimensionedScalar("0", mDims, 0.0)
+                    dimensionedScalar("0", mDims, 0.0),
+                    quadrature.moments()[0].boundaryField().types()
                 )
             );
             Info<< "Created " << moment.name() << endl;
             moment.update();
+            moment.updateBoundaries();
             moment.write();
         }
     }
