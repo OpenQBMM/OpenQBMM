@@ -15,9 +15,9 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-populationBalanceModel velocity;
+populationBalanceModel sizeVelocity;
 
-velocityCoeffs
+sizeVelocityCoeffs
 {
     odeCoeffs
     {
@@ -31,13 +31,13 @@ velocityCoeffs
         minLocalDt 1.0e-4;
     }
 
-    collision  off;
+    collision  on;
 
     collisionKernel
     {
-        implicit yes;
         collisionKernel Boltzmann;
         e           0.97;
+        minD        1e-6;
     }
 }
 

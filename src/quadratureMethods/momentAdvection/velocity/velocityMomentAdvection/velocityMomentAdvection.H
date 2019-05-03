@@ -84,14 +84,6 @@ protected:
         //- Field used to find upwind values of the neighbour
         surfaceScalarField nei_;
 
-        //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
-        tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme_;
-        tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme_;
-        tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeOwnScheme_;
-        tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeNeiScheme_;
-        tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeOwnScheme_;
-        tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeNeiScheme_;
-
         //- Support of the distribution function
         word support_;
 
@@ -105,7 +97,7 @@ protected:
         PtrList<volScalarField> divMoments_;
 
         //- List of boundaries using fixed temperatures
-        wordList fixedWalls_;
+        boolList fixedWalls_;
 
         //- List of temperatures used at walls
         scalarList wallTemperatures_;

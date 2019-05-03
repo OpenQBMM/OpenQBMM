@@ -267,6 +267,13 @@ void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
             }
         }
     }
+    else
+    {
+        forAll(weights_, nodei)
+        {
+            weights_[nodei] = m0/weights_.size();
+        }
+    }
 }
 
 

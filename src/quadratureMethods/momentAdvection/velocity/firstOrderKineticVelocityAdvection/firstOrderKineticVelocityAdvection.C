@@ -568,6 +568,26 @@ void Foam::velocityAdvection::firstOrderKinetic::update
     // Interplate weights and abscissae
     interpolateNodes();
 
+    IStringStream velocityAbscissaeOwnLimiter(velocityAbscissaeScheme_);
+    tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeOwnScheme
+    (
+        fvc::scheme<vector>
+        (
+            own_,
+            velocityAbscissaeOwnLimiter
+        )
+    );
+
+    IStringStream velocityAbscissaeNeiLimiter(velocityAbscissaeScheme_);
+    tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeNeiScheme
+    (
+        fvc::scheme<vector>
+        (
+            nei_,
+            velocityAbscissaeNeiLimiter
+        )
+    );
+
     // Set velocities at boundaries for rebounding
     if (wallCollisions)
     {
@@ -607,11 +627,11 @@ void Foam::velocityAdvection::firstOrderKinetic::update
 
         surfaceVectorField VOwn
         (
-            velocityAbscissaeOwnScheme_().interpolate(Us[nodei])
+            velocityAbscissaeOwnScheme().interpolate(Us[nodei])
         );
         surfaceVectorField VNei
         (
-            velocityAbscissaeNeiScheme_().interpolate(Us[nodei])
+            velocityAbscissaeNeiScheme().interpolate(Us[nodei])
         );
         surfaceScalarField phiOwn(VOwn & mesh.Sf());
         surfaceScalarField phiNei(VNei & mesh.Sf());

@@ -73,6 +73,8 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
     momentOrders_(quadrature.momentOrders()),
     nodeIndexes_(quadrature.nodeIndexes()),
     divMoments_(nMoments_),
+    fixedWalls_(moments_[0].boundaryField().size(), false),
+    wallTemperatures_(fixedWalls_.size(), 0.0),
     ew_(dict.lookupOrDefault("ew", 1.0))
 {
     if (dict.found("fixedTemperatureBoundaries"))
@@ -88,12 +90,13 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
             {
                 if (tmpWalls[walli] == currPatch.name())
                 {
-                    fixedWalls_.append(tmpWalls[walli]);
-                    wallTemperatures_.append(tmpWallTemperatures[walli]);
+                    fixedWalls_[patchi] = true;
+                    wallTemperatures_[patchi] = tmpWallTemperatures[walli];
                 }
             }
         }
     }
+
 
     forAll(divMoments_, momenti)
     {
@@ -144,6 +147,16 @@ void Foam::velocityMomentAdvection::updateWallCollisions
 )
 {
     const fvMesh& mesh = own_.mesh();
+    tmp<volScalarField> Theta;
+    word ThetaName(IOobject::groupName("Theta", moments_[0].group()));
+    if (mesh.foundObject<volScalarField>(ThetaName))
+    {
+        Theta = tmp<volScalarField>
+        (
+            mesh.lookupObject<volScalarField>(ThetaName)
+        );
+    }
+
     forAll(mesh.boundary(), patchi)
     {
         const fvPatch& currPatch = mesh.boundary()[patchi];
@@ -151,6 +164,22 @@ void Foam::velocityMomentAdvection::updateWallCollisions
         {
             const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
             vectorField bfNorm(bfSf/mag(bfSf));
+            scalarField scale(bfSf.size(), 1.0);
+
+            if (fixedWalls_[patchi] && Theta.valid())
+            {
+                scale =
+                (
+                    sqrt
+                    (
+                        wallTemperatures_[patchi]
+                       /max(Theta().boundaryField()[patchi], 1e-8)
+                    )
+                );
+            }
+
+            scalarField Gin(bfSf.size(), 0.0);
+            scalarField Gout(bfSf.size(), 0.0);
 
             forAll(nodes, nodei)
             {
@@ -175,79 +204,16 @@ void Foam::velocityMomentAdvection::updateWallCollisions
 
                 bfUOwn = U.boundaryField()[patchi].patchInternalField();
                 bfUNei =
-                    bfUOwn
-                  - (1.0 + this->ew_)*(bfUOwn & bfNorm)*bfNorm;
-            }
-        }
-    }
+                    scale
+                   *(
+                        bfUOwn
+                      - (1.0 + this->ew_)*(bfUOwn & bfNorm)*bfNorm
+                    );
 
-    if (!fixedWalls_.size())
-    {
-        return;
-    }
-
-    const volScalarField& Theta = mesh.lookupObject<volScalarField>
-    (
-        IOobject::groupName
-        (
-            "Theta",
-            moments_[0].group()
-        )
-    );
-
-    label fixedPatchi = 0;
-    forAll(mesh.boundary(), patchi)
-    {
-        if (fixedPatchi >= fixedWalls_.size())
-        {
-            return;
-        }
-
-        const fvPatch& currPatch = mesh.boundary()[patchi];
-        if (fixedWalls_[fixedPatchi] == currPatch.name())
-        {
-            const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
-            scalarField Gin(bfSf.size(), 0.0);
-            scalarField Gout(bfSf.size(), 0.0);
-
-            scalarField scale
-            (
-                sqrt
-                (
-                    wallTemperatures_[fixedPatchi]
-                   /max(Theta.boundaryField()[patchi], 1e-4)
-                )
-            );
-
-            forAll(nodes, nodei)
-            {
-                surfaceVelocityNode& nodeNei(nodesNei[nodei]);
-
-                // Internal cell weight field
-                tmp<scalarField> bfW =
-                    nodes[nodei].primaryWeight().boundaryField()[patchi].patchInternalField();
-
-                // Wall weight field
-                const scalarField& bfWNei =
-                    nodeNei.primaryWeight().boundaryField()[patchi];
-
-                // Internal cell velocity field
-                tmp<vectorField> bfU =
-                    nodes[nodei].velocityAbscissae().boundaryField()[patchi].patchInternalField();
-
-                // Wall velocity field
-                vectorField& bfUNei =
-                    nodeNei.velocityAbscissae().boundaryFieldRef()[patchi];
-
-                // Rescale wall velocity to match total temperature
-                bfUNei *= scale;
-
-                // Compute incoming and outgoing weight wall fluxes
-                Gin += max(0.0, bfU & bfSf)*bfW;
-                Gout -= min(0.0, bfUNei & bfSf)*bfWNei;
+                Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
+                Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
             }
 
-            // Scale weights to ensure zero flux through walls
             forAll(nodes, nodei)
             {
                 surfaceVelocityNode& nodeNei(nodesNei[nodei]);
@@ -255,9 +221,8 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                 scalarField& bfWNei =
                     nodeNei.primaryWeight().boundaryFieldRef()[patchi];
 
-                bfWNei *= Gin/(Gout + small);
+                bfWNei *= Gin/max(Gout, small);
             }
-            fixedPatchi++;
         }
     }
 }

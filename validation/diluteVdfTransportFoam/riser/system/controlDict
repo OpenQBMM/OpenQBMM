@@ -29,25 +29,25 @@ deltaT          1e-4;
 
 writeControl    adjustableRunTime;
 
-writeInterval   .01;
+writeInterval   .05;
 
 purgeWrite      0;
 
-writeFormat     ascii;
+writeFormat     binary;
 
-writePrecision  10;
+writePrecision  6;
 
 writeCompression uncompressed;
 
 timeFormat      general;
 
-timePrecision   6;
+timePrecision   10;
 
 runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           0.25;
+maxCo           0.5;
 
 maxDeltaT       1;
 
@@ -83,13 +83,10 @@ functions
 
         word name1 = "alpha.particlesSmall";
         word name2 = "alpha.particlesLarge";
-        bool found = mesh().foundObject<volScalarField>(name1);
-        volScalarField* alpha1;
-        volScalarField* alpha2;
 
-        if (!found)
+        if (!mesh().foundObject<volScalarField>(name1))
         {
-            alpha1 =
+            volScalarField* alpha1 =
                 new volScalarField
                 (
                     IOobject
@@ -103,7 +100,7 @@ functions
                     mesh(),
                     0.0
                 );
-            alpha2 =
+            volScalarField* alpha2 =
                 new volScalarField
                 (
                     IOobject
@@ -122,17 +119,16 @@ functions
             alpha1->store(alpha1);
             alpha2->store(alpha2);
         }
-        else
-        {
-            alpha1 = tmp<volScalarField>
-            (
-                mesh().lookupObjectRef<volScalarField>(name1)
-            ).ptr();
-            alpha2 = tmp<volScalarField>
-            (
-                mesh().lookupObjectRef<volScalarField>(name2)
-            ).ptr();
-        }
+        volScalarField& alpha1 =
+        (
+            mesh().lookupObjectRef<volScalarField>(name1)
+        );
+        volScalarField& alpha2 =
+        (
+            mesh().lookupObjectRef<volScalarField>(name2)
+        );
+        alpha1 = 0.0;
+        alpha2 = 0.0;
 
         forAll(quadrature.nodes(), nodei)
         {
@@ -142,11 +138,11 @@ functions
 
             if (sizei == 0)
             {
-                (*alpha1) += node.primaryWeight();
+                alpha1 += node.primaryWeight();
             }
             else
             {
-                (*alpha2) += node.primaryWeight();
+                alpha2 += node.primaryWeight();
             }
         }
 

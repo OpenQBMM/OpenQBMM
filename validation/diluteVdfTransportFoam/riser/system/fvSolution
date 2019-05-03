@@ -44,7 +44,7 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-8;
+        tolerance       1e-10;
         relTol          0;
     }
 
@@ -52,7 +52,7 @@ solvers
     {
         solver          PBiCGStab;
         preconditioner  DILU;
-        tolerance       1e-8;
+        tolerance       1e-10;
         relTol          0;
     }
 
@@ -67,22 +67,32 @@ solvers
 PIMPLE
 {
     nOuterCorrectors    15;
-    nCorrectors         3;
+    nCorrectors         2;
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
     pRefValue 1e5;
+    momentumPredictor on;
+
+    outerCorrectorResidualControl
+    {
+        p
+        {
+            tolerance 1e-4;
+            relTol    0;
+        }
+    }
 }
 
 relaxationFactors
 {
-//     fields
-//     {
-//         p_rgh       0.3;
-//     }
-//     equations
-//     {
-//         "U.*"       0.7;
-//     }
+    fields
+    {
+        p           0.3;
+    }
+    equations
+    {
+        "U.*"       0.7;
+    }
 }
 
 

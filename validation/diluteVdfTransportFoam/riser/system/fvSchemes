@@ -22,7 +22,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default                         faceLimited     leastSquares 1.0;
+    default                         faceLimited leastSquares 1.0;
     grad(p)                         leastSquares;
 }
 
