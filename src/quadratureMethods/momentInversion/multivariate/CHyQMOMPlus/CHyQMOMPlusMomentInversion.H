@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::multivariateMomentInversions::CHyQMOM
+    Foam::multivariateMomentInversions::CHyQMOMPlus
 
 Description
     Implementation of the hyperbolic conditional quadrature method of moment
@@ -34,8 +34,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef hyperbolicConditionalMomentInversion_H
-#define hyperbolicConditionalMomentInversion_H
+#ifndef CHyQMOMPlusMomentInversion_H
+#define CHyQMOMPlusMomentInversion_H
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -57,9 +57,9 @@ namespace multivariateMomentInversions
 {
 
 /*---------------------------------------------------------------------------*\
-                    Class CHyQMOM Declaration
+                    Class CHyQMOMPlus Declaration
 \*---------------------------------------------------------------------------*/
-class CHyQMOM
+class CHyQMOMPlus
 :
     public multivariateMomentInversion
 {
@@ -120,22 +120,22 @@ class CHyQMOM
         );
 
         //- Disallow default bitwise copy construct
-        //CHyQMOM(const CHyQMOM&);
+        //CHyQMOMPlus(const CHyQMOMPlus&);
 
         //- Disallow default bitwise assignment
-        //void operator=(const CHyQMOM&);
+        //void operator=(const CHyQMOMPlus&);
 
 
 public:
 
     //- Runtime type information
-    TypeName("CHyQMOM");
+    TypeName("CHyQMOMPlus");
 
 
     // Constructors
 
         // Construct from nMoments, momentMap, nNodes, and support type
-        CHyQMOM
+        CHyQMOMPlus
         (
             const dictionary& dict,
             const labelListList& momentOrders,
@@ -145,7 +145,7 @@ public:
 
 
     //- Destructor
-    virtual ~CHyQMOM();
+    virtual ~CHyQMOMPlus();
 
     // Static data
 

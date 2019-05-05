@@ -147,15 +147,16 @@ void Foam::velocityMomentAdvection::updateWallCollisions
 )
 {
     const fvMesh& mesh = own_.mesh();
-    tmp<volScalarField> Theta;
+    const volScalarField* ThetaPtr;
     word ThetaName(IOobject::groupName("Theta", moments_[0].group()));
     if (mesh.foundObject<volScalarField>(ThetaName))
     {
-        Theta = tmp<volScalarField>
+        ThetaPtr =
         (
-            mesh.lookupObject<volScalarField>(ThetaName)
+            &mesh.lookupObject<volScalarField>(ThetaName)
         );
     }
+    const volScalarField& Theta = *ThetaPtr;
 
     forAll(mesh.boundary(), patchi)
     {
@@ -166,14 +167,14 @@ void Foam::velocityMomentAdvection::updateWallCollisions
             vectorField bfNorm(bfSf/mag(bfSf));
             scalarField scale(bfSf.size(), 1.0);
 
-            if (fixedWalls_[patchi] && Theta.valid())
+            if (fixedWalls_[patchi] && ThetaPtr)
             {
                 scale =
                 (
                     sqrt
                     (
                         wallTemperatures_[patchi]
-                       /max(Theta().boundaryField()[patchi], 1e-8)
+                       /max(Theta.boundaryField()[patchi], 1e-8)
                     )
                 );
             }

@@ -24,7 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BoltzmannCollision.H"
-#include "hyperbolicConditionalMomentInversion.H"
 #include "constants.H"
 #include "addToRunTimeSelectionTable.H"
 

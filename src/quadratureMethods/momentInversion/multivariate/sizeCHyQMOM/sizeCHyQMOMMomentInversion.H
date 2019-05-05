@@ -47,7 +47,7 @@ SourceFiles
 #include "mappedLists.H"
 #include "Vandermonde.H"
 #include "multivariateMomentInversion.H"
-#include "hyperbolicConditionalMomentInversion.H"
+#include "CHyQMOMMomentInversion.H"
 
 
 namespace Foam

@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "hyperbolicConditionalMomentInversion.H"
+#include "CHyQMOMMomentInversion.H"
 #include "mappedLists.H"
 #include "addToRunTimeSelectionTable.H"
 
