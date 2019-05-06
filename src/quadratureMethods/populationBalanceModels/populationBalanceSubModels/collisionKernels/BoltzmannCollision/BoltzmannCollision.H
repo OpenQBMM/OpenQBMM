@@ -111,7 +111,7 @@ class BoltzmannCollision
         mappedScalarList& Is,
         const scalarList& omegaPow,
         const vectorList& gPow,
-        const scalarList& gMmagPow,
+        const scalarList& gMagPow,
         const vectorList& vPow
     );
 

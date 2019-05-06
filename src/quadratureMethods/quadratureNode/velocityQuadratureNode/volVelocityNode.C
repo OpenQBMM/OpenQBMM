@@ -66,14 +66,8 @@ createVelocityAbscissae
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                mesh,
-                dimensionedVector
-                (
-                    "zeroVelocityAbscissa",
-                    dimVelocity,
-                    Zero
-                ),
-                Umean.boundaryField().types()
+                Umean,
+                Umean.boundaryField()
             )
         );
     }

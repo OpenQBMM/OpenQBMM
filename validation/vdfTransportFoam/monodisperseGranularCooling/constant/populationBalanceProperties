@@ -21,9 +21,9 @@ velocityCoeffs
 {
     odeCoeffs
     {
-        solveOde off;
+        solveOde on;
 
-        ATol    1.0e-4;
+        ATol    1.0e-6;
         RTol    1.0e-3;
         fac     0.9;
         facMin  0.1;

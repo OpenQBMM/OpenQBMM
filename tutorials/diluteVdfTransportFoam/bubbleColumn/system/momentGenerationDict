@@ -26,13 +26,13 @@ boundaries
     }
     outlet
     {
-        type        inletOutlet;
+        type        zeroGradient;
         phi         phi.air;
         inletValue  uniform 0;
     }
     walls
     {
-        type        fixedValue;
+        type        zeroGradient;
         value       uniform 0.0;
     }
 }
@@ -44,24 +44,24 @@ air
     abscissaDimension0  [0 1 0 0 0 0 0];
     abscissaDimension   [0 1 -1 0 0 0 0];
 
-    "moment.*00Boundary"
-    {
-        inlet
-        {
-            type        fixedValue;
-            value       uniform 0.0;
-        }
-        outlet
-        {
-            type        inletOutlet;
-            phi         phi.air;
-            inletValue  uniform 0;
-        }
-        walls
-        {
-            type        zeroGradient;
-        }
-    }
+//     "moment.*00Boundary"
+//     {
+//         inlet
+//         {
+//             type        fixedValue;
+//             value       uniform 0.0;
+//         }
+//         outlet
+//         {
+//             type        inletOutlet;
+//             phi         phi.air;
+//             inletValue  uniform 0;
+//         }
+//         walls
+//         {
+//             type        zeroGradient;
+//         }
+//     }
 
     default
     {}

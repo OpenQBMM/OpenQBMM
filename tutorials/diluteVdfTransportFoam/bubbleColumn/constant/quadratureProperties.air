@@ -30,6 +30,7 @@ basicVelocityMomentInversion
 momentAdvection
 {
     velocityMomentAdvection   Vikas;
+    ew 0.0;
 }
 
 moments

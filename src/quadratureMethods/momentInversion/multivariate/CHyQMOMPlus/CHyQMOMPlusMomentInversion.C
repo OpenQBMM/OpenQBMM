@@ -1067,12 +1067,12 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 Vf[2] += wDir12(2, i)*abscissaeDir12(2, i).y();
             }
 
-            mappedList<scalar> absDir12(9, twoDimNodeIndexes, 0.0);
+            mappedList<scalar> absDir2(9, twoDimNodeIndexes, 0.0);
             for (label i = 0; i < 3; i++)
             {
                 for (label j = 0; j < 3; j++)
                 {
-                    absDir12(i, j) = abscissaeDir12(i, j).y() - Vf[i];
+                    absDir2(i, j) = abscissaeDir12(i, j).y() - Vf[i];
                 }
             }
 
@@ -1091,8 +1091,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 for (label j = 0; j < 3; j++)
                 {
                     W2(i, j) = wDir12(i, j);
-                    Vp(i, j) = absDir12(i, j);
-                    Vps(i, j) = absDir12(i, j)/sqrtC020;
+                    Vp(i, j) = absDir2(i, j);
+                    Vps(i, j) = absDir2(i, j)/sqrtC020;
                 }
             }
 
@@ -1175,10 +1175,6 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                     A(5, 5) += C02(i, j)*Vc5(i, j);
                 }
             }
-            for (label i = 0; i < 6; i++)
-            {
-                A(i, i) = max(A(i, i), small);
-            }
 
             scalar c101s = c101/sqrtC200;
             scalar c011s = c011/sqrtC020;
@@ -1201,17 +1197,35 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             }
 
             scalarList r({0.0, c101s, c011s, c111s, c201s, c021s});
-            QRMatrix<scalarSquareMatrix> QR(A);
-            scalarSquareMatrix R = QR.R();
+
+            bool singluar = false;
+            forAll(r, i)
+            {
+                if (mag(A(i, i)) < small)
+                {
+                    singluar = true;
+                }
+            }
+
+            scalarSquareMatrix R(6, 0.0);
+            if (singluar)
+            {
+                labelList pivotIndices(A.m());
+                scalarSquareMatrix L(A);
+                LUDecompose(L, pivotIndices);
+                R = L.T();
+            }
+            else
+            {
+                QRMatrix<scalarSquareMatrix> QR(A);
+                R = QR.R();
+            }
 
             labelList vec(NB, 0);
             vec[0] = 1;
             vec[1] = 1;
-            scalar maxR(mag(R(0,0)));
-            for (label i = 1; i < NB; i++)
-            {
-                maxR = max(maxR, mag(R(i, i)));
-            }
+            scalar maxR = max(scalarDiagonalMatrix(R));
+
             if (NB > 2)
             {
                 for (label i = 2; i < NB; i++)
@@ -1229,12 +1243,12 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             scalarList tmpr(NB, 0.0);
             label I = 0;
             label J = 0;
-            for (label i = 0; i < NB; i++)
+            forAll(vec, i)
             {
                 J = 0;
                 if (vec[i] == 1)
                 {
-                    for (label j = 0; j < NB; j++)
+                    forAll(vec, j)
                     {
                         if (vec[j] == 1)
                         {
@@ -1242,7 +1256,6 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                             J++;
                         }
                     }
-                    tmpA(I, I) = max(tmpA(I, I), small);
                     tmpr[I] = r[i];
                     I++;
                 }
@@ -1250,7 +1263,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             solve(tmpA, tmpr); //tmpr->solution
 
             I = 0;
-            for (label i = 0; i < NB; i++)
+            forAll(vec, i)
             {
                 if (vec[i] == 1)
                 {
@@ -1417,7 +1430,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                             vector
                             (
                                 absDir1[i] + meanU,
-                                Vf[i] + absDir12(i, j) + meanV,
+                                Vf[i] + absDir2(i, j) + meanV,
                                 Wf(i, j) + absDir3[i](j, k) + meanW
                             );
                     }
