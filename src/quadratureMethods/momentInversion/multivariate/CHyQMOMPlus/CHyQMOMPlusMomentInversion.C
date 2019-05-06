@@ -450,7 +450,6 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
             wDir2[1][nodei] = univariateInverter_().weights()[nodei];
             absDir2[1][nodei] = univariateInverter_().abscissae()[nodei];
         }
-        return;
     }
     else
     {
