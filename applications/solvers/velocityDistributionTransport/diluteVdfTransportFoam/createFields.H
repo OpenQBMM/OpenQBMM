@@ -54,8 +54,9 @@ autoPtr<phaseModel> phase2
 );
 volScalarField& alpha2(phase2());
 rhoThermo& thermo2 = phase2->thermo();
-const volScalarField& rho2 = thermo2.rho();
-const volVectorField& U2 = phase2->U();
+volScalarField& rho2 = thermo2.rho();
+const volScalarField psi2 = thermo2.psi();
+volVectorField& U2 = phase2->U();
 surfaceScalarField& phi2 = phase2->phi();
 surfaceScalarField& alphaPhi2 = phase2->alphaPhi();
 surfaceScalarField& alphaRhoPhi2 = phase2->alphaRhoPhi();

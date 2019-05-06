@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
             // --- Pressure corrector loop
             while (pimple.correct())
             {
+                #include "correctContErrs.H"
                 #include "pEqn.H"
             }
 

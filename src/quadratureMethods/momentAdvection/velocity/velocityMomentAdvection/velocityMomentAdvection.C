@@ -205,11 +205,13 @@ void Foam::velocityMomentAdvection::updateWallCollisions
 
                 bfUOwn = U.boundaryField()[patchi].patchInternalField();
                 bfUNei =
-                    scale
-                   *(
+                    (
                         bfUOwn
                       - (1.0 + this->ew_)*(bfUOwn & bfNorm)*bfNorm
                     );
+                vectorField vn((bfUNei & bfNorm)*bfNorm);
+                vectorField vt(bfUNei - vn);
+                bfUNei = vn*scale + vt;
 
                 Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
                 Gout -= min(0.0, bfUNei & bfSf)*bfwNei;

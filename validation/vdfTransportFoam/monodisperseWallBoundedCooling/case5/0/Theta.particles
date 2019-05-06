@@ -67,12 +67,12 @@ boundaryField
     left
     {
         type    calculated;
-        value   uniform 0.5;
+        value   uniform 0.6667;
     }
     right
     {
         type    calculated;
-        value   uniform 1.0;
+        value   uniform 0.6667;
     }
     front
     {

@@ -40,6 +40,14 @@ fvScalarMatrix pEqnComp1
     )/rho1
   + (alpha1*psi1/rho1)*correction(fvm::ddt(p))
 );
+fvScalarMatrix pEqnComp2
+(
+    (
+        contErr2
+      - fvc::Sp(fvc::ddt(alpha2) + fvc::div(alphaPhi2), rho2)
+    )/rho2
+  + (alpha2*psi2/rho2)*correction(fvm::ddt(p))
+);
 
 while (pimple.correctNonOrthogonal())
 {
@@ -49,6 +57,7 @@ while (pimple.correctNonOrthogonal())
       - fvm::laplacian(rAUf, p)
       + fvc::ddt(alpha1)
       + pEqnComp1
+      + pEqnComp2
     );
 
     if (thermo1.incompressible())
@@ -109,7 +118,5 @@ if (!thermo1.incompressible())
 
 alphaPhi1 = fvc::interpolate(alpha1)*phi1;
 alphaRhoPhi1 = fvc::interpolate(rho1)*alphaPhi1;
-
-#include "contErrs.H"
 
 
