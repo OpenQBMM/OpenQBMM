@@ -105,7 +105,7 @@ momentFuncHeader(1,0,2)
 
 momentFuncHeader(1,1,1)
 {
-    moments(1,1,1) = m0*(sigma.xy()*w + sigma.xz()*v + sigma.yz()*u);
+    moments(1,1,1) = m0*(sigma.xy()*w + sigma.xz()*v + sigma.yz()*u + u*v*w);
 }
 
 momentFuncHeader(1,2,0)

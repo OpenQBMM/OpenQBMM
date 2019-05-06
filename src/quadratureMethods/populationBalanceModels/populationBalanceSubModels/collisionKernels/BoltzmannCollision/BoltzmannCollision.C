@@ -69,7 +69,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     scalarList gMagPow(6, mag(g));
     vectorList vPow(6, u1);
 
-    for (label powi = 2; powi < gPow.size(); powi++)
+    forAll(gPow, powi)
     {
         omegaPow[powi] = pow(omega, powi);
         gMagPow[powi] = pow(mag(g), powi);
@@ -225,6 +225,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
 
     //- Check if moments exist and add coefficient functions
     mappedLabelList map(velocityMomentOrders_.size(), velocityMomentOrders_, 0);
+    Info<<map<<endl;
 
     addIFunction1(map, 0)
 

@@ -22,7 +22,7 @@ createEpsD43()
             "$3" using 1:2 every 50000 title 'Univariate C_{Br} = 0.6e-3'\
                 with points linetype 6 linewidth 5 linecolor rgb 'red',\
             "$4" using 1:2 every 200 title 'GPBE C_{Br} = 0.6e-3'\
-                with points linetype 2 linewidth 5 linecolor rgb '#9db668'
+                with points pt 2 linewidth 5 linecolor rgb '#9db668'
 EOF
 }
 

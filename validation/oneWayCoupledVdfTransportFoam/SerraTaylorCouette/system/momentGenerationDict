@@ -28,15 +28,15 @@ boundaries
     }
     outlet
     {
-        type wall;
+        type zeroGradient;
     }
     outerWall
     {
-        type wall;
+        type zeroGradient;
     }
     innerWall
     {
-        type wall;
+        type zeroGradient;
     }
     wedge1
     {

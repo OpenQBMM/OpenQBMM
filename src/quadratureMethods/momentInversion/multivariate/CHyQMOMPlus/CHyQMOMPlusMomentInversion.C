@@ -424,32 +424,58 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     scalarListList wDir2(3, scalarList(3, 0.0));
     scalarListList absDir2(3, scalarList(3, 0.0));
 
-    wDir2[1][1] = 1.0;
-
     // Reconstruction settings
     scalarList Vf(3, 0.0);
 
     if (c20 < varMin_)
     {
-        // Resetting quadrature in the first direction
-        wDir1 = 0.0;
-        wDir1[1] = 1.0;
-
-        univariateMomentSet mDir2
-        (
-            {1.0, 0.0, c02, c03, c04},
-           "R"
-        );
+        univariateMomentSet mDir2({1.0, 0.0, c02, c03, c04}, "R");
 
         //NOTE: Leave Vf elements null. AP
-
         univariateInverter_().invert(mDir2);
 
-        forAll(wDir2, nodei)
+        forAll(wDir1, i)
         {
-            wDir2[1][nodei] = univariateInverter_().weights()[nodei];
-            absDir2[1][nodei] = univariateInverter_().abscissae()[nodei];
+            forAll(wDir1, j)
+            {
+                if (i == 1)
+                {
+                    weights2D(i, j) = m00*univariateInverter_().weights()[j];
+                    abscissae2D(i, j) =
+                        vector2D
+                        (
+                            meanU,
+                            univariateInverter_().abscissae()[j] + meanV
+                        );
+                }
+                else
+                {
+                    weights2D(i, j) = 0.0;
+                    abscissae2D(i, j) = vector2D::zero;
+                }
+            }
         }
+        return;
+    }
+    else if (c02 < varMin_)
+    {
+        forAll(wDir1, i)
+        {
+            forAll(wDir1, j)
+            {
+                if (j == 1)
+                {
+                    weights2D(i, j) = m00*wDir1[i];
+                    abscissae2D(i, j) = vector2D(absDir1[i] + meanU, meanV);
+                }
+                else
+                {
+                    weights2D(i, j) = 0.0;
+                    abscissae2D(i, j) = vector2D::zero;
+                }
+            }
+        }
+        return;
     }
     else
     {
@@ -504,7 +530,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
         b0 = max(b0, 0.0);
         scalar b1 = 0.0;
 
-        if (b0 < 0)
+        if (b0 <= 0)
         {
             if (pOrder == 2)
             {
@@ -529,10 +555,6 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
             {
                 b1 -= wDir1[i]*sqr(Vf[i])*us[i];
             }
-        }
-        else
-        {
-            b1 = 0.0;
         }
 
         scalarList mu2(3, b0);
@@ -609,12 +631,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
 
         forAll(wDir2, i)
         {
-            univariateMomentSet mMu
-            (
-                {1.0, 0.0, mu2[i], mu3[i], mu4[i]},
-                "R"
-            );
-
+            univariateMomentSet mMu({1.0, 0.0, mu2[i], mu3[i], mu4[i]}, "R");
             univariateInverter_().invert(mMu);
 
             forAll(wDir2[i], j)
@@ -656,41 +673,56 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     };
 
     // Calculate normalized moments
-    mappedScalarList scaledMoments(moments);
+    scalar s100 = moments(1)/m000;
+    scalar s010 = moments(0, 1)/m000;
+    scalar s001 = moments(0, 0, 1)/m000;
+    scalar s200 = moments(2)/m000;
+    scalar s110 = moments(1, 1, 0)/m000;
+    scalar s101 = moments(1, 0, 1)/m000;
+    scalar s020 = moments(0, 2)/m000;
+    scalar s011 = moments(0, 1, 1)/m000;
+    scalar s002 = moments(0, 0, 2)/m000;
+    scalar s300 = moments(3)/m000;
+    scalar s210 = moments(2, 1, 0)/m000;
+    scalar s201 = moments(2, 0, 1)/m000;
+    scalar s120 = moments(1, 2)/m000;
+    scalar s111 = moments(1, 1, 1)/m000;
+    scalar s102 = moments(1, 0, 2)/m000;
+    scalar s030 = moments(0, 3)/m000;
+    scalar s021 = moments(0, 2, 1)/m000;
+    scalar s012 = moments(0, 1, 2)/m000;
+    scalar s003 = moments(0, 0, 3)/m000;
+    scalar s400 = moments(4)/m000;
+    scalar s040 = moments(0, 4)/m000;
+    scalar s004 = moments(0, 0, 4)/m000;
 
-    forAll(scaledMoments, mi)
-    {
-        scaledMoments[mi] /= m000;
-    }
-
-    // Mean velocities and powers
-    scalar meanU = scaledMoments(1);
-    scalar meanV = scaledMoments(0, 1);
-    scalar meanW = scaledMoments(0, 0, 1);
+    // Calculate central moments
+    scalar meanU = s100;
+    scalar meanV = s010;
+    scalar meanW = s001;
     scalar sqrMeanU = sqr(meanU);
     scalar sqrMeanV = sqr(meanV);
     scalar sqrMeanW = sqr(meanW);
 
-    // Calculate central moments
-    scalar c200 = scaledMoments(2);
-    scalar c110 = scaledMoments(1, 1);
-    scalar c101 = scaledMoments(1, 0, 1);
-    scalar c011 = scaledMoments(0, 1, 1);
-    scalar c020 = scaledMoments(0, 2);
-    scalar c002 = scaledMoments(0, 0, 2);
-    scalar c300 = scaledMoments(3);
-    scalar c210 = scaledMoments(2, 1);
-    scalar c201 = scaledMoments(2, 0, 1);
-    scalar c120 = scaledMoments(1, 2);
-    scalar c111 = scaledMoments(1, 1, 1);
-    scalar c102 = scaledMoments(1, 0, 2);
-    scalar c030 = scaledMoments(0, 3);
-    scalar c021 = scaledMoments(0, 2, 1);
-    scalar c012 = scaledMoments(0, 1, 2);
-    scalar c003 = scaledMoments(0, 0, 3);
-    scalar c400 = scaledMoments(4);
-    scalar c040 = scaledMoments(0, 4);
-    scalar c004 = scaledMoments(0, 0, 4);
+    scalar c200 = s200;
+    scalar c110 = s110;
+    scalar c101 = s101;
+    scalar c011 = s011;
+    scalar c020 = s020;
+    scalar c002 = s002;
+    scalar c300 = s300;
+    scalar c210 = s210;
+    scalar c201 = s201;
+    scalar c120 = s120;
+    scalar c111 = s111;
+    scalar c102 = s102;
+    scalar c030 = s030;
+    scalar c021 = s021;
+    scalar c012 = s012;
+    scalar c003 = s003;
+    scalar c400 = s400;
+    scalar c040 = s040;
+    scalar c004 = s004;
 
     // NOTE: Sign changed due to -= operator
     c200 -= sqrMeanU;
@@ -699,74 +731,21 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     c020 -= sqrMeanV;
     c011 -= meanV*meanW;
     c002 -= sqrMeanW;
-    c300 -= (3.0*meanU*scaledMoments(2) - 2.0*pow3(meanU));
-    c210 -=
-    (
-        meanV*scaledMoments(2)
-      + 2.0*meanU*scaledMoments(1, 1)
-      - 2.0*sqr(meanU)*meanV
-    );
-    c201 -=
-    (
-        meanW*scaledMoments(2)
-      + 2.0*meanU*scaledMoments(1, 0, 1)
-      - 2.0*sqr(meanU)*meanW
-    );
-    c120 -=
-    (
-        meanU*scaledMoments(0, 2)
-      + 2.0*meanV*scaledMoments(1, 1)
-      - 2.0*sqr(meanV)*meanU
-    );
-    c111 -=
-    (
-        meanU*scaledMoments(0, 1, 1)
-      + meanV*scaledMoments(1, 0, 1)
-      + meanW*scaledMoments(1, 1, 0)
-      - 2.0*meanU*meanV*meanW
-    );
-    c102 -=
-    (
-        meanU*scaledMoments(0, 0, 2)
-      + 2.0*meanW*scaledMoments(1, 0, 1)
-      - 2.0*sqr(meanW)*meanU
-    );
-    c030 -= (3.0*meanV*scaledMoments(0, 2) - 2.0*pow3(meanV));
-    c021 -=
-    (
-        meanW*scaledMoments(0, 2)
-      + 2.0*meanV*scaledMoments(0, 1, 1)
-      - 2.0*sqr(meanV)*meanW
-    );
-    c012 -=
-    (
-        meanV*scaledMoments(0, 0, 2)
-      + 2.0*meanW*scaledMoments(0, 1, 1)
-      - 2.0*sqr(meanW)*meanV
-    );
-    c003 -= (3.0*meanW*scaledMoments(0, 0, 2) - 2.0*pow3(meanW));
 
-    c400 -=
-    (
-        4.0*meanU*scaledMoments(3)
-      - 6.0*sqrMeanU*scaledMoments(2)
-      + 3.0*sqr(sqrMeanU)
-    );
+    c300 -= (3.0*meanU*s200 - 2.0*pow3(meanU));
+    c210 -= (meanV*s200 + 2.0*meanU*s110 - 2.0*sqrMeanU*meanV);
+    c201 -= (meanW*s200 + 2.0*meanU*s101 - 2.0*sqrMeanU*meanW);
+    c120 -= (meanU*s020 + 2.0*meanV*s110 - 2.0*sqrMeanV*meanU);
+    c111 -= (meanU*s011 + meanV*s101 + meanW*s110 - 2.0*meanU*meanV*meanW);
+    c102 -= (meanU*s002 + 2.0*meanW*s101 - 2.0*sqrMeanW*meanU);
+    c030 -= (3.0*meanV*s020 - 2.0*pow3(meanV));
+    c021 -= (meanW*s020 + 2.0*meanV*s011 - 2.0*sqrMeanV*meanW);
+    c012 -= (meanV*s002 + 2.0*meanW*s011 - 2.0*sqrMeanW*meanV);
+    c003 -= (3.0*meanW*s002 - 2.0*pow3(meanW));
 
-    c040 -=
-    (
-        4.0*meanV*scaledMoments(0, 3)
-      - 6.0*sqrMeanV*scaledMoments(0, 2)
-      + 3.0*sqr(sqrMeanV)
-    );
-    c004 -=
-    (
-        4.0*meanW*scaledMoments(0, 0, 3)
-      - 6.0*sqrMeanW*scaledMoments(0, 0, 2)
-      + 3.0*sqr(sqrMeanW)
-    );
-
-
+    c400 -= (4.0*meanU*s300- 6.0*sqrMeanU*s200+ 3.0*sqr(sqrMeanU));
+    c040 -= (4.0*meanV*s030- 6.0*sqrMeanV*s020+ 3.0*sqr(sqrMeanV));
+    c004 -= (4.0*meanW*s003 - 6.0*sqrMeanW*s002 + 3.0*sqr(sqrMeanW));
 
     if (c200 <= 0.0)
     {
@@ -835,11 +814,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     }
 
     // Invert first direction
-    univariateMomentSet mDir1
-    (
-        {1.0, 0.0, c200, c300, c400},
-        "R"
-    );
+    univariateMomentSet mDir1({1.0, 0.0, c200, c300, c400}, "R");
+
     // Find univariate quadrature in first direction
     univariateInverter_().invert(mDir1);
 
@@ -853,11 +829,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         // X and y directions are degenerate
         if (c020 < varMin_)
         {
-            univariateMomentSet mDir3
-            (
-                {1.0, 0.0, c002, c003, c004},
-                "R"
-            );
+            univariateMomentSet mDir3({1.0, 0.0, c002, c003, c004}, "R");
 
             // Find univariate quadrature in first direction
             univariateInverter_().invert(mDir3);
@@ -1079,25 +1051,20 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             scalar sqrtC020 = sqrt(c020);
             scalar sqrtC002 = sqrt(c002);
 
-            scalarSquareMatrix W1(3, 0.0);
-            scalarSquareMatrix W2(3, 0.0);
-            scalarSquareMatrix Vp(3, 0.0);
+            scalarSquareMatrix RAB(3, 0.0);
             scalarSquareMatrix Vps(3, 0.0);
 
             for (label i = 0; i < 3; i++)
             {
-                W1(i, i) = wDir1[i];
                 for (label j = 0; j < 3; j++)
                 {
-                    W2(i, j) = wDir12(i, j);
-                    Vp(i, j) = absDir2(i, j);
+                    RAB(i, j) = wDir12(i, j)*wDir1[i];
                     Vps(i, j) = absDir2(i, j)/sqrtC020;
                 }
             }
 
-            scalarSquareMatrix RAB = W1*W2;
             scalarSquareMatrix UABs(3, 0.0);
-            scalarSquareMatrix VABs(3, 0.0);
+            scalarSquareMatrix VABs(Vps);
 
             scalarSquareMatrix C00(RAB);
             scalarSquareMatrix C10(RAB);
@@ -1111,7 +1078,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 for (label j = 0; j < 3; j++)
                 {
                     UABs(i, j) = absDir1[i]/sqrtC200;
-                    VABs(i, j) = (Vp(i, j) + Vf[i])/sqrtC020;
+                    VABs(i, j) += Vf[i]/sqrtC020;
 
                     C10(i, j) *= UABs(i, j);
                     C01(i, j) *= VABs(i, j);
@@ -1141,9 +1108,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 {
                     Vc1(i, j) = UABs(i, j);
                     Vc2(i, j) = Vps(i, j);
-                    Vc3(i, j) = UABs(i, j)*Vps(i, j);
-                    Vc4(i, j) = sqr(UABs(i, j));
-                    Vc5(i, j) = sqr(Vps(i, j));
+                    Vc3(i, j) = Vc1(i, j)*Vc2(i, j);
+                    Vc4(i, j) = sqr(Vc1(i, j));
+                    Vc5(i, j) = sqr(Vc2(i, j));
 
                     A(0, 5) += C00(i, j)*Vc5(i, j);
 
@@ -1207,18 +1174,19 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             }
 
             scalarSquareMatrix R(6, 0.0);
-            if (singluar)
+//             if (singluar)
             {
                 labelList pivotIndices(A.m());
                 scalarSquareMatrix L(A);
                 LUDecompose(L, pivotIndices);
-                R = L.T();
+                R = scalarSquareMatrix(L);
+                R = R.T();
             }
-            else
-            {
-                QRMatrix<scalarSquareMatrix> QR(A);
-                R = QR.R();
-            }
+//             else
+//             {
+//                 QRMatrix<scalarSquareMatrix> QR(A);
+//                 R = QR.R();
+//             }
 
             labelList vec(NB, 0);
             vec[0] = 1;
