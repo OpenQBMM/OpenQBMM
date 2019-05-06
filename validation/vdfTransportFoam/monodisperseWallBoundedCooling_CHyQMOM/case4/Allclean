@@ -4,13 +4,8 @@ cd ${0%/*} || exit 1    # Run from this directory
 # Source tutorial clean functions
 . $WM_PROJECT_DIR/bin/tools/CleanFunctions
 
-validationCases="case1 case2 case3 case4 case5"
-
-for caseName in $validationCases
-do
-(
-    (cd $caseName && ./Allclean)
-)
-done
+cleanCase
+rm -f 0/moments*
+rm -f validation/*.eps
 
 # ----------------------------------------------------------------- end-of-file
