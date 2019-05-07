@@ -301,11 +301,12 @@ Foam::multivariateMomentInversions::CHyQMOMPlus::realizabilityUnivariateMoments
     scalar& c4
 )
 {
-    if (c2 < 0.0)
+    if (c2 <= 0.0)
     {
         c2 = 0.0;
         c3 = 0.0;
         c4 = 0.0;
+        return;
     }
 
     if (c2*c4 < pow3(c2) + sqr(c3))
@@ -410,6 +411,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     c12 -= (meanU*s02 + 2.0*meanV*s11 - 2.0*sqrMeanV*meanU);
     c40 -= (4.0*meanU*s30 - 6.0*sqrMeanU*s20 + 3.0*sqr(sqrMeanU));
     c04 -= (4.0*meanV*s03 - 6.0*sqrMeanV*s02 + 3.0*sqr(sqrMeanV));
+
+    realizabilityUnivariateMoments(c20, c30, c40);
+    realizabilityUnivariateMoments(c02, c03, c04);
 
     if (c20 < varMin_)
     {

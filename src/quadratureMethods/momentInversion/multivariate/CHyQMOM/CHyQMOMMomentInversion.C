@@ -291,11 +291,12 @@ Foam::multivariateMomentInversions::CHyQMOM::realizabilityUnivariateMoments
     scalar& c4
 )
 {
-    if (c2 < 0.0)
+    if (c2 <= 0.0)
     {
         c2 = 0.0;
         c3 = 0.0;
         c4 = 0.0;
+        return;
     }
 
     if (c2*c4 < pow3(c2) + sqr(c3))
@@ -398,14 +399,14 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
 
     // Calculate normalized moments
     // Calculate normalized moments
-    scalar s10 = moments(1)/m00;
+    scalar s10 = moments(1, 0)/m00;
     scalar s01 = moments(0, 1)/m00;
-    scalar s20 = moments(2)/m00;
     scalar s11 = moments(1, 1)/m00;
+    scalar s20 = moments(2, 0)/m00;
     scalar s02 = moments(0, 2)/m00;
-    scalar s30 = moments(3)/m00;
+    scalar s30 = moments(3, 0)/m00;
     scalar s03 = moments(0, 3)/m00;
-    scalar s40 = moments(4)/m00;
+    scalar s40 = moments(4, 0)/m00;
     scalar s04 = moments(0, 4)/m00;
 
     // Mean velocities and powers
@@ -415,52 +416,48 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
     scalar sqrMeanV = sqr(meanV);
 
     // Calculate central moments
-    scalar c20 = s20;
-    scalar c11 = s11;
-    scalar c02 = s02;
+    scalar c20 = s20 - sqrMeanU;
+    scalar c11 = s11 - meanU*meanV;
+    scalar c02 = s02 - sqrMeanV;
     scalar c30 = s30;
     scalar c03 = s03;
     scalar c40 = s40;
     scalar c04 = s04;
 
     // NOTE: Sign changed due to -= operator
-    c20 -= sqrMeanU;
-    c11 -= meanU*meanV;
-    c02 -= sqrMeanV;
     c30 -= (3.0*meanU*s20 - 2.0*pow3(meanU));
     c03 -= (3.0*meanV*s02 - 2.0*pow3(meanV));
     c40 -= (4.0*meanU*s30 - 6.0*sqrMeanU*s20 + 3.0*sqr(sqrMeanU));
     c04 -= (4.0*meanV*s03 - 6.0*sqrMeanV*s02 + 3.0*sqr(sqrMeanV));
 
+    realizabilityUnivariateMoments(c20, c30, c40);
+    realizabilityUnivariateMoments(c02, c03, c04);
     // One-dimensional inversion with realizability test
     univariateMomentSet mDir1({1.0, 0.0, c20, c30, c40}, "R");
 
     // Find univariate quadrature in first direction
-    univariateInverter_().invert(mDir1);
+    univariateInverter_->invert(mDir1);
 
     // Store univariate quadrature in first direction
-    scalarList wDir1(univariateInverter_().weights());
-    scalarList absDir1(univariateInverter_().abscissae());
+    scalarList wDir1(univariateInverter_->weights());
+    scalarList absDir1(univariateInverter_->abscissae());
 
     scalarList wDir2(3, 0.0);
     scalarList absDir2(3, 0.0);
 
     wDir2[1] = 1.0;
 
-    // Reconstruction settings
     scalarList Vf(3, 0.0);
 
     if (c20 < varMin_)
     {
-        // Resetting quadrature in the first direction
         wDir1 = 0.0;
         wDir1[1] = 1.0;
 
         univariateMomentSet mDir2({1.0, 0.0, c02, c03, c04}, "R");
 
         //NOTE: Leave Vf elements null. AP
-
-        univariateInverter_().invert(mDir2);
+        univariateInverter_->invert(mDir2);
 
         forAll(wDir2, nodei)
         {
@@ -476,6 +473,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
         {
             c11s = sign(c11s)*sqrt(c02);
         }
+
         forAll(Vf, vi)
         {
             Vf[vi] = c11s*absDir1[vi]/sqrtC20;
@@ -483,7 +481,6 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
 
         // Compute conditional variance
         scalar sumVars = 0.0;
-
         forAll(Vf, vi)
         {
             sumVars += wDir1[vi]*sqr(Vf[vi]);
@@ -532,7 +529,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
             "R"
         );
 
-        univariateInverter_().invert(mMu);
+        univariateInverter_->invert(mMu);
 
         forAll(wDir2, nodei)
         {

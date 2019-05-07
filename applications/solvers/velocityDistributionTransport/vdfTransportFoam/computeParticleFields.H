@@ -11,31 +11,47 @@
 
         volScalarField meanU(moments(orderOne)/m0);
         Up.replace(cmpt, meanU);
-
-        if (computeVariance)
-        {
-            forAll(velocityIndexes, cmpt2)
-            {
-                labelList orderOne2(orderZero);
-                labelList orderTwo(orderZero);
-                orderOne2[velocityIndexes[cmpt2]] = 1;
-                orderTwo[velocityIndexes[cmpt]] = 1;
-                orderTwo[velocityIndexes[cmpt2]] += 1;
-
-                volScalarField meanU2(moments(orderOne2)/m0);
-
-                volScalarField coVar
-                (
-                    moments(orderTwo)/m0 - meanU*meanU2
-                );
-                Sigmap.replace(cmpt + cmpt2*3, coVar);
-            }
-        }
     }
 
     if (computeVariance)
     {
-        Thetap = tr(Sigmap)/3.0;
+        Sigmap.replace
+        (
+            symmTensor::XX,
+            moments(2)/m0 - sqr(Up.component(0))
+        );
+        if (velocityIndexes.size() > 1)
+        {
+            Sigmap.replace
+            (
+                symmTensor::XY,
+                moments(1, 1)/m0 - Up.component(0)*Up.component(1)
+            );
+            Sigmap.replace
+            (
+                symmTensor::YY,
+                moments(0, 2)/m0 - sqr(Up.component(1))
+            );
+        }
+        if (velocityIndexes.size() > 2)
+        {
+            Sigmap.replace
+            (
+                symmTensor::XZ,
+                moments(1, 0, 1)/m0 - Up.component(0)*Up.component(2)
+            );
+            Sigmap.replace
+            (
+                symmTensor::YZ,
+                moments(0, 1, 1)/m0 - Up.component(1)*Up.component(2)
+            );
+            Sigmap.replace
+            (
+                symmTensor::ZZ,
+                moments(0, 0, 2)/m0 - sqr(Up.component(2))
+            );
+        }
+        Thetap = tr(Sigmap)/velocityIndexes.size();
     }
 
     if (sizeIndex != -1 && nodes[0].lengthBased())

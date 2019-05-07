@@ -66,7 +66,7 @@ static void I##i##j##k                                                          
     mappedScalarList& Is,                                                       \
     const scalarList& omegaPow,                                                 \
     const vectorList& gPow,                                                     \
-    const scalarList& gMagPow,                                                  \
+    const scalar& gMagSqr,                                                  \
     const vectorList& vPow                                                      \
 );                                                                              \
                                                                                 \
@@ -75,7 +75,7 @@ static void Ix##i##j##k                                                         
     mappedScalarList& Is,                                                       \
     const scalarList& omegaPow,                                                 \
     const vectorList& gPow,                                                     \
-    const scalarList& gMagPow,                                                  \
+    const scalar& gMagSqr,                                                  \
     const vectorList& vPow                                                      \
 );                                                                              \
                                                                                 \
@@ -84,7 +84,7 @@ static void Iy##i##j##k                                                         
     mappedScalarList& Is,                                                       \
     const scalarList& omegaPow,                                                 \
     const vectorList& gPow,                                                     \
-    const scalarList& gMagPow,                                                  \
+    const scalar& gMagSqr,                                                  \
     const vectorList& vPow                                                      \
 );                                                                              \
                                                                                 \
@@ -93,7 +93,7 @@ static void Iz##i##j##k                                                         
     mappedScalarList& Is,                                                       \
     const scalarList& omegaPow,                                                 \
     const vectorList& gPow,                                                     \
-    const scalarList& gMagPow,                                                  \
+    const scalar& gMagSqr,                                                  \
     const vectorList& vPow                                                      \
 );
 
@@ -111,7 +111,7 @@ class BoltzmannCollision
         mappedScalarList& Is,
         const scalarList& omegaPow,
         const vectorList& gPow,
-        const scalarList& gMagPow,
+        const scalar& gMagSqr,
         const vectorList& vPow
     );
 
@@ -306,7 +306,7 @@ I##i##j##k                                                                      
     mappedScalarList& Is,                                                       \
     const scalarList& omegaPow,                                                 \
     const vectorList& gPow,                                                     \
-    const scalarList& gMagPow,                                                  \
+    const scalar& gMagSqr,                                                  \
     const vectorList& vPow                                                      \
 )
 
@@ -318,7 +318,7 @@ Ix##i##j##k                                                                     
     mappedScalarList& Ix,                                                       \
     const scalarList& omegaPow,                                                 \
     const vectorList& gPow,                                                     \
-    const scalarList& gMagPow,                                                  \
+    const scalar& gMagSqr,                                                  \
     const vectorList& vPow                                                      \
 )
 
@@ -330,7 +330,7 @@ Iy##i##j##k                                                                     
     mappedScalarList& Iy,                                                       \
     const scalarList& omegaPow,                                                 \
     const vectorList& gPow,                                                     \
-    const scalarList& gMagPow,                                                  \
+    const scalar& gMagSqr,                                                  \
     const vectorList& vPow                                                      \
 )
 
@@ -342,7 +342,7 @@ Iz##i##j##k                                                                     
     mappedScalarList& Iz,                                                       \
     const scalarList& omegaPow,                                                 \
     const vectorList& gPow,                                                     \
-    const scalarList& gMagPow,                                                  \
+    const scalar& gMagSqr,                                                  \
     const vectorList& vPow                                                      \
 )
 

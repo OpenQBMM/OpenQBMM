@@ -147,16 +147,7 @@ void Foam::velocityMomentAdvection::updateWallCollisions
 )
 {
     const fvMesh& mesh = own_.mesh();
-    const volScalarField* ThetaPtr;
-    word ThetaName(IOobject::groupName("Theta", moments_[0].group()));
-    if (mesh.foundObject<volScalarField>(ThetaName))
-    {
-        ThetaPtr =
-        (
-            &mesh.lookupObject<volScalarField>(ThetaName)
-        );
-    }
-    const volScalarField& Theta = *ThetaPtr;
+    label nd = nodes[0].velocityIndexes().size();
 
     forAll(mesh.boundary(), patchi)
     {
@@ -165,18 +156,40 @@ void Foam::velocityMomentAdvection::updateWallCollisions
         {
             const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
             vectorField bfNorm(bfSf/mag(bfSf));
-            scalarField scale(bfSf.size(), 1.0);
+            vectorField scale(bfSf.size(), vector(1.0, 1.0, 1.0));
 
-            if (fixedWalls_[patchi] && ThetaPtr)
+            if (fixedWalls_[patchi])
             {
-                scale =
-                (
-                    sqrt
+                scalarField m0(max(moments_(0).boundaryField()[patchi], 1e-8));
+                {
+                    scalarField u(moments_(1).boundaryField()[patchi]/m0);
+                    scalarField T(moments_(2).boundaryField()[patchi]/m0 - sqr(u));
+                    scale.replace
                     (
-                        wallTemperatures_[patchi]
-                       /max(Theta.boundaryField()[patchi], 1e-8)
-                    )
-                );
+                        0,
+                        sqrt(wallTemperatures_[patchi]/max(T, 1e-8))
+                    );
+                }
+                if (nd > 1)
+                {
+                    scalarField v(moments_(0, 1).boundaryField()[patchi]/m0);
+                    scalarField T(moments_(0, 2).boundaryField()[patchi]/m0 - sqr(v));
+                    scale.replace
+                    (
+                        1,
+                        sqrt(wallTemperatures_[patchi]/max(T, 1e-8))
+                    );
+                }
+                if (nd > 2)
+                {
+                    scalarField w(moments_(0, 0, 1).boundaryField()[patchi]/m0);
+                    scalarField T(moments_(0, 0, 2).boundaryField()[patchi]/m0 - sqr(w));
+                    scale.replace
+                    (
+                        2,
+                        sqrt(wallTemperatures_[patchi]/max(T, 1e-8))
+                    );
+                }
             }
 
             scalarField Gin(bfSf.size(), 0.0);
@@ -205,11 +218,11 @@ void Foam::velocityMomentAdvection::updateWallCollisions
 
                 bfUOwn = U.boundaryField()[patchi].patchInternalField();
                 bfUNei =
-                    scale
-                   *(
+                    (
                         bfUOwn
                       - (1.0 + this->ew_)*(bfUOwn & bfNorm)*bfNorm
                     );
+                bfUNei = cmptMultiply(bfUNei, scale);
 
                 Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
                 Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
@@ -222,7 +235,7 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                 scalarField& bfWNei =
                     nodeNei.primaryWeight().boundaryFieldRef()[patchi];
 
-                bfWNei *= Gin/max(Gout, small);
+                bfWNei *= Gin/(Gout+ small);
             }
         }
     }

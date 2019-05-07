@@ -37,7 +37,7 @@ volVectorField Up
     mesh,
     dimensionedVector("U", dimVelocity, Zero)
 );
-volTensorField Sigmap
+volSymmTensorField Sigmap
 (
     IOobject
     (
@@ -48,7 +48,7 @@ volTensorField Sigmap
         IOobject::NO_WRITE
     ),
     mesh,
-    dimensionedTensor("Sigma", sqr(dimVelocity), Zero)
+    dimensionedSymmTensor("Sigma", sqr(dimVelocity), Zero)
 );
 volScalarField Thetap
 (

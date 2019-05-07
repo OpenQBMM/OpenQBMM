@@ -66,13 +66,12 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     vector g = u1 - u2;
     scalarList omegaPow(6, omega);
     vectorList gPow(6, g);
-    scalarList gMagPow(6, mag(g));
+    scalar gMagSqr(magSqr(g));
     vectorList vPow(6, u1);
 
     forAll(gPow, powi)
     {
         omegaPow[powi] = pow(omega, powi);
-        gMagPow[powi] = pow(mag(g), powi);
         for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
         {
             gPow[powi][cmpt] = pow(g[cmpt], powi);
@@ -83,7 +82,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     // Update coefficients for zero order terms
     forAllIter(List<momentFunction>, coefficientFunctions_, iter)
     {
-        (*iter)(Is_, omegaPow, gPow, gMagPow, vPow);
+        (*iter)(Is_, omegaPow, gPow, gMagSqr, vPow);
     }
 
     // Update first order (Enskog) terms if used
@@ -91,21 +90,21 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     {
         forAllIter(List<momentFunction>, enskogFunctions_[0], iter)
         {
-            (*iter)(I1s_[0], omegaPow, gPow, gMagPow, vPow);
+            (*iter)(I1s_[0], omegaPow, gPow, gMagSqr, vPow);
         }
 
         if (nDimensions_ > 1)
         {
             forAllIter(List<momentFunction>, enskogFunctions_[1], iter)
             {
-                (*iter)(I1s_[1], omegaPow, gPow, gMagPow, vPow);
+                (*iter)(I1s_[1], omegaPow, gPow, gMagSqr, vPow);
             }
         }
         if (nDimensions_ > 2)
         {
             forAllIter(List<momentFunction>, enskogFunctions_[2], iter)
             {
-                (*iter)(I1s_[2], omegaPow, gPow, gMagPow, vPow);
+                (*iter)(I1s_[2], omegaPow, gPow, gMagSqr, vPow);
             }
         }
     }
@@ -225,7 +224,6 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::Boltzman
 
     //- Check if moments exist and add coefficient functions
     mappedLabelList map(velocityMomentOrders_.size(), velocityMomentOrders_, 0);
-    Info<<map<<endl;
 
     addIFunction1(map, 0)
 
