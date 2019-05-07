@@ -349,7 +349,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
     if (sizeIndex_ == -1)
     {
         scalar c = min(alpha/0.63, 0.999);
-        scalar g0 = (2.0 - c)/(2.0*pow3(1.0 - c));
+        scalar g0 = (2.0 - c)/(2.0*pow3(1.0 - c)) + 1.1603*c;
         forAll(quadrature_.nodes(), nodei)
         {
             const volVelocityNode& node1 = quadrature_.nodes()[nodei];
