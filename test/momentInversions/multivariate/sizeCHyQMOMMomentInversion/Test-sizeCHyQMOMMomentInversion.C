@@ -34,7 +34,7 @@ Description
 #include "IFstream.H"
 #include "OFstream.H"
 #include "mappedLists.H"
-#include "sizeCHyQMOMMomentInversion.H"
+#include "sizeCHyQMOMMomentInversions.H"
 #include "Random.H"
 
 using namespace Foam;
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         quadratureProperties, momentOrders, nodeIndexes, velocityIndexes
     );
 
-    Info<< "\nInverting moments" << endl;
+    Info<< "\nInverting moments with sizeCHyQMOM" << endl;
 
     momentInverter.invert(moments);
 
@@ -145,6 +145,56 @@ int main(int argc, char *argv[])
         Info<< ": " << newMoments(momentOrder)
             << ",\trel error: "
             << (mag(moments(momentOrder) - newMoments(momentOrder))/moments(momentOrder))<< endl;
+    }
+
+    multivariateMomentInversions::sizeCHyQMOMPlus momentInverterp
+    (
+        quadratureProperties, momentOrders, nodeIndexes, velocityIndexes
+    );
+
+    Info<< "\nInverting moments with CHyQMOMPlus" << endl;
+
+    momentInverterp.invert(moments);
+
+    Info<< "\nReconstructed moments:" << endl;
+
+    const mappedScalarList& weightsp = momentInverterp.weights();
+    const mappedList<scalarList>& sizeAbscissaep = momentInverterp.abscissae();
+    const mappedVectorList& velocityAbscissaep =
+        momentInverterp.velocityAbscissae();
+
+    mappedList<scalar> newMomentsp(nMoments, momentOrders);
+    forAll(momentOrders, mi)
+    {
+        const labelList& momentOrder = momentOrders[mi];
+        newMomentsp(momentOrder) = 0.0;
+
+        forAll(nodeIndexes, nodei)
+        {
+            const labelList& nodeIndex = nodeIndexes[nodei];
+
+            scalar cmpt = weightsp(nodeIndex);
+            cmpt *= pow(sizeAbscissaep(nodeIndex)[0], momentOrder[0]);
+            for(label dimi = 0; dimi < momentOrder.size() - 1; dimi++)
+            {
+                cmpt *=
+                    pow
+                    (
+                        velocityAbscissaep(nodeIndex)[dimi],
+                        momentOrder[dimi + 1]
+                    );
+            }
+            newMomentsp(momentOrder) += cmpt;
+        }
+
+        Info<< "moment.";
+        forAll(momentOrder, dimi)
+        {
+            Info<< momentOrder[dimi];
+        }
+        Info<< ": " << newMomentsp(momentOrder)
+            << ",\trel error: "
+            << (mag(moments(momentOrder) - newMomentsp(momentOrder))/moments(momentOrder))<< endl;
     }
 
     Info << "\nEnd\n" << endl;

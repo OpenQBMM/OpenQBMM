@@ -47,8 +47,7 @@ SourceFiles
 #include "mappedLists.H"
 #include "Vandermonde.H"
 #include "multivariateMomentInversion.H"
-#include "CHyQMOMMomentInversion.H"
-
+#include "univariateMomentInversion.H"
 
 namespace Foam
 {
@@ -58,7 +57,8 @@ namespace multivariateMomentInversions
 /*---------------------------------------------------------------------------*\
                         Class sizeCHyQMOM Declaration
 \*---------------------------------------------------------------------------*/
-class sizeCHyQMOM
+template<class velocityInversion>
+class sizeCHyQMOMBase
 :
     public multivariateMomentInversion
 {
@@ -80,7 +80,7 @@ class sizeCHyQMOM
         autoPtr<univariateMomentInversion> sizeInverter_;
 
         //- Velocity moment inversion method
-        autoPtr<multivariateMomentInversions::CHyQMOM> velocityInverter_;
+        autoPtr<velocityInversion> velocityInverter_;
 
 
     // Private member functions
@@ -89,22 +89,21 @@ class sizeCHyQMOM
         label calcNSizeMoments(const labelListList& momentOrders);
 
         //- Disallow default bitwise copy construct
-        //sizeCHyQMOM(const sizeCHyQMOM&);
+        //sizeCHyQMOMBase(const sizeCHyQMOMBase&);
 
         //- Disallow default bitwise assignment
-        //void operator=(const sizeCHyQMOM&);
+        //void operator=(const sizeCHyQMOMBase&);
 
 
 public:
 
     //- Runtime type information
-    TypeName("sizeCHyQMOM");
-
+    TypeName("sizeCHyQMOMBase");
 
     // Constructors
 
         // Construct from nMoments, momentMap, nNodes, and support type
-        sizeCHyQMOM
+        sizeCHyQMOMBase
         (
             const dictionary& dict,
             const labelListList& momentOrders,
@@ -114,7 +113,7 @@ public:
 
 
     //- Destructor
-    virtual ~sizeCHyQMOM();
+    virtual ~sizeCHyQMOMBase();
 
 
     // Member Functions
@@ -132,7 +131,12 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#ifdef NoRepository
+    #include "sizeCHyQMOMMomentInversion.C"
 #endif
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
 
 // ************************************************************************* //

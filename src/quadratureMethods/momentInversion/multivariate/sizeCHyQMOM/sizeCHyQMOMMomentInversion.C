@@ -24,27 +24,12 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "sizeCHyQMOMMomentInversion.H"
-#include "addToRunTimeSelectionTable.H"
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-namespace Foam
-{
-namespace multivariateMomentInversions
-{
-    defineTypeNameAndDebug(sizeCHyQMOM, 0);
-    addToRunTimeSelectionTable
-    (
-        multivariateMomentInversion,
-        sizeCHyQMOM,
-        dictionary
-    );
-}
-}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
+template<class velocityInversion>
+Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::
+sizeCHyQMOMBase
 (
     const dictionary& dict,
     const labelListList& momentOrders,
@@ -62,7 +47,7 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
     nSizeMoments_(calcNSizeMoments(momentOrders)),
     velocityMomentOrders_
     (
-        multivariateMomentInversions::CHyQMOM::getMomentOrders
+        velocityInversion::getMomentOrders
         (
             nvelocityDimensions_
         )
@@ -70,7 +55,7 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
     nSizeNodes_(nSizeMoments_/2),
     velocityNodeIndexes_
     (
-        multivariateMomentInversions::CHyQMOM::getNodeIndexes
+        velocityInversion::getNodeIndexes
         (
             nvelocityDimensions_
         )
@@ -81,7 +66,7 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
     ),
     velocityInverter_
     (
-        new multivariateMomentInversions::CHyQMOM
+        new velocityInversion
         (
             dict,
             velocityMomentOrders_,
@@ -100,13 +85,17 @@ Foam::multivariateMomentInversions::sizeCHyQMOM::sizeCHyQMOM
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::multivariateMomentInversions::sizeCHyQMOM::~sizeCHyQMOM()
+template<class velocityInversion>
+Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::
+~sizeCHyQMOMBase()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::label Foam::multivariateMomentInversions::sizeCHyQMOM::calcNSizeMoments
+template<class velocityInversion>
+Foam::label Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::
+calcNSizeMoments
 (
     const labelListList& momentOrders
 )
@@ -124,7 +113,9 @@ Foam::label Foam::multivariateMomentInversions::sizeCHyQMOM::calcNSizeMoments
 }
 
 
-void Foam::multivariateMomentInversions::sizeCHyQMOM::invert
+template<class velocityInversion>
+void Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::
+invert
 (
     const multivariateMomentSet& moments
 )
