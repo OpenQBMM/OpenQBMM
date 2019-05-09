@@ -256,7 +256,7 @@ Foam::multivariateMomentInversions::CHyQMOMPlus::CHyQMOMPlus
         )
     ),
     varMin_(dict.lookupOrDefault("varMin", 1.0e-10)),
-    minCorrelation_(dict.lookupOrDefault("minCorrelation", 1.0e-4))
+    minCorrelation_(dict.lookupOrDefault("minCorrelation", 1.0e-5))
 {}
 
 
@@ -391,9 +391,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     scalar sqrMeanV = sqr(meanV);
 
     // Calculate central moments
-    scalar c20 = s20;
-    scalar c11 = s11;
-    scalar c02 = s02;
+    scalar c20 = s20 - sqrMeanU;
+    scalar c11 = s11 - meanU*meanV;
+    scalar c02 = s02 - sqrMeanV;
     scalar c30 = s30;
     scalar c03 = s03;
     scalar c21 = s21;
@@ -402,9 +402,6 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     scalar c04 = s04;
 
     // NOTE: Sign changed due to -= operator
-    c20 -= sqrMeanU;
-    c11 -= meanU*meanV;
-    c02 -= sqrMeanV;
     c30 -= (3.0*meanU*s20 - 2.0*pow3(meanU));
     c03 -= (3.0*meanV*s02 - 2.0*pow3(meanV));
     c21 -= (meanV*s20 + 2.0*meanU*s11 - 2.0*sqrMeanU*meanV);
@@ -493,7 +490,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     scalar eta = c40/sqr(c20);
 
     // Check for perfect correlation (v = a*u)
-    if (sqr(c11s) > c02*(1.0 - 1e-10))
+    if (sqr(c11s) > c02*(1.0 - small))
     {
         c11s = sign(c11s)*sqrt(c02);
         pOrder = 1;
@@ -502,7 +499,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     scalar a0 = 0.0;
     scalar a1 = 0.0;
 
-    if (r > 1e-3 && pOrder == 2)
+    if (r > minCorrelation_ && pOrder == 2)
     {
         a0 = (c21s - q*c11s)/r;
         a1 = ((eta - 1.0)*c11s - q*c21s)/r;
@@ -524,7 +521,6 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     {
         b0 -= wDir1[vi]*sqr(Vf[vi]);
     }
-    b0 = max(b0, 0.0);
     scalar b1 = 0.0;
 
     if (b0 <= 0)
@@ -544,6 +540,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
             pOrder = 1;
         }
     }
+    b0 = max(b0, 0.0);
 
     if (pOrder == 2)
     {
@@ -606,8 +603,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
                 wDir1[i]
                 *(
                     pow4(Vf[i])
-                    + 6.0*sqr(Vf[i])*mu2[i]
-                    + q*4.0*Vf[i]*sqrt(pow3(mu2[i]))
+                  + 6.0*sqr(Vf[i])*mu2[i]
+                  + q*4.0*Vf[i]*sqrt(pow3(mu2[i]))
                 );
         }
 
@@ -666,7 +663,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
 
     if (m000 < SMALL)
     {
-        weights_(2,2,2) = m000;
+        weights_(1,1,1) = m000;
         return;
     };
 
@@ -702,12 +699,12 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     scalar sqrMeanV = sqr(meanV);
     scalar sqrMeanW = sqr(meanW);
 
-    scalar c200 = s200;
-    scalar c110 = s110;
-    scalar c101 = s101;
-    scalar c011 = s011;
-    scalar c020 = s020;
-    scalar c002 = s002;
+    scalar c200 = s200 - sqrMeanU;
+    scalar c110 = s110 - meanU*meanV;
+    scalar c101 = s101 - meanU*meanW;
+    scalar c020 = s020 - sqrMeanV;
+    scalar c011 = s011 - meanV*meanW;
+    scalar c002 = s002 - sqrMeanW;
     scalar c300 = s300;
     scalar c210 = s210;
     scalar c201 = s201;
@@ -721,14 +718,6 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     scalar c400 = s400;
     scalar c040 = s040;
     scalar c004 = s004;
-
-    // NOTE: Sign changed due to -= operator
-    c200 -= sqrMeanU;
-    c110 -= meanU*meanV;
-    c101 -= meanU*meanW;
-    c020 -= sqrMeanV;
-    c011 -= meanV*meanW;
-    c002 -= sqrMeanW;
 
     c300 -= (3.0*meanU*s200 - 2.0*pow3(meanU));
     c210 -= (meanV*s200 + 2.0*meanU*s110 - 2.0*sqrMeanU*meanV);
@@ -1084,14 +1073,13 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         scalar c201s = c201/c200;
         scalar c021s = c021/c020;
 
-        if (sqr(c101s) >= c002*(1.0 - 1e-10))
+        if (sqr(c101s) >= c002*(1.0 - small))
         {
             c101s = sign(c101s)*sqrtC002;
             NB = 2;
         }
-        else if (sqr(c011s) >= c002*(1.0 - 1e-10))
+        else if (sqr(c011s) >= c002*(1.0 - small))
         {
-            scalar c110s = c110/(sqrtC200*sqrtC020);
             c011s = sign(c011s)*sqrtC002;
             c101s = c110s*c011s;
             NB = 3;
@@ -1100,20 +1088,23 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         scalarList r({0.0, c101s, c011s, c111s, c201s, c021s});
 
         labelList pivotIndices(A.m());
-        scalarSquareMatrix L(A);
-        LUDecompose(L, pivotIndices);
-        scalarSquareMatrix R(L);
+        scalarSquareMatrix R(A);
+        LUDecompose(R, pivotIndices);
 
         labelList vec(NB, 0);
         vec[0] = 1;
         vec[1] = 1;
-        scalar maxR = max(scalarDiagonalMatrix(R));
+        scalar maxR = mag(R(0, 0));
+        for (label i = 1; i < NB; i++)
+        {
+            maxR = max(maxR, mag(R(i, i)));
+        }
 
         if (NB > 2)
         {
             for (label i = 2; i < NB; i++)
             {
-                if (mag(R(i, i))/maxR > 1e-3)
+                if (mag(R(i, i))/maxR > minCorrelation_)
                 {
                     vec[i] = 1;
                 }
@@ -1143,7 +1134,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 I++;
             }
         }
-        solve(tmpA, tmpr); //tmpr->solution
+        LUsolve(tmpA, tmpr); //tmpr->solution
 
         I = 0;
         forAll(vec, i)
@@ -1171,6 +1162,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 sum012 += RAB(i, j)*VABs(i, j)*sqr(Wf(i, j));
             }
         }
+
         scalar c102s = c102/sqrtC200;
         scalar c012s = c012/sqrtC020;
         scalar b0 = 1.0;
@@ -1183,7 +1175,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         if (NB > 3)
         {
             d[1] = c102s - sum102;
-            if (mag(b0) > 1e-3)
+            if (mag(b0) > minCorrelation_)
             {
                 d[2] = (c012s - sum012 - d[0]*c110s)/b0;
             }
@@ -1192,10 +1184,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
 
         if (d[0] > 0)
         {
-            mu2 =
-                d[0]*scalarSquareMatrix(3, 1.0)
-                + d[1]*UABs
-                + d[2]*Vps;
+            mu2 = d[0]*scalarSquareMatrix(3, 1.0) + d[1]*UABs + d[2]*Vps;
         }
         if (min(mu2) < 0)
         {
@@ -1204,7 +1193,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             scalar y = -d[0]/(x - 1e-10);
             mu2 =
                 d[0]*scalarSquareMatrix(3, 1.0)
-                + y*(d[1]*UABs + d[2]*Vps);
+              + y*(d[1]*UABs + d[2]*Vps);
         }
 
         // Check realizability of 3rd and 4th order moments
@@ -1215,6 +1204,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         {
             for (label j = 0; j < 3; j++)
             {
+                mu2(i, j) = max(mu2(i, j), 0.0);
                 sum1 += RAB(i, j)*sqrt(pow3(mu2(i, j)));
             }
         }

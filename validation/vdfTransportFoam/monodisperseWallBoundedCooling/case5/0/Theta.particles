@@ -66,12 +66,12 @@ boundaryField
     }
     left
     {
-        type    calculated;
+        type    zeroGradient;
         value   uniform 0.6667;
     }
     right
     {
-        type    calculated;
+        type    zeroGradient;
         value   uniform 0.6667;
     }
     front
@@ -81,6 +81,10 @@ boundaryField
     back
     {
         type    cyclic;
+    }
+    defaultFaces
+    {
+        type empty;
     }
 }
 

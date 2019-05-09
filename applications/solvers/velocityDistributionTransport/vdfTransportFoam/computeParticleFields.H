@@ -15,40 +15,56 @@
 
     if (computeVariance)
     {
+        labelList order200(orderZero);
+        labelList order110(orderZero);
+        labelList order101(orderZero);
+        labelList order020(orderZero);
+        labelList order011(orderZero);
+        labelList order002(orderZero);
+
+        order200[velocityIndexes[0]] = 2;
         Sigmap.replace
         (
             symmTensor::XX,
-            moments(2)/m0 - sqr(Up.component(0))
+            moments(order200)/m0 - sqr(Up.component(0))
         );
         if (velocityIndexes.size() > 1)
         {
+            order110[velocityIndexes[0]] = 1;
+            order110[velocityIndexes[1]] = 1;
+            order020[velocityIndexes[1]] = 2;
             Sigmap.replace
             (
                 symmTensor::XY,
-                moments(1, 1)/m0 - Up.component(0)*Up.component(1)
+                moments(order110)/m0 - Up.component(0)*Up.component(1)
             );
             Sigmap.replace
             (
                 symmTensor::YY,
-                moments(0, 2)/m0 - sqr(Up.component(1))
+                moments(order020)/m0 - sqr(Up.component(1))
             );
         }
         if (velocityIndexes.size() > 2)
         {
+            order101[velocityIndexes[0]] = 1;
+            order101[velocityIndexes[2]] = 1;
+            order011[velocityIndexes[1]] = 1;
+            order011[velocityIndexes[2]] = 1;
+            order002[velocityIndexes[2]] = 2;
             Sigmap.replace
             (
                 symmTensor::XZ,
-                moments(1, 0, 1)/m0 - Up.component(0)*Up.component(2)
+                moments(order101)/m0 - Up.component(0)*Up.component(2)
             );
             Sigmap.replace
             (
                 symmTensor::YZ,
-                moments(0, 1, 1)/m0 - Up.component(1)*Up.component(2)
+                moments(order011)/m0 - Up.component(1)*Up.component(2)
             );
             Sigmap.replace
             (
                 symmTensor::ZZ,
-                moments(0, 0, 2)/m0 - sqr(Up.component(2))
+                moments(order002)/m0 - sqr(Up.component(2))
             );
         }
         Thetap = tr(Sigmap)/velocityIndexes.size();

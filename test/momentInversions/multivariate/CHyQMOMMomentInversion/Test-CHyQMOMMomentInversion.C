@@ -55,14 +55,24 @@ int main(int argc, char *argv[])
     );
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 
-    forAll(x, nodei)
-    {
-        w[nodei] = scalar(rand())/scalar(RAND_MAX);
-        forAll(x[nodei], dimi)
-        {
-            x[nodei][dimi] = 2.0*scalar(rand())/scalar(RAND_MAX) - 1.0;
-        }
-    }
+//     forAll(x, nodei)
+//     {
+//         w[nodei] = scalar(rand())/scalar(RAND_MAX);
+//         forAll(x[nodei], dimi)
+//         {
+//             x[nodei][dimi] = 2.0*scalar(rand())/scalar(RAND_MAX) - 1.0;
+//         }
+//     }
+    scalar T = Foam::sqrt(2.0/3.0);
+    vector U(1.0, 2.0, 2.0);
+    x[0][0] = T + U.x();
+    x[0][1] = T + U.y();
+    x[0][2] = T + U.y();
+    x[1][0] = -T + U.x();
+    x[1][1] = -T + U.y();
+    x[1][2] = -T + U.z();
+    w[0] = 0.025;
+    w[1] = 0.025;
 
     Info<< "Original moments:" << endl;
 
@@ -187,6 +197,7 @@ int main(int argc, char *argv[])
             << ",\trel error: "
             << (mag(moments(momentOrder) - newMomentsp(momentOrder))/moments(momentOrder))<< endl;
     }
+    Info<<velocityAbscissaep<<endl;
 
 
     Info << "\nEnd\n" << endl;

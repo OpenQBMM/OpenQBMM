@@ -147,8 +147,29 @@ void Foam::velocityMomentAdvection::updateWallCollisions
 )
 {
     const fvMesh& mesh = own_.mesh();
-    label nd = nodes[0].velocityIndexes().size();
+    labelList velocityIndexes = nodes[0].velocityIndexes();
+    label nd = velocityIndexes.size();
 
+    labelList order000(momentOrders_[0].size(), 0);
+    labelList order100(order000);
+    labelList order010(order000);
+    labelList order001(order000);
+    labelList order200(order000);
+    labelList order020(order000);
+    labelList order002(order000);
+
+    order100[velocityIndexes[0]] = 1;
+    order200[velocityIndexes[0]] = 2;
+    if (nd > 1)
+    {
+        order010[velocityIndexes[1]] = 1;
+        order020[velocityIndexes[1]] = 2;
+    }
+    if (nd > 2)
+    {
+        order001[velocityIndexes[2]] = 1;
+        order002[velocityIndexes[2]] = 2;
+    }
     forAll(mesh.boundary(), patchi)
     {
         const fvPatch& currPatch = mesh.boundary()[patchi];
@@ -156,41 +177,65 @@ void Foam::velocityMomentAdvection::updateWallCollisions
         {
             const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
             vectorField bfNorm(bfSf/mag(bfSf));
-            vectorField scale(bfSf.size(), vector(1.0, 1.0, 1.0));
+            vectorField T(bfSf.size(), Zero);
 
             if (fixedWalls_[patchi])
             {
                 scalarField m0(max(moments_(0).boundaryField()[patchi], 1e-8));
-                {
-                    scalarField u(moments_(1).boundaryField()[patchi]/m0);
-                    scalarField T(moments_(2).boundaryField()[patchi]/m0 - sqr(u));
-                    scale.replace
+                tmp<scalarField> u(moments_(order100).boundaryField()[patchi]/m0);
+                T.replace
+                (
+                    0,
+                    max
                     (
-                        0,
-                        sqrt(wallTemperatures_[patchi]/max(T, 1e-8))
-                    );
-                }
+                        moments_(order200).boundaryField()[patchi]/m0
+                      - sqr(u),
+                        1e-8
+                    )
+                );
                 if (nd > 1)
                 {
-                    scalarField v(moments_(0, 1).boundaryField()[patchi]/m0);
-                    scalarField T(moments_(0, 2).boundaryField()[patchi]/m0 - sqr(v));
-                    scale.replace
+                    tmp<scalarField> v
+                    (
+                        moments_(order010).boundaryField()[patchi]/m0
+                    );
+                    T.replace
                     (
                         1,
-                        sqrt(wallTemperatures_[patchi]/max(T, 1e-8))
+                        max
+                        (
+                            moments_(order020).boundaryField()[patchi]/m0
+                          - sqr(v),
+                            1e-8
+                        )
                     );
                 }
                 if (nd > 2)
                 {
-                    scalarField w(moments_(0, 0, 1).boundaryField()[patchi]/m0);
-                    scalarField T(moments_(0, 0, 2).boundaryField()[patchi]/m0 - sqr(w));
-                    scale.replace
+                    tmp<scalarField> w
+                    (
+                        moments_(order001).boundaryField()[patchi]/m0
+                    );
+                    T.replace
                     (
                         2,
-                        sqrt(wallTemperatures_[patchi]/max(T, 1e-8))
+                        max
+                        (
+                            moments_(order002).boundaryField()[patchi]/m0
+                          - sqr(w),
+                            1e-8
+                        )
                     );
                 }
             }
+            scalarField scale
+            (
+                sqrt
+                (
+                    wallTemperatures_[patchi]*scalar(nd)
+                   /(T & vector(1.0, 1.0, 1.0))
+                )
+            );
 
             scalarField Gin(bfSf.size(), 0.0);
             scalarField Gout(bfSf.size(), 0.0);
@@ -221,8 +266,8 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                     (
                         bfUOwn
                       - (1.0 + this->ew_)*(bfUOwn & bfNorm)*bfNorm
-                    );
-                bfUNei = cmptMultiply(bfUNei, scale);
+                    )
+                   *scale;
 
                 Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
                 Gout -= min(0.0, bfUNei & bfSf)*bfwNei;

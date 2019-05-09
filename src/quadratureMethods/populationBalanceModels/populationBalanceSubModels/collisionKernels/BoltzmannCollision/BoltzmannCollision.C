@@ -72,7 +72,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     forAll(gPow, powi)
     {
         omegaPow[powi] = pow(omega, powi);
-        for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
+        for (label cmpt = 0; cmpt < 3; cmpt++)
         {
             gPow[powi][cmpt] = pow(g[cmpt], powi);
             vPow[powi][cmpt] = pow(u1[cmpt], powi);
