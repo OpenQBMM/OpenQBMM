@@ -1,0 +1,16 @@
+# Aggregation and breakup in Taylor Couette problem
+# turbulentBrownian aggregation kernel
+# LuoSvendsen breakup kernel
+# Symmetric fragmentation daughter distribution
+# Experimental data from Serra et al. (1997) and Serra and Casamitjana (1998)
+# Time              d
+0               0.9677419355
+291.5542093415  4.0092165899
+596.5443680979  7.0046082949
+890.0727191297  7.9262672811
+1177.7670394946 7.9723502304
+1471.2659257251 8.9400921659
+2059.4717550414 8.9861751152
+2947.5997972822 9.9539170507
+4431.0052211628 9.9078341014
+
