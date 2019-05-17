@@ -25,6 +25,7 @@ License
 
 #include "CHyQMOMPlusMomentInversion.H"
 #include "QRMatrix.H"
+#include "SVD.H"
 #include "mappedLists.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -246,7 +247,7 @@ Foam::multivariateMomentInversions::CHyQMOMPlus::CHyQMOMPlus
         new hyperbolicMomentInversion(dict)
     ),
     etaMin_(dict.lookupOrDefault("etaMin", 1.0e-10)),
-    qMax_(dict.lookupOrDefault("qMax", 30.0)),
+    qMax_(dict.lookupOrDefault("qMax", 100.0)),
     smallNegRealizability_
     (
         dict.lookupOrDefault
@@ -256,7 +257,7 @@ Foam::multivariateMomentInversions::CHyQMOMPlus::CHyQMOMPlus
         )
     ),
     varMin_(dict.lookupOrDefault("varMin", 1.0e-10)),
-    minCorrelation_(dict.lookupOrDefault("minCorrelation", 1.0e-5))
+    minCorrelation_(dict.lookupOrDefault("minCorrelation", 1.0e-6))
 {}
 
 
@@ -583,7 +584,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
         scalar sum03 = c03;
         forAll(Vf, i)
         {
-            sum03 -= wDir1[i]*(pow3(Vf[i]) + 3.0*Vf[i]*mu2[i]);
+            sum03 -= (wDir1[i]*(pow3(Vf[i]) + 3.0*Vf[i]*mu2[i]));
         }
         q = sum03/sum1;
     }
@@ -623,32 +624,20 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
         mu4[i] = eta*sqr(mu2[i]);
     }
 
-    scalarListList wDir2(3, scalarList(3, 0.0));
-    scalarListList absDir2(3, scalarList(3, 0.0));
-    forAll(wDir2, i)
+    for (label i = 0; i < 3; i++)
     {
         univariateMomentSet mMu({1.0, 0.0, mu2[i], mu3[i], mu4[i]}, "R");
         univariateInverter_().invert(mMu);
 
-        forAll(wDir2[i], j)
-        {
-            wDir2[i][j] = univariateInverter_().weights()[j];
-            absDir2[i][j] = univariateInverter_().abscissae()[j];
-        }
-    }
-
-    // Compute multivariate quadrature
-    for (label i = 0; i < 3; i++)
-    {
         for (label j = 0; j < 3; j++)
         {
-            weights2D(i, j) = m00*wDir1[i]*wDir2[i][j];
+            weights2D(i, j) = m00*wDir1[i]*univariateInverter_().weights()[j];
 
             abscissae2D(i, j) =
                 vector2D
                 (
                     absDir1[i] + meanU,
-                    Vf[i] + absDir2[i][j] + meanV
+                    Vf[i] + univariateInverter_().abscissae()[j] + meanV
                 );
         }
     }
@@ -730,8 +719,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     c012 -= (meanV*s002 + 2.0*meanW*s011 - 2.0*sqrMeanW*meanV);
     c003 -= (3.0*meanW*s002 - 2.0*pow3(meanW));
 
-    c400 -= (4.0*meanU*s300- 6.0*sqrMeanU*s200+ 3.0*sqr(sqrMeanU));
-    c040 -= (4.0*meanV*s030- 6.0*sqrMeanV*s020+ 3.0*sqr(sqrMeanV));
+    c400 -= (4.0*meanU*s300 - 6.0*sqrMeanU*s200 + 3.0*sqr(sqrMeanU));
+    c040 -= (4.0*meanV*s030 - 6.0*sqrMeanV*s020 + 3.0*sqr(sqrMeanV));
     c004 -= (4.0*meanW*s003 - 6.0*sqrMeanW*s002 + 3.0*sqr(sqrMeanW));
 
     realizabilityUnivariateMoments(c200, c300, c400);
@@ -920,10 +909,13 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 for (label j = 0; j < 3; j++)
                 {
                     weights_(i, j, 1) = m000*wDir12(i, j);
-                    velocityAbscissae_(i, j, 1).x() =
-                        abscissaeDir12(i, j).x() + meanU;
-                    velocityAbscissae_(i, j, 1).y() =
-                        abscissaeDir12(i, j).y() + meanV;
+                    velocityAbscissae_(i, j, 1) =
+                        vector
+                        (
+                            abscissaeDir12(i, j).x() + meanU,
+                            abscissaeDir12(i, j).y() + meanV,
+                            meanW
+                        );
                 }
             }
 
@@ -931,26 +923,12 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         }
         // All directions are non-degenerate
         label NB = 6;
-        List<scalarSquareMatrix> wDir3(3, scalarSquareMatrix(3, 0.0));
-        List<scalarSquareMatrix> absDir3(3, scalarSquareMatrix(3, 0.0));
-
-        // Scale weights in directions 12
-        scalar sumWeights1 = 0.0;
-        scalar sumWeights2 = 0.0;
-        scalar sumWeights3 = 0.0;
 
         for (label i = 0; i < 3; i++)
         {
-            sumWeights1 += wDir12(0, i);
-            sumWeights2 += wDir12(1, i);
-            sumWeights3 += wDir12(2, i);
-        }
-
-        for (label i = 0; i < 3; i++)
-        {
-            wDir12(0, i) /= sumWeights1;
-            wDir12(1, i) /= sumWeights2;
-            wDir12(2, i) /= sumWeights3;
+            wDir12(0, i) /= wDir1[0];
+            wDir12(1, i) /= wDir1[1];
+            wDir12(2, i) /= wDir1[2];
         }
 
         // Compute Vf reconstruction
@@ -1085,66 +1063,21 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             NB = 3;
         }
 
-        scalarList r({0.0, c101s, c011s, c111s, c201s, c021s});
+        scalarRectangularMatrix r(6, 1, 0.0);
+        r(1, 0) = c101s;
+        r(2, 0) = c011s;
+        r(3, 0) = c111s;
+        r(4, 0) = c201s;
+        r(5, 0) = c021s;
+        Foam::SVD svd(A, 1e-3);
+        scalarField c(6, 0.0);
+        scalarRectangularMatrix tmpc(svd.VSinvUt()*r);
 
-        labelList pivotIndices(A.m());
-        scalarSquareMatrix R(A);
-        LUDecompose(R, pivotIndices);
-
-        labelList vec(NB, 0);
-        vec[0] = 1;
-        vec[1] = 1;
-        scalar maxR = mag(R(0, 0));
-        for (label i = 1; i < NB; i++)
+        forAll(c, i)
         {
-            maxR = max(maxR, mag(R(i, i)));
+            c[i] = tmpc(i,0);
         }
 
-        if (NB > 2)
-        {
-            for (label i = 2; i < NB; i++)
-            {
-                if (mag(R(i, i))/maxR > minCorrelation_)
-                {
-                    vec[i] = 1;
-                }
-            }
-        }
-        NB = sum(vec);
-
-        scalarList c(6, 0.0);
-        scalarSquareMatrix tmpA(NB, 0.0);
-        scalarList tmpr(NB, 0.0);
-        label I = 0;
-        label J = 0;
-        forAll(vec, i)
-        {
-            J = 0;
-            if (vec[i] == 1)
-            {
-                forAll(vec, j)
-                {
-                    if (vec[j] == 1)
-                    {
-                        tmpA(I, J) = A(i, j);
-                        J++;
-                    }
-                }
-                tmpr[I] = r[i];
-                I++;
-            }
-        }
-        LUsolve(tmpA, tmpr); //tmpr->solution
-
-        I = 0;
-        forAll(vec, i)
-        {
-            if (vec[i] == 1)
-            {
-                c[i] = tmpr[I];
-                I++;
-            }
-        }
         scalarSquareMatrix Wf
         (
             c[0]*Vc0 + c[1]*Vc1 + c[2]*Vc2 + c[3]*Vc3 + c[4]*Vc4 + c[5]*Vc5
@@ -1204,7 +1137,10 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         {
             for (label j = 0; j < 3; j++)
             {
-                mu2(i, j) = max(mu2(i, j), 0.0);
+                if (mu2(i, j) < 0)
+                {
+                    mu2(i, j) = 0.0;
+                }
                 sum1 += RAB(i, j)*sqrt(pow3(mu2(i, j)));
             }
         }
@@ -1243,7 +1179,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                         RAB(i, j)
                         *(
                             pow4(Wf(i, j))
-                            + 6.0*sqr(Wf(i, j))*mu2(i, j)
+                          + 6.0*sqr(Wf(i, j))*mu2(i, j)
                         );
                     sum04B -= 4.0*RAB(i, j)*Wf(i, j)*sqrt(pow3(mu2(i, j)));
                 }
@@ -1259,6 +1195,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 eta = sqr(q) + 1.0;
             }
         }
+
         scalarSquareMatrix mu3(3, 0.0);
         scalarSquareMatrix mu4(3, 0.0);
         for (label i = 0; i < 3; i++)
@@ -1284,27 +1221,20 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
 
                 for (label k = 0; k < 3; k++)
                 {
-                    wDir3[i][j][k] = univariateInverter_().weights()[k];
-                    absDir3[i](j, k) = univariateInverter_().abscissae()[k];
-                }
-            }
-        }
-
-        for (label i = 0; i < 3; i++)
-        {
-            for (label j = 0; j < 3; j++)
-            {
-                for (label k = 0; k < 3; k++)
-                {
                     weights_(i, j, k) =
-                        m000*wDir1[i]*wDir12(i, j)*wDir3[i](j, k);
+                        m000
+                       *wDir1[i]
+                       *wDir12(i, j)
+                       *univariateInverter_().weights()[k];
 
                     velocityAbscissae_(i, j, k) =
                         vector
                         (
                             absDir1[i] + meanU,
                             Vf[i] + absDir2(i, j) + meanV,
-                            Wf(i, j) + absDir3[i](j, k) + meanW
+                            Wf(i, j)
+                          + univariateInverter_().abscissae()[k]
+                          + meanW
                         );
                 }
             }

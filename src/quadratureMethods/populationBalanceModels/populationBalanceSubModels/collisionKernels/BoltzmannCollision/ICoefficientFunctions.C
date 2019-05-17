@@ -102,10 +102,10 @@ IFuncHeader(0,1,2)
 {
     Is(0,1,2) =
       - omegaPow[3]/24.0*(gMagSqr + 3.0*gPow[2].z())*gPow[1].y()
-      + omegaPow[2]/12.0*(gMagSqr + 3.0*gPow[2].z())*vPow[1].y()
       + omegaPow[2]/2.0*gPow[1].z()*gPow[1].y()*vPow[1].z()
-      - omegaPow[1]*gPow[1].z()*vPow[1].z()*vPow[1].y()
-      - omegaPow[1]/2.0*gPow[1].y()*vPow[2].z();
+      + omegaPow[2]/12.0*(gMagSqr + 3.0*gPow[2].z())*vPow[1].y()
+      - omegaPow[1]/2.0*gPow[1].y()*vPow[2].z()
+      - omegaPow[1]*gPow[1].z()*vPow[1].z()*vPow[1].y();
 }
 
 IFuncHeader(0,2,1)

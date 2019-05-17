@@ -94,7 +94,7 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
     ds_(nNodes, 0.0),
     alphas_(nNodes, 0.0),
     sumAlpha_(0.0),
-    massBased_(dict.lookupOrDefault("massBased", false))
+    massBased_(dict.lookupOrDefault("massBased", true))
 {
     if (!dict.found("rho") && massBased_)
     {

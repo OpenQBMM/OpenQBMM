@@ -81,7 +81,7 @@ fi
 
 # paths to data
 VALIDATIONDATAROOT=./validationData
-time=$(cd ../ && foamListTimes -latestTime)
+time=121 # $(cd ../ && foamListTimes -latestTime)
 
 TP_alpha="$VALIDATIONDATAROOT/case5_alpha_TP.csv"
 MD_alpha="$VALIDATIONDATAROOT/case5_alpha_MD.csv"

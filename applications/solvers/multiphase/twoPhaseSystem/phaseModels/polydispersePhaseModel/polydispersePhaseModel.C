@@ -737,7 +737,7 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
                     "corr",
                     fluid_.mesh().time().timeName(),
                     fluid_.mesh(),
-                    IOobject::NO_READ,
+                    IOobject::READ_IF_PRESENT,
                     IOobject::NO_WRITE
                 ),
                 fluid_.mesh(),

@@ -177,12 +177,13 @@ void Foam::velocityMomentAdvection::updateWallCollisions
         {
             const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
             vectorField bfNorm(bfSf/mag(bfSf));
-            vectorField T(bfSf.size(), Zero);
+            tmp<scalarField> scale;
 
             if (fixedWalls_[patchi])
             {
                 scalarField m0(max(moments_(0).boundaryField()[patchi], 1e-8));
                 tmp<scalarField> u(moments_(order100).boundaryField()[patchi]/m0);
+                vectorField T(bfSf.size(), Zero);
                 T.replace
                 (
                     0,
@@ -227,15 +228,15 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                         )
                     );
                 }
-            }
-            scalarField scale
-            (
-                sqrt
+                scale =
                 (
-                    wallTemperatures_[patchi]*scalar(nd)
-                   /(T & vector(1.0, 1.0, 1.0))
-                )
-            );
+                    sqrt
+                    (
+                        wallTemperatures_[patchi]*scalar(nd)
+                       /(T & vector(1.0, 1.0, 1.0))
+                    )
+                );
+            }
 
             scalarField Gin(bfSf.size(), 0.0);
             scalarField Gout(bfSf.size(), 0.0);
@@ -266,20 +267,20 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                     (
                         bfUOwn
                       - (1.0 + this->ew_)*(bfUOwn & bfNorm)*bfNorm
-                    )
-                   *scale;
+                    );
 
+                if (scale.valid())
+                {
+                    bfUNei *= scale();
+                }
                 Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
                 Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
             }
 
             forAll(nodes, nodei)
             {
-                surfaceVelocityNode& nodeNei(nodesNei[nodei]);
-
                 scalarField& bfWNei =
-                    nodeNei.primaryWeight().boundaryFieldRef()[patchi];
-
+                    nodesNei[nodei].primaryWeight().boundaryFieldRef()[patchi];
                 bfWNei *= Gin/(Gout+ small);
             }
         }
