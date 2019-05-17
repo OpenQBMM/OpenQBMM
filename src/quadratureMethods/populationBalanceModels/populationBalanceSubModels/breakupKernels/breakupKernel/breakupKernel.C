@@ -383,6 +383,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     forAll(nodes, pNodei)
     {
         const volVelocityNode& node = nodes[pNodei];
+        label sizei = quadrature.nodeIndexes()[pNodei][sizeIndex];
 
         scalar bSourcei = 0.0;
         forAll(node.secondaryWeights()[0], sNodei)
@@ -390,7 +391,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
             bSourcei +=
                 node.primaryWeight()[celli]
                *node.secondaryWeights()[sizeIndex][sNodei][celli]
-               *bSources[pNodei][sNodei];
+               *bSources[sizei][sNodei];
 
         }
         forAll(scalarIndexes, cmpt)

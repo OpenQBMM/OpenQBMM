@@ -491,6 +491,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
     {
         const volVelocityNode& node1 = nodes[pNode1i];
         const volScalarField& pWeight1 = node1.primaryWeight();
+        label sizei = quadrature.nodeIndexes()[pNode1i][sizeIndex];
 
         scalar aSourcei = 0.0;
         forAll(node1.secondaryWeights()[0], sNode1i)
@@ -499,6 +500,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
             {
                 const volVelocityNode& node2 = nodes[pNode2i];
                 const volScalarField& pWeight2 = node2.primaryWeight();
+                label sizej = quadrature.nodeIndexes()[pNode2i][sizeIndex];
 
                 forAll(node2.secondaryWeights()[0], sNode2i)
                 {
@@ -507,7 +509,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                        *node1.secondaryWeights()[sizeIndex][sNode1i][celli]
                        *pWeight2[celli]
                        *node2.secondaryWeights()[sizeIndex][sNode2i][celli]
-                       *aSources[pNode1i][sNode1i][pNode2i][sNode2i];
+                       *aSources[sizei][sNode1i][sizej][sNode2i];
                 }
             }
         }

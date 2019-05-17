@@ -26,6 +26,7 @@ License
 #include "velocityMomentAdvection.H"
 #include "IOmanip.H"
 #include "wallFvPatch.H"
+#include "symmetryFvPatch.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -282,6 +283,52 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                 scalarField& bfWNei =
                     nodesNei[nodei].primaryWeight().boundaryFieldRef()[patchi];
                 bfWNei *= Gin/(Gout+ small);
+            }
+        }
+        else if (isA<symmetryFvPatch>(currPatch))
+        {
+            const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
+            vectorField bfNorm(bfSf/mag(bfSf));
+
+            scalarField Gin(bfSf.size(), 0.0);
+            scalarField Gout(bfSf.size(), 0.0);
+
+            forAll(nodes, nodei)
+            {
+                const volVelocityNode& node = nodes[nodei];
+                surfaceVelocityNode& nodeNei(nodesNei[nodei]);
+                surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
+
+                const volScalarField& weight = node.primaryWeight();
+                surfaceScalarField& weightOwn = nodeOwn.primaryWeight();
+                surfaceScalarField& weightNei = nodeNei.primaryWeight();
+                const volVectorField& U = node.velocityAbscissae();
+                surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
+                surfaceVectorField& UNei = nodeNei.velocityAbscissae();
+
+                scalarField& bfwOwn = weightOwn.boundaryFieldRef()[patchi];
+                scalarField& bfwNei = weightNei.boundaryFieldRef()[patchi];
+                vectorField& bfUOwn = UOwn.boundaryFieldRef()[patchi];
+                vectorField& bfUNei = UNei.boundaryFieldRef()[patchi];
+
+                bfwOwn = weight.boundaryField()[patchi].patchInternalField();
+                bfwNei = bfwOwn;
+
+                bfUOwn = U.boundaryField()[patchi].patchInternalField();
+                bfUNei =
+                    (
+                        bfUOwn
+                      - 0.2*(bfUOwn & bfNorm)*bfNorm
+                    );
+                Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
+                Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
+            }
+
+            forAll(nodes, nodei)
+            {
+                scalarField& bfWNei =
+                    nodesNei[nodei].primaryWeight().boundaryFieldRef()[patchi];
+                bfWNei *= Gin/(Gout + small);
             }
         }
     }
