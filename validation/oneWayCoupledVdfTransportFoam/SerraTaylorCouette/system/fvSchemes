@@ -21,7 +21,7 @@ ddtSchemes
 
 gradSchemes
 {
-    default         Gauss linear;
+    default         faceLimited leastSquares 1.0;
 }
 
 divSchemes
@@ -51,13 +51,6 @@ laplacianSchemes
 interpolationSchemes
 {
     default         linear;
-
-    "interpolate\(moment.*\)" upwind phi;
-
-    reconstruct(U)          upwind;
-    reconstruct(weight)     upwind;
-    reconstruct(abscissa)   upwind;
-    reconstruct(sigma)      upwind;
 }
 
 snGradSchemes
