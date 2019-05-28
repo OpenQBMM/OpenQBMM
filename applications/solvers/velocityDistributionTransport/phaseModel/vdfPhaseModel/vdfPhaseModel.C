@@ -135,6 +135,16 @@ Foam::vdfPhaseModel::vdfPhaseModel
         );
     }
 
+    dimensionSet weightDim
+    (
+        quadrature_.nodes()[0].primaryWeight().dimensions()
+    );
+
+    if (weightDim == dimless)
+    {
+        m0VolumeFraction_ = true;
+    }
+
     if (quadrature_.nodes()[0].sizeIndex() != -1)
     {
         d_.writeOpt() = IOobject::AUTO_WRITE;
@@ -143,15 +153,6 @@ Foam::vdfPhaseModel::vdfPhaseModel
         (
             quadrature_.nodes()[0].primaryAbscissae()[sizeIndex_].dimensions()
         );
-        dimensionSet weightDim
-        (
-            quadrature_.nodes()[0].primaryWeight().dimensions()
-        );
-
-        if (weightDim == dimless)
-        {
-            m0VolumeFraction_ = true;
-        }
 
         sizeMoment_[sizeIndex_] = 1;
 

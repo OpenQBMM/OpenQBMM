@@ -278,20 +278,19 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                 Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
             }
 
+            scalarField weightScale(Gin/(Gout + small));
+
             forAll(nodes, nodei)
             {
                 scalarField& bfWNei =
                     nodesNei[nodei].primaryWeight().boundaryFieldRef()[patchi];
-                bfWNei *= Gin/(Gout+ small);
+                bfWNei *= weightScale;
             }
         }
         else if (isA<symmetryFvPatch>(currPatch))
         {
             const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
             vectorField bfNorm(bfSf/mag(bfSf));
-
-            scalarField Gin(bfSf.size(), 0.0);
-            scalarField Gout(bfSf.size(), 0.0);
 
             forAll(nodes, nodei)
             {
@@ -315,20 +314,7 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                 bfwNei = bfwOwn;
 
                 bfUOwn = U.boundaryField()[patchi].patchInternalField();
-                bfUNei =
-                    (
-                        bfUOwn
-                      - 0.2*(bfUOwn & bfNorm)*bfNorm
-                    );
-                Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
-                Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
-            }
-
-            forAll(nodes, nodei)
-            {
-                scalarField& bfWNei =
-                    nodesNei[nodei].primaryWeight().boundaryFieldRef()[patchi];
-                bfWNei *= Gin/(Gout + small);
+                bfUNei = bfUOwn - 2.0*(bfUOwn & bfNorm)*bfNorm;
             }
         }
     }

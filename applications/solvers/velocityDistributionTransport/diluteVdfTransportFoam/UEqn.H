@@ -1,11 +1,10 @@
 // Solve the Momentum equation
-volScalarField alphaRho1(alpha1*rho1);
 MRF.correctBoundaryVelocity(U1);
 
 fvVectorMatrix UEqn
 (
-    fvm::ddt(alphaRho1, U1) + fvm::div(alphaRhoPhi1, U1)
-  + MRF.DDt(alphaRho1 + Cvm, U1)
+    fvm::ddt(alpha1, rho1, U1) + fvm::div(alphaRhoPhi1, U1)
+  + MRF.DDt(alpha1*rho1 + Cvm, U1)
   + phase1->turbulence().divDevRhoReff(U1)
  ==
     virtualMassSource

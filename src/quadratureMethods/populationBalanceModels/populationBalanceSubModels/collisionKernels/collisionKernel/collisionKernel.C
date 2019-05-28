@@ -135,7 +135,7 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
                 dict,
                 "d",
                 dimLength
-            );
+            ).ptr();
     }
 
     scalarList rhos(dict_.lookupOrDefault("rhos", scalarList()));
