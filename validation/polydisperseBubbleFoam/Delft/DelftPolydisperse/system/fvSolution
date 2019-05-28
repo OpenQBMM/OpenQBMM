@@ -64,12 +64,19 @@ solvers
         minIter         1;
     }
 
+    "corr.*"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-10;
+        relTol          0;
+    }
+
     "Up.*"
     {
         solver          diagonal;
         tolerance       1e-12;
         relTol          0;
-        minIter         1;
     }
 
     "moment.*"
@@ -77,7 +84,6 @@ solvers
         solver          diagonal;
         tolerance       1e-12;
         relTol          0;
-        minIter         1;
     }
 
     "e.*"
@@ -101,9 +107,11 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors 5;
+    nOuterCorrectors 25;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
+    nFluxCorrectors 2;
+    corrPatch none;
     pRefCell 0;
     pRefValue 1e5;
     outerCorrectorResidualControl
