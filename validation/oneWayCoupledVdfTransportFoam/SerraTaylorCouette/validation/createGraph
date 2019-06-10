@@ -22,9 +22,9 @@ createEpsD43()
                 with points pointtype 7 ps 3 linecolor rgb 'black',\
             "$2" using 1:2 every 3 title 'Marchisio et al. (2003) C_{Br} = 0.6e-3'\
                 with points pointtype 5 ps 2 linecolor rgb 'blue',\
-            "$3" using 1:2 every 2 title 'Univariate C_{Br} = 0.6e-3'\
+            "$3" using 1:2 every 100 title 'Univariate C_{Br} = 0.6e-3'\
                 with points linetype 6 linewidth 5 linecolor rgb 'red',\
-            "$4" using 1:2 every 2 title 'GPBE C_{Br} = 0.6e-3'\
+            "$4" using 1:2 every 250 title 'GPBE C_{Br} = 0.6e-3'\
                 with points pt 2 linewidth 5 linecolor rgb '#9db668'
 EOF
 }
@@ -37,18 +37,18 @@ then
 fi
 
 # extract data from log file and put them in a text file for gnuplot
-cat ../log.oneWayCoupledVdfTransportFoam | grep '^Time = ' | cut -c8-15 > time.tmp
-cat ../log.oneWayCoupledVdfTransportFoam | grep 'Volume averaged normalized d10' | cut -d':' -f2 > d10.tmp
-paste time.tmp d10.tmp > volumeAveragedD10.dat
+# cat ../log.oneWayCoupledVdfTransportFoam | grep '^Time = ' | cut -c8-15 > time.tmp
+# cat ../log.oneWayCoupledVdfTransportFoam | grep 'Volume averaged normalized d10' | cut -d':' -f2 > d10.tmp
+# paste time.tmp d10.tmp > volumeAveragedD10.dat
 
 #Remove temporary files
-rm time.tmp d10.tmp
+# rm time.tmp d10.tmp
 
 # paths to data
 VALIDATIONDATAROOT=./validationData
 
 echo "    processing d10 profile" > log.createGraphs 2>&1
-OPENQBMMM="volumeAveragedD10.dat"
+OPENQBMMM="../postProcessing/averageD10"
 OPENQBMMM_orig="$VALIDATIONDATAROOT/volumeAveragedD43_nonInertial.dat"
 VALIDATION="$VALIDATIONDATAROOT/SerraEtAl1997_d43_165rpm.dat"
 MARCHISIO="$VALIDATIONDATAROOT/Marchisio_165_6.dat"

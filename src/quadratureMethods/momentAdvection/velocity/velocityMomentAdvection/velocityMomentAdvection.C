@@ -278,13 +278,16 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                 Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
             }
 
-            scalarField weightScale(Gin/(Gout + small));
-
-            forAll(nodes, nodei)
+            if (this->ew_ < 1)
             {
-                scalarField& bfWNei =
-                    nodesNei[nodei].primaryWeight().boundaryFieldRef()[patchi];
-                bfWNei *= weightScale;
+                scalarField weightScale(Gin/(Gout + small));
+
+                forAll(nodes, nodei)
+                {
+                    scalarField& bfWNei =
+                        nodesNei[nodei].primaryWeight().boundaryFieldRef()[patchi];
+                    bfWNei *= weightScale;
+                }
             }
         }
         else if (isA<symmetryFvPatch>(currPatch))
