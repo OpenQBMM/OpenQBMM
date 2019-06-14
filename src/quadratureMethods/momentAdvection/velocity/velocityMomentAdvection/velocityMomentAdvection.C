@@ -278,7 +278,7 @@ void Foam::velocityMomentAdvection::updateWallCollisions
                 Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
             }
 
-            if (this->ew_ < 1)
+            if (this->ew_ < 1 || scale.valid())
             {
                 scalarField weightScale(Gin/(Gout + small));
 
