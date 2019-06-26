@@ -8,6 +8,7 @@ dragModels/GidaspowSchillerNaumann/GidaspowSchillerNaumann.C
 dragModels/Lain/Lain.C
 dragModels/SchillerNaumann/SchillerNaumann.C
 dragModels/Stokes/Stokes.C
+dragModels/lengthBased/lengthBased.C
 dragModels/SyamlalOBrien/SyamlalOBrien.C
 dragModels/TomiyamaCorrelated/TomiyamaCorrelated.C
 dragModels/TomiyamaAnalytic/TomiyamaAnalytic.C

@@ -145,6 +145,12 @@ public:
 
     // Member Functions
 
+        //- Uodate sources before ode solve
+        virtual void preUpdate()
+        {
+            return;
+        }
+
         //- Breakup kernel
         virtual scalar Kb
         (

@@ -97,10 +97,11 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
 
             scalar bAbscissa =
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+            scalar d = node.d(bAbscissa, celli);
 
             scalar gSourcei =
                 node.primaryWeight()[celli]
-               *Kg(node.primaryAbscissae()[0][celli])
+               *Kg(d)
                *sizeOrder*pow(bAbscissa, sizeOrder - 1);
 
             forAll(scalarIndexes, nodei)
@@ -129,11 +130,12 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
         {
             scalar bAbscissa =
                 max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
+            scalar d = node.d(bAbscissa, celli);
 
             scalar gSourcei =
                 node.primaryWeight()[celli]
                *node.secondaryWeights()[sizeIndex][sNodei][celli]
-               *Kg(bAbscissa)
+               *Kg(d)
                *sizeOrder*pow(bAbscissa, sizeOrder - 1);
 
             forAll(scalarIndexes, cmpt)

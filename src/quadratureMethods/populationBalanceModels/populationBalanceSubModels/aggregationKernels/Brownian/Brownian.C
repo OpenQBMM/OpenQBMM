@@ -83,15 +83,16 @@ Foam::populationBalanceSubModels::aggregationKernels::Brownian
 Foam::scalar
 Foam::populationBalanceSubModels::aggregationKernels::Brownian::Ka
 (
-    const scalar& abscissa1,
-    const scalar& abscissa2,
+    const scalar& d1,
+    const scalar& d2,
+    const vector& Ur,
     const label celli,
     const label environment
 ) const
 {
     return 2.0*Foam::constant::physicoChemical::k.value()*T_[celli]
-            *sqr(abscissa1 + abscissa2)/(3.0*mu_[celli]
-            *max(abscissa1*abscissa2, SMALL));
+            *sqr(d1 + d2)/(3.0*mu_[celli]
+            *max(d1*d2, small));
 }
 
 // ************************************************************************* //

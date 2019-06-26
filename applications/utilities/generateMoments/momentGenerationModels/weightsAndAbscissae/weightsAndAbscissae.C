@@ -74,6 +74,7 @@ void Foam::momentGenerationSubModels::weightsAndAbscissae::setNodes
 )
 {
     reset();
+    scalar scale = dict.lookupOrDefault<scalar>("scale", 1.0);
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
@@ -81,7 +82,8 @@ void Foam::momentGenerationSubModels::weightsAndAbscissae::setNodes
         {
             dictionary nodeDict(dict.subDict(nodeName));
             abscissae_[nodei] = nodeDict.lookupType<scalarList>("abscissa");
-            weights_[nodei] = nodeDict.lookupType<scalar>("weight");
+            weights_[nodei] =
+                nodeDict.lookupType<scalar>("weight")*scale;
         }
     }
 

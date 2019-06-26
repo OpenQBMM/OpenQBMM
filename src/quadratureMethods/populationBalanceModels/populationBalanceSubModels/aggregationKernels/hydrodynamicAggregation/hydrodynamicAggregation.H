@@ -94,6 +94,7 @@ public:
         (
             const scalar& abscissa1,
             const scalar& abscissa2,
+            const vector& Ur,
             const label celli,
             const label environment = 0
         ) const;

@@ -1,0 +1,88 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 0.01;
+
+x0 10.0;
+x1 30.0;
+
+r0 2.50;
+V0 5.0;
+theta .05;
+
+t1 #calc "(pow3($x1/$x0) - 1.0)*$x0/(3.0*$V0)";
+r1 #calc "$r0*cbrt(1.0 + 3.0*$V0*$t1/$x0)";
+
+z0 #calc "$r0*sin($theta)";
+nz0 #calc "-$z0";
+
+z1 #calc "$r1*sin($theta)";
+nz1 #calc "-$z1";
+
+vertices
+(
+    ($x0 0 0)  // 0
+    ($x1 0 0)  // 1
+    ($x1 $r1 $nz1)
+    ($x0 $r0 $nz0)
+    ($x0 0 0)
+    ($x1 0 0)
+    ($x1 $r1 $z1)
+    ($x0 $r0 $z0)
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (30 1 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+patches
+(
+    patch inlet
+    (
+        (0 3 7 4)
+    )
+
+    patch outlet
+    (
+        (1 2 6 5)
+    )
+
+    wedge wedge1
+    (
+        (0 1 2 3)
+    )
+
+    wedge wedge2
+    (
+        (4 5 6 7)
+    )
+
+    wall top
+    (
+        (3 2 6 7)
+    )
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

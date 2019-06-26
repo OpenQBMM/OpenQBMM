@@ -1,0 +1,90 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      momentGenerationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases
+(
+    liquid
+);
+
+boundaries
+{
+    inlet
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+    outlet
+    {
+        type    zeroGradient;
+    }
+
+    wedge1
+    {
+        type wedge;
+    }
+    wedge2
+    {
+        type wedge;
+    }
+
+    top
+    {
+        type zeroGradient;
+    }
+}
+
+z0 0.1;
+U0 5.0;
+V0 0;//#calc "$U0/$z0";
+liquid
+{
+    type                weightsAndAbscissae;
+    weightDimension     [0 0 0 0 0 0 0];
+    abscissaDimension0  [0 1 0 0 0 0 0];
+    abscissaDimension   [0 1 -1 0 0 0 0];
+
+    inlet
+    {
+        scale 0.57e-2;
+        node0
+        {
+            weight  0.732330;
+            abscissa (9.99551e-6 $U0 $V0 0);
+        }
+        node1
+        {
+            weight  0.254558;
+            abscissa (18.5282e-6 $U0 $V0 0);
+        }
+        node2
+        {
+            weight  1.28835e-2;
+            abscissa (27.5630e-6 $U0 $V0 0);
+        }
+        node3
+        {
+            weight  2.27970e-4;
+            abscissa (36.0142e-6 $U0 $V0 0);
+        }
+    }
+    default
+    {}
+
+}
+
+
+// ************************************************************************* //
