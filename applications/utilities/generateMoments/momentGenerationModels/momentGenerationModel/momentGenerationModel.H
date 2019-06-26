@@ -40,6 +40,7 @@ SourceFiles
 #include "fvMesh.H"
 #include "dictionary.H"
 #include "mappedLists.H"
+#include "mappedPtrList.H"
 #include "dimensionedTypes.H"
 #include "runTimeSelectionTables.H"
 
@@ -67,6 +68,9 @@ protected:
 
     // Protected data
 
+        //- Constant reference to mesh
+        const fvMesh& mesh_;
+
         //- Constant refrence to dictionary
         const dictionary& dict_;
 
@@ -86,13 +90,16 @@ protected:
         labelListList momentOrders_;
 
         //- List of weights
-        List<scalar> weights_;
+        mutable List<scalarField> weights_;
 
         //- List of abscissae
-        List<scalarList> abscissae_;
+        mutable List<List<scalarField>> abscissae_;
+
+        //- List of moment dimensions
+        mappedPtrList<dimensionSet> momentDims_;
 
         //- List of moments
-        mappedList<dimensionedScalar> moments_;
+        mutable mappedList<scalarField> moments_;
 
 
     // Protected member functions
@@ -101,7 +108,10 @@ protected:
         void updateMoments();
 
         //- Zero weights, abscissae and moments
-        void reset();
+        label reset(const label patchi = -1);
+
+        //- Zero weights, abscissae and moments for a set of cells
+        label reset(const labelList& cells);
 
 
 public:
@@ -154,13 +164,16 @@ public:
 
     // Public Functions
 
-        //- Set the node quanties for a region given a dictionary
-        virtual void setNodes(const dictionary& dict) = 0;
-
         // Access
 
+            //- Return constant access to moment dimensions
+            const mappedPtrList<dimensionSet>& momentDims() const
+            {
+                return momentDims_;
+            }
+
             //- Return constant access to moments
-            const mappedList<dimensionedScalar>& moments() const
+            const mappedList<scalarField>& moments() const
             {
                 return moments_;
             }
@@ -168,14 +181,18 @@ public:
         // Member Functions
 
             //- Update weights and abscissae given a dictionary
-            virtual void updateMoments(const label celli) = 0;
+        virtual void updateMoments
+        (
+            const dictionary& dict,
+            const label patchi = -1
+        ) = 0;
 
-            //- Update moments given a dictionary
-            virtual void updateMoments
-            (
-                const label patchi,
-                const label facei
-            ) = 0;
+        //- Update weights and abscissae given a dictionary and cell set
+        virtual void updateMoments
+        (
+            const dictionary& dict,
+            const labelList& cells
+        ) = 0;
 };
 
 

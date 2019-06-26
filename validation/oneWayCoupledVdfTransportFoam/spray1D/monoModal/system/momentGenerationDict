@@ -57,33 +57,30 @@ liquid
     abscissaDimension0  [0 1 0 0 0 0 0];
     abscissaDimension   [0 1 -1 0 0 0 0];
 
-    inlet
+    default
     {
-        scale 0.57e-2;
+        scale uniform 0.57e-2;
         node0
         {
-            weight  0.732330;
-            abscissa (9.99551e-6 $U0 $V0 0);
+            weight  uniform 0.732330;
+            abscissae (9.99551e-6 $U0 $V0 0);
         }
         node1
         {
-            weight  0.254558;
-            abscissa (18.5282e-6 $U0 $V0 0);
+            weight  uniform 0.254558;
+            abscissae (18.5282e-6 $U0 $V0 0);
         }
         node2
         {
-            weight  1.28835e-2;
-            abscissa (27.5630e-6 $U0 $V0 0);
+            weight  uniform 1.28835e-2;
+            abscissae (27.5630e-6 $U0 $V0 0);
         }
         node3
         {
-            weight  2.27970e-4;
-            abscissa (36.0142e-6 $U0 $V0 0);
+            weight  uniform 2.27970e-4;
+            abscissae (36.0142e-6 $U0 $V0 0);
         }
     }
-    default
-    {}
-
 }
 
 

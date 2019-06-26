@@ -55,9 +55,6 @@ class alphaAndDiameterVelocity
 :
     public alphaAndDiameter
 {
-    //- List of velocities
-    vectorList Us_;
-
 public:
 
         //- Runtime type information
@@ -82,17 +79,18 @@ public:
 
     // Public member functions
 
-        //- Set the node quanties for a region given a dictionary
-        virtual void setNodes(const dictionary& dict);
-
         //- Update weights and abscissae given a dictionary
-        virtual void updateMoments(const label celli);
-
-        //- Update moments given a dictionary
         virtual void updateMoments
         (
-            const label patchi,
-            const label facei
+            const dictionary& dict,
+            const label patchi = -1
+        );
+
+        //- Update weights and abscissae given a dictionary and cell set
+        virtual void updateMoments
+        (
+            const dictionary& dict,
+            const labelList& cells
         );
 };
 

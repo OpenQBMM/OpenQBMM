@@ -68,22 +68,39 @@ Foam::momentGenerationSubModels::weightsAndAbscissae
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::weightsAndAbscissae::setNodes
+void Foam::momentGenerationSubModels::weightsAndAbscissae::updateMoments
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label patchi
 )
 {
-    reset();
-    scalar scale = dict.lookupOrDefault<scalar>("scale", 1.0);
+    label size = reset(patchi);
+    tmp<scalarField> scale;
+    if (dict.found("scale"))
+    {
+        scale = tmp<scalarField>(new scalarField("scale", dict, size));
+    }
+
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            abscissae_[nodei] = nodeDict.lookupType<scalarList>("abscissa");
-            weights_[nodei] =
-                nodeDict.lookupType<scalar>("weight")*scale;
+            scalarList abscissae(nodeDict.lookup("abscissae"));
+
+            forAll(abscissae, i)
+            {
+                forAll(abscissae_[nodei], cmpt)
+                {
+                    abscissae_[nodei][cmpt] = abscissae[cmpt];
+                }
+            }
+            weights_[nodei] = scalarField("weight", nodeDict, size);
+            if (scale.valid())
+            {
+                weights_[nodei] *= scale();
+            }
         }
     }
 
@@ -91,17 +108,45 @@ void Foam::momentGenerationSubModels::weightsAndAbscissae::setNodes
     momentGenerationModel::updateMoments();
 }
 
-void Foam::momentGenerationSubModels::weightsAndAbscissae::updateMoments
-(
-    const label celli
-)
-{}
 
 void Foam::momentGenerationSubModels::weightsAndAbscissae::updateMoments
 (
-    const label patchi,
-    const label facei
+    const dictionary& dict,
+    const labelList& cells
 )
-{}
+{
+    label size = reset(cells);
+    tmp<scalarField> scale;
+    if (dict.found("scale"))
+    {
+        scale = tmp<scalarField>(new scalarField("scale", dict, size));
+    }
+
+    forAll(weights_, nodei)
+    {
+        word nodeName = "node" + Foam::name(nodei);
+        if(dict.found(nodeName))
+        {
+            dictionary nodeDict(dict.subDict(nodeName));
+            scalarList abscissae(nodeDict.lookup("abscissae"));
+
+            forAll(abscissae, i)
+            {
+                forAll(abscissae_[nodei], cmpt)
+                {
+                    abscissae_[nodei][cmpt] = abscissae[cmpt];
+                }
+            }
+            weights_[nodei] = scalarField("weight", nodeDict, size);
+            if (scale.valid())
+            {
+                weights_[nodei] *= scale();
+            }
+        }
+    }
+
+    //- update since weights and abscissae are constant
+    momentGenerationModel::updateMoments();
+}
 
 // ************************************************************************* //

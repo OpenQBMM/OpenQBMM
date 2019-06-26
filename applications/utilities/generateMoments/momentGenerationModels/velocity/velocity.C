@@ -67,27 +67,23 @@ Foam::momentGenerationSubModels::velocity::~velocity()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::velocity::setNodes
+void Foam::momentGenerationSubModels::velocity::updateMoments
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label patchi
 )
 {
-    reset();
+    label size = reset(patchi);
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            scalar dia(readScalar(nodeDict.lookup("dia")));
-            scalar alpha(readScalar(nodeDict.lookup("alpha")));
-            scalar rho(readScalar(nodeDict.lookup("rho")));
-            vector U(nodeDict.lookup("U"));
+            scalarField alpha("alpha", nodeDict, size);
+            vectorField U("U", nodeDict, size);
 
-            scalar mass =
-                (4.0/3.0)*Foam::constant::mathematical::pi*rho*pow3(dia/2.0);
-
-            weights_[nodei] = rho*alpha/mass;
+            weights_[nodei] = alpha;
 
             forAll(abscissae_[nodei], cmpti)
             {
@@ -99,16 +95,33 @@ void Foam::momentGenerationSubModels::velocity::setNodes
     momentGenerationModel::updateMoments();
 }
 
-void Foam::momentGenerationSubModels::velocity::updateMoments
-(
-    const label celli
-)
-{}
 
 void Foam::momentGenerationSubModels::velocity::updateMoments
 (
-    const label patchi,
-    const label facei
+    const dictionary& dict,
+    const labelList& cells
 )
-{}
+{
+    label size = reset(cells);
+    forAll(weights_, nodei)
+    {
+        word nodeName = "node" + Foam::name(nodei);
+        if(dict.found(nodeName))
+        {
+            dictionary nodeDict(dict.subDict(nodeName));
+            scalarField alpha("alpha", nodeDict, size);
+            vectorField U("U", nodeDict, size);
+
+            weights_[nodei] = alpha;
+
+            forAll(abscissae_[nodei], cmpti)
+            {
+                abscissae_[nodei][cmpti] = U.component(cmpti);
+            }
+        }
+    }
+
+    momentGenerationModel::updateMoments();
+}
+
 // ************************************************************************* //
