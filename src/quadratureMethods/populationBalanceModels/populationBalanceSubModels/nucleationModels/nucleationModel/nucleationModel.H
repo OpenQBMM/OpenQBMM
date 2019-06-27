@@ -54,15 +54,6 @@ namespace populationBalanceSubModels
 
 class nucleationModel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        nucleationModel(const nucleationModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const nucleationModel&);
-
-
 protected:
 
     // Protected data
@@ -101,6 +92,9 @@ public:
             const fvMesh& mesh
         );
 
+        //- Disallow default bitwise copy construct
+        nucleationModel(const nucleationModel&) = delete;
+
 
     // Selectors
 
@@ -124,6 +118,12 @@ public:
             const label celli,
             const label environment = 0
         ) const = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const nucleationModel&) = delete;
 };
 
 

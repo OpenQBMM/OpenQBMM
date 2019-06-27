@@ -85,12 +85,6 @@ class TensorProduct
             labelList& index
         );
 
-        //- Disallow default bitwise copy construct
-        //TensorProduct(const TensorProduct&);
-
-        //- Disallow default bitwise assignment
-        //void operator=(const TensorProduct&);
-
 
 public:
 

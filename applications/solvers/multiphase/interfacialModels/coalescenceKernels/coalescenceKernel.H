@@ -53,15 +53,6 @@ namespace Foam
 
 class coalescenceKernel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        coalescenceKernel(const coalescenceKernel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const coalescenceKernel&);
-
-
     // Private data
 
         //- Dictionary
@@ -82,12 +73,17 @@ class coalescenceKernel
 
 public:
 
-    // Constructor
-    coalescenceKernel
-    (
-        const dictionary& dict,
-        const fvMesh& mesh
-    );
+    // Constructors
+
+        //- Construct from dictionary and mesh
+        coalescenceKernel
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
+
+        //- Disallow default bitwise copy construct
+        coalescenceKernel(const coalescenceKernel&) = delete;
 
 
     //- Destructor
@@ -113,6 +109,11 @@ public:
             const label nodei,
             const label nodej
         ) const;
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const coalescenceKernel&) = delete;
 };
 
 

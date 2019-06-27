@@ -54,15 +54,6 @@ namespace populationBalanceSubModels
 
 class growthModel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        growthModel(const growthModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const growthModel&);
-
-
 protected:
 
     // Protected data
@@ -95,6 +86,9 @@ public:
 
         //- Construct from components
         growthModel(const dictionary& dict);
+
+        //- Disallow default bitwise copy construct
+        growthModel(const growthModel&) = delete;
 
 
     // Selectors
@@ -133,6 +127,12 @@ public:
             const label celli,
             const velocityQuadratureApproximation& quadrature
         );
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const growthModel&) = delete;
 };
 
 

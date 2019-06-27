@@ -56,15 +56,6 @@ class univariateMomentInversion
         scalar smallM0_;
 
 
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        univariateMomentInversion(const univariateMomentInversion&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const univariateMomentInversion&);
-
-
 protected:
 
     // Protected data
@@ -122,6 +113,9 @@ public:
             const dictionary& dict
         );
 
+        //- Disallow default bitwise copy construct
+        univariateMomentInversion(const univariateMomentInversion&) = delete;
+
 
     //- Destructor
     virtual ~univariateMomentInversion();
@@ -170,6 +164,10 @@ public:
         //- Return quadrature weigths
         inline const scalarList& weights() const;
 
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const univariateMomentInversion&) = delete;
 };
 
 

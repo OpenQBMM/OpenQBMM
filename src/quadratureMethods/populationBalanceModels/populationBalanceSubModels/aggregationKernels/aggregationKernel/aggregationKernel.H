@@ -54,15 +54,6 @@ namespace populationBalanceSubModels
 
 class aggregationKernel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        aggregationKernel(const aggregationKernel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const aggregationKernel&);
-
-
 protected:
 
     // Protected data
@@ -124,6 +115,9 @@ public:
             const fvMesh& mesh
         );
 
+        //- Disallow default bitwise copy construct
+        aggregationKernel(const aggregationKernel&) = delete;
+
 
     // Selectors
 
@@ -166,6 +160,12 @@ public:
             const velocityQuadratureApproximation& quadrature,
             const label enviroment
         );
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const aggregationKernel&) = delete;
 };
 
 

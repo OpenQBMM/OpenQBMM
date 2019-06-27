@@ -51,78 +51,79 @@ class hermiteQuadrature
 {
     // Private data
 
-    static const scalar thetaLimit_;
+        static const scalar thetaLimit_;
 
-    //- Number of weights and abscissas
-    const label nDim_;
+        //- Number of weights and abscissas
+        const label nDim_;
 
-    const label nOrder_;
+        const label nOrder_;
 
-    const label nTolNodes_;
+        const label nTolNodes_;
 
-    scalarList origWei_;
+        scalarList origWei_;
 
-    vectorList origAbs_;
+        vectorList origAbs_;
 
-    vectorList resAbs_;
+        vectorList resAbs_;
 
-    scalar     maxAbs_;
-
-    //- Private member functions
-
-    //- Disallow default bitwise copy construct
-    hermiteQuadrature(const hermiteQuadrature&);
-
-    //- Disallow default bitwise assignment
-    void operator=(const hermiteQuadrature&);
+        scalar     maxAbs_;
 
 
 public:
 
     // Constructors
 
-    //- Construct from a scalarDiagonalMatrix
-    hermiteQuadrature
-    (
-        const label& nDim,
-        const label& nOrder
-    );
+        //- Construct from a scalarDiagonalMatrix
+        hermiteQuadrature
+        (
+            const label& nDim,
+            const label& nOrder
+        );
 
 
-    void calcHermiteQuadrature
-    (
-        const vector& mu,
-        const symmTensor& Pp
-    ) ;
+        void calcHermiteQuadrature
+        (
+            const vector& mu,
+            const symmTensor& Pp
+        );
+
+        //- Disallow default bitwise copy construct
+        hermiteQuadrature(const hermiteQuadrature&) = delete;
+
+    // Access Methods
+
+        //- Return eigenvalues
+        const scalarList& hermiteWeights() const
+        {
+            return origWei_;
+        }
+
+        //- Return eigenvectors
+        const vectorList& hermiteAbscissas() const
+        {
+            return resAbs_;
+        }
+
+        vectorList& hermiteAbscissas()
+        {
+            return resAbs_;
+        }
+
+        const vectorList& hermiteOriginalAbscissas() const
+        {
+            return origAbs_;
+        }
+
+        const scalar& maxAbs() const
+        {
+            return maxAbs_;
+        }
 
 
-    //- Return eigenvalues
-    const scalarList& hermiteWeights() const
-    {
-        return origWei_;
-    }
+    // Member Operators
 
-    //- Return eigenvectors
-    const vectorList& hermiteAbscissas() const
-    {
-        return resAbs_;
-    }
-
-    vectorList& hermiteAbscissas()
-    {
-        return resAbs_;
-    }
-
-    const vectorList& hermiteOriginalAbscissas() const
-    {
-        return origAbs_;
-    }
-
-    const scalar& maxAbs() const
-    {
-        return maxAbs_;
-    }
-
+        //- Disallow default bitwise assignment
+        void operator=(const hermiteQuadrature&) = delete;
 };
 
 

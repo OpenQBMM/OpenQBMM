@@ -56,15 +56,6 @@ class mixingModel
         //- Name of the mixingModel
         const word name_;
 
-    // Private Member Functions
-
-        //- Disallow default bitwise copy construct
-        mixingModel(const mixingModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const mixingModel&);
-
-
 protected:
 
     // Protected data
@@ -103,6 +94,9 @@ public:
             const surfaceScalarField& phi
         );
 
+        //- Disallow default bitwise copy construct
+        mixingModel(const mixingModel&) = delete;
+
 
     // Selectors
 
@@ -127,6 +121,11 @@ public:
         //- Solve mixing model
         virtual void solve() = 0;
 
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const mixingModel&) = delete;
 };
 
 

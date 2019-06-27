@@ -78,12 +78,6 @@ class monoKinetic
         //- Calculate the number of pure size moments
         label calcNSizeMoments(const labelListList& momentOrders);
 
-        //- Disallow default bitwise copy construct
-        //hyperbolicConditionalMomentInversion(const hyperbolicConditionalMomentInversion&);
-
-        //- Disallow default bitwise assignment
-        //void operator=(const hyperbolicConditionalMomentInversion&);
-
 
 public:
 

@@ -56,15 +56,6 @@ namespace populationBalanceSubModels
 
 class environmentMixingModel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        environmentMixingModel(const environmentMixingModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const environmentMixingModel&);
-
-
 protected:
 
     // Protected data
@@ -107,6 +98,9 @@ public:
             const fvMesh& mesh
         );
 
+        //- Disallow default bitwise copy construct
+        environmentMixingModel(const environmentMixingModel&) = delete;
+
 
     // Selectors
 
@@ -130,6 +124,12 @@ public:
             const volScalarField& meanMomentVariance,
             const volScalarField& meanMixtureFraction
         ) const = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const environmentMixingModel&) = delete;
 };
 
 

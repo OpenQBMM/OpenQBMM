@@ -56,15 +56,6 @@ namespace Foam
 
 class velocityMomentAdvection
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        velocityMomentAdvection(const velocityMomentAdvection&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const velocityMomentAdvection&);
-
-
 protected:
 
     // Protected data
@@ -84,7 +75,8 @@ protected:
         //- Field used to find upwind values of the neighbour
         surfaceScalarField nei_;
 
-        //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes used to interpolated the quadrature
+        //- Interpolation #include "limitedSurfaceInterpolationScheme.H"schemes 
+        //  used to interpolated the quadrature
         tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme_;
         tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme_;
         tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeOwnScheme_;
@@ -157,6 +149,9 @@ public:
             const word& support
         );
 
+        //- Disallow default bitwise copy construct
+        velocityMomentAdvection(const velocityMomentAdvection& = delete;
+
 
     //- Destructor
     virtual ~velocityMomentAdvection();
@@ -199,6 +194,12 @@ public:
             const mappedPtrList<volVectorField>& Us,
             const bool wallCollisions
         ) = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const velocityMomentAdvection&) = delete;
 
 };
 

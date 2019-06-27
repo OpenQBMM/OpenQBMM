@@ -136,12 +136,6 @@ class conditional
             labelList& pos
         );
 
-        //- Disallow default bitwise copy construct
-        //conditional(const conditional&);
-
-        //- Disallow default bitwise assignment
-        //void operator=(const conditional&);
-
 
 public:
 

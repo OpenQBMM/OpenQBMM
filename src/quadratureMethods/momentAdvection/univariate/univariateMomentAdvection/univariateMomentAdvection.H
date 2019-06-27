@@ -58,15 +58,6 @@ namespace Foam
 
 class univariateMomentAdvection
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        univariateMomentAdvection(const univariateMomentAdvection&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const univariateMomentAdvection&);
-
-
 protected:
 
     // Protected data
@@ -140,6 +131,9 @@ public:
             const word& support
         );
 
+        //- Disallow default bitwise copy construct
+        univariateMomentAdvection(const univariateMomentAdvection&) = delete;
+
 
     //- Destructor
     virtual ~univariateMomentAdvection();
@@ -166,6 +160,12 @@ public:
 
         //- Update moment advection
         virtual void update() = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const univariateMomentAdvection&) = delete;
 
 };
 

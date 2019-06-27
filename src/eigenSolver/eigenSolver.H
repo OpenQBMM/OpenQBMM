@@ -65,74 +65,78 @@ private:
 
     // Private data
 
-    //- Real part of eigenvalues
-    scalarDiagonalMatrix eigenvaluesRe_;
+        //- Real part of eigenvalues
+        scalarDiagonalMatrix eigenvaluesRe_;
 
-    //- Imaginary part of eigenvalues
-    scalarDiagonalMatrix eigenvaluesIm_;
+        //- Imaginary part of eigenvalues
+        scalarDiagonalMatrix eigenvaluesIm_;
 
-    //- Eigenvectors matrix
-    scalarSquareMatrix eigenvectors_;
+        //- Eigenvectors matrix
+        scalarSquareMatrix eigenvectors_;
 
-    //- Matrix with the same size of original matrix
-    scalarSquareMatrix H_;
+        //- Matrix with the same size of original matrix
+        scalarSquareMatrix H_;
 
-    //- Number of rows and columns
-    label n_;
+        //- Number of rows and columns
+        label n_;
 
-    //- Private member functions
+    // Private member functions
 
-    //- Disallow default bitwise copy construct
-    eigenSolver(const eigenSolver&);
+        //- Checks matrix for symmetry
+        bool isSymmetric(const scalarSquareMatrix& A);
 
-    //- Disallow default bitwise assignment
-    void operator=(const eigenSolver&);
+        //- Householder transform of a symmetric matrix to tri-diagonal form
+        void tridiagonaliseSymmMatrix();
 
-    //- Checks matrix for symmetry
-    bool isSymmetric(const scalarSquareMatrix& A);
+        //- Symmetric tri-diagonal QL algorithm
+        void symmTridiagQL();
 
-    //- Householder transform of a symmetric matrix to tri-diagonal form
-    void tridiagonaliseSymmMatrix();
+        //- Reduction of non-symmetric matrix to Hessemberg form
+        void Hessenberg();
 
-    //- Symmetric tri-diagonal QL algorithm
-    void symmTridiagQL();
-
-    //- Reduction of non-symmetric matrix to Hessemberg form
-    void Hessenberg();
-
-    //- Reduction from Hessenberg to real Schur form
-    void realSchur();
+        //- Reduction from Hessenberg to real Schur form
+        void realSchur();
 
 
 public:
 
     // Constructors
 
-    //- Construct from a scalarSquareMatrix
-    eigenSolver(const scalarSquareMatrix& A);
+        //- Construct from a scalarSquareMatrix
+        eigenSolver(const scalarSquareMatrix& A);
 
-    //- Construct from a scalarSquareMatrix and symmetry information
-    //  Does not perform symmetric check
-    eigenSolver(const scalarSquareMatrix& A, bool symmetric);
+        //- Construct from a scalarSquareMatrix and symmetry information
+        //  Does not perform symmetric check
+        eigenSolver(const scalarSquareMatrix& A, bool symmetric);
+
+        //- Disallow default bitwise copy construct
+        eigenSolver(const eigenSolver&) = delete;
+
 
     // Access Functions
 
     //- Return real part of the eigenvalues
-    const scalarDiagonalMatrix& eigenvaluesRe() const
-    {
-        return eigenvaluesRe_;
-    }
+        const scalarDiagonalMatrix& eigenvaluesRe() const
+        {
+            return eigenvaluesRe_;
+        }
 
-    const scalarDiagonalMatrix& eigenvaluesIm() const
-    {
-        return eigenvaluesIm_;
-    }
+        const scalarDiagonalMatrix& eigenvaluesIm() const
+        {
+            return eigenvaluesIm_;
+        }
 
-    //- Return eigenvectors
-    const scalarSquareMatrix& eigenvectors() const
-    {
-        return eigenvectors_;
-    }
+        //- Return eigenvectors
+        const scalarSquareMatrix& eigenvectors() const
+        {
+            return eigenvectors_;
+        }
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const eigenSolver&) = delete;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

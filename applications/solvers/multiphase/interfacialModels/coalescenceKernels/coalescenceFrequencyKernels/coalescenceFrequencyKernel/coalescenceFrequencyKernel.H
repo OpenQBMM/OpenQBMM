@@ -52,15 +52,6 @@ namespace Foam
 
 class coalescenceFrequencyKernel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        coalescenceFrequencyKernel(const coalescenceFrequencyKernel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const coalescenceFrequencyKernel&);
-
-
 protected:
 
     // Protected data
@@ -100,6 +91,9 @@ public:
             const fvMesh& mesh
         );
 
+        //- Disallow default bitwise copy construct
+        coalescenceFrequencyKernel(const coalescenceFrequencyKernel&) = delete;
+
 
     // Selectors
 
@@ -133,6 +127,12 @@ public:
             const label nodei,
             const label nodej
         ) const = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const coalescenceFrequencyKernel&) = delete; 
 };
 
 

@@ -99,13 +99,7 @@ class momentFieldSet
         //  0 -> 100
         //  1 -> 10
         //  2 -> 1
-        //inline label dimToCmptOrder(label dim) const;
-
-        //- Disallow default bitwise copy construct
-        momentFieldSet(const momentFieldSet&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const momentFieldSet&);
+        //inline label dimToCmptOrder(label dim) const
 
 
 public:
@@ -136,6 +130,10 @@ public:
         );
 
 
+        //- Disallow default bitwise copy construct
+        momentFieldSet(const momentFieldSet&) = delete;
+
+
     //- Destructor
     ~momentFieldSet();
 
@@ -159,6 +157,12 @@ public:
 
             //- Recalculate the moments from the quadrature nodes in an element
             void updateLocalMoments(label elemi);
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const momentFieldSet&) = delete;
 };
 
 

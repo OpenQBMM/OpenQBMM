@@ -56,14 +56,6 @@ class PDFTransportModel
         //- Name of the PDFTransportModel
         const word name_;
 
-    // Private Member Functions
-
-        //- Disallow default bitwise copy construct
-        PDFTransportModel(const PDFTransportModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const PDFTransportModel&);
-
 
 protected:
 
@@ -85,6 +77,10 @@ public:
             const fvMesh& mesh
         );
 
+        //- Disallow default bitwise copy construct
+        PDFTransportModel(const PDFTransportModel&) = delete;
+
+
     //- Destructor
     virtual ~PDFTransportModel();
 
@@ -93,6 +89,12 @@ public:
 
         //- Solve PDF transport equation
         virtual void solve() = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const PDFTransportModel&) = delete;
 
 };
 

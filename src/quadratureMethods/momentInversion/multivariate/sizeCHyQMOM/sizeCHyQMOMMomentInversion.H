@@ -88,12 +88,6 @@ class sizeCHyQMOM
         //- Calculate the number of pure size moments
         label calcNSizeMoments(const labelListList& momentOrders);
 
-        //- Disallow default bitwise copy construct
-        //sizeCHyQMOM(const sizeCHyQMOM&);
-
-        //- Disallow default bitwise assignment
-        //void operator=(const sizeCHyQMOM&);
-
 
 public:
 

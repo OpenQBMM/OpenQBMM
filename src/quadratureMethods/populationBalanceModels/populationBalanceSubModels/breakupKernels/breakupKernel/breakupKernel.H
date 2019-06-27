@@ -55,15 +55,6 @@ namespace populationBalanceSubModels
 
 class breakupKernel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        breakupKernel(const breakupKernel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const breakupKernel&);
-
-
 protected:
 
     // Protected data
@@ -129,6 +120,9 @@ public:
             const fvMesh& mesh
         );
 
+        //- Disallow default bitwise copy construct
+        breakupKernel(const breakupKernel&) = delete;
+
 
     // Selectors
 
@@ -168,6 +162,12 @@ public:
             const label celli,
             const velocityQuadratureApproximation& quadrature
         );
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const breakupKernel&) = delete;
 };
 
 

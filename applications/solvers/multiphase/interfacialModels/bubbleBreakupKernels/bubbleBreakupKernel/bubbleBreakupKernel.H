@@ -51,16 +51,7 @@ namespace Foam
 class bubbleBreakupKernel
 {
 protected:
-    // Protected member functions
-
-        //- Disallow default bitwise copy construct
-        bubbleBreakupKernel(const bubbleBreakupKernel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const bubbleBreakupKernel&);
-
-
-    // Private data
+    // Protected data
 
         //- Dictionary
         const dictionary& dict_;
@@ -100,6 +91,9 @@ public:
             const fvMesh& mesh
         );
 
+        //- Disallow default bitwise copy construct
+        bubbleBreakupKernel(const bubbleBreakupKernel&) = delete;
+
 
     // Selectors
 
@@ -124,6 +118,11 @@ public:
 
         //- Breakup kernel for a cell
         virtual scalar Kb(const label celli, const label nodei) const = 0;
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const bubbleBreakupKernel&) = delete;
 };
 
 

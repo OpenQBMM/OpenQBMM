@@ -54,15 +54,6 @@ namespace populationBalanceSubModels
 
 class daughterDistribution
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        daughterDistribution(const daughterDistribution&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const daughterDistribution&);
-
-
 protected:
 
     // Protected data
@@ -93,6 +84,9 @@ public:
         //- Construct from components
         daughterDistribution(const dictionary& dict);
 
+        //- Disallow default bitwise copy construct
+        daughterDistribution(const daughterDistribution&) = delete;
+
 
     // Selectors
 
@@ -121,6 +115,12 @@ public:
             const label& order,
             const scalar& abscissa
         ) const = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const daughterDistribution&) = delete;
 };
 
 
