@@ -150,7 +150,7 @@ public:
         );
 
         //- Disallow default bitwise copy construct
-        velocityMomentAdvection(const velocityMomentAdvection& = delete;
+        velocityMomentAdvection(const velocityMomentAdvection&) = delete;
 
 
     //- Destructor
