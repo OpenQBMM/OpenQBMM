@@ -30,6 +30,7 @@ License
 #include "twoPhaseSystem.H"
 #include "fvMatrix.H"
 #include "PhaseCompressibleTurbulenceModel.H"
+#include "dragModel.H"
 #include "fixedValueFvsPatchFields.H"
 #include "fixedValueFvPatchFields.H"
 #include "slipFvPatchFields.H"
@@ -146,6 +147,7 @@ Foam::phaseModel::phaseModel
     thermo_->validate("phaseModel " + name_, "h", "e");
 
     const word phiName = IOobject::groupName("phi", name_);
+
     IOobject phiHeader
     (
         phiName,
