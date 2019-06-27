@@ -97,10 +97,9 @@ PIMPLE
     nOuterCorrectors 30;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
-    nFluxCorrectors 5;
+    nFluxCorrectors 0;
     corrPatch outlet;
-    pRefCell 0;
-    pRefValue 1e5;
+
     outerCorrectorResidualControl
     {
         p_rgh

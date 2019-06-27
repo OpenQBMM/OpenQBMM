@@ -326,7 +326,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 else if (abscissaeDimensions[dimi] == dimMass)
                 {
                     massBased_ = true;
-                    word rhoName = IOobject::groupName("thermo:rho", name_);
+                    word rhoName = IOobject::groupName("thermo:rho", IOobject::group(name_));
                     if (mesh.foundObject<volScalarField>(rhoName))
                     {
                         rhoPtr_ = &mesh.lookupObject<volScalarField>(rhoName);

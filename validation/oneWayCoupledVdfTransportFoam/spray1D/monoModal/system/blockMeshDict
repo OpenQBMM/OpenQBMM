@@ -14,21 +14,24 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-convertToMeters 0.01;
+convertToMeters 1;
 
-x0 10.0;
-x1 30.0;
+x0 0.1;
+x1 0.3;
 
-r0 2.50;
+r0 0.025;
 V0 5.0;
-theta .05;
+theta 0.1;
 
 t1 #calc "(pow3($x1/$x0) - 1.0)*$x0/(3.0*$V0)";
-r1 #calc "$r0*cbrt(1.0 + 3.0*$V0*$t1/$x0)";
+// r1 #calc "$r0*exp($x0*$V0*$t1/pow3($x1))";
+r1 #calc "$r0*cbrt(3.0*$V0*$t1/$x0)";
 
+y0 #calc "$r0*cos($theta)";
 z0 #calc "$r0*sin($theta)";
 nz0 #calc "-$z0";
 
+y1 #calc "$r1*cos($theta)";
 z1 #calc "$r1*sin($theta)";
 nz1 #calc "-$z1";
 
@@ -36,49 +39,111 @@ vertices
 (
     ($x0 0 0)  // 0
     ($x1 0 0)  // 1
-    ($x1 $r1 $nz1)
-    ($x0 $r0 $nz0)
+    ($x1 $y1 $nz1)
+    ($x0 $y0 $nz0)
     ($x0 0 0)
     ($x1 0 0)
-    ($x1 $r1 $z1)
-    ($x0 $r0 $z0)
+    ($x1 $y1 $z1)
+    ($x0 $y0 $z0)
+
 );
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (30 1 1) simpleGrading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) (100 1 1) simpleGrading (1 1 1)
 );
 
 edges
 (
+//     #codeStream
+//     {
+//         codeInclude
+//         #{
+//             #include "List.H"
+//             #include "vector.H"
+//         #}
+//         codeOptions
+//         #{
+//             -I$(LIB_SRC)/OpenFOAM/lnInclude \
+//             -I$(LIB_SRC)/finiteVolume/lnInclude \
+//             -I$(LIB_SRC)/meshTools/lnInclude
+//         #};
+//
+//         code
+//         #{
+//             scalar x0 = 0.1;
+//             scalar x1 = 0.3;
+//             scalar r0 = 0.025;
+//             scalar V0 = 5.0;
+//             scalar theta = 0.1;
+//
+//             label nx = 100;
+//             scalar dx = (x1 - x0)/(nx - 1);
+//
+//             os << "polyLine 3 2 \n ( \n" ;
+//             for (label i = 0; i < nx; i++)
+//             {
+//                 scalar x = x0 + dx*i;
+//                 scalar t = x0/3.0/V0*(pow3(x/x0) - 1.0);
+//                 scalar r = r0*exp(x0*V0*t/pow3(x));
+//
+//                 os << vector(x, r*cos(theta), -r*sin(theta)) << endl;
+//             }
+//             os << ')' << endl;
+//
+//             os << "polyLine 7 6 \n ( \n";
+//             for (label i = 0; i < nx; i++)
+//             {
+//                 scalar x = x0 + dx*i;
+//                 scalar t = x0/3.0/V0*(pow3(x/x0) - 1.0);
+//                 scalar r = r0*exp(x0*V0*t/pow3(x));
+//
+//                 os << vector(x, r*cos(theta), r*sin(theta));
+//             }
+//             os << ')' << endl;
+//         #};
+//     }
 );
 
-patches
+boundary
 (
-    patch inlet
-    (
-        (0 3 7 4)
-    )
+    inlet
+    {
+        type patch;
+        faces ((0 3 7 4));
+    }
 
-    patch outlet
-    (
-        (1 2 6 5)
-    )
+    outlet
+    {
+        type patch;
+        faces ((1 2 6 5));
+    }
 
-    wedge wedge1
-    (
-        (0 1 2 3)
-    )
+    wedge1
+    {
+        type wedge;
+        neighbourPatch wedge2;
+        faces ((0 1 2 3));
+    }
 
-    wedge wedge2
-    (
-        (4 5 6 7)
-    )
+    wedge2
+    {
+        type wedge;
+        neighbourPatch wedge1;
+        faces ((4 5 6 7));
+    }
 
-    wall top
-    (
-        (3 2 6 7)
-    )
+    top
+    {
+        type patch;
+        faces ((3 2 6 7));
+    }
+
+    axis
+    {
+        type empty;
+        faces ((0 1 5 4));
+    }
 );
 
 mergePatchPairs

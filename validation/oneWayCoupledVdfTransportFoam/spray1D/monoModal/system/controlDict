@@ -34,7 +34,7 @@ purgeWrite      1000;
 
 writeFormat     binary;
 
-writePrecision  6;
+writePrecision  12;
 
 writeCompression off;
 

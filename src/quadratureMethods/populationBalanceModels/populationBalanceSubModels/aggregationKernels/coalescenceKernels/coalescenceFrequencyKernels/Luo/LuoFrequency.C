@@ -91,7 +91,7 @@ Foam::populationBalanceSubModels::aggregationKernels::
 coalescenceFrequencyKernels::Luo::update
 (
     const fluidThermo& thermo,
-    const compressible::turbulenceModel& turb
+    const turbulenceModel& turb
 )
 {
     epsilonf_ = turb.epsilon();

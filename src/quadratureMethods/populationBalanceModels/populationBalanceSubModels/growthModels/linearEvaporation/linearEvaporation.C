@@ -56,8 +56,7 @@ Foam::populationBalanceSubModels::growthModels::linearEvaporation
     const dictionary& dict
 )
 :
-    growthModel(dict),
-    Ev_("Ev", inv(dimTime), dict)
+    growthModel(dict)
 {}
 
 
@@ -77,7 +76,9 @@ Foam::populationBalanceSubModels::growthModels::linearEvaporation::Kg
     const label environment
 ) const
 {
-    return -Ev_.value()*Foam::constant::mathematical::pi/6.0*pow3(d);
+    return
+        -Cg_.value()*Foam::constant::mathematical::pi*pow3(d)/6.0
+       *pos(d);
 }
 
 // ************************************************************************* //

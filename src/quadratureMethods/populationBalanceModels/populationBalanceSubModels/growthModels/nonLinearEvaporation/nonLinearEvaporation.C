@@ -56,8 +56,7 @@ nonLinearEvaporation
     const dictionary& dict
 )
 :
-    growthModel(dict),
-    Ev_("Ev", dimArea/dimTime, dict)
+    growthModel(dict)
 {}
 
 
@@ -77,7 +76,7 @@ Foam::populationBalanceSubModels::growthModels::nonLinearEvaporation::Kg
     const label environment
 ) const
 {
-    return -0.25*Ev_.value()*d;
+    return -0.25*Cg_.value()*d;
 }
 
 // ************************************************************************* //

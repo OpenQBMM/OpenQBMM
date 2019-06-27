@@ -20,13 +20,15 @@ coalescence off;
 
 coalescenceKernel
 {
-    coalescenceFrequencyKernel CoulaloglouAndTavlarides;
-    coalescenceEfficiencyKernel CoulaloglouAndTavlarides;
+    frequency CoulaloglouAndTavlarides;
+    efficiency CoulaloglouAndTavlarides;
 
     Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
     Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;
     ReExp   ReExp   [ 0 0 0 0 0 0 0 ]  -0.732;
     WeExp   WeExp   [ 0 0 0 0 0 0 0 ]  0.317;
+
+    continuousPhase water;
 }
 
 breakup off;
@@ -35,11 +37,11 @@ breakupKernel
 {
     breakupKernel Alopaeus;
     Cb        Cb        [ 0 0 -1 0 0 0 0 ] 6.0;
-}
 
-daughterDistribution
-{
-    daughterDistribution uniform;
+    daughterDistribution
+    {
+        daughterDistribution uniform;
+    }
 }
 
 odeCoeffs

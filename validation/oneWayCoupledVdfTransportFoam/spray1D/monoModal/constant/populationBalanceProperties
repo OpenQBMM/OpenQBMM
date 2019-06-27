@@ -58,9 +58,9 @@ sizeVelocityCoeffs
     growthModel
     {
         growthModel	linearEvaporation;
-        Ev 7.1262; // linear monomodal
-//         Ev 14.2524; //linear bimodal
-//         Ev 1.99e-7; // nonlinear
+        Cg 7.1262; // linear monomodal
+//         Cg 14.2524; //linear bimodal
+//         Cg 1.99e-7; // nonlinear
     }
 
     nucleation off;
@@ -79,11 +79,11 @@ sizeVelocityCoeffs
     {
         solveOde off;
         ATol    1.0e-6;
-        RTol    1.0e-3;
+        RTol    1.0e-4;
         fac     0.9;
         facMin  0.5;
         facMax  2.0;
-        minLocalDt 1.0e-5;
+        minLocalDt 1.0e-8;
     }
 }
 

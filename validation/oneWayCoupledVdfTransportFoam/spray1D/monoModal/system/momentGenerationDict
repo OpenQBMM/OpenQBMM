@@ -45,11 +45,17 @@ boundaries
     {
         type zeroGradient;
     }
+
+    axis
+    {
+        type            empty;
+    }
 }
 
 z0 0.1;
 U0 5.0;
-V0 0;//#calc "$U0/$z0";
+V0 0.8333;
+
 liquid
 {
     type                weightsAndAbscissae;

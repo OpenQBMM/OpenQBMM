@@ -161,7 +161,7 @@ public:
     // Member Functions
 
         //- Invert moments to find weights and  abscissae
-        virtual void invert(const multivariateMomentSet& moments) = 0;
+        virtual bool invert(const multivariateMomentSet& moments) = 0;
 
         //- Return mapped quadrature weights for each dimension
         inline const mappedScalarList& weights() const;

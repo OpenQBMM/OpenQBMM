@@ -114,7 +114,7 @@ calcNSizeMoments
 
 
 template<class velocityInversion>
-void Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::
+bool Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::
 invert
 (
     const multivariateMomentSet& moments
@@ -128,13 +128,18 @@ invert
         {
             weights_[nodei] = m0/weights_.size();
         }
-        return;
+        return true;
     }
 
     univariateMomentSet sizeMoments(nSizeMoments_, "RPlus", 0.0);
     forAll(sizeMoments, mi)
     {
         sizeMoments[mi] = moments(mi);
+    }
+
+    if (!sizeMoments.isRealizable(false))
+    {
+        return false;
     }
 
     sizeInverter_->invert(sizeMoments);
@@ -265,6 +270,8 @@ invert
             weights_[nodei] = m0/weights_.size();
         }
     }
+
+    return true;
 }
 
 

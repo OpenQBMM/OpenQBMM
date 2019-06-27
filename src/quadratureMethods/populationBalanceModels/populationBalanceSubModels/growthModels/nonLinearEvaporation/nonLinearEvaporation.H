@@ -65,12 +65,6 @@ class nonLinearEvaporation
 :
     public growthModel
 {
-    // Private data
-
-        //- Coefficient of evaporation kernel
-        const dimensionedScalar Ev_;
-
-
 public:
 
         //- Runtime type information

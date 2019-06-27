@@ -177,7 +177,7 @@ public:
     // Member Functions
 
         //- Invert moments to find weights and  abscissae
-        virtual void invert(const multivariateMomentSet& moments);
+        virtual bool invert(const multivariateMomentSet& moments);
 };
 
 

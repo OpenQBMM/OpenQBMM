@@ -55,7 +55,7 @@ coalescence
 )
 :
     aggregationKernel(dict, mesh),
-    continuousPhase_(dict.lookupOrDefault("contiunousPhase", word::null)),
+    continuousPhase_(dict.lookup("continuousPhase")),
     frequency_
     (
         coalescenceFrequencyKernel::New(dict, mesh, continuousPhase_)
@@ -88,8 +88,8 @@ preUpdate()
                 continuousPhase_
             )
         );
-    const compressible::turbulenceModel& turb =
-        mesh_.lookupObject<compressible::turbulenceModel>
+    const turbulenceModel& turb =
+        mesh_.lookupObject<turbulenceModel>
         (
             IOobject::groupName
             (

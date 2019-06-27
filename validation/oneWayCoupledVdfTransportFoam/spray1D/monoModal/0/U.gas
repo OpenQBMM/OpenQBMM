@@ -62,7 +62,7 @@ boundaryField
     inlet
     {
         type            fixedValue;
-        value           uniform (5 0 0);
+        value           uniform (5 0.8333 0);
     }
 
     outlet
@@ -82,6 +82,11 @@ boundaryField
     top
     {
         type            zeroGradient;
+    }
+
+    axis
+    {
+        type            empty;
     }
 }
 

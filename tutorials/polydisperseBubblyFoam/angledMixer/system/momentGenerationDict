@@ -51,9 +51,9 @@ air
     {
         node0
         {
-            rho     1.40;
-            dia     1.0e-3;
-            alpha   0.33;
+            rho     uniform 1.40;
+            dia     uniform 1.0e-3;
+            alpha   uniform 0.33;
         }
         node1
         {

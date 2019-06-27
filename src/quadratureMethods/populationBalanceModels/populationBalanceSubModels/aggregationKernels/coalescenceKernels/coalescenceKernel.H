@@ -92,6 +92,12 @@ public:
 
     // Member Functions
 
+        //- Return true if source is only depenent on size
+        virtual bool pureSize() const
+        {
+            return false;
+        }
+
         //- Update fields
         virtual void preUpdate();
 

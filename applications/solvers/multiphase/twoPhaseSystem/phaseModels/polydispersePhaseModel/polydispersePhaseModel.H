@@ -43,8 +43,7 @@ SourceFiles
 #include "monoKineticQuadratureApproximation.H"
 
 #include "coalescenceKernel.H"
-#include "bubbleBreakupKernel.H"
-#include "daughterDistribution.H"
+#include "breakupKernel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -105,16 +104,14 @@ class polydispersePhaseModel
         tmp<volScalarField> corr_;
 
         //- Coalescence kernel
-        coalescenceKernel coalescenceKernel_;
-
-        //- Breakup kernel
-        autoPtr<bubbleBreakupKernel> breakupKernel_;
-
-        //- Daughter distribution
         autoPtr
         <
-            populationBalanceSubModels::daughterDistribution
-        > daughterDistribution_;
+            populationBalanceSubModels::aggregationKernels::coalescence
+        > coalescenceKernel_;
+
+        //- Breakup kernel
+        autoPtr<populationBalanceSubModels::breakupKernel> breakupKernel_;
+
 
         // ODE Coefficients
 
@@ -181,6 +178,9 @@ public:
 
 
     // Member Functions
+
+        //- Set population balance models
+        virtual void setModels();
 
         //- Return the number of nodes
         virtual label nNodes() const

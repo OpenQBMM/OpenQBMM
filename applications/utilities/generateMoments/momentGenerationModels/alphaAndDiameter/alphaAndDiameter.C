@@ -123,8 +123,8 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
     const label patchi
 )
 {
-    label size = reset();
-    sumAlpha_ = 0.0;
+    label size = reset(patchi);
+    sumAlpha_ = scalarField(size, 0.0);
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
@@ -157,7 +157,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 
     forAll(weights_, nodei)
     {
-        scalarField alphai = alpha*alphas_[nodei];
+        scalarField alphai(alpha*alphas_[nodei]);
         if (scale_)
         {
             alpha /= sumAlpha_;
@@ -175,7 +175,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         else
         {
             abscissae_[nodei][0] = ds_[nodei];
-            scalarField V = pow3(ds_[nodei]);
+            scalarField V(pow3(ds_[nodei]));
             weights_[nodei] = pos(V - small)*alphai/max(V, small);
         }
     }
@@ -191,7 +191,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 )
 {
     label size = reset(cells);
-    sumAlpha_ = 0.0;
+    sumAlpha_ = scalarField(size, 0.0);
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);

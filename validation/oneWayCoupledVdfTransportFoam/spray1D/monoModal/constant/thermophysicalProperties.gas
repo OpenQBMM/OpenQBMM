@@ -11,7 +11,7 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      thermophysicalProperties.liquid;
+    object      thermophysicalProperties.gas;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -34,7 +34,7 @@ mixture
     }
     equationOfState
     {
-        rho         633.1578947368;
+        rho         1.2;
     }
     thermodynamics
     {
@@ -43,7 +43,7 @@ mixture
     }
     transport
     {
-        mu          0;
+        mu          1.76e-5;
         Pr          0.7;
     }
 }

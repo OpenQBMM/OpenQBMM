@@ -1242,7 +1242,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     }
 }
 
-void Foam::multivariateMomentInversions::CHyQMOMPlus::invert
+bool Foam::multivariateMomentInversions::CHyQMOMPlus::invert
 (
     const multivariateMomentSet& moments
 )
@@ -1292,6 +1292,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert
             velocityAbscissae_[nodei] = vector(u[nodei], 0.0, 0.0);
         }
     }
+
+    return true;
 }
 
 

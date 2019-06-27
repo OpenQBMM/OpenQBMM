@@ -87,7 +87,15 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::lengthBased::Ki
     const label nodej
 ) const
 {
-    return C_*pair_.dispersed().rho()*4.0/sqr(pair_.dispersed().d(nodei));
+    tmp<volScalarField> V
+    (
+        Foam::constant::mathematical::pi
+       /6.0*pow3(pair_.dispersed().d(nodei))
+    );
+    return
+        C_
+       *pair_.dispersed().rho()
+       *pow(4.0*Foam::constant::mathematical::pi/3.0/V, 2.0/3.0);
 }
 
 

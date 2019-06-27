@@ -108,7 +108,7 @@ public:
         virtual void update
         (
             const fluidThermo& thermo,
-            const compressible::turbulenceModel& turb
+            const turbulenceModel& turb
         )
         {}
 

@@ -163,6 +163,10 @@ public:
 
     // Member Functions
 
+        //- Set population balance models
+        virtual void setModels()
+        {}
+
         //- Return the name of this phase
         const word& name() const
         {
