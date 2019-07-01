@@ -92,8 +92,9 @@ public:
         //- Aggregation kernel
         virtual scalar Ka
         (
-            const scalar& abscissa1,
-            const scalar& abscissa2,
+            const scalar& d1,
+            const scalar& d2,
+            const vector& Ur,
             const label celli,
             const label environment = 0
         ) const;

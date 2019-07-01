@@ -133,6 +133,7 @@ Foam::phaseModel::phaseModel
 {
     thermo_->validate("phaseModel " + name_, "h", "e");
 
+    U_.correctBoundaryConditions();
     const word phiName = IOobject::groupName("phi", name_);
     IOobject phiHeader
     (

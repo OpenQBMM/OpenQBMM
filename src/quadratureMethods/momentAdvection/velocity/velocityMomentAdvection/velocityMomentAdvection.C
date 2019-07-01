@@ -47,12 +47,15 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
 :
     name_(quadrature.name()),
     moments_(quadrature.moments()),
+    nodes_(quadrature.nodes()),
+    nodesNei_(),
+    nodesOwn_(),
     nMoments_(moments_.size()),
     own_
     (
         IOobject
         (
-            "own",
+            "velocityMomentAdvection:own",
             moments_(0).mesh().time().timeName(),
             moments_(0).mesh()
         ),
@@ -63,7 +66,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
     (
         IOobject
         (
-            "nei",
+            "velocityMomentAdvection:nei",
             moments_(0).mesh().time().timeName(),
             moments_(0).mesh()
         ),
@@ -74,31 +77,8 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
     momentOrders_(quadrature.momentOrders()),
     nodeIndexes_(quadrature.nodeIndexes()),
     divMoments_(nMoments_),
-    fixedWalls_(moments_[0].boundaryField().size(), false),
-    wallTemperatures_(fixedWalls_.size(), 0.0),
-    ew_(dict.lookupOrDefault("ew", 1.0))
+    boundaries_(moments_[0].boundaryField().size())
 {
-    if (dict.found("fixedTemperatureBoundaries"))
-    {
-        wordList tmpWalls(dict.lookup("fixedTemperatureBoundaries"));
-        scalarList tmpWallTemperatures(dict.lookup("wallTemperatures"));
-
-        const fvMesh& mesh = moments_[0].mesh();
-        forAll(mesh.boundary(), patchi)
-        {
-            const fvPatch& currPatch = mesh.boundary()[patchi];
-            forAll(tmpWalls, walli)
-            {
-                if (tmpWalls[walli] == currPatch.name())
-                {
-                    fixedWalls_[patchi] = true;
-                    wallTemperatures_[patchi] = tmpWallTemperatures[walli];
-                }
-            }
-        }
-    }
-
-
     forAll(divMoments_, momenti)
     {
         const labelList& momentOrder = momentOrders_[momenti];
@@ -129,6 +109,86 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
             )
         );
     }
+
+    PtrList<dimensionSet> abscissaeDimensions(momentOrders_[0].size());
+    labelList zeroOrder(momentOrders_[0].size(), 0);
+
+    forAll(abscissaeDimensions, dimi)
+    {
+        labelList firstOrder(zeroOrder);
+        firstOrder[dimi] = 1;
+
+        abscissaeDimensions.set
+        (
+            dimi,
+            new dimensionSet
+            (
+                moments_(firstOrder).dimensions()/moments_(0).dimensions()
+            )
+        );
+    }
+
+    nodesNei_ = autoPtr<PtrList<surfaceVelocityNode> >
+    (
+        new PtrList<surfaceVelocityNode>(nodes_.size())
+    );
+
+    nodesOwn_ = autoPtr<PtrList<surfaceVelocityNode> >
+    (
+        new PtrList<surfaceVelocityNode>(nodes_.size())
+    );
+
+    PtrList<surfaceVelocityNode>& nodesNei = nodesNei_();
+    PtrList<surfaceVelocityNode>& nodesOwn = nodesOwn_();
+
+    // Populating nodes and interpolated nodes
+    forAll(nodes_, nodei)
+    {
+        const labelList& nodeIndex = nodeIndexes_[nodei];
+        nodesNei.set
+        (
+            nodei,
+            new surfaceVelocityNode
+            (
+                "nodeNei" + mappedList<scalar>::listToWord(nodeIndex),
+                name_,
+                moments_(0).mesh(),
+                moments_(0).dimensions(),
+                abscissaeDimensions,
+                false
+            )
+        );
+
+        nodesOwn.set
+        (
+            nodei,
+            new surfaceVelocityNode
+            (
+                "nodeOwn" + mappedList<scalar>::listToWord(nodeIndex),
+                name_,
+                moments_(0).mesh(),
+                moments_(0).dimensions(),
+                abscissaeDimensions,
+                false
+            )
+        );
+    }
+
+    forAll(boundaries_, patchi)
+    {
+        boundaries_.set
+        (
+            patchi,
+            fvQuadraturePatch::New
+            (
+                moments_[0].mesh().boundary()[patchi],
+                dict,
+                quadrature,
+                nodesOwn_(),
+                nodesNei_()
+            ).ptr()
+        );
+    }
 }
 
 
@@ -140,188 +200,12 @@ Foam::velocityMomentAdvection::~velocityMomentAdvection()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::velocityMomentAdvection::updateWallCollisions
-(
-    const PtrList<volVelocityNode>& nodes,
-    PtrList<surfaceVelocityNode>& nodesOwn,
-    PtrList<surfaceVelocityNode>& nodesNei
-)
+void Foam::velocityMomentAdvection::updateBoundaryConditions()
 {
-    const fvMesh& mesh = own_.mesh();
-    labelList velocityIndexes = nodes[0].velocityIndexes();
-    label nd = velocityIndexes.size();
-
-    labelList order000(momentOrders_[0].size(), 0);
-    labelList order100(order000);
-    labelList order010(order000);
-    labelList order001(order000);
-    labelList order200(order000);
-    labelList order020(order000);
-    labelList order002(order000);
-
-    order100[velocityIndexes[0]] = 1;
-    order200[velocityIndexes[0]] = 2;
-    if (nd > 1)
+    forAll(boundaries_, patchi)
     {
-        order010[velocityIndexes[1]] = 1;
-        order020[velocityIndexes[1]] = 2;
-    }
-    if (nd > 2)
-    {
-        order001[velocityIndexes[2]] = 1;
-        order002[velocityIndexes[2]] = 2;
-    }
-    forAll(mesh.boundary(), patchi)
-    {
-        const fvPatch& currPatch = mesh.boundary()[patchi];
-        if (isA<wallFvPatch>(currPatch))
-        {
-            const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
-            vectorField bfNorm(bfSf/mag(bfSf));
-            tmp<scalarField> scale;
-
-            if (fixedWalls_[patchi])
-            {
-                scalarField m0(max(moments_(0).boundaryField()[patchi], 1e-8));
-                tmp<scalarField> u(moments_(order100).boundaryField()[patchi]/m0);
-                vectorField T(bfSf.size(), Zero);
-                T.replace
-                (
-                    0,
-                    max
-                    (
-                        moments_(order200).boundaryField()[patchi]/m0
-                      - sqr(u),
-                        1e-8
-                    )
-                );
-                if (nd > 1)
-                {
-                    tmp<scalarField> v
-                    (
-                        moments_(order010).boundaryField()[patchi]/m0
-                    );
-                    T.replace
-                    (
-                        1,
-                        max
-                        (
-                            moments_(order020).boundaryField()[patchi]/m0
-                          - sqr(v),
-                            1e-8
-                        )
-                    );
-                }
-                if (nd > 2)
-                {
-                    tmp<scalarField> w
-                    (
-                        moments_(order001).boundaryField()[patchi]/m0
-                    );
-                    T.replace
-                    (
-                        2,
-                        max
-                        (
-                            moments_(order002).boundaryField()[patchi]/m0
-                          - sqr(w),
-                            1e-8
-                        )
-                    );
-                }
-                scale =
-                (
-                    sqrt
-                    (
-                        wallTemperatures_[patchi]*scalar(nd)
-                       /(T & vector(1.0, 1.0, 1.0))
-                    )
-                );
-            }
-
-            scalarField Gin(bfSf.size(), 0.0);
-            scalarField Gout(bfSf.size(), 0.0);
-
-            forAll(nodes, nodei)
-            {
-                const volVelocityNode& node = nodes[nodei];
-                surfaceVelocityNode& nodeNei(nodesNei[nodei]);
-                surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
-
-                const volScalarField& weight = node.primaryWeight();
-                surfaceScalarField& weightOwn = nodeOwn.primaryWeight();
-                surfaceScalarField& weightNei = nodeNei.primaryWeight();
-                const volVectorField& U = node.velocityAbscissae();
-                surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
-                surfaceVectorField& UNei = nodeNei.velocityAbscissae();
-
-                scalarField& bfwOwn = weightOwn.boundaryFieldRef()[patchi];
-                scalarField& bfwNei = weightNei.boundaryFieldRef()[patchi];
-                vectorField& bfUOwn = UOwn.boundaryFieldRef()[patchi];
-                vectorField& bfUNei = UNei.boundaryFieldRef()[patchi];
-
-                bfwOwn = weight.boundaryField()[patchi].patchInternalField();
-                bfwNei = bfwOwn;
-
-                bfUOwn = U.boundaryField()[patchi].patchInternalField();
-                bfUNei =
-                    (
-                        bfUOwn
-                      - (1.0 + this->ew_)*(bfUOwn & bfNorm)*bfNorm
-                    );
-
-                if (scale.valid())
-                {
-                    bfUNei *= scale();
-                }
-                Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
-                Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
-            }
-
-            if (this->ew_ < 1 || scale.valid())
-            {
-                scalarField weightScale(Gin/(Gout + small));
-
-                forAll(nodes, nodei)
-                {
-                    scalarField& bfWNei =
-                        nodesNei[nodei].primaryWeight().boundaryFieldRef()[patchi];
-                    bfWNei *= weightScale;
-                }
-            }
-        }
-        else if (isA<symmetryFvPatch>(currPatch))
-        {
-            const vectorField& bfSf(mesh.Sf().boundaryField()[patchi]);
-            vectorField bfNorm(bfSf/mag(bfSf));
-
-            forAll(nodes, nodei)
-            {
-                const volVelocityNode& node = nodes[nodei];
-                surfaceVelocityNode& nodeNei(nodesNei[nodei]);
-                surfaceVelocityNode& nodeOwn(nodesOwn[nodei]);
-
-                const volScalarField& weight = node.primaryWeight();
-                surfaceScalarField& weightOwn = nodeOwn.primaryWeight();
-                surfaceScalarField& weightNei = nodeNei.primaryWeight();
-                const volVectorField& U = node.velocityAbscissae();
-                surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
-                surfaceVectorField& UNei = nodeNei.velocityAbscissae();
-
-                scalarField& bfwOwn = weightOwn.boundaryFieldRef()[patchi];
-                scalarField& bfwNei = weightNei.boundaryFieldRef()[patchi];
-                vectorField& bfUOwn = UOwn.boundaryFieldRef()[patchi];
-                vectorField& bfUNei = UNei.boundaryFieldRef()[patchi];
-
-                bfwOwn = weight.boundaryField()[patchi].patchInternalField();
-                bfwNei = bfwOwn;
-
-                bfUOwn = U.boundaryField()[patchi].patchInternalField();
-                bfUNei = bfUOwn - 2.0*(bfUOwn & bfNorm)*bfNorm;
-            }
-        }
+        boundaries_[patchi].update();
     }
 }
-
 
 // ************************************************************************* //

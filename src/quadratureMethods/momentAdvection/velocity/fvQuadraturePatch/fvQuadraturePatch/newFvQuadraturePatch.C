@@ -1,0 +1,70 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is derivative work of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "fvQuadraturePatch.H"
+
+// * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
+
+Foam::autoPtr<Foam::fvQuadraturePatch> Foam::fvQuadraturePatch::New
+(
+    const fvPatch& patch,
+    const dictionary& dict,
+    const velocityQuadratureApproximation& quadrature,
+    PtrList<surfaceVelocityNode>& nodesOwn,
+    PtrList<surfaceVelocityNode>& nodesNei
+)
+{
+    word fvQuadraturePatchType = "calculated";
+    if (dict.found(patch.name()))
+    {
+        fvQuadraturePatchType =
+            dict.subDict(patch.name()).lookupOrDefault<word>
+            (
+                "type",
+                "calculated"
+            );
+    }
+
+    Info<< "Selecting fvQuadraturePatch type for " << patch.name() << ": "
+        << fvQuadraturePatchType << endl;
+
+    dictionaryConstructorTable::iterator cstrIter =
+        dictionaryConstructorTablePtr_->find(fvQuadraturePatchType);
+
+    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    {
+        FatalErrorInFunction
+            << "Unknown fvQuadraturePatch type "
+            << fvQuadraturePatchType << endl << endl
+            << "Valid fvQuadraturePatch types are : " << endl
+            << dictionaryConstructorTablePtr_->sortedToc()
+            << exit(FatalError);
+    }
+
+    return cstrIter()(patch, dict, quadrature, nodesOwn, nodesNei);
+}
+
+
+// ************************************************************************* //

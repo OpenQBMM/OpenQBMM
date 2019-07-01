@@ -1055,7 +1055,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
     }
 }
 
-void Foam::multivariateMomentInversions::CHyQMOM::invert
+bool Foam::multivariateMomentInversions::CHyQMOM::invert
 (
     const multivariateMomentSet& moments
 )
@@ -1105,6 +1105,8 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert
             velocityAbscissae_[nodei] = vector(u[nodei], 0.0, 0.0);
         }
     }
+
+    return true;
 }
 
 

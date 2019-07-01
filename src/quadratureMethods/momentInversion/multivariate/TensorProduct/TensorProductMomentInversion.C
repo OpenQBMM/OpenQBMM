@@ -122,7 +122,7 @@ Foam::multivariateMomentInversions::TensorProduct::~TensorProduct()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::multivariateMomentInversions::TensorProduct::invert
+bool Foam::multivariateMomentInversions::TensorProduct::invert
 (
     const multivariateMomentSet& moments
 )
@@ -136,20 +136,24 @@ void Foam::multivariateMomentInversions::TensorProduct::invert
     label si = 0;
     forAll(univariateInverters_, dimi)
     {
-        univariateMomentSet unvariateMoments
+        univariateMomentSet univariateMoments
         (
             nPureMoments_[dimi],
             supports_[dimi],
             0.0
         );
-        forAll(unvariateMoments, mi)
+        forAll(univariateMoments, mi)
         {
             labelList momentOrder(zeroOrder);
             momentOrder[dimi] = mi;
-            unvariateMoments[mi] = moments(momentOrder);
+            univariateMoments[mi] = moments(momentOrder);
+        }
+        if (!univariateMoments.isRealizable(false))
+        {
+            return false;
         }
 
-        univariateInverters_[dimi].invert(unvariateMoments);
+        univariateInverters_[dimi].invert(univariateMoments);
         const scalarList& abscissae =
             univariateInverters_[dimi].abscissae();
 
@@ -190,7 +194,7 @@ void Foam::multivariateMomentInversions::TensorProduct::invert
 
     if (max(nNonZeroNodes) == 0)
     {
-        return;
+        return true;
     }
 
     label totNonZeroNodes = 1;
@@ -255,6 +259,8 @@ void Foam::multivariateMomentInversions::TensorProduct::invert
     {
         weights_(nonZeroNodeIndexes[nodei]) = weights[nodei];
     }
+
+    return true;
 }
 
 

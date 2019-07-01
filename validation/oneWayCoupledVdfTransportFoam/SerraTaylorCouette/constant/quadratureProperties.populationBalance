@@ -30,6 +30,16 @@ basicVelocityMomentInversion
 momentAdvection
 {
     velocityMomentAdvection   Vikas;
+    innerWall
+    {
+        type    reflective;
+        e       1.0;
+    }
+    outerWall
+    {
+        type    reflective;
+        e       1.0;
+    }
 }
 
 moments

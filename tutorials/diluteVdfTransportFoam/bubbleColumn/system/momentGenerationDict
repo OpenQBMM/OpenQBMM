@@ -70,18 +70,18 @@ air
     {
         node0
         {
-            weight      0.033;
-            abscissa    (3.5e-3 0 0.2);
+            weight      uniform 0.033;
+            abscissae   (3.5e-3 0 0.2);
         }
         node1
         {
-            weight      0.034;
-            abscissa    (4.0e-3 0 0.2);
+            weight      uniform 0.034;
+            abscissae   (4.0e-3 0 0.2);
         }
         node2
         {
-            weight      0.033;
-            abscissa    (4.3e-3 0 0.2);
+            weight      uniform 0.033;
+            abscissae   (4.3e-3 0 0.2);
         }
     }
 }

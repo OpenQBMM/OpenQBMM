@@ -30,8 +30,16 @@ basicVelocityMomentInversion
 momentAdvection
 {
     velocityMomentAdvection   firstOrderKinetic;
-    fixedTemperatureBoundaries ("left" "right");
-    wallTemperatures (0.5 1.0);
+    left
+    {
+        type    fixedTemperature;
+        T       uniform 0.5;
+    }
+    right
+    {
+        type    fixedTemperature;
+        T       uniform 1.0;
+    }
 }
 
 moments

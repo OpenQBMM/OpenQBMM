@@ -129,7 +129,7 @@ class conditional
 
         //- Once all of the conditional moments are known, said moments are
         //  inverted to find the weights and abscissae
-        void cycleAlphaWheeler
+        bool cycleAlphaWheeler
         (
             const label dimi,
             label alphai,
@@ -168,7 +168,7 @@ public:
     // Member Functions
 
         //- Invert moments to find weights and  abscissae
-        void invert(const multivariateMomentSet& moments);
+        virtual bool invert(const multivariateMomentSet& moments);
 };
 
 

@@ -89,17 +89,22 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar::lookupOrDefault("rho", dict, dimDensity, 0.0)
+        dimensionedScalar("rho", dimDensity, 0.0)
     ),
-    ds_(nNodes, 0.0),
-    alphas_(nNodes, 0.0),
-    sumAlpha_(0.0),
+    ds_(nNodes),
+    alphas_(nNodes),
+    sumAlpha_(),
     massBased_(dict.lookupOrDefault("massBased", true))
 {
     if (!dict.found("rho") && massBased_)
     {
         autoPtr<rhoThermo> thermo = rhoThermo::New(mesh, alpha_.group());
         rho_ = thermo->rho();
+    }
+    else
+    {
+        rho_.primitiveFieldRef() =
+            scalarField("rho", dict, mesh.nCells());
     }
 }
 
@@ -112,20 +117,22 @@ Foam::momentGenerationSubModels::alphaAndDiameter::~alphaAndDiameter()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::alphaAndDiameter::setNodes
+void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label patchi
 )
 {
-    sumAlpha_ = 0.0;
+    label size = reset(patchi);
+    sumAlpha_ = scalarField(size, 0.0);
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            ds_[nodei] = nodeDict.lookupType<scalar>("dia");
-            alphas_[nodei] = nodeDict.lookupType<scalar>("alpha");
+            ds_[nodei] = scalarField("dia", nodeDict, size);
+            alphas_[nodei] = scalarField("alpha", nodeDict, size);
             sumAlpha_ += alphas_[nodei];
         }
         else
@@ -134,19 +141,23 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::setNodes
             alphas_[nodei] = 0.0;
         }
     }
-    sumAlpha_ = max(sumAlpha_, 1e-8);
-}
-
-void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
-(
-    const label celli
-)
-{
-    reset();
+    sumAlpha_ = max(sumAlpha_, small);
+    scalarField alpha
+    (
+        patchi == -1
+      ? alpha_.primitiveField()
+      : alpha_.boundaryField()[patchi]
+    );
+    scalarField rho
+    (
+        patchi == -1
+      ? rho_.primitiveField()
+      : rho_.boundaryField()[patchi]
+    );
 
     forAll(weights_, nodei)
     {
-        scalar alpha = alpha_[celli]*alphas_[nodei];
+        scalarField alphai(alpha*alphas_[nodei]);
         if (scale_)
         {
             alpha /= sumAlpha_;
@@ -154,42 +165,61 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 
         if (massBased_)
         {
-            scalar rho = rho_[celli];
-
             abscissae_[nodei][0] =
                 Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
 
-            if (abscissae_[nodei][0] > small)
-            {
-                weights_[nodei] = rho*alpha/abscissae_[nodei][0];
-            }
+            weights_[nodei] =
+                pos(abscissae_[nodei][0] - small)
+               *alphai/max(abscissae_[nodei][0], small);
         }
         else
         {
             abscissae_[nodei][0] = ds_[nodei];
-            scalar V = pow3(ds_[nodei]);
-            if (V > small)
-            {
-                weights_[nodei] = alpha/V;
-            }
+            scalarField V(pow3(ds_[nodei]));
+            weights_[nodei] = pos(V - small)*alphai/max(V, small);
         }
     }
 
     momentGenerationModel::updateMoments();
 }
 
+
 void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 (
-    const label patchi,
-    const label facei
+    const dictionary& dict,
+    const labelList& cells
 )
 {
-    reset();
+    label size = reset(cells);
+    sumAlpha_ = scalarField(size, 0.0);
+    forAll(weights_, nodei)
+    {
+        word nodeName = "node" + Foam::name(nodei);
+        if(dict.found(nodeName))
+        {
+            dictionary nodeDict(dict.subDict(nodeName));
+            ds_[nodei] = scalarField("dia", nodeDict, size);
+            alphas_[nodei] = scalarField("alpha", nodeDict, size);
+            sumAlpha_ += alphas_[nodei];
+        }
+        else
+        {
+            ds_[nodei] = 0.0;
+            alphas_[nodei] = 0.0;
+        }
+    }
+    sumAlpha_ = max(sumAlpha_, small);
+    scalarField alpha(size, 0.0);
+    scalarField rho(size, 0.0);
+    forAll(cells, celli)
+    {
+        alpha[celli] = alpha_[cells[celli]];
+        rho[celli] = rho_[cells[celli]];
+    }
 
     forAll(weights_, nodei)
     {
-        scalar alpha =
-            alpha_.boundaryField()[patchi][facei]*alphas_[nodei];
+        scalarField alphai = alpha*alphas_[nodei];
         if (scale_)
         {
             alpha /= sumAlpha_;
@@ -197,28 +227,21 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 
         if (massBased_)
         {
-            scalar rho = rho_.boundaryField()[patchi][facei];
-
             abscissae_[nodei][0] =
                 Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
 
-            if (abscissae_[nodei][0] > small)
-            {
-                weights_[nodei] = rho*alpha/abscissae_[nodei][0];
-            }
+            weights_[nodei] =
+                pos(abscissae_[nodei][0] - small)
+               *alphai/max(abscissae_[nodei][0], small);
         }
         else
         {
             abscissae_[nodei][0] = ds_[nodei];
-            scalar V = pow3(ds_[nodei]);
-            if (V > small)
-            {
-                weights_[nodei] = alpha/V;
-            }
+            scalarField V = pow3(ds_[nodei]);
+            weights_[nodei] = pos(V - small)*alphai/max(V, small);
         }
     }
 
     momentGenerationModel::updateMoments();
 }
-
 // ************************************************************************* //

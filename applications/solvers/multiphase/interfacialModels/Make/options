@@ -7,7 +7,6 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/phaseCompressible/lnInclude \
-    -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
     -I../twoPhaseSystem/lnInclude
 
 LIB_LIBS = \
@@ -24,5 +23,4 @@ LIB_LIBS = \
     -lpdPhaseSystem \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
-    -lspecie \
-    -lpopulationBalance
+    -lspecie

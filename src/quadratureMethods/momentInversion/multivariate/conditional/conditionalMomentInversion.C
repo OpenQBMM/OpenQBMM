@@ -169,12 +169,13 @@ Foam::multivariateMomentInversions::conditional::~conditional()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::multivariateMomentInversions::conditional::invert
+bool Foam::multivariateMomentInversions::conditional::invert
 (
     const multivariateMomentSet& moments
 )
 {
     reset();
+
     forAll(invVR_, dimi)
     {
         forAll(invVR_[dimi], ai)
@@ -208,6 +209,10 @@ void Foam::multivariateMomentInversions::conditional::invert
     forAll(momentsToInvert, mi)
     {
         momentsToInvert[mi] = moments(mi);
+    }
+    if (!momentsToInvert.isRealizable(false))
+    {
+        return false;
     }
 
     momentInverters_[0].invert(momentsToInvert);
@@ -268,8 +273,13 @@ void Foam::multivariateMomentInversions::conditional::invert
         }
 
         labelList posW(dimi + 1, 0);
-        cycleAlphaWheeler(dimi, 0, posW);
+        if (!cycleAlphaWheeler(dimi, 0, posW))
+        {
+            return false;
+        }
     }
+
+    return true;
 }
 
 void Foam::multivariateMomentInversions::conditional::setNodeMap
@@ -453,7 +463,7 @@ void Foam::multivariateMomentInversions::conditional::setVR
     }
 }
 
-void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
+bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
 (
     const label dimi,
     label ai,
@@ -468,7 +478,7 @@ void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
             cycleAlphaWheeler(dimi, ai + 1, pos);
         }
 
-        return;
+        return true;
     }
     else
     {
@@ -492,7 +502,7 @@ void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
                     weights_[nodei] /= nNodes_[dimi];
                 }
             }
-            return;
+            return true;
         }
 
         univariateMomentSet momentsToInvert
@@ -505,6 +515,11 @@ void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
         {
             pos[dimi] = mi;
             momentsToInvert[mi] = conditionalMoments_[dimi][dimi - 1](pos);
+        }
+
+        if (!momentsToInvert.isRealizable(false))
+        {
+            return false;
         }
 
         momentInverters_[dimi].invert(momentsToInvert);
@@ -543,7 +558,7 @@ void Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
             }
         }
 
-        return;
+        return true;
     }
 }
 

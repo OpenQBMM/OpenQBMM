@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
               : phaseDict.subDict("default")
             );
 
-            momentGenerator().setNodes(dict);
+            momentGenerator().updateMoments(dict);
 
             forAll(moments, mi)
             {
@@ -159,9 +159,16 @@ int main(int argc, char *argv[])
                             IOobject::AUTO_WRITE
                         ),
                         mesh,
-                        momentGenerator().moments()(momentOrder)
+                        dimensionedScalar
+                        (
+                            "moment",
+                            momentGenerator().momentDims()(momentOrder),
+                            0.0
+                        )
                     )
                 );
+                moments[mi].primitiveFieldRef() =
+                    momentGenerator().moments()(momentOrder);
 
                 //  Set boundaries based oboundary section
                 //  Initial values specified in the dictionary are overwritten
@@ -171,20 +178,18 @@ int main(int argc, char *argv[])
                     boundaries[mi]
                 );
             }
-
-            forAll(moments[0], celli)
-            {
-                momentGenerator->updateMoments(celli);
-                forAll(moments, mi)
-                {
-                    moments[mi][celli] = momentGenerator->moments()[mi].value();
-                }
-            }
         }
 
         forAll(mesh.boundaryMesh(), bi)
         {
-            if (moments[0].boundaryField()[bi].fixesValue())
+            if
+            (
+                moments[0].boundaryField()[bi].fixesValue()
+             && (
+                    phaseDict.found(mesh.boundaryMesh()[bi].name())
+                 || phaseDict.found("default")
+                )
+            )
             {
                 Info<< "Setting " << mesh.boundaryMesh()[bi].name()
                     << " boundary" << endl;
@@ -195,17 +200,12 @@ int main(int argc, char *argv[])
                   : phaseDict.subDict("default")
                 );
 
-                momentGenerator().setNodes(dict);
+                momentGenerator().updateMoments(dict, bi);
 
                 forAll(moments, mi)
                 {
-                    forAll(moments[mi].boundaryField()[bi], facei)
-                    {
-                        momentGenerator().updateMoments(bi, facei);
-
-                        moments[mi].boundaryFieldRef()[bi][facei] =
-                            (momentGenerator().moments()[mi]).value();
-                    }
+                    moments[mi].boundaryFieldRef()[bi] ==
+                        momentGenerator().moments()[mi];
                 }
             }
         }
@@ -238,15 +238,14 @@ int main(int argc, char *argv[])
                     );
 
                     const labelList& cells = selectedCellSet.toc();
-                    momentGenerator().setNodes(region.dict());
+                    momentGenerator().updateMoments(region.dict(), cells);
 
                     forAll(cells, celli)
                     {
-                        momentGenerator().updateMoments(cells[celli]);
                         forAll(moments, mi)
                         {
                             moments[mi][cells[celli]] =
-                                momentGenerator().moments()[mi].value();
+                                momentGenerator().moments()[mi][celli];
                         }
                     }
 

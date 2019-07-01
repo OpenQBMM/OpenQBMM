@@ -58,6 +58,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     velocityIndexes_(),
     sizeIndex_(-1),
     lengthBased_(false),
+    massBased_(false),
     useVolumeFraction_(false),
     secondaryWeights_(),
     secondaryAbscissae_(),
@@ -98,6 +99,15 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 if (abscissaeDimensions[dimi] == dimLength)
                 {
                     lengthBased_ = true;
+                }
+                else if (abscissaeDimensions[dimi] == dimMass)
+                {
+                    massBased_ = true;
+                    word rhoName = IOobject::groupName("thermo:rho", name_);
+                    if (mesh.foundObject<volScalarField>(rhoName))
+                    {
+                        rhoPtr_ = &mesh.lookupObject<volScalarField>(rhoName);
+                    }
                 }
             }
         }
@@ -271,6 +281,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     velocityIndexes_(),
     sizeIndex_(-1),
     lengthBased_(false),
+    massBased_(false),
     useVolumeFraction_(false),
     secondaryWeights_(),
     secondaryAbscissae_(),
@@ -311,6 +322,15 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 if (abscissaeDimensions[dimi] == dimLength)
                 {
                     lengthBased_ = true;
+                }
+                else if (abscissaeDimensions[dimi] == dimMass)
+                {
+                    massBased_ = true;
+                    word rhoName = IOobject::groupName("thermo:rho", IOobject::group(name_));
+                    if (mesh.foundObject<volScalarField>(rhoName))
+                    {
+                        rhoPtr_ = &mesh.lookupObject<volScalarField>(rhoName);
+                    }
                 }
             }
         }
@@ -465,5 +485,60 @@ Foam::quadratureNode<scalarType, vectorType>::clone() const
     notImplemented("quadratureNode::clone() const");
     return autoPtr<quadratureNode<scalarType, vectorType>>(NULL);
 }
+
+template<class scalarType, class vectorType>
+Foam::scalar Foam::quadratureNode<scalarType, vectorType>::d
+(
+    const label celli,
+    const scalar& x
+) const
+{
+    if (sizeIndex_ == -1)
+    {
+        return 0.0;
+    }
+    if (lengthBased_)
+    {
+        return x;
+    }
+
+    scalar pi = Foam::constant::mathematical::pi;
+    if (massBased_ && rhoPtr_)
+    {
+        return cbrt(x*6.0/(pi*(*rhoPtr_)[celli]));
+    }
+    return cbrt(x*6.0/pi);
+}
+
+
+template<class scalarType, class vectorType>
+Foam::scalar Foam::quadratureNode<scalarType, vectorType>::n
+(
+    const label celli,
+    const scalar& w,
+    const scalar& x
+) const
+{
+    if (!useVolumeFraction_)
+    {
+        return w;
+    }
+
+    scalar v = pow3(small);
+    if (massBased_ && rhoPtr_)
+    {
+        v = max(v, x/(*rhoPtr_)[celli]);
+    }
+    else if (lengthBased_)
+    {
+        v = max(v, pow3(x)*Foam::constant::mathematical::pi/6.0);
+    }
+    else
+    {
+        v = max(v, x);
+    }
+    return w/v;
+}
+
 
 // ************************************************************************* //

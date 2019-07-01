@@ -36,6 +36,7 @@ License
 #include "partialSlipFvPatchFields.H"
 #include "momentFieldSets.H"
 #include "vectorList.H"
+#include "fixedFaceFvPatchScalarField.H"
 
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
@@ -76,20 +77,26 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
     {
         const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
-        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], 0.0);
+        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], small);
+        scalar n1 = node1.n(celli, weight1, abscissa1);
+        scalar d1 = node1.d(celli, abscissa1);
 
         forAll(nodes, nodej)
         {
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
-            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], 0.0);
+            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], small);
+
+            scalar n2 = node2.n(celli, weight2, abscissa2);
+            scalar d2 = node2.d(celli, abscissa2);
+            vector Ur = Us_[nodei][celli] - Us_[nodej][celli];
 
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa, handled inside kernel
             cSource +=
-                0.5*weight1
+                0.5*n1
                *(
-                    weight2
+                    n2
                    *(
                         pow // Birth
                         (
@@ -99,7 +106,7 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
                       - pow(abscissa1, momentOrder)
                       - pow(abscissa2, momentOrder)
                     )
-                )*coalescenceKernel_.Ka(celli, nodei, nodej);
+                )*coalescenceKernel_->Ka(d1, d2, Ur, celli);
         }
     }
     return cSource;
@@ -123,20 +130,26 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
     {
         const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
-        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], 0.0);
+        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], small);
+        scalar n1 = node1.n(celli, weight1, abscissa1);
+        scalar d1 = node1.d(celli, abscissa1);
 
         forAll(nodes, nodej)
         {
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
-            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], 0.0);
+            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], small);
+
+            scalar n2 = node2.n(celli, weight2, abscissa2);
+            scalar d2 = node2.d(celli, abscissa2);
+            vector Ur = Us_[nodei][celli] - Us_[nodej][celli];
 
             //- Diameter is used to calculate the coalesence kernel in place
             //  of the abscissa, handled inside kernel
             cSource +=
-                0.5*weight1*Us_[nodei][celli]
+                0.5*n1*Us_[nodei][celli]
                *(
-                    weight2
+                    n2
                    *(
                         pow // Birth
                         (
@@ -145,7 +158,7 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
                         )
                       - pow(abscissa1, momentOrder)
                       - pow(abscissa2, momentOrder)
-                    )*coalescenceKernel_.Ka(celli, nodei, nodej)
+                    )*coalescenceKernel_->Ka(d1, d2, Ur, celli)
                 );
         }
     }
@@ -171,20 +184,20 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
     forAll(nodes, nodei)
     {
         const volScalarNode& node = nodes[nodei];
-        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], 0.0);
+        scalar weight = node.primaryWeight()[celli];
+        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], small);
+        scalar d = node.d(celli, abscissa);
+        scalar n = node.n(celli, weight, abscissa);
 
         //- Diameter is used to calculate the breakup kernel in place
         //  of the abscissa
         bSource +=
-            node.primaryWeight()[celli]
-           *breakupKernel_->Kb(celli, nodei)
-           *(
-                daughterDistribution_->mDMass  //Birth
-                (
-                    momentOrder,
-                    abscissa
-                )
-              - pow(abscissa, momentOrder)   //Death
+            n
+           *breakupKernel_->Kb(d, celli)
+           *breakupKernel_->massNodeSource  //Birth and death
+            (
+                abscissa,
+                momentOrder
             );
     }
     return bSource;
@@ -208,20 +221,20 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
     forAll(nodes, nodei)
     {
         const volScalarNode& node = nodes[nodei];
-        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], 0.0);
+        scalar weight = node.primaryWeight()[celli];
+        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], small);
+        scalar d = node.d(celli, abscissa);
+        scalar n = node.n(celli, weight, abscissa);
 
         //- Diameter is used to calculate the breakup kernel in place
         //  of the abscissa
         bSource +=
-            node.primaryWeight()[celli]*Us_[nodei][celli]
-           *breakupKernel_->Kb(celli, nodei)
-           *(
-                daughterDistribution_->mDMass //Birth
-                (
-                    momentOrder,
-                    abscissa
-                )
-              - pow(abscissa, momentOrder)   //Death
+            n*Us_[nodei][celli]
+           *breakupKernel_->Kb(d, celli)
+           *breakupKernel_->massNodeSource  //Birth and death
+            (
+                abscissa,
+                momentOrder
             );
     }
 
@@ -235,8 +248,8 @@ void Foam::polydispersePhaseModel::solveSourceOde()
         return;
     }
 
-    coalescenceKernel_.update();
-    breakupKernel_->update();
+    coalescenceKernel_->preUpdate();
+    breakupKernel_->preUpdate();
 
     volScalarMomentFieldSet& moments = quadrature_.moments();
     label nMoments = quadrature_.nMoments();
@@ -563,7 +576,7 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
             IOobject::NO_WRITE
         )
     ),
-    solveOde_(pbeDict_.lookup("ode")),
+    solveOde_(pbeDict_.lookupOrDefault("ode", false)),
     coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
     quadrature_(phaseName, fluid.mesh(), "RPlus"),
@@ -575,26 +588,6 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
     ds_(nNodes_),
     maxD_("maxD", dimLength, phaseDict_),
     minD_("minD", dimLength, phaseDict_),
-    coalescenceKernel_
-    (
-        pbeDict_.subDict("coalescenceKernel"),
-        fluid.mesh()
-    ),
-    breakupKernel_
-    (
-        Foam::bubbleBreakupKernel::New
-        (
-            pbeDict_.subDict("breakupKernel"),
-            fluid.mesh()
-        )
-    ),
-    daughterDistribution_
-    (
-        Foam::populationBalanceSubModels::daughterDistribution::New
-        (
-            pbeDict_.subDict("daughterDistribution")
-        )
-    ),
     minLocalDt_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("minLocalDt"))),
     localDt_(this->size(), fluid.mesh().time().deltaT().value()/10.0),
     ATol_(readScalar(pbeDict_.subDict("odeCoeffs").lookup("ATol"))),
@@ -718,13 +711,20 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
     label nCorrectors = pimpleDict.lookupOrDefault<label>("nFluxCorrectors", 0);
     if (nCorrectors > 0)
     {
-        word patchName(pimpleDict.lookup("corrPatch"));
+        word patchName
+        (
+            pimpleDict.lookupOrDefault
+            (
+                "corrPatch",
+                U_.boundaryField()[0].patch().name()
+            )
+        );
         wordList boundaries(U_.boundaryField().size(), "zeroGradient");
         forAll(boundaries, patchi)
         {
             if (U_.boundaryField()[patchi].patch().name() == patchName)
             {
-                boundaries[patchi] = "fixedValue";
+                boundaries[patchi] = "fixedFace";
             }
         }
 
@@ -737,7 +737,7 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
                     "corr",
                     fluid_.mesh().time().timeName(),
                     fluid_.mesh(),
-                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
                 fluid_.mesh(),
@@ -746,6 +746,27 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
             )
         );
     }
+}
+
+
+void Foam::polydispersePhaseModel::setModels()
+{
+    coalescenceKernel_.set
+    (
+        new populationBalanceSubModels::aggregationKernels::coalescence
+        (
+            pbeDict_.subDict("coalescenceKernel"),
+            fluid_.mesh()
+        )
+    );
+    breakupKernel_ =
+    (
+        Foam::populationBalanceSubModels::breakupKernel::New
+        (
+            pbeDict_.subDict("breakupKernel"),
+            fluid_.mesh()
+        )
+    );
 }
 
 
@@ -1021,6 +1042,17 @@ void Foam::polydispersePhaseModel::averageTransport
                     );
             }
 
+            dimensionedScalar minCoeff
+            (
+                dimensionedScalar::lookupOrDefault
+                (
+                    "minCoeff",
+                    pimpleDict,
+                    dimDensity,
+                    residualAlpha_.value()
+                )
+            );
+
             fvScalarMatrix corrEqn
             (
                 ((*this)*rho() - quadrature_.moments()[1])
@@ -1028,21 +1060,11 @@ void Foam::polydispersePhaseModel::averageTransport
               + meanM1Flux
               + fvm::laplacian
                 (
-                    Foam::max
-                    (
-                        quadrature_.moments()[1],
-                        dimensionedScalar
-                        (
-                            "small",
-                            dimDensity,
-                            residualAlpha_.value()
-                        )
-                    ),
+                    Foam::max(quadrature_.moments()[1], minCoeff),
                     corr,
                     "laplacian(" + quadrature_.moments()[1].name() + ",corr)"
                 )
             );
-            corrEqn.setReference(0, 0.0);
             corrEqn.relax();
             corrEqn.solve();
             phi += fvc::snGrad(corr)*fluid_.mesh().magSf();

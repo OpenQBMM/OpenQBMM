@@ -72,13 +72,14 @@ Foam::populationBalanceSubModels::aggregationKernels::sumAggregation
 Foam::scalar
 Foam::populationBalanceSubModels::aggregationKernels::sumAggregation::Ka
 (
-    const scalar& abscissa1,
-    const scalar& abscissa2,
+    const scalar& d1,
+    const scalar& d2,
+    const vector& Ur,
     const label celli,
     const label environment
 ) const
 {
-    return Ca_.value()*(pow3(abscissa1) + pow3(abscissa2));
+    return Ca_.value()*(pow3(d1) + pow3(d2));
 }
 
 // ************************************************************************* //

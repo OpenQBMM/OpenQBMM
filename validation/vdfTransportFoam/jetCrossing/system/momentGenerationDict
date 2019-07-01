@@ -58,16 +58,16 @@ particles
     {
         node0
         {
-            weight  .001;
-            abscissa (1 0.5);
+            weight  uniform 0.001;
+            abscissae (1 0.5);
         }
     }
     inlet2
     {
         node0
         {
-            weight  .001;
-            abscissa (-1 0.5);
+            weight  uniform 0.001;
+            abscissae (-1 0.5);
         }
     }
 }

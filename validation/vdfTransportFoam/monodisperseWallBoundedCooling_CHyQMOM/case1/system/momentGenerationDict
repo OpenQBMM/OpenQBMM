@@ -62,7 +62,7 @@ particles
 
     default
     {
-        m0 0.05;
+        m0 uniform 0.05;
     }
 }
 

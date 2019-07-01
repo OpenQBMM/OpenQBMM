@@ -80,16 +80,6 @@ Foam::twoPhaseSystem::twoPhaseSystem
 
     g_(g),
 
-    phase1_
-    (
-        phaseModel::New
-        (
-            *this,
-            *this,
-            wordList(lookup("phases"))[0]
-        )
-    ),
-
     phase2_
     (
         phaseModel::New
@@ -97,6 +87,16 @@ Foam::twoPhaseSystem::twoPhaseSystem
             *this,
             *this,
             wordList(lookup("phases"))[1]
+        )
+    ),
+
+    phase1_
+    (
+        phaseModel::New
+        (
+            *this,
+            *this,
+            wordList(lookup("phases"))[0]
         )
     ),
 
@@ -282,6 +282,8 @@ Foam::twoPhaseSystem::twoPhaseSystem
             pair2In1_
         )
     );
+
+    phase1_->setModels();
 }
 
 

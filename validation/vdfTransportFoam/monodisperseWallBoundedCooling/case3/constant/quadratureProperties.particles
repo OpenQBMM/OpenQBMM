@@ -30,8 +30,16 @@ T #calc "2.0/3.0";
 momentAdvection
 {
     velocityMomentAdvection   firstOrderKinetic;
-    fixedTemperatureBoundaries ("left" "right");
-    wallTemperatures ($T $T);
+    left
+    {
+        type    fixedTemperature;
+        T       uniform $T;
+    }
+    right
+    {
+        type    fixedTemperature;
+        T       uniform $T;
+    }
 }
 
 moments

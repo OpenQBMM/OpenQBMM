@@ -79,6 +79,12 @@ protected:
 
     // Protected functions
 
+        //- Return true if source is only depenent on size
+        virtual bool pureSize() const
+        {
+            return true;
+        }
+
         //- Length based aggregation source given two abscissae and an order
         scalar nodeSource
         (
@@ -140,11 +146,18 @@ public:
 
     // Member Functions
 
+        //- Update fields before ode solve
+        virtual void preUpdate()
+        {
+            return;
+        }
+
         //- Aggregation kernel
         virtual scalar Ka
         (
-            const scalar& abscissa1,
-            const scalar& abscissa2,
+            const scalar& d1,
+            const scalar& d2,
+            const vector& Ur,
             const label celli,
             const label environment = 0
         ) const = 0;

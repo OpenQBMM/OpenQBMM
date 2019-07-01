@@ -70,7 +70,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
         dimensionedScalar
         (
             "m0",
-            moments_(0).dimensions(),
+            momentDims_(0),
             0.0
         )
     ),
@@ -147,11 +147,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
     {
         labelList orderOne(zeroOrder);
         orderOne[cmpt] = 1;
-        if
-        (
-            moments_(orderOne).dimensions()/moments_(0).dimensions()
-         == dimVelocity
-        )
+        if (momentDims_(orderOne)/momentDims_(0) == dimVelocity)
         {
             nVelocityDims_++;
         }
@@ -177,153 +173,224 @@ Foam::momentGenerationSubModels::gaussian::~gaussian()
 
 void Foam::momentGenerationSubModels::gaussian::setNodes
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const scalarField& alpha,
+    const vectorField& U,
+    const scalarField& Theta,
+    const symmTensorField& Sigma
 )
 {
+    label nWeights = 2;
+
+    if (isotropic_)
+    {
+        forAll (abscissae_[0], cmpt)
+        {
+            abscissae_[0][cmpt] =
+                U.component(cmpt) + sqrt(Theta);
+            abscissae_[1][cmpt] =
+                U.component(cmpt) - sqrt(Theta);
+        }
+    }
+    else
+    {
+        label xx = symmTensor::XX;
+        abscissae_[0][0] = U.component(0) + sqrt(Sigma.component(xx));
+        abscissae_[1][0] = U.component(0) - sqrt(Sigma.component(xx));
+
+        if (nVelocityDims_ > 1)
+        {
+            nWeights = 4;
+
+            label yy = symmTensor::YY;
+            label xy = symmTensor::XY;
+
+            abscissae_[0][1] =
+                U.component(1) + sqrt(Sigma.component(yy));
+            abscissae_[1][1] =
+                U.component(1) - sqrt(Sigma.component(yy));
+
+            abscissae_[2][0] =
+                U.component(0) + sqrt(Sigma.component(xy));
+            abscissae_[2][1] =
+                U.component(1) + sqrt(Sigma.component(xy));
+            abscissae_[3][0] =
+                U.component(0) - sqrt(Sigma.component(xy));
+            abscissae_[3][1] =
+                U.component(1) - sqrt(Sigma.component(xy));
+        }
+
+        if (nVelocityDims_ > 2)
+        {
+            nWeights = 8;
+
+            label zz = symmTensor::ZZ;
+            label xz = symmTensor::XZ;
+            label yz = symmTensor::YZ;
+
+            abscissae_[0][2] =
+                U.component(2) + sqrt(Sigma.component(zz));
+            abscissae_[1][2] =
+                U.component(2) - sqrt(Sigma.component(zz));
+
+            abscissae_[4][0] =
+                U.component(0) + sqrt(Sigma.component(xz));
+            abscissae_[4][2] =
+                U.component(2) + sqrt(Sigma.component(xz));
+            abscissae_[5][0] =
+                U.component(0) - sqrt(Sigma.component(xz));
+            abscissae_[5][2] =
+                U.component(2) - sqrt(Sigma.component(xz));
+
+            abscissae_[6][1] =
+                U.component(1) + sqrt(Sigma.component(yz));
+            abscissae_[6][2] =
+                U.component(2) + sqrt(Sigma.component(yz));
+            abscissae_[7][1] =
+                U.component(1) - sqrt(Sigma.component(yz));
+            abscissae_[7][2] =
+                U.component(2) - sqrt(Sigma.component(yz));
+        }
+    }
+    for (label i = 0; i < nWeights; i++)
+    {
+        weights_[i] = alpha/scalar(nWeights);
+    }
+
+    momentGenerationModel::updateMoments();
+}
+
+void Foam::momentGenerationSubModels::gaussian::updateMoments
+(
+    const dictionary& dict,
+    const label patchi
+)
+{
+    label size = reset(patchi);
+
+    scalarField alpha;
+    vectorField U;
+    scalarField Theta;
+    symmTensorField Sigma;
+
     if (dict.found("m0"))
     {
-        m0_ = dimensionedScalar("m0", moments_(0).dimensions(), dict);
+        alpha = scalarField("m0", dict, size);
     }
+    else if (patchi == -1)
+    {
+        alpha = m0_.primitiveField();
+    }
+    else
+    {
+        alpha = m0_.boundaryField()[patchi];
+    }
+
     if (dict.found("U"))
     {
-        U_ = dimensionedVector("U", dimVelocity, dict);
+        U = vectorField("U", dict, size);
     }
+    else if (patchi == -1)
+    {
+        U = U_.primitiveField();
+    }
+    else
+    {
+        U = U_.boundaryField()[patchi];
+    }
+
     if (dict.found("Theta"))
     {
-        Theta_ = dimensionedScalar("Theta", sqr(dimVelocity), dict);
+        Theta = scalarField("Theta", dict, size);
     }
+    else if (patchi == -1)
+    {
+        Theta = Theta_.primitiveField();
+    }
+    else
+    {
+        Theta = Theta_.boundaryField()[patchi];
+    }
+
     if (dict.found("Sigma"))
     {
-        Sigma_ = dimensionedSymmTensor("Sigma", sqr(dimVelocity), dict);
+        Sigma = symmTensorField("Sigma", dict, size);
     }
-}
-
-void Foam::momentGenerationSubModels::gaussian::updateMoments
-(
-    const label celli
-)
-{
-//     reset();
-    if (isotropic_)
+    else if (patchi == -1)
     {
-        forAll (abscissae_[0], cmpt)
-        {
-            abscissae_[0][cmpt] = U_[celli][cmpt] + sqrt(Theta_[celli]);
-            abscissae_[1][cmpt] = U_[celli][cmpt] - sqrt(Theta_[celli]);
-        }
-        weights_[0] = m0_[celli]/2.0;
-        weights_[1] = m0_[celli]/2.0;
+        Sigma = Sigma_.primitiveField();
     }
     else
     {
-        label nWeights = 2;
-        abscissae_[0][0] = U_[celli].x() + sqrt(Sigma_[celli].xx());
-        abscissae_[1][0] = U_[celli].x() - sqrt(Sigma_[celli].xx());
-
-        if (nVelocityDims_ > 1)
-        {
-            nWeights = 4;
-
-            abscissae_[0][1] = U_[celli].y() + sqrt(Sigma_[celli].yy());
-            abscissae_[1][1] = U_[celli].y() - sqrt(Sigma_[celli].yy());
-
-            abscissae_[2][0] = U_[celli].x() + sqrt(Sigma_[celli].xy());
-            abscissae_[2][1] = U_[celli].y() + sqrt(Sigma_[celli].xy());
-            abscissae_[3][0] = U_[celli].x() - sqrt(Sigma_[celli].xy());
-            abscissae_[3][1] = U_[celli].y() - sqrt(Sigma_[celli].xy());
-        }
-
-        if (nVelocityDims_ > 2)
-        {
-            nWeights = 8;
-
-            abscissae_[0][2] = U_[celli].z() + sqrt(Sigma_[celli].zz());
-            abscissae_[1][2] = U_[celli].z() - sqrt(Sigma_[celli].zz());
-
-            abscissae_[4][0] = U_[celli].x() + sqrt(Sigma_[celli].xz());
-            abscissae_[4][2] = U_[celli].z() + sqrt(Sigma_[celli].xz());
-            abscissae_[5][0] = U_[celli].x() - sqrt(Sigma_[celli].xz());
-            abscissae_[5][2] = U_[celli].z() - sqrt(Sigma_[celli].xz());
-
-            abscissae_[6][1] = U_[celli].y() + sqrt(Sigma_[celli].yz());
-            abscissae_[6][2] = U_[celli].z() + sqrt(Sigma_[celli].yz());
-            abscissae_[7][1] = U_[celli].y() - sqrt(Sigma_[celli].yz());
-            abscissae_[7][2] = U_[celli].z() - sqrt(Sigma_[celli].yz());
-        }
-
-        for (label i = 0; i < nWeights; i++)
-        {
-            weights_[i] = m0_[celli]/scalar(nWeights);
-        }
+        Sigma = Sigma_.boundaryField()[patchi];
     }
 
-    momentGenerationModel::updateMoments();
+    setNodes(dict, alpha, U, Theta, Sigma);
 }
+
 
 void Foam::momentGenerationSubModels::gaussian::updateMoments
 (
-    const label patchi,
-    const label facei
+    const dictionary& dict,
+    const labelList& cells
 )
 {
-    reset();
-    const vector& u = U_.boundaryField()[patchi][facei];
-    if (isotropic_)
+    label size = reset(cells);
+
+    scalarField alpha(size, 0);
+    vectorField U(size, Zero);
+    scalarField Theta(size, 0);
+    symmTensorField Sigma(size, Zero);
+
+    if (dict.found("m0"))
     {
-        forAll (abscissae_[0], cmpt)
-        {
-            abscissae_[0][cmpt] =
-                u[cmpt] + sqrt(Theta_.boundaryField()[patchi][facei]);
-            abscissae_[0][cmpt] =
-                u[cmpt] - sqrt(Theta_.boundaryField()[patchi][facei]);
-        }
-        weights_[0] = m0_.boundaryField()[patchi][facei]/2.0;
-        weights_[1] = m0_.boundaryField()[patchi][facei]/2.0;
+        alpha = scalarField("m0", dict, size);
     }
     else
     {
-        label nWeights = 2;
-        const symmTensor& sigma = Sigma_.boundaryField()[patchi][facei];
-        abscissae_[0][0] = u.x() + sqrt(sigma.xx());
-        abscissae_[1][0] = u.x() - sqrt(sigma.xx());
-
-        if (nVelocityDims_ > 1)
+        forAll(cells, celli)
         {
-            nWeights = 4;
-
-            abscissae_[0][1] = u.y() + sqrt(sigma.yy());
-            abscissae_[1][1] = u.y() - sqrt(sigma.yy());
-
-            abscissae_[2][0] = u.x() + sqrt(sigma.xy());
-            abscissae_[2][1] = u.y() + sqrt(sigma.xy());
-            abscissae_[3][0] = u.x() - sqrt(sigma.xy());
-            abscissae_[3][1] = u.y() - sqrt(sigma.xy());
-        }
-
-        if (nVelocityDims_ > 2)
-        {
-            nWeights = 8;
-
-            abscissae_[0][2] = u.z() + sqrt(sigma.zz());
-            abscissae_[1][2] = u.z() - sqrt(sigma.zz());
-
-            abscissae_[4][0] = u.x() + sqrt(sigma.xz());
-            abscissae_[4][2] = u.z() + sqrt(sigma.xz());
-            abscissae_[5][0] = u.x() - sqrt(sigma.xz());
-            abscissae_[5][2] = u.z() - sqrt(sigma.xz());
-
-            abscissae_[6][1] = u.y() + sqrt(sigma.yz());
-            abscissae_[6][2] = u.z() + sqrt(sigma.yz());
-            abscissae_[7][1] = u.y() - sqrt(sigma.yz());
-            abscissae_[7][2] = u.z() - sqrt(sigma.yz());
-        }
-
-        for (label i = 0; i < nWeights; i++)
-        {
-            weights_[i] = m0_.boundaryField()[patchi][facei]/scalar(nWeights);
+            alpha[celli] = m0_[cells[celli]];
         }
     }
-    momentGenerationModel::updateMoments();
+
+    if (dict.found("U"))
+    {
+        U = vectorField("U", dict, size);
+    }
+    else
+    {
+        forAll(cells, celli)
+        {
+            U[celli] = U_[cells[celli]];
+        }
+    }
+
+    if (dict.found("Theta"))
+    {
+        Theta = scalarField("Theta", dict, size);
+    }
+    else
+    {
+        forAll(cells, celli)
+        {
+            Theta[celli] = Theta_[cells[celli]];
+        }
+    }
+
+    if (dict.found("Sigma"))
+    {
+        Sigma = symmTensorField("Sigma", dict, size);
+    }
+    else
+    {
+        forAll(cells, celli)
+        {
+            Sigma[celli] = Sigma_[cells[celli]];
+        }
+    }
+
+    setNodes(dict, alpha, U, Theta, Sigma);
 }
 
 // ************************************************************************* //

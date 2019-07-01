@@ -55,8 +55,7 @@ Foam::momentGenerationSubModels::alphaAndDiameterVelocity::alphaAndDiameterVeloc
     const label nNodes
 )
 :
-    alphaAndDiameter(mesh, dict, momentOrders, nNodes),
-    Us_(nNodes, Zero)
+    alphaAndDiameter(mesh, dict, momentOrders, nNodes)
 {}
 
 
@@ -68,63 +67,48 @@ Foam::momentGenerationSubModels::alphaAndDiameterVelocity::~alphaAndDiameterVelo
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::setNodes
+void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::updateMoments
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label patchi
 )
 {
-    alphaAndDiameter::setNodes(dict);
+    label size = reset();
     forAll(weights_, nodei)
     {
-        word nodeName = "node" + Foam::name(nodei);
-        if(dict.found(nodeName))
+         const dictionary& nodeDict =
+            dict.subDict("node" + Foam::name(nodei));
+        vectorField U("U", nodeDict, size);
+
+        for (label cmpt = 1; cmpt < abscissae_[nodei].size(); cmpt++)
         {
-            Us_[nodei] = dict.subDict(nodeName).lookupType<vector>("U");
-        }
-        else
-        {
-            Us_[nodei] = Zero;
+            abscissae_[nodei][cmpt] = U.component(cmpt - 1);
         }
     }
+
+    alphaAndDiameter::updateMoments(dict, patchi);
 }
 
 void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::updateMoments
 (
-    const label celli
+    const dictionary& dict,
+    const labelList& cells
 )
 {
-    reset();
-
-    alphaAndDiameter::updateMoments(celli);
+    label size = reset();
     forAll(weights_, nodei)
     {
+         const dictionary& nodeDict =
+            dict.subDict("node" + Foam::name(nodei));
+        vectorField U("U", nodeDict, size);
+
         for (label cmpt = 1; cmpt < abscissae_[nodei].size(); cmpt++)
         {
-            abscissae_[nodei][cmpt] = Us_[nodei][cmpt - 1];
+            abscissae_[nodei][cmpt] = U.component(cmpt - 1);
         }
     }
 
-    momentGenerationModel::updateMoments();
-}
-
-void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::updateMoments
-(
-    const label patchi,
-    const label facei
-)
-{
-    reset();
-
-    alphaAndDiameter::updateMoments(patchi, facei);
-    forAll(weights_, nodei)
-    {
-        for (label cmpt = 1; cmpt < abscissae_[nodei].size(); cmpt++)
-        {
-            abscissae_[nodei][cmpt] = Us_[nodei][cmpt - 1];
-        }
-    }
-
-    momentGenerationModel::updateMoments();
+    alphaAndDiameter::updateMoments(dict, cells);
 }
 
 // ************************************************************************* //
