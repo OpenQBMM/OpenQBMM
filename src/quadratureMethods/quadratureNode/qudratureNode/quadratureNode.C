@@ -531,7 +531,7 @@ Foam::scalar Foam::quadratureNode<scalarType, vectorType>::n
     }
     else if (lengthBased_)
     {
-        v = max(v, pow3(x));
+        v = max(v, pow3(x)*Foam::constant::mathematical::pi/6.0);
     }
     else
     {

@@ -275,7 +275,7 @@ void Foam::momentGenerationSubModels::gaussian::updateMoments
 
     if (dict.found("m0"))
     {
-        alpha = scalarField("alpha", dict, size);
+        alpha = scalarField("m0", dict, size);
     }
     else if (patchi == -1)
     {
@@ -344,7 +344,7 @@ void Foam::momentGenerationSubModels::gaussian::updateMoments
 
     if (dict.found("m0"))
     {
-        alpha = scalarField("alpha", dict, size);
+        alpha = scalarField("m0", dict, size);
     }
     else
     {

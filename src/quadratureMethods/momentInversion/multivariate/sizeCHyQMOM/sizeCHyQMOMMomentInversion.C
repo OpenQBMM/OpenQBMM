@@ -122,11 +122,11 @@ invert
 {
     reset();
     scalar m0 = moments(0);
-    if (m0 < small)
+    if (mag(m0) < small)
     {
         forAll(weights_, nodei)
         {
-            weights_[nodei] = m0/weights_.size();
+            weights_[nodei] = max(m0, 0)/weights_.size();
         }
         return true;
     }

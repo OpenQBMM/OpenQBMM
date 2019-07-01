@@ -19,13 +19,13 @@ convertToMeters 1;
 x0 0.1;
 x1 0.3;
 
-r0 0.025;
+r0 0.1;
 V0 5.0;
-theta 0.1;
+theta 1.0;
 
 t1 #calc "(pow3($x1/$x0) - 1.0)*$x0/(3.0*$V0)";
 // r1 #calc "$r0*exp($x0*$V0*$t1/pow3($x1))";
-r1 #calc "$r0*cbrt(3.0*$V0*$t1/$x0)";
+r1 #calc "$r0*cbrt(1.0 + 3.0*$V0/$x0*$t1)";
 
 y0 #calc "$r0*cos($theta)";
 z0 #calc "$r0*sin($theta)";
@@ -50,7 +50,7 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (100 1 1) simpleGrading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) (30 3 1) simpleGrading (1 1 1)
 );
 
 edges
@@ -73,7 +73,7 @@ edges
 //         #{
 //             scalar x0 = 0.1;
 //             scalar x1 = 0.3;
-//             scalar r0 = 0.025;
+//             scalar r0 = 0.1;
 //             scalar V0 = 5.0;
 //             scalar theta = 0.1;
 //
@@ -85,7 +85,7 @@ edges
 //             {
 //                 scalar x = x0 + dx*i;
 //                 scalar t = x0/3.0/V0*(pow3(x/x0) - 1.0);
-//                 scalar r = r0*exp(x0*V0*t/pow3(x));
+//                 scalar r = r0*cbrt(1.0 + 3.0*V0*t/x0);
 //
 //                 os << vector(x, r*cos(theta), -r*sin(theta)) << endl;
 //             }
@@ -96,7 +96,7 @@ edges
 //             {
 //                 scalar x = x0 + dx*i;
 //                 scalar t = x0/3.0/V0*(pow3(x/x0) - 1.0);
-//                 scalar r = r0*exp(x0*V0*t/pow3(x));
+//                 scalar r = r0*cbrt(1.0 + 3.0*V0*t/x0);
 //
 //                 os << vector(x, r*cos(theta), r*sin(theta));
 //             }
@@ -121,14 +121,14 @@ boundary
 
     wedge1
     {
-        type wedge;
+        type cyclic;
         neighbourPatch wedge2;
         faces ((0 1 2 3));
     }
 
     wedge2
     {
-        type wedge;
+        type cyclic;
         neighbourPatch wedge1;
         faces ((4 5 6 7));
     }

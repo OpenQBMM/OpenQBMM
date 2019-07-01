@@ -59,8 +59,8 @@ populationBalance
     {
         node0
         {
-            weight  2.5e-5;
-            abscissa (2e-6 0 0 0);
+            weight  uniform 2.5e-5;
+            abscissae (2e-6 0 0 0);
         }
     }
 

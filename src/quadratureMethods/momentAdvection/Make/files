@@ -10,4 +10,14 @@ velocity/velocityMomentAdvection/velocityMomentAdvection.C
 velocity/velocityMomentAdvection/newVelocityMomentAdvection.C
 velocity/firstOrderKineticVelocityAdvection/firstOrderKineticVelocityAdvection.C
 velocity/VikasQuasiSecondOrderVelocityAdvection/VikasQuasiSecondOrderVelocityAdvection.C
+
+velocity/fvQuadraturePatch/fvQuadraturePatch/fvQuadraturePatch.C
+velocity/fvQuadraturePatch/fvQuadraturePatch/newFvQuadraturePatch.C
+velocity/fvQuadraturePatch/calculated/calculatedFvQuadraturePatch.C
+velocity/fvQuadraturePatch/symmetry/symmetryFvQuadraturePatch.C
+velocity/fvQuadraturePatch/noFlux/noFluxFvQuadraturePatch.C
+velocity/fvQuadraturePatch/reflective/reflectiveFvQuadraturePatch.C
+velocity/fvQuadraturePatch/outflow/outflowFvQuadraturePatch.C
+velocity/fvQuadraturePatch/fixedTemperature/fixedTemperatureFvQuadraturePatch.C
+
 LIB = $(FOAM_USER_LIBBIN)/libmomentAdvection

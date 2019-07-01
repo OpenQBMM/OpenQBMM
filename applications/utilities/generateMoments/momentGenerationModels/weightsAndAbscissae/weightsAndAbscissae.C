@@ -87,13 +87,31 @@ void Foam::momentGenerationSubModels::weightsAndAbscissae::updateMoments
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            scalarList abscissae(nodeDict.lookup("abscissae"));
+            scalarList abscissae
+            (
+                nodeDict.found("abscissae")
+              ? scalarList(nodeDict.lookup("abscissae"))
+              : scalarList(momentOrders_[0].size(), 0.0)
+            );
 
             forAll(abscissae, i)
             {
                 forAll(abscissae_[nodei], cmpt)
                 {
-                    abscissae_[nodei][cmpt] = abscissae[cmpt];
+                    if (nodeDict.found("abscissae" + Foam::name(cmpt)))
+                    {
+                        abscissae_[nodei][cmpt] =
+                            scalarField
+                            (
+                                "abscissae" + Foam::name(cmpt),
+                                nodeDict,
+                                size
+                            );
+                    }
+                    else
+                    {
+                        abscissae_[nodei][cmpt] = abscissae[cmpt];
+                    }
                 }
             }
             weights_[nodei] = scalarField("weight", nodeDict, size);
@@ -128,11 +146,26 @@ void Foam::momentGenerationSubModels::weightsAndAbscissae::updateMoments
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            scalarList abscissae(nodeDict.lookup("abscissae"));
+            scalarList abscissae
+            (
+                nodeDict.found("abscissae")
+              ? scalarList(nodeDict.lookup("abscissae"))
+              : scalarList(momentOrders_[0].size(), 0.0)
+            );
 
-            forAll(abscissae, i)
+            forAll(abscissae_[nodei], cmpt)
             {
-                forAll(abscissae_[nodei], cmpt)
+                if (nodeDict.found("abscissae" + Foam::name(cmpt)))
+                {
+                    abscissae_[nodei][cmpt] =
+                        scalarField
+                        (
+                            "abscissae" + Foam::name(cmpt),
+                            nodeDict,
+                            size
+                        );
+                }
+                else
                 {
                     abscissae_[nodei][cmpt] = abscissae[cmpt];
                 }

@@ -48,8 +48,8 @@ internalField   #codeStream
             u[celli] =
                 vector
                 (
-                    sqr(z0)*V0/sqr(x),
-                    y*sqr(z0)*V0/pow3(x),
+                    sqr(z0)*V0/(x*x),
+                    y*sqr(z0)*V0/(x*x*x),
                     0.0
                 );
         }
@@ -61,8 +61,29 @@ boundaryField
 {
     inlet
     {
-        type            fixedValue;
-        value           uniform (5 0.8333 0);
+        type            codedFixedValue;
+        value           uniform (0 0 0);
+        name            sprayVelocity;
+        code
+        #{
+            const vectorField& points = this->patch().Cf();
+            scalar z0 = 0.1;
+            scalar V0 = 5.0;
+            vectorField u(points.size());
+            forAll (points, celli)
+            {
+                scalar x = points[celli].x();
+                scalar y = points[celli].y();
+                u[celli] =
+                    vector
+                    (
+                        sqr(z0)*V0/(x*x),
+                        y*sqr(z0)*V0/(x*x*x),
+                        0.0
+                    );
+            }
+            operator==(u);
+        #};
     }
 
     outlet
@@ -72,11 +93,11 @@ boundaryField
 
     wedge1
     {
-        type            wedge;
+        type            cyclic;
     }
     wedge2
     {
-        type            wedge;
+        type            cyclic;
     }
 
     top

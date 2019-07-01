@@ -76,7 +76,7 @@ Foam::populationBalanceSubModels::growthModels::nonLinearEvaporation::Kg
     const label environment
 ) const
 {
-    return -0.25*Cg_.value()*d;
+    return -Cg_.value()/4.0*d*dDdV(d);
 }
 
 // ************************************************************************* //

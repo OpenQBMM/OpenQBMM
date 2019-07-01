@@ -45,6 +45,7 @@ SourceFiles
 #include "momentFieldSets.H"
 #include "quadratureApproximations.H"
 #include "surfaceInterpolationScheme.H"
+#include "fvQuadraturePatch.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -75,6 +76,15 @@ protected:
         //- Reference to the moments to advect
         const volVelocityMomentFieldSet& moments_;
 
+        //- List of quadrature nodes used for moment advection
+        const PtrList<volVelocityNode>& nodes_;
+
+        //- List of interpolated nodes (neighbour)
+        autoPtr<PtrList<surfaceVelocityNode>> nodesNei_;
+
+        //- List of interpolated nodes (owner)
+        autoPtr<PtrList<surfaceVelocityNode>> nodesOwn_;
+
         //- Number of moments
         const label nMoments_;
 
@@ -96,25 +106,14 @@ protected:
         //- Advection terms for moment transport equations
         PtrList<volScalarField> divMoments_;
 
-        //- List of boundaries using fixed temperatures
-        boolList fixedWalls_;
-
-        //- List of temperatures used at walls
-        scalarList wallTemperatures_;
-
-        //- Coefficient of restitution
-        scalar ew_;
+        //- List of boundaries conditions
+        PtrList<fvQuadraturePatch> boundaries_;
 
 
     //- Protected member function
 
             //- Update fluxes due to wall callisions
-            void updateWallCollisions
-            (
-                const PtrList<volVelocityNode>& nodes,
-                PtrList<surfaceVelocityNode>& nodesOwn,
-                PtrList<surfaceVelocityNode>& nodesNei
-            );
+            void updateBoundaryConditions();
 
 
 public:

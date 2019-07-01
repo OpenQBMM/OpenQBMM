@@ -86,7 +86,7 @@ public:
         //- Aggregation kernel
         virtual scalar Kg
         (
-            const scalar& V,
+            const scalar& d,
             const label environment
         ) const;
 

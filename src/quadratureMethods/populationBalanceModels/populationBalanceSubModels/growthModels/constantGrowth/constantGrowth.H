@@ -64,10 +64,10 @@ private:
     // Private data
 
         //- Minimum value of the abscissa to apply the model
-        dimensionedScalar minAbscissa_;
+        scalar minAbscissa_;
 
         //- Maximum value of the abscissa to apply the model
-        dimensionedScalar maxAbscissa_;
+        scalar maxAbscissa_;
 
 public:
 

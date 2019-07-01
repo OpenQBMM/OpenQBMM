@@ -76,9 +76,12 @@ Foam::populationBalanceSubModels::growthModels::linearEvaporation::Kg
     const label environment
 ) const
 {
+
     return
-        -Cg_.value()*Foam::constant::mathematical::pi*pow3(d)/6.0
-       *pos(d);
+       -Cg_.value()
+       *Foam::constant::mathematical::pi
+       *pow3(d)/6.0
+       *dDdV(d);
 }
 
 // ************************************************************************* //

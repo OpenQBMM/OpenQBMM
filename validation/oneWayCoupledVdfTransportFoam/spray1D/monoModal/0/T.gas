@@ -40,11 +40,11 @@ boundaryField
     }
     wedge1
     {
-        type    wedge;
+        type    cyclic;
     }
     wedge2
     {
-        type    wedge;
+        type    cyclic;
     }
     axis
     {

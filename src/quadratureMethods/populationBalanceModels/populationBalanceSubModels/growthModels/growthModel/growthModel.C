@@ -83,10 +83,6 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
         return gSource;
     }
     label sizeOrder = momentOrder[sizeIndex];
-    if (sizeOrder < 1)
-    {
-        return gSource;
-    }
 
 
     bool lengthBased = nodes[0].lengthBased();
@@ -101,6 +97,11 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
         {
             sizeOrder += 1;
         }
+    }
+
+    if (sizeOrder < 1)
+    {
+        return gSource;
     }
 
     const labelList& scalarIndexes = nodes[0].scalarIndexes();
@@ -193,11 +194,6 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     }
     label sizeOrder = momentOrder[sizeIndex];
 
-    if (sizeOrder < 1)
-    {
-        return gSource;
-    }
-
     bool lengthBased = nodes[0].lengthBased();
     bool volumeFraction = nodes[0].useVolumeFraction();
     if (volumeFraction)
@@ -212,94 +208,53 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
         }
     }
 
-    const labelList& scalarIndexes = nodes[0].scalarIndexes();
-    const labelList& velocityIndexes = nodes[0].velocityIndexes();
-
-    if (!nodes[0].extended())
+    if (sizeOrder < 1)
     {
-        forAll(nodes, pNodeI)
-        {
-            const volVelocityNode& node = nodes[pNodeI];
-
-            scalar bAbscissa =
-                max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
-            scalar d = node.d(celli, bAbscissa);
-            scalar n =
-                node.n(celli, node.primaryWeight()[celli], bAbscissa);
-
-            scalar gSourcei =
-                n*Kg(d)*sizeOrder*pow(bAbscissa, sizeOrder - 1);
-
-            forAll(scalarIndexes, nodei)
-            {
-                if (scalarIndexes[nodei] != sizeIndex)
-                {
-                    gSourcei *=
-                        pow
-                        (
-                            node.primaryAbscissae()[nodei][celli],
-                            momentOrder[scalarIndexes[nodei]]
-                        );
-                }
-            }
-            forAll(velocityIndexes, cmpt)
-            {
-                gSourcei *=
-                    pow
-                    (
-                        node.velocityAbscissae()[celli][cmpt],
-                        momentOrder[velocityIndexes[cmpt]]
-                    );
-            }
-            gSource += gSourcei;
-        }
-
         return gSource;
     }
+
+    const labelList& scalarIndexes = nodes[0].scalarIndexes();
+    const labelList& velocityIndexes = nodes[0].velocityIndexes();
 
     forAll(nodes, pNodeI)
     {
         const volVelocityNode& node = nodes[pNodeI];
 
-        forAll(node.secondaryWeights()[sizeIndex], sNodei)
+        scalar bAbscissa =
+            max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+        scalar d = node.d(celli, bAbscissa);
+        scalar n =
+            node.n(celli, node.primaryWeight()[celli], bAbscissa);
+
+        scalar gSourcei =
+            n*Kg(d)*sizeOrder*pow(bAbscissa, sizeOrder - 1);
+
+        forAll(scalarIndexes, nodei)
         {
-            scalar bAbscissa =
-                max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
-            scalar d = node.d(celli, bAbscissa);
-            scalar n =
-                node.n(celli, node.primaryWeight()[celli], bAbscissa)
-               *node.secondaryWeights()[sizeIndex][sNodei][celli];
-
-            scalar gSourcei =
-                n*Kg(d)*sizeOrder*pow(bAbscissa, sizeOrder - 1);
-
-            forAll(scalarIndexes, cmpt)
-            {
-                if (scalarIndexes[cmpt] != sizeIndex)
-                {
-                    gSourcei *=
-                        node.secondaryWeights()[cmpt][sNodei][celli]
-                       *pow
-                        (
-                            node.secondaryAbscissae()[cmpt][sNodei][celli],
-                            momentOrder[scalarIndexes[cmpt]]
-                        );
-                }
-            }
-            forAll(velocityIndexes, cmpt)
+            if (scalarIndexes[nodei] != sizeIndex)
             {
                 gSourcei *=
                     pow
                     (
-                        node.velocityAbscissae()[celli][cmpt],
-                        momentOrder[velocityIndexes[cmpt]]
+                        node.primaryAbscissae()[nodei][celli],
+                        momentOrder[scalarIndexes[nodei]]
                     );
             }
-            gSource += gSourcei;
         }
+        forAll(velocityIndexes, cmpt)
+        {
+            gSourcei *=
+                pow
+                (
+                    node.velocityAbscissae()[celli][cmpt],
+                    momentOrder[velocityIndexes[cmpt]]
+                );
+        }
+        gSource += gSourcei;
     }
 
     return gSource;
 }
+
 
 // ************************************************************************* //

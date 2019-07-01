@@ -72,6 +72,14 @@ protected:
         //- Coefficient of aggregation kernel
         const dimensionedScalar Cg_;
 
+        //- Return the derivative of length with respect to volume
+        static scalar dDdV(const scalar& d)
+        {
+            return
+                2.0
+               /max(Foam::constant::mathematical::pi*sqr(d), small);
+        }
+
 
 public:
 

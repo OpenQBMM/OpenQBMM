@@ -69,8 +69,8 @@ particles
 
             node0
             {
-                weight  0.1;
-                abscissa (0.00025 0 0);
+                weight  uniform 0.1;
+                abscissae (0.00025 0 0);
             }
         }
     );

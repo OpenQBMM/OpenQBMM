@@ -39,24 +39,24 @@ particles
     {
         node0
         {
-            weight  0.025;
-            abscissa (1.0e-3 1.0 1.0 1.0);
+            weight  uniform 0.025;
+            abscissae (1.0e-3 1.0 1.0 1.0);
         }
         node1
         {
-            weight  0.025;
-            abscissa (1.0e-3 -1.0 -1.0 -1.0);
+            weight  uniform 0.025;
+            abscissae (1.0e-3 -1.0 -1.0 -1.0);
         }
 
         node2
         {
-            weight  0.025;
-            abscissa (1.5e-3 1.0 1.0 1.0);
+            weight  uniform 0.025;
+            abscissae (1.5e-3 1.0 1.0 1.0);
         }
         node3
         {
-            weight  0.025;
-            abscissa (1.5e-3 -1.0 -1.0 -1.0);
+            weight  uniform 0.025;
+            abscissae (1.5e-3 -1.0 -1.0 -1.0);
         }
     }
 }

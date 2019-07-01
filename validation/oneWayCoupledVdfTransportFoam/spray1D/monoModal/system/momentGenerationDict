@@ -34,27 +34,61 @@ boundaries
 
     wedge1
     {
-        type wedge;
+        type    cyclic;
     }
     wedge2
     {
-        type wedge;
+        type    cyclic;
     }
 
     top
     {
-        type zeroGradient;
+        type    zeroGradient;
     }
 
     axis
     {
-        type            empty;
+        type    empty;
     }
 }
 
 z0 0.1;
-U0 5.0;
-V0 0.8333;
+V0 uniform 5.0;
+U0 #codeStream
+{
+    codeInclude
+    #{
+        #include "fvCFD.H"
+        #include "constants.H"
+    #};
+
+    codeOptions
+    #{
+        -I$(LIB_SRC)/OpenFOAM/lnInclude \
+        -I$(LIB_SRC)/finiteVolume/lnInclude \
+        -I$(LIB_SRC)/meshTools/lnInclude
+    #};
+
+    code
+    #{
+        const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+        const fvMesh& mesh = refCast<const fvMesh>(d.db());
+//         Info<<mesh.boundary().findPatchID("outlet")<<endl;
+        const pointField& points = mesh.boundary()["inlet"].Cf();
+
+        scalar z0 = 0.1;
+        scalar V0 = 5.0;
+        scalarField u(points.size());
+        forAll (points, celli)
+        {
+            scalar x = points[celli].x();
+            scalar y = points[celli].y();
+            u[celli] = y*sqr(z0)*V0/(x*x*x);
+        }
+        os << "nonuniform " << u << endl;
+    #};
+};
+// U0 #calc "$V0/$z0";//30.7020331334;//15.3510165667;
 
 liquid
 {
@@ -63,30 +97,40 @@ liquid
     abscissaDimension0  [0 1 0 0 0 0 0];
     abscissaDimension   [0 1 -1 0 0 0 0];
 
-    default
+    inlet
     {
         scale uniform 0.57e-2;
         node0
         {
-            weight  uniform 0.732330;
-            abscissae (9.99551e-6 $U0 $V0 0);
+            weight  uniform 0.277980052745894;//0.732330;
+            abscissae0 uniform 9.99551e-6;//(9.99551e-6 $V0 $U0);
+            abscissae1 $V0;
+            abscissae2 $U0;
         }
         node1
         {
-            weight  uniform 0.254558;
-            abscissae (18.5282e-6 $U0 $V0 0);
+            weight  uniform 0.615429590535563;//0.254558;
+            abscissae0 uniform 18.5282e-6;//(18.5282e-6 $V0 $U0);
+            abscissae1 $V0;
+            abscissae2 $U0;
         }
         node2
         {
-            weight  uniform 1.28835e-2;
-            abscissae (27.5630e-6 $U0 $V0 0);
+            weight  uniform 0.102542818586663;//1.28835e-2;
+            abscissae0 uniform 27.5630e-6;// (27.5630e-6 $V0 $U0);
+            abscissae1 $V0;
+            abscissae2 $U0;
         }
         node3
         {
-            weight  uniform 2.27970e-4;
-            abscissae (36.0142e-6 $U0 $V0 0);
+            weight  uniform 0.004047538131880;//2.27970e-4;
+            abscissae0 uniform 36.0142e-6;// (36.0142e-6 $V0 $U0);
+            abscissae1 $V0;
+            abscissae2 $U0;
         }
     }
+    default
+    {}
 }
 
 
