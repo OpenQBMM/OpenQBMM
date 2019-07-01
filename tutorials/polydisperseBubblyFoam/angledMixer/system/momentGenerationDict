@@ -25,7 +25,7 @@ boundaries
     inlet
     {
         type    fixedValue;
-        value   uniform 1.4;
+        value   uniform 0;
     }
     defaultFaces
     {

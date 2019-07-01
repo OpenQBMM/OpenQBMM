@@ -36,6 +36,7 @@ License
 #include "partialSlipFvPatchFields.H"
 #include "momentFieldSets.H"
 #include "vectorList.H"
+#include "fixedFaceFvPatchScalarField.H"
 
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
@@ -710,13 +711,20 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
     label nCorrectors = pimpleDict.lookupOrDefault<label>("nFluxCorrectors", 0);
     if (nCorrectors > 0)
     {
-        word patchName(pimpleDict.lookup("corrPatch"));
+        word patchName
+        (
+            pimpleDict.lookupOrDefault
+            (
+                "corrPatch",
+                U_.boundaryField()[0].patch().name()
+            )
+        );
         wordList boundaries(U_.boundaryField().size(), "zeroGradient");
         forAll(boundaries, patchi)
         {
             if (U_.boundaryField()[patchi].patch().name() == patchName)
             {
-                boundaries[patchi] = "fixedValue";
+                boundaries[patchi] = "fixedFace";
             }
         }
 
@@ -729,7 +737,7 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
                     "corr",
                     fluid_.mesh().time().timeName(),
                     fluid_.mesh(),
-                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
                 fluid_.mesh(),
@@ -1057,7 +1065,6 @@ void Foam::polydispersePhaseModel::averageTransport
                     "laplacian(" + quadrature_.moments()[1].name() + ",corr)"
                 )
             );
-            corrEqn.setReference(0, 0.0);
             corrEqn.relax();
             corrEqn.solve();
             phi += fvc::snGrad(corr)*fluid_.mesh().magSf();

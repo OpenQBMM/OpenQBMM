@@ -110,13 +110,15 @@ solvers
 
 PIMPLE
 {
-    nOuterCorrectors    5;
+    nOuterCorrectors    15;
     nCorrectors         2;
     nNonOrthogonalCorrectors 0;
     nFluxCorrectors 0;
     corrPatch outlet;
     pRefCell 0;
     pRefValue 1e5;
+    nFluxCorrectors 1;
+    corrPatch outlet;
     outerCorrectorResidualControl
     {
         p_rgh
@@ -129,13 +131,9 @@ PIMPLE
 
 relaxationFactors
 {
-    fields
-    {
-//         p_rgh       0.3;
-    }
     equations
     {
-//         "U.*"       0.7;
+        p_rgh       0.3;
     }
 }
 

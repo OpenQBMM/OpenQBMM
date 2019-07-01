@@ -22,7 +22,8 @@ air
     type            polydispersePhaseModel;
     residualAlpha   1e-4;
     minD            1e-4;
-    maxD            5e-3;
+    maxD            1.0;
+    diameterScale   1.0e-3;
 }
 
 water
@@ -70,8 +71,11 @@ drag
 (
     (air in water)
     {
-        type            SchillerNaumann;
+        type            TomiyamaCorrelated;
+        A               24.0;
         residualRe      1e-3;
+        residualEo      1e-3;
+        residualE       1e-2;
         swarmCorrection
         {
             type        none;
@@ -82,6 +86,8 @@ drag
     {
         type            SchillerNaumann;
         residualRe      1e-3;
+        residualEo      1e-3;
+        residualE       1e-2;
         swarmCorrection
         {
             type        none;
@@ -102,6 +108,15 @@ drag
     }
 );
 
+
+turbulentDispersion
+(
+//     (air in water)
+//     {
+//         type    Panicker;
+//     }
+);
+
 virtualMass
 (
     (air in water)
@@ -119,18 +134,23 @@ virtualMass
 
 lift
 (
+    (air in water)
+    {
+        type Tomiyama;
+    }
 );
 
 wallLubrication
 (
-);
-
-turbulentDispersion
-(
-//     (air in water)
-//     {
-//         type    Panicker;
-//     }
+    (air in water)
+     {
+        type            Antal;
+        Cw1             -0.01;
+        Cw2             0.05;
+        Cwc             10.0;
+        Cwd             6.8;
+        p               1.7;
+    }
 );
 
 bubblePressure

@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ode on;
+ode off;
 
 coalescence on;
 
@@ -47,11 +47,11 @@ breakupKernel
 
 odeCoeffs
 {
-    ATol    1.0e-8;
-    RTol    1.0e-4;
+    ATol    1.0e-6;
+    RTol    1.0e-3;
     fac     0.5;
     facMin  0.1;
-    facMax  2.0;
+    facMax  5.0;
     minLocalDt 1.0e-10;
 }
 // ************************************************************************* //

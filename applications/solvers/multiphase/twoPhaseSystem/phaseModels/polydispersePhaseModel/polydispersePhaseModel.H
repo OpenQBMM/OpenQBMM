@@ -91,6 +91,9 @@ class polydispersePhaseModel
         //- List of deviation velocities
         PtrList<volVectorField> Vs_;
 
+        //- Scale factor used for diameter
+        scalar diameterScale_;
+
         //- List of diameters
         PtrList<volScalarField> ds_;
 
