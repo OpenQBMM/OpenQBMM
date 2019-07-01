@@ -96,7 +96,7 @@ Foam::turbulentDispersionModels::Panicker::D
 ) const
 {
     const fvMesh& mesh(pair_.phase1().mesh());
-    const volScalarField& alpha1 = pair_.dispersed();
+    const volScalarField& alpha1 = pair_.dispersed().alphas(nodei);
     const volScalarField& d = pair_.dispersed().ds(nodei);
     const dragModel&
         drag

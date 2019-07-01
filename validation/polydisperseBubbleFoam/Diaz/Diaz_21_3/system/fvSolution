@@ -97,7 +97,7 @@ PIMPLE
     nOuterCorrectors 30;
     nCorrectors      2;
     nNonOrthogonalCorrectors 0;
-    nFluxCorrectors 0;
+    nFluxCorrectors 5;
     corrPatch outlet;
 
     outerCorrectorResidualControl
