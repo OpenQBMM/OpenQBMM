@@ -47,7 +47,7 @@ runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           0.5;
+maxCo           0.1;
 
 maxDeltaT       1;
 
@@ -81,10 +81,7 @@ functions
         const velocityQuadratureApproximation& quadrature =
             mesh().lookupObject<velocityQuadratureApproximation>("quadratureProperties.particles");
 
-        word name1 = "alpha.particlesSmall";
-        word name2 = "alpha.particlesLarge";
-
-        if (!mesh().foundObject<volScalarField>(name1))
+        if (!mesh().foundObject<volScalarField>("alpha.particlesSmall"))
         {
             volScalarField* alpha1 =
                 new volScalarField
@@ -114,21 +111,102 @@ functions
                     mesh(),
                     0.0
                 );
+            volVectorField* U1 =
+                new volVectorField
+                (
+                    IOobject
+                    (
+                        "U.particlesSmall",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    dimensionedVector("0", dimVelocity, Zero)
+                );
+            volVectorField* U2 =
+                new volVectorField
+                (
+                    IOobject
+                    (
+                        "U.particlesLarge",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    dimensionedVector("0", dimVelocity, Zero)
+                );
+            volScalarField* Theta1 =
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "Theta.particlesSmall",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    dimensionedScalar("0", sqr(dimVelocity), 0.0)
+                );
+            volScalarField* Theta2 =
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "Theta.particlesLarge",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    dimensionedScalar("0", sqr(dimVelocity), 0.0)
+                );
 
             // Transfer ownership of this object to the objectRegistry
             alpha1->store(alpha1);
             alpha2->store(alpha2);
+            U1->store(U1);
+            U2->store(U2);
+            Theta1->store(Theta1);
+            Theta2->store(Theta2);
         }
         volScalarField& alpha1 =
         (
-            mesh().lookupObjectRef<volScalarField>(name1)
+            mesh().lookupObjectRef<volScalarField>("alpha.particlesSmall")
         );
         volScalarField& alpha2 =
         (
-            mesh().lookupObjectRef<volScalarField>(name2)
+            mesh().lookupObjectRef<volScalarField>("alpha.particlesLarge")
         );
+        volVectorField& U1 =
+        (
+            mesh().lookupObjectRef<volVectorField>("U.particlesSmall")
+        );
+        volVectorField& U2 =
+        (
+            mesh().lookupObjectRef<volVectorField>("U.particlesLarge")
+        );
+        volScalarField& Theta1 =
+        (
+            mesh().lookupObjectRef<volScalarField>("Theta.particlesSmall")
+        );
+        volScalarField& Theta2 =
+        (
+            mesh().lookupObjectRef<volScalarField>("Theta.particlesLarge")
+        );
+
         alpha1 = 0.0;
         alpha2 = 0.0;
+        U1 = dimensionedVector("0", dimVelocity, Zero);
+        U2 = dimensionedVector("0", dimVelocity, Zero);
+        Theta1 = dimensionedScalar("0", sqr(dimVelocity), 0.0);
+        Theta2 = dimensionedScalar("0", sqr(dimVelocity), 0.0);
 
         forAll(quadrature.nodes(), nodei)
         {
@@ -139,13 +217,30 @@ functions
             if (sizei == 0)
             {
                 alpha1 += node.primaryWeight();
+                U1 += node.primaryWeight()*node.velocityAbscissae();
+                Theta1 +=
+                    node.primaryWeight()
+                   *(node.velocityAbscissae() & node.velocityAbscissae());
             }
             else
             {
                 alpha2 += node.primaryWeight();
+                U2 += node.primaryWeight()*node.velocityAbscissae();
+                Theta2 +=
+                    node.primaryWeight()
+                   *(node.velocityAbscissae() & node.velocityAbscissae());
             }
         }
+        U1 /= max(alpha1, 1e-6);
+        U2 /= max(alpha2, 1e-6);
+        Theta1 /= max(alpha1, 1e-6);
+        Theta2 /= max(alpha2, 1e-6);
 
+        Theta1 -= (U1 & U1);
+        Theta2 -= (U2 & U2);
+
+        Theta1 /= 3.0;
+        Theta2 /= 3.0;
         #};
     }
 
@@ -199,10 +294,34 @@ functions
                  prime2Mean  off;
                  base        time;
             }
-            U.particles
+            U.particlesSmall
+            {
+                 mean        on;
+                 prime2Mean  on;
+                 base        time;
+            }
+            U.particlesLarge
+            {
+                 mean        on;
+                 prime2Mean  on;
+                 base        time;
+            }
+            Theta.particlesSmall
             {
                  mean        on;
                  prime2Mean  off;
+                 base        time;
+            }
+            Theta.particlesLarge
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            U.particles
+            {
+                 mean        on;
+                 prime2Mean  on;
                  base        time;
             }
             Theta.particles

@@ -73,7 +73,6 @@ U0 #codeStream
     #{
         const IOdictionary& d = static_cast<const IOdictionary&>(dict);
         const fvMesh& mesh = refCast<const fvMesh>(d.db());
-//         Info<<mesh.boundary().findPatchID("outlet")<<endl;
         const pointField& points = mesh.boundary()["inlet"].Cf();
 
         scalar z0 = 0.1;
@@ -83,12 +82,11 @@ U0 #codeStream
         {
             scalar x = points[celli].x();
             scalar y = points[celli].y();
-            u[celli] = y*sqr(z0)*V0/(x*x*x);
+            u[celli] = y*sqr(z0/x)*V0/x;
         }
         os << "nonuniform " << u << endl;
     #};
 };
-// U0 #calc "$V0/$z0";//30.7020331334;//15.3510165667;
 
 liquid
 {
@@ -103,28 +101,28 @@ liquid
         node0
         {
             weight  uniform 0.277980052745894;//0.732330;
-            abscissae0 uniform 9.99551e-6;//(9.99551e-6 $V0 $U0);
+            abscissae0 uniform 1.999102000000000e-05;//(9.99551e-6 $V0 $U0);
             abscissae1 $V0;
             abscissae2 $U0;
         }
         node1
         {
             weight  uniform 0.615429590535563;//0.254558;
-            abscissae0 uniform 18.5282e-6;//(18.5282e-6 $V0 $U0);
+            abscissae0 uniform 3.705640000000000e-05;//(18.5282e-6 $V0 $U0);
             abscissae1 $V0;
             abscissae2 $U0;
         }
         node2
         {
             weight  uniform 0.102542818586663;//1.28835e-2;
-            abscissae0 uniform 27.5630e-6;// (27.5630e-6 $V0 $U0);
+            abscissae0 uniform 5.512600000000000e-05;// (27.5630e-6 $V0 $U0);
             abscissae1 $V0;
             abscissae2 $U0;
         }
         node3
         {
             weight  uniform 0.004047538131880;//2.27970e-4;
-            abscissae0 uniform 36.0142e-6;// (36.0142e-6 $V0 $U0);
+            abscissae0 uniform 7.202840000000000e-05;// (36.0142e-6 $V0 $U0);
             abscissae1 $V0;
             abscissae2 $U0;
         }

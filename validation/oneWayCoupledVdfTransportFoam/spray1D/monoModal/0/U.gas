@@ -48,8 +48,8 @@ internalField   #codeStream
             u[celli] =
                 vector
                 (
-                    sqr(z0)*V0/(x*x),
-                    y*sqr(z0)*V0/(x*x*x),
+                    sqr(z0/x)*V0,
+                    y*sqr(z0/x)*V0/x,
                     0.0
                 );
         }
@@ -77,8 +77,8 @@ boundaryField
                 u[celli] =
                     vector
                     (
-                        sqr(z0)*V0/(x*x),
-                        y*sqr(z0)*V0/(x*x*x),
+                        sqr(z0/x)*V0,
+                        y*sqr(z0/x)*V0/x,
                         0.0
                     );
             }
