@@ -211,8 +211,6 @@ Foam::vdfPhaseModel::vdfPhaseModel
                 << abort(FatalError);
         }
     }
-    Info<<"momentSet: "<<momentSetType_<<endl;
-    Info<<"vf: "<<volumeFractionMoment_<<endl;
 
     correct();
 }

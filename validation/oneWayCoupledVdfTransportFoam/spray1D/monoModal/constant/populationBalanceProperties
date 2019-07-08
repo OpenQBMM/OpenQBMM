@@ -79,10 +79,10 @@ sizeVelocityCoeffs
     {
         solveOde on;
         ATol    1.0e-8;
-        RTol    1.0e-4;
-        fac     0.9;
-        facMin  0.1;
-        facMax  10.0;
+        RTol    1.0e-6;
+        fac     0.7;
+        facMin  0.2;
+        facMax  5.0;
         minLocalDt 1.0e-8;
     }
 }

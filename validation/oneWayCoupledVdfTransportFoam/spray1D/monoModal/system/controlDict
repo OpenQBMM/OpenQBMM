@@ -52,53 +52,36 @@ maxDeltaT       1;
 
 functions
 {
-//     d10Average
-//     {
-//         type                coded;
-//         functionObjectLibs  ("libutilityFunctionObjects.so");
-//         name                d10VolumeAverage;
-//         writeControl        timeStep;
-//
-//         codeExecute
-//         #{
-//         const volScalarField& m0 =
-//             mesh().lookupObject<volScalarField>("moment.0000.populationBalance");
-//
-//         const volScalarField& m1 =
-//             mesh().lookupObject<volScalarField>("moment.1000.populationBalance");
-//
-//         scalarField d10(m1.primitiveField()/m0.primitiveField());
-//
-//         scalar totalVolume = gSum(mesh().V());
-//         scalar m0Avg = gSum(m0.primitiveField()*mesh().V())/totalVolume;
-//         scalar volAverage = gSum(d10*mesh().V())/totalVolume;
-//
-//         Info<<"Volume averaged m0: " << m0Avg << endl;
-//         Info<<"Volume averaged normalized d10: " << volAverage/(2.0e-6) << endl;
-//
-//         if (Pstream::myProcNo() == 0)
-//         {
-//             mkDir("postProcessing");
-//             bool append = true;
-//             if (mesh().time().value() ==  mesh().time().deltaT().value())
-//             {
-//                 append = false;
-//             }
-//             OFstream outputFile
-//             (
-//                 "postProcessing/averageD10",
-//                 mesh().time().writeFormat(),
-//                 IOstream::currentVersion,
-//                 mesh().time().writeCompression(),
-//                 append
-//             );
-//             outputFile.precision(8);
-//             outputFile  << mesh().time().value()
-//                         << '\t' <<  volAverage/(2.0e-6) << endl;
-//         }
-//
-//         #};
-//     }
+    Ur
+    {
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                Ur;
+        writeControl        timeStep;
+
+        codeExecute
+        #{
+        const volVectorField& Ugas =
+            mesh().lookupObject<volVectorField>("U.gas");
+
+        const volVectorField& Uliquid =
+            mesh().lookupObject<volVectorField>("U.liquid");
+
+        volVectorField Ur
+        (
+            "Ur",
+            Ugas - Uliquid
+        );
+        Ur.replace(1, Ur.component(1)/mesh().C().component(1));
+
+        if (mesh().time().outputTime())
+        {
+            Ur.write();
+        }
+
+
+        #};
+    }
 }
 
 

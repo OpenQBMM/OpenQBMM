@@ -64,21 +64,7 @@ Foam::calculatedFvQuadraturePatch::~calculatedFvQuadraturePatch()
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::calculatedFvQuadraturePatch::update()
-{
-//     if (!patch_.size())
-//     {
-//         return;
-//     }
-//
-//     forAll(nodes, nodei)
-//     {
-//         surfaceVelocityNode& nodeNei(nodesNei_[nodei]);
-//         surfaceVelocityNode& nodeOwn(nodesOwn_[nodei]);
-//
-//         nodeOwn.velocityAbscissae().boundaryFieldRef()[patchi_] = Zero;
-//         nodeNei.velocityAbscissae().boundaryFieldRef()[patchi_] = Zero;
-//     }
-}
+{}
 
 
 // ************************************************************************* //

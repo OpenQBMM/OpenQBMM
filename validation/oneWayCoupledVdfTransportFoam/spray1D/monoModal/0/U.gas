@@ -49,7 +49,7 @@ internalField   #codeStream
                 vector
                 (
                     sqr(z0/x)*V0,
-                    sqrt(2.0)*y*sqr(z0/x)*V0/x,
+                    cos(0.1)*y*sqr(z0/x)*V0/x,
                     0.0
                 );
         }
@@ -78,7 +78,7 @@ boundaryField
                     vector
                     (
                         sqr(z0/x)*V0,
-                        sqrt(2.0)*y*sqr(z0/x)*V0/x,
+                        cos(0.1)*y*sqr(z0/x)*V0/x,
                         0.0
                     );
             }
@@ -93,11 +93,11 @@ boundaryField
 
     wedge1
     {
-        type            cyclic;
+        type            wedge;
     }
     wedge2
     {
-        type            cyclic;
+        type            wedge;
     }
 
     top
