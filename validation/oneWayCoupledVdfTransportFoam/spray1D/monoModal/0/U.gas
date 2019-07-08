@@ -49,7 +49,7 @@ internalField   #codeStream
                 vector
                 (
                     sqr(z0/x)*V0,
-                    y*sqr(z0/x)*V0/x,
+                    sqrt(2.0)*y*sqr(z0/x)*V0/x,
                     0.0
                 );
         }
@@ -78,7 +78,7 @@ boundaryField
                     vector
                     (
                         sqr(z0/x)*V0,
-                        y*sqr(z0/x)*V0/x,
+                        sqrt(2.0)*y*sqr(z0/x)*V0/x,
                         0.0
                     );
             }

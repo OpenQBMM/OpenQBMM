@@ -22,7 +22,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         1;
+endTime         0.25;
 
 deltaT          1e-4;
 
@@ -34,13 +34,13 @@ purgeWrite      1000;
 
 writeFormat     binary;
 
-writePrecision  12;
+writePrecision  16;
 
 writeCompression off;
 
 timeFormat      general;
 
-timePrecision   12;
+timePrecision   6;
 
 runTimeModifiable true;
 

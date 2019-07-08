@@ -87,6 +87,7 @@ public:
         virtual scalar Kg
         (
             const scalar& d,
+            const bool lengthBased,
             const label environment
         ) const;
 

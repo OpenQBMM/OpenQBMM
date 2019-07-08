@@ -49,7 +49,7 @@ Foam::fluxFunction::fluxFunction(const fvMesh& mesh)
     (
         IOobject
         (
-            "own",
+            "fluxFunction:own",
             mesh.time().timeName(),
             mesh
         ),
@@ -60,7 +60,7 @@ Foam::fluxFunction::fluxFunction(const fvMesh& mesh)
     (
         IOobject
         (
-            "nei",
+            "fluxFunction:nei",
             mesh.time().timeName(),
             mesh
         ),

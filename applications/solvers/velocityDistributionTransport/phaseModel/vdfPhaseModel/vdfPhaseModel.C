@@ -81,6 +81,7 @@ Foam::vdfPhaseModel::vdfPhaseModel
         )
     ),
     sizeIndex_(quadrature_.nodes()[0].sizeIndex()),
+    m0VolumeFraction_(false),
     volumeFractionMoment_(quadrature_.momentOrders()[0].size(), 0),
     sizeMoment_(quadrature_.momentOrders()[0].size(), 0)
 {
@@ -210,6 +211,8 @@ Foam::vdfPhaseModel::vdfPhaseModel
                 << abort(FatalError);
         }
     }
+    Info<<"momentSet: "<<momentSetType_<<endl;
+    Info<<"vf: "<<volumeFractionMoment_<<endl;
 
     correct();
 }
@@ -234,18 +237,15 @@ Foam::tmp<Foam::volScalarField> Foam::vdfPhaseModel::volumeFraction
 {
     if (nodei == -1)
     {
-        if (m0VolumeFraction_)
+        tmp<volScalarField> alpha
+        (
+            quadrature_.moments()(volumeFractionMoment_)
+        );
+        if (sizeType_ == mass)
         {
-            return quadrature_.moments()(0);
+            alpha.ref() /= rho();
         }
-        else if (momentSetType_ == numberDensityMass)
-        {
-            return quadrature_.moments()(volumeFractionMoment_)/rho();
-        }
-        else
-        {
-            return quadrature_.moments()(volumeFractionMoment_);
-        }
+        return alpha;
     }
 
     if (m0VolumeFraction_)
@@ -286,6 +286,7 @@ Foam::vdfPhaseModel::d(const label nodei) const
         return d_;
     }
 
+    scalar pi = Foam::constant::mathematical::pi;
     if (nodei == -1)
     {
         volScalarField m0 = quadrature_.moments()(0);
@@ -295,7 +296,11 @@ Foam::vdfPhaseModel::d(const label nodei) const
 
         if (sizeType_ == mass)
         {
-            return dtmp/rho();
+            dtmp = Foam::max(6.0*(dtmp/rho())/pi, minD_);
+        }
+        else if (sizeType_ == volume)
+        {
+            dtmp = Foam::max(6.0*dtmp/pi, minD_);
         }
         return dtmp;
     }
@@ -307,15 +312,13 @@ Foam::vdfPhaseModel::d(const label nodei) const
     {
         return Foam::max(size, minD_);
     }
-
-    scalar pi = Foam::constant::mathematical::pi;
-    if (sizeType_ == volume)
+    else if (sizeType_ == volume)
     {
-        return Foam::max(pi/6.0*cbrt(size), minD_);
+        return Foam::max(cbrt(6.0*size/pi), minD_);
     }
     else if (sizeType_ == numberDensityLength)
     {
-        return Foam::max(pi/6.0*cbrt(size/rho()), minD_);
+        return Foam::max(6.0*(size/rho())/pi, minD_);
     }
 
     NotImplemented;
@@ -451,7 +454,7 @@ void Foam::vdfPhaseModel::correct()
 
     if (sizeIndex_ != -1)
     {
-        d_ = d()();
+        d_ = d();
     }
 }
 

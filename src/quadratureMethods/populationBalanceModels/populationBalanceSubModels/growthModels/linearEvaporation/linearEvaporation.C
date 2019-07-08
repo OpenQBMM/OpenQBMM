@@ -73,15 +73,16 @@ Foam::scalar
 Foam::populationBalanceSubModels::growthModels::linearEvaporation::Kg
 (
     const scalar& d,
+    const bool lengthBased,
     const label environment
 ) const
 {
 
     return
        -Cg_.value()
-       *Foam::constant::mathematical::pi
-       *pow3(d)/6.0
-       *dDdV(d);
+       *Foam::constant::mathematical::pi/6.0
+       *pow3(d)
+       *(lengthBased ? dDdV(d) : 1.0);
 }
 
 // ************************************************************************* //

@@ -73,10 +73,11 @@ Foam::scalar
 Foam::populationBalanceSubModels::growthModels::nonLinearEvaporation::Kg
 (
     const scalar& d,
+    const bool lengthBased,
     const label environment
 ) const
 {
-    return -Cg_.value()/4.0*d*dDdV(d);
+    return -Cg_.value()/4.0*d*(lengthBased ? dDdV(d) : 1.0);
 }
 
 // ************************************************************************* //

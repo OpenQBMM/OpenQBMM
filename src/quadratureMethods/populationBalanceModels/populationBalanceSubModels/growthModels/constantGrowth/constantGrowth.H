@@ -91,6 +91,7 @@ public:
         virtual scalar Kg
         (
             const scalar& abscissa,
+            const bool lengthBased,
             const label environment = 0
         ) const;
 

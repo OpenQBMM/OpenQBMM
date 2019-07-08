@@ -486,6 +486,49 @@ Foam::quadratureNode<scalarType, vectorType>::clone() const
     return autoPtr<quadratureNode<scalarType, vectorType>>(NULL);
 }
 
+
+template<class scalarType, class vectorType>
+Foam::tmp<Foam::volScalarField>
+Foam::quadratureNode<scalarType, vectorType>::d
+(
+    const volScalarField& x
+) const
+{
+    if (sizeIndex_ == -1)
+    {
+        return tmp<volScalarField>
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "d",
+                    weight_.time().timeName(),
+                    weight_.mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                weight_.mesh(),
+                dimensionedScalar("d", dimLength, 0.0)
+            )
+        );
+
+    }
+    if (lengthBased_)
+    {
+        return x;
+    }
+
+    scalar pi = Foam::constant::mathematical::pi;
+    if (massBased_ && rhoPtr_)
+    {
+        return cbrt(x*6.0/(pi*(*rhoPtr_)));
+    }
+    return cbrt(x*6.0/pi);
+}
+
+
 template<class scalarType, class vectorType>
 Foam::scalar Foam::quadratureNode<scalarType, vectorType>::d
 (
@@ -512,6 +555,38 @@ Foam::scalar Foam::quadratureNode<scalarType, vectorType>::d
 
 
 template<class scalarType, class vectorType>
+Foam::tmp<Foam::volScalarField>
+Foam::quadratureNode<scalarType, vectorType>::n
+(
+    const volScalarField& w,
+    const volScalarField& x
+) const
+{
+    if (!useVolumeFraction_)
+    {
+        return w;
+
+    }
+
+    tmp<volScalarField> v;
+    if (massBased_ && rhoPtr_)
+    {
+        v = x/(*rhoPtr_);
+    }
+    else if (lengthBased_)
+    {
+        v = pow3(x);
+    }
+    else
+    {
+        v = x;
+    }
+    v.ref().max(pow3(small));
+    return w/v;
+}
+
+
+template<class scalarType, class vectorType>
 Foam::scalar Foam::quadratureNode<scalarType, vectorType>::n
 (
     const label celli,
@@ -531,7 +606,7 @@ Foam::scalar Foam::quadratureNode<scalarType, vectorType>::n
     }
     else if (lengthBased_)
     {
-        v = max(v, pow3(x)*Foam::constant::mathematical::pi/6.0);
+        v = max(v, pow3(x));
     }
     else
     {

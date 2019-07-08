@@ -76,6 +76,7 @@ Foam::scalar
 Foam::populationBalanceSubModels::growthModels::constantGrowth::Kg
 (
     const scalar& abscissa,
+    const bool lengthBased,
     const label environment
 ) const
 {

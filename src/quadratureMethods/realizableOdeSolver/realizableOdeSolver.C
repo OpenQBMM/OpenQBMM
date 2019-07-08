@@ -262,7 +262,8 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                         FatalErrorInFunction
                             << "Reached minimum local step in realizable ODE"
                             << nl
-                            << "    solver. Cannot ensure realizability." << nl
+                            << "    solver. Cannot ensure realizability."
+                            << nl
                             << abort(FatalError);
                     }
                 }
@@ -279,11 +280,11 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             for (label mi = 0; mi < nMoments; mi++)
             {
                 scalar scalei =
-                        ATol_
-                      + max
-                        (
-                            mag(moments[mi][celli]), mag(oldMoments[mi])
-                        )*RTol_;
+                    ATol_
+                  + max
+                    (
+                        mag(moments[mi][celli]), mag(oldMoments[mi])
+                    )*RTol_;
 
                 error += sqr(diff23[mi]/scalei);
             }

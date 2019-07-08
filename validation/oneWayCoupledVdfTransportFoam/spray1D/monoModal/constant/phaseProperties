@@ -25,8 +25,9 @@ gas
 }
 liquid
 {
-    residualAlpha   1e-6;
+    residualAlpha   1e-10;
     d 1e-6;
+    minD 1e-6;
 }
 
 aspectRatio

@@ -58,9 +58,6 @@ sizeVelocityCoeffs
     growthModel
     {
         growthModel	linearEvaporation;
-        minAbscissa 1e-8;
-        maxAbscissa 1.0;
-//         Cg -1.58310e-8; //constant
         Cg 7.1262; // linear monomodal
 //         Cg 14.2524; //linear bimodal
 //         Cg 1.99e-7; // nonlinear
@@ -80,9 +77,9 @@ sizeVelocityCoeffs
 
     odeCoeffs
     {
-        solveOde off;
-        ATol    1.0e-4;
-        RTol    1.0e-3;
+        solveOde on;
+        ATol    1.0e-8;
+        RTol    1.0e-4;
         fac     0.9;
         facMin  0.1;
         facMax  10.0;
