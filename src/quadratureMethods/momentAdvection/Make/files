@@ -5,9 +5,10 @@ univariate/firstOrderKineticUnivariateAdvection/firstOrderKineticUnivariateAdvec
 univariate/noUnivariateAdvection/noUnivariateAdvection.C
 univariate/zetaUnivariateAdvection/zetaUnivariateAdvection.C
 
-
 velocity/velocityMomentAdvection/velocityMomentAdvection.C
 velocity/velocityMomentAdvection/newVelocityMomentAdvection.C
+velocity/noVelocityAdvection/noVelocityAdvection.C
 velocity/firstOrderKineticVelocityAdvection/firstOrderKineticVelocityAdvection.C
 velocity/VikasQuasiSecondOrderVelocityAdvection/VikasQuasiSecondOrderVelocityAdvection.C
+
 LIB = $(FOAM_USER_LIBBIN)/libmomentAdvection
