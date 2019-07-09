@@ -9,45 +9,14 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      controlDict;
+    class       uniformDimensionedVectorField;
+    location    "constant";
+    object      g;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     oneWayCoupledVdfTransportFoam;
+dimensions      [0 1 -2 0 0 0 0];
+value           ( 0 0 0 );
 
-startFrom       startTime;
-
-startTime       0;
-
-stopAt          endTime;
-
-endTime         0.25;
-
-deltaT          1e-4;
-
-writeControl    adjustableRunTime;
-
-writeInterval   .01;
-
-purgeWrite      1000;
-
-writeFormat     binary;
-
-writePrecision  16;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-adjustTimeStep  yes;
-
-maxCo           0.5;
-
-maxDeltaT       1;
 
 // ************************************************************************* //

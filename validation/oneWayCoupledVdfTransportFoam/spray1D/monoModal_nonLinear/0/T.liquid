@@ -9,45 +9,48 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      controlDict;
+    class       volScalarField;
+    location    "0";
+    object      T.liquid;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     oneWayCoupledVdfTransportFoam;
+dimensions      [0 0 0 1 0 0 0];
 
-startFrom       startTime;
+internalField   uniform 400;
 
-startTime       0;
+boundaryField
+{
+    top
+    {
+        type    zeroGradient;
+    }
+    inlet
+    {
+        type    fixedValue;
+        value   $internalField;
+    }
+    outlet
+    {
+        type    zeroGradient;
+    }
+    defaultFaces
+    {
+        type    empty;
+    }
+    wedge1
+    {
+        type    wedge;
+    }
+    wedge2
+    {
+        type    wedge;
+    }
+    axis
+    {
+        type            empty;
+    }
+}
 
-stopAt          endTime;
-
-endTime         0.25;
-
-deltaT          1e-4;
-
-writeControl    adjustableRunTime;
-
-writeInterval   .01;
-
-purgeWrite      1000;
-
-writeFormat     binary;
-
-writePrecision  16;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-adjustTimeStep  yes;
-
-maxCo           0.5;
-
-maxDeltaT       1;
 
 // ************************************************************************* //

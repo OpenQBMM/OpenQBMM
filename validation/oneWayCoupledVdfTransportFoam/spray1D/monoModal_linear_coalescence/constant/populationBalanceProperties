@@ -19,7 +19,7 @@ populationBalanceModel sizeVelocity;
 
 sizeVelocityCoeffs
 {
-    aggregation off;
+    aggregation on;
     aggregationKernel
     {
         aggregationKernel coalescence;
@@ -75,7 +75,7 @@ sizeVelocityCoeffs
 
     odeCoeffs
     {
-        solveOde off;
+        solveOde on;
         ATol    1.0e-6;
         RTol    1.0e-4;
         fac     0.7;

@@ -11,19 +11,18 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      quadratureProperties.liquid;
+    object      quadratureProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 fieldMomentInversion basicVelocityFieldMomentInversion;
-
 
 basicVelocityMomentInversion
 {
     type sizeCHyQMOM;
     basicQuadrature
     {
-        univariateMomentInversion   Gauss;
+        univariateMomentInversion   GaussRadau;
     }
 }
 

@@ -10,44 +10,39 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      controlDict;
+    location    "constant";
+    object      phaseProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     oneWayCoupledVdfTransportFoam;
+continuousPhase gas;
+dilutePhase     liquid;
 
-startFrom       startTime;
+gas
+{
+    residualAlpha   0;
+    d 1e-6;
+}
+liquid
+{
+    residualAlpha   1e-6;
+    d 1e-6;
+}
 
-startTime       0;
+aspectRatio
+{
+    type constant;
+    E0   1.0;
+}
 
-stopAt          endTime;
+drag
+{
+    type        lengthBased;
+    C           1.566e-7;
+    residualRe  1e-3;
 
-endTime         0.25;
-
-deltaT          1e-4;
-
-writeControl    adjustableRunTime;
-
-writeInterval   .01;
-
-purgeWrite      1000;
-
-writeFormat     binary;
-
-writePrecision  16;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-adjustTimeStep  yes;
-
-maxCo           0.5;
-
-maxDeltaT       1;
-
-// ************************************************************************* //
+    swarmCorrection
+    {
+        type none;
+    }
+}

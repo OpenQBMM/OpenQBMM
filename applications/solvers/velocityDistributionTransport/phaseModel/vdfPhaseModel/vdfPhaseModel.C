@@ -304,7 +304,7 @@ Foam::vdfPhaseModel::d(const label nodei) const
     }
 
     const volScalarField& size =
-        quadrature_.nodes()[sizeIndex_].primaryAbscissae()[sizeIndex_];
+        quadrature_.nodes()[nodei].primaryAbscissae()[sizeIndex_];
 
     if (sizeType_ == length)
     {

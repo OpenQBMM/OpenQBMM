@@ -57,8 +57,8 @@ sizeVelocityCoeffs
     growth on;
     growthModel
     {
-        growthModel	linearEvaporation;
-        Cg 7.1262; // linear monomodal
+        growthModel	nonLinearEvaporation;
+        Cg 1.99e-7; // nonlinear
     }
 
     nucleation off;
@@ -75,7 +75,7 @@ sizeVelocityCoeffs
 
     odeCoeffs
     {
-        solveOde off;
+        solveOde on;
         ATol    1.0e-6;
         RTol    1.0e-4;
         fac     0.7;
