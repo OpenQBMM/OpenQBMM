@@ -82,7 +82,7 @@ U0 #codeStream
         {
             scalar x = points[celli].x();
             scalar y = points[celli].y();
-            u[celli] = cos(0.1)*y*sqr(z0/x)*V0/x;
+            u[celli] = y*sqr(z0/x)*V0/x;
         }
         os << "nonuniform " << u << endl;
     #};

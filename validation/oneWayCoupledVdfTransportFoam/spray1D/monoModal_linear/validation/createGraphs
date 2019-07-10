@@ -8,7 +8,7 @@ createEpsTotalMass()
 
     set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
         dl 8.0
-    set output "monoModal_linearEvaporationCoalescence_totalMass.eps"
+    set output "monoModal_linearEvaporation_totalMass.eps"
     set xlabel "X-position [m]"
     set ylabel "Mass Density [g/cm^3]"
     set grid
@@ -30,7 +30,7 @@ createEpsUr()
 
     set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
         dl 8.0
-    set output "monoModal_linearEvaporationCoalescence_Ur.eps"
+    set output "monoModal_linearEvaporation_Ur.eps"
     set xlabel "X-position [m]"
     set ylabel "Relative Velocity Magnitude [m/s]"
     set grid
@@ -64,6 +64,7 @@ fi
 VALIDATIONDATAROOT=./validationData
 time=$(cd ../ && foamListTimes -latestTime)
 
+echo "    processing d10 profile" > log.createGraphs 2>&1
 OPENQBMMM_mass="../postProcessing/sampleDict/$time/Centerline_alpha*"
 OPENQBMMM_U="../postProcessing/sampleDict/$time/Centerline_U*"
 VALIDATION_mass="$VALIDATIONDATAROOT/Fox_totalMass.csv"

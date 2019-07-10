@@ -8,18 +8,20 @@ createEpsTotalMass()
 
     set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
         dl 8.0
-    set output "monoModal_linearEvaporation_totalMass.eps"
+    set output "bimodal_nonLinearEvaporation_totalMass.eps"
     set xlabel "X-position [m]"
-    set ylabel "Mass Density [mg/m^3]"
+    set ylabel "Mass Density [g/cm^3]"
     set grid
     set key right top
     set size 2,2
-#     set xrange [0.1:0.3]
-#     set yrange [0:0.004]
+    set xrange [0.05:0.15]
+    set yrange [0:0.004]
 
-    plot    "$1" using 1:2 title 'DQMOM (Fox 2008)'\
+    plot    "$1" using 1:2 title 'DQMOM without flux (Fox 2008)'\
                 with points pointtype 7 ps 3 linecolor rgb 'black',\
-            "$2" using 1:(\$2*633/1000) title 'OpenQBMM' \
+            "$2" using 1:2 title 'DQMOM with flux (Fox 2008)'\
+                with points pointtype 5 ps 3 linecolor rgb 'blue',\
+            "$3" using 1:(\$2*633/1000) title 'OpenQBMM' \
                 with line lt 2 linewidth 5 linecolor rgb '#9db668'
 EOF
 }
@@ -30,18 +32,20 @@ createEpsUr()
 
     set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
         dl 8.0
-    set output "monoModal_linearEvaporation_Ur.eps"
+    set output "bimodal_nonLinearEvaporation_Ur.eps"
     set xlabel "X-position [m]"
-    set ylabel "Relative velocity magnitude [m/s]"
+    set ylabel "Relative Velocity Magnitude [m/s]"
     set grid
     set key right top
     set size 2,2
-    set xrange [0.1:0.3]
-    set yrange [0:0.6]
+    set xrange [0.05:0.15]
+    set yrange [0:2]
 
-    plot    "$1" using 1:2 title 'DQMOM (Fox 2008)'\
+    plot    "$1" using 1:2 title 'DQMOM without flux (Fox 2008)'\
                 with points pointtype 7 ps 3 linecolor rgb 'black',\
-            "$2" using 1:(((\$2 - \$5)**2 + (\$3 - \$6)**2)**0.5) title 'OpenQBMM' \
+            "$2" using 1:2 title 'DQMOM with flux (Fox 2008)'\
+                with points pointtype 5 ps 3 linecolor rgb 'blue',\
+            "$3" using 1:(((\$2 - \$5)**2 + (\$3 - \$6)**2)**0.5) title 'OpenQBMM' \
                 with line lt 2 linewidth 5 linecolor rgb '#9db668'
 EOF
 }
@@ -64,13 +68,18 @@ fi
 VALIDATIONDATAROOT=./validationData
 time=$(cd ../ && foamListTimes -latestTime)
 
-echo "    processing d10 profile" > log.createGraphs 2>&1
+echo "    processing profiles" > log.createGraphs 2>&1
 OPENQBMMM_mass="../postProcessing/sampleDict/$time/Centerline_alpha*"
 OPENQBMMM_U="../postProcessing/sampleDict/$time/Centerline_U*"
 VALIDATION_mass="$VALIDATIONDATAROOT/Fox_totalMass.csv"
+VALIDATION_massFlux="$VALIDATIONDATAROOT/Fox_totalMass_flux.csv"
 VALIDATION_Ur="$VALIDATIONDATAROOT/Fox_Ur.csv"
+VALIDATION_UrFlux="$VALIDATIONDATAROOT/Fox_Ur_flux.csv"
 
-createEpsTotalMass $VALIDATION_mass $OPENQBMMM_mass
-createEpsUr $VALIDATION_Ur $OPENQBMMM_U
+createEpsTotalMass $VALIDATION_mass $VALIDATION_massFlux $OPENQBMMM_mass
+createEpsUr $VALIDATION_Ur $VALIDATION_UrFlux $OPENQBMMM_U
+
+epstopdf *totalMass.eps
+epstopdf *Ur.eps
 
 echo Done

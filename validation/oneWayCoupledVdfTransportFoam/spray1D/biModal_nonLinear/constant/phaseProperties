@@ -25,7 +25,7 @@ gas
 }
 liquid
 {
-    residualAlpha   1e-10;
+    residualAlpha   1e-6;
     d 1e-6;
 }
 

@@ -9,40 +9,14 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
+    class       uniformDimensionedVectorField;
     location    "constant";
-    object      phaseProperties;
+    object      g;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-continuousPhase gas;
-dilutePhase     liquid;
+dimensions      [0 1 -2 0 0 0 0];
+value           ( 0 0 0 );
 
-gas
-{
-    residualAlpha   0;
-    d 1e-6;
-}
-liquid
-{
-    residualAlpha   1e-10;
-    d 1e-6;
-}
 
-aspectRatio
-{
-    type constant;
-    E0   1.0;
-}
-
-drag
-{
-    type        lengthBased;
-    C           1.566e-7;
-    residualRe  1e-3;
-
-    swarmCorrection
-    {
-        type none;
-    }
-}
+// ************************************************************************* //
