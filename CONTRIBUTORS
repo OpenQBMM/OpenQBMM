@@ -10,7 +10,7 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2018 OpenQBMM developers.
+  Copyright (C) 2014-2019 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 
@@ -19,7 +19,7 @@
 
  This list contains the names of external contributors to the OpenQBMM project.
 
- Frederique Laurent-Negre, Ecole Centrale Paris
+ Frederique Laurent-Negre, EM2C, CentraleSupelec, Universite Paris-Saclay
   - Formulation of second-order realizable schemes for moment advection
   - Algorithm to check the realizability of a set of moments
   - Improved solution algorithm to find the sigma parameter in EQMOM

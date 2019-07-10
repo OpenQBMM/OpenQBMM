@@ -103,12 +103,6 @@ protected:
             const label size
         );
 
-        //- Disallow default bitwise copy construct
-//         multivariateMomentInversion(const multivariateMomentInversion&);
-
-        //- Disallow default bitwise assignment
-//         void operator=(const multivariateMomentInversion&);
-
 
 public:
 

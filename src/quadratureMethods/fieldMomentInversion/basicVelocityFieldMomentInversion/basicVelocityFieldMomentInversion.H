@@ -58,12 +58,6 @@ class basicVelocityFieldMomentInversion
         //- Moment inverter
         autoPtr<multivariateMomentInversion> momentInverter_;
 
-        //- Disallow default bitwise copy construct
-        basicVelocityFieldMomentInversion(const basicVelocityFieldMomentInversion&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const basicVelocityFieldMomentInversion&);
-
 
 public:
 
@@ -83,6 +77,13 @@ public:
             const labelList& velocityIndexes,
             const label nSecondaryNodes
         );
+
+
+        //- Disallow default bitwise copy construct
+        basicVelocityFieldMomentInversion
+        (
+            const basicVelocityFieldMomentInversion&
+        ) = delete;
 
 
     //- Destructor
@@ -141,6 +142,11 @@ public:
                 const label celli,
                 const bool fatalErrorOnFailedRealizabilityTest = true
             );
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const basicVelocityFieldMomentInversion&) = delete;
 };
 
 

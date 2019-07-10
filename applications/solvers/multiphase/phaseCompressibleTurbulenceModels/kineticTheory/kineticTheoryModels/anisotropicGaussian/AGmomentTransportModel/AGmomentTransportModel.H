@@ -118,12 +118,6 @@ class AGmomentTransportModel
             const surfaceScalarField& h1f
         );
 
-        //- Disallow defaUgt bitwise copy construct
-        AGmomentTransportModel(const AGmomentTransportModel&);
-
-        //- Disallow defaUgt bitwise assignment
-        void operator=(const AGmomentTransportModel&);
-
 
 public:
 
@@ -138,6 +132,9 @@ public:
             volScalarField& Theta,
             volSymmTensorField& Sigma
         );
+
+        //- Disallow defaUgt bitwise copy construct
+        AGmomentTransportModel(const AGmomentTransportModel&) = delete;
 
         //- Destructor
         virtual ~AGmomentTransportModel();
@@ -159,6 +156,12 @@ public:
         }
 
 	    scalar maxUxDx() const;
+        
+
+    // Member Operators
+
+        //- Disallow defaUgt bitwise assignment
+        void operator=(const AGmomentTransportModel&) = delete;
 
 };
 

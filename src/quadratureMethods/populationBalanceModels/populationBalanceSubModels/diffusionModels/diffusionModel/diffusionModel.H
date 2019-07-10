@@ -54,15 +54,6 @@ namespace populationBalanceSubModels
 
 class diffusionModel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        diffusionModel(const diffusionModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const diffusionModel&);
-
-
 protected:
 
     // Protected data
@@ -93,6 +84,9 @@ public:
         //- Construct from components
         diffusionModel(const dictionary& dict);
 
+        //- Disallow default bitwise copy construct
+        diffusionModel(const diffusionModel&) = delete;
+
 
     // Selectors
 
@@ -113,6 +107,12 @@ public:
         (
             const volScalarField& moment
         ) const = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const diffusionModel&) = delete;
 };
 
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,116 +22,93 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::mixingModel
+    Foam::noAdvection
 
 Description
-    Abstract class for the run-time selection of mixing models.
+    Empty scheme for cases without moment advection. Only to be used for
+    zero-dimensional cases.
 
 SourceFiles
-    mixingModel.C
+    noAdvectionVelocityAdvection.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef mixingModel_H
-#define mixingModel_H
+#ifndef noAdvectionVelocityAdvection_H
+#define noAdvectionVelocityAdvection_H
 
-#include "dictionary.H"
-#include "volFields.H"
-#include "dimensionedTypes.H"
-#include "runTimeSelectionTables.H"
+#include "velocityMomentAdvection.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+namespace velocityAdvection
+{
 
 /*---------------------------------------------------------------------------*\
-                    Class mixingModel Declaration
+                    Class noAdvection Declaration
 \*---------------------------------------------------------------------------*/
 
-class mixingModel
+class noAdvection
+:
+    public velocityMomentAdvection
 {
-    // Private data
-
-        //- Name of the mixingModel
-        const word name_;
-
-protected:
-
-    // Protected data
-
-        //- Fluid-phase face-normal velocity
-        const surfaceScalarField& phi_;
-
-
 public:
 
     //- Runtime type information
-    TypeName("mixingModel");
-
-    // Declare runtime constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        mixingModel,
-        dictionary,
-        (
-            const word& name,
-            const dictionary& dict,
-            const surfaceScalarField& phi
-        ),
-        (name, dict, phi)
-    );
+    TypeName("noAdvection");
 
 
     // Constructors
 
-        //- Construct from components
-        mixingModel
+        //- Construct from velocityMomentSet
+        noAdvection
         (
-            const word& name,
             const dictionary& dict,
-            const surfaceScalarField& phi
-        );
-
-        //- Disallow default bitwise copy construct
-        mixingModel(const mixingModel&) = delete;
-
-
-    // Selectors
-
-        //- Select null constructed
-        static autoPtr<mixingModel> New
-        (
-            const word& name,
-            const dictionary& dict,
-            const surfaceScalarField& phi
+            const velocityQuadratureApproximation& quadrature,
+            const word& support
         );
 
 
     //- Destructor
-    virtual ~mixingModel();
+    virtual ~noAdvection();
 
 
-    // Member Functions
+    // Public member functions
 
         //- Return the maximum Courant number ensuring moment realizability
-        virtual scalar realizableCo() = 0;
+        virtual scalar realizableCo() const;
 
-        //- Solve mixing model
-        virtual void solve() = 0;
+        //- Return the maximum Courant number based on velocities
+        virtual scalar CoNum() const;
 
+        //- Update moment advection
+        virtual void update();
 
-    // Member Operators
+        //- Update moment advection using a specified velocity field
+        virtual void update
+        (
+            const surfaceScalarField& U,
+            const bool wallCollisions
+        );
 
-        //- Disallow default bitwise assignment
-        void operator=(const mixingModel&) = delete;
+        //- Update moment advection using a specified list of velocity fields
+        virtual void update
+        (
+            const mappedPtrList<volVectorField>& Us,
+            const bool wallCollisions
+        );
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace velocityAdvection
 } // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

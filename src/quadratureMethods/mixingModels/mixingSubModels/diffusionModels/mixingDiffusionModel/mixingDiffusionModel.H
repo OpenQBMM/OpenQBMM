@@ -54,15 +54,6 @@ namespace mixingSubModels
 
 class mixingDiffusionModel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        mixingDiffusionModel(const mixingDiffusionModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const mixingDiffusionModel&);
-
-
 protected:
 
     // Protected data
@@ -93,6 +84,9 @@ public:
         //- Construct from components
         mixingDiffusionModel(const dictionary& dict);
 
+        //- Disallow default bitwise copy construct
+        mixingDiffusionModel(const mixingDiffusionModel&) = delete;
+
 
     // Selectors
 
@@ -113,6 +107,12 @@ public:
         (
             const volScalarField& moment
         ) const = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const mixingDiffusionModel&) = delete;
 };
 
 

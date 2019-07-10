@@ -56,15 +56,6 @@ namespace populationBalanceSubModels
 
 class collisionKernel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        collisionKernel(const collisionKernel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const collisionKernel&);
-
-
 protected:
 
     // Protected data
@@ -159,6 +150,9 @@ public:
             const velocityQuadratureApproximation& quadrature
         );
 
+        //- Disallow default bitwise copy construct
+        collisionKernel(const collisionKernel&) = delete;
+
 
     // Selectors
 
@@ -203,6 +197,12 @@ public:
         (
             const volVelocityMoment& m
         ) const = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const collisionKernel&) = delete;
 };
 
 

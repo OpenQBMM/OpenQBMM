@@ -113,12 +113,6 @@ class extendedMomentInversion
             univariateMomentSet& momentsStar
         );
 
-        //- Disallow default bitwise copy construct
-        extendedMomentInversion(const extendedMomentInversion&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const extendedMomentInversion&);
-
 
 protected:
 
@@ -267,6 +261,9 @@ public:
             const label nSecondaryNodes
         );
 
+        //- Disallow default bitwise copy construct
+        extendedMomentInversion(const extendedMomentInversion&) = delete;
+
 
     //- Destructor
     virtual ~extendedMomentInversion();
@@ -337,6 +334,11 @@ public:
 
         //- Return the sum of the kernel density functions at a field of points
         virtual tmp<scalarField> f(const scalarField& x) const = 0;
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const extendedMomentInversion&) = delete;
 
 };
 

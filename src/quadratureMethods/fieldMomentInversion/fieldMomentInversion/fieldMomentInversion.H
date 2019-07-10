@@ -52,15 +52,6 @@ namespace Foam
 
 class fieldMomentInversion
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        fieldMomentInversion(const fieldMomentInversion&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const fieldMomentInversion&);
-
-
 protected:
 
     // Protected data
@@ -122,6 +113,9 @@ public:
             const labelList& velocityIndexes,
             const label nSecondaryNodes
         );
+
+        //- Disallow default bitwise copy construct
+        fieldMomentInversion(const fieldMomentInversion&) = delete;
 
 
     //- Destructor
@@ -196,6 +190,11 @@ public:
 
         //- Return extended type
         inline bool extended();
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const fieldMomentInversion&) = delete;
 };
 
 

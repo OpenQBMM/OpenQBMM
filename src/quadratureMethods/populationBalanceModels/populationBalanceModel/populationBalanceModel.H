@@ -59,14 +59,6 @@ class populationBalanceModel
         //- Name of the populationBalanceModel
         const word name_;
 
-    // Private Member Functions
-
-        //- Disallow default bitwise copy construct
-        populationBalanceModel(const populationBalanceModel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const populationBalanceModel&);
-
 
 protected:
 
@@ -110,6 +102,9 @@ public:
             const surfaceScalarField& phi
         );
 
+        //- Disallow default bitwise copy construct
+        populationBalanceModel(const populationBalanceModel&) = delete;
+
 
     // Selectors
 
@@ -151,6 +146,12 @@ public:
         {
             return true;
         }
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const populationBalanceModel&) = delete;
 };
 
 

@@ -119,12 +119,6 @@ class CHyQMOM
             const multivariateMomentSet& moments
         );
 
-        //- Disallow default bitwise copy construct
-        //CHyQMOM(const CHyQMOM&);
-
-        //- Disallow default bitwise assignment
-        //void operator=(const CHyQMOM&);
-
 
 public:
 

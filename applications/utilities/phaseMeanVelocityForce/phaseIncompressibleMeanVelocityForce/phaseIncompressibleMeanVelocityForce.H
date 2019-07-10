@@ -106,15 +106,6 @@ class phaseIncompressibleMeanVelocityForce
         //- Correct driving force for a constant mass flow rate
         void update(fvMatrix<vector>& eqn);
 
-        //- Disallow default bitwise copy construct
-        phaseIncompressibleMeanVelocityForce
-        (
-            const phaseIncompressibleMeanVelocityForce&
-        );
-
-        //- Disallow default bitwise assignment
-        void operator=(const phaseIncompressibleMeanVelocityForce&);
-
 
 public:
 
@@ -132,6 +123,12 @@ public:
             const dictionary& dict,
             const fvMesh& mesh
         );
+
+        //- Disallow default bitwise copy construct
+        phaseIncompressibleMeanVelocityForce
+        (
+            const phaseIncompressibleMeanVelocityForce&
+        ) = delete;
 
 
     // Member Functions
@@ -164,6 +161,12 @@ public:
             {
                 return false;
             }
+            
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const phaseIncompressibleMeanVelocityForce&) = delete;
 };
 
 

@@ -56,15 +56,6 @@ namespace mixingSubModels
 
 class mixingKernel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        mixingKernel(const mixingKernel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const mixingKernel&);
-
-
 protected:
 
     // Protected data
@@ -101,6 +92,9 @@ public:
         //- Construct from components
         mixingKernel(const dictionary& dict);
 
+        //- Disallow default bitwise copy construct
+        mixingKernel(const mixingKernel&) = delete;
+
 
     // Selectors
 
@@ -122,6 +116,12 @@ public:
             const volScalarMoment& moment,
             const volScalarMomentFieldSet& moments
         ) const = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const mixingKernel&) = delete;
 };
 
 

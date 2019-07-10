@@ -58,12 +58,6 @@ class extendedFieldMomentInversion
         //- Moment inverter
         autoPtr<extendedMomentInversion> momentInverter_;
 
-        //- Disallow default bitwise copy construct
-        extendedFieldMomentInversion(const extendedFieldMomentInversion&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const extendedFieldMomentInversion&);
-
 
 public:
 
@@ -83,6 +77,12 @@ public:
             const labelList& velocityIndexes,
             const label nSecondaryNodes
         );
+
+        //- Disallow default bitwise copy construct
+        extendedFieldMomentInversion
+        (
+            const extendedFieldMomentInversion&
+        ) = delete;
 
 
     //- Destructor
@@ -141,6 +141,11 @@ public:
                 const label celli,
                 const bool fatalErrorOnFailedRealizabilityTest = true
             );
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const extendedFieldMomentInversion&) = delete;
 };
 
 

@@ -52,15 +52,6 @@ namespace kineticTheoryModels
 
 class fluxSplittingFunction
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        fluxSplittingFunction(const fluxSplittingFunction&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const fluxSplittingFunction&);
-
-
 protected:
 
     // Protected data
@@ -95,6 +86,9 @@ public:
         //- Construct from components
         fluxSplittingFunction(const dictionary& dict);
 
+        //- Disallow default bitwise copy construct
+        fluxSplittingFunction(const fluxSplittingFunction&) = delete;
+
 
     // Selectors
 
@@ -125,6 +119,12 @@ public:
         {
             return true;
         }
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const fluxSplittingFunction&) = delete;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

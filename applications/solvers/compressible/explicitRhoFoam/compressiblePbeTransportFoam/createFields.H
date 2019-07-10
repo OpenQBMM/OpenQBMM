@@ -25,7 +25,7 @@ autoPtr<compressible::turbulenceModel> turbulence
 );
 
 const volScalarField& muEff(fluid.thermo().mu());
-bool inviscid = (max(muEff).value() != 0);
+bool inviscid = (max(muEff).value() < small);
 errorEstimator error(mesh);
 
 Info<< "Reading populationBalanceProperties\n" << endl;

@@ -88,12 +88,6 @@ class sizeCHyQMOMBase
         //- Calculate the number of pure size moments
         label calcNSizeMoments(const labelListList& momentOrders);
 
-        //- Disallow default bitwise copy construct
-        //sizeCHyQMOMBase(const sizeCHyQMOMBase&);
-
-        //- Disallow default bitwise assignment
-        //void operator=(const sizeCHyQMOMBase&);
-
 
 public:
 

@@ -57,15 +57,6 @@ namespace aggregationKernels
 
 class coalescenceEfficiencyKernel
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        coalescenceEfficiencyKernel(const coalescenceEfficiencyKernel&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const coalescenceEfficiencyKernel&);
-
-
 protected:
 
     // Protected data
@@ -107,6 +98,12 @@ public:
             const word& continuousPhase
         );
 
+        //- Disallow default bitwise copy construct
+        coalescenceEfficiencyKernel
+        (
+            const coalescenceEfficiencyKernel&
+        ) = delete;
+
 
     // Selectors
 
@@ -140,6 +137,11 @@ public:
             const vector& Ur,
             const label celli
         ) const = 0;
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const coalescenceEfficiencyKernel&) = delete;
 };
 
 

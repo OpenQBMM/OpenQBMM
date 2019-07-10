@@ -57,15 +57,6 @@ namespace Foam
 
 class velocityMomentAdvection
 {
-    // Private member functions
-
-        //- Disallow default bitwise copy construct
-        velocityMomentAdvection(const velocityMomentAdvection&);
-
-        //- Disallow default bitwise assignment
-        void operator=(const velocityMomentAdvection&);
-
-
 protected:
 
     // Protected data
@@ -148,6 +139,9 @@ public:
             const word& support
         );
 
+        //- Disallow default bitwise copy construct
+        velocityMomentAdvection(const velocityMomentAdvection&) = delete;
+
 
     //- Destructor
     virtual ~velocityMomentAdvection();
@@ -190,6 +184,12 @@ public:
             const mappedPtrList<volVectorField>& Us,
             const bool wallCollisions
         ) = 0;
+
+
+    // Member Operators
+
+        //- Disallow default bitwise assignment
+        void operator=(const velocityMomentAdvection&) = delete;
 
 };
 
