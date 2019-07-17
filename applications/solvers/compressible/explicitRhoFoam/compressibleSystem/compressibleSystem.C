@@ -498,6 +498,7 @@ void Foam::compressibleSystem::decode()
 
     E_ = rhoE_/rho_;
     thermoPtr_->he() = E_ - 0.5*magSqr(U_);
+    thermoPtr_->he().correctBoundaryConditions();
 
     thermoPtr_->correct();
     p_ = rho_/thermoPtr_->psi();
@@ -512,7 +513,8 @@ void Foam::compressibleSystem::decode()
 void Foam::compressibleSystem::encode()
 {
     rho_ = thermoPtr_->rho();
-    rho_.correctBoundaryConditions();
+    rho_.boundaryFieldRef() ==
+        thermoPtr_->psi().boundaryField()*p_.boundaryField();
 
     rhoU_ = rho_*U_;
     rhoU_.boundaryFieldRef() == rho_.boundaryField()*U_.boundaryField();
@@ -521,7 +523,7 @@ void Foam::compressibleSystem::encode()
     rhoE_.boundaryFieldRef() ==
         rho_.boundaryField()*
         (
-            E_.boundaryField() + 0.5*magSqr(U_.boundaryField())
+            thermoPtr_->he().boundaryField() + 0.5*magSqr(U_.boundaryField())
         );
 }
 
@@ -535,6 +537,7 @@ void Foam::compressibleSystem::correctThermo()
     p_.correctBoundaryConditions();
     rho_.boundaryFieldRef() ==
         thermoPtr_->psi().boundaryField()*p_.boundaryField();
+    thermoPtr_->rho() = rho_;
 
     H_ = E_ + p_/rho_;
 }
