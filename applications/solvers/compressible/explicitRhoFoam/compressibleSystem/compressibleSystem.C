@@ -59,8 +59,7 @@ Foam::compressibleSystem::compressibleSystem
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        thermoPtr_().rho(),
-        thermoPtr_->T().boundaryField().types()
+        thermoPtr_().rho()
     ),
     U_
     (
@@ -85,8 +84,7 @@ Foam::compressibleSystem::compressibleSystem
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        thermoPtr_->he() + 0.5*magSqr(U_),
-        thermoPtr_->he().boundaryField().types()
+        thermoPtr_->he() + 0.5*magSqr(U_)
     ),
     H_
     (
@@ -110,8 +108,7 @@ Foam::compressibleSystem::compressibleSystem
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        rho_*U_,
-        U_.boundaryField().types()
+        rho_*U_
     ),
     rhoE_
     (
@@ -123,8 +120,7 @@ Foam::compressibleSystem::compressibleSystem
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        rho_*E_,
-        thermoPtr_->T().boundaryField().types()
+        rho_*E_
     ),
     massFlux_
     (
@@ -241,7 +237,7 @@ Foam::compressibleSystem::compressibleSystem
             )
         );
     }
-    thermoPtr_->validate("compressibleSystem ", "h", "e");
+    thermoPtr_->validate("compressibleSystem ", "e");
     encode();
 
     integrator_.set(new fluxIntegrator(*this));
@@ -501,28 +497,13 @@ void Foam::compressibleSystem::decode()
     phi() = fvc::flux(U_);
 
     E_ = rhoE_/rho_;
-
-    volScalarField R(constant::thermodynamic::RR/thermoPtr_->W());
-    R.dimensions().reset
-    (
-        dimPressure/dimDensity/dimTemperature
-    );
-
-    if (thermoPtr_->he().name()[0] == 'e')
-    {
-        thermoPtr_->he() = E_ - 0.5*magSqr(U_);
-        p_ = rho_*R*thermoPtr_->he()/thermoPtr_->Cv();
-    }
-    else if (thermoPtr_->he().name()[0] == 'h')
-    {
-        NotImplemented
-        H_ = E_ + p_/rho_;
-        thermoPtr_->he() = H_ - 0.5*magSqr(U_);
-        p_ = rho_*R*thermoPtr_->he()/thermoPtr_->Cp();
-    }
-    p_.correctBoundaryConditions();
+    thermoPtr_->he() = E_ - 0.5*magSqr(U_);
 
     thermoPtr_->correct();
+    p_ = rho_/thermoPtr_->psi();
+    p_.correctBoundaryConditions();
+    rho_.boundaryFieldRef() ==
+        thermoPtr_->psi().boundaryField()*p_.boundaryField();
 
     H_ = E_ + p_/rho_;
 }
@@ -534,36 +515,28 @@ void Foam::compressibleSystem::encode()
     rho_.correctBoundaryConditions();
 
     rhoU_ = rho_*U_;
-    rhoU_.correctBoundaryConditions();
+    rhoU_.boundaryFieldRef() == rho_.boundaryField()*U_.boundaryField();
 
     rhoE_ = rho_*E_;
-    rhoE_.correctBoundaryConditions();
+    rhoE_.boundaryFieldRef() ==
+        rho_.boundaryField()*
+        (
+            E_.boundaryField() + 0.5*magSqr(U_.boundaryField())
+        );
 }
 
 
 void Foam::compressibleSystem::correctThermo()
 {
-    volScalarField R(constant::thermodynamic::RR/thermoPtr_->W());
-    R.dimensions().reset
-    (
-        dimPressure/dimDensity/dimTemperature
-    );
-
-    if (thermoPtr_->he().name()[0] == 'e')
-    {
-        p_ = rho_*R*thermoPtr_->he()/thermoPtr_->Cv();
-        E_ = thermoPtr_->he() + 0.5*magSqr(U_);
-        H_ = E_ + p_/rho_;
-    }
-    else if (thermoPtr_->he().name()[0] == 'h')
-    {
-        p_ = rho_*R*thermoPtr_->he()/thermoPtr_->Cp();
-        H_ = thermoPtr_->he() + 0.5*magSqr(U_);
-        E_ = H_ - p_/rho_;
-    }
-    p_.correctBoundaryConditions();
+    E_ = thermoPtr_->he() + 0.5*magSqr(U_);
 
     thermoPtr_->correct();
+    p_ = rho_/thermoPtr_->psi();
+    p_.correctBoundaryConditions();
+    rho_.boundaryFieldRef() ==
+        thermoPtr_->psi().boundaryField()*p_.boundaryField();
+
+    H_ = E_ + p_/rho_;
 }
 
 
