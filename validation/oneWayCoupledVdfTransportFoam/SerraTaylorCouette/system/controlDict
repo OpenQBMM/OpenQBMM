@@ -90,7 +90,7 @@ functions
             }
             OFstream outputFile
             (
-                "postProcessing/averageD10",
+                "postProcessing/averageD10Theta",
                 mesh().time().writeFormat(),
                 IOstream::currentVersion,
                 mesh().time().writeCompression(),
@@ -98,7 +98,7 @@ functions
             );
             outputFile.precision(8);
             outputFile  << mesh().time().value()
-                        << '\t' <<  volAverage/(2.0e-6)
+                        << '\t' << volAverage/(2.0e-6)
                         << '\t' << ThetaAvg
                         << endl;
         }

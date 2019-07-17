@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # read d43average from pbeTransportFoam
-createEpsD43()
+createEpsD10()
 {
 
     gnuplot<<EOF
@@ -9,9 +9,9 @@ createEpsD43()
 
     set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
         dl 8.0
-    set output "OpenQBMM_validation_d10_165rpm.eps"
+    set output "sizeCHyQMOM_validation_d10_165rpm.eps"
     set xlabel "Time [s]"
-    set ylabel "d"
+    set ylabel "d/d_0"
     set grid
     set key right bottom
     set size 2,2
@@ -24,8 +24,27 @@ createEpsD43()
                 with points pointtype 5 ps 2 linecolor rgb 'blue',\
             "$3" using 1:2 every 100 title 'Univariate C_{Br} = 0.6e-3'\
                 with points linetype 6 linewidth 5 linecolor rgb 'red',\
-            "$4" using 1:2 every 250 title 'GPBE C_{Br} = 0.6e-3'\
-                with points pt 2 linewidth 5 linecolor rgb '#9db668'
+            "$4" using 1:2 every 250 title 'GPBE C_{Br} = 2.0e-3'\
+                with lines lt 1 linewidth 5 linecolor rgb '#9db668'
+EOF
+}
+
+createEpsTheta()
+{
+
+    gnuplot<<EOF
+    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+        dl 8.0
+    set output "sizeCHyQMOM_validation_Theta_165rpm.eps"
+    set xlabel "Time [s]"
+    set ylabel "D [m^2/s^2]"
+    set grid
+    unset key
+    set size 2,2
+    set autoscale
+
+    plot    "$1" using 1:(sqrt(\$3)) every 250 title 'GPBE C_{Br} = 2.0e-3'\
+                with lines lt 1 linewidth 5 linecolor rgb '#9db668'
 EOF
 }
 
@@ -36,23 +55,16 @@ then
     exit 1
 fi
 
-# extract data from log file and put them in a text file for gnuplot
-# cat ../log.oneWayCoupledVdfTransportFoam | grep '^Time = ' | cut -c8-15 > time.tmp
-# cat ../log.oneWayCoupledVdfTransportFoam | grep 'Volume averaged normalized d10' | cut -d':' -f2 > d10.tmp
-# paste time.tmp d10.tmp > volumeAveragedD10.dat
-
-#Remove temporary files
-# rm time.tmp d10.tmp
-
 # paths to data
 VALIDATIONDATAROOT=./validationData
 
 echo "    processing d10 profile" > log.createGraphs 2>&1
-OPENQBMMM="../postProcessing/averageD10"
+OPENQBMM="../postProcessing/averageD10Theta"
 OPENQBMMM_orig="$VALIDATIONDATAROOT/volumeAveragedD43_nonInertial.dat"
 VALIDATION="$VALIDATIONDATAROOT/SerraEtAl1997_d43_165rpm.dat"
 MARCHISIO="$VALIDATIONDATAROOT/Marchisio_165_6.dat"
 
-createEpsD43 $VALIDATION $MARCHISIO $OPENQBMMM_orig $OPENQBMMM
+createEpsD10 $VALIDATION $MARCHISIO $OPENQBMMM_orig $OPENQBMM
+createEpsTheta $OPENQBMM
 
 echo Done
