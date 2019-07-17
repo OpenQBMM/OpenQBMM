@@ -30,6 +30,15 @@ basicVelocityMomentInversion
 momentAdvection
 {
     velocityMomentAdvection   Vikas;
+    inlet
+    {
+        type    symmetry;
+    }
+    outlet
+    {
+        type    reflective;
+        e       1.0;
+    }
     innerWall
     {
         type    reflective;
