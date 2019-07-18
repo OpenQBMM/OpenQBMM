@@ -38,6 +38,7 @@ SourceFiles
 #include "fluxFunction.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "rhoThermo.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,6 +56,9 @@ class HLLC
     public fluxFunction
 {
     // Private Data
+
+        //- Consant reference to rhoThermo
+        const rhoThermo& thermo_;
 
 public:
 

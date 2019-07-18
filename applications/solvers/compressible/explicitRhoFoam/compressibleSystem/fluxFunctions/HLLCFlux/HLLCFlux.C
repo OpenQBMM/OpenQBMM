@@ -27,7 +27,6 @@ License
 #include "surfaceInterpolate.H"
 #include "fvc.H"
 #include "addToRunTimeSelectionTable.H"
-#include "rhoThermo.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -45,7 +44,11 @@ namespace fluxFunctions
 
 Foam::fluxFunctions::HLLC::HLLC(const fvMesh& mesh)
 :
-    fluxFunction(mesh)
+    fluxFunction(mesh),
+    thermo_
+    (
+        mesh.lookupObject<rhoThermo>("thermophysicalProperties")
+    )
 {}
 
 
@@ -89,11 +92,7 @@ void Foam::fluxFunctions::HLLC::updateFluxes
     surfaceScalarField pOwn(fvc::interpolate(p, own_, interpScheme(p.name())));
     surfaceScalarField pNei(fvc::interpolate(p, nei_, interpScheme(p.name())));
 
-    const rhoThermo& thermo = rho.mesh().lookupObject<rhoThermo>
-    (
-        "thermophysicalProperties"
-    );
-    volScalarField gamma(thermo.gamma());
+    volScalarField gamma("gamma", thermo_.gamma());
     surfaceScalarField gammaOwn
     (
         fvc::interpolate(gamma, own_, interpScheme(gamma.name()))

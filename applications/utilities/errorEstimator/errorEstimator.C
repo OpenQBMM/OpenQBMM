@@ -65,12 +65,17 @@ Foam::errorEstimator::errorEstimator(const fvMesh& mesh)
         scalarScales_ =
             scalarField
             (
-                dict_.lookupOrDefault("scalarScaleFactors", scalarField())
+                dict_.lookupOrDefault
+                ("scalarScaleFactors", scalarField(scalarFields_.size(), 1.0))
             );
         vectorScales_ =
             vectorField
             (
-                dict_.lookupOrDefault("vectorScaleFactors", vectorField())
+                dict_.lookupOrDefault
+                (
+                    "vectorScaleFactors",
+                    vectorField(vectorFields_.size(), vector::one)
+                )
             );
     }
 }
@@ -112,6 +117,7 @@ void Foam::errorEstimator::estimateError()
                     error_[own],
                     mag(f[own] - f[nei])/scalarScales_[fieldi]
                 );
+            error_[nei] = max(error_[nei], error_[own]);
         }
     }
     forAll(vectorFields_, fieldi)
@@ -136,6 +142,7 @@ void Foam::errorEstimator::estimateError()
                            /vectorScales_[fieldi][cmpti]
                         )
                     );
+                error_[nei] = max(error_[nei], error_[own]);
             }
         }
     }

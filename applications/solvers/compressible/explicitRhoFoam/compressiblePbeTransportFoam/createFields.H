@@ -6,7 +6,7 @@ Info<< "Reading thermophysical properties\n" << endl;
 compressibleSystem fluid(mesh);
 
 fluidThermo& thermo = fluid.thermo();
-thermo.validate(args.executable(), "h", "e");
+thermo.validate(args.executable(), "e");
 
 const volScalarField& rho = fluid.rho();
 

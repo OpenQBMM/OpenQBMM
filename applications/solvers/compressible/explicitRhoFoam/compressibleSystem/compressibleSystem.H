@@ -61,9 +61,6 @@ class compressibleSystem
 protected:
     // Protected data
 
-        //- Name of compressible phase ('\0' by default)
-        word phaseName_;
-
         //- Reference to the mesh
         const fvMesh& mesh_;
 

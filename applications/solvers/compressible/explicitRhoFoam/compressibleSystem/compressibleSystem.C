@@ -35,11 +35,6 @@ License
 #include "fvc.H"
 #include "fvm.H"
 
-
-// * * * * * * * * * * * * * * * Protected Functions * * * * * * * * * * * * //
-
-
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::compressibleSystem::compressibleSystem
@@ -82,7 +77,7 @@ Foam::compressibleSystem::compressibleSystem
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         thermoPtr_->he() + 0.5*magSqr(U_)
     ),
@@ -94,7 +89,7 @@ Foam::compressibleSystem::compressibleSystem
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         E_ + p_/rho_
     ),
@@ -132,7 +127,7 @@ Foam::compressibleSystem::compressibleSystem
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        mesh_,
+        mesh,
         dimensionedScalar("0", dimVelocity*dimDensity*dimArea, 0)
     ),
     momentumFlux_
@@ -145,7 +140,7 @@ Foam::compressibleSystem::compressibleSystem
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        mesh_,
+        mesh,
         dimensionedVector
         (
             "0",
@@ -163,7 +158,7 @@ Foam::compressibleSystem::compressibleSystem
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        mesh_,
+        mesh,
         dimensionedScalar("0", pow3(dimVelocity)*dimDensity*dimArea, 0)
     )
 {
@@ -172,8 +167,8 @@ Foam::compressibleSystem::compressibleSystem
     IOobject phiHeader
     (
         phiName,
-        mesh_.time().timeName(),
-        mesh_,
+        mesh.time().timeName(),
+        mesh,
         IOobject::NO_READ
     );
 
@@ -188,12 +183,12 @@ Foam::compressibleSystem::compressibleSystem
                 IOobject
                 (
                     phiName,
-                    mesh_.time().timeName(),
-                    mesh_,
+                    mesh.time().timeName(),
+                    mesh,
                     IOobject::MUST_READ,
                     IOobject::AUTO_WRITE
                 ),
-                mesh_
+                mesh
             )
         );
     }
@@ -227,8 +222,8 @@ Foam::compressibleSystem::compressibleSystem
                 IOobject
                 (
                     phiName,
-                    mesh_.time().timeName(),
-                    mesh_,
+                    mesh.time().timeName(),
+                    mesh,
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE
                 ),
@@ -278,12 +273,13 @@ void Foam::compressibleSystem::setNSteps
                 (
                     IOobject
                     (
-                        "rho" + Foam::name(stepi),
+                        "rho:step" + Foam::name(stepi),
                         mesh_.time().timeName(),
-                        mesh_
+                        mesh_,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
                     ),
-                    mesh_,
-                    dimensionedScalar("zero", rho_.dimensions(), 0.0)
+                    rho_
                 )
             );
             rhoUs_.append
@@ -292,12 +288,13 @@ void Foam::compressibleSystem::setNSteps
                 (
                     IOobject
                     (
-                        "rhoU" + Foam::name(stepi),
+                        "rhoU:step" + Foam::name(stepi),
                         mesh_.time().timeName(),
-                        mesh_
+                        mesh_,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
                     ),
-                    mesh_,
-                    dimensionedVector("zero", rhoU_.dimensions(), Zero)
+                    rhoU_
                 )
             );
             rhoEs_.append
@@ -306,15 +303,15 @@ void Foam::compressibleSystem::setNSteps
                 (
                     IOobject
                     (
-                        "rhoE" + Foam::name(stepi),
+                        "rhoE:step" + Foam::name(stepi),
                         mesh_.time().timeName(),
-                        mesh_
+                        mesh_,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
                     ),
-                    mesh_,
-                    dimensionedScalar("zero", rhoE_.dimensions(), 0.0)
+                    rhoE_
                 )
             );
-
         }
 
         if (storeDeltas[stepi])
@@ -328,9 +325,11 @@ void Foam::compressibleSystem::setNSteps
                 (
                     IOobject
                     (
-                        "deltaRho" + Foam::name(stepi),
+                        "deltaRho:step" + Foam::name(stepi),
                         mesh_.time().timeName(),
-                        mesh_
+                        mesh_,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
                     ),
                     mesh_,
                     dimensionedScalar("zero", rho_.dimensions()/dimTime, 0.0)
@@ -342,9 +341,11 @@ void Foam::compressibleSystem::setNSteps
                 (
                     IOobject
                     (
-                        "deltaRhoU" + Foam::name(stepi),
+                        "deltaRhoU:step" + Foam::name(stepi),
                         mesh_.time().timeName(),
-                        mesh_
+                        mesh_,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
                     ),
                     mesh_,
                     dimensionedVector("zero", rhoU_.dimensions()/dimTime, Zero)
@@ -356,15 +357,16 @@ void Foam::compressibleSystem::setNSteps
                 (
                     IOobject
                     (
-                        "deltaRhoE" + Foam::name(stepi),
+                        "deltaRhoE:step" + Foam::name(stepi),
                         mesh_.time().timeName(),
-                        mesh_
+                        mesh_,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
                     ),
                     mesh_,
                     dimensionedScalar("zero", rhoE_.dimensions()/dimTime, 0.0)
                 )
             );
-
         }
     }
 }
@@ -372,12 +374,13 @@ void Foam::compressibleSystem::setNSteps
 Foam::tmp<Foam::volScalarField>
 Foam::compressibleSystem::speedOfSound() const
 {
+    volScalarField rPsi("rPsi", 1.0/thermoPtr_->psi());
     return tmp<volScalarField>
     (
         new volScalarField
         (
             "c",
-            sqrt(thermoPtr_->gamma()*p_/rho_)
+            sqrt(thermoPtr_->Cp()/thermoPtr_->Cv()*rPsi)
         )
     );
 }
@@ -444,8 +447,6 @@ void Foam::compressibleSystem::advect
     }
 
     rho_ = rho + deltaT*deltaRho;
-    rho_.correctBoundaryConditions();
-
     rhoU_ = rhoU + deltaT*deltaRhoU;
     //- Ensure unused directions are zero
     rhoU_ =
@@ -454,10 +455,8 @@ void Foam::compressibleSystem::advect
             rhoU_,
             (vector(mesh_.solutionD()) + vector::one)/2.0
         );
-    rhoU_.correctBoundaryConditions();
 
     rhoE_ = rhoE + deltaT*deltaRhoE;
-    rhoE_.correctBoundaryConditions();
 }
 
 void Foam::compressibleSystem::integrateFluxes
