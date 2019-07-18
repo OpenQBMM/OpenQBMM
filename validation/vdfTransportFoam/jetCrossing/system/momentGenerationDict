@@ -36,7 +36,11 @@ boundaries
     {
         type    empty;
     }
-    walls
+    sideWalls
+    {
+        type    zeroGradient;
+    }
+    bottomWall
     {
         type    zeroGradient;
     }

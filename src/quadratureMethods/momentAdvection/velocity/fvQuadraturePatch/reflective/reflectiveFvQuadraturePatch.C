@@ -54,7 +54,7 @@ Foam::reflectiveFvQuadraturePatch::reflectiveFvQuadraturePatch
 )
 :
     fvQuadraturePatch(patch, dict, quadrature, nodesOwn, nodesNei),
-    ew_(readScalar(dict.subDict(patch_.name()).lookup("e")))
+    ew_(readScalar(dict.lookup("e")))
 {
     if (!isA<wallFvPatch>(patch_))
     {
@@ -74,6 +74,17 @@ Foam::reflectiveFvQuadraturePatch::~reflectiveFvQuadraturePatch()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+Foam::tmp<Foam::vectorField>
+Foam::reflectiveFvQuadraturePatch::wallTangentVelocity
+(
+    const vectorField& U,
+    const vectorField& n
+) const
+{
+    return (U - n*(U & n));
+}
+
+
 void Foam::reflectiveFvQuadraturePatch::update()
 {
     if (!patch_.size())
@@ -81,18 +92,15 @@ void Foam::reflectiveFvQuadraturePatch::update()
         return;
     }
 
-    const PtrList<volVelocityNode>& nodes = quadrature_.nodes();
-    const fvMesh& mesh = nodes[0].primaryWeight().mesh();
-
-    const vectorField& bfSf(mesh.Sf().boundaryField()[patchi_]);
-    vectorField bfNorm(bfSf/mag(bfSf));
+    const vectorField& bfSf(patch_.Sf());
+    vectorField bfNorm(patch_.nf());
 
     scalarField Gin(bfSf.size(), 0.0);
     scalarField Gout(bfSf.size(), 0.0);
 
-    forAll(nodes, nodei)
+    forAll(quadrature_.nodes(), nodei)
     {
-        const volVelocityNode& node = nodes[nodei];
+        const volVelocityNode& node = quadrature_.nodes()[nodei];
         surfaceVelocityNode& nodeNei(nodesNei_[nodei]);
         surfaceVelocityNode& nodeOwn(nodesOwn_[nodei]);
 
@@ -112,11 +120,11 @@ void Foam::reflectiveFvQuadraturePatch::update()
         bfwNei = bfwOwn;
 
         bfUOwn = U.boundaryField()[patchi_].patchInternalField();
-        bfUNei =
-            (
-                bfUOwn
-              - (1.0 + this->ew_)*(bfUOwn & bfNorm)*bfNorm
-            );
+        tmp<vectorField> vn
+        (
+            -this->ew_*(bfUOwn & bfNorm)*bfNorm
+        );
+        bfUNei = vn + wallTangentVelocity(bfUOwn, bfNorm);
 
         Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
         Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
@@ -127,7 +135,7 @@ void Foam::reflectiveFvQuadraturePatch::update()
     {
         scalarField weightScale(Gin/(Gout + small));
 
-        forAll(nodes, nodei)
+        forAll(quadrature_.nodes(), nodei)
         {
             scalarField& bfWNei =
                 nodesNei_[nodei].primaryWeight().boundaryFieldRef()[patchi_];

@@ -182,7 +182,10 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
             fvQuadraturePatch::New
             (
                 moments_[0].mesh().boundary()[patchi],
-                dict,
+                dict.optionalSubDict
+                (
+                    moments_[0].mesh().boundary()[patchi].name()
+                ),
                 quadrature,
                 nodesOwn_(),
                 nodesNei_()

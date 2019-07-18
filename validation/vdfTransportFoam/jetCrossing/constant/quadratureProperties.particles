@@ -27,7 +27,13 @@ momentAdvection
 {
     velocityMomentAdvection   Vikas;
 
-    walls
+    sideWalls
+    {
+        type    reflectiveMovingWall;
+        e       1.0;
+        wallVelocity uniform (0 2 0);
+    }
+    bottomWall
     {
         type    reflective;
         e       1.0;

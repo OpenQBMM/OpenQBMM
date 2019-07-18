@@ -54,10 +54,7 @@ Foam::fixedTemperatureFvQuadraturePatch::fixedTemperatureFvQuadraturePatch
 )
 :
     fvQuadraturePatch(patch, dict, quadrature, nodesOwn, nodesNei),
-    wallTemperature_
-    (
-        "T", dict.subDict(patch_.name()), patch.size()
-    ),
+    wallTemperature_("T", dict, patch.size()),
     nVelocityCmpts_(quadrature_.nodes()[0].velocityIndexes().size()),
     order000_(quadrature.momentOrders()[0].size(), 0),
     order100_(order000_),

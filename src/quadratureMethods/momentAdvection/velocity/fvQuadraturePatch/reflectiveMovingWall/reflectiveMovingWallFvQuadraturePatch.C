@@ -23,11 +23,27 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "fvQuadraturePatch.H"
+#include "reflectiveMovingWallFvQuadraturePatch.H"
+#include "addToRunTimeSelectionTable.H"
 
-// * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::fvQuadraturePatch> Foam::fvQuadraturePatch::New
+namespace Foam
+{
+    defineTypeNameAndDebug(reflectiveMovingWallFvQuadraturePatch, 0);
+
+    addToRunTimeSelectionTable
+    (
+        fvQuadraturePatch,
+        reflectiveMovingWallFvQuadraturePatch,
+        dictionary
+    );
+}
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::reflectiveMovingWallFvQuadraturePatch::reflectiveMovingWallFvQuadraturePatch
 (
     const fvPatch& patch,
     const dictionary& dict,
@@ -35,32 +51,27 @@ Foam::autoPtr<Foam::fvQuadraturePatch> Foam::fvQuadraturePatch::New
     PtrList<surfaceVelocityNode>& nodesOwn,
     PtrList<surfaceVelocityNode>& nodesNei
 )
+:
+    reflectiveFvQuadraturePatch(patch, dict, quadrature, nodesOwn, nodesNei),
+    wallVelocity_("wallVelocity", dict, patch_.size())
+{}
+
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::reflectiveMovingWallFvQuadraturePatch::~reflectiveMovingWallFvQuadraturePatch()
+{}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+Foam::tmp<Foam::vectorField>
+Foam::reflectiveMovingWallFvQuadraturePatch::wallTangentVelocity
+(
+    const vectorField& U,
+    const vectorField& n
+) const
 {
-    word fvQuadraturePatchType = "calculated";
-    if (dict.dictName() == patch.name())
-    {
-        fvQuadraturePatchType =
-            dict.lookupOrDefault<word>("type", "calculated");
-    }
-
-    Info<< "Selecting fvQuadraturePatch type for " << patch.name() << ": "
-        << fvQuadraturePatchType << endl;
-
-    dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(fvQuadraturePatchType);
-
-    if (cstrIter == dictionaryConstructorTablePtr_->end())
-    {
-        FatalErrorInFunction
-            << "Unknown fvQuadraturePatch type "
-            << fvQuadraturePatchType << endl << endl
-            << "Valid fvQuadraturePatch types are : " << endl
-            << dictionaryConstructorTablePtr_->sortedToc()
-            << exit(FatalError);
-    }
-
-    return cstrIter()(patch, dict, quadrature, nodesOwn, nodesNei);
+    return wallVelocity_;
 }
-
 
 // ************************************************************************* //

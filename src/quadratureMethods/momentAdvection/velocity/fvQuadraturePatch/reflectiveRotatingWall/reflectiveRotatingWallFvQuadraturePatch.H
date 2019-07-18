@@ -22,38 +22,48 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::reflectiveFvQuadraturePatch
+    Foam::reflectiveRotatingWallFvQuadraturePatch
 
 Description
     Abstract class for the advection of a velocity moment set.
 
 SourceFiles
-    reflectiveFvQuadraturePatch.C
+    reflectiveRotatingWallFvQuadraturePatch.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef reflectiveFvQuadraturePatch_H
-#define reflectiveFvQuadraturePatch_H
+#ifndef reflectiveRotatingWallFvQuadraturePatch_H
+#define reflectiveRotatingWallFvQuadraturePatch_H
 
-#include "fvQuadraturePatch.H"
+#include "reflectiveFvQuadraturePatch.H"
+#include "Function1.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 /*---------------------------------------------------------------------------*\
-                    Class reflectiveFvQuadraturePatch Declaration
+                    Class reflectiveRotatingWallFvQuadraturePatch Declaration
 \*---------------------------------------------------------------------------*/
 
-class reflectiveFvQuadraturePatch
+class reflectiveRotatingWallFvQuadraturePatch
 :
-    public fvQuadraturePatch
+    public reflectiveFvQuadraturePatch
 {
+    // Private data
+
+        //- Origin of the rotation
+        vector origin_;
+
+        //- Axis of the rotation
+        vector axis_;
+
+        //- Rotational speed
+        autoPtr<Function1<scalar>> omega_;
+
+
 protected:
     // Protected data
-
-        //- Coefficient of restitution
-        scalar ew_;
 
         //- Return the wall tangential velocity
         virtual tmp<vectorField> wallTangentVelocity
@@ -65,13 +75,13 @@ protected:
 public:
 
     //- Runtime type information
-    TypeName("reflective");
+    TypeName("reflectiveRotatingWall");
 
 
     // Constructors
 
         //- Construct from velocityMomentSet
-        reflectiveFvQuadraturePatch
+        reflectiveRotatingWallFvQuadraturePatch
         (
             const fvPatch& patch,
             const dictionary& dict,
@@ -82,13 +92,7 @@ public:
 
 
     //- Destructor
-    virtual ~reflectiveFvQuadraturePatch();
-
-    // Member Functions
-
-        //- Update boundary flux
-        virtual void update();
-
+    virtual ~reflectiveRotatingWallFvQuadraturePatch();
 };
 
 
