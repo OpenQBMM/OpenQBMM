@@ -279,7 +279,7 @@ Foam::tmp<Foam::volScalarField> Foam::vdfPhaseModel::volumeFraction
 Foam::tmp<Foam::volScalarField>
 Foam::vdfPhaseModel::d(const label nodei) const
 {
-    if (nodei == -1 && sizeIndex_ == -1)
+    if (sizeIndex_ == -1)
     {
         return d_;
     }
