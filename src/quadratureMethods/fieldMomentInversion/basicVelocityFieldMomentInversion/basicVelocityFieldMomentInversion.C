@@ -221,16 +221,13 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
         momentsToInvert(momentOrder) = moments(momentOrder)[celli];
     }
 
-//     if (!fatalErrorOnFailedRealizabilityTest)
-//     {
-//         if (!momentsToInvert.isRealizable(fatalErrorOnFailedRealizabilityTest))
-//         {
-//             return false;
-//         }
-//     }
+    if (!momentInverter_().invert(momentsToInvert))
+    {
+        return false;
+    }
 
     // Find quadrature
-    momentInverter_().invert(momentsToInvert);
+
 
     // Recovering quadrature
     const mappedScalarList& weights(momentInverter_().weights());

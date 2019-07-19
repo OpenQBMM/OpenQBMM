@@ -95,6 +95,12 @@ protected:
         //- Is the size length based
         bool lengthBased_;
 
+        //- Is the size mass based
+        bool massBased_;
+
+        //- Pointer to density field
+        const volScalarField* rhoPtr_;
+
         //- Are weights in volume fraction
         bool useVolumeFraction_;
 
@@ -276,6 +282,22 @@ public:
 
             //- Non-const access to the velcity abscissa of the node
             virtual velocityAbscissaeType& velocityAbscissae();
+
+            //- Return the diameter given an abscissae
+            tmp<volScalarField> d(const volScalarField& x) const;
+
+            //- Return the diameter given an abscissae and celli
+            scalar d(const label celli, const scalar& x) const;
+
+            //- Return the number density given an abscissae
+            tmp<volScalarField> n
+            (
+                const volScalarField& w,
+                const volScalarField& x
+            ) const;
+
+            //- Return the number density given an abscissae and celli
+            scalar n(const label celli, const scalar& w, const scalar& x) const;
 };
 
 

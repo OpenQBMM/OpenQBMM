@@ -253,7 +253,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 {
     scalar bSource = 0.0;
 
-    const PtrList<volVelocityNode>& nodes = quadrature.nodes();
+    const mappedPtrList<volVelocityNode>& nodes = quadrature.nodes();
     bool lengthBased = nodes[0].lengthBased();
     label sizeIndex = nodes[0].sizeIndex();
 
@@ -276,43 +276,48 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
         }
     }
 
+    label nSizes = quadrature.nNodes()[sizeIndex];
     const labelList& scalarIndexes = nodes[0].scalarIndexes();
     const labelList& velocityIndexes = nodes[0].velocityIndexes();
 
     if (!nodes[0].extended())
     {
-        forAll(nodes, pNodei)
+        scalarList bSources(nSizes, 0.0);
+        for (label sizei = 0; sizei < nSizes; sizei++)
         {
-             const volVelocityNode& node = nodes[pNodei];
-
+            const volVelocityNode& node = nodes(sizei);
             scalar bAbscissa =
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
-
-            scalar bSourcei = 0.0;
             if (lengthBased)
             {
-                bSourcei = nodeSource(bAbscissa, sizeOrder);
+                bSources[sizei] = nodeSource(bAbscissa, sizeOrder);
             }
             else
             {
-                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+                bSources[sizei] = massNodeSource(bAbscissa, sizeOrder);
             }
 
-            bSourcei *=
-                node.primaryWeight()[celli]
-                *Kb(bAbscissa, celli);
+            bSources[sizei] *= Kb(bAbscissa, celli);
 
             if (volumeFraction)
             {
                 if (lengthBased)
                 {
-                    bSourcei /= pow3(max(bAbscissa, small));
+                    bSources[sizei] /= pow3(max(bAbscissa, small));
                 }
                 else
                 {
-                    bSourcei /= max(bAbscissa, small);
+                    bSources[sizei] /= max(bAbscissa, small);
                 }
             }
+        }
+
+        forAll(nodes, pNodei)
+        {
+             const volVelocityNode& node = nodes[pNodei];
+             label sizei = quadrature.nodeIndexes()[pNodei][sizeIndex];
+
+            scalar bSourcei = node.primaryWeight()[celli]*bSources[sizei];
 
             forAll(scalarIndexes, nodei)
             {
@@ -341,66 +346,76 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
         return bSource;
     }
 
-    forAll(nodes, pNodei)
+    label nSecondaryNodes(nodes[0].secondaryWeights().size());
+    scalarListList bSources(nSizes, scalarList(nSecondaryNodes, 0.0));
+    for (label pNodei = 0; pNodei < nSizes; pNodei++)
     {
-        const volVelocityNode& node = nodes[pNodei];
-
-        forAll(node.secondaryWeights()[0], sNodei)
+        for (label sNodei = 0; sNodei < nSecondaryNodes; sNodei++)
         {
+            const volVelocityNode& node = nodes(pNodei);
             scalar bAbscissa =
                 max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
-
-            scalar bSourcei = 0.0;
             if (lengthBased)
             {
-                bSourcei = nodeSource(bAbscissa, sizeOrder);
+                bSources[pNodei][sNodei] = nodeSource(bAbscissa, sizeOrder);
             }
             else
             {
-                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+                bSources[pNodei][sNodei] = massNodeSource(bAbscissa, sizeOrder);
             }
 
-            bSourcei *=
-                node.primaryWeight()[celli]
-               *node.secondaryWeights()[sizeIndex][sNodei][celli]
-               *Kb(bAbscissa, celli);
+            bSources[pNodei][sNodei] *= Kb(bAbscissa, celli);
 
             if (volumeFraction)
             {
                 if (lengthBased)
                 {
-                    bSourcei /= pow3(max(bAbscissa, small));
+                    bSources[pNodei][sNodei] /= pow3(max(bAbscissa, small));
                 }
                 else
                 {
-                    bSourcei /= max(bAbscissa, small);
+                    bSources[pNodei][sNodei] /= max(bAbscissa, small);
                 }
             }
+        }
+    }
 
-            forAll(scalarIndexes, cmpt)
-            {
-                if (scalarIndexes[cmpt] != sizeIndex)
-                {
-                    bSourcei *=
-                        node.secondaryWeights()[cmpt][sNodei][celli]
-                       *pow
-                        (
-                            node.secondaryAbscissae()[cmpt][sNodei][celli],
-                            momentOrder[scalarIndexes[cmpt]]
-                        );
-                }
-            }
-            forAll(velocityIndexes, cmpt)
+    forAll(nodes, pNodei)
+    {
+        const volVelocityNode& node = nodes[pNodei];
+        label sizei = quadrature.nodeIndexes()[pNodei][sizeIndex];
+
+        scalar bSourcei = 0.0;
+        forAll(node.secondaryWeights()[0], sNodei)
+        {
+            bSourcei +=
+                node.primaryWeight()[celli]
+               *node.secondaryWeights()[sizeIndex][sNodei][celli]
+               *bSources[sizei][sNodei];
+
+        }
+        forAll(scalarIndexes, cmpt)
+        {
+            if (scalarIndexes[cmpt] != sizeIndex)
             {
                 bSourcei *=
                     pow
                     (
-                        node.velocityAbscissae()[celli][cmpt],
-                        momentOrder[velocityIndexes[cmpt]]
+                        node.primaryAbscissae()[cmpt][celli],
+                        momentOrder[scalarIndexes[cmpt]]
                     );
             }
-            bSource += bSourcei;
         }
+        forAll(velocityIndexes, cmpt)
+        {
+            bSourcei *=
+                pow
+                (
+                    node.velocityAbscissae()[celli][cmpt],
+                    momentOrder[velocityIndexes[cmpt]]
+                );
+        }
+        bSource += bSourcei;
     }
 
     return bSource;

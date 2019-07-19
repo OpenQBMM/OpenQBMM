@@ -152,7 +152,7 @@ void Foam::hyperbolicMomentInversion::invert
     // Manage unrealizable cases
     if (centralMoments[2] < 0.0)
     {
-        if (centralMoments[2] < -1e-10 && debug)
+        if (centralMoments[2] < -1e-10)
         {
             WarningInFunction
                 << "Second-order central moment is negative. C2 = "

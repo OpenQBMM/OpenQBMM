@@ -75,23 +75,6 @@ protected:
         > daughterDistribution_;
 
 
-    // Protected functions
-
-        //- Length based breakup source given two abscissae and an order
-        scalar nodeSource
-        (
-            const scalar& abscissa,
-            const label momentOrder
-        ) const;
-
-        //- Mass based breakup source given two abscissae and an order
-        scalar massNodeSource
-        (
-            const scalar& abscissa,
-            const label momentOrder
-        ) const;
-
-
 public:
 
     //- Runtime type information
@@ -139,6 +122,12 @@ public:
 
     // Member Functions
 
+        //- Uodate sources before ode solve
+        virtual void preUpdate()
+        {
+            return;
+        }
+
         //- Breakup kernel
         virtual scalar Kb
         (
@@ -146,6 +135,20 @@ public:
             const label celli,
             const label environment = 0
         ) const = 0;
+
+        //- Length based breakup source given two abscissae and an order
+        scalar nodeSource
+        (
+            const scalar& abscissa,
+            const label momentOrder
+        ) const;
+
+        //- Mass based breakup source given two abscissae and an order
+        scalar massNodeSource
+        (
+            const scalar& abscissa,
+            const label momentOrder
+        ) const;
 
         //- Return Breakup source term
         scalar breakupSource

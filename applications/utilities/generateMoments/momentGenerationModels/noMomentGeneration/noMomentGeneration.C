@@ -67,29 +67,31 @@ Foam::momentGenerationSubModels::noMomentGeneration::~noMomentGeneration()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::momentGenerationSubModels::noMomentGeneration::setNodes
+void Foam::momentGenerationSubModels::noMomentGeneration::updateMoments
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label patchi
 )
 {
+    label size = reset(patchi);
     forAll(moments_, mi)
     {
-        moments_[mi] =
-            dict.lookupType<scalar>("moment." + Foam::name(mi));
+        moments_[mi] = scalarField("moment." + Foam::name(mi), dict, size);
     }
 }
 
-void Foam::momentGenerationSubModels::noMomentGeneration::updateMoments
-(
-    const label celli
-)
-{}
 
 void Foam::momentGenerationSubModels::noMomentGeneration::updateMoments
 (
-    const label patchi,
-    const label facei
+    const dictionary& dict,
+    const labelList& cells
 )
-{}
+{
+    label size = reset(cells);
+    forAll(moments_, mi)
+    {
+        moments_[mi] = scalarField("moment." + Foam::name(mi), dict, size);
+    }
+}
 
 // ************************************************************************* //

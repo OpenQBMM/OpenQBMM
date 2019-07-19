@@ -41,37 +41,76 @@ void Foam::momentGenerationModel::updateMoments()
     forAll(moments_, mi)
     {
         const labelList& momentOrder = momentOrders_[mi];
-        moments_[mi].value() = 0.0;
+        moments_[mi] = 0.0;
 
         forAll(abscissae_, nodei)
         {
 
-            scalar absCmpt = 1.0;
+            scalarField mCmpt = weights_[nodei];
             forAll(abscissae_[0], cmpti)
             {
-                absCmpt *=
+                mCmpt *=
                     pow
                     (
                         abscissae_[nodei][cmpti],
                         momentOrder[cmpti]
                     );
             }
-            moments_[mi].value() += weights_[nodei]*absCmpt;
+            moments_[mi] += mCmpt;
         }
     }
 }
 
-void Foam::momentGenerationModel::reset()
+Foam::label Foam::momentGenerationModel::reset
+(
+    const label patchi
+)
 {
+    label size =
+    (
+        patchi == -1
+      ? mesh_.nCells()
+      : mesh_.boundaryMesh()[patchi].size()
+    );
+
     forAll(abscissae_, nodei)
     {
-        abscissae_[nodei] = scalarList(nDims_, 0.0);
-        weights_[nodei] = 0.0;
+        forAll(abscissae_[nodei], cmpti)
+        {
+            abscissae_[nodei][cmpti] = scalarField(size, 0.0);
+        }
+        weights_[nodei] = scalarField(size, 0.0);
     }
     forAll(moments_, mi)
     {
-        moments_[mi].value() = 0.0;
+        moments_[mi] = scalarField(size, 0.0);
     }
+
+    return size;
+}
+
+
+Foam::label Foam::momentGenerationModel::reset
+(
+    const labelList& cells
+)
+{
+    label size = cells.size();
+
+    forAll(abscissae_, nodei)
+    {
+        forAll(abscissae_[nodei], cmpti)
+        {
+            abscissae_[nodei][cmpti] = scalarField(size, 0.0);
+        }
+        weights_[nodei] = scalarField(size, 0.0);
+    }
+    forAll(moments_, mi)
+    {
+        moments_[mi] = scalarField(size, 0.0);
+    }
+
+    return size;
 }
 
 
@@ -85,13 +124,15 @@ Foam::momentGenerationModel::momentGenerationModel
     const label nNodes
 )
 :
+    mesh_(mesh),
     dict_(dict),
     nDims_(momentOrders[0].size()),
     nNodes_(nNodes),
     nMoments_(momentOrders.size()),
     momentOrders_(momentOrders),
-    weights_(nNodes_, 0.0),
-    abscissae_(nNodes_, scalarList(nDims_, 0.0)),
+    weights_(nNodes_),
+    abscissae_(nNodes_, List<scalarField>(nDims_)),
+    momentDims_(nMoments_, momentOrders_),
     moments_(nMoments_, momentOrders_)
 {
     dimensionSet wDims(dict.lookup("weightDimension"));
@@ -112,7 +153,7 @@ Foam::momentGenerationModel::momentGenerationModel
             );
             absCmptDims *= pow(absDim, momentOrder[cmpti]);
         }
-        moments_[mi].dimensions().reset(wDims*absCmptDims);
+        momentDims_.set(momentOrder, new dimensionSet(wDims*absCmptDims));
     }
 }
 

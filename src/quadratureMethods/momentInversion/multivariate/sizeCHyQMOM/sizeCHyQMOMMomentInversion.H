@@ -47,8 +47,7 @@ SourceFiles
 #include "mappedLists.H"
 #include "Vandermonde.H"
 #include "multivariateMomentInversion.H"
-#include "hyperbolicConditionalMomentInversion.H"
-
+#include "univariateMomentInversion.H"
 
 namespace Foam
 {
@@ -58,7 +57,8 @@ namespace multivariateMomentInversions
 /*---------------------------------------------------------------------------*\
                         Class sizeCHyQMOM Declaration
 \*---------------------------------------------------------------------------*/
-class sizeCHyQMOM
+template<class velocityInversion>
+class sizeCHyQMOMBase
 :
     public multivariateMomentInversion
 {
@@ -80,7 +80,7 @@ class sizeCHyQMOM
         autoPtr<univariateMomentInversion> sizeInverter_;
 
         //- Velocity moment inversion method
-        autoPtr<multivariateMomentInversions::CHyQMOM> velocityInverter_;
+        autoPtr<velocityInversion> velocityInverter_;
 
 
     // Private member functions
@@ -92,13 +92,12 @@ class sizeCHyQMOM
 public:
 
     //- Runtime type information
-    TypeName("sizeCHyQMOM");
-
+    TypeName("sizeCHyQMOMBase");
 
     // Constructors
 
         // Construct from nMoments, momentMap, nNodes, and support type
-        sizeCHyQMOM
+        sizeCHyQMOMBase
         (
             const dictionary& dict,
             const labelListList& momentOrders,
@@ -108,13 +107,13 @@ public:
 
 
     //- Destructor
-    virtual ~sizeCHyQMOM();
+    virtual ~sizeCHyQMOMBase();
 
 
     // Member Functions
 
         //- Invert moments to find weights and  abscissae
-        virtual void invert(const multivariateMomentSet& moments);
+        virtual bool invert(const multivariateMomentSet& moments);
 };
 
 
@@ -126,7 +125,12 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+#ifdef NoRepository
+    #include "sizeCHyQMOMMomentInversion.C"
 #endif
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
 
 // ************************************************************************* //

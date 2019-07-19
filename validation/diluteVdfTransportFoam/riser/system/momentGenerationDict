@@ -47,13 +47,13 @@ particles
     {
         node0
         {
-            weight  0.015;
-            abscissa (120e-6 0 0 0);
+            weight  uniform 0.015;
+            abscissae (120e-6 0 0 0);
         }
         node1
         {
-            weight  0.015;
-            abscissa (185e-6 0 0 0);
+            weight  uniform 0.015;
+            abscissae (185e-6 0 0 0);
         }
     }
 }

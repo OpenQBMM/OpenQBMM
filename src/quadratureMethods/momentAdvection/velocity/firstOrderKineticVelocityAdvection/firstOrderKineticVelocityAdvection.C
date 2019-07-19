@@ -53,77 +53,10 @@ Foam::velocityAdvection::firstOrderKinetic::firstOrderKinetic
 )
 :
     velocityMomentAdvection(dict, quadrature, support),
-    nodes_(quadrature.nodes()),
-    nodesNei_(),
-    nodesOwn_(),
     weightScheme_("upwind"),
     scalarAbscissaeScheme_("upwind"),
     velocityAbscissaeScheme_("upwind")
-{
-    PtrList<dimensionSet> abscissaeDimensions(momentOrders_[0].size());
-    labelList zeroOrder(momentOrders_[0].size(), 0);
-
-    forAll(abscissaeDimensions, dimi)
-    {
-        labelList firstOrder(zeroOrder);
-        firstOrder[dimi] = 1;
-
-        abscissaeDimensions.set
-        (
-            dimi,
-            new dimensionSet
-            (
-                moments_(firstOrder).dimensions()/moments_(0).dimensions()
-            )
-        );
-    }
-
-    nodesNei_ = autoPtr<PtrList<surfaceVelocityNode> >
-    (
-        new PtrList<surfaceVelocityNode>(nodes_.size())
-    );
-
-    nodesOwn_ = autoPtr<PtrList<surfaceVelocityNode> >
-    (
-        new PtrList<surfaceVelocityNode>(nodes_.size())
-    );
-
-    PtrList<surfaceVelocityNode>& nodesNei = nodesNei_();
-    PtrList<surfaceVelocityNode>& nodesOwn = nodesOwn_();
-
-    // Populating nodes and interpolated nodes
-    forAll(nodes_, nodei)
-    {
-        const labelList& nodeIndex = nodeIndexes_[nodei];
-        nodesNei.set
-        (
-            nodei,
-            new surfaceVelocityNode
-            (
-                "nodeNei" + mappedList<scalar>::listToWord(nodeIndex),
-                name_,
-                moments_(0).mesh(),
-                moments_(0).dimensions(),
-                abscissaeDimensions,
-                false
-            )
-        );
-
-        nodesOwn.set
-        (
-            nodei,
-            new surfaceVelocityNode
-            (
-                "nodeOwn" + mappedList<scalar>::listToWord(nodeIndex),
-                name_,
-                moments_(0).mesh(),
-                moments_(0).dimensions(),
-                abscissaeDimensions,
-                false
-            )
-        );
-    }
-}
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -302,7 +235,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
     interpolateNodes();
 
     // Set velocities at boundaries for rebounding
-    updateWallCollisions(nodes_, nodesOwn_(), nodesNei_());
+    updateBoundaryConditions();
 
     // Zero moment flux
     forAll(divMoments_, divi)
@@ -437,7 +370,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
     // Set velocities at boundaries for rebounding
     if (wallCollisions)
     {
-        updateWallCollisions(nodes_, nodesOwn_(), nodesNei_());
+        updateBoundaryConditions();
     }
 
     // Zero moment fluxes
@@ -568,10 +501,30 @@ void Foam::velocityAdvection::firstOrderKinetic::update
     // Interplate weights and abscissae
     interpolateNodes();
 
+    IStringStream velocityAbscissaeOwnLimiter(velocityAbscissaeScheme_);
+    tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeOwnScheme
+    (
+        fvc::scheme<vector>
+        (
+            own_,
+            velocityAbscissaeOwnLimiter
+        )
+    );
+
+    IStringStream velocityAbscissaeNeiLimiter(velocityAbscissaeScheme_);
+    tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeNeiScheme
+    (
+        fvc::scheme<vector>
+        (
+            nei_,
+            velocityAbscissaeNeiLimiter
+        )
+    );
+
     // Set velocities at boundaries for rebounding
     if (wallCollisions)
     {
-        updateWallCollisions(nodes_, nodesOwn_(), nodesNei_());
+        updateBoundaryConditions();
     }
 
     // Zero moment fluxes
@@ -607,11 +560,11 @@ void Foam::velocityAdvection::firstOrderKinetic::update
 
         surfaceVectorField VOwn
         (
-            velocityAbscissaeOwnScheme_().interpolate(Us[nodei])
+            velocityAbscissaeOwnScheme().interpolate(Us[nodei])
         );
         surfaceVectorField VNei
         (
-            velocityAbscissaeNeiScheme_().interpolate(Us[nodei])
+            velocityAbscissaeNeiScheme().interpolate(Us[nodei])
         );
         surfaceScalarField phiOwn(VOwn & mesh.Sf());
         surfaceScalarField phiNei(VNei & mesh.Sf());

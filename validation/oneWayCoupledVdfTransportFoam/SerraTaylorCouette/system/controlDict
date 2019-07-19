@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pbeTransportFoam;
+application     oneWayCoupledVdfTransportFoam;
 
 startFrom       latestTime;
 
@@ -30,7 +30,7 @@ writeControl    adjustableRunTime;
 
 writeInterval   1;
 
-purgeWrite      100;
+purgeWrite      1000;
 
 writeFormat     binary;
 
@@ -66,23 +66,42 @@ functions
 
         const volScalarField& m1 =
             mesh().lookupObject<volScalarField>("moment.1000.populationBalance");
+        const volScalarField& Theta =
+            mesh().lookupObject<volScalarField>("Theta.populationBalance");
 
-        volScalarField d10(m1/m0);
+        scalarField d10(m1.primitiveField()/m0.primitiveField());
 
-        scalar volAverage = 0;
-        scalar totalVolume = 0;
+        scalar totalVolume = gSum(mesh().V());
+        scalar m0Avg = gSum(m0.primitiveField()*mesh().V())/totalVolume;
+        scalar ThetaAvg = gSum(Theta.primitiveField()*mesh().V())/totalVolume;
+        scalar volAverage = gSum(d10*mesh().V())/totalVolume;
 
-        forAll (d10, cellI)
-        {
-            totalVolume += mesh().V()[cellI];
-        }
-
-        forAll (d10, cellI)
-        {
-            volAverage += d10[cellI]*mesh().V()[cellI]/totalVolume;
-        }
-
+        Info<<"Volume averaged m0: " << m0Avg << endl;
         Info<<"Volume averaged normalized d10: " << volAverage/(2.0e-6) << endl;
+        Info<<"Volume averaged granular temperature: " << ThetaAvg << endl;
+
+        if (Pstream::myProcNo() == 0)
+        {
+            mkDir("postProcessing");
+            bool append = true;
+            if (mesh().time().value() ==  mesh().time().deltaT().value())
+            {
+                append = false;
+            }
+            OFstream outputFile
+            (
+                "postProcessing/averageD10Theta",
+                mesh().time().writeFormat(),
+                IOstream::currentVersion,
+                mesh().time().writeCompression(),
+                append
+            );
+            outputFile.precision(8);
+            outputFile  << mesh().time().value()
+                        << '\t' << volAverage/(2.0e-6)
+                        << '\t' << ThetaAvg
+                        << endl;
+        }
 
         #};
     }

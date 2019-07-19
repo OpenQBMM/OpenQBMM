@@ -11,31 +11,63 @@
 
         volScalarField meanU(moments(orderOne)/m0);
         Up.replace(cmpt, meanU);
-
-        if (computeVariance)
-        {
-            forAll(velocityIndexes, cmpt2)
-            {
-                labelList orderOne2(orderZero);
-                labelList orderTwo(orderZero);
-                orderOne2[velocityIndexes[cmpt2]] = 1;
-                orderTwo[velocityIndexes[cmpt]] = 1;
-                orderTwo[velocityIndexes[cmpt2]] += 1;
-
-                volScalarField meanU2(moments(orderOne2)/m0);
-
-                volScalarField coVar
-                (
-                    moments(orderTwo)/m0 - meanU*meanU2
-                );
-                Sigmap.replace(cmpt + cmpt2*3, coVar);
-            }
-        }
     }
 
     if (computeVariance)
     {
-        Thetap = tr(Sigmap)/3.0;
+        labelList order200(orderZero);
+        labelList order110(orderZero);
+        labelList order101(orderZero);
+        labelList order020(orderZero);
+        labelList order011(orderZero);
+        labelList order002(orderZero);
+
+        order200[velocityIndexes[0]] = 2;
+        Sigmap.replace
+        (
+            symmTensor::XX,
+            moments(order200)/m0 - sqr(Up.component(0))
+        );
+        if (velocityIndexes.size() > 1)
+        {
+            order110[velocityIndexes[0]] = 1;
+            order110[velocityIndexes[1]] = 1;
+            order020[velocityIndexes[1]] = 2;
+            Sigmap.replace
+            (
+                symmTensor::XY,
+                moments(order110)/m0 - Up.component(0)*Up.component(1)
+            );
+            Sigmap.replace
+            (
+                symmTensor::YY,
+                moments(order020)/m0 - sqr(Up.component(1))
+            );
+        }
+        if (velocityIndexes.size() > 2)
+        {
+            order101[velocityIndexes[0]] = 1;
+            order101[velocityIndexes[2]] = 1;
+            order011[velocityIndexes[1]] = 1;
+            order011[velocityIndexes[2]] = 1;
+            order002[velocityIndexes[2]] = 2;
+            Sigmap.replace
+            (
+                symmTensor::XZ,
+                moments(order101)/m0 - Up.component(0)*Up.component(2)
+            );
+            Sigmap.replace
+            (
+                symmTensor::YZ,
+                moments(order011)/m0 - Up.component(1)*Up.component(2)
+            );
+            Sigmap.replace
+            (
+                symmTensor::ZZ,
+                moments(order002)/m0 - sqr(Up.component(2))
+            );
+        }
+        Thetap = tr(Sigmap)/velocityIndexes.size();
     }
 
     if (sizeIndex != -1 && nodes[0].lengthBased())

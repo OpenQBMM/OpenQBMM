@@ -22,29 +22,29 @@ phases
 
 boundaries
 {
-    top
+    inlet
     {
-        type cyclic;
+        type symmetry;
     }
-    bottom
+    outlet
     {
-        type cyclic;
+        type zeroGradient;
     }
-    left
+    outerWall
     {
-        type cyclic;
+        type zeroGradient;
     }
-    right
+    innerWall
     {
-        type cyclic;
+        type zeroGradient;
     }
-    front
+    wedge1
     {
-        type empty;
+        type wedge;
     }
-    back
+    wedge2
     {
-        type empty;
+        type wedge;
     }
 }
 
@@ -59,8 +59,8 @@ populationBalance
     {
         node0
         {
-            weight  0.00025;
-            abscissa (2e-6 0 0 0);
+            weight  uniform 2.5e-5;
+            abscissae (2e-6 0 0 0);
         }
     }
 

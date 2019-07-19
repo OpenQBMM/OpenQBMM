@@ -15,8 +15,9 @@ multivariate/multivariateMomentInversion/multivariateMomentInversion.C
 multivariate/multivariateMomentInversion/newMultivariateMomentInversion.C
 multivariate/monoKinetic/monoKineticMomentInversion.C
 multivariate/conditional/conditionalMomentInversion.C
-multivariate/hyperbolic/hyperbolicConditionalMomentInversion.C
-multivariate/sizeCHyQMOM/sizeCHyQMOMMomentInversion.C
+multivariate/CHyQMOM/CHyQMOMMomentInversion.C
+multivariate/CHyQMOMPlus/CHyQMOMPlusMomentInversion.C
+multivariate/sizeCHyQMOM/sizeCHyQMOMMomentInversions.C
 multivariate/TensorProduct/TensorProductMomentInversion.C
 
 LIB = $(FOAM_USER_LIBBIN)/libmomentInversion

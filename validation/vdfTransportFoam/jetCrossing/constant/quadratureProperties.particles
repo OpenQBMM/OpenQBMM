@@ -20,12 +20,24 @@ fieldMomentInversion basicVelocityFieldMomentInversion;
 
 basicVelocityMomentInversion
 {
-    type CHyQMOM;
+    type CHyQMOMPlus;
 }
 
 momentAdvection
 {
     velocityMomentAdvection   Vikas;
+
+    sideWalls
+    {
+        type    reflectiveMovingWall;
+        e       1.0;
+        wallVelocity uniform (0 2 0);
+    }
+    bottomWall
+    {
+        type    reflective;
+        e       1.0;
+    }
 }
 
 moments
@@ -37,6 +49,8 @@ moments
     (2 0)
     (0 2)
     (3 0)
+    (2 1)
+    (1 2)
     (0 3)
     (4 0)
     (0 4)

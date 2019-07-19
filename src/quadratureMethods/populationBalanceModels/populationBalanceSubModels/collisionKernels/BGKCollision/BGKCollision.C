@@ -258,6 +258,8 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     forAll(velocityMoments_, sizei)
     {
         scalar di = ds[sizei];
+        scalar Vi = pi/6.0*pow3(di);
+        scalar ni= weights[sizei]/Vi;
 
         forAll(velocityMoments_, sizej)
         {
@@ -266,11 +268,19 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
             //- Do not compute null moment sets
             if (m0ij > minM0_)
             {
+                scalar dj = ds[sizej];
+                scalar Vj = pi/6.0*pow3(dj);
+                scalar nj = weights[sizej]/Vj;
+                scalar dij = (di + dj)*0.5;
+
                 vector Uij = Us[sizei];
                 symmTensor Sigmaij = Sigmas[sizei];
+
+                scalar xi = pi*(ni*sqr(di) + nj*sqr(dj))/6.0;
                 scalar g0ij =
                     1.0/alphac
-                  + 3.0*di*di*alphard/(sqr(alphac)*(di + di));
+                  + 1.5*xi*di*dj/(sqr(alphac)*(dij))
+                  + 0.5*sqr(xi)/pow3(alphac)*sqr(di*dj/dij);
 
                 if (sizei == sizej)
                 {
@@ -291,7 +301,6 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                 {
                     const mappedScalarList& vmi = velocityMoments_[sizei];
                     const mappedScalarList& vmj = velocityMoments_[sizej];
-                    scalar dj = ds[sizej];
 
                     // Total granular temperature
                     scalar Thetaij =
@@ -322,18 +331,19 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                                 0.0
                             );
                     }
+                    Thetaij /= nDimensions_;
+
                     symmTensor Sij =
                         0.5
                        *(
                             Sigmas[sizei]
                           + Sigmas[sizej]
-                          + symmTensor::one*Thetaij/nDimensions_
+                          + symmTensor::one*Thetaij
                         );
 
-                    scalar dij = (di + dj)*0.5;
                     scalar XiPow3 = pow3(dij/dj);
-                    scalar massi = pi/6.0*pow3(di)*rhos_[sizei];
-                    scalar massj = pi/6.0*pow3(dj)*rhos_[sizej];
+                    scalar massi = Vi*rhos_[sizei];
+                    scalar massj = Vj*rhos_[sizej];
 
                     scalar muij = 2.0*massj/(massi + massj);
 

@@ -68,8 +68,8 @@ particles
 
             node0
             {
-                weight  1;
-                abscissa (0 0);
+                weight  uniform 1;
+                abscissae (0 0);
             }
         }
     );

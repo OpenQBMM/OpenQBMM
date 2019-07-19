@@ -56,15 +56,6 @@ class firstOrderKinetic
 protected:
     // Protected data
 
-        //- List of quadrature nodes used for moment advection
-        const PtrList<volVelocityNode>& nodes_;
-
-        //- List of interpolated nodes (neighbour)
-        autoPtr<PtrList<surfaceVelocityNode>> nodesNei_;
-
-        //- List of interpolated nodes (owner)
-        autoPtr<PtrList<surfaceVelocityNode>> nodesOwn_;
-
         //- Interpolation schemes
         word weightScheme_;
         word scalarAbscissaeScheme_;

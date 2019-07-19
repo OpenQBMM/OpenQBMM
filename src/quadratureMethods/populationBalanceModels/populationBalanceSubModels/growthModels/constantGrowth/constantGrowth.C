@@ -58,8 +58,8 @@ Foam::populationBalanceSubModels::growthModels::constantGrowth
 )
 :
     growthModel(dict),
-    minAbscissa_(dict.lookup("minAbscissa")),
-    maxAbscissa_(dict.lookup("maxAbscissa"))
+    minAbscissa_(dict.lookupOrDefault("minAbscissa", 0.0)),
+    maxAbscissa_(dict.lookupOrDefault("maxAbscissa", great))
 {}
 
 
@@ -76,11 +76,12 @@ Foam::scalar
 Foam::populationBalanceSubModels::growthModels::constantGrowth::Kg
 (
     const scalar& abscissa,
+    const bool lengthBased,
     const label environment
 ) const
 {
-    return Cg_.value()*pos0(-abscissa + maxAbscissa_.value())
-            *pos0(abscissa - minAbscissa_.value());
+    return Cg_.value()*pos0(-abscissa + maxAbscissa_)
+            *pos0(abscissa - minAbscissa_);
 }
 
 // ************************************************************************* //

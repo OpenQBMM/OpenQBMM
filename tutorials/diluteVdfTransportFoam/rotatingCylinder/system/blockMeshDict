@@ -1,0 +1,97 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           ||  \\   7 /   O peration     | Version:  dev                                   |-/
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+convertToMeters 0.01;
+
+d       50;
+h       10;
+
+r       #calc "$d/2.0";
+nr      #calc  "-$r";
+W       20;
+w       #calc "$W/sqrt(2.0)";
+nw      #calc "-$w";
+
+x       #calc "$r*sqrt(2.0)/2.0";
+y       $x;
+nx      #calc "-$x";
+ny      $nx;
+
+cellSize 0.25;
+
+nPtR    #calc "round($r/2.0/$cellSize)";
+nPtW    #calc "round(($r - $W)/$cellSize)";
+nPtH    1;
+
+vertices
+(
+    (0      $nr     0)
+    ($r     0       0)
+    (0      $r      0)
+    ($nr    0       0)
+    (0      $nw     0)
+    ($w     0       0)
+    (0      $w      0)
+    ($nw    0       0)
+
+    (0      $nr     $h)
+    ($r     0       $h)
+    (0      $r      $h)
+    ($nr    0       $h)
+    (0      $nw     $h)
+    ($w     0       $h)
+    (0      $w      $h)
+    ($nw    0       $h)
+
+
+);
+
+blocks
+(
+    hex (0 1 5 4 8 9 13 12) ($nPtR $nPtW $nPtH) simpleGrading (1 1 1)
+    hex (1 2 6 5 9 10 14 13) ($nPtR $nPtW $nPtH) simpleGrading (1 1 1)
+    hex (2 3 7 6 10 11 15 14) ($nPtR $nPtW $nPtH) simpleGrading (1 1 1)
+    hex (3 0 4 7 11 8 12 15) ($nPtR $nPtW $nPtH) simpleGrading (1 1 1)
+    hex (4 5 6 7 12 13 14 15) ($nPtR $nPtR $nPtH) simpleGrading (1 1 1)
+);
+
+edges
+(
+    arc 0 1     ($x     $ny     0)
+    arc 1 2     ($x     $y      0)
+    arc 2 3     ($nx    $y      0)
+    arc 3 0     ($nx    $ny     0)
+
+    arc 8 9     ($x     $ny     $h)
+    arc 9 10    ($x     $y      $h)
+    arc 10 11   ($nx    $y      $h)
+    arc 11 8    ($nx    $ny     $h)
+);
+
+patches
+(
+    wall walls
+    (
+        (0 1 9 8)
+        (1 2 10 9)
+        (2 3 11 10)
+        (3 0 8 11)
+    )
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

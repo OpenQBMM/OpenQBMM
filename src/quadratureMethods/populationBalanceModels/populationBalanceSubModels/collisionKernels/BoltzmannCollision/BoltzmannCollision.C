@@ -24,7 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BoltzmannCollision.H"
-#include "hyperbolicConditionalMomentInversion.H"
 #include "constants.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -67,14 +66,13 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     vector g = u1 - u2;
     scalarList omegaPow(6, omega);
     vectorList gPow(6, g);
-    scalarList gMagPow(6, mag(g));
+    scalar gMagSqr(magSqr(g));
     vectorList vPow(6, u1);
 
-    for (label powi = 2; powi < gPow.size(); powi++)
+    forAll(gPow, powi)
     {
         omegaPow[powi] = pow(omega, powi);
-        gMagPow[powi] = pow(mag(g), powi);
-        for (label cmpt = 0; cmpt < nDimensions_; cmpt++)
+        for (label cmpt = 0; cmpt < 3; cmpt++)
         {
             gPow[powi][cmpt] = pow(g[cmpt], powi);
             vPow[powi][cmpt] = pow(u1[cmpt], powi);
@@ -84,7 +82,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     // Update coefficients for zero order terms
     forAllIter(List<momentFunction>, coefficientFunctions_, iter)
     {
-        (*iter)(Is_, omegaPow, gPow, gMagPow, vPow);
+        (*iter)(Is_, omegaPow, gPow, gMagSqr, vPow);
     }
 
     // Update first order (Enskog) terms if used
@@ -92,21 +90,21 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision::updateI
     {
         forAllIter(List<momentFunction>, enskogFunctions_[0], iter)
         {
-            (*iter)(I1s_[0], omegaPow, gPow, gMagPow, vPow);
+            (*iter)(I1s_[0], omegaPow, gPow, gMagSqr, vPow);
         }
 
         if (nDimensions_ > 1)
         {
             forAllIter(List<momentFunction>, enskogFunctions_[1], iter)
             {
-                (*iter)(I1s_[1], omegaPow, gPow, gMagPow, vPow);
+                (*iter)(I1s_[1], omegaPow, gPow, gMagSqr, vPow);
             }
         }
         if (nDimensions_ > 2)
         {
             forAllIter(List<momentFunction>, enskogFunctions_[2], iter)
             {
-                (*iter)(I1s_[2], omegaPow, gPow, gMagPow, vPow);
+                (*iter)(I1s_[2], omegaPow, gPow, gMagSqr, vPow);
             }
         }
     }
@@ -349,7 +347,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
     if (sizeIndex_ == -1)
     {
         scalar c = min(alpha/0.63, 0.999);
-        scalar g0 = (2.0 - c)/(2.0*pow3(1.0 - c));
+        scalar g0 = (2.0 - c)/(2.0*pow3(1.0 - c)) + 1.1603*c;
         forAll(quadrature_.nodes(), nodei)
         {
             const volVelocityNode& node1 = quadrature_.nodes()[nodei];

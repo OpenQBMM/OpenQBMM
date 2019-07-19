@@ -112,8 +112,8 @@ volScalarField Kh
         AEqns[nodei] +=
             // Buoyancy
             (
-               - fvc::grad(p_rgh)
-               - gh*fvc::grad(rho) + alpha1*(rho2 - rho1)*g
+               - fvc::grad(p)
+               + rho2*g
                + fvc::div(taul)
             )*alpha
 

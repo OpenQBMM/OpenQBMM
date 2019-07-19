@@ -17,7 +17,7 @@ FoamFile
 
 solvers
 {
-    p_rgh
+    p
     {
         solver          GAMG;
         smoother        DIC;
@@ -33,9 +33,9 @@ solvers
         relTol          0.1;
     }
 
-    p_rghFinal
+    pFinal
     {
-        $p_rgh;
+        $p;
         relTol          0;
     }
 
@@ -85,6 +85,7 @@ PIMPLE
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
     pRefValue 1e5;
+    momentumPredictor no;
 }
 
 relaxationFactors

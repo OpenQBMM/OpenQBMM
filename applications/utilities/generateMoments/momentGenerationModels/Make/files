@@ -6,5 +6,6 @@ weightsAndAbscissae/weightsAndAbscissae.C
 alphaAndDiameter/alphaAndDiameter.C
 alphaAndDiameterVelocity/alphaAndDiameterVelocity.C
 velocity/velocity.C
+gaussianMoments/gaussianMoments.C
 
 LIB = $(FOAM_USER_LIBBIN)/libmomentGenerationModels

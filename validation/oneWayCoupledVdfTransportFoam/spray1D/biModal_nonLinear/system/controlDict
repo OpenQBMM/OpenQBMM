@@ -1,0 +1,105 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     oneWayCoupledVdfTransportFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.25;
+
+deltaT          1e-4;
+
+writeControl    adjustableRunTime;
+
+writeInterval   .01;
+
+purgeWrite      1000;
+
+writeFormat     binary;
+
+writePrecision  16;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           0.5;
+
+maxDeltaT       1;
+
+functions
+{
+//     d10Average
+//     {
+//         type                coded;
+//         functionObjectLibs  ("libutilityFunctionObjects.so");
+//         name                d10VolumeAverage;
+//         writeControl        timeStep;
+//
+//         codeExecute
+//         #{
+//         const volScalarField& m0 =
+//             mesh().lookupObject<volScalarField>("moment.0000.populationBalance");
+//
+//         const volScalarField& m1 =
+//             mesh().lookupObject<volScalarField>("moment.1000.populationBalance");
+//
+//         scalarField d10(m1.primitiveField()/m0.primitiveField());
+//
+//         scalar totalVolume = gSum(mesh().V());
+//         scalar m0Avg = gSum(m0.primitiveField()*mesh().V())/totalVolume;
+//         scalar volAverage = gSum(d10*mesh().V())/totalVolume;
+//
+//         Info<<"Volume averaged m0: " << m0Avg << endl;
+//         Info<<"Volume averaged normalized d10: " << volAverage/(2.0e-6) << endl;
+//
+//         if (Pstream::myProcNo() == 0)
+//         {
+//             mkDir("postProcessing");
+//             bool append = true;
+//             if (mesh().time().value() ==  mesh().time().deltaT().value())
+//             {
+//                 append = false;
+//             }
+//             OFstream outputFile
+//             (
+//                 "postProcessing/averageD10",
+//                 mesh().time().writeFormat(),
+//                 IOstream::currentVersion,
+//                 mesh().time().writeCompression(),
+//                 append
+//             );
+//             outputFile.precision(8);
+//             outputFile  << mesh().time().value()
+//                         << '\t' <<  volAverage/(2.0e-6) << endl;
+//         }
+//
+//         #};
+//     }
+}
+
+
+// ************************************************************************* //

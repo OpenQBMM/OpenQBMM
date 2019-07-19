@@ -73,14 +73,15 @@ Foam::scalar
 Foam::populationBalanceSubModels::aggregationKernels::
 differentialForceAggregation::Ka
 (
-    const scalar& abscissa1,
-    const scalar& abscissa2,
+    const scalar& d1,
+    const scalar& d2,
+    const vector& Ur,
     const label celli,
     const label environment
 ) const
 {
-    return Ca_.value()*sqr(abscissa1 + abscissa2)
-            *mag(sqr(abscissa1) - sqr(abscissa2));
+    return Ca_.value()*sqr(d1 + d2)
+            *mag(sqr(d1) - sqr(d2));
 }
 
 // ************************************************************************* //

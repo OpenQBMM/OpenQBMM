@@ -54,8 +54,9 @@ autoPtr<phaseModel> phase2
 );
 volScalarField& alpha2(phase2());
 rhoThermo& thermo2 = phase2->thermo();
-const volScalarField& rho2 = thermo2.rho();
-const volVectorField& U2 = phase2->U();
+volScalarField& rho2 = thermo2.rho();
+const volScalarField psi2 = thermo2.psi();
+volVectorField& U2 = phase2->U();
 surfaceScalarField& phi2 = phase2->phi();
 surfaceScalarField& alphaPhi2 = phase2->alphaPhi();
 surfaceScalarField& alphaRhoPhi2 = phase2->alphaRhoPhi();
@@ -73,44 +74,16 @@ alphaRhoPhi1 = fvc::interpolate(rho1)*alphaPhi1;
 alphaPhi2 = fvc::interpolate(alpha2)*phi2;
 alphaRhoPhi2 = fvc::interpolate(rho2)*alphaPhi2;
 
-volScalarField rho
-(
-    IOobject
-    (
-        "rho",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    alpha1*rho1 + alpha2*rho2
-);
-
-Info<< "Reading field p_rgh\n" << endl;
-volScalarField p_rgh
-(
-    IOobject
-    (
-        "p_rgh",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
 label pRefCell = 0;
 scalar pRefValue = 0.0;
 setRefCell
 (
     p,
-    p_rgh,
     pimple.dict(),
     pRefCell,
     pRefValue
 );
-mesh.setFluxRequired(p_rgh.name());
+mesh.setFluxRequired(p.name());
 
 dimensionedScalar pMin
 (

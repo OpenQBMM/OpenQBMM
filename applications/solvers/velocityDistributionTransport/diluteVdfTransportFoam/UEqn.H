@@ -1,11 +1,10 @@
 // Solve the Momentum equation
-volScalarField alphaRho1(alpha1*rho1);
 MRF.correctBoundaryVelocity(U1);
 
 fvVectorMatrix UEqn
 (
-    fvm::ddt(alphaRho1, U1) + fvm::div(alphaRhoPhi1, U1)
-  + MRF.DDt(alphaRho1 + Cvm, U1)
+    fvm::ddt(alpha1, rho1, U1) + fvm::div(alphaRhoPhi1, U1)
+  + MRF.DDt(alpha1*rho1 + Cvm, U1)
   + phase1->turbulence().divDevRhoReff(U1)
  ==
     virtualMassSource
@@ -15,6 +14,7 @@ fvVectorMatrix UEqn
       + fvm::div(phi1, U1)
       - fvm::Sp(fvc::div(phi1), U1)
     )
+  + alpha1*rho1*g
   + dragSource
   - fvm::Sp(Kd, U1)
   + F
@@ -30,15 +30,8 @@ if (pimple.momentumPredictor())
     solve
     (
         UEqn
-        ==
-        fvc::reconstruct
-        (
-            (
-                - ghf*fvc::snGrad(rho)
-                - fvc::snGrad(p_rgh)
-            )*fvc::interpolate(alpha1)*mesh.magSf()
-          + fvc::interpolate(alpha2*(rho1 - rho2))*(g & mesh.Sf())
-        )
+     ==
+      - alpha1*fvc::grad(p)
     );
 
     fvOptions.correct(U1);

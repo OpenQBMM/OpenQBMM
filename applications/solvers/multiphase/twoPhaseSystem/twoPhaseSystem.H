@@ -79,11 +79,11 @@ class twoPhaseSystem
         //- Gravity
         const dimensionedVector g_;
 
-        //- polydispersePhase
-        autoPtr<phaseModel> phase1_;
-
         //- continuous phase
         autoPtr<phaseModel> phase2_;
+
+        //- polydispersePhase
+        autoPtr<phaseModel> phase1_;
 
         //- Number of nodes in the dispersed phase
         label nNodes_;

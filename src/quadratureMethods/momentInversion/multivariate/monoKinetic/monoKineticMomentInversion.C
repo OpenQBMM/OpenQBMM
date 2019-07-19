@@ -91,7 +91,7 @@ Foam::label Foam::multivariateMomentInversions::monoKinetic::calcNSizeMoments
 }
 
 
-void Foam::multivariateMomentInversions::monoKinetic::invert
+bool Foam::multivariateMomentInversions::monoKinetic::invert
 (
     const multivariateMomentSet& moments
 )
@@ -102,6 +102,11 @@ void Foam::multivariateMomentInversions::monoKinetic::invert
     forAll(sizeMoments, mi)
     {
         sizeMoments[mi] = moments(mi);
+    }
+
+    if (!sizeMoments.isRealizable(false))
+    {
+        return false;
     }
 
     sizeInverter_->invert(sizeMoments);
@@ -151,6 +156,7 @@ void Foam::multivariateMomentInversions::monoKinetic::invert
             }
         }
     }
+    return true;
 }
 
 

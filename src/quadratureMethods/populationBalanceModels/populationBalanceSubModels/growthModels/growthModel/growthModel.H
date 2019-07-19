@@ -103,12 +103,21 @@ public:
     virtual ~growthModel();
 
 
+    //- Return the derivative of length with respect to volume
+    static scalar dDdV(const scalar& d)
+    {
+        return
+            2.0
+            /max(Foam::constant::mathematical::pi*sqr(d), small);
+    }
+
     // Member Functions
 
         //- Growth model
         virtual scalar Kg
         (
             const scalar& abscissa,
+            const bool lengthBased,
             const label environment = 0
         ) const = 0;
 

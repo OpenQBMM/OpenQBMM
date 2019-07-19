@@ -32,14 +32,15 @@ divSchemes
 
     "div\(velocityAbscissae.*\)"        Gauss linear;
     "div\(interpolate\(velocityAbscissae.*\),velocityAbscissae.*\)" Gauss linear;
-    div(alphaPhi.water,thermo:rho.water) bounded Gauss limitedLinear 1;
-    div(alphaRhoPhi.water,U.water)      bounded Gauss limitedLinearV 1;
-    div(phi.water,U.water)              bounded Gauss limitedLinearV 1;
+    "div\(alphaPhi.*,thermo:rho.*\)" bounded Gauss limitedLinear 1;
+    "div\(alphaRhoPhi.*,U.*\)"      bounded Gauss limitedLinearV 1;
+    "div\(phi.*,U.*\)"              bounded Gauss limitedLinearV 1;
     div(phiRhoPhi.water,e.water)        bounded Gauss limitedLinear 1;
     div(phiRhoPhi.water,K)              bounded Gauss limitedLinear 1;
     div(devRhoReff.water)               Gauss linear;
     div((phi.water|interpolate(thermo:rho.water)),U.water) Gauss linear;
     div((((alpha.water*thermo:rho.water)*nuEff.water)*dev2(T(grad(U.water))))) Gauss linear;
+    div((((alpha.air*thermo:rho.air)*nuEff.air)*dev2(T(grad(U.air))))) Gauss linear;
 }
 
 laplacianSchemes

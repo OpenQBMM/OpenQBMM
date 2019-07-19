@@ -22,7 +22,7 @@ air
     type            polydispersePhaseModel;
     residualAlpha   1e-4;
     minD            1e-4;
-    maxD            1;
+    maxD            5e-2;
 }
 
 water
@@ -73,7 +73,6 @@ drag
     {
         type            Tomiyama;
         residualRe      1e-3;
-        A               24.0;
         swarmCorrection
         {
             type        none;

@@ -6,7 +6,6 @@ Info<< "Reading thermophysical properties\n" << endl;
 compressibleSystem fluid(mesh);
 
 fluidThermo& thermo = fluid.thermo();
-thermo.validate(args.executable(), "h", "e");
 
 const volScalarField& rho = fluid.rho();
 
@@ -19,13 +18,13 @@ autoPtr<compressible::turbulenceModel> turbulence
     (
         rho,
         U,
-        phi,
+        fluid.massFlux(),
         fluid.thermo()
     )
 );
 
 const volScalarField& muEff(fluid.thermo().mu());
-bool inviscid = (max(muEff).value() != 0);
+bool inviscid = (max(muEff).value() < small);
 
 errorEstimator error(mesh);
 

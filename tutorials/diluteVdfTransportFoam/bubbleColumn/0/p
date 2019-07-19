@@ -22,17 +22,17 @@ boundaryField
 {
     inlet
     {
-        type            calculated;
+        type            zeroGradient;
         value           $internalField;
     }
     outlet
     {
-        type            calculated;
+        type            fixedValue;
         value           $internalField;
     }
     walls
     {
-        type            calculated;
+        type            zeroGradient;
         value           $internalField;
     }
 }

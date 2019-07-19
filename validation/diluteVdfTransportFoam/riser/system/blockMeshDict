@@ -16,8 +16,8 @@ FoamFile
 
 convertToMeters 0.001;
 
-W       20;
-H       80;
+W       32;
+H       300;
 depth   20;
 
 vertices
@@ -63,7 +63,7 @@ boundary
     }
     walls
     {
-        type            patch;
+        type            wall;
         faces
         (
             (0 3 7 4)
