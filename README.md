@@ -32,9 +32,10 @@ version.
 
 ## Acknowledgments
 
-The development of the OpenQBMM solver suite is sponsored by the National
+The development of the OpenQBMM solver suite was sponsored by the National
 Science Foundation of the United States, under the SI2 – SSE award
-NSF – ACI 1440443.
+NSF – ACI 1440443 for the period between October 1st, 2014 and September 30th 
+2019.
 
 ## Contact information
 
