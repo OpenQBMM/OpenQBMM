@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -83,6 +83,7 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
         (
             this->nodesOwn_()[nodei].velocityAbscissae() & mesh.Sf()
         );
+        
         surfaceScalarField phiNei
         (
             this->nodesNei_()[nodei].velocityAbscissae() & mesh.Sf()

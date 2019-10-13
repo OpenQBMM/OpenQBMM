@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -95,6 +95,7 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
             turbulenceModel::propertiesName,
             continuousPhase_
         );
+        
     if (moment.mesh().foundObject<turbulenceModel>(turbName))
     {
         const turbulenceModel& turb =

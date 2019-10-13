@@ -58,20 +58,23 @@ IxFuncHeader(0,1,1)
 {
     Ix(0,1,1) =
       - (4.0*omegaPow[2]/35.0)*gPow[1].x()*gPow[1].y()*gPow[1].z()
-      + (4.0*omegaPow[1]/15.0)*(gPow[1].x()*gPow[1].z()*vPow[1].y() + gPow[1].x()*gPow[1].y()*vPow[1].z());
+      + (4.0*omegaPow[1]/15.0)*(gPow[1].x()*gPow[1].z()*vPow[1].y() 
+      + gPow[1].x()*gPow[1].y()*vPow[1].z());
 }
 
 IxFuncHeader(1,0,1)
 {
     Ix(1,0,1) =
-      - (2.0*omegaPow[2]/35.0)*(gMagSqr + 2.0*gPow[2].z())*(gPow[1].x() + vPow[1].z())
+      - (2.0*omegaPow[2]/35.0)*(gMagSqr + 2.0*gPow[2].z())
+        *(gPow[1].x() + vPow[1].z())
       + (4.0*omegaPow[1]/15.0)*gPow[1].x()*gPow[1].z()*vPow[1].x();
 }
 
 IxFuncHeader(1,1,0)
 {
     Ix(1,1) =
-      - (2.0*omegaPow[2]/35.0)*(gMagSqr + 2.0*gPow[2].y())*(gPow[1].x() + vPow[1].y())
+      - (2.0*omegaPow[2]/35.0)*(gMagSqr + 2.0*gPow[2].y())
+        *(gPow[1].x() + vPow[1].y())
       + (4.0*omegaPow[1]/15.0)*gPow[1].x()*gPow[1].y()*vPow[1].x();
 }
 
@@ -202,7 +205,8 @@ IxFuncHeader(1,2,0)
 IxFuncHeader(2,0,1)
 {
     Ix(2,0,1) =
-        (8.0*omegaPow[3]/315.0)*(3.0*gMagSqr + 2.0*gPow[2].x())*gPow[1].x()*gPow[1].z()
+        (8.0*omegaPow[3]/315.0)*(3.0*gMagSqr 
+            + 2.0*gPow[2].x())*gPow[1].x()*gPow[1].z()
       - (2.0*omegaPow[2]/35.0)
        *(
            2.0*(gMagSqr + 2.0*gPow[2].x())*gPow[1].z()*vPow[1].x()
@@ -274,7 +278,8 @@ IxFuncHeader(4,0,0)
        *(15.0*sqr(gMagSqr) + 40.0*gMagSqr*gPow[2].x() + 8.0*gPow[4].x())
        *gPow[1].x()
       + (8.0*omegaPow[3]/315.0)
-       *(3.0*sqr(gMagSqr) + 24.0*gMagSqr*gPow[2].x() + 8.0*gPow[4].x())*vPow[1].x()
+       *(3.0*sqr(gMagSqr) + 24.0*gMagSqr*gPow[2].x() 
+        + 8.0*gPow[4].x())*vPow[1].x()
       - (12.0*omegaPow[2]/35.0)
        *(3.0*gMagSqr + 2.0*gPow[2].x())*gPow[1].x()*vPow[2].x()
       + (8.0*omegaPow[1]/15.0)

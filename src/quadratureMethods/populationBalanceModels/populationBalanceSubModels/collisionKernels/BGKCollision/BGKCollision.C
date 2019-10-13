@@ -76,6 +76,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::covariance
             sigma.zz() = max(moments(0,0,2)[celli]/m0 - sqr(w), 0.0);
         }
     }
+
     return sigma;
 }
 
@@ -90,6 +91,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::covariance
 {
     symmTensor sigma(Zero);
     scalar m0 = moments(0);
+
     if (m0 < small)
     {
         return sigma;
@@ -109,6 +111,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::covariance
             sigma.zz() = max(moments(0,0,2)/m0 - sqr(w), 0.0);
         }
     }
+
     return sigma;
 }
 
@@ -128,6 +131,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         scalar u = moments(1)[celli]/max(m0, small);
         scalar v = 0.0;
         scalar w = 0.0;
+
         if (nDimensions_ > 1)
         {
             v = moments(0,1)[celli]/max(m0, small);
@@ -137,6 +141,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                 w = moments(0,0,1)[celli]/max(m0, small);
             }
         }
+
         symmTensor sigma = covariance(celli, u, v, w);
 
         // Temporay moments
@@ -148,10 +153,12 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         {
             (*iter)(tmpMoments, m0, u, v, w, sigma);
         }
+
         forAll(moments, mi)
         {
             Meq_[mi][celli] = tmpMoments[mi];
-        };
+        }
+
         return;
     }
 
@@ -202,11 +209,13 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
             const labelList& vOrder = velocityMomentOrders_[mi];
 
             scalar mCmpt = node.primaryWeight()[celli];
+
             forAll(vOrder, cmpt)
             {
                 mCmpt *=
                     pow(node.velocityAbscissae()[celli][cmpt], vOrder[cmpt]);
             }
+            
             velocityMoments_[sizei](vOrder) += mCmpt;
         }
     }
@@ -216,6 +225,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     {
         scalar m0i = velocityMoments_[sizei](0);
         weights[sizei] = m0i;
+
         ds[sizei] =
             max
             (
@@ -227,6 +237,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         if (m0i > minM0_)
         {
             Us[sizei].x() = velocityMoments_[sizei](1)/m0i;
+
             if (nDimensions_ > 1)
             {
                 Us[sizei].y() = velocityMoments_[sizei](0,1)/m0i;
@@ -236,6 +247,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                     Us[sizei].z() = velocityMoments_[sizei](0,0,1)/m0i;
                 }
             }
+
             Sigmas[sizei] =
                 covariance
                 (
@@ -248,17 +260,17 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
     }
 
     scalar alphard = 0.0;
+
     forAll(velocityMoments_, sizei)
     {
         alphard += weights[sizei]/ds[sizei];
     }
 
     // Compute source term coefficients and pair equilibrium distributions
-    scalar pi = Foam::constant::mathematical::pi;
     forAll(velocityMoments_, sizei)
     {
         scalar di = ds[sizei];
-        scalar Vi = pi/6.0*pow3(di);
+        scalar Vi = Foam::constant::mathematical::pi/6.0*pow3(di);
         scalar ni= weights[sizei]/Vi;
 
         forAll(velocityMoments_, sizej)
@@ -269,14 +281,16 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
             if (m0ij > minM0_)
             {
                 scalar dj = ds[sizej];
-                scalar Vj = pi/6.0*pow3(dj);
+                scalar Vj = Foam::constant::mathematical::pi/6.0*pow3(dj);
                 scalar nj = weights[sizej]/Vj;
                 scalar dij = (di + dj)*0.5;
 
                 vector Uij = Us[sizei];
                 symmTensor Sigmaij = Sigmas[sizei];
 
-                scalar xi = pi*(ni*sqr(di) + nj*sqr(dj))/6.0;
+                scalar xi = Foam::constant::mathematical::pi*(ni*sqr(di) 
+                    + nj*sqr(dj))/6.0;
+
                 scalar g0ij =
                     1.0/alphac
                   + 1.5*xi*di*dj/(sqr(alphac)*(dij))
@@ -295,7 +309,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                     // Collision time scale
                     Ks_[sizei][sizej] =
                         24.0*g0ij*weights[sizej]*sqrt(Thetai)
-                       /(sqrt(pi)*di);
+                       /(sqrt(Foam::constant::mathematical::pi)*di);
                 }
                 else
                 {
@@ -321,6 +335,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                                 0.0
                             );
                     }
+
                     if (nDimensions_ > 2)
                     {
                         Thetaij +=
@@ -331,6 +346,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                                 0.0
                             );
                     }
+
                     Thetaij /= nDimensions_;
 
                     symmTensor Sij =
@@ -344,13 +360,12 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                     scalar XiPow3 = pow3(dij/dj);
                     scalar massi = Vi*rhos_[sizei];
                     scalar massj = Vj*rhos_[sizej];
-
                     scalar muij = 2.0*massj/(massi + massj);
 
                     // Collision time scale calculation
                     Ks_[sizei][sizej] =
                         24.0*g0ij*weights[sizej]*XiPow3*sqrt(Thetaij)
-                       /(sqrt(pi)*dij);
+                       /(sqrt(Foam::constant::mathematical::pi)*dij);
 
                     // Covariance
                     Sigmaij +=
@@ -389,6 +404,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         const labelList& momentOrder = momentOrders_[mi];
         label si = momentOrder[sizeIndex_];
         labelList order(velocityIndexes_.size(), 0);
+
         forAll(velocityIndexes_, cmpt)
         {
             order[cmpt] = momentOrder[velocityIndexes_[cmpt]];
@@ -399,6 +415,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         forAll(velocityMoments_, sizei)
         {
             scalar mCmpt = 0.0;
+
             forAll(velocityMoments_, sizej)
             {
                 mCmpt +=
@@ -408,6 +425,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                       - velocityMoments_[sizei](order)
                     );
             }
+
             if (si > 0)
             {
                 mCmpt *=
@@ -417,6 +435,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                         si
                     );
             }
+
             Meqi += mCmpt;
         }
     }
@@ -448,6 +467,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
     forAll(momentOrders_, mi)
     {
         const labelList& momentOrder = momentOrders_[mi];
+
         Meq_.set
         (
             momentOrder,
@@ -559,6 +579,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
         forAll(Gs_, cmi)
         {
             Gs_.set(cmi, new PtrList<mappedScalarList>(nSizes_));
+
             forAll(Gs_[cmi], cmj)
             {
                 Gs_[cmi].set

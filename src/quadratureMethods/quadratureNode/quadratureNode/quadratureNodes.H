@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -48,7 +48,8 @@ typedef quadratureNode<surfaceScalarField, surfaceVectorField>
     surfaceScalarNode;
 
 typedef velocityQuadratureNode<volScalarField, volVectorField> volVelocityNode;
-typedef velocityQuadratureNode<surfaceScalarField, surfaceVectorField> surfaceVelocityNode;
+typedef velocityQuadratureNode<surfaceScalarField, surfaceVectorField> 
+    surfaceVelocityNode;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

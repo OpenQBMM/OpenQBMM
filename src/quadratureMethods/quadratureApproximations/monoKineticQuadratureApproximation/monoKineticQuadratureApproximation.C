@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -113,10 +113,12 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
             )
         );
     }
+
     nodesNei_ = autoPtr<PtrList<surfaceScalarNode>>
     (
         new PtrList<surfaceScalarNode>(nNodes_)
     );
+
     nodesOwn_ = autoPtr<PtrList<surfaceScalarNode>>
     (
         new PtrList<surfaceScalarNode>(nNodes_)
@@ -171,6 +173,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
                 U_.boundaryField().types()
             )
         );
+
         nodesNei.set
         (
             nodei,
@@ -185,6 +188,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
                 0
             )
         );
+
         velocitiesNei_.set
         (
             nodei,
@@ -224,6 +228,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
                 0
             )
         );
+
         velocitiesOwn_.set
         (
             nodei,
@@ -441,7 +446,9 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                     {
                         if (nonZeroNodes[nodei])
                         {
-                            velocityAbscissae_[nodei].boundaryFieldRef()[patchi][facei].component(cmpti) = Ucmpt[nodej][0];
+                            velocityAbscissae_[nodei].boundaryFieldRef()[patchi][facei].component(cmpti) 
+                                = Ucmpt[nodej][0];
+
                             nodej++;
                         }
                     }
@@ -454,7 +461,7 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                 if (!nonZeroNodes[nodei])
                 {
                     velocityAbscissae_[nodei].boundaryFieldRef()[patchi][facei]
-                    = U_.boundaryField()[patchi][facei];
+                        = U_.boundaryField()[patchi][facei];
                 }
             }
         }
@@ -526,10 +533,8 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
     }
 
     updateQuadrature();
-
     updateVelocities();
     updateBoundaryVelocities();
-
     updateAllMoments();
 }
 
@@ -568,8 +573,8 @@ bool Foam::monoKineticQuadratureApproximation::updateAllLocalQuadrature
     }
 
     bool realizable = updateLocalQuadrature(celli, failOnRealizability);
-    updateLocalVelocities(celli);
 
+    updateLocalVelocities(celli);
     updateAllLocalMoments(celli);
 
     return realizable;
@@ -618,6 +623,7 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
     if (nNonZeroNodes == 1)
     {
         label index = -1;
+
         forAll(nonZeroNodes, nodei)
         {
             if (nonZeroNodes[nodei])
@@ -626,6 +632,7 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
                 break;
             }
         }
+
         velocityAbscissae_[index][celli] =
             velocityMoments_[1][celli]
             /(
@@ -639,6 +646,7 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
         scalarSquareMatrix invR(nNonZeroNodes, 0.0);
         scalarDiagonalMatrix x(nNonZeroNodes, 0.0);
         label nodej = 0;
+
         for (label nodei = 0; nodei < nNodes_; nodei++)
         {
             if (nonZeroNodes[nodei])
@@ -662,12 +670,14 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
         {
             scalarRectangularMatrix Upcmpt(nNonZeroNodes, 1, 0.0);
             label nodej = 0;
+
             for (label nodei = 0; nodei < nNodes_; nodei++)
             {
                 if (nonZeroNodes[nodei])
                 {
                     Upcmpt[nodej][0] =
                         velocityMoments_[nodei][celli].component(cmpti);
+
                     nodej++;
                 }
             }
@@ -675,12 +685,14 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
             // Compute U_{\alpha} cmptI component using invVR matrix
             scalarRectangularMatrix Ucmpt = invVR*Upcmpt;
             nodej = 0;
+
             for (label nodei = 0; nodei < nNodes_; nodei++)
             {
                 if (nonZeroNodes[nodei])
                 {
                     velocityAbscissae_[nodei][celli].component(cmpti) =
                         Ucmpt[nodej][0];
+                        
                     nodej++;
                 }
             }

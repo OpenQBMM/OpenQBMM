@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -159,6 +159,7 @@ void Foam::hyperbolicMomentInversion::invert
                 << centralMoments[2]
                 << endl;
         }
+        
         for (label ci = 2; ci < nInvertibleMoments_; ci++)
         {
             centralMoments[ci] = 0.0;

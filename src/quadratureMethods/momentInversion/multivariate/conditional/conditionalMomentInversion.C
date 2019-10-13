@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -79,6 +79,7 @@ Foam::multivariateMomentInversions::conditional::conditional
             ).ptr()
         );
     }
+
     forAll(momentOrders_, mi)
     {
         forAll(nPureMoments_, dimi)
@@ -93,6 +94,7 @@ Foam::multivariateMomentInversions::conditional::conditional
     }
 
     labelList nNodesCM = nNodes_;
+
     forAll(nNodes_, dimi)
     {
         label nDimensions = dimi + 1;
@@ -191,6 +193,7 @@ bool Foam::multivariateMomentInversions::conditional::invert
             }
         }
     }
+
     forAll(conditionalWeights_, dimi)
     {
         forAll(conditionalWeights_[dimi], ai)
@@ -210,6 +213,7 @@ bool Foam::multivariateMomentInversions::conditional::invert
     {
         momentsToInvert[mi] = moments(mi);
     }
+
     if (!momentsToInvert.isRealizable(false))
     {
         return false;
@@ -222,13 +226,16 @@ bool Foam::multivariateMomentInversions::conditional::invert
 
     vi_ = 0;
     si_ = 0;
+
     forAll(weights, nodei)
     {
         conditionalWeights_[0](nodei) = weights[nodei];
     }
+
     forAll(nodeIndexes_, nodei)
     {
         label index = nodeIndexes_[nodei][0];
+
         if (index < weights.size())
         {
             weights_[nodei] = weights[index];
@@ -262,6 +269,7 @@ bool Foam::multivariateMomentInversions::conditional::invert
         if (velocityIndexes_[vi_] == dimi - 1)
         {
             vi_++;
+
             if (vi_ >= velocityIndexes_.size())
             {
                 vi_ = 0;
@@ -273,6 +281,7 @@ bool Foam::multivariateMomentInversions::conditional::invert
         }
 
         labelList posW(dimi + 1, 0);
+
         if (!cycleAlphaWheeler(dimi, 0, posW))
         {
             return false;
@@ -330,6 +339,7 @@ Foam::multivariateMomentInversions::conditional::cycleAlphaCM
     if (dimj == ai)
     {
         cycleAlphaCM(dimi, dimj, ai+1, pos);
+
         return;
     }
     else if (ai < dimi)
@@ -339,6 +349,7 @@ Foam::multivariateMomentInversions::conditional::cycleAlphaCM
             pos[ai] = i;
             cycleAlphaCM(dimi, dimj, ai+1, pos);
         }
+
         return;
     }
     else if (ai == dimi)
@@ -348,11 +359,13 @@ Foam::multivariateMomentInversions::conditional::cycleAlphaCM
             pos[dimi] = i;
             cycleAlphaCM(dimi, dimj, ai+1, pos);
         }
+
         return;
     }
     else
     {
         labelList posVR(max(1, dimj), 0);
+
         if (dimj != 0)
         {
             for (label i = 0; i < posVR.size(); i++)
@@ -420,6 +433,7 @@ void Foam::multivariateMomentInversions::conditional::setVR
     {
         scalarDiagonalMatrix weights;
         scalarDiagonalMatrix x;
+
         for (label nodei = 0; nodei < nNodes_[dimj]; nodei++)
         {
             pos[dimj] = nodei;
@@ -440,12 +454,13 @@ void Foam::multivariateMomentInversions::conditional::setVR
                 weights.append(weight);
             }
         }
+
         scalarSquareMatrix invR(weights.size(), 0.0);
+
         forAll(weights, nodei)
         {
             invR[nodei][nodei] = 1.0/weights[nodei];
         }
-
 
         Vandermonde V(x);
         scalarSquareMatrix invV(V.inv());
@@ -484,6 +499,7 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
     {
         pos[dimi] = 0;
         scalar cm0 = conditionalMoments_[dimi][dimi - 1](pos);
+
         if (mag(cm0) < small)
         {
             for (label nodei = 0; nodei < nNodes_[dimi]; nodei++)
@@ -502,6 +518,7 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
                     weights_[nodei] /= nNodes_[dimi];
                 }
             }
+
             return true;
         }
 
@@ -539,6 +556,7 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
             pos[dimi] = index;
 
             bool sameNode = compare(pos, nodeIndex);
+            
             if (index < weights.size() && sameNode)
             {
                 weights_[nodei] *= weights[index];

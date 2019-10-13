@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -43,7 +43,8 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::reflectiveMovingWallFvQuadraturePatch::reflectiveMovingWallFvQuadraturePatch
+Foam::reflectiveMovingWallFvQuadraturePatch
+::reflectiveMovingWallFvQuadraturePatch
 (
     const fvPatch& patch,
     const dictionary& dict,
@@ -59,7 +60,8 @@ Foam::reflectiveMovingWallFvQuadraturePatch::reflectiveMovingWallFvQuadraturePat
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::reflectiveMovingWallFvQuadraturePatch::~reflectiveMovingWallFvQuadraturePatch()
+Foam::reflectiveMovingWallFvQuadraturePatch
+::~reflectiveMovingWallFvQuadraturePatch()
 {}
 
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -61,8 +61,6 @@ protected:
         word scalarAbscissaeScheme_;
         word velocityAbscissaeScheme_;
 
-        //- Flux moment inversion method
-//         autoPtr<hyperbolicFieldMomentInversion> momentFieldInverter_;
 
     // Protected member functions
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -119,6 +119,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
     label sizeOrder = momentOrder[sizeIndex];
     bool volumeFraction = nodes[0].useVolumeFraction();
+
     if (volumeFraction)
     {
         if (lengthBased)
@@ -144,6 +145,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
 
             scalar bSourcei = 0.0;
+
             if (lengthBased)
             {
                 bSourcei = nodeSource(bAbscissa, sizeOrder);
@@ -181,6 +183,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                         );
                 }
             }
+
             bSource += bSourcei;
         }
 
@@ -197,6 +200,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                 max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
 
             scalar bSourcei = 0.0;
+
             if (lengthBased)
             {
                 bSourcei = nodeSource(bAbscissa, sizeOrder);
@@ -236,6 +240,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                         );
                 }
             }
+
             bSource += bSourcei;
         }
     }
@@ -264,6 +269,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
     label sizeOrder = momentOrder[sizeIndex];
     bool volumeFraction = nodes[0].useVolumeFraction();
+
     if (volumeFraction)
     {
         if (lengthBased)
@@ -283,11 +289,14 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     if (!nodes[0].extended())
     {
         scalarList bSources(nSizes, 0.0);
+
         for (label sizei = 0; sizei < nSizes; sizei++)
         {
             const volVelocityNode& node = nodes(sizei);
+
             scalar bAbscissa =
                 max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+
             if (lengthBased)
             {
                 bSources[sizei] = nodeSource(bAbscissa, sizeOrder);
@@ -331,6 +340,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                         );
                 }
             }
+
             forAll(velocityIndexes, cmpt)
             {
                 bSourcei *=
@@ -340,6 +350,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                         momentOrder[velocityIndexes[cmpt]]
                     );
             }
+
             bSource += bSourcei;
         }
 
@@ -353,8 +364,10 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
         for (label sNodei = 0; sNodei < nSecondaryNodes; sNodei++)
         {
             const volVelocityNode& node = nodes(pNodei);
+
             scalar bAbscissa =
                 max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
+
             if (lengthBased)
             {
                 bSources[pNodei][sNodei] = nodeSource(bAbscissa, sizeOrder);
@@ -386,6 +399,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
         label sizei = quadrature.nodeIndexes()[pNodei][sizeIndex];
 
         scalar bSourcei = 0.0;
+
         forAll(node.secondaryWeights()[0], sNodei)
         {
             bSourcei +=
@@ -394,6 +408,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                *bSources[sizei][sNodei];
 
         }
+
         forAll(scalarIndexes, cmpt)
         {
             if (scalarIndexes[cmpt] != sizeIndex)
@@ -406,6 +421,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                     );
             }
         }
+
         forAll(velocityIndexes, cmpt)
         {
             bSourcei *=
@@ -415,6 +431,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
                     momentOrder[velocityIndexes[cmpt]]
                 );
         }
+        
         bSource += bSourcei;
     }
 

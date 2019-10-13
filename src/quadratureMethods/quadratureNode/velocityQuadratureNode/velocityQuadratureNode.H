@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,9 +25,7 @@ Class
     Foam::velocityQuadratureNode
 
 Description
-    Extended version of the quadrature node, which stores the list of secondary
-    weights and abscissae associated to the primary weight and abscissa, and
-    the sigma parameter.
+    Implementation of the velocity quadrature node.
 
 SourceFiles
     velocityQuadratureNode.C
@@ -52,6 +50,7 @@ namespace Foam
 /*---------------------------------------------------------------------------*\
                        Class velocityQuadratureNode Declaration
 \*---------------------------------------------------------------------------*/
+
 template<class scalarType, class vectorType>
 class velocityQuadratureNode
 :
@@ -103,8 +102,7 @@ public:
         );
 
         //- Return clone
-        autoPtr<velocityQuadratureNode<scalarType, vectorType>>
-            clone() const;
+        autoPtr<velocityQuadratureNode<scalarType, vectorType>> clone() const;
 
         //- Return a pointer to a new quadrature node created on freestore
         //  from Istream
@@ -147,6 +145,7 @@ public:
             ) const
             {
                 labelList ent(is);
+
                 return autoPtr<velocityQuadratureNode<scalarType, vectorType>>
                 (
                     new velocityQuadratureNode<scalarType, vectorType>

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -156,6 +156,7 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
             forAll(momentsToInvert, momenti)
             {
                 const labelList& momentOrder = momentOrders_[momenti];
+
                 momentsToInvert(momentOrder)
                         = moments(momentOrder).boundaryField()[patchi][facei];
             }
@@ -164,10 +165,12 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
             momentInverter_().invert(momentsToInvert);
 
             const mappedList<scalar>& weights(momentInverter_->weights());
+
             const mappedList<scalarList>& abscissae
             (
                 momentInverter_->abscissae()
             );
+
             const mappedList<vector>& velocityAbscissae
             (
                 momentInverter_->velocityAbscissae()
@@ -186,12 +189,15 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
                     node.velocityAbscissae().boundaryFieldRef();
 
                 weightBf[patchi][facei] = weights(nodeIndex);
+
                 velocityAbscissaBf[patchi][facei] =
                     velocityAbscissae(nodeIndex);
+
                 forAll(node.scalarIndexes(), cmpt)
                 {
                     volScalarField::Boundary& abscissaBf =
                         node.primaryAbscissae()[cmpt].boundaryFieldRef();
+
                     abscissaBf[patchi][facei] = abscissae(nodeIndex)[cmpt];
                 }
             }
@@ -225,9 +231,6 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
     {
         return false;
     }
-
-    // Find quadrature
-
 
     // Recovering quadrature
     const mappedScalarList& weights(momentInverter_().weights());

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -44,7 +44,11 @@ Foam::mappedList<mappedType>::listToWord(const labelList& lst)
 
 template <class mappedType>
 Foam::label
-Foam::mappedList<mappedType>::listToLabel(const labelList& lst, const label nDims)
+Foam::mappedList<mappedType>::listToLabel
+(
+    const labelList& lst, 
+    const label nDims
+)
 {
     label l = 0;
     label size = max(nDims, lst.size());
@@ -100,6 +104,7 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
     {
         nDims_ = max(nDims_, indexes[i].size());
     }
+
     forAll(*this, elemi)
     {
         map_.insert
@@ -125,11 +130,13 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
     {
         label x = iter.key();
         label nD = 0;
+
         while (x)
         {
             x /= 10;
             nD++;
         }
+
         nDims_ = max(nDims_, nD);
     }
 }
@@ -214,14 +221,17 @@ bool Foam::mappedList<mappedType>::found(const labelList& l) const
     {
         return false;
     }
+
     forAllConstIter(Map<label>, map_, iter)
     {
         label x = iter.key();
+
         if (x == listToLabel(l, nDims_))
         {
             return true;
         }
     }
+
     return false;
 }
 
@@ -233,14 +243,17 @@ bool Foam::mappedList<mappedType>::found(ArgsT...args) const
     {
         return false;
     }
+
     forAllConstIter(Map<label>, map_, iter)
     {
         label x = iter.key();
+
         if (x == calcMapIndex({args...}))
         {
             return true;
         }
     }
+    
     return false;
 }
 

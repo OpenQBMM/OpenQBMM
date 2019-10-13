@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -74,6 +74,7 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
                 phi_.mesh()
             );
     }
+
     if (breakup_)
     {
         breakupKernel_ =
@@ -83,6 +84,7 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
                 phi_.mesh()
             );
     }
+
     if (growth_)
     {
         growthModel_ =
@@ -91,6 +93,7 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
                 dict.subDict("growthModel")
             );
     }
+
     if (dict.found("diffusionModel"))
     {
         diffusionModel_ =
@@ -99,6 +102,7 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
                 dict.subDict("diffusionModel")
             );
     }
+
     if (nucleation_)
     {
         nucleationModel_ =
@@ -136,10 +140,14 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
     {
         return momentEqn + diffusionModel_->momentDiff(moment);
     }
-    else return momentEqn;
+    else 
+    {
+        return momentEqn;
+    }
 }
 
-void Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
+void 
+Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
 ::explicitMomentSource()
 {
     if
@@ -150,10 +158,12 @@ void Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBa
     {
         odeType::solve(quadrature_, 0);
     }
+
     return;
 }
 
-Foam::scalar Foam::PDFTransportModels::populationBalanceModels
+Foam::scalar 
+Foam::PDFTransportModels::populationBalanceModels
 ::sizeVelocityPopulationBalance::cellMomentSource
 (
     const labelList& momentOrder,

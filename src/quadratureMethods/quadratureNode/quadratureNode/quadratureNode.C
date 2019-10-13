@@ -2,21 +2,25 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
+
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
+
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
+
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    
 \*---------------------------------------------------------------------------*/
 
 #include "quadratureNode.H"
@@ -94,6 +98,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         << "Only one abscissae can be sized based."
                         << abort(FatalError);
                 }
+
                 sizeIndex_ = dimi;
 
                 if (abscissaeDimensions[dimi] == dimLength)
@@ -104,6 +109,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 {
                     massBased_ = true;
                     word rhoName = IOobject::groupName("thermo:rho", name_);
+
                     if (mesh.foundObject<volScalarField>(rhoName))
                     {
                         rhoPtr_ = &mesh.lookupObject<volScalarField>(rhoName);
@@ -114,6 +120,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     }
 
     abscissae_.resize(scalarIndexes_.size());
+
     if (extended_)
     {
         secondaryWeights_.resize(scalarIndexes_.size());
@@ -149,7 +156,8 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
 
         if (extended_)
         {
-            // Allocating secondary quadrature only if the node is of extended type
+            // Allocating secondary quadrature only if the node is of extended 
+            // type
             secondaryWeights_.set
             (
                 dimi,
@@ -317,6 +325,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         << "Only one abscissae can be sized based."
                         << abort(FatalError);
                 }
+
                 sizeIndex_ = dimi;
 
                 if (abscissaeDimensions[dimi] == dimLength)
@@ -326,7 +335,13 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 else if (abscissaeDimensions[dimi] == dimMass)
                 {
                     massBased_ = true;
-                    word rhoName = IOobject::groupName("thermo:rho", IOobject::group(name_));
+                    word rhoName = 
+                        IOobject::groupName
+                        (
+                            "thermo:rho", 
+                            IOobject::group(name_)
+                        );
+
                     if (mesh.foundObject<volScalarField>(rhoName))
                     {
                         rhoPtr_ = &mesh.lookupObject<volScalarField>(rhoName);
@@ -337,6 +352,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     }
 
     abscissae_.resize(scalarIndexes_.size());
+
     if (extended_)
     {
         secondaryWeights_.resize(scalarIndexes_.size());
@@ -373,12 +389,14 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
 
         if (extended_)
         {
-            // Allocating secondary quadrature only if the node is of extended type
+            // Allocating secondary quadrature only if the node is of extended 
+            // type
             secondaryWeights_.set
             (
                 dimi,
                 new PtrList<weightType>(nSecondaryNodes_)
             );
+
             secondaryAbscissae_.set
             (
                 dimi,
@@ -513,19 +531,19 @@ Foam::quadratureNode<scalarType, vectorType>::d
                 dimensionedScalar("d", dimLength, 0.0)
             )
         );
-
     }
+
     if (lengthBased_)
     {
         return x;
     }
 
-    scalar pi = Foam::constant::mathematical::pi;
     if (massBased_ && rhoPtr_)
     {
-        return cbrt(x*6.0/(pi*(*rhoPtr_)));
+        return cbrt(x*6.0/(Foam::constant::mathematical::pi*(*rhoPtr_)));
     }
-    return cbrt(x*6.0/pi);
+
+    return cbrt(x*6.0/Foam::constant::mathematical::pi);
 }
 
 
@@ -545,12 +563,11 @@ Foam::scalar Foam::quadratureNode<scalarType, vectorType>::d
         return x;
     }
 
-    scalar pi = Foam::constant::mathematical::pi;
     if (massBased_ && rhoPtr_)
     {
-        return cbrt(x*6.0/(pi*(*rhoPtr_)[celli]));
+        return cbrt(x*6.0/(Foam::constant::mathematical::pi*(*rhoPtr_)[celli]));
     }
-    return cbrt(x*6.0/pi);
+    return cbrt(x*6.0/Foam::constant::mathematical::pi);
 }
 
 
@@ -581,7 +598,9 @@ Foam::quadratureNode<scalarType, vectorType>::n
     {
         v = x;
     }
+
     v.ref().max(pow3(small));
+
     return w/v;
 }
 
@@ -600,6 +619,7 @@ Foam::scalar Foam::quadratureNode<scalarType, vectorType>::n
     }
 
     scalar v = pow3(small);
+
     if (massBased_ && rhoPtr_)
     {
         v = max(v, x/(*rhoPtr_)[celli]);
@@ -612,6 +632,7 @@ Foam::scalar Foam::quadratureNode<scalarType, vectorType>::n
     {
         v = max(v, x);
     }
+
     return w/v;
 }
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -44,7 +44,8 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::reflectiveRotatingWallFvQuadraturePatch::reflectiveRotatingWallFvQuadraturePatch
+Foam::reflectiveRotatingWallFvQuadraturePatch
+::reflectiveRotatingWallFvQuadraturePatch
 (
     const fvPatch& patch,
     const dictionary& dict,
@@ -62,14 +63,15 @@ Foam::reflectiveRotatingWallFvQuadraturePatch::reflectiveRotatingWallFvQuadratur
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::reflectiveRotatingWallFvQuadraturePatch::~reflectiveRotatingWallFvQuadraturePatch()
+Foam::reflectiveRotatingWallFvQuadraturePatch
+::~reflectiveRotatingWallFvQuadraturePatch()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::vectorField>
-Foam::reflectiveRotatingWallFvQuadraturePatch::wallTangentVelocity
+Foam::tmp<Foam::vectorField> Foam::reflectiveRotatingWallFvQuadraturePatch
+::wallTangentVelocity
 (
     const vectorField& U,
     const vectorField& n

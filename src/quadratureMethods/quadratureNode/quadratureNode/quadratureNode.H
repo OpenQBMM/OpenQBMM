@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -153,8 +153,7 @@ public:
         );
 
         //- Return clone
-        autoPtr<quadratureNode<scalarType, vectorType>>
-            clone() const;
+        autoPtr<quadratureNode<scalarType, vectorType>> clone() const;
 
         //- Return a pointer to a new quadrature node created on freestore
         //  from Istream
@@ -197,6 +196,7 @@ public:
             ) const
             {
                 labelList ent(is);
+                
                 return autoPtr<quadratureNode<scalarType, vectorType>>
                 (
                     new quadratureNode<scalarType, vectorType>

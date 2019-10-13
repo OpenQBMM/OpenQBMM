@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -61,7 +61,7 @@ protected:
 
     // Protected data
 
-        //- Name of the distribution associated to the quadrature approximation.
+        //- Name of the distribution associated to the quadrature approximation
         const word name_;
 
         //- Reference to the moments to advect

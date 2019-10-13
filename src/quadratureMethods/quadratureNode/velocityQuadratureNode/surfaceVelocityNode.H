@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -21,11 +21,15 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-InClass
+Class
+    Foam::surfaceVelocityNode
 
 Description
+    Surface field of velocity quadrature nodes.
 
 SourceFiles
+    surfaceVelocityNode.C
+    surfaceVelocityNodeI.H
 
 \*---------------------------------------------------------------------------*/
 

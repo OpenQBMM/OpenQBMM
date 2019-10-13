@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -120,10 +120,12 @@ void Foam::reflectiveFvQuadraturePatch::update()
         bfwNei = bfwOwn;
 
         bfUOwn = U.boundaryField()[patchi_].patchInternalField();
+
         tmp<vectorField> vn
         (
             -this->ew_*(bfUOwn & bfNorm)*bfNorm
         );
+
         bfUNei = vn + wallTangentVelocity(bfUOwn, bfNorm);
 
         Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
@@ -139,6 +141,7 @@ void Foam::reflectiveFvQuadraturePatch::update()
         {
             scalarField& bfWNei =
                 nodesNei_[nodei].primaryWeight().boundaryFieldRef()[patchi_];
+                
             bfWNei *= weightScale;
         }
     }

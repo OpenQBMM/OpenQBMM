@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -101,6 +101,7 @@ calcNSizeMoments
 )
 {
     label maxOrder = 0;
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
@@ -109,6 +110,7 @@ calcNSizeMoments
             maxOrder = momentOrder[0];
         }
     }
+
     return maxOrder + 1;
 }
 
@@ -122,6 +124,7 @@ invert
 {
     reset();
     scalar m0 = moments(0);
+
     if (mag(m0) < small)
     {
         forAll(weights_, nodei)
@@ -132,6 +135,7 @@ invert
     }
 
     univariateMomentSet sizeMoments(nSizeMoments_, "RPlus", 0.0);
+
     forAll(sizeMoments, mi)
     {
         sizeMoments[mi] = moments(mi);
@@ -150,6 +154,7 @@ invert
     {
         const labelList& nodeIndex = nodeIndexes_[nodei];
         label sizeNode = nodeIndex[0];
+
         if (sizeNode < sizeInverter_->nNodes())
         {
             weights_(nodeIndex) = sizeWeights[sizeNode];
@@ -169,11 +174,13 @@ invert
             x[nodei] = max(sizeAbscissae[nodei], small);
             invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], small);
         }
+
         Vandermonde V(x);
         scalarSquareMatrix invVR = invR*V.inv();
 
         // Compute conditional velocity moments and invert
         PtrList<mappedScalarList> conditionalMoments(nSizeNodes);
+
         forAll(conditionalMoments, sNodei)
         {
             conditionalMoments.set
@@ -192,17 +199,20 @@ invert
         {
             const labelList& velocityMomentOrder = velocityMomentOrders_[mi];
             labelList pureMomentOrder(nDistributionDims_, 0);
+
             for (label dimi = 1; dimi < nDistributionDims_; dimi++)
             {
                 pureMomentOrder[dimi] = velocityMomentOrder[dimi - 1];
             }
 
             scalarRectangularMatrix M(nSizeNodes, 1, 0);
+
             for (label sNodei = 0; sNodei < nSizeNodes; sNodei++)
             {
                 pureMomentOrder[0] = sNodei;
                 M(sNodei, 0) = moments(pureMomentOrder);
             }
+
             scalarRectangularMatrix nu = invVR*M;
 
             forAll(conditionalMoments, sNodei)
@@ -221,18 +231,24 @@ invert
                     velocityMomentOrders_,
                     "R"
                 );
+
                 forAll(momentsToInvert, mi)
                 {
                     momentsToInvert(velocityMomentOrders_[mi]) =
                         conditionalMoments[sNodei](velocityMomentOrders_[mi]);
                 }
+
                 velocityInverter_->invert(momentsToInvert);
 
                 forAll(velocityNodeIndexes_, nodei)
                 {
-                    const labelList& velocityNodeIndex = velocityNodeIndexes_[nodei];
+                    const labelList& velocityNodeIndex = 
+                        velocityNodeIndexes_[nodei];
+
                     labelList nodeIndex(nDistributionDims_, 0);
+
                     nodeIndex[0] = sNodei;
+
                     for (label dimi = 1; dimi < nDistributionDims_; dimi++)
                     {
                         nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
@@ -240,6 +256,7 @@ invert
 
                     weights_(nodeIndex) *=
                         velocityInverter_->weights()(velocityNodeIndex);
+
                     velocityAbscissae_(nodeIndex) =
                         velocityInverter_->velocityAbscissae()
                         (
@@ -251,13 +268,17 @@ invert
             {
                 forAll(velocityNodeIndexes_, nodei)
                 {
-                    const labelList& velocityNodeIndex = velocityNodeIndexes_[nodei];
+                    const labelList& velocityNodeIndex = 
+                        velocityNodeIndexes_[nodei];
+
                     labelList nodeIndex(nDistributionDims_, 0);
                     nodeIndex[0] = sNodei;
+
                     for (label dimi = 1; dimi < nDistributionDims_; dimi++)
                     {
                         nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
                     }
+                    
                     weights_(nodeIndex) /= (weights_.size()/nSizeNodes_);
                 }
             }

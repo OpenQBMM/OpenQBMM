@@ -516,7 +516,8 @@ void Foam::univariateMomentSet::checkRealizability
     if (support_ == "R")
     {
         alpha_[nD] = zRecurrence[nD][nD + 1]/max(zRecurrence[nD][nD], small)
-                    - zRecurrence[nD - 1][nD]/max(zRecurrence[nD - 1][nD - 1], small);
+                    - zRecurrence[nD - 1][nD]/max(zRecurrence[nD - 1][nD - 1], 
+                    small);
 
         if (beta_[nD] <= 0.0)
         {

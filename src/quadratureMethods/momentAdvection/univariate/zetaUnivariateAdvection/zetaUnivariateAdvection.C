@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -90,6 +90,7 @@ Foam::univariateAdvection::zeta::zeta
             << "univariate distributions."
             << abort(FatalError);
     }
+
     // Populating zeta_k fields and interpolated zeta_k fields
     forAll(zetas_, zetai)
     {
@@ -299,6 +300,7 @@ void Foam::univariateAdvection::zeta::interpolateFields()
     (
         fvc::scheme<scalar>(own_, m0OwnLimiter)
     );
+
     tmp<surfaceInterpolationScheme<scalar>> zetaOwnScheme
     (
         fvc::scheme<scalar>(own_, zetaOwnLimiter)
@@ -311,6 +313,7 @@ void Foam::univariateAdvection::zeta::interpolateFields()
     (
         fvc::scheme<scalar>(nei_, m0NeiLimiter)
     );
+    
     tmp<surfaceInterpolationScheme<scalar>> zetaNeiScheme
     (
         fvc::scheme<scalar>(nei_, zetaNeiLimiter)

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2016 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -117,8 +117,8 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::implicitMomentSource
 }
 
 
-Foam::scalar Foam::PDFTransportModels::mixingModels::turbulentMixing::realizableCo
-()
+Foam::scalar Foam::PDFTransportModels::mixingModels::turbulentMixing
+::realizableCo()
 {
     return univariatePDFTransportModel::realizableCo();
 }

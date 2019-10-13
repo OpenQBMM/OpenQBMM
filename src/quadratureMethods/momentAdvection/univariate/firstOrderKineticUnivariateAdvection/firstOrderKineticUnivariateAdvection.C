@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -77,6 +77,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     }
 
     const Map<label> map = quadrature.nodes().map();
+
     nodes_ = autoPtr<mappedPtrList<volScalarNode>>
     (
         new mappedPtrList<volScalarNode>(nNodes_, map)
@@ -97,6 +98,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     mappedPtrList<surfaceScalarNode>& nodesOwn = nodesOwn_();
 
     PtrList<dimensionSet> abscissaDimensions(1);
+
     abscissaDimensions.set
     (
         0,
@@ -210,10 +212,12 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
 
     IStringStream weightOwnLimiter("upwind");
     IStringStream abscissaOwnLimiter("upwind");
+
     tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme
     (
         fvc::scheme<scalar>(own_, weightOwnLimiter)
     );
+
     tmp<surfaceInterpolationScheme<scalar>> abscissaOwnScheme
     (
         fvc::scheme<scalar>(own_, abscissaOwnLimiter)
@@ -221,10 +225,12 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
 
     IStringStream weightNeiLimiter("upwind");
     IStringStream abscissaNeiLimiter("upwind");
+
     tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme
     (
         fvc::scheme<scalar>(nei_, weightNeiLimiter)
     );
+
     tmp<surfaceInterpolationScheme<scalar>> abscissaNeiScheme
     (
         fvc::scheme<scalar>(nei_, abscissaNeiLimiter)
@@ -238,6 +244,7 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
 
         nodeOwn.primaryWeight() =
             weightOwnScheme().interpolate(node.primaryWeight());
+
         nodeNei.primaryWeight() =
             weightNeiScheme().interpolate(node.primaryWeight());
 
@@ -248,6 +255,7 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
                 (
                     node.primaryAbscissae()[cmpt]
                 );
+                
             nodeNei.primaryAbscissae()[cmpt] =
                 abscissaNeiScheme().interpolate
                 (

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -115,6 +115,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         {
             moments[mi].correctBoundaryConditions();
         }
+
         quadrature.updateBoundaryQuadrature();
 
         return;
@@ -198,6 +199,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 forAll(k2, mi)
                 {
                     const labelList& order = momentOrders[mi];
+
                     k2[mi] =
                         localDt*cellMomentSource
                         (
@@ -206,6 +208,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                             quadrature,
                             enviroment
                         );
+
                     moments[mi][celli] = oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
                 }
 
@@ -216,6 +219,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                 // Third moment update
                 updateCellMomentSource(celli);
+
                 forAll(k3, mi)
                 {
                     const labelList& order = momentOrders[mi];
@@ -333,16 +337,19 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             }
         }
     }
+
     forAll(moments, mi)
     {
         moments[mi].correctBoundaryConditions();
     }
+
     quadrature.updateBoundaryQuadrature();
 }
 
 
 template<class momentType, class nodeType>
-void Foam::realizableOdeSolver<momentType, nodeType>::read(const dictionary& dict)
+void Foam::realizableOdeSolver<momentType, nodeType>
+::read(const dictionary& dict)
 {
     const dictionary& odeDict = dict.subDict("odeCoeffs");
     solveSources_ = odeDict.lookupOrDefault<Switch>("solveSources", true);

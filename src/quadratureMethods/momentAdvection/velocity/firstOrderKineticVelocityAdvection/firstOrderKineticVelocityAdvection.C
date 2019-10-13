@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -72,10 +72,12 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
     IStringStream weightOwnLimiter(weightScheme_);
     IStringStream scalarAbscissaeOwnLimiter(scalarAbscissaeScheme_);
     IStringStream velocityAbscissaeOwnLimiter(velocityAbscissaeScheme_);
+
     tmp<surfaceInterpolationScheme<scalar>> weightOwnScheme
     (
         fvc::scheme<scalar>(own_, weightOwnLimiter)
     );
+
     tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeOwnScheme
     (
         fvc::scheme<scalar>
@@ -84,6 +86,7 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
             scalarAbscissaeOwnLimiter
         )
     );
+
     tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeOwnScheme
     (
         fvc::scheme<vector>
@@ -96,10 +99,12 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
     IStringStream weightNeiLimiter(weightScheme_);
     IStringStream scalarAbscissaeNeiLimiter(scalarAbscissaeScheme_);
     IStringStream velocityAbscissaeNeiLimiter(velocityAbscissaeScheme_);
+
     tmp<surfaceInterpolationScheme<scalar>> weightNeiScheme
     (
         fvc::scheme<scalar>(nei_, weightNeiLimiter)
     );
+
     tmp<surfaceInterpolationScheme<scalar>> scalarAbscissaeNeiScheme
     (
         fvc::scheme<scalar>
@@ -108,6 +113,7 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
             scalarAbscissaeNeiLimiter
         )
     );
+
     tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeNeiScheme
     (
         fvc::scheme<vector>
@@ -128,11 +134,13 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
 
         nodeOwn.primaryWeight() =
             weightOwnScheme().interpolate(node.primaryWeight());
+
         nodeOwn.velocityAbscissae() =
             velocityAbscissaeOwnScheme().interpolate(node.velocityAbscissae());
 
         nodeNei.primaryWeight() =
             weightNeiScheme().interpolate(node.primaryWeight());
+
         nodeNei.velocityAbscissae() =
             velocityAbscissaeNeiScheme().interpolate(node.velocityAbscissae());
 
@@ -143,6 +151,7 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
                 (
                     node.primaryAbscissae()[cmpt]
                 );
+
             nodeNei.primaryAbscissae()[cmpt] =
                 scalarAbscissaeNeiScheme().interpolate
                 (
@@ -168,6 +177,7 @@ Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
         (
             mag(this->nodesOwn_()[nodei].velocityAbscissae() & mesh.Sf())
         );
+
         surfaceScalarField phiNei
         (
             mag(this->nodesNei_()[nodei].velocityAbscissae() & mesh.Sf())
@@ -178,6 +188,7 @@ Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
             const labelList& cell = mesh.cells()[celli];
 
             scalar den = 0;
+
             forAll(cell, facei)
             {
                 if (cell[facei] < mesh.nInternalFaces())
@@ -191,6 +202,7 @@ Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
                 }
 
                 den = max(den, small);
+
                 maxCoNum[celli] =
                     min
                     (
@@ -201,6 +213,7 @@ Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
             }
         }
     }
+
     return gMin(maxCoNum);
 }
 
@@ -223,6 +236,7 @@ Foam::scalar Foam::velocityAdvection::firstOrderKinetic::CoNum() const
                 )*mesh.time().deltaTValue()
             );
     }
+
     return CoNum;
 }
 
@@ -262,6 +276,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
 
         const PtrList<surfaceScalarField>& scalarAbscissaeOwn =
             nodeOwn.primaryAbscissae();
+
         const PtrList<surfaceScalarField>& scalarAbscissaeNei =
             nodeNei.primaryAbscissae();
 
@@ -287,6 +302,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
                 {
                     const surfaceScalarField& abscissaOwnCmpt =
                     scalarAbscissaeOwn[cmpti];
+
                     const surfaceScalarField& abscissaNeiCmpt =
                         scalarAbscissaeNei[cmpti];
 
@@ -297,6 +313,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
                             abscissaOwnCmpt,
                             cmptMomentOrder
                         );
+
                     tmp<surfaceScalarField> mNeiPow =
                         momentCmptNei
                        *pow
@@ -304,6 +321,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
                             abscissaNeiCmpt,
                             cmptMomentOrder
                         );
+
                     momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
                     momentCmptOwn == mOwnPow;
 
@@ -321,6 +339,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
                 {
                     tmp<surfaceScalarField> abscissaOwnCmpt =
                     UOwn.component(cmpti);
+
                     tmp<surfaceScalarField> abscissaNeiCmpt =
                         UNei.component(cmpti);
 
@@ -331,6 +350,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
                             abscissaOwnCmpt,
                             cmptMomentOrder
                         );
+
                     tmp<surfaceScalarField> mNeiPow =
                         momentCmptNei
                        *pow
@@ -338,6 +358,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
                             abscissaNeiCmpt,
                             cmptMomentOrder
                         );
+
                     momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
                     momentCmptOwn == mOwnPow;
 
@@ -398,6 +419,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
 
         const PtrList<surfaceScalarField>& scalarAbscissaeOwn =
             nodeOwn.primaryAbscissae();
+
         const PtrList<surfaceScalarField>& scalarAbscissaeNei =
             nodeNei.primaryAbscissae();
 
@@ -420,6 +442,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                 {
                     const surfaceScalarField& abscissaOwnCmpt =
                     scalarAbscissaeOwn[cmpti];
+
                     const surfaceScalarField& abscissaNeiCmpt =
                         scalarAbscissaeNei[cmpti];
 
@@ -430,6 +453,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                             abscissaOwnCmpt,
                             cmptMomentOrder
                         );
+
                     tmp<surfaceScalarField> mNeiPow =
                         momentCmptNei
                        *pow
@@ -437,6 +461,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                             abscissaNeiCmpt,
                             cmptMomentOrder
                         );
+
                     momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
                     momentCmptOwn == mOwnPow;
 
@@ -453,7 +478,8 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                 if (cmptMomentOrder > 0)
                 {
                     tmp<surfaceScalarField> abscissaOwnCmpt =
-                    UOwn.component(cmpti);
+                        UOwn.component(cmpti);
+
                     tmp<surfaceScalarField> abscissaNeiCmpt =
                         UNei.component(cmpti);
 
@@ -464,6 +490,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                             abscissaOwnCmpt,
                             cmptMomentOrder
                         );
+
                     tmp<surfaceScalarField> mNeiPow =
                         momentCmptNei
                        *pow
@@ -471,6 +498,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                             abscissaNeiCmpt,
                             cmptMomentOrder
                         );
+
                     momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
                     momentCmptOwn == mOwnPow;
 
@@ -502,6 +530,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
     interpolateNodes();
 
     IStringStream velocityAbscissaeOwnLimiter(velocityAbscissaeScheme_);
+
     tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeOwnScheme
     (
         fvc::scheme<vector>
@@ -512,6 +541,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
     );
 
     IStringStream velocityAbscissaeNeiLimiter(velocityAbscissaeScheme_);
+
     tmp<surfaceInterpolationScheme<vector>> velocityAbscissaeNeiScheme
     (
         fvc::scheme<vector>
@@ -552,6 +582,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
 
         const PtrList<surfaceScalarField>& scalarAbscissaeOwn =
             nodeOwn.primaryAbscissae();
+
         const PtrList<surfaceScalarField>& scalarAbscissaeNei =
             nodeNei.primaryAbscissae();
 
@@ -562,10 +593,12 @@ void Foam::velocityAdvection::firstOrderKinetic::update
         (
             velocityAbscissaeOwnScheme().interpolate(Us[nodei])
         );
+
         surfaceVectorField VNei
         (
             velocityAbscissaeNeiScheme().interpolate(Us[nodei])
         );
+
         surfaceScalarField phiOwn(VOwn & mesh.Sf());
         surfaceScalarField phiNei(VNei & mesh.Sf());
 
@@ -584,7 +617,8 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                 if (cmptMomentOrder > 0)
                 {
                     const surfaceScalarField& abscissaOwnCmpt =
-                    scalarAbscissaeOwn[cmpti];
+                        scalarAbscissaeOwn[cmpti];
+
                     const surfaceScalarField& abscissaNeiCmpt =
                         scalarAbscissaeNei[cmpti];
 
@@ -595,6 +629,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                             abscissaOwnCmpt,
                             cmptMomentOrder
                         );
+
                     tmp<surfaceScalarField> mNeiPow =
                         momentCmptNei
                        *pow
@@ -602,6 +637,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                             abscissaNeiCmpt,
                             cmptMomentOrder
                         );
+
                     momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
                     momentCmptOwn == mOwnPow;
 
@@ -618,7 +654,8 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                 if (cmptMomentOrder > 0)
                 {
                     tmp<surfaceScalarField> abscissaOwnCmpt =
-                    UOwn.component(cmpti);
+                        UOwn.component(cmpti);
+
                     tmp<surfaceScalarField> abscissaNeiCmpt =
                         UNei.component(cmpti);
 
@@ -629,6 +666,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                             abscissaOwnCmpt,
                             cmptMomentOrder
                         );
+
                     tmp<surfaceScalarField> mNeiPow =
                         momentCmptNei
                        *pow
@@ -636,6 +674,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                             abscissaNeiCmpt,
                             cmptMomentOrder
                         );
+                        
                     momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
                     momentCmptOwn == mOwnPow;
 

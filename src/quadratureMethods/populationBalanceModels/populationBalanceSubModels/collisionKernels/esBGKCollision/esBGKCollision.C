@@ -73,13 +73,14 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision::covariance
         sigma2 = max(moments(0,2)[celli]/m0 - sqr(v), 0.0);
         Theta_[celli] += sigma2;
     }
+
     if (nDimensions_ > 2)
     {
         sigma3 = max(moments(0,0,2)[celli]/m0 - sqr(w), 0.0);
         Theta_[celli] += sigma3;
     }
-    Theta_[celli] /= nDimensions_;
 
+    Theta_[celli] /= nDimensions_;
     sigma.xx() = a1_*Theta_[celli] + b1_*sigma1;
 
     if (nDimensions_ > 1)
@@ -122,13 +123,14 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision::covariance
         sigma2 = max(moments(0,2)/m0 - sqr(v), 0.0);
         Theta += sigma2;
     }
+
     if (nDimensions_ > 2)
     {
         sigma3 = max(moments(0,0,2)/m0 - sqr(w), 0.0);
         Theta += sigma3;
     }
-    Theta /= nDimensions_;
 
+    Theta /= nDimensions_;
     sigma.xx() = a1_*Theta + b1_*sigma1;
 
     if (nDimensions_ > 1)
@@ -201,6 +203,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     {
         return 0.0;
     }
+    
     if (nSizes_ > 0)
     {
         return Meq_(momentOrder)[celli];

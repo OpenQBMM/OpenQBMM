@@ -80,8 +80,7 @@ differentialForceAggregation::Ka
     const label environment
 ) const
 {
-    return Ca_.value()*sqr(d1 + d2)
-            *mag(sqr(d1) - sqr(d2));
+    return Ca_.value()*sqr(d1 + d2)*mag(sqr(d1) - sqr(d2));
 }
 
 // ************************************************************************* //

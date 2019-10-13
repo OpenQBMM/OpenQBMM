@@ -66,7 +66,8 @@ IyFuncHeader(1,0,1)
 {
     Iy(1,0,1) =
       - (4.0*omegaPow[2]/35.0)*gPow[1].x()*gPow[1].y()*gPow[1].z()
-      + (4.0*omegaPow[1]/15.0)*gPow[1].y()*(gPow[1].x()*vPow[1].z() + gPow[1].z()*vPow[1].x());
+      + (4.0*omegaPow[1]/15.0)*gPow[1].y()*(gPow[1].x()*vPow[1].z() 
+      + gPow[1].z()*vPow[1].x());
 }
 
 IyFuncHeader(1,1,0)
@@ -251,7 +252,8 @@ IyFuncHeader(0,0,4)
 {
     Iy(0,0,4) =
       - (2.0*omegaPow[4]/693.0)
-       *(3.0*sqr(gMagSqr) + 24.0*gMagSqr*gPow[2].z() + 8.0*gPow[4].z())*gPow[1].y()
+       *(3.0*sqr(gMagSqr) + 24.0*gMagSqr*gPow[2].z() 
+        + 8.0*gPow[4].z())*gPow[1].y()
       + (32.0*omegaPow[3]/315.0)
        *(3.0*gMagSqr + 2.0*gPow[2].z())*gPow[1].y()*gPow[1].z()*vPow[1].z()
       - (12.0*omegaPow[2]/35.0)
@@ -277,7 +279,8 @@ IyFuncHeader(4,0,0)
 {
     Iy(4) =
       - (2.0*omegaPow[4]/693.0)
-       *(3.0*sqr(gMagSqr) + 24.0*gMagSqr*gPow[2].x() + 8.0*gPow[4].x())*gPow[1].y()
+       *(3.0*sqr(gMagSqr) + 24.0*gMagSqr*gPow[2].x() 
+        + 8.0*gPow[4].x())*gPow[1].y()
       + (32.0*omegaPow[3]/315.0)
        *(3.0*gMagSqr + 2.0*gPow[2].x())*gPow[1].y()*gPow[1].x()*vPow[1].x()
       - (12.0*omegaPow[2]/35.0)

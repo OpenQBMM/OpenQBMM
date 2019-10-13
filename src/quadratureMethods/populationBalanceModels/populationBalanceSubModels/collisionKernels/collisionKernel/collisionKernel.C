@@ -54,6 +54,7 @@ Foam::populationBalanceSubModels::collisionKernel::lookupOrInitialize
     {
         return mesh.lookupObject<volScalarField>(name);
     }
+
     return tmp<volScalarField>
     (
         new volScalarField
@@ -81,6 +82,7 @@ Foam::populationBalanceSubModels::collisionKernel::d
     {
         return dp_()[celli];
     }
+
     const volVelocityNode& node = quadrature_.nodes()(nodei);
     scalar abscissa = node.primaryAbscissae()[sizeIndex_][celli];
 
@@ -123,6 +125,7 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
         {
             nSizes_ = max(nSizes_, nodeIndexes_[nodei][sizeIndex_] + 1);
         }
+
         rhos_.resize(nSizes_);
     }
     else
@@ -139,10 +142,12 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
     }
 
     scalarList rhos(dict_.lookupOrDefault("rhos", scalarList()));
+
     forAll(rhos, i)
     {
         rhos_[i] = rhos[i];
     }
+
     if (rhos.size() < nSizes_ || nSizes_ == 0)
     {
         tmp<volScalarField> rho
@@ -172,15 +177,18 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
     {
         const labelList& momentOrder = momentOrders_[mi];
         labelList order(nDimensions_, 0);
+
         forAll(velocityIndexes_, cmpt)
         {
             order[cmpt] = momentOrder[velocityIndexes_[cmpt]];
         }
 
         bool found = false;
+
         forAll(velocityMomentOrders_, vmi)
         {
             bool same = true;
+
             forAll(velocityMomentOrders_[vmi], cmpt)
             {
                 if (velocityMomentOrders_[vmi][cmpt] != order[cmpt])
@@ -188,11 +196,13 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
                     same = false;
                 }
             }
+
             if (same)
             {
                 found = true;
             }
         }
+
         if (!found)
         {
             velocityMomentOrders_.append(order);
@@ -205,15 +215,18 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
         {
             const labelList& nodeIndex = nodeIndexes_[nodei];
             labelList index(nDimensions_, 0);
+
             forAll(velocityIndexes_, cmpt)
             {
                 index[cmpt] = nodeIndex[velocityIndexes_[cmpt]];
             }
 
             bool found = false;
+
             forAll(velocityNodeIndexes_, vmi)
             {
                 bool same = true;
+
                 forAll(velocityNodeIndexes_[vmi], cmpt)
                 {
                     if (velocityNodeIndexes_[vmi][cmpt] != index[cmpt])
@@ -221,11 +234,13 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
                         same = false;
                     }
                 }
+
                 if (same)
                 {
                     found = true;
                 }
             }
+            
             if (!found)
             {
                 velocityNodeIndexes_.append(index);

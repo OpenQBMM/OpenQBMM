@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -44,6 +44,7 @@ bool Foam::multivariateMomentInversion::compare
 )
 {
     label size = min(index1.size(), index2.size());
+
     for (label i = 0; i < size; i++)
     {
         if (index1[i] != index2[i])
@@ -51,6 +52,7 @@ bool Foam::multivariateMomentInversion::compare
             return false;
         }
     }
+
     return true;
 }
 
@@ -69,6 +71,7 @@ bool Foam::multivariateMomentInversion::compare
             return false;
         }
     }
+
     return true;
 }
 
@@ -108,6 +111,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
             nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes[nodei][dimi] + 1);
         }
     }
+    
     if (velocityIndexes_.size() == 0)
     {
         velocityIndexes_.append(-1);

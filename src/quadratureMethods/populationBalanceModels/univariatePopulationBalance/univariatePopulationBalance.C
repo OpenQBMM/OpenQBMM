@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -84,6 +84,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
                 phi_.mesh()
             );
     }
+
     if (breakup_)
     {
         breakupKernel_ =
@@ -93,6 +94,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
                 phi_.mesh()
             );
     }
+
     if (growth_)
     {
         growthModel_ =
@@ -101,6 +103,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
                 dict.subDict("growthModel")
             );
     }
+
     if (nucleation_)
     {
         nucleationModel_ =
@@ -150,6 +153,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 )
 {
     scalar source = 0.0;
+
     if (aggregation_)
     {
         source +=
@@ -161,6 +165,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
                 environment
             );
     }
+
     if (breakup_)
     {
         source +=
@@ -171,6 +176,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
                 quadrature
             );
     }
+
     if (growth_)
     {
         source +=
@@ -181,6 +187,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
                 quadrature
             );
     }
+
     if (nucleation_)
     {
         source += nucleationModel_->nucleationSource(momentOrder[0], celli);
@@ -214,6 +221,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     {
         return odeType::solveSources_;
     }
+
     return false;
 }
 
@@ -242,13 +250,15 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 }
 
 
-bool Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
+bool 
+Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::readIfModified()
 {
     odeType::read
     (
         populationBalanceProperties_.subDict(type() + "Coeffs")
     );
+    
     return true;
 }
 

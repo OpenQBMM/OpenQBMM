@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -76,11 +76,13 @@ Foam::fixedTemperatureFvQuadraturePatch::fixedTemperatureFvQuadraturePatch
 
     order100_[velocityIndexes[0]] = 1;
     order200_[velocityIndexes[0]] = 2;
+
     if (nVelocityCmpts_ > 1)
     {
         order010_[velocityIndexes[1]] = 1;
         order020_[velocityIndexes[1]] = 2;
     }
+
     if (nVelocityCmpts_ > 2)
     {
         order001_[velocityIndexes[2]] = 1;
@@ -113,6 +115,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
 
     scalarField m0(max(moments(0).boundaryField()[patchi_], 1e-8));
     vectorField T(bfSf.size(), Zero);
+
     T.replace
     (
         0,
@@ -123,6 +126,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
             1e-8
         )
     );
+
     if (nVelocityCmpts_ > 1)
     {
         T.replace
@@ -136,6 +140,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
             )
         );
     }
+
     if (nVelocityCmpts_ > 2)
     {
         T.replace
@@ -149,6 +154,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
             )
         );
     }
+    
     scalarField scale
     (
         sqrt(wallTemperature_*scalar(nVelocityCmpts_)

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -99,6 +99,7 @@ Foam::multivariateMomentInversions::TensorProduct::TensorProduct
             ).ptr()
         );
     }
+
     forAll(momentOrders_, mi)
     {
         forAll(nPureMoments_, dimi)
@@ -128,12 +129,12 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
 )
 {
     reset();
-
     labelList nNonZeroNodes(nNodes_.size(), 0);
     labelList zeroOrder(momentOrders_[0].size(), 0);
 
     label vi = 0;
     label si = 0;
+
     forAll(univariateInverters_, dimi)
     {
         univariateMomentSet univariateMoments
@@ -142,22 +143,26 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
             supports_[dimi],
             0.0
         );
+
         forAll(univariateMoments, mi)
         {
             labelList momentOrder(zeroOrder);
             momentOrder[dimi] = mi;
             univariateMoments[mi] = moments(momentOrder);
         }
+
         if (!univariateMoments.isRealizable(false))
         {
             return false;
         }
 
         univariateInverters_[dimi].invert(univariateMoments);
+
         const scalarList& abscissae =
             univariateInverters_[dimi].abscissae();
 
         nNonZeroNodes[dimi] = abscissae.size();
+
         if (max(univariateInverters_[dimi].weights()) < small)
         {
             nNonZeroNodes[dimi] = 0;
@@ -168,6 +173,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
             forAll(nodeIndexes_, nodei)
             {
                 label nodeIndex = nodeIndexes_[nodei][dimi];
+
                 if (nodeIndex < abscissae.size())
                 {
                     if (dimi == velocityIndexes_[vi])
@@ -199,6 +205,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
 
     label totNonZeroNodes = 1;
     label nDims = 0;
+
     forAll(nNonZeroNodes, dimi)
     {
         if (nNonZeroNodes[dimi] > 0)
@@ -207,6 +214,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
             nDims++;
         }
     }
+
     labelListList nonZeroNodeIndexes(totNonZeroNodes, labelList(nDims, 0));
     {
         label nodei = 0;
@@ -216,6 +224,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
 
     scalarList mixedMoments(nonZeroNodeIndexes.size(), 0.0);
     scalarSquareMatrix R(nonZeroNodeIndexes.size(), 1.0);
+
     forAll(nonZeroNodeIndexes, nodei)
     {
         mixedMoments[nodei] = moments(nonZeroNodeIndexes[nodei]);
@@ -227,6 +236,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
         {
             vi = 0;
             si = 0;
+            
             forAll(nonZeroNodeIndexes[nodei], dimi)
             {
                 if (dimi == velocityIndexes_[vi])
@@ -255,6 +265,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
 
     scalarList weights(nNonZeroNodes.size());
     solve(weights, R, mixedMoments);
+    
     forAll(nonZeroNodeIndexes, nodei)
     {
         weights_(nonZeroNodeIndexes[nodei]) = weights[nodei];

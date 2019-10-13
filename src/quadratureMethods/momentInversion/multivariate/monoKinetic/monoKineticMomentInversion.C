@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -82,11 +82,13 @@ Foam::label Foam::multivariateMomentInversions::monoKinetic::calcNSizeMoments
 )
 {
     label maxOrder = 0;
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
         maxOrder = max(maxOrder, momentOrder[0]);
     }
+
     return maxOrder + 1;
 }
 
@@ -99,6 +101,7 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
     reset();
 
     univariateMomentSet sizeMoments(nSizeMoments_, "RPlus", 0.0);
+
     forAll(sizeMoments, mi)
     {
         sizeMoments[mi] = moments(mi);
@@ -118,6 +121,7 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
         weights_[nodei] = sizeWeights[nodei];
         abscissae_[nodei][0] = sizeAbscissae[nodei];
     }
+
     label nSizeNodes = sizeWeights.size();
 
     if (nSizeNodes > 0)
@@ -130,6 +134,7 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
             x[nodei] = max(sizeAbscissae[nodei], small);
             invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], 1e-10);
         }
+
         Vandermonde V(x);
         scalarSquareMatrix invVR = invR*V.inv();
 
@@ -140,11 +145,13 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
             pureMomentOrder[dimi + 1] = 1;
 
             scalarRectangularMatrix M(nSizeNodes, 1, 0);
+            
             for (label nodei = 0; nodei < nSizeNodes; nodei++)
             {
                 pureMomentOrder[0] = nodei;
                 M(nodei, 0) = moments(pureMomentOrder);
             }
+
             scalarRectangularMatrix nu = invVR*M;
 
             forAll(sizeWeights, nodei)
@@ -156,6 +163,7 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
             }
         }
     }
+
     return true;
 }
 

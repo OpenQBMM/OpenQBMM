@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -167,7 +167,12 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
                             = momentInverter_().secondaryAbscissae()[pNodei][sNodei];
                 }
             }
-            for (label pNodei = pWeights.size(); pNodei < nodes.size(); pNodei++)
+            for 
+            (
+                label pNodei = pWeights.size(); 
+                pNodei < nodes.size(); 
+                pNodei++
+            )
             {
                 volScalarNode& node = nodes[pNodei];
 

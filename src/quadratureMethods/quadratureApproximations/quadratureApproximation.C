@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -108,11 +108,13 @@ quadratureApproximation
                 moments_(firstOrder).dimensions()/moments_(0).dimensions()
             )
         );
+
         if (abscissaeDimensions[dimi] == dimVelocity)
         {
             velocityIndexes.append(dimi);
         }
     }
+
     if (velocityIndexes.size() == 0)
     {
         velocityIndexes.append(-1);
@@ -220,6 +222,7 @@ quadratureApproximation
             nNodes_[dimi] = max(nNodes_[dimi], nodeIndexes_[nodei][dimi] + 1);
         }
     }
+
     forAll(moments_, mi)
     {
         moments_.set
@@ -252,6 +255,7 @@ quadratureApproximation
                 moments_(firstOrder).dimensions()/moments_(0).dimensions()
             )
         );
+        
         if (abscissaeDimensions[dimi] == dimVelocity)
         {
             velocityIndexes.append(dimi);

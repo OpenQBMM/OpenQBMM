@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -83,11 +83,13 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             )
         );
     }
+    
     forAll (momentEqns, mEqni)
     {
         momentEqns[mEqni].relax();
         momentEqns[mEqni].solve();
     }
+    
     quadrature_.updateQuadrature();
 
     if (solveMomentSources())

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -88,6 +88,7 @@ preUpdate()
                 continuousPhase_
             )
         );
+
     const turbulenceModel& turb =
         mesh_.lookupObject<turbulenceModel>
         (
@@ -113,8 +114,7 @@ Foam::populationBalanceSubModels::aggregationKernels::coalescence::Ka
 ) const
 {
     return
-        Ca_.value()
-       *frequency_->omega(d1, d2, Ur, celli)
+        Ca_.value()*frequency_->omega(d1, d2, Ur, celli)
        *efficiency_->Pc(d1, d2, Ur, celli);
 }
 

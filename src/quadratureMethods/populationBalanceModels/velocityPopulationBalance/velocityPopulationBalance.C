@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -88,6 +88,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     {
         return;
     }
+
     return collisionKernel_->updateFields();
 }
 
@@ -110,6 +111,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
             )
         );
     }
+
     return collisionKernel_->implicitCollisionSource(moment);
 }
 
@@ -121,6 +123,7 @@ void Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalanc
     {
         return;
     }
+
     return odeType::solve(quadrature_, 0);
 }
 
@@ -133,6 +136,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     {
         return;
     }
+
     return collisionKernel_->updateCells(celli);
 }
 
@@ -180,21 +184,24 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 }
 
 
-void Foam::PDFTransportModels::populationBalanceModels
-::velocityPopulationBalance::solve()
+void 
+Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
+::solve()
 {
     collisionKernel_->preUpdate();
     velocityPDFTransportModel::solve();
 }
 
 
-bool Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
+bool 
+Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::readIfModified()
 {
     odeType::read
     (
         populationBalanceProperties_.subDict(type() + "Coeffs")
     );
+
     return true;
 }
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -82,6 +82,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
     forAll(divMoments_, momenti)
     {
         const labelList& momentOrder = momentOrders_[momenti];
+
         divMoments_.set
         (
             momenti,
@@ -145,6 +146,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
     forAll(nodes_, nodei)
     {
         const labelList& nodeIndex = nodeIndexes_[nodei];
+        
         nodesNei.set
         (
             nodei,

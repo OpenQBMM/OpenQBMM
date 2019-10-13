@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2018-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -61,6 +61,7 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
 
     // Solve moment transport equations
     updateImplicitMomentSource();
+    
     forAll(quadrature_.moments(), momenti)
     {
         volVelocityMoment& m = quadrature_.moments()[momenti];
@@ -74,6 +75,7 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
         momentEqn.relax();
         momentEqn.solve();
     }
+
     quadrature_.updateQuadrature();
 
     if (solveMomentSources())

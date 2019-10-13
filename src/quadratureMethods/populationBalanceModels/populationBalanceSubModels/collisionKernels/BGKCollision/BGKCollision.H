@@ -138,9 +138,9 @@ protected:
         }
 
         //- Functions used to define equilibrium moments
-        //  Stored in a list so that moment existance does not have to be checked
-        //  at every cell, for every itteration. The implementation of equilibrium
-        //  moment functions are in equilibriumMomentFunctions.C
+        //  Stored in a list so that moment existance does not have to be 
+        // checked at every cell, for every itteration. The implementation of 
+        // equilibrium moment functions are in equilibriumMomentFunctions.C
         defineMFunc(0,0,0);
 
         defineMFunc(0,0,1);
@@ -284,7 +284,7 @@ if (map.found(i,j,k))                                                           
 void                                                                            \
 Foam::populationBalanceSubModels::collisionKernels::BGKCollision::moment##i##j##k\
 (                                                                               \
-    mappedScalarList& moments,                                                 \
+    mappedScalarList& moments,                                                  \
     const scalar& m0,                                                           \
     const scalar& u,                                                            \
     const scalar& v,                                                            \

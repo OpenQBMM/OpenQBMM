@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2018 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -167,6 +167,7 @@ Foam::multivariateMomentInversions::CHyQMOM::getMomentOrders
     {
         return threeDimMomentOrders;
     }
+
     return {{}};
 }
 
@@ -188,6 +189,7 @@ Foam::label Foam::multivariateMomentInversions::CHyQMOM::getNNodes
     {
         return 27;
     }
+
     return 0;
 }
 
@@ -210,6 +212,7 @@ Foam::multivariateMomentInversions::CHyQMOM::getNodeIndexes
     {
         return threeDimNodeIndexes;
     }
+
     return {{}};
 }
 
@@ -296,6 +299,7 @@ Foam::multivariateMomentInversions::CHyQMOM::realizabilityUnivariateMoments
         c2 = 0.0;
         c3 = 0.0;
         c4 = 0.0;
+
         return;
     }
 
@@ -327,6 +331,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert1D
             weights1D[wi] = m0/scalar(nWeights1D);
             abscissae1D[wi] = 0.0;
         }
+
         return;
     };
 
@@ -394,6 +399,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
             weights2D[wi] = m00/scalar(nWeights2D);
             abscissae2D[wi] = vector2D::zero;
         }
+
         return;
     };
 
@@ -469,6 +475,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
     {
         scalar sqrtC20 = sqrt(c20);
         scalar c11s = c11/sqrtC20;
+
         if (sqr(c11s) > c02*(1.0 - 1e-10))
         {
             c11s = sign(c11s)*sqrt(c02);
@@ -481,6 +488,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
 
         // Compute conditional variance
         scalar sumVars = 0.0;
+
         forAll(Vf, vi)
         {
             sumVars += wDir1[vi]*sqr(Vf[vi]);
@@ -673,6 +681,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
         c003 = 0.0;
         c004 = 0.0;
     }
+
     if (c002*c004 < pow3(c002) + sqr(c003))
     {
         scalar q = c003/sqrt(pow3(c002));
@@ -1061,6 +1070,7 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
 )
 {
     reset();
+    
     if (nvelocityDimensions_ == 3)
     {
         invert3D(moments);
