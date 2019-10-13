@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2015 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -156,14 +156,11 @@ int main(int argc, char *argv[])
     EQMOM->invert(moments);
 
     Info << "Sigma = " << EQMOM->sigma() << endl;
-
     Info << "\nExtracting secondary quadrature." << endl;
-
     Info << "\nRecovering secondary weights and abscissae." << endl;
 
     const scalarList& pWeights(EQMOM->primaryWeights());
     const scalarList& pAbscissae(EQMOM->primaryAbscissae());
-
     const scalarRectangularMatrix& sWeights(EQMOM->secondaryWeights());
     const scalarRectangularMatrix& sAbscissae(EQMOM->secondaryAbscissae());
 

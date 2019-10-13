@@ -4,6 +4,7 @@ dictionary quadratureProperties(IFstream("quadratureProperties")());
 
 labelListList nodeIndexes = quadratureProperties.lookup("nodes");
 labelListList momentOrders = quadratureProperties.lookup("moments");
+
 labelList velocityIndexes =
     quadratureProperties.lookupOrDefault
     (

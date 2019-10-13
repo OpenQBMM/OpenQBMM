@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -52,11 +52,13 @@ int main(int argc, char *argv[])
         nodeIndexes,
         scalarField(nDims, 0)
     );
+
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 
     forAll(x, nodei)
     {
         w[nodei] = scalar(rand())/scalar(RAND_MAX);
+
         forAll(x[nodei], dimi)
         {
             x[nodei][dimi] = scalar(rand())/scalar(RAND_MAX);
@@ -66,6 +68,7 @@ int main(int argc, char *argv[])
     Info<< "Original moments:" << endl;
 
     multivariateMomentSet moments(nMoments, momentOrders, "R");
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
@@ -74,20 +77,23 @@ int main(int argc, char *argv[])
         forAll(nodeIndexes, nodei)
         {
             const labelList& nodeIndex = nodeIndexes[nodei];
-
             scalar cmpt = w(nodeIndex);
+
             forAll(nodeIndex, dimi)
             {
                 cmpt *= pow(x(nodeIndex)[dimi], momentOrder[dimi]);
             }
+
             moments(momentOrder) += cmpt;
         }
 
         Info<< "moment.";
+
         forAll(momentOrder, dimi)
         {
             Info<< momentOrder[dimi];
         }
+
         Info<< ": " << moments(momentOrder) << endl;
     }
 
@@ -104,10 +110,12 @@ int main(int argc, char *argv[])
 
     const mappedScalarList& weights = momentInverter.weights();
     const mappedList<scalarList>& abscissae = momentInverter.abscissae();
+
     const mappedVectorList& velocityAbscissae =
         momentInverter.velocityAbscissae();
 
     mappedList<scalar> newMoments(nMoments, momentOrders);
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
@@ -120,6 +128,7 @@ int main(int argc, char *argv[])
             scalar cmpt = weights(nodeIndex);
             label vi = 0;
             label si = 0;
+
             for(label dimi = 0; dimi < momentOrder.size(); dimi++)
             {
                 if (velocityIndexes[vi] == dimi)
@@ -138,17 +147,21 @@ int main(int argc, char *argv[])
                     si++;
                 }
             }
+
             newMoments(momentOrder) += cmpt;
         }
 
         Info<< "moment.";
+
         forAll(momentOrder, dimi)
         {
             Info<< momentOrder[dimi];
         }
+
         Info<< ": " << newMoments(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) - newMoments(momentOrder))/moments(momentOrder))<< endl;
+            << (mag(moments(momentOrder) 
+                - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
 
     Info << "\nEnd\n" << endl;

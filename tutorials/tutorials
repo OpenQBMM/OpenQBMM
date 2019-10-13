@@ -10,7 +10,7 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2016 OpenQBMM developers.
+  Copyright (C) 2014-2019 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 
@@ -19,9 +19,20 @@
 * buoyantPbePimpleFoam
     Tutorials for buoyant solver coupled to population balance solver.
 
+* compressiblePbeTransportFoam
+    Tutorials for compressible flow solver coupled to population balance solver.
+
 * denseAGFoam
     Tutorials for the solver for gas-particle flows using the anisotropic
     Gaussian model.
+
+* diluteVdfTransportFoam
+    Tutorials for multiphase solver for the transport of a velocity distribution
+    function for dilute disperse phases.
+
+* mixingPopulationBalance
+    Tutorials demonstrating the simultaneous solution of a mixing and PBE 
+    problem.
 
 * mixingTransportFoam
     Tutorials for mixing model on steady velocity field.

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2014-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
         nodeIndexes,
         scalarField(nDims, 0)
     );
+
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 
     forAll(x, nodei)
@@ -63,6 +64,7 @@ int main(int argc, char *argv[])
             x[nodei][dimi] = 2.0*scalar(rand())/scalar(RAND_MAX) - 1.0;
         }
     }
+
 //     scalar T = Foam::sqrt(2.0/3.0);
 //     vector U(1.0, 2.0, 2.0);
 //     x[0][0] = T + U.x();
@@ -77,6 +79,7 @@ int main(int argc, char *argv[])
     Info<< "Original moments:" << endl;
 
     multivariateMomentSet moments(nMoments, momentOrders, "R");
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
@@ -87,18 +90,22 @@ int main(int argc, char *argv[])
             const labelList& nodeIndex = nodeIndexes[nodei];
 
             scalar cmpt = w(nodeIndex);
+
             forAll(nodeIndex, dimi)
             {
                 cmpt *= pow(x(nodeIndex)[dimi], momentOrder[dimi]);
             }
+
             moments(momentOrder) += cmpt;
         }
 
         Info<< "moment.";
+
         forAll(momentOrder, dimi)
         {
             Info<< momentOrder[dimi];
         }
+
         Info<< ": " << moments(momentOrder) << endl;
     }
 
@@ -114,10 +121,12 @@ int main(int argc, char *argv[])
     Info<< "\nReconstructed moments:" << endl;
 
     const mappedScalarList& weights = momentInverter.weights();
+
     const mappedVectorList& velocityAbscissae =
         momentInverter.velocityAbscissae();
 
     mappedList<scalar> newMoments(nMoments, momentOrders);
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
@@ -128,6 +137,7 @@ int main(int argc, char *argv[])
             const labelList& nodeIndex = nodeIndexes[nodei];
 
             scalar cmpt = weights(nodeIndex);
+
             for(label dimi = 0; dimi < momentOrder.size(); dimi++)
             {
                 cmpt *=
@@ -137,6 +147,7 @@ int main(int argc, char *argv[])
                         momentOrder[dimi]
                     );
             }
+
             newMoments(momentOrder) += cmpt;
         }
 
@@ -147,7 +158,8 @@ int main(int argc, char *argv[])
         }
         Info<< ": " << newMoments(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) - newMoments(momentOrder))/moments(momentOrder))<< endl;
+            << (mag(moments(momentOrder) 
+                - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
 
     multivariateMomentInversions::CHyQMOMPlus momentInverterp
@@ -162,10 +174,12 @@ int main(int argc, char *argv[])
     Info<< "\nReconstructed moments:" << endl;
 
     const mappedScalarList& weightsp = momentInverterp.weights();
+
     const mappedVectorList& velocityAbscissaep =
         momentInverterp.velocityAbscissae();
 
     mappedList<scalar> newMomentsp(nMoments, momentOrders);
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
@@ -176,6 +190,7 @@ int main(int argc, char *argv[])
             const labelList& nodeIndex = nodeIndexes[nodei];
 
             scalar cmpt = weightsp(nodeIndex);
+
             for(label dimi = 0; dimi < momentOrder.size(); dimi++)
             {
                 cmpt *=
@@ -185,6 +200,7 @@ int main(int argc, char *argv[])
                         momentOrder[dimi]
                     );
             }
+
             newMomentsp(momentOrder) += cmpt;
         }
 
@@ -195,7 +211,8 @@ int main(int argc, char *argv[])
         }
         Info<< ": " << newMomentsp(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) - newMomentsp(momentOrder))/moments(momentOrder))<< endl;
+            << (mag(moments(momentOrder) 
+                - newMomentsp(momentOrder))/moments(momentOrder))<< endl;
     }
 
 

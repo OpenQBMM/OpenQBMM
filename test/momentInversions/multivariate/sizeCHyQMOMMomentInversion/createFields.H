@@ -6,6 +6,7 @@
     labelListList momentOrders = quadratureProperties.lookup("moments");
 
     labelList velocityIndexes;
+    
     for (label i = 1; i < momentOrders[0].size(); i++)
     {
         velocityIndexes.append(i);

@@ -3,9 +3,7 @@ cd ${0%/*} || exit 1    # run from this directory
 set -x
 
 (cd src && ./Allwclean)
-
 wclean all applications
-
 (cd test && ./Allwclean)
 
 # ----------------------------------------------------------------- end-of-file

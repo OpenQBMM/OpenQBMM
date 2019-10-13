@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
 
     const mappedScalarList& weights = momentInverter.weights();
     const mappedList<scalarList>& sizeAbscissae = momentInverter.abscissae();
+
     const mappedVectorList& velocityAbscissae =
         momentInverter.velocityAbscissae();
 
@@ -125,6 +126,7 @@ int main(int argc, char *argv[])
 
             scalar cmpt = weights(nodeIndex);
             cmpt *= pow(sizeAbscissae(nodeIndex)[0], momentOrder[0]);
+
             for(label dimi = 0; dimi < momentOrder.size() - 1; dimi++)
             {
                 cmpt *=
@@ -134,17 +136,21 @@ int main(int argc, char *argv[])
                         momentOrder[dimi + 1]
                     );
             }
+
             newMoments(momentOrder) += cmpt;
         }
 
         Info<< "moment.";
+
         forAll(momentOrder, dimi)
         {
             Info<< momentOrder[dimi];
         }
+
         Info<< ": " << newMoments(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) - newMoments(momentOrder))/moments(momentOrder))<< endl;
+            << (mag(moments(momentOrder) 
+                - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
 
     multivariateMomentInversions::sizeCHyQMOMPlus momentInverterp
@@ -160,10 +166,12 @@ int main(int argc, char *argv[])
 
     const mappedScalarList& weightsp = momentInverterp.weights();
     const mappedList<scalarList>& sizeAbscissaep = momentInverterp.abscissae();
+
     const mappedVectorList& velocityAbscissaep =
         momentInverterp.velocityAbscissae();
 
     mappedList<scalar> newMomentsp(nMoments, momentOrders);
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
@@ -175,6 +183,7 @@ int main(int argc, char *argv[])
 
             scalar cmpt = weightsp(nodeIndex);
             cmpt *= pow(sizeAbscissaep(nodeIndex)[0], momentOrder[0]);
+
             for(label dimi = 0; dimi < momentOrder.size() - 1; dimi++)
             {
                 cmpt *=
@@ -184,6 +193,7 @@ int main(int argc, char *argv[])
                         momentOrder[dimi + 1]
                     );
             }
+
             newMomentsp(momentOrder) += cmpt;
         }
 
@@ -194,7 +204,8 @@ int main(int argc, char *argv[])
         }
         Info<< ": " << newMomentsp(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) - newMomentsp(momentOrder))/moments(momentOrder))<< endl;
+            << (mag(moments(momentOrder) 
+                - newMomentsp(momentOrder))/moments(momentOrder))<< endl;
     }
 
     Info << "\nEnd\n" << endl;
