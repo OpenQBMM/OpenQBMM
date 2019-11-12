@@ -24,6 +24,7 @@ solvers
         nAlphaCorr      2;
         nAlphaSubCycles 1;
     }
+
     p_rgh
     {
         solver          GAMG;
@@ -119,6 +120,7 @@ PIMPLE
     pRefValue 1e5;
     nFluxCorrectors 1;
     corrPatch outlet;
+    
     outerCorrectorResidualControl
     {
         p_rgh

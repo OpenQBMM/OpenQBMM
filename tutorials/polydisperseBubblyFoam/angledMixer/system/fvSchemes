@@ -28,7 +28,7 @@ gradSchemes
 
 divSchemes
 {
-    default                         Gauss upwind phi;
+    default                         none;
 
     div(phi,alpha.air)              Gauss upwind;
     div(phir,alpha.air)             Gauss upwind;
@@ -45,6 +45,8 @@ divSchemes
 
     "div\(alphaRhoPhi.*,(k|epsilon).*\)"  Gauss upwind;
     "div\(phim,(k|epsilon)m\)"      Gauss upwind;
+
+    div(devRhoReff.water)           Gauss linear;
 
     "div\(\(\(\(alpha.*\*thermo:rho.*\)\*nuEff.*\)\*dev2\(T\(grad\(U.*\)\)\)\)\)" Gauss linear;
 
