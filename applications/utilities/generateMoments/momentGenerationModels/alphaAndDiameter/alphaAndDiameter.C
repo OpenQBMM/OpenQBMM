@@ -73,7 +73,7 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
         mesh,
         1.0
     ),
-    scale_(dict.lookupOrDefault("scale", true)),
+    scale_(dict.lookupOrDefault("scale", false)),
     rho_
     (
         IOobject
@@ -170,7 +170,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 
             weights_[nodei] =
                 pos(abscissae_[nodei][0] - small)
-               *alphai/max(abscissae_[nodei][0], small);
+               *alphai*rho/max(abscissae_[nodei][0], small);
         }
         else
         {
@@ -232,7 +232,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 
             weights_[nodei] =
                 pos(abscissae_[nodei][0] - small)
-               *alphai/max(abscissae_[nodei][0], small);
+               *alphai*rho/max(abscissae_[nodei][0], small);
         }
         else
         {
