@@ -73,7 +73,7 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
         mesh,
         1.0
     ),
-    scale_(dict.lookupOrDefault("scale", true)),
+    scale_(dict.lookupOrDefault("scale", false)),
     rho_
     (
         IOobject
