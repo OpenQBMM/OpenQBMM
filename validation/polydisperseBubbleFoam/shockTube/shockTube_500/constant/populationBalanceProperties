@@ -20,9 +20,10 @@ coalescence off;
 
 coalescenceKernel
 {
-    coalescenceFrequencyKernel CoulaloglouAndTavlarides;
-    coalescenceEfficiencyKernel CoulaloglouAndTavlarides;
+    frequency CoulaloglouAndTavlarides;
+    efficiency CoulaloglouAndTavlarides;
     laminarShearCoalescence off;
+    continuousPhase air;
 
     Ca      Ca      [ 0 0 0 0 0 0 0 ]  0.88;
     Ceff    Ceff    [ 0 0 0 0 0 0 0 ]  6.0e9;
@@ -33,6 +34,7 @@ breakup off;
 breakupKernel
 {
     breakupKernel Alopaeus;
+
     Cb        Cb        [ 0 0 -1 0 0 0 0 ] 6.0;
 
     daughterDistribution
@@ -50,4 +52,5 @@ odeCoeffs
     facMax  2.0;
     minLocalDt 1.0e-7;
 }
+
 // ************************************************************************* //

@@ -120,7 +120,7 @@ PIMPLE
     pRefValue 1e5;
     nFluxCorrectors 1;
     corrPatch outlet;
-    
+
     outerCorrectorResidualControl
     {
         p_rgh
