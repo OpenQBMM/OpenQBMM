@@ -53,18 +53,18 @@ air
 
         node0
         {
-            rho     1.40;
-            dia     2.0e-3;
-            alpha   1.0;
+            rho     uniform 1.40;
+            dia     uniform 2.0e-3;
+            alpha   uniform 1.0;
         }
     }
     inlet
     {
         node0
         {
-            rho     1.40;
-            dia     2.0e-3;
-            alpha   1.0;
+            rho     uniform 1.40;
+            dia     uniform 2.0e-3;
+            alpha   uniform 1.0;
         }
     }
 }

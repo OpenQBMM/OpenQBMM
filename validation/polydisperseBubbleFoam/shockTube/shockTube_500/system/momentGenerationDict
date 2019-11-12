@@ -48,42 +48,42 @@ air
     {
         node0
         {
-            rho     1.40;
-            dia     1e-3;
-            alpha   0.033;
+            rho     uniform 1.40;
+            dia     uniform 1e-3;
+            alpha   uniform 0.033;
         }
         node1
         {
-            rho     1.40;
-            dia     2e-3;
-            alpha   0.034;
+            rho     uniform 1.40;
+            dia     uniform 2e-3;
+            alpha   uniform 0.034;
         }
         node2
         {
-            rho     1.40;
-            dia     3.0e-3;
-            alpha   0.033;
+            rho     uniform 1.40;
+            dia     uniform 3.0e-3;
+            alpha   uniform 0.033;
         }
     }
     inlet
     {
         node0
         {
-            rho     1.40;
-            dia     8e-3;
-            alpha   0;
+            rho     uniform 1.40;
+            dia     uniform 8e-3;
+            alpha   uniform 0;
         }
         node1
         {
-            rho     1.40;
-            dia     9e-3;
-            alpha   0;
+            rho     uniform 1.40;
+            dia     uniform 9e-3;
+            alpha   uniform 0;
         }
         node2
         {
-            rho     1.40;
-            dia     10e-3;
-            alpha   0;
+            rho     uniform 1.40;
+            dia     uniform 10e-3;
+            alpha   uniform 0;
         }
     }
 }
