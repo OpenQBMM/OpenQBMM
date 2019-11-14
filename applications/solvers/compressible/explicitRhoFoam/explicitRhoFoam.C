@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
          //- Advect conservative variables
         fluid.integrateFluxes(g);
-        fluid.decode();
+        fluid.calcPrimitiveVariables();
 
         if (!inviscid)
         {

@@ -232,8 +232,9 @@ Foam::compressibleSystem::compressibleSystem
             )
         );
     }
+    
     thermoPtr_->validate("compressibleSystem ", "e");
-    encode();
+    calcConservativeVariables();
 
     integrator_.set(new fluxIntegrator(*this));
     fluxFunction_ = fluxFunction::New(mesh_);
@@ -486,7 +487,7 @@ void Foam::compressibleSystem::updateFluxes()
 }
 
 
-void Foam::compressibleSystem::decode()
+void Foam::compressibleSystem::calcPrimitiveVariables()
 {
     thermoPtr_->rho() = rho_;
 
@@ -509,7 +510,7 @@ void Foam::compressibleSystem::decode()
 }
 
 
-void Foam::compressibleSystem::encode()
+void Foam::compressibleSystem::calcConservativeVariables()
 {
     rho_ = thermoPtr_->rho();
     rho_.boundaryFieldRef() ==

@@ -240,17 +240,17 @@ public:
         //- Transport conservative variables
         void integrateFluxes(const dimensionedVector& g);
 
-        //- Decode conservative variables
+        //- Update fluxes
         void updateFluxes();
 
         //- Correct primatives based on internal energy/enthalpy
         void correctThermo();
 
-        //- Encode primative variables
-        void encode();
+        //- Calculate primative variables
+        void calcConservativeVariables();
 
-        //- Decode conservative variables
-        void decode();
+        //- Calculate conservative variables
+        void calcPrimitiveVariables();
 
         //- Read base phaseProperties dictionary
         bool read();

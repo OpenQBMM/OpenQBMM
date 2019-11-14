@@ -89,7 +89,7 @@ void Foam::fluxIntegrator::integrateFluxes
     List<scalarList> f = butcherTable_->Fcoeffs();
 
     const dimensionedScalar& deltaT = fluid_.rho().time().deltaT();
-    fluid_.encode();
+    fluid_.calcConservativeVariables();
     for (label stepi = 0; stepi < butcherTable_->nSteps(); stepi++)
     {
 
@@ -102,7 +102,7 @@ void Foam::fluxIntegrator::integrateFluxes
             deltaT,
             g
         );
-        fluid_.decode();
+        fluid_.calcPrimitiveVariables();
     }
 }
 
