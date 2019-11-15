@@ -45,6 +45,7 @@ void Foam::fluxIntegrator::setCoeffs
             {
                 storeFields[j] = true;
             }
+
             if (mag(f[i][j]) > SMALL)
             {
                 storeDeltas[j] = true;
@@ -67,7 +68,6 @@ Foam::fluxIntegrator::fluxIntegrator
     boolList storeFields(butcherTable_->nSteps(), false);
     boolList storeDeltas(butcherTable_->nSteps(), false);
     setCoeffs(storeFields, storeDeltas);
-
     fluid_.setNSteps(storeFields, storeDeltas);
 }
 
@@ -90,6 +90,7 @@ void Foam::fluxIntegrator::integrateFluxes
 
     const dimensionedScalar& deltaT = fluid_.rho().time().deltaT();
     fluid_.calcConservativeVariables();
+    
     for (label stepi = 0; stepi < butcherTable_->nSteps(); stepi++)
     {
 

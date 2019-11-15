@@ -94,8 +94,10 @@ int main(int argc, char *argv[])
                 fvm::ddt(rho, e) - fvc::ddt(rho, e)
               - fvm::laplacian(turbulence().alphaEff(), e)
             );
+            
             fluid.correctThermo();
         }
+
         turbulence().correct();
 
         populationBalance->solve();

@@ -283,6 +283,7 @@ void Foam::compressibleSystem::setNSteps
                     rho_
                 )
             );
+
             rhoUs_.append
             (
                 new volVectorField
@@ -298,6 +299,7 @@ void Foam::compressibleSystem::setNSteps
                     rhoU_
                 )
             );
+
             rhoEs_.append
             (
                 new volScalarField
@@ -336,6 +338,7 @@ void Foam::compressibleSystem::setNSteps
                     dimensionedScalar("zero", rho_.dimensions()/dimTime, 0.0)
                 )
             );
+
             deltaRhoUs_.append
             (
                 new volVectorField
@@ -352,6 +355,7 @@ void Foam::compressibleSystem::setNSteps
                     dimensionedVector("zero", rhoU_.dimensions()/dimTime, Zero)
                 )
             );
+
             deltaRhoEs_.append
             (
                 new volScalarField
@@ -376,6 +380,7 @@ Foam::tmp<Foam::volScalarField>
 Foam::compressibleSystem::speedOfSound() const
 {
     volScalarField rPsi("rPsi", 1.0/thermoPtr_->psi());
+
     return tmp<volScalarField>
     (
         new volScalarField
@@ -428,6 +433,7 @@ void Foam::compressibleSystem::advect
 
     label fieldi = 0;
     label deltai = 0;
+
     for (label i = 0; i < stepi; i++)
     {
         if (storedFieldIndexes_[i] != -1)
@@ -449,6 +455,7 @@ void Foam::compressibleSystem::advect
 
     rho_ = rho + deltaT*deltaRho;
     rhoU_ = rhoU + deltaT*deltaRhoU;
+
     //- Ensure unused directions are zero
     rhoU_ =
         cmptMultiply
@@ -471,8 +478,7 @@ void Foam::compressibleSystem::integrateFluxes
 
 void Foam::compressibleSystem::updateFluxes()
 {
-
-    // calculate fluxes with
+    // Calculate fluxes with
     fluxFunction_->updateFluxes
     (
         massFlux_,
@@ -503,6 +509,7 @@ void Foam::compressibleSystem::calcPrimitiveVariables()
     thermoPtr_->correct();
     p_ = rho_/thermoPtr_->psi();
     p_.correctBoundaryConditions();
+
     rho_.boundaryFieldRef() ==
         thermoPtr_->psi().boundaryField()*p_.boundaryField();
 
@@ -520,6 +527,7 @@ void Foam::compressibleSystem::calcConservativeVariables()
     rhoU_.boundaryFieldRef() == rho_.boundaryField()*U_.boundaryField();
 
     rhoE_ = rho_*E_;
+
     rhoE_.boundaryFieldRef() ==
         rho_.boundaryField()*
         (
@@ -535,6 +543,7 @@ void Foam::compressibleSystem::correctThermo()
     thermoPtr_->correct();
     p_ = rho_/thermoPtr_->psi();
     p_.correctBoundaryConditions();
+    
     rho_.boundaryFieldRef() ==
         thermoPtr_->psi().boundaryField()*p_.boundaryField();
     thermoPtr_->rho() = rho_;
