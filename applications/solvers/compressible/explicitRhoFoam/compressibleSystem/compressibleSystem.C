@@ -261,6 +261,7 @@ void Foam::compressibleSystem::setNSteps
 
     label currFieldIndex = 0;
     label currDeltaIndex = 0;
+
     for (label stepi = 0; stepi < nSteps; stepi++)
     {
         if (storeFields[stepi])
@@ -385,7 +386,7 @@ Foam::compressibleSystem::speedOfSound() const
     (
         new volScalarField
         (
-            "c",
+            "speedOfSound",
             sqrt(thermoPtr_->Cp()/thermoPtr_->Cv()*rPsi)
         )
     );
@@ -546,6 +547,7 @@ void Foam::compressibleSystem::correctThermo()
     
     rho_.boundaryFieldRef() ==
         thermoPtr_->psi().boundaryField()*p_.boundaryField();
+
     thermoPtr_->rho() = rho_;
 
     H_ = E_ + p_/rho_;
