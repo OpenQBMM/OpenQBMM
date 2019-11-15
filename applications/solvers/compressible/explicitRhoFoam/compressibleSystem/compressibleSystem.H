@@ -76,7 +76,7 @@ protected:
         //- Volumetric flux
         autoPtr<surfaceScalarField> phiPtr_;
 
-        //- Refrence to thermodynamic pressure
+        //- reference to thermodynamic pressure
         volScalarField& p_;
 
         //- Total internal energy
@@ -143,76 +143,76 @@ public:
         //- Return speed of sound
         tmp<volScalarField> speedOfSound() const;
 
-        //- Const refrence to thermo
+        //- Const reference to thermo
         inline const rhoThermo& thermo() const;
 
-        //- Non-const refrence to thermo
+        //- Non-const reference to thermo
         inline rhoThermo& thermo();
 
-        //- Const refrence to density
+        //- Const reference to density
         inline const volScalarField& rho() const;
 
-        //- Non-const refrence to density
+        //- Non-const reference to density
         inline volScalarField& rho();
 
-        //- Const refrence to total internal energy
+        //- Const reference to total internal energy
         inline const volScalarField& E() const;
 
-        //- Non-const refrence to total energy
+        //- Non-const reference to total energy
         inline volScalarField& E();
 
-        //- Const refrence to total enthalpy
+        //- Const reference to total enthalpy
         inline const volScalarField& H() const;
 
-        //- Non-const refrence to total enthalpy
+        //- Non-const reference to total enthalpy
         inline volScalarField& H();
 
-        //- Const refrence to velocity
+        //- Const reference to velocity
         inline const volVectorField& U() const;
 
-        //- Non-const refrence to velocity
+        //- Non-const reference to velocity
         inline volVectorField& U();
 
-        //- Const refrence to volumetric flux
+        //- Const reference to volumetric flux
         inline const surfaceScalarField& phi() const;
 
-        //- Non-const refrence to volumetric Flux
+        //- Non-const reference to volumetric Flux
         inline surfaceScalarField& phi();
 
-        //- Const refrence to thermodynamic pressure
+        //- Const reference to thermodynamic pressure
         inline const volScalarField& p() const;
 
-        //- Non-const refrence to thermodynamic pressure
+        //- Non-const reference to thermodynamic pressure
         inline volScalarField& p();
 
-        //- Const refrence to momentum
+        //- Const reference to momentum
         inline const volVectorField& rhoU() const;
 
-        //- Non-const refrence to momentum
+        //- Non-const reference to momentum
         inline volVectorField& rhoU();
 
-        //- Const refrence to total internal energy
+        //- Const reference to total internal energy
         inline const volScalarField& rhoE() const;
 
-        //- Non-const refrence to total internal energy
+        //- Non-const reference to total internal energy
         inline volScalarField& rhoE();
 
-        //- Constant refrence to mass flux
+        //- Constant reference to mass flux
         inline const surfaceScalarField& massFlux() const;
 
-        //- Non-constant refrence to mass flux
+        //- Non-constant reference to mass flux
         inline surfaceScalarField& massFlux();
 
-        //- Constant refrence to momentum flux
+        //- Constant reference to momentum flux
         inline const surfaceVectorField& momentumFlux() const;
 
-        //- Non-constant refrence to momentum flux
+        //- Non-constant reference to momentum flux
         inline surfaceVectorField& momentumFlux();
 
-        //- Constant refrence to energy flux
+        //- Constant reference to energy flux
         inline const surfaceScalarField& energyFlux() const;
 
-        //- Non-constant refrence to energy flux
+        //- Non-constant reference to energy flux
         inline surfaceScalarField& energyFlux();
 
 
