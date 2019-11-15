@@ -54,13 +54,13 @@ Foam::ButcherTables::RK3SSP::~RK3SSP()
 // * * * * * * * * * * *  Protected Member Fucntions * * * * * * * * * * * * //
 
 Foam::List<Foam::scalarList>
-Foam::ButcherTables::RK3SSP::coeffs() const
+Foam::ButcherTables::RK3SSP::conservedVariablesCoeffs() const
 {
     return {{1.0}, {3.0/4.0, 1.0/4.0}, {1.0/3.0, 0.0, 2.0/3.0}};
 }
 
 Foam::List<Foam::scalarList>
-Foam::ButcherTables::RK3SSP::Fcoeffs() const
+Foam::ButcherTables::RK3SSP::fluxCoeffs() const
 {
     return {{1.0}, {0.0, 1.0/4.0}, {0.0, 0.0, 2.0/3.0}};
 }

@@ -86,10 +86,10 @@ public:
         virtual label nSteps() const = 0;
 
         //- Conserved variable coeffients
-        virtual List<scalarList> coeffs() const = 0;
+        virtual List<scalarList> conservedVariablesCoeffs() const = 0;
 
         //- Flux coefficients
-        virtual List<scalarList> Fcoeffs() const = 0;
+        virtual List<scalarList> fluxCoeffs() const = 0;
 };
 
 

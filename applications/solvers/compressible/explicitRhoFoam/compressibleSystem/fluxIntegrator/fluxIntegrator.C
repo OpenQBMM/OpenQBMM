@@ -34,8 +34,8 @@ void Foam::fluxIntegrator::setCoeffs
     boolList& storeDeltas
 )
 {
-    List<scalarList> c = butcherTable_->coeffs();
-    List<scalarList> f = butcherTable_->Fcoeffs();
+    List<scalarList> c = butcherTable_->conservedVariablesCoeffs();
+    List<scalarList> f = butcherTable_->fluxCoeffs();
 
     for (label i = 0; i < c.size(); i++)
     {
@@ -85,16 +85,17 @@ void Foam::fluxIntegrator::integrateFluxes
     const dimensionedVector& g
 )
 {
-    List<scalarList> c = butcherTable_->coeffs();
-    List<scalarList> f = butcherTable_->Fcoeffs();
+    List<scalarList> c = butcherTable_->conservedVariablesCoeffs();
+    List<scalarList> f = butcherTable_->fluxCoeffs();
 
     const dimensionedScalar& deltaT = fluid_.rho().time().deltaT();
+    
     fluid_.calcConservativeVariables();
     
     for (label stepi = 0; stepi < butcherTable_->nSteps(); stepi++)
     {
-
         fluid_.updateFluxes();
+
         fluid_.advect
         (
             stepi,
@@ -103,6 +104,7 @@ void Foam::fluxIntegrator::integrateFluxes
             deltaT,
             g
         );
+
         fluid_.calcPrimitiveVariables();
     }
 }

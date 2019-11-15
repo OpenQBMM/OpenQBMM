@@ -55,13 +55,13 @@ Foam::ButcherTables::Euler::~Euler()
 // * * * * * * * * * * *  Protected Member Fucntions * * * * * * * * * * * * //
 
 Foam::List<Foam::scalarList>
-Foam::ButcherTables::Euler::coeffs() const
+Foam::ButcherTables::Euler::conservedVariablesCoeffs() const
 {
     return {{1.0}};
 }
 
 Foam::List<Foam::scalarList>
-Foam::ButcherTables::Euler::Fcoeffs() const
+Foam::ButcherTables::Euler::fluxCoeffs() const
 {
     return {{1.0}};
 }

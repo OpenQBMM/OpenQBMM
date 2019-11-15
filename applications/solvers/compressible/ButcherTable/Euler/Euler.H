@@ -74,10 +74,10 @@ public:
         }
 
         //- Conserved variable coeffients
-        virtual List<scalarList> coeffs() const;
+        virtual List<scalarList> conservedVariablesCoeffs() const;
 
         //- Flux coefficients
-        virtual List<scalarList> Fcoeffs() const;
+        virtual List<scalarList> fluxCoeffs() const;
 };
 
 

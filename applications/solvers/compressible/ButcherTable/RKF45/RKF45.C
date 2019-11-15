@@ -55,7 +55,7 @@ Foam::ButcherTables::RKF45::~RKF45()
 // * * * * * * * * * * *  Protected Member Fucntions * * * * * * * * * * * * //
 
 Foam::List<Foam::scalarList>
-Foam::ButcherTables::RKF45::coeffs() const
+Foam::ButcherTables::RKF45::conservedVariablesCoeffs() const
 {
     return
     {
@@ -69,7 +69,7 @@ Foam::ButcherTables::RKF45::coeffs() const
 }
 
 Foam::List<Foam::scalarList>
-Foam::ButcherTables::RKF45::Fcoeffs() const
+Foam::ButcherTables::RKF45::fluxCoeffs() const
 {
     return
     {

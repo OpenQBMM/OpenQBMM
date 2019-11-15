@@ -229,8 +229,8 @@ public:
         void advect
         (
             const label stepi,
-            const scalarList& coeffs,
-            const scalarList& Fcoeffs,
+            const scalarList& conservedVariablesCoeffs,
+            const scalarList& fluxCoeffs,
             const dimensionedScalar& deltaT,
             const dimensionedVector& g
         );

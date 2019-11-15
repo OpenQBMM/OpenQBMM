@@ -394,8 +394,8 @@ Foam::compressibleSystem::speedOfSound() const
 void Foam::compressibleSystem::advect
 (
     const label stepi,
-    const scalarList& coeffs,
-    const scalarList& Fcoeffs,
+    const scalarList& conservedVariablesCoeffs,
+    const scalarList& fluxCoeffs,
     const dimensionedScalar& deltaT,
     const dimensionedVector& g
 )
@@ -423,13 +423,13 @@ void Foam::compressibleSystem::advect
         deltaRhoEs_[di] = deltaRhoE;
     }
 
-    volScalarField rho(rho_*coeffs[stepi]);
-    volVectorField rhoU(rhoU_*coeffs[stepi]);
-    volScalarField rhoE(rhoE_*coeffs[stepi]);
+    volScalarField rho(rho_*conservedVariablesCoeffs[stepi]);
+    volVectorField rhoU(rhoU_*conservedVariablesCoeffs[stepi]);
+    volScalarField rhoE(rhoE_*conservedVariablesCoeffs[stepi]);
 
-    deltaRho *= Fcoeffs[stepi];
-    deltaRhoU *= Fcoeffs[stepi];
-    deltaRhoE *= Fcoeffs[stepi];
+    deltaRho *= fluxCoeffs[stepi];
+    deltaRhoU *= fluxCoeffs[stepi];
+    deltaRhoE *= fluxCoeffs[stepi];
 
     label fieldi = 0;
     label deltai = 0;
@@ -438,17 +438,17 @@ void Foam::compressibleSystem::advect
     {
         if (storedFieldIndexes_[i] != -1)
         {
-            rho += rhos_[fieldi]*coeffs[i];
-            rhoU += rhoUs_[fieldi]*coeffs[i];
-            rhoE += rhoEs_[fieldi]*coeffs[i];
+            rho += rhos_[fieldi]*conservedVariablesCoeffs[i];
+            rhoU += rhoUs_[fieldi]*conservedVariablesCoeffs[i];
+            rhoE += rhoEs_[fieldi]*conservedVariablesCoeffs[i];
             fieldi++;
         }
 
         if (storedDeltaIndexes_[i] != -1)
         {
-            deltaRho += deltaRhos_[deltai]*Fcoeffs[i];
-            deltaRhoU += deltaRhoUs_[deltai]*Fcoeffs[i];
-            deltaRhoE += deltaRhoEs_[deltai]*Fcoeffs[i];
+            deltaRho += deltaRhos_[deltai]*fluxCoeffs[i];
+            deltaRhoU += deltaRhoUs_[deltai]*fluxCoeffs[i];
+            deltaRhoE += deltaRhoEs_[deltai]*fluxCoeffs[i];
             deltai++;
         }
     }
