@@ -221,8 +221,8 @@ public:
         //- Set the number of steps used in ode solution to hyperbolic terms
         void setNSteps
         (
-            const boolList& storeConservedVariablesCoeffs,
-            const boolList& storeFluxCoeffs
+            const boolList& storeFields,
+            const boolList& storeDeltas
         );
 
         //- Advect with conservative fluxes
