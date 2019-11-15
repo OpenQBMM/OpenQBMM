@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Jeff Heylmun
+    \\  /    A nd           | Copyright (C) 2017-2019 Jeff Heylmun
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
