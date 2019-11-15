@@ -125,8 +125,6 @@ protected:
             PtrList<volScalarField> rhoEs_;
             PtrList<volScalarField> deltaRhoEs_;
 
-
-
         //- Flux function
         autoPtr<fluxFunction> fluxFunction_;
 

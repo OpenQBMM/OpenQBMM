@@ -76,7 +76,7 @@ protected:
     //- Protected functions
 
         //- Return interpolation scheme name
-        static word interpScheme(const word& fieldName)
+        static word schemeName(const word& fieldName)
         {
             return "reconstruct(" + fieldName + ")";
         }
