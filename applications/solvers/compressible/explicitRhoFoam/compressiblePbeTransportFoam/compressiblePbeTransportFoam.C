@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
         if (!inviscid)
         {
             volScalarField& e = fluid.thermo().he();
+
             solve
             (
                 fvm::ddt(rho, U) - fvc::ddt(rho, U)
@@ -94,12 +95,11 @@ int main(int argc, char *argv[])
                 fvm::ddt(rho, e) - fvc::ddt(rho, e)
               - fvm::laplacian(turbulence().alphaEff(), e)
             );
-            
+
             fluid.correctThermo();
         }
 
         turbulence().correct();
-
         populationBalance->solve();
 
         runTime.write();

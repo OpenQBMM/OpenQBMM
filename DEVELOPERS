@@ -59,6 +59,7 @@
                                                 Conditional moment inversion
                                                 Realizable ODE solver
                                                 Gas-liquid flow solver
+                                                Compressible solvers
 
  Zhenping Liu*          Ph.D.   2016            Population balance modeling in
                                                 turbulent reacting flows
