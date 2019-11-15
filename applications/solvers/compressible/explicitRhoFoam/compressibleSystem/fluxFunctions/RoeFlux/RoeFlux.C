@@ -90,6 +90,7 @@ void Foam::fluxFunctions::Roe::updateFluxes
     (
         fvc::interpolate(a, own_, schemeName(a.name()))
     );
+
     surfaceScalarField aNei
     (
         fvc::interpolate(a, nei_, schemeName(a.name()))
@@ -118,12 +119,15 @@ void Foam::fluxFunctions::Roe::updateFluxes
         "UTilde",
         UOwn*wOwn + UNei*wNei
     );
+
     surfaceScalarField UvTilde(UTilde & normal);
+
     surfaceScalarField HTilde
     (
         "HTilde",
         HOwn*wOwn + HNei*wNei
     );
+
     surfaceScalarField aTilde
     (
         "aTilde",
@@ -143,10 +147,12 @@ void Foam::fluxFunctions::Roe::updateFluxes
     (
         deltaRho - deltaP/sqr(aTilde)
     );
+
     surfaceScalarField alpha2
     (
         (deltaP + rhoTilde*aTilde*deltaUv)/(2.0*sqr(aTilde))
     );
+    
     surfaceScalarField alpha3
     (
         (deltaP - rhoTilde*aTilde*deltaUv)/(2.0*sqr(aTilde))

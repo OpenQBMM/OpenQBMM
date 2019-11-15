@@ -78,6 +78,7 @@ void Foam::fluxFunctions::HLLC::updateFluxes
     (
         fvc::interpolate(rho, own_, schemeName(rho.name()))
     );
+
     surfaceScalarField rhoNei
     (
         fvc::interpolate(rho, nei_, schemeName(rho.name()))
@@ -93,10 +94,12 @@ void Foam::fluxFunctions::HLLC::updateFluxes
     surfaceScalarField pNei(fvc::interpolate(p, nei_, schemeName(p.name())));
 
     volScalarField gamma("gamma", thermo_.gamma());
+
     surfaceScalarField gammaOwn
     (
         fvc::interpolate(gamma, own_, schemeName(gamma.name()))
     );
+
     surfaceScalarField gammaNei
     (
         fvc::interpolate(gamma, nei_, schemeName(gamma.name()))
@@ -106,6 +109,7 @@ void Foam::fluxFunctions::HLLC::updateFluxes
     (
         fvc::interpolate(a, own_, schemeName(a.name()))
     );
+
     surfaceScalarField aNei
     (
         fvc::interpolate(a, nei_, schemeName(a.name()))
@@ -181,11 +185,14 @@ void Foam::fluxFunctions::HLLC::updateFluxes
     // Compute fluxes
     // Mass
     surfaceScalarField massFluxOwn(rhoOwn*UvOwn);
+
     surfaceScalarField massFluxStarOwn
     (
         SStar*(SOwn*rhoOwn - massFluxOwn)*rDeltaSOwn
     );
+
     surfaceScalarField massFluxNei(rhoNei*UvNei);
+
     surfaceScalarField massFluxStarNei
     (
         SStar*(SNei*rhoNei - massFluxNei)*rDeltaSNei
@@ -193,6 +200,7 @@ void Foam::fluxFunctions::HLLC::updateFluxes
 
     // Momentum
     surfaceVectorField momentumFluxOwn(UOwn*massFluxOwn + pOwn*normal);
+
     surfaceVectorField momentumFluxStarOwn
     (
         (
@@ -200,7 +208,9 @@ void Foam::fluxFunctions::HLLC::updateFluxes
           + SOwn*pOwnNei*normal
         )*rDeltaSOwn
     );
+
     surfaceVectorField momentumFluxNei(UNei*massFluxNei + pNei*normal);
+
     surfaceVectorField momentumFluxStarNei
     (
         (
@@ -211,6 +221,7 @@ void Foam::fluxFunctions::HLLC::updateFluxes
 
     // Energy
     surfaceScalarField energyFluxOwn(HOwn*massFluxOwn);
+
     surfaceScalarField energyFluxStarOwn
     (
         (
@@ -218,7 +229,9 @@ void Foam::fluxFunctions::HLLC::updateFluxes
           + SOwn*pOwnNei*SStar
         )*rDeltaSOwn
     );
+
     surfaceScalarField energyFluxNei(HNei*massFluxNei);
+    
     surfaceScalarField energyFluxStarNei
     (
         (

@@ -75,6 +75,7 @@ void Foam::fluxFunctions::AUSMPlus::updateFluxes
     (
         fvc::interpolate(rho, own_, schemeName(rho.name()))
     );
+
     surfaceScalarField rhoNei
     (
         fvc::interpolate(rho, nei_, schemeName(rho.name()))
@@ -93,6 +94,7 @@ void Foam::fluxFunctions::AUSMPlus::updateFluxes
     (
         fvc::interpolate(a, own_, schemeName(a.name()))
     );
+
     surfaceScalarField aNei
     (
         fvc::interpolate(a, nei_, schemeName(a.name()))
@@ -145,6 +147,7 @@ void Foam::fluxFunctions::AUSMPlus::updateFluxes
           + 2.0*beta_*sqr(sqr(MaOwn) - 1.0)
         )
     );
+
     surfaceScalarField magMachNei
     (
         "magMachNei",
@@ -155,11 +158,13 @@ void Foam::fluxFunctions::AUSMPlus::updateFluxes
           + 2.0*beta_*sqr(sqr(MaNei) - 1.0)
         )
     );
+
     surfaceScalarField deltaMa12
     (
         "deltaMa12",
         magMachOwn - magMachNei
     );
+
     surfaceScalarField Ma12
     (
         "Ma12",
@@ -168,11 +173,13 @@ void Foam::fluxFunctions::AUSMPlus::updateFluxes
 
     surfaceScalarField a12("a12", sqrt(aOwn*aNei));
     surfaceScalarField rhoPhi(fvc::interpolate(rho*U) & normal);
+
     surfaceVectorField rhoUPhi
     (
         (fvc::interpolate(rho*U*U) & normal)
       + fvc::interpolate(p)*normal
     );
+    
     surfaceScalarField rhoHPhi(fvc::interpolate(rho*H*U) & normal);
 
     massFlux =

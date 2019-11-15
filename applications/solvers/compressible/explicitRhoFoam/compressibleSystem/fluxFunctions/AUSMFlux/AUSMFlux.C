@@ -75,6 +75,7 @@ void Foam::fluxFunctions::AUSM::updateFluxes
     (
         fvc::interpolate(rho, own_, schemeName(rho.name()))
     );
+
     surfaceScalarField rhoNei
     (
         fvc::interpolate(rho, nei_, schemeName(rho.name()))
@@ -93,6 +94,7 @@ void Foam::fluxFunctions::AUSM::updateFluxes
     (
         fvc::interpolate(a, own_, schemeName(a.name()))
     );
+
     surfaceScalarField aNei
     (
         fvc::interpolate(a, nei_, schemeName(a.name()))
@@ -101,7 +103,7 @@ void Foam::fluxFunctions::AUSM::updateFluxes
     surfaceScalarField UvOwn(UOwn & normal);
     surfaceScalarField UvNei(UNei & normal);
 
-    // Compute slpit Mach numbers
+    // Compute split Mach numbers
     surfaceScalarField MaOwn("MaOwn", UvOwn/max(aOwn, minU));
     surfaceScalarField MaNei("MaNei", UvNei/max(aNei, minU));
     surfaceScalarField magMaOwn(mag(MaOwn));
@@ -113,31 +115,35 @@ void Foam::fluxFunctions::AUSM::updateFluxes
         neg(magMaOwn - 1.0)*(0.25*sqr(MaOwn + 1.0) + 0.125*(sqr(MaOwn) - 1.0))
       + pos0(MaOwn - 1.0)*MaOwn
     );
+
     surfaceScalarField MaMinus
     (
         "MaMinus",
         pos0(-1.0 - MaNei)*MaNei
       - neg(magMaNei - 1.0)*(0.25*sqr(MaNei - 1.0) - 0.125*(sqr(MaNei) - 1.0))
     );
+
     surfaceScalarField Ma12
     (
         "Ma12",
         MaPlus + MaMinus
     );
 
-    // Compute slpit pressures
+    // Compute split pressures
     surfaceScalarField pPlus
     (
         "pPlus",
         neg(magMaOwn - 1.0)*0.25*sqr(MaOwn + 1.0)*(2.0 - MaOwn)
       + pos0(MaOwn - 1.0)
     );
+
     surfaceScalarField pMinus
     (
         "pMinus",
         pos0(-1.0 - MaNei)
       + neg(magMaNei - 1.0)*0.25*sqr(MaNei - 1.0)*(2.0 + MaNei)
     );
+    
     surfaceScalarField p12
     (
         "p12",
