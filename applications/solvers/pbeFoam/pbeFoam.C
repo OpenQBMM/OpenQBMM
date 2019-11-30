@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2015-06-21 Alberto Passalacqua: Derived solver from chemFoam.
+2019-11-29 Alberto Passalacqua: Ported to OpenFOAM+ v1906.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -38,9 +39,7 @@ Description
 #include "psiThermo.H"
 #include "turbulentFluidThermoModel.H"
 #include "OFstream.H"
-//#include "thermoPhysicsTypes.H"
-//#include "basicMultiComponentMixture.H"
-#include "cellModeller.H"
+#include "hexCellFvMesh.H"
 #include "populationBalanceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
