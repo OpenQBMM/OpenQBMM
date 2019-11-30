@@ -251,7 +251,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
        /max
         (
             12.0*gs0*quadrature_.moments()[0]*sqrt(Theta_),
-            dimensionedScalar("small", dimVelocity, 1e-10)
+            dimensionedScalar("SMALL", dimVelocity, 1e-10)
         )
     );
 

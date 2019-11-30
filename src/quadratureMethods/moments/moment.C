@@ -150,7 +150,7 @@ Foam::autoPtr<Foam::moment<fieldType, nodeType>>
 Foam::moment<fieldType, nodeType>::clone() const
 {
     NotImplemented;
-    return autoPtr<moment<fieldType, nodeType>>(NULL);
+    return nullptr;
 }
 
 template <class fieldType, class nodeType>

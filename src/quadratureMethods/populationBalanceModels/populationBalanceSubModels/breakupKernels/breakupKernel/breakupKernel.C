@@ -163,11 +163,11 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
             {
                 if (lengthBased)
                 {
-                    bSourcei /= pow3(max(bAbscissa, small));
+                    bSourcei /= pow3(max(bAbscissa, SMALL));
                 }
                 else
                 {
-                    bSourcei /= max(bAbscissa, small);
+                    bSourcei /= max(bAbscissa, SMALL);
                 }
             }
 
@@ -219,11 +219,11 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
             {
                 if (lengthBased)
                 {
-                    bSourcei /= pow3(max(bAbscissa, small));
+                    bSourcei /= pow3(max(bAbscissa, SMALL));
                 }
                 else
                 {
-                    bSourcei /= max(bAbscissa, small);
+                    bSourcei /= max(bAbscissa, SMALL);
                 }
             }
 
@@ -312,11 +312,11 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
             {
                 if (lengthBased)
                 {
-                    bSources[sizei] /= pow3(max(bAbscissa, small));
+                    bSources[sizei] /= pow3(max(bAbscissa, SMALL));
                 }
                 else
                 {
-                    bSources[sizei] /= max(bAbscissa, small);
+                    bSources[sizei] /= max(bAbscissa, SMALL);
                 }
             }
         }
@@ -383,11 +383,11 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
             {
                 if (lengthBased)
                 {
-                    bSources[pNodei][sNodei] /= pow3(max(bAbscissa, small));
+                    bSources[pNodei][sNodei] /= pow3(max(bAbscissa, SMALL));
                 }
                 else
                 {
-                    bSources[pNodei][sNodei] /= max(bAbscissa, small);
+                    bSources[pNodei][sNodei] /= max(bAbscissa, SMALL);
                 }
             }
         }

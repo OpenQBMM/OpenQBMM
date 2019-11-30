@@ -474,7 +474,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
               + 1.5*xi*d1*d2/(sqr(alphac)*(d12))
               + 0.5*sqr(xi)/pow3(alphac)*sqr(d1*d2/d12);
 
-            if (omega > small)
+            if (omega > SMALL)
             {
                 updateI(celli, nodei, nodej, omega);
 

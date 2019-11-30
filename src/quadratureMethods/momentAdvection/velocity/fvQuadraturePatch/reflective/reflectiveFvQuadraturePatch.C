@@ -135,7 +135,7 @@ void Foam::reflectiveFvQuadraturePatch::update()
     //- Scale to ensure zero flux
     if (this->ew_ < 1)
     {
-        scalarField weightScale(Gin/(Gout + small));
+        scalarField weightScale(Gin/(Gout + SMALL));
 
         forAll(quadrature_.nodes(), nodei)
         {

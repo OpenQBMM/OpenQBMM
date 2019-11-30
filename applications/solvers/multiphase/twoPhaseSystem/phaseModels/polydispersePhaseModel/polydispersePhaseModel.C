@@ -77,7 +77,7 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
     {
         const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
-        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], small);
+        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], SMALL);
         scalar n1 = node1.n(celli, weight1, abscissa1);
         scalar d1 = node1.d(celli, abscissa1);
 
@@ -85,7 +85,7 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
         {
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
-            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], small);
+            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
 
             scalar n2 = node2.n(celli, weight2, abscissa2);
             scalar d2 = node2.d(celli, abscissa2);
@@ -130,7 +130,7 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
     {
         const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
-        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], small);
+        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], SMALL);
         scalar n1 = node1.n(celli, weight1, abscissa1);
         scalar d1 = node1.d(celli, abscissa1);
 
@@ -138,7 +138,7 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
         {
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
-            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], small);
+            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
 
             scalar n2 = node2.n(celli, weight2, abscissa2);
             scalar d2 = node2.d(celli, abscissa2);
@@ -185,7 +185,7 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
     {
         const volScalarNode& node = nodes[nodei];
         scalar weight = node.primaryWeight()[celli];
-        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], small);
+        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], SMALL);
         scalar d = node.d(celli, abscissa);
         scalar n = node.n(celli, weight, abscissa);
 
@@ -222,7 +222,7 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
     {
         const volScalarNode& node = nodes[nodei];
         scalar weight = node.primaryWeight()[celli];
-        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], small);
+        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], SMALL);
         scalar d = node.d(celli, abscissa);
         scalar n = node.n(celli, weight, abscissa);
 
@@ -1210,7 +1210,7 @@ void Foam::polydispersePhaseModel::averageTransport
             "tauC",
             Foam::max
             (
-                (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*great,
+                (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*GREAT,
                 residualAlpha_
             )
         );

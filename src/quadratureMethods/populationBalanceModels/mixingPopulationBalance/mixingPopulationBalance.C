@@ -254,7 +254,7 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Compute moments in the environment
     forAll(xiDiff, celli)
     {
-        // Null or very small variance of the mixture fraction
+        // Null or very SMALL variance of the mixture fraction
         // Moments in the two environments are identical
         if (xiDiff[celli] > minMixtureFractionVariance_)
         {

@@ -159,7 +159,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
             {
                 const volScalarNode& node2 = nodes[pNode2i];
                 const volScalarField& pWeight2 = node2.primaryWeight();
-                // Remove small negative values in abscissae
+                // Remove SMALL negative values in abscissae
                 scalar bAbscissa2 =
                     max(node2.primaryAbscissae()[sizeIndex][celli],0.0);
                 scalar d2 = node2.d(celli, bAbscissa2);
@@ -408,14 +408,14 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                     if (lengthBased)
                     {
                         aSources[sizei][sizej] /=
-                            pow3(max(bAbscissa1, small))
-                           *pow3(max(bAbscissa2, small));
+                            pow3(max(bAbscissa1, SMALL))
+                           *pow3(max(bAbscissa2, SMALL));
                     }
                     else
                     {
                         aSources[sizei][sizej] /=
-                            max(bAbscissa1, small)
-                           *max(bAbscissa2, small) ;
+                            max(bAbscissa1, SMALL)
+                           *max(bAbscissa2, SMALL) ;
                     }
                 }
             }
@@ -513,14 +513,14 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                         if (lengthBased)
                         {
                             aSources[pNode1i][sNode1i][pNode2i][sNode2i] /=
-                                pow3(max(bAbscissa1, small))
-                               *pow3(max(bAbscissa2, small));
+                                pow3(max(bAbscissa1, SMALL))
+                               *pow3(max(bAbscissa2, SMALL));
                         }
                         else
                         {
                             aSources[pNode1i][sNode1i][pNode2i][sNode2i] /=
-                                max(bAbscissa1, small)
-                               *max(bAbscissa2, small);
+                                max(bAbscissa1, SMALL)
+                               *max(bAbscissa2, SMALL);
                         }
                     }
                 }

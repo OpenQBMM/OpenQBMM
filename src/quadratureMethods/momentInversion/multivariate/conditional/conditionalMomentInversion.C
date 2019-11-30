@@ -448,7 +448,7 @@ void Foam::multivariateMomentInversions::conditional::setVR
                 abscissa = abscissae_(pos)[si_];
             }
 
-            if (mag(abscissa) > small && weight > small)
+            if (mag(abscissa) > SMALL && weight > SMALL)
             {
                 x.append(abscissa);
                 weights.append(weight);
@@ -500,7 +500,7 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
         pos[dimi] = 0;
         scalar cm0 = conditionalMoments_[dimi][dimi - 1](pos);
 
-        if (mag(cm0) < small)
+        if (mag(cm0) < SMALL)
         {
             for (label nodei = 0; nodei < nNodes_[dimi]; nodei++)
             {

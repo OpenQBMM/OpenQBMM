@@ -99,7 +99,7 @@ void Foam::outflowFvQuadraturePatch::update()
         bfwNei = bfwOwn;
 
         vectorField bfU(U.boundaryField()[patchi_].patchInternalField());
-        vectorField Un(bfU/max(mag(bfU), small));
+        vectorField Un(bfU/max(mag(bfU), SMALL));
         bfUOwn = Foam::max((bfU & bfSf), 0.0)*Un;
         bfUNei = bfUOwn;
     }

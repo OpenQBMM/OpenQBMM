@@ -141,7 +141,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
             alphas_[nodei] = 0.0;
         }
     }
-    sumAlpha_ = max(sumAlpha_, small);
+    sumAlpha_ = max(sumAlpha_, SMALL);
     scalarField alpha
     (
         patchi == -1
@@ -169,14 +169,14 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
                 Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
 
             weights_[nodei] =
-                pos(abscissae_[nodei][0] - small)
-               *alphai*rho/max(abscissae_[nodei][0], small);
+                pos(abscissae_[nodei][0] - SMALL)
+               *alphai*rho/max(abscissae_[nodei][0], SMALL);
         }
         else
         {
             abscissae_[nodei][0] = ds_[nodei];
             scalarField V(pow3(ds_[nodei]));
-            weights_[nodei] = pos(V - small)*alphai/max(V, small);
+            weights_[nodei] = pos(V - SMALL)*alphai/max(V, SMALL);
         }
     }
 
@@ -208,7 +208,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
             alphas_[nodei] = 0.0;
         }
     }
-    sumAlpha_ = max(sumAlpha_, small);
+    sumAlpha_ = max(sumAlpha_, SMALL);
     scalarField alpha(size, 0.0);
     scalarField rho(size, 0.0);
     forAll(cells, celli)
@@ -231,14 +231,14 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
                 Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
 
             weights_[nodei] =
-                pos(abscissae_[nodei][0] - small)
-               *alphai*rho/max(abscissae_[nodei][0], small);
+                pos(abscissae_[nodei][0] - SMALL)
+               *alphai*rho/max(abscissae_[nodei][0], SMALL);
         }
         else
         {
             abscissae_[nodei][0] = ds_[nodei];
             scalarField V = pow3(ds_[nodei]);
-            weights_[nodei] = pos(V - small)*alphai/max(V, small);
+            weights_[nodei] = pos(V - SMALL)*alphai/max(V, SMALL);
         }
     }
 

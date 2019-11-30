@@ -279,7 +279,7 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
                 *gs0
                 *(scalar(1) - sqr(restitutionCoefficient_.value()))
                 *sqrt(3.0*Theta)
-                /max(4.0*kappa*alphaMax.value(), small);
+                /max(4.0*kappa*alphaMax.value(), SMALL);
         }
 
         this->valueFraction() = c/(c + patch().deltaCoeffs());
@@ -315,14 +315,14 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
         else
         {
             this->refGrad() =
-                pos0(alpha - small)
+                pos0(alpha - SMALL)
                *constant::mathematical::pi
                *specularityCoefficient_.value()
                *alpha
                *gs0
                *sqrt(3.0*Theta)
                *magSqr(U)
-               /max(6.0*kappa*alphaMax.value(), small);
+               /max(6.0*kappa*alphaMax.value(), SMALL);
         }
 
         this->valueFraction() = 0.0;

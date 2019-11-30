@@ -114,7 +114,7 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
                 }
                 if (num > 1e-6)
                 {
-                    den = max(den, small);
+                    den = max(den, SMALL);
                     maxCoNum[celli] =
                         min
                         (

@@ -194,7 +194,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
         Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
     }
 
-    scalarField weightScale(Gin/(Gout + small));
+    scalarField weightScale(Gin/(Gout + SMALL));
 
     forAll(nodes, nodei)
     {

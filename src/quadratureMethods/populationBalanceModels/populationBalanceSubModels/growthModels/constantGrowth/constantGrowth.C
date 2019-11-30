@@ -59,7 +59,7 @@ Foam::populationBalanceSubModels::growthModels::constantGrowth
 :
     growthModel(dict),
     minAbscissa_(dict.lookupOrDefault("minAbscissa", 0.0)),
-    maxAbscissa_(dict.lookupOrDefault("maxAbscissa", great))
+    maxAbscissa_(dict.lookupOrDefault("maxAbscissa", GREAT))
 {}
 
 

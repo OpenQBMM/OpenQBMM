@@ -498,7 +498,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     scalar eta = c40/sqr(c20);
 
     // Check for perfect correlation (v = a*u)
-    if (sqr(c11s) > c02*(1.0 - small))
+    if (sqr(c11s) > c02*(1.0 - SMALL))
     {
         c11s = sign(c11s)*sqrt(c02);
         pOrder = 1;
@@ -595,7 +595,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
         sum1 += wDir1[i]*sqrt(pow3(mu2[i]));
     }
 
-    if (sum1 > small)
+    if (sum1 > SMALL)
     {
         scalar sum03 = c03;
 
@@ -613,7 +613,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
         sum2 += wDir1[i]*sqr(mu2[i]);
     }
 
-    if (sum1 > small)
+    if (sum1 > SMALL)
     {
         scalar sum04 = c04;
 
@@ -1072,12 +1072,12 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         scalar c201s = c201/c200;
         scalar c021s = c021/c020;
 
-        if (sqr(c101s) >= c002*(1.0 - small))
+        if (sqr(c101s) >= c002*(1.0 - SMALL))
         {
             c101s = sign(c101s)*sqrtC002;
             NB = 2;
         }
-        else if (sqr(c011s) >= c002*(1.0 - small))
+        else if (sqr(c011s) >= c002*(1.0 - SMALL))
         {
             c011s = sign(c011s)*sqrtC002;
             c101s = c110s*c011s;
@@ -1171,7 +1171,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             }
         }
 
-        if (sum1 > small)
+        if (sum1 > SMALL)
         {
             scalar sum3 = c003;
             for (label i = 0; i < 3; i++)
@@ -1196,7 +1196,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             }
         }
 
-        if (sum1 > small)
+        if (sum1 > SMALL)
         {
             scalar sum04A = c004;
             scalar sum04B = 0.0;

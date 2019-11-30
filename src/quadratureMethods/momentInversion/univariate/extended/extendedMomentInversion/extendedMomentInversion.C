@@ -90,7 +90,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             << abort(FatalError);
     }
 
-    // Exclude cases where the zero-order moment is very small to avoid
+    // Exclude cases where the zero-order moment is very SMALL to avoid
     // problems in the inversion due to round-off error
     if (m[0] < SMALL)
     {
@@ -137,7 +137,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     else
     {
         // Do not attempt the EQMOM reconstruction if mean or variance of the
-        //  moment set are small to avoid numerical problems. These problems are
+        //  moment set are SMALL to avoid numerical problems. These problems are
         // particularly acute in the calculation of the recurrence relationship
         // of the Jacobi orthogonal polynomials used for the beta kernel density
         // function.
@@ -194,7 +194,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             // Root not found. Minimize target function in [0, sigma_]
             sigma_ = minimizeTargetFunction(0, sigmaHigh, m, mStar);
 
-            // If sigma_ is small, use QMOM
+            // If sigma_ is SMALL, use QMOM
             if (mag(sigma_) < sigmaMin_)
             {
                 sigma_ = 0.0;
@@ -254,7 +254,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             {
                 // Root finding converged
 
-                // If sigma_ is small, use QMOM
+                // If sigma_ is SMALL, use QMOM
                 if (mag(sigma_) < sigmaMin_)
                 {
                     sigma_ = 0.0;
@@ -291,7 +291,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     // Root not found. Minimize target function in [0, sigma_]
                     sigma_ = minimizeTargetFunction(0, sigma_, m, mStar);
 
-                    // If sigma_ is small, use QMOM
+                    // If sigma_ is SMALL, use QMOM
                     if (mag(sigma_) < sigmaMin_)
                     {
                         sigma_ = 0.0;

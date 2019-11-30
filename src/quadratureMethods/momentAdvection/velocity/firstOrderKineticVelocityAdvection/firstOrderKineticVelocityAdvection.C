@@ -201,7 +201,7 @@ Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
                         );
                 }
 
-                den = max(den, small);
+                den = max(den, SMALL);
 
                 maxCoNum[celli] =
                     min

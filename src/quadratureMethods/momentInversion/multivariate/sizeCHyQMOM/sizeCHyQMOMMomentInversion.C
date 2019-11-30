@@ -125,7 +125,7 @@ invert
     reset();
     scalar m0 = moments(0);
 
-    if (mag(m0) < small)
+    if (mag(m0) < SMALL)
     {
         forAll(weights_, nodei)
         {
@@ -171,8 +171,8 @@ invert
 
         forAll(sizeWeights, nodei)
         {
-            x[nodei] = max(sizeAbscissae[nodei], small);
-            invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], small);
+            x[nodei] = max(sizeAbscissae[nodei], SMALL);
+            invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], SMALL);
         }
 
         Vandermonde V(x);
@@ -223,7 +223,7 @@ invert
 
         forAll(conditionalMoments, sNodei)
         {
-            if (sizeWeights[sNodei] > small)
+            if (sizeWeights[sNodei] > SMALL)
             {
                 multivariateMomentSet momentsToInvert
                 (

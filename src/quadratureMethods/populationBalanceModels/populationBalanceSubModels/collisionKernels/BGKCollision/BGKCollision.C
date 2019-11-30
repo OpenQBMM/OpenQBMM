@@ -61,7 +61,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::covariance
     symmTensor sigma(Zero);
 
     const volVelocityMomentFieldSet& moments = quadrature_.moments();
-    scalar m0 = max(moments(0)[celli], small);
+    scalar m0 = max(moments(0)[celli], SMALL);
     sigma.xx() = max(moments(2)[celli]/m0 - sqr(u), 0.0);
 
     if (nDimensions_ > 1)
@@ -92,7 +92,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::covariance
     symmTensor sigma(Zero);
     scalar m0 = moments(0);
 
-    if (m0 < small)
+    if (m0 < SMALL)
     {
         return sigma;
     }
@@ -128,17 +128,17 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 
     if (nSizes_ == 0)
     {
-        scalar u = moments(1)[celli]/max(m0, small);
+        scalar u = moments(1)[celli]/max(m0, SMALL);
         scalar v = 0.0;
         scalar w = 0.0;
 
         if (nDimensions_ > 1)
         {
-            v = moments(0,1)[celli]/max(m0, small);
+            v = moments(0,1)[celli]/max(m0, SMALL);
 
             if (nDimensions_ > 2)
             {
-                w = moments(0,0,1)[celli]/max(m0, small);
+                w = moments(0,0,1)[celli]/max(m0, SMALL);
             }
         }
 
@@ -233,7 +233,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                 minD_
             );
 
-        // Only compute variance and mean if m0 is not small
+        // Only compute variance and mean if m0 is not SMALL
         if (m0i > minM0_)
         {
             Us[sizei].x() = velocityMoments_[sizei](1)/m0i;
@@ -453,11 +453,11 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
     collisionKernel(dict, mesh, quadrature),
     tauCollisional_
     (
-        dimensionedScalar::lookupOrDefault("tau", dict, dimTime, small)
+        dimensionedScalar::lookupOrDefault("tau", dict, dimTime, SMALL)
     ),
     Meq_(momentOrders_.size(), momentOrders_),
     Ks_(nSizes_, scalarList(nSizes_, 0.0)),
-    minM0_(dict.lookupOrDefault("minM0", small))
+    minM0_(dict.lookupOrDefault("minM0", SMALL))
 {
     if (nSizes_ > 0)
     {

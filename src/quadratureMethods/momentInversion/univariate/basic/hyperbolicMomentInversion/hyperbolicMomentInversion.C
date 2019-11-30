@@ -202,7 +202,7 @@ void Foam::hyperbolicMomentInversion::invert
             if (realizability < smallNegRealizability_ && debug)
             {
                 WarningInFunction
-                    << "Fourth-order central moment is too small."
+                    << "Fourth-order central moment is too SMALL."
                     << " Realizability = " << realizability << nl
                     << endl;
             }

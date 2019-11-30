@@ -116,7 +116,7 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
     sizeIndex_(quadrature.nodes()[0].sizeIndex()),
     nSizes_(0),
     rhos_(1),
-    minD_(dict.lookupOrDefault("minD", small)),
+    minD_(dict.lookupOrDefault("minD", SMALL)),
     implicit_(dict_.lookupOrDefault("implicit", true))
 {
     if (sizeIndex_ != -1)

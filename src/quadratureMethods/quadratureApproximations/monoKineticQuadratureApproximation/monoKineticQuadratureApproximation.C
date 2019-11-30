@@ -362,7 +362,7 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                     // Check if bubble moments are large enough.
                     //  If yes make matricies 1 component larger,
                     //  if no the rest of the nodes are assumed to
-                    //  be too small as well.
+                    //  be too SMALL as well.
                     //  This is done to avoid a divide by 0 error,
                     //  and to reduce unneeded computation time
                     if
@@ -455,7 +455,7 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                 }
             }
 
-            // Set nodes with very small bubble mass or number to zero velocity
+            // Set nodes with very SMALL bubble mass or number to zero velocity
             for (label nodei = 0; nodei < nNodes_; nodei++)
             {
                 if (!nonZeroNodes[nodei])
@@ -473,11 +473,11 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
     const volScalarField& m0 = moments_[0];
     const volScalarField::Boundary m0Bf = m0.boundaryField();
 
-    // Check for small moments at cell centers
+    // Check for SMALL moments at cell centers
     forAll(m0, celli)
     {
         //- Make sure moments are below 0 before checking if they
-        //  are small enough to be neglected
+        //  are SMALL enough to be neglected
         if
         (
             m0[celli] < 0
@@ -502,7 +502,7 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
         }
     }
 
-    // Check for small moments on boundaries
+    // Check for SMALL moments on boundaries
     forAll(m0Bf, patchi)
     {
         forAll(m0Bf[patchi], facei)
@@ -548,7 +548,7 @@ bool Foam::monoKineticQuadratureApproximation::updateAllLocalQuadrature
     const volScalarField::Boundary m0Bf = m0.boundaryField();
 
         //- Make sure moments are below 0 before checking if they
-    //  are small enough to be neglected
+    //  are SMALL enough to be neglected
     if
     (
         m0[celli] < 0
@@ -699,7 +699,7 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
         }
     }
 
-    // Set nodes with very small bubble mass or number to mean bubble
+    // Set nodes with very SMALL bubble mass or number to mean bubble
     // velocity
     for (label nodei = 0; nodei < nNodes_; nodei++)
     {

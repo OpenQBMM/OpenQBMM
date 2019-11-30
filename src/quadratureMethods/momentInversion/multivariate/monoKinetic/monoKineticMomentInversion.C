@@ -131,7 +131,7 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
 
         forAll(sizeWeights, nodei)
         {
-            x[nodei] = max(sizeAbscissae[nodei], small);
+            x[nodei] = max(sizeAbscissae[nodei], SMALL);
             invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], 1e-10);
         }
 

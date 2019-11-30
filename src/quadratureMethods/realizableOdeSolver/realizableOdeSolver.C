@@ -178,7 +178,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                         );
                     moments[mi][celli] = oldMoments[mi] + k1[mi];
 
-                    if (mag(k1[mi]) > small)
+                    if (mag(k1[mi]) > SMALL)
                     {
                         nullSource = false;
                     }
@@ -295,7 +295,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
             error = sqrt(error/nMoments);
 
-            if (error < small)
+            if (error < SMALL)
             {
                 timeComplete = true;
                 localT = 0.0;

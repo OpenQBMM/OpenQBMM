@@ -501,7 +501,7 @@ Foam::autoPtr<Foam::quadratureNode<scalarType, vectorType>>
 Foam::quadratureNode<scalarType, vectorType>::clone() const
 {
     notImplemented("quadratureNode::clone() const");
-    return autoPtr<quadratureNode<scalarType, vectorType>>(NULL);
+    return nullptr;
 }
 
 
@@ -599,7 +599,7 @@ Foam::quadratureNode<scalarType, vectorType>::n
         v = x;
     }
 
-    v.ref().max(pow3(small));
+    v.ref().max(pow3(SMALL));
 
     return w/v;
 }
@@ -618,7 +618,7 @@ Foam::scalar Foam::quadratureNode<scalarType, vectorType>::n
         return w;
     }
 
-    scalar v = pow3(small);
+    scalar v = pow3(SMALL);
 
     if (massBased_ && rhoPtr_)
     {

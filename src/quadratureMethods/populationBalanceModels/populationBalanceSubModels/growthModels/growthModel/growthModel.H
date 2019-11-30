@@ -108,7 +108,7 @@ public:
     {
         return
             2.0
-            /max(Foam::constant::mathematical::pi*sqr(d), small);
+            /max(Foam::constant::mathematical::pi*sqr(d), SMALL);
     }
 
     // Member Functions

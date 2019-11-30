@@ -92,7 +92,7 @@ Foam::fv::phaseIncompressibleMeanVelocityForce::phaseIncompressibleMeanVelocityF
     ),
     Ubar_(coeffs_.lookup("Ubar")),
     magUbar_(mag(Ubar_)),
-    flowDir_(Ubar_/max(magUbar_, small)),
+    flowDir_(Ubar_/max(magUbar_, SMALL)),
     relaxation_(coeffs_.lookupOrDefault<scalar>("relaxation", 1.0)),
     gradP0_(0.0),
     dGradP_(0.0),

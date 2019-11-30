@@ -258,7 +258,7 @@ void Foam::eigenSolver::symmTridiagQL()
 
     for (label l = 0; l < n_; l++)
     {
-        // Find small subdiagonal element
+        // Find SMALL subdiagonal element
         tst1 = max(tst1, mag(eigenvaluesRe_[l]) + mag(eigenvaluesIm_[l]));
         label m = l;
 
@@ -527,7 +527,7 @@ void Foam::eigenSolver::realSchur()
 
     while (n >= low)
     {
-        // Look for single small sub-diagonal element
+        // Look for single SMALL sub-diagonal element
         label l = n;
 
         while (l > low)
@@ -690,7 +690,7 @@ void Foam::eigenSolver::realSchur()
 
             iter += 1;
 
-            // Look for two consecutive small sub-diagonal elements
+            // Look for two consecutive SMALL sub-diagonal elements
             label m = n - 2;
 
             while (m >= l)

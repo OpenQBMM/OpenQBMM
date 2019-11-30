@@ -465,7 +465,7 @@ void Foam::univariateMomentSet::checkRealizability
 
         alpha_[zetai] =
             zRecurrence[zetai][zetai + 1]
-           /max(zRecurrence[zetai][zetai], small)
+           /max(zRecurrence[zetai][zetai], SMALL)
           - zRecurrence[zetai - 1][zetai]
            /zRecurrence[zetai - 1][zetai - 1];
 
@@ -511,13 +511,13 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 
-    beta_[nD] = zRecurrence[nD][nD]/max(zRecurrence[nD - 1][nD - 1], small);
+    beta_[nD] = zRecurrence[nD][nD]/max(zRecurrence[nD - 1][nD - 1], SMALL);
 
     if (support_ == "R")
     {
-        alpha_[nD] = zRecurrence[nD][nD + 1]/max(zRecurrence[nD][nD], small)
+        alpha_[nD] = zRecurrence[nD][nD + 1]/max(zRecurrence[nD][nD], SMALL)
                     - zRecurrence[nD - 1][nD]/max(zRecurrence[nD - 1][nD - 1], 
-                    small);
+                    SMALL);
 
         if (beta_[nD] <= 0.0)
         {

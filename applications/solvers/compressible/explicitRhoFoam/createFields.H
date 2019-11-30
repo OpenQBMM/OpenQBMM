@@ -24,7 +24,7 @@ autoPtr<compressible::turbulenceModel> turbulence
 );
 
 const volScalarField& muEff(fluid.thermo().mu());
-bool inviscid = (max(muEff).value() < small);
+bool inviscid = (max(muEff).value() < SMALL);
 
 errorEstimator error(mesh);
 

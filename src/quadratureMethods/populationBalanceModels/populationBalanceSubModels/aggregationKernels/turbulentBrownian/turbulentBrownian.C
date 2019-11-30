@@ -105,7 +105,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
 {
     return 2.0*Foam::constant::physicoChemical::k.value()*T_[celli]
         *sqr(d1 + d2)/(3.0*mu_[celli]
-        *max(d1*d2, small)) + 4.0/3.0*pow3(d1 + d2)
+        *max(d1*d2, SMALL)) + 4.0/3.0*pow3(d1 + d2)
         *sqrt(3.0*Foam::constant::mathematical::pi*epsilon_[celli]
         /(10.0*mu_[celli]/rho_[celli]));
 }

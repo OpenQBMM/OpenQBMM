@@ -288,7 +288,7 @@ Foam::vdfPhaseModel::d(const label nodei) const
     if (nodei == -1)
     {
         volScalarField m0 = quadrature_.moments()(0);
-        m0.max(small);
+        m0.max(SMALL);
 
         tmp<volScalarField> dtmp(quadrature_.moments()(sizeMoment_)/m0);
 
@@ -411,7 +411,7 @@ void Foam::vdfPhaseModel::correct()
 
     labelList orderZero(quadrature_.momentOrders()[0].size(), 0);
     volScalarField m0(quadrature_.moments()(orderZero));
-    m0.max(small);
+    m0.max(SMALL);
 
     forAll(velocityIndexes, cmpt)
     {
