@@ -88,16 +88,25 @@ Foam::fv::phaseCompressibleMeanVelocityForce::phaseCompressibleMeanVelocityForce
     cellSetOption(sourceName, modelType, dict, mesh),
     alpha_
     (
-        mesh.thisDb().lookupObject<volScalarField>(coeffs_.lookup("alphaName"))
+        mesh.thisDb().lookupObject<volScalarField>
+        (
+            coeffs_.lookupOrDefault<word>("alphaName", "alpha")
+        )
     ),
-    rho_(mesh.thisDb().lookupObject<volScalarField>(coeffs_.lookup("rhoName"))),
+    rho_
+    (
+        mesh.thisDb().lookupObject<volScalarField>
+        (
+            coeffs_.lookupOrDefault<word>("rhoName", "rho")
+        )
+    ),
     Ubar_(coeffs_.lookup("Ubar")),
     magUbar_(max(mag(Ubar_), SMALL) ),
     flowDir_(Ubar_/magUbar_),
     relaxation_(coeffs_.lookupOrDefault<scalar>("relaxation", 1.0)),
     gradP0_(0.0),
     dGradP_(0.0),
-    rAPtr_(NULL)
+    rAPtr_(nullptr)
 {
     coeffs_.lookup("fieldNames") >> fieldNames_;
 

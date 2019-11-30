@@ -88,15 +88,21 @@ Foam::fv::phaseIncompressibleMeanVelocityForce::phaseIncompressibleMeanVelocityF
     cellSetOption(sourceName, modelType, dict, mesh),
     alpha_
     (
-        mesh.thisDb().lookupObject<volScalarField>(coeffs_.lookup("alphaName"))
+        mesh.thisDb().lookupObject<volScalarField>
+        (
+            coeffs_.lookupOrDefault<word>("alphaName", "alpha")
+        )
     ),
     Ubar_(coeffs_.lookup("Ubar")),
     magUbar_(mag(Ubar_)),
     flowDir_(Ubar_/max(magUbar_, SMALL)),
-    relaxation_(coeffs_.lookupOrDefault<scalar>("relaxation", 1.0)),
+    relaxation_
+    (
+        coeffs_.lookupOrDefault<scalar>("relaxation", 1.0)
+    ),
     gradP0_(0.0),
     dGradP_(0.0),
-    rAPtr_(NULL)
+    rAPtr_(nullptr)
 {
     coeffs_.lookup("fields") >> fieldNames_;
 
