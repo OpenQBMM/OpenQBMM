@@ -44,11 +44,14 @@ Foam::fixedFaceFvPatchScalarField::fixedFaceFvPatchScalarField
     if (Pstream::parRun())
     {
         labelList minProcl(1, Pstream::nProcs());
+
         if (p.size() > 0)
         {
             minProcl[0] = Pstream::myProcNo();
         }
+
         label minProc = gMin(minProcl);
+        
         if (Pstream::myProcNo() == minProc)
         {
             fixProc_ = true;
@@ -148,10 +151,12 @@ void Foam::fixedFaceFvPatchScalarField::updateCoeffs()
     {
         return;
     }
+
     if (fixProc_)
     {
         valueFraction()[0] = 1.0;
     }
+
     mixedFvPatchField<scalar>::updateCoeffs();
 }
 
@@ -159,7 +164,8 @@ void Foam::fixedFaceFvPatchScalarField::updateCoeffs()
 void Foam::fixedFaceFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
-    writeEntry(os, "value", *this);
+    writeEntry("value", os);
+    //writeEntry(os, "value", *this);
 }
 
 
