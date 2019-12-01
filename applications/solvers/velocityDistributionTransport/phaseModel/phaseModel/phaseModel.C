@@ -115,7 +115,7 @@ Foam::phaseModel::phaseModel
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar(dimensionSet(0, 3, -1, 0, 0), 0)
+        dimensionedScalar("alphaPhiZero", dimensionSet(0, 3, -1, 0, 0), 0.0)
     ),
     alphaRhoPhi_
     (
@@ -128,7 +128,7 @@ Foam::phaseModel::phaseModel
             IOobject::NO_WRITE
         ),
         mesh,
-        dimensionedScalar(dimensionSet(1, 0, -1, 0, 0), 0)
+        dimensionedScalar("alphaRhoPhiZero", dimensionSet(1, 0, -1, 0, 0), 0.0)
     )
 {
     thermo_->validate("phaseModel " + name_, "h", "e");

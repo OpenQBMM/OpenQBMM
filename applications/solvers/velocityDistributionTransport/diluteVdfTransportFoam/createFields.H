@@ -3,6 +3,7 @@
 #include "gh.H"
 
 Info<< "Reading phaseProperties\n" << endl;
+
 IOdictionary phaseProperties
 (
     IOobject
@@ -17,6 +18,7 @@ IOdictionary phaseProperties
 
 word dilutePhaseName(phaseProperties.lookup("dilutePhase"));
 word fluidName(phaseProperties.lookup("continuousPhase"));
+
 autoPtr<phaseModel> phase1
 (
     new phaseModel
@@ -26,6 +28,7 @@ autoPtr<phaseModel> phase1
         fluidName
     )
 );
+
 rhoThermo& thermo1 = phase1->thermo();
 volScalarField& p = thermo1.p();
 volScalarField& alpha1 = phase1();
@@ -37,6 +40,7 @@ volScalarField& rho1 = thermo1.rho();
 const volScalarField psi1 = thermo1.psi();
 
 Info<< "Creating field kinetic energy K\n" << endl;
+
 volScalarField K1
 (
     IOobject::groupName("K", phase1->name()),
@@ -52,6 +56,7 @@ autoPtr<phaseModel> phase2
         dilutePhaseName
     )
 );
+
 volScalarField& alpha2(phase2());
 rhoThermo& thermo2 = phase2->thermo();
 volScalarField& rho2 = thermo2.rho();
@@ -83,6 +88,7 @@ setRefCell
     pRefCell,
     pRefValue
 );
+
 mesh.setFluxRequired(p.name());
 
 dimensionedScalar pMin
@@ -102,7 +108,7 @@ volScalarField dpdt
         mesh
     ),
     mesh,
-    dimensionedScalar(p.dimensions()/dimTime, 0)
+    dimensionedScalar("zeroDpDt", p.dimensions()/dimTime, 0.0)
 );
 
 autoPtr<phasePair> pair
@@ -122,6 +128,7 @@ autoPtr<phasePair> pair
         phaseProperties.subDict("aspectRatio")
     )
 );
+
 autoPtr<dragModel> drag
 (
     dragModel::New
@@ -132,6 +139,7 @@ autoPtr<dragModel> drag
 );
 
 autoPtr<virtualMassModel> virtualMass;
+
 if (phaseProperties.found("virtualMass"))
 {
     virtualMass =
@@ -143,6 +151,7 @@ if (phaseProperties.found("virtualMass"))
 }
 
 autoPtr<liftModel> lift;
+
 if (phaseProperties.found("lift"))
 {
     lift =
@@ -154,6 +163,7 @@ if (phaseProperties.found("lift"))
 }
 
 autoPtr<wallLubricationModel> wallLubrication;
+
 if (phaseProperties.found("wallLubrication"))
 {
     wallLubrication =
@@ -165,6 +175,7 @@ if (phaseProperties.found("wallLubrication"))
 }
 
 autoPtr<turbulentDispersionModel> turbulentDispersion;
+
 if (phaseProperties.found("turbulentDispersion"))
 {
     turbulentDispersion =
@@ -176,6 +187,7 @@ if (phaseProperties.found("turbulentDispersion"))
 }
 
 autoPtr<heatTransferModel> heatTransfer;
+
 if (phaseProperties.found("heatTransfer"))
 {
     heatTransfer =

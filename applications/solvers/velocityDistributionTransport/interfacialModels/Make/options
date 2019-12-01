@@ -11,9 +11,9 @@ EXE_INC = \
     -I../phaseModel/lnInclude
 
 LIB_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie \
     -lmeshTools \
-    -L$(FOAM_USER_LIBBIN) \
     -lpbePhaseModels

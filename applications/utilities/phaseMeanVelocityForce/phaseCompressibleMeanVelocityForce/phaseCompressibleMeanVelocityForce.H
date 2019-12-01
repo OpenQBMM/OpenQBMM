@@ -98,7 +98,6 @@ class phaseCompressibleMeanVelocityForce
         //- Change in pressure gradient
         scalar dGradP_;
 
-
         //- Matrix 1/A coefficients field pointer
         autoPtr<volScalarField> rAPtr_;
 
