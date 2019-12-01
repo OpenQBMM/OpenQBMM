@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
     Info<< "Input matrix" << endl << A << endl;
 
-    // Since the matrix is not symmtric, there are two possible ways of
+    // Since the matrix is not symmetric, there are two possible ways of
     // constructing the eigenSolver:
     //
     // a) Using the general constructor, with symmetry check
@@ -66,19 +66,21 @@ int main(int argc, char *argv[])
 
     // The imaginary part of eigenvalues can be retrieved with
     //
-    // scalarDiagonalMatrix eigenIm(eig.eigenvaluesIm());
+    //   scalarDiagonalMatrix eigenIm(eig.eigenvaluesIm());
     //
     // while eigenvectors are retrived with
     //
-    // scalarSquareMatrix eigenvec(eig.eigenvectors());
+    //   scalarSquareMatrix eigenvec(eig.eigenvectors());
 
-    // Printing the real part of eigenvalues
+    // Print the real part of eigenvalues
     Info<< "\nReal part of eigenvalues: " << endl << eig.eigenvaluesRe()
         << endl;
 
+    // Print the imaginary part of the eigenvalues
     Info<< "\nImaginary part of eigenvalues: " << endl
         << eig.eigenvaluesIm() << endl;
 
+    // Print the eigenvectors
     Info<< "\nEigenvectors" << endl << eig.eigenvectors() << "\n\n";
 
     Info<< "End\n" << endl;
