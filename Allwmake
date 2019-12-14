@@ -48,10 +48,6 @@ then
     test/Allwmake $targetType $*
 fi
 
-# Check that website is accessible?
-## curl -A "OpenQBMM-dev" http://bit.ly/openqbmm-dev >/dev/null 2>&1
-
-
 # Some summary information
 echo
 date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
