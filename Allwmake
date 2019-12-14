@@ -1,12 +1,63 @@
 #!/bin/sh
-cd ${0%/*} || exit 1    # Run from this directory
+cd ${0%/*} || exit                              # Run from this directory
+targetType=libso
+. "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
 
-# Parse arguments for library compilation
-. $WM_PROJECT_DIR/wmake/scripts/AllwmakeParseArguments
+#------------------------------------------------------------------------------
 
-(cd src && ./Allwmake)
-wmake -all applications
-(cd test && ./Allwmake)
-curl -A "OpenQBMM-dev" http://bit.ly/openqbmm-dev >/dev/null 2>&1
+# Build hack until issue #137 is more adequately addressed
+# - build into OpenFOAM directories instead of user locations
 
-# ----------------------------------------------------------------- end-of-file
+user_appbin="$FOAM_USER_APPBIN"
+user_libbin="$FOAM_USER_LIBBIN"
+
+export FOAM_USER_APPBIN="$FOAM_APPBIN"
+export FOAM_USER_LIBBIN="$FOAM_LIBBIN"
+
+#------------------------------------------------------------------------------
+
+echo "========================================"
+date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
+echo "Starting compile of OpenQBMM with ${WM_PROJECT_DIR##*/} ${0##*}"
+echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
+echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
+echo
+
+echo "========================================"
+echo "Compile OpenQBMM libraries"
+echo
+src/Allwmake $targetType $*
+
+echo "========================================"
+echo "Compile OpenQBMM applications"
+echo
+applications/Allwmake $targetType $*
+
+# Restore user directories (see hack above)
+export FOAM_USER_APPBIN="$user_appbin"
+export FOAM_USER_LIBBIN="$user_libbin"
+
+# Build tests?
+unset buildTests
+# buildTests=true
+if [ "$buildTests" = true ]
+then
+    echo "========================================"
+    echo "Compile OpenQBMM applications"
+    echo
+    test/Allwmake $targetType $*
+fi
+
+# Check that website is accessible?
+## curl -A "OpenQBMM-dev" http://bit.ly/openqbmm-dev >/dev/null 2>&1
+
+
+# Some summary information
+echo
+date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
+echo "========================================"
+echo "  Finished compile of OpenQBMM with ${WM_PROJECT_DIR##*/}"
+echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
+echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
+echo
+#------------------------------------------------------------------------------
