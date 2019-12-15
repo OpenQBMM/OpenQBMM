@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -31,8 +31,13 @@ License
 
 namespace Foam
 {
-namespace populationBalanceSubModels::aggregationKernels::coalescenceFrequencyKernels
+namespace populationBalanceSubModels
 {
+namespace aggregationKernels
+{
+namespace coalescenceFrequencyKernels
+{
+
     defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
 
     addToRunTimeSelectionTable
@@ -41,8 +46,11 @@ namespace populationBalanceSubModels::aggregationKernels::coalescenceFrequencyKe
         CoulaloglouAndTavlarides,
         dictionary
     );
-}
-}
+
+} // End namespace coalescenceFrequencyKernels
+} // End namespace aggregationKernels
+} // End namespace populationBalanceSubModels
+} // End namespace Foam
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

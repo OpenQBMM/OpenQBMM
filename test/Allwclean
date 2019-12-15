@@ -1,6 +1,6 @@
 #!/bin/sh
-cd ${0%/*} || exit 1    # run from this directory
-set -x
+cd "${0%/*}" || exit                            # Run from this directory
+#------------------------------------------------------------------------------
 
 wclean eigenSolver
 wclean populationBalanceModel
@@ -10,4 +10,4 @@ wclean Vandermonde
 wclean univariateMomentAdvection/setMoments1D
 wclean univariateMomentAdvection/setMoments2D
 
-# ----------------------------------------------------------------- end-of-file
+#------------------------------------------------------------------------------

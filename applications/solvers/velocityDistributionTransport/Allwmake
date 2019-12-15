@@ -1,9 +1,7 @@
 #!/bin/sh
-cd ${0%/*} || exit 1    # Run from this directory
-
-# Parse arguments for library compilation
-. $WM_PROJECT_DIR/wmake/scripts/AllwmakeParseArguments
-set -x
+cd "${0%/*}" || exit                            # Run from this directory
+. "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
+#------------------------------------------------------------------------------
 
 wmake $targetType phaseModel
 wmake $targetType interfacialModels
@@ -11,3 +9,5 @@ wmake $targetType phaseCompressibleTurbulenceModels
 wmake $targetType vdfTransportFoam
 wmake $targetType oneWayCoupledVdfTransportFoam
 wmake $targetType diluteVdfTransportFoam
+
+#------------------------------------------------------------------------------
