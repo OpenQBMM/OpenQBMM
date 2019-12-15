@@ -124,7 +124,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 )
 {
     label size = reset(patchi);
-    sumAlpha_ = scalarField(size, 0.0);
+    sumAlpha_ = scalarField(size, Zero);
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
@@ -191,7 +191,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 )
 {
     label size = reset(cells);
-    sumAlpha_ = scalarField(size, 0.0);
+    sumAlpha_ = scalarField(size, Zero);
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
@@ -209,8 +209,8 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         }
     }
     sumAlpha_ = max(sumAlpha_, SMALL);
-    scalarField alpha(size, 0.0);
-    scalarField rho(size, 0.0);
+    scalarField alpha(size, Zero);
+    scalarField rho(size, Zero);
     forAll(cells, celli)
     {
         alpha[celli] = alpha_[cells[celli]];

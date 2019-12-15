@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     (
         nNodes,
         nodeIndexes,
-        scalarField(nDims, 0)
+        scalarField(nDims, Zero)
     );
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 

@@ -50,11 +50,11 @@ Foam::hyperbolicMomentInversion::hyperbolicMomentInversion
 )
 :
     univariateMomentInversion(dict),
-    etaMin_(dict.lookupOrDefault("etaMin", 1.0e-10)),
-    qMax_(dict.lookupOrDefault("qMax", 30.0)),
+    etaMin_(dict.lookupOrDefault<scalar>("etaMin", 1.0e-10)),
+    qMax_(dict.lookupOrDefault<scalar>("qMax", 30.0)),
     smallNegRealizability_
     (
-        dict.lookupOrDefault
+        dict.lookupOrDefault<scalar>
         (
             "smallNegRealizability",
             -1.0e-6
@@ -63,8 +63,8 @@ Foam::hyperbolicMomentInversion::hyperbolicMomentInversion
 {
     nInvertibleMoments_ = 5;
     nNodes_ = 3;
-    weights_.setSize(nNodes_, 0.0);
-    abscissae_.setSize(nNodes_, 0.0);
+    weights_.setSize(nNodes_, Zero);
+    abscissae_.setSize(nNodes_, Zero);
 }
 
 
@@ -159,7 +159,7 @@ void Foam::hyperbolicMomentInversion::invert
                 << centralMoments[2]
                 << endl;
         }
-        
+
         for (label ci = 2; ci < nInvertibleMoments_; ci++)
         {
             centralMoments[ci] = 0.0;

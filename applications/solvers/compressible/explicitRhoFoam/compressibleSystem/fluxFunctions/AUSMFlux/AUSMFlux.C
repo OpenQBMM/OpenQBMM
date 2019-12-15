@@ -143,7 +143,7 @@ void Foam::fluxFunctions::AUSM::updateFluxes
         pos0(-1.0 - MaNei)
       + neg(magMaNei - 1.0)*0.25*sqr(MaNei - 1.0)*(2.0 + MaNei)
     );
-    
+
     surfaceScalarField p12
     (
         "p12",
@@ -156,22 +156,24 @@ void Foam::fluxFunctions::AUSM::updateFluxes
     massFlux =
         mesh_.magSf()
        *(
-           max(0.0, Ma12)*rhoOwn*aOwn
-         + min(0.0, Ma12)*rhoNei*aNei
+           max(scalar(0), Ma12)*rhoOwn*aOwn
+         + min(scalar(0), Ma12)*rhoNei*aNei
         );
 
     momentumFlux =
         mesh_.magSf()
        *(
-            max(0.0, Ma12)*rhoOwn*aOwn*UOwn
-          + min(0.0, Ma12)*rhoNei*aNei*UNei
+            max(scalar(0), Ma12)*rhoOwn*aOwn*UOwn
+          + min(scalar(0), Ma12)*rhoNei*aNei*UNei
         )
       + p12*mesh_.Sf();
 
     energyFlux =
         mesh_.magSf()
        *(
-           max(0.0, Ma12)*rhoOwn*aOwn*HOwn
-         + min(0.0, Ma12)*rhoNei*aNei*HNei
+           max(scalar(0), Ma12)*rhoOwn*aOwn*HOwn
+         + min(scalar(0), Ma12)*rhoNei*aNei*HNei
         );
 }
+
+// ************************************************************************* //

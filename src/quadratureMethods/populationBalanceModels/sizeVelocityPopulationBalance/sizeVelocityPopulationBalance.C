@@ -172,7 +172,7 @@ Foam::PDFTransportModels::populationBalanceModels
     const label environment
 )
 {
-    scalar source = 0.0;
+    scalar source(0);
 
 //     if (nucleation_)
 //     {

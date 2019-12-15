@@ -74,11 +74,11 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
         Theta_*symmTensor::I - Sigma_,
         Sigma_.boundaryField().types()
     ),
-    hq_(3, dict.lookupOrDefault("nHerNodePerDim", 4)),
+    hq_(3, dict.lookupOrDefault<label>("nHerNodePerDim", 4)),
     weights_(hq_.hermiteWeights().size()),
     abscissae_(hq_.hermiteAbscissas().size()),
-    ew_(dict.lookupOrDefault("wallRestitutionCoefficient", 1.0)),
-    phiw_(dict.lookupOrDefault("wallSpecularityCoefficient", 0.0)),
+    ew_(dict.lookupOrDefault<scalar>("wallRestitutionCoefficient", 1)),
+    phiw_(dict.lookupOrDefault<scalar>("wallSpecularityCoefficient", 0)),
     own_
     (
         IOobject

@@ -104,10 +104,11 @@ int main(int argc, char *argv[])
         labelListList momentOrders(quadratureDict.lookup("moments"));
         labelListList nodeIndexes(quadratureDict.lookup("nodes"));
         label nMoments = momentOrders.size();
-        label nSamples = phaseDict.lookupOrDefault("nSamples", 100);
+        label nSamples = phaseDict.lookupOrDefault<label>("nSamples", 100);
 
         label nSecondaryNodes =
-            quadratureDict.subDict("extendedMomentInversion").lookupOrDefault
+            quadratureDict.subDict("extendedMomentInversion")
+            .lookupOrDefault<label>
             (
                 "nSecondaryNodes",
                 nMoments + 1
@@ -231,9 +232,13 @@ int main(int argc, char *argv[])
             );
 
             //- COnstruct sample distribution
-            scalarField x(nSamples, 0.0);
-            scalar xMax = phaseDict.lookupOrDefault("xMax", max(sAbscissae));
-            scalar xMin = phaseDict.lookupOrDefault("xMin", min(sAbscissae));
+            scalarField x(nSamples, Zero);
+            scalar xMax =
+                phaseDict.lookupOrDefault<scalar>("xMax", max(sAbscissae));
+
+            scalar xMin =
+                phaseDict.lookupOrDefault<scalar>("xMin", min(sAbscissae));
+
             scalar dx = (xMax - xMin)/(nSamples - 1);
 
             forAll(x, i)

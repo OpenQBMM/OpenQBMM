@@ -197,7 +197,7 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
       : alpha
     );
 
-    scalarField c(alpha.size(), 0.0);
+    scalarField c(alpha.size(), Zero);
 
     if
     (
@@ -231,7 +231,7 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
             (
                 h2Fn*specularityCoefficient_.value()*Vw
               + PsFric*tan(internalFrictionAngle_.value())
-               /max(alpha*mag(patchInternalField()), 1e-4)
+               /max(alpha*mag(patchInternalField()), scalar(1e-4))
             )/max(nu, SMALL)
         );
 
@@ -268,7 +268,7 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
            .lookup("alphaMax")
         );
 
-       scalarField c
+        scalarField c
         (
             constant::mathematical::pi
            *alpha

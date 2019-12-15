@@ -149,7 +149,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 (
                     "zeroAbscissa",
                     abscissaeDimensions[cmpt],
-                    0.0
+                    Zero
                 )
             )
         );
@@ -193,7 +193,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                             IOobject::NO_WRITE
                         ),
                         mesh,
-                        dimensionedScalar("zeroWeight", dimless, 0.0)
+                        dimensionedScalar("zeroWeight", dimless, Zero)
                     )
                 );
 
@@ -222,7 +222,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         (
                             "zeroAbscissa",
                             abscissaeDimensions[cmpt],
-                            0.0
+                            Zero
                         )
                     )
                 );
@@ -243,7 +243,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         IOobject::NO_WRITE
                     ),
                     mesh,
-                    dimensionedScalar("zeroSigma", dimless, 0.0)
+                    dimensionedScalar("zeroSigma", dimless, Zero)
                 )
             );
         }
@@ -381,7 +381,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 (
                     "zeroAbscissa",
                     abscissaeDimensions[cmpt],
-                    0.0
+                    Zero
                 ),
                 boundaryTypes
             )
@@ -427,7 +427,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                             IOobject::NO_WRITE
                         ),
                         mesh,
-                        dimensionedScalar("zeroWeight", dimless, 0.0),
+                        dimensionedScalar("zeroWeight", dimless, Zero),
                         boundaryTypes
                     )
                 );
@@ -457,7 +457,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         (
                             "zeroAbscissa",
                             abscissaeDimensions[cmpt],
-                            0.0
+                            Zero
                         ),
                     boundaryTypes
                     )
@@ -479,7 +479,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                         IOobject::NO_WRITE
                     ),
                     mesh,
-                    dimensionedScalar("zeroSigma", dimless, 0.0),
+                    dimensionedScalar("zeroSigma", dimless, Zero),
                     boundaryTypes
                 )
             );
@@ -528,7 +528,7 @@ Foam::quadratureNode<scalarType, vectorType>::d
                     false
                 ),
                 weight_.mesh(),
-                dimensionedScalar("d", dimLength, 0.0)
+                dimensionedScalar("d", dimLength, Zero)
             )
         );
     }

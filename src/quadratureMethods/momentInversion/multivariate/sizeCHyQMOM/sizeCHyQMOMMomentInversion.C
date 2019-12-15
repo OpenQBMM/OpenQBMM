@@ -134,7 +134,7 @@ invert
         return true;
     }
 
-    univariateMomentSet sizeMoments(nSizeMoments_, "RPlus", 0.0);
+    univariateMomentSet sizeMoments(nSizeMoments_, "RPlus", Zero);
 
     forAll(sizeMoments, mi)
     {
@@ -166,8 +166,8 @@ invert
 
     if (nSizeNodes > 0)
     {
-        scalarDiagonalMatrix x(nSizeNodes, 0.0);
-        scalarSquareMatrix invR(nSizeNodes, 0.0);
+        scalarDiagonalMatrix x(nSizeNodes, Zero);
+        scalarSquareMatrix invR(nSizeNodes, Zero);
 
         forAll(sizeWeights, nodei)
         {
@@ -190,7 +190,7 @@ invert
                 (
                     velocityMomentOrders_.size(),
                     velocityMomentOrders_,
-                    0.0
+                    Zero
                 )
             );
         }

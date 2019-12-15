@@ -61,8 +61,8 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
         velocityIndexes,
         nSecondaryNodes
     ),
-    minKnownAbscissa_(dict.lookupOrDefault("minKnownAbscissa", 0.0)),
-    maxKnownAbscissa_(dict.lookupOrDefault("maxKnownAbscissa", 1.0)),
+    minKnownAbscissa_(dict.lookupOrDefault<scalar>("minKnownAbscissa", 0)),
+    maxKnownAbscissa_(dict.lookupOrDefault<scalar>("maxKnownAbscissa", 1)),
     nFixedQuadraturePoints_(0),
     momentInverter_
     (
@@ -125,7 +125,7 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             (
                 moments.size(),
                 moments.support(),
-                0.0,                         // Initial value
+                scalar(0),                  // Initial value
                 nFixedQuadraturePoints_
             );
 
@@ -188,7 +188,7 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
     (
         moments.size(),
         moments.support(),
-        0.0,                         // Initial value
+        scalar(0),                  // Initial value
         nFixedQuadraturePoints_
     );
 

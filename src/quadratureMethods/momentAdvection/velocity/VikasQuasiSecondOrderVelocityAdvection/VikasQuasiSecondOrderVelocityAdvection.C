@@ -74,7 +74,7 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
     const labelList& nei = mesh.neighbour();
     surfaceVectorField Sf(mesh.Sf());
 
-    scalarField maxCoNum(mesh.nCells(), 1.0);
+    scalarField maxCoNum(mesh.nCells(), scalar(1));
 
     forAll(this->nodes_, nodei)
     {
@@ -83,7 +83,7 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
         (
             this->nodesOwn_()[nodei].velocityAbscissae() & mesh.Sf()
         );
-        
+
         surfaceScalarField phiNei
         (
             this->nodesNei_()[nodei].velocityAbscissae() & mesh.Sf()
@@ -103,13 +103,13 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
                     {
                         den +=
                             this->nodesOwn_()[nodei].primaryWeight()[cell[facei]]
-                           *max(phiOwn[cell[facei]], 0.0);
+                           *max(phiOwn[cell[facei]], scalar(0));
                     }
                     else if (nei[cell[facei]] == celli)
                     {
                         den -=
                             this->nodesNei_()[nodei].primaryWeight()[cell[facei]]
-                           *min(phiNei[cell[facei]], 0.0);
+                           *min(phiNei[cell[facei]], scalar(0));
                     }
                 }
                 if (num > 1e-6)

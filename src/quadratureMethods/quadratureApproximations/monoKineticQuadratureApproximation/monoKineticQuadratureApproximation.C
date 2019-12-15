@@ -401,8 +401,8 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
             else if (nNonZeroNodes > 1)
             {
                 // Create invV and invR matrices outside of cmptI loop to save time
-                scalarSquareMatrix invR(nNonZeroNodes, 0.0);
-                scalarDiagonalMatrix x(nNonZeroNodes, 0.0);
+                scalarSquareMatrix invR(nNonZeroNodes, Zero);
+                scalarDiagonalMatrix x(nNonZeroNodes, Zero);
                 label nodej = 0;
                 for (label nodei = 0; nodei < nNodes_; nodei++)
                 {
@@ -426,7 +426,7 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                 // Loop over all components of U_{\alpha}
                 for (label cmpti = 0; cmpti < vector::nComponents; cmpti++)
                 {
-                    scalarRectangularMatrix Upcmpt(nNonZeroNodes, 1, 0.0);
+                    scalarRectangularMatrix Upcmpt(nNonZeroNodes, 1, Zero);
                     label nodej = 0;
                     for (label nodei = 0; nodei < nNodes_; nodei++)
                     {
@@ -446,7 +446,7 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                     {
                         if (nonZeroNodes[nodei])
                         {
-                            velocityAbscissae_[nodei].boundaryFieldRef()[patchi][facei].component(cmpti) 
+                            velocityAbscissae_[nodei].boundaryFieldRef()[patchi][facei].component(cmpti)
                                 = Ucmpt[nodej][0];
 
                             nodej++;
@@ -486,7 +486,7 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
         {
             forAll(moments_, mi)
             {
-                moments_[mi][celli] = 0.0;
+                moments_[mi][celli] = Zero;
             }
         }
         else if
@@ -497,7 +497,7 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
         {
             for (label mi = 1; mi < nMoments_; mi++)
             {
-                moments_[mi][celli] = 0.0;
+                moments_[mi][celli] = Zero;
             }
         }
     }
@@ -515,7 +515,7 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
             {
                 forAll(moments_, mi)
                 {
-                    moments_[mi].boundaryFieldRef()[patchi][facei] = 0.0;
+                    moments_[mi].boundaryFieldRef()[patchi][facei] = Zero;
                 }
             }
             else if
@@ -526,7 +526,7 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
             {
                 for (label mi = 1; mi < nMoments_; mi++)
                 {
-                    moments_[mi].boundaryFieldRef()[patchi][facei] = 0.0;
+                    moments_[mi].boundaryFieldRef()[patchi][facei] = Zero;
                 }
             }
         }
@@ -557,7 +557,7 @@ bool Foam::monoKineticQuadratureApproximation::updateAllLocalQuadrature
     {
         forAll(moments_, mi)
         {
-            moments_[mi][celli] = 0.0;
+            moments_[mi][celli] = Zero;
         }
     }
     else if
@@ -568,7 +568,7 @@ bool Foam::monoKineticQuadratureApproximation::updateAllLocalQuadrature
     {
         for (label mi = 1; mi < nMoments_; mi++)
         {
-            moments_[mi][celli] = 0.0;
+            moments_[mi][celli] = Zero;
         }
     }
 
@@ -643,8 +643,8 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
     else if (nNonZeroNodes > 1)
     {
         // Create invV and invR matrices outside of cmptI loop to save time
-        scalarSquareMatrix invR(nNonZeroNodes, 0.0);
-        scalarDiagonalMatrix x(nNonZeroNodes, 0.0);
+        scalarSquareMatrix invR(nNonZeroNodes, Zero);
+        scalarDiagonalMatrix x(nNonZeroNodes, Zero);
         label nodej = 0;
 
         for (label nodei = 0; nodei < nNodes_; nodei++)
@@ -668,7 +668,7 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
         // Loop over all components of U_{\alpha}
         for (label cmpti = 0; cmpti < vector::nComponents; cmpti++)
         {
-            scalarRectangularMatrix Upcmpt(nNonZeroNodes, 1, 0.0);
+            scalarRectangularMatrix Upcmpt(nNonZeroNodes, 1, Zero);
             label nodej = 0;
 
             for (label nodei = 0; nodei < nNodes_; nodei++)
@@ -692,7 +692,7 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
                 {
                     velocityAbscissae_[nodei][celli].component(cmpti) =
                         Ucmpt[nodej][0];
-                        
+
                     nodej++;
                 }
             }

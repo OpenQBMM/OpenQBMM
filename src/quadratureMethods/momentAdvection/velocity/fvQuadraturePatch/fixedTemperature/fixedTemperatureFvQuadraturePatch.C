@@ -113,7 +113,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
     const vectorField& bfSf(mesh.Sf().boundaryField()[patchi_]);
     vectorField bfNorm(bfSf/mag(bfSf));
 
-    scalarField m0(max(moments(0).boundaryField()[patchi_], 1e-8));
+    scalarField m0(max(moments(0).boundaryField()[patchi_], scalar(1e-8)));
     vectorField T(bfSf.size(), Zero);
 
     T.replace
@@ -123,7 +123,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
         (
             moments(order200_).boundaryField()[patchi_]/m0
           - sqr(moments(order100_).boundaryField()[patchi_]/m0),
-            1e-8
+            scalar(1e-8)
         )
     );
 
@@ -136,7 +136,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
             (
                 moments(order020_).boundaryField()[patchi_]/m0
               - sqr(moments(order010_).boundaryField()[patchi_]/m0),
-                1e-8
+                scalar(1e-8)
             )
         );
     }
@@ -150,19 +150,19 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
             (
                 moments(order002_).boundaryField()[patchi_]/m0
               - sqr(moments(order001_).boundaryField()[patchi_]/m0),
-                1e-8
+                scalar(1e-8)
             )
         );
     }
-    
+
     scalarField scale
     (
         sqrt(wallTemperature_*scalar(nVelocityCmpts_)
        /(T & vector(1.0, 1.0, 1.0)))
     );
 
-    scalarField Gin(bfSf.size(), 0.0);
-    scalarField Gout(bfSf.size(), 0.0);
+    scalarField Gin(bfSf.size(), Zero);
+    scalarField Gout(bfSf.size(), Zero);
 
     const PtrList<volVelocityNode>& nodes = quadrature_.nodes();
 
@@ -190,8 +190,8 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
         bfUOwn = U.boundaryField()[patchi_].patchInternalField();
         bfUNei = (bfUOwn - 2.0*(bfUOwn & bfNorm)*bfNorm)*scale;
 
-        Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
-        Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
+        Gin += max(scalar(0), bfUOwn & bfSf)*bfwOwn;
+        Gout -= min(scalar(0), bfUNei & bfSf)*bfwNei;
     }
 
     scalarField weightScale(Gin/(Gout + SMALL));

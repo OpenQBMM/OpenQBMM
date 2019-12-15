@@ -126,7 +126,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
     omega_((1.0 + e_)*0.5),
     Enskog_(dict.lookupOrDefault("Enskog", false)),
     scalarIndexes_(quadrature.nodes()[0].scalarIndexes()),
-    Is_(velocityMomentOrders_.size(), velocityMomentOrders_, 0.0),
+    Is_(velocityMomentOrders_.size(), velocityMomentOrders_, Zero),
     I1s_(velocityIndexes_.size()),
     Cs_(momentOrders_.size(), momentOrders_),
     gradWs_(),
@@ -153,7 +153,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                 (
                     "zero",
                     quadrature.moments()[mi].dimensions()/dimTime,
-                    0.0
+                    Zero
                 )
             )
         );
@@ -170,7 +170,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                 (
                     velocityMomentOrders_.size(),
                     velocityMomentOrders_,
-                    0.0
+                    Zero
                 )
             );
         }
@@ -338,7 +338,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 {
     forAll(Cs_, momenti)
     {
-        Cs_[momenti][celli] = 0.0;
+        Cs_[momenti][celli] = Zero;
     }
 
     if (Enskog_)
@@ -393,7 +393,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                     //- Enskog term
                     if (Enskog_)
                     {
-                        scalar eSource = 0.0;
+                        scalar eSource(0);
 
                         forAll(velocityIndexes_, m)
                         {
@@ -505,7 +505,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                     if (Enskog_)
                     {
                         scalar enskogCoeff = 3.0*XiSqr*g012*d1/d2;
-                        scalar eSource = 0.0;
+                        scalar eSource(0);
                         forAll(velocityIndexes_, m)
                         {
                             scalar I1m = I1s_[m](vMomentOrder);

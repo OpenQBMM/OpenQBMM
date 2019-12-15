@@ -337,9 +337,9 @@ void Foam::momentGenerationSubModels::gaussian::updateMoments
 {
     label size = reset(cells);
 
-    scalarField alpha(size, 0);
+    scalarField alpha(size, Zero);
     vectorField U(size, Zero);
-    scalarField Theta(size, 0);
+    scalarField Theta(size, Zero);
     symmTensorField Sigma(size, Zero);
 
     if (dict.found("m0"))

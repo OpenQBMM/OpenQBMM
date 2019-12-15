@@ -138,7 +138,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     const label nZeta
 )
 {
-    scalarList canonicalMoments(nZeta, 0.0);
+    scalarList canonicalMoments(nZeta, Zero);
 
     canonicalMoments[0] = zeta[0];
 
@@ -360,7 +360,7 @@ void Foam::univariateMomentSet::checkRealizability
     }
 
     // Matrix used to build the recurrence relation
-    scalarRectangularMatrix zRecurrence(nD + 1, nMoments_, 0.0);
+    scalarRectangularMatrix zRecurrence(nD + 1, nMoments_, Zero);
 
     for (label columnI = 0; columnI < nMoments_; columnI++)
     {
@@ -711,7 +711,7 @@ void Foam::univariateMomentSet::update
     // from quadrature (projection step).
     for (label momenti = 0; momenti < nMoments_; momenti++)
     {
-        (*this)[momenti] = 0.0;
+        (*this)[momenti] = Zero;
 
         for (label nodei = 0; nodei < weights.size(); nodei++)
         {

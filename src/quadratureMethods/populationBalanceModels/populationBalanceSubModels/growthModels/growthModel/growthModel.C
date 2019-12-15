@@ -73,7 +73,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     const scalarQuadratureApproximation& quadrature
 )
 {
-    scalar gSource = 0.0;
+    scalar gSource(0);
 
     const PtrList<volScalarNode>& nodes = quadrature.nodes();
     label sizeIndex = nodes[0].sizeIndex();
@@ -113,7 +113,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
             const volScalarNode& node = nodes[pNodeI];
 
             scalar bAbscissa =
-                max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+                max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
             scalar d = node.d(celli, bAbscissa);
             scalar n =
                 node.n(celli, node.primaryWeight()[celli], bAbscissa);
@@ -149,7 +149,11 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
         forAll(node.secondaryWeights()[sizeIndex], sNodei)
         {
             scalar bAbscissa =
-                max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
+                max
+                (
+                    node.secondaryAbscissae()[sizeIndex][sNodei][celli],
+                    scalar(0)
+                );
             scalar d = node.d(celli, bAbscissa);
             scalar n =
                 node.n(celli, node.primaryWeight()[celli], bAbscissa)
@@ -189,7 +193,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     const velocityQuadratureApproximation& quadrature
 )
 {
-    scalar gSource = 0.0;
+    scalar gSource(0);
 
     const PtrList<volVelocityNode>& nodes = quadrature.nodes();
     label sizeIndex = nodes[0].sizeIndex();
@@ -227,7 +231,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
         const volVelocityNode& node = nodes[pNodeI];
 
         scalar bAbscissa =
-            max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+            max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
         scalar d = node.d(celli, bAbscissa);
         scalar n =
             node.n(celli, node.primaryWeight()[celli], bAbscissa);

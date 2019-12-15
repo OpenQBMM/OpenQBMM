@@ -152,7 +152,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     const label environment
 )
 {
-    scalar source = 0.0;
+    scalar source(0);
 
     if (aggregation_)
     {

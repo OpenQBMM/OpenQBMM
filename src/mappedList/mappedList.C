@@ -46,7 +46,7 @@ template <class mappedType>
 Foam::label
 Foam::mappedList<mappedType>::listToLabel
 (
-    const labelList& lst, 
+    const labelList& lst,
     const label nDims
 )
 {
@@ -55,7 +55,7 @@ Foam::mappedList<mappedType>::listToLabel
 
     forAll(lst, dimi)
     {
-        l += lst[dimi]*pow(10, size - dimi - 1);
+        l += lst[dimi]*pow(scalar(10), size - dimi - 1);
     }
 
     return l;
@@ -194,7 +194,7 @@ Foam::label Foam::mappedList<mappedType>::calcMapIndex
         )
         {
             label argIndex = std::distance(indexes.begin(), iter);
-            mapIndex += (*iter)*pow(10, nDims_ - argIndex - 1);
+            mapIndex += (*iter)*pow(scalar(10), nDims_ - argIndex - 1);
         }
     }
 
@@ -253,7 +253,7 @@ bool Foam::mappedList<mappedType>::found(ArgsT...args) const
             return true;
         }
     }
-    
+
     return false;
 }
 

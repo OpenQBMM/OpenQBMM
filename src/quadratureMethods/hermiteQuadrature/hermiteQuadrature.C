@@ -41,9 +41,9 @@ Foam::hermiteQuadrature::hermiteQuadrature
     nDim_(nDim),
     nOrder_(nOrder),
     nTolNodes_(pow(nOrder_, nDim)),
-    origWei_(nTolNodes_, 0.0),
-    origAbs_(nTolNodes_, vector::zero),
-    resAbs_(nTolNodes_, vector::zero)
+    origWei_(nTolNodes_, Zero),
+    origAbs_(nTolNodes_, Zero),
+    resAbs_(nTolNodes_, Zero)
 {
 
     if((nOrder_ <= 0))
@@ -73,8 +73,8 @@ Foam::hermiteQuadrature::hermiteQuadrature
 
     eigenSolver zEig(z);
 
-    scalarList herWei_(nOrder_,0.0);
-    scalarList herAbs_(nOrder_,0.0);
+    scalarList herWei_(nOrder_, Zero);
+    scalarList herAbs_(nOrder_, Zero);
 
     forAll(herWei_,i)
     {

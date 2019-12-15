@@ -108,7 +108,7 @@ Foam::univariateAdvection::zeta::zeta
                     IOobject::AUTO_WRITE
                 ),
                 phi.mesh(),
-                dimensionedScalar("zero", dimless, 0.0)
+                dimensionedScalar("zero", dimless, Zero)
             )
         );
 
@@ -126,7 +126,7 @@ Foam::univariateAdvection::zeta::zeta
                     IOobject::NO_WRITE
                 ),
                 phi.mesh(),
-                dimensionedScalar("zero", dimless, 0.0)
+                dimensionedScalar("zero", dimless, Zero)
             )
         );
 
@@ -144,7 +144,7 @@ Foam::univariateAdvection::zeta::zeta
                     IOobject::NO_WRITE
                 ),
                 phi.mesh(),
-                dimensionedScalar("zero", dimless, 0.0)
+                dimensionedScalar("zero", dimless, Zero)
             )
         );
 
@@ -162,7 +162,7 @@ Foam::univariateAdvection::zeta::zeta
                     IOobject::NO_WRITE
                 ),
                 phi.mesh(),
-                dimensionedScalar("zero", dimless, 0.0)
+                dimensionedScalar("zero", dimless, Zero)
             )
         );
 
@@ -180,7 +180,7 @@ Foam::univariateAdvection::zeta::zeta
                     IOobject::NO_WRITE
                 ),
                 phi.mesh(),
-                dimensionedScalar("zero", dimless, 0.0)
+                dimensionedScalar("zero", dimless, Zero)
             )
         );
 
@@ -198,7 +198,7 @@ Foam::univariateAdvection::zeta::zeta
                     IOobject::NO_WRITE
                 ),
                 phi.mesh(),
-                dimensionedScalar("zero", dimless, 0.0)
+                dimensionedScalar("zero", dimless, Zero)
             )
         );
 
@@ -216,7 +216,7 @@ Foam::univariateAdvection::zeta::zeta
                     IOobject::NO_WRITE
                 ),
                 phi.mesh(),
-                dimensionedScalar("zero", dimless, 0.0)
+                dimensionedScalar("zero", dimless, Zero)
             )
         );
 
@@ -313,7 +313,7 @@ void Foam::univariateAdvection::zeta::interpolateFields()
     (
         fvc::scheme<scalar>(nei_, m0NeiLimiter)
     );
-    
+
     tmp<surfaceInterpolationScheme<scalar>> zetaNeiScheme
     (
         fvc::scheme<scalar>(nei_, zetaNeiLimiter)
@@ -595,7 +595,7 @@ void Foam::univariateAdvection::zeta::limitZetas()
             // Start search for the zetas to limit
             for (label p = 0; p < nRealizableMoments_[celli] - 1; p++)
             {
-                scalarList mPlus(nMoments_, 0.0);
+                scalarList mPlus(nMoments_, Zero);
 
                 // Check if zeta_p needs limiting by evaluating m* with
                 // zeta_k, k > p from constant reconstruction
@@ -609,8 +609,8 @@ void Foam::univariateAdvection::zeta::limitZetas()
                     {
                         if (phi_[facei] > 0)
                         {
-                            scalarList zOwn(nZetas_, 0.0);
-                            scalarList mOwn(nMoments_, 0.0);
+                            scalarList zOwn(nZetas_, Zero);
+                            scalarList mOwn(nMoments_, Zero);
 
                             for (label zi = 0; zi <= p; zi++)
                             {
@@ -664,7 +664,7 @@ void Foam::univariateAdvection::zeta::limitZetas()
                                 cellLimiters_[p][celli] = 0.5;
 
                                 scalarList zOwn(nZetas_);
-                                scalarList mOwn(nMoments_, 0.0);
+                                scalarList mOwn(nMoments_, Zero);
 
                                 for (label zi = 0; zi < p; zi++)
                                 {
@@ -768,7 +768,7 @@ Foam::scalar Foam::univariateAdvection::zeta::realizableCo() const
     const labelList& own = mesh.faceOwner();
     const labelList& nei = mesh.faceNeighbour();
 
-    scalarField internalCo(m0_.size(), 0.0);
+    scalarField internalCo(m0_.size(), Zero);
 
     for (label facei = 0; facei < mesh.nInternalFaces(); facei++)
     {
@@ -814,7 +814,7 @@ void Foam::univariateAdvection::zeta::update()
     updateMomentFieldsFromZetas(m0Own_, zetasOwn_, momentsOwn_);
 
     // Calculate moment advection term
-    dimensionedScalar zeroPhi("zero", phi_.dimensions(), 0.0);
+    dimensionedScalar zeroPhi("zero", phi_.dimensions(), Zero);
 
     forAll(divMoments_, divi)
     {
@@ -843,7 +843,7 @@ void Foam::univariateAdvection::zeta::updateMomentFieldsFromZetas
             zf[zetai] = zetaf[zetai][facei];
         }
 
-        scalarList mFace(nMoments_, 0.0);
+        scalarList mFace(nMoments_, Zero);
         zetaToMoments(zf, mFace, m0f[facei]);
 
         for (label mi = 0; mi < nMoments_; mi++)
@@ -868,7 +868,7 @@ void Foam::univariateAdvection::zeta::updateMomentFieldsFromZetas
                 zf[zetai] = zetaf[zetai].boundaryField()[patchi][facei];
             }
 
-            scalarList mFace(nMoments_, 0.0);
+            scalarList mFace(nMoments_, Zero);
             zetaToMoments(zf, mFace, m0f.boundaryField()[patchi][facei]);
 
             for (label mi = 0; mi < nMoments_; mi++)

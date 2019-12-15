@@ -63,20 +63,20 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision::covariance
     scalar m0 = max(moments(0)[celli], SMALL);
 
     // Variances of velocities
-    scalar sigma1 = max(moments(2)[celli]/m0 - sqr(u), 0.0);
+    scalar sigma1 = max(moments(2)[celli]/m0 - sqr(u), scalar(0));
     scalar sigma2 = 0.0;
     scalar sigma3 = 0.0;
     Theta_[celli] = sigma1;
 
     if (nDimensions_ > 1)
     {
-        sigma2 = max(moments(0,2)[celli]/m0 - sqr(v), 0.0);
+        sigma2 = max(moments(0,2)[celli]/m0 - sqr(v), scalar(0));
         Theta_[celli] += sigma2;
     }
 
     if (nDimensions_ > 2)
     {
-        sigma3 = max(moments(0,0,2)[celli]/m0 - sqr(w), 0.0);
+        sigma3 = max(moments(0,0,2)[celli]/m0 - sqr(w), scalar(0));
         Theta_[celli] += sigma3;
     }
 
@@ -113,20 +113,20 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision::covariance
     scalar m0 = max(moments(0), SMALL);
 
     // Variances of velocities
-    scalar sigma1 = max(moments(2)/m0 - sqr(u), 0.0);
+    scalar sigma1 = max(moments(2)/m0 - sqr(u), scalar(0));
     scalar sigma2 = 0.0;
     scalar sigma3 = 0.0;
     scalar Theta = sigma1;
 
     if (nDimensions_ > 1)
     {
-        sigma2 = max(moments(0,2)/m0 - sqr(v), 0.0);
+        sigma2 = max(moments(0,2)/m0 - sqr(v), scalar(0));
         Theta += sigma2;
     }
 
     if (nDimensions_ > 2)
     {
-        sigma3 = max(moments(0,0,2)/m0 - sqr(w), 0.0);
+        sigma3 = max(moments(0,0,2)/m0 - sqr(w), scalar(0));
         Theta += sigma3;
     }
 
@@ -171,9 +171,9 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
             mesh
         ),
         mesh,
-        dimensionedScalar("0", sqr(dimVelocity), 0.0)
+        dimensionedScalar("0", sqr(dimVelocity), Zero)
     ),
-    zeta_(dict_.lookupOrDefault("zeta", 1.0))
+    zeta_(dict_.lookupOrDefault<scalar>("zeta", 1))
 {
     scalar omega = (1.0 + e_)/2.0;
     scalar gamma = 1.0 - b_;
@@ -203,7 +203,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
     {
         return 0.0;
     }
-    
+
     if (nSizes_ > 0)
     {
         return Meq_(momentOrder)[celli];

@@ -72,7 +72,7 @@ coalescenceFrequencyKernels::Luo::Luo
             mesh
         ),
         mesh,
-        dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
+        dimensionedScalar("zero", sqr(dimVelocity)/dimTime, Zero)
     )
 {}
 
