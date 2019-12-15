@@ -63,7 +63,7 @@ Foam::phaseModel::phaseModel
             IOobject::AUTO_WRITE
         ),
         mesh,
-        dimensionedScalar("alpha", dimless, 0)
+        dimensionedScalar("alpha", dimless, Zero)
     ),
     name_(phaseName),
     phaseDict_
@@ -76,7 +76,7 @@ Foam::phaseModel::phaseModel
         dimless,
         phaseDict_
     ),
-    alphaMax_(phaseDict_.lookupOrDefault("alphaMax", 1.0)),
+    alphaMax_(phaseDict_.lookupOrDefault<scalar>("alphaMax", 1)),
     thermo_(rhoThermo::New(mesh, name_)),
     U_
     (

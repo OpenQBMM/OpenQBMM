@@ -285,7 +285,7 @@ void Foam::eigenSolver::symmTridiagQL()
                 // Compute implicit shift
                 scalar g = eigenvaluesRe_[l];
                 scalar p = (eigenvaluesRe_[l + 1] - g)/(2.0*eigenvaluesIm_[l]);
-                scalar r = hypot(p, 1.0);
+                scalar r = hypot(p, scalar(1));
 
                 if (p < 0)
                 {

@@ -95,8 +95,8 @@ void Foam::reflectiveFvQuadraturePatch::update()
     const vectorField& bfSf(patch_.Sf());
     vectorField bfNorm(patch_.nf());
 
-    scalarField Gin(bfSf.size(), 0.0);
-    scalarField Gout(bfSf.size(), 0.0);
+    scalarField Gin(bfSf.size(), Zero);
+    scalarField Gout(bfSf.size(), Zero);
 
     forAll(quadrature_.nodes(), nodei)
     {
@@ -128,8 +128,8 @@ void Foam::reflectiveFvQuadraturePatch::update()
 
         bfUNei = vn + wallTangentVelocity(bfUOwn, bfNorm);
 
-        Gin += max(0.0, bfUOwn & bfSf)*bfwOwn;
-        Gout -= min(0.0, bfUNei & bfSf)*bfwNei;
+        Gin += max(scalar(0), bfUOwn & bfSf)*bfwOwn;
+        Gout -= min(scalar(0), bfUNei & bfSf)*bfwNei;
     }
 
     //- Scale to ensure zero flux
@@ -141,7 +141,7 @@ void Foam::reflectiveFvQuadraturePatch::update()
         {
             scalarField& bfWNei =
                 nodesNei_[nodei].primaryWeight().boundaryFieldRef()[patchi_];
-                
+
             bfWNei *= weightScale;
         }
     }

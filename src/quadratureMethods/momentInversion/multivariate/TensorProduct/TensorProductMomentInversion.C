@@ -141,7 +141,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
         (
             nPureMoments_[dimi],
             supports_[dimi],
-            0.0
+            Zero
         );
 
         forAll(univariateMoments, mi)
@@ -222,7 +222,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
         buildIndexes(nonZeroNodeIndexes, nNonZeroNodes, 0, nodei, index);
     }
 
-    scalarList mixedMoments(nonZeroNodeIndexes.size(), 0.0);
+    scalarList mixedMoments(nonZeroNodeIndexes.size(), Zero);
     scalarSquareMatrix R(nonZeroNodeIndexes.size(), 1.0);
 
     forAll(nonZeroNodeIndexes, nodei)
@@ -236,7 +236,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
         {
             vi = 0;
             si = 0;
-            
+
             forAll(nonZeroNodeIndexes[nodei], dimi)
             {
                 if (dimi == velocityIndexes_[vi])
@@ -265,7 +265,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
 
     scalarList weights(nNonZeroNodes.size());
     solve(weights, R, mixedMoments);
-    
+
     forAll(nonZeroNodeIndexes, nodei)
     {
         weights_(nonZeroNodeIndexes[nodei]) = weights[nodei];

@@ -168,7 +168,7 @@ Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
     const fvMesh& mesh = this->own_.mesh();
     surfaceVectorField Sf(mesh.Sf());
 
-    scalarField maxCoNum(mesh.nCells(), 1.0);
+    scalarField maxCoNum(mesh.nCells(), scalar(1));
 
     forAll(this->nodes_, nodei)
     {
@@ -243,7 +243,7 @@ Foam::scalar Foam::velocityAdvection::firstOrderKinetic::CoNum() const
 void Foam::velocityAdvection::firstOrderKinetic::update()
 {
     const fvMesh& mesh = own_.mesh();
-    dimensionedScalar zeroPhi("zero", dimVolume/dimTime, 0.0);
+    dimensionedScalar zeroPhi("zero", dimVolume/dimTime, Zero);
 
     // Interpolate weights and abscissae
     interpolateNodes();
@@ -259,7 +259,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
             (
                 "0",
                 moments_[divi].dimensions()/dimTime,
-                0.0
+                Zero
             );
     }
 
@@ -383,7 +383,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
     const bool wallCollisions
 )
 {
-    dimensionedScalar zeroPhi("zero", dimVolume/dimTime, 0.0);
+    dimensionedScalar zeroPhi("zero", dimVolume/dimTime, Zero);
 
     // Interpolate weights and abscissae
     interpolateNodes();
@@ -402,7 +402,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
             (
                 "0",
                 moments_[divi].dimensions()/dimTime,
-                0.0
+                Zero
             );
     }
 
@@ -524,7 +524,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
 )
 {
     const fvMesh& mesh = own_.mesh();
-    dimensionedScalar zeroPhi("zero", dimVolume/dimTime, 0.0);
+    dimensionedScalar zeroPhi("zero", dimVolume/dimTime, Zero);
 
     // Interplate weights and abscissae
     interpolateNodes();
@@ -565,7 +565,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
             (
                 "0",
                 moments_[divi].dimensions()/dimTime,
-                0.0
+                Zero
             );
     }
 

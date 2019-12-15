@@ -80,7 +80,7 @@ Foam::phaseModel::phaseModel
         dimless,
         phaseDict_
     ),
-    alphaMax_(phaseDict_.lookupOrDefault("alphaMax", 1.0)),
+    alphaMax_(phaseDict_.lookupOrDefault<scalar>("alphaMax", 1)),
     thermo_(rhoThermo::New(fluid.mesh(), name_)),
     U_
     (
@@ -135,7 +135,7 @@ Foam::phaseModel::phaseModel
         (
             "d",
             dimLength,
-            phaseDict_.lookupOrDefault
+            phaseDict_.lookupOrDefault<scalar>
             (
                 "d",
                 0.0

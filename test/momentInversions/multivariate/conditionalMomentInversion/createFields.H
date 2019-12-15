@@ -9,7 +9,7 @@ labelList velocityIndexes =
     quadratureProperties.lookupOrDefault
     (
         "velocityIndexes",
-        labelList(1, -1)
+        labelList(label(1), -1)
     );
 
 label nNodes = nodeIndexes.size();

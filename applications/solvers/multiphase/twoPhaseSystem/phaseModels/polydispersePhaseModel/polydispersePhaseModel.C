@@ -295,7 +295,7 @@ void Foam::polydispersePhaseModel::solveSourceOde()
             continue;
         }
 
-        scalarField oldMoments(nMoments, 0.0);
+        scalarField oldMoments(nMoments, Zero);
         vectorField oldUps(nVelocityMoments, Zero);
         forAll(oldMoments, mi)
         {
@@ -313,9 +313,9 @@ void Foam::polydispersePhaseModel::solveSourceOde()
         scalar localDt = localDt_[celli];
 
         // Initialize RK parameters
-        scalarField k1(nMoments_, 0.0);
-        scalarField k2(nMoments_, 0.0);
-        scalarField k3(nMoments_, 0.0);
+        scalarField k1(nMoments_, Zero);
+        scalarField k2(nMoments_, Zero);
+        scalarField k3(nMoments_, Zero);
 
         vectorField k1U(nVelocityMoments, Zero);
         vectorField k2U(nVelocityMoments, Zero);
@@ -1006,7 +1006,7 @@ void Foam::polydispersePhaseModel::averageTransport
 
     const dictionary& pimpleDict =
         fluid_.mesh().solutionDict().subDict("PIMPLE");
-    label nCorrectors = pimpleDict.lookupOrDefault("nFluxCorrectors", 0);
+    label nCorrectors = pimpleDict.lookupOrDefault<label>("nFluxCorrectors", 0);
     if (corr_.valid())
     {
         volScalarField& corr = corr_.ref();

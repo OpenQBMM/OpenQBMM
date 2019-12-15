@@ -142,7 +142,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
              const volScalarNode& node = nodes[pNodei];
 
             scalar bAbscissa =
-                max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+                max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
 
             scalar bSourcei = 0.0;
 
@@ -197,7 +197,11 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
         forAll(node.secondaryWeights()[0], sNodei)
         {
             scalar bAbscissa =
-                max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
+                max
+                (
+                    node.secondaryAbscissae()[sizeIndex][sNodei][celli],
+                    scalar(0)
+                );
 
             scalar bSourcei = 0.0;
 
@@ -288,14 +292,14 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
     if (!nodes[0].extended())
     {
-        scalarList bSources(nSizes, 0.0);
+        scalarList bSources(nSizes, Zero);
 
         for (label sizei = 0; sizei < nSizes; sizei++)
         {
             const volVelocityNode& node = nodes(sizei);
 
             scalar bAbscissa =
-                max(node.primaryAbscissae()[sizeIndex][celli], 0.0);
+                max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
 
             if (lengthBased)
             {
@@ -358,7 +362,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     }
 
     label nSecondaryNodes(nodes[0].secondaryWeights().size());
-    scalarListList bSources(nSizes, scalarList(nSecondaryNodes, 0.0));
+    scalarListList bSources(nSizes, scalarList(nSecondaryNodes, Zero));
     for (label pNodei = 0; pNodei < nSizes; pNodei++)
     {
         for (label sNodei = 0; sNodei < nSecondaryNodes; sNodei++)
@@ -366,7 +370,11 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
             const volVelocityNode& node = nodes(pNodei);
 
             scalar bAbscissa =
-                max(node.secondaryAbscissae()[sizeIndex][sNodei][celli], 0.0);
+                max
+                (
+                    node.secondaryAbscissae()[sizeIndex][sNodei][celli],
+                    scalar(0)
+                );
 
             if (lengthBased)
             {

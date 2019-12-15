@@ -238,18 +238,18 @@ Foam::multivariateMomentInversions::CHyQMOM::CHyQMOM
     (
         new hyperbolicMomentInversion(dict)
     ),
-    etaMin_(dict.lookupOrDefault("etaMin", 1.0e-10)),
-    qMax_(dict.lookupOrDefault("qMax", 30.0)),
+    etaMin_(dict.lookupOrDefault<scalar>("etaMin", 1.0e-10)),
+    qMax_(dict.lookupOrDefault<scalar>("qMax", 30.0)),
     smallNegRealizability_
     (
-        dict.lookupOrDefault
+        dict.lookupOrDefault<scalar>
         (
             "smallNegRealizability",
             1.0e-6
         )
     ),
-    varMin_(dict.lookupOrDefault("varMin", 1.0e-10)),
-    minCorrelation_(dict.lookupOrDefault("minCorrelation", 1.0e-4))
+    varMin_(dict.lookupOrDefault<scalar>("varMin", 1.0e-10)),
+    minCorrelation_(dict.lookupOrDefault<scalar>("minCorrelation", 1.0e-4))
 {}
 
 
@@ -362,8 +362,8 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert1D
     univariateMomentSet momentsToInvert
     (
         {
-            1.0,
-            0.0,
+            scalar(1),
+            scalar(0),
             centralMoments(2),
             centralMoments(3),
             centralMoments(4)
@@ -439,7 +439,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
     realizabilityUnivariateMoments(c20, c30, c40);
     realizabilityUnivariateMoments(c02, c03, c04);
     // One-dimensional inversion with realizability test
-    univariateMomentSet mDir1({1.0, 0.0, c20, c30, c40}, "R");
+    univariateMomentSet mDir1({scalar(1), scalar(0), c20, c30, c40}, "R");
 
     // Find univariate quadrature in first direction
     univariateInverter_->invert(mDir1);
@@ -448,19 +448,19 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
     scalarList wDir1(univariateInverter_->weights());
     scalarList absDir1(univariateInverter_->abscissae());
 
-    scalarList wDir2(3, 0.0);
-    scalarList absDir2(3, 0.0);
+    scalarList wDir2(3, Zero);
+    scalarList absDir2(3, Zero);
 
     wDir2[1] = 1.0;
 
-    scalarList Vf(3, 0.0);
+    scalarList Vf(3, Zero);
 
     if (c20 < varMin_)
     {
         wDir1 = 0.0;
         wDir1[1] = 1.0;
 
-        univariateMomentSet mDir2({1.0, 0.0, c02, c03, c04}, "R");
+        univariateMomentSet mDir2({scalar(1), scalar(0), c02, c03, c04}, "R");
 
         //NOTE: Leave Vf elements null. AP
         univariateInverter_->invert(mDir2);
@@ -494,9 +494,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
             sumVars += wDir1[vi]*sqr(Vf[vi]);
         }
 
-        scalar mu2Avg = max(c02 - sumVars, 0.0);
+        scalar mu2Avg = max(c02 - sumVars, scalar(0));
 
-        scalarList mu(5, 0.0);
+        scalarList mu(5, Zero);
         mu[0] = 1.0;
         mu[2] = mu2Avg;
         mu[4] = sqr(mu2Avg);
@@ -528,8 +528,8 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
         univariateMomentSet mMu
         (
             {
-                1.0,
-                0.0,
+                scalar(1),
+                scalar(0),
                 mu[2],
                 mu[3],
                 mu[4]
@@ -698,7 +698,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
     }
 
     // Invert first direction
-    univariateMomentSet mDir1({1.0, 0.0, c200, c300, c400}, "R");
+    univariateMomentSet mDir1({scalar(1), scalar(0), c200, c300, c400}, "R");
 
     // Find univariate quadrature in first direction
     univariateInverter_().invert(mDir1);
@@ -713,7 +713,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
         // X and y directions are degenerate
         if (c020 < varMin_)
         {
-            univariateMomentSet mDir3({1.0, 0.0, c002, c003, c004}, "R");
+            univariateMomentSet mDir3({scalar(1), scalar(0), c002, c003, c004}, "R");
 
             // Find univariate quadrature in first direction
             univariateInverter_().invert(mDir3);
@@ -742,9 +742,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
             multivariateMomentSet mDir23
             (
                 {
-                    1.0,
-                    0.0,
-                    0.0,
+                    scalar(1),
+                    scalar(0),
+                    scalar(0),
                     c020,
                     c011,
                     c002,
@@ -757,7 +757,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                 "R"
             );
 
-            mappedList<scalar> wDir23(9, twoDimNodeIndexes, 0.0);
+            mappedList<scalar> wDir23(9, twoDimNodeIndexes, Zero);
             mappedList<vector2D> absDir23
             (
                 9,
@@ -791,9 +791,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
         multivariateMomentSet mDir13
         (
             {
-                1.0,
-                0.0,
-                0.0,
+                scalar(1),
+                scalar(0),
+                scalar(0),
                 c200,
                 c101,
                 c002,
@@ -806,12 +806,12 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
            "R"
         );
 
-        mappedList<scalar> wDir13(9, twoDimNodeIndexes, 0.0);
+        mappedList<scalar> wDir13(9, twoDimNodeIndexes, Zero);
         mappedList<vector2D> absDir13
         (
             9,
             twoDimNodeIndexes,
-            vector2D::zero
+            Zero
         );
 
         invert2D(mDir13, wDir13, absDir13);
@@ -839,9 +839,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
         multivariateMomentSet mDir12
         (
             {
-                1.0,
-                0.0,
-                0.0,
+                scalar(1),
+                scalar(0),
+                scalar(0),
                 c200,
                 c110,
                 c020,
@@ -854,12 +854,12 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
            "R"
         );
 
-        mappedList<scalar> wDir12(9, twoDimNodeIndexes, 0.0);
+        mappedList<scalar> wDir12(9, twoDimNodeIndexes, Zero);
         mappedList<vector2D> abscissaeDir12
         (
             9,
             twoDimNodeIndexes,
-            vector2D::zero
+            Zero
         );
 
         invert2D(mDir12, wDir12, abscissaeDir12);
@@ -904,7 +904,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
             }
 
             // Compute Vf reconstruction
-            scalarList Vf(3, 0.0);
+            scalarList Vf(3, Zero);
             for (label i = 0; i < 3; i++)
             {
                 Vf[0] += wDir12(0, i)*abscissaeDir12(0, i).y();
@@ -912,7 +912,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                 Vf[2] += wDir12(2, i)*abscissaeDir12(2, i).y();
             }
 
-            mappedList<scalar> absDir12(9, twoDimNodeIndexes, 0.0);
+            mappedList<scalar> absDir12(9, twoDimNodeIndexes, Zero);
             for (label i = 0; i < 3; i++)
             {
                 for (label j = 0; j < 3; j++)
@@ -998,8 +998,8 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                 }
             }
 
-            scalarList mu(5, 0.0);
-            mu[2] = max(c002 - sumVarDir3, 0.0);
+            scalarList mu(5, Zero);
+            mu[2] = max(c002 - sumVarDir3, scalar(0));
 
             scalar q = 0;
             scalar eta = 1;
@@ -1032,7 +1032,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
             mu[4] = eta*sqr(mu[2]);
 
             // Invert final direction
-            univariateMomentSet mDir3({1.0, 0.0, mu[2], mu[3], mu[4]}, "R");
+            univariateMomentSet mDir3({scalar(1), scalar(0), mu[2], mu[3], mu[4]}, "R");
 
             // Find univariate quadrature in final direction
             univariateInverter_().invert(mDir3);
@@ -1070,7 +1070,7 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
 )
 {
     reset();
-    
+
     if (nvelocityDimensions_ == 3)
     {
         invert3D(moments);
@@ -1104,8 +1104,8 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
     }
     else
     {
-        scalarList w(getNNodes(1), 0.0);
-        scalarList u(getNNodes(1), 0.0);
+        scalarList w(getNNodes(1), Zero);
+        scalarList u(getNNodes(1), Zero);
 
         invert1D(moments, w, u);
 

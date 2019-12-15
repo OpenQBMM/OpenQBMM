@@ -43,7 +43,7 @@ Foam::univariateMomentInversion::univariateMomentInversion
     const dictionary& dict
 )
 :
-    smallM0_(dict.lookupOrDefault("smallM0", 1.0e-12)),
+    smallM0_(dict.lookupOrDefault<scalar>("smallM0", 1.0e-12)),
     nInvertibleMoments_(),
     nNodes_(),
     abscissae_(),

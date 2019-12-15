@@ -62,7 +62,7 @@ Foam::multivariateMomentInversions::conditional::conditional
     ),
     nPureMoments_(nNodes_.size(), 0),
     supports_(dict.lookup("supports")),
-    moments_(momentOrders.size(), momentOrders, supports_[0], 0.0),
+    moments_(momentOrders.size(), momentOrders, supports_[0], Zero),
     conditionalWeights_(nNodes_.size()),
     conditionalMoments_(nNodes_.size()),
     invVR_(nNodes_.size() - 1),
@@ -107,7 +107,7 @@ Foam::multivariateMomentInversions::conditional::conditional
         conditionalWeights_.set
         (
             dimi,
-            new mappedScalarList(nCmpts, nodeMap, 0.0)
+            new mappedScalarList(nCmpts, nodeMap, Zero)
         );
     }
 
@@ -135,7 +135,7 @@ Foam::multivariateMomentInversions::conditional::conditional
             conditionalMoments_[dimi].set
             (
                 dimj,
-                new mappedList<scalar>(nCmpts, conditionalMap , 0.0)
+                new mappedList<scalar>(nCmpts, conditionalMap, Zero)
             );
         }
     }
@@ -376,7 +376,7 @@ Foam::multivariateMomentInversions::conditional::cycleAlphaCM
 
         const scalarSquareMatrix& invVR = invVR_[dimj](posVR);
         label size = invVR.m();
-        scalarRectangularMatrix nu(size, 1, 0.0);
+        scalarRectangularMatrix nu(size, 1, Zero);
 
         for (label i = 0; i < size; i++)
         {
@@ -455,7 +455,7 @@ void Foam::multivariateMomentInversions::conditional::setVR
             }
         }
 
-        scalarSquareMatrix invR(weights.size(), 0.0);
+        scalarSquareMatrix invR(weights.size(), Zero);
 
         forAll(weights, nodei)
         {

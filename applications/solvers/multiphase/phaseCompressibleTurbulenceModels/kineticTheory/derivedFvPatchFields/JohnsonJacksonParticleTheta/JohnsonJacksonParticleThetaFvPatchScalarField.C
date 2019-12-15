@@ -247,7 +247,7 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
 
         this->refGrad() = 0.0;
 
-        scalarField c(alpha.size(), 0.0);
+        scalarField c(alpha.size(), Zero);
 
         if
         (

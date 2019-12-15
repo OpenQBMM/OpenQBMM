@@ -95,12 +95,12 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
     nodeIndexes_(nodeIndexes),
     velocityIndexes_(velocityIndexes),
     nNodes_(nDistributionDims_, 1),
-    weights_(nodeIndexes.size(), nodeIndexes, 0.0),
+    weights_(nodeIndexes.size(), nodeIndexes, Zero),
     abscissae_
     (
         nodeIndexes.size(),
         nodeIndexes,
-        scalarList(nDistributionDims_ - nvelocityDimensions_, 0.0)
+        scalarList(nDistributionDims_ - nvelocityDimensions_, Zero)
     ),
     velocityAbscissae_(nodeIndexes.size(), nodeIndexes, Zero)
 {
@@ -132,7 +132,7 @@ void Foam::multivariateMomentInversion::reset()
     forAll(weights_, nodei)
     {
         weights_[nodei] = 0.0;
-        abscissae_[nodei] = scalarList(abscissae_[0].size(), 0.0);
+        abscissae_[nodei] = scalarList(abscissae_[0].size(), Zero);
         velocityAbscissae_[nodei] = Zero;
     }
 }

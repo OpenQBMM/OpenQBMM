@@ -57,7 +57,7 @@ Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup
 )
 :
     breakupKernel(dict, mesh),
-    minAbscissa_(dict.lookupOrDefault("minAbscissa", 1.0)),
+    minAbscissa_(dict.lookupOrDefault<scalar>("minAbscissa", 1.0)),
     expCoeff_
     (
         dict.lookupOrDefault

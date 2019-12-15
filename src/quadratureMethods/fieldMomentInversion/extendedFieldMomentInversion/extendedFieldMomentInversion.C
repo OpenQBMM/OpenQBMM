@@ -167,10 +167,10 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
                             = momentInverter_().secondaryAbscissae()[pNodei][sNodei];
                 }
             }
-            for 
+            for
             (
-                label pNodei = pWeights.size(); 
-                pNodei < nodes.size(); 
+                label pNodei = pWeights.size();
+                pNodei < nodes.size();
                 pNodei++
             )
             {

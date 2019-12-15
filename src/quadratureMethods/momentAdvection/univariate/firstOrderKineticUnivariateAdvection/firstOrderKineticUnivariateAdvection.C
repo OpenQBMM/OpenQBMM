@@ -280,7 +280,7 @@ void Foam::univariateAdvection::firstOrderKinetic::update()
     momentsNei_.update();
     momentsOwn_.update();
 
-    dimensionedScalar zeroPhi("zero", phi_.dimensions(), 0.0);
+    dimensionedScalar zeroPhi("zero", phi_.dimensions(), Zero);
 
     forAll(divMoments_, divi)
     {

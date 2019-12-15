@@ -68,11 +68,11 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     ),
     minMixtureFractionVariance_
     (
-        dict.lookupOrDefault("minMixtureFractionVariance", 1.0e-4)
+        dict.lookupOrDefault<scalar>("minMixtureFractionVariance", 1.0e-4)
     ),
     minEnvironmentWeight_
     (
-        dict.lookupOrDefault("minEnvironmentWeight", 1.0e-6)
+        dict.lookupOrDefault<scalar>("minEnvironmentWeight", 1.0e-6)
     ),
     p1_
     (

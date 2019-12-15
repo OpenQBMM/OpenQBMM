@@ -95,7 +95,7 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
             turbulenceModel::propertiesName,
             continuousPhase_
         );
-        
+
     if (moment.mesh().foundObject<turbulenceModel>(turbName))
     {
         const turbulenceModel& turb =

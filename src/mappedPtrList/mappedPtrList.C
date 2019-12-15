@@ -56,7 +56,7 @@ Foam::mappedPtrList<mappedType>::listToLabel
 
     forAll(lst, dimi)
     {
-        l += lst[dimi]*pow(10, size - dimi - 1);
+        l += lst[dimi]*pow(scalar(10), size - dimi - 1);
     }
 
     return l;
@@ -178,7 +178,7 @@ Foam::label Foam::mappedPtrList<mappedType>::calcMapIndex
         )
         {
             label argIndex = std::distance(indexes.begin(), iter);
-            mapIndex += (*iter)*pow(10, nDims_ - argIndex - 1);
+            mapIndex += (*iter)*pow(scalar(10), nDims_ - argIndex - 1);
         }
     }
 

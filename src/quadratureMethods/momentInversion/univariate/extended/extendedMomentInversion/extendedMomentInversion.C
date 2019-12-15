@@ -51,18 +51,21 @@ Foam::extendedMomentInversion::extendedMomentInversion
     nMoments_(nMoments),
     nPrimaryNodes_((nMoments_ - 1)/2),
     nSecondaryNodes_(nSecondaryNodes),
-    primaryWeights_(nPrimaryNodes_, 0.0),
-    primaryAbscissae_(nPrimaryNodes_, 0.0),
+    primaryWeights_(nPrimaryNodes_, Zero),
+    primaryAbscissae_(nPrimaryNodes_, Zero),
     sigma_(0.0),
     secondaryWeights_(nPrimaryNodes_, nSecondaryNodes_),
     secondaryAbscissae_(nPrimaryNodes_, nSecondaryNodes_),
-    minMean_(dict.lookupOrDefault("minMean", 1.0e-8)),
-    minVariance_(dict.lookupOrDefault("minVariance", 1.0e-8)),
+    minMean_(dict.lookupOrDefault<scalar>("minMean", 1.0e-8)),
+    minVariance_(dict.lookupOrDefault<scalar>("minVariance", 1.0e-8)),
     maxSigmaIter_(dict.lookupOrDefault<label>("maxSigmaIter", 1000)),
-    momentsTol_(dict.lookupOrDefault("momentsTol", 1.0e-12)),
-    sigmaMin_(dict.lookupOrDefault("sigmaMin", 1.0e-6)),
-    sigmaTol_(dict.lookupOrDefault("sigmaTol", 1.0e-12)),
-    targetFunctionTol_(dict.lookupOrDefault("targetFunctionTol", 1.0e-12)),
+    momentsTol_(dict.lookupOrDefault<scalar>("momentsTol", 1.0e-12)),
+    sigmaMin_(dict.lookupOrDefault<scalar>("sigmaMin", 1.0e-6)),
+    sigmaTol_(dict.lookupOrDefault<scalar>("sigmaTol", 1.0e-12)),
+    targetFunctionTol_
+    (
+        dict.lookupOrDefault<scalar>("targetFunctionTol", 1.0e-12)
+    ),
     foundUnrealizableSigma_(false),
     nullSigma_(false)
 {}
@@ -464,8 +467,8 @@ void Foam::extendedMomentInversion::secondaryQuadrature
     if (!nullSigma_)
     {
         // Coefficients of the recurrence relation
-        scalarDiagonalMatrix a(nSecondaryNodes_, 0.0);
-        scalarDiagonalMatrix b(nSecondaryNodes_, 0.0);
+        scalarDiagonalMatrix a(nSecondaryNodes_, Zero);
+        scalarDiagonalMatrix b(nSecondaryNodes_, Zero);
 
         forAll(pWeights, pNodei)
         {
@@ -473,7 +476,7 @@ void Foam::extendedMomentInversion::secondaryQuadrature
             recurrenceRelation(a, b, primaryAbscissae_[pNodei], sigma_);
 
             // Define the Jacobi matrix
-            scalarSquareMatrix J(nSecondaryNodes_, 0.0);
+            scalarSquareMatrix J(nSecondaryNodes_, Zero);
 
             // Fill diagonal of Jacobi matrix
             forAll(a, ai)

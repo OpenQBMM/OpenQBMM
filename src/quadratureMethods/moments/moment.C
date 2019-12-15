@@ -61,7 +61,7 @@ Foam::moment<fieldType, nodeType>::listToLabel(const labelList& lst)
 
     forAll(lst, dimi)
     {
-        l += lst[dimi]*pow(10, lst.size() - dimi - 1);
+        l += lst[dimi]*pow(scalar(10), lst.size() - dimi - 1);
     }
 
     return l;
@@ -261,7 +261,7 @@ void Foam::moment<fieldType, nodeType>::updateBoundaries()
     {
         forAll(this->boundaryField(), patchi)
         {
-            this->boundaryFieldRef()[patchi] = 0.0;
+            this->boundaryFieldRef()[patchi] = Zero;
             forAll(nodes, pNodei)
             {
                 const nodeType& node = nodes[pNodei];
@@ -299,7 +299,7 @@ void Foam::moment<fieldType, nodeType>::updateBoundaries()
     // Extended quadrature case
     forAll(this->boundaryField(), patchi)
     {
-        this->boundaryFieldRef()[patchi] = 0.0;
+        this->boundaryFieldRef()[patchi] = Zero;
         forAll(nodes, pNodei)
         {
             const nodeType& node = nodes[pNodei];

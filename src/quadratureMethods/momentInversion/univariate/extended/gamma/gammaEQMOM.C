@@ -275,7 +275,7 @@ Foam::tmp<Foam::scalarField> Foam::gammaEQMOM::f(const scalarField& x) const
 {
     tmp<scalarField> tmpY
     (
-        new scalarField(x.size(), 0.0)
+        new scalarField(x.size(), Zero)
     );
     scalarField& y = tmpY.ref();
 

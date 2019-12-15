@@ -128,22 +128,22 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         quadrature.updateLocalQuadrature(celli);
         quadrature.updateLocalMoments(celli);
 
-        scalarList oldMoments(nMoments, 0.0);
+        scalarList oldMoments(nMoments, Zero);
         forAll(oldMoments, mi)
         {
             oldMoments[mi] = moments[mi][celli];
         }
 
         //- Local time
-        scalar localT = 0.0;
+        scalar localT(0);
 
         // Initialize the local step
         scalar localDt = localDt_[celli];
 
         // Initialize RK parameters
-        scalarList k1(nMoments, 0.0);
-        scalarList k2(nMoments, 0.0);
-        scalarList k3(nMoments, 0.0);
+        scalarList k1(nMoments, Zero);
+        scalarList k2(nMoments, Zero);
+        scalarList k3(nMoments, Zero);
 
         // Flag to indicate if the time step is complete
         bool timeComplete = false;
@@ -153,7 +153,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         bool realizableUpdate2 = false;
         bool realizableUpdate3 = false;
 
-        scalarList diff23(nMoments, 0.0);
+        scalarList diff23(nMoments, Zero);
         label nItt = 0;
 
         while (!timeComplete)
@@ -279,7 +279,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
              || !realizableUpdate3
             );
 
-            scalar error = 0.0;
+            scalar error(0);
 
             for (label mi = 0; mi < nMoments; mi++)
             {
@@ -298,14 +298,15 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             if (error < SMALL)
             {
                 timeComplete = true;
-                localT = 0.0;
+                localT = Zero;
                 break;
             }
             else if (error < 1)
             {
-                localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
+                localDt *=
+                    min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
 
-                scalar maxLocalDt = max(globalDt - localT, 0.0);
+                scalar maxLocalDt = max(globalDt - localT, scalar(0));
                 localDt = min(maxLocalDt, localDt);
 
                 forAll(oldMoments, mi)
@@ -316,7 +317,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 if (localDt == 0.0)
                 {
                     timeComplete = true;
-                    localT = 0.0;
+                    localT = Zero;
                     break;
                 }
 
@@ -325,7 +326,8 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             }
             else
             {
-                localDt *= min(1.0, max(facMin_, fac_/pow(error, 1.0/3.0)));
+                localDt *=
+                    min(scalar(1), max(facMin_, fac_/pow(error, 1.0/3.0)));
 
                 forAll(oldMoments, mi)
                 {

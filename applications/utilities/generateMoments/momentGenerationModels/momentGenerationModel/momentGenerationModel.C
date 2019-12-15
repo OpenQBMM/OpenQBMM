@@ -77,13 +77,13 @@ Foam::label Foam::momentGenerationModel::reset
     {
         forAll(abscissae_[nodei], cmpti)
         {
-            abscissae_[nodei][cmpti] = scalarField(size, 0.0);
+            abscissae_[nodei][cmpti] = scalarField(size, Zero);
         }
-        weights_[nodei] = scalarField(size, 0.0);
+        weights_[nodei] = scalarField(size, Zero);
     }
     forAll(moments_, mi)
     {
-        moments_[mi] = scalarField(size, 0.0);
+        moments_[mi] = scalarField(size, Zero);
     }
 
     return size;
@@ -101,13 +101,13 @@ Foam::label Foam::momentGenerationModel::reset
     {
         forAll(abscissae_[nodei], cmpti)
         {
-            abscissae_[nodei][cmpti] = scalarField(size, 0.0);
+            abscissae_[nodei][cmpti] = scalarField(size, Zero);
         }
-        weights_[nodei] = scalarField(size, 0.0);
+        weights_[nodei] = scalarField(size, Zero);
     }
     forAll(moments_, mi)
     {
-        moments_[mi] = scalarField(size, 0.0);
+        moments_[mi] = scalarField(size, Zero);
     }
 
     return size;

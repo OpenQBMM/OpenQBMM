@@ -249,18 +249,18 @@ Foam::multivariateMomentInversions::CHyQMOMPlus::CHyQMOMPlus
     (
         new hyperbolicMomentInversion(dict)
     ),
-    etaMin_(dict.lookupOrDefault("etaMin", 1.0e-10)),
-    qMax_(dict.lookupOrDefault("qMax", 100.0)),
+    etaMin_(dict.lookupOrDefault<scalar>("etaMin", 1.0e-10)),
+    qMax_(dict.lookupOrDefault<scalar>("qMax", 100.0)),
     smallNegRealizability_
     (
-        dict.lookupOrDefault
+        dict.lookupOrDefault<scalar>
         (
             "smallNegRealizability",
             1.0e-6
         )
     ),
-    varMin_(dict.lookupOrDefault("varMin", 1.0e-10)),
-    minCorrelation_(dict.lookupOrDefault("minCorrelation", 1.0e-6))
+    varMin_(dict.lookupOrDefault<scalar>("varMin", 1.0e-10)),
+    minCorrelation_(dict.lookupOrDefault<scalar>("minCorrelation", 1.0e-6))
 {}
 
 
@@ -420,7 +420,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
 
     if (c20 < varMin_)
     {
-        univariateMomentSet mDir2({1.0, 0.0, c02, c03, c04}, "R");
+        univariateMomentSet mDir2({scalar(1), scalar(0), c02, c03, c04}, "R");
 
         //NOTE: Leave Vf elements null. AP
         univariateInverter_().invert(mDir2);
@@ -439,8 +439,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
                 }
                 else
                 {
-                    weights2D(i, j) = 0.0;
-                    abscissae2D(i, j) = vector2D::zero;
+                    weights2D(i, j) = Zero;
+                    abscissae2D(i, j) = Zero;
                 }
             }
         }
@@ -449,7 +449,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     }
 
     // One-dimensional inversion with realizability test
-    univariateMomentSet mDir1({1.0, 0.0, c20, c30, c40}, "R");
+    univariateMomentSet mDir1({scalar(1), scalar(0), c20, c30, c40}, "R");
 
     // Find univariate quadrature in first direction
     univariateInverter_().invert(mDir1);
@@ -471,8 +471,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
                 }
                 else
                 {
-                    weights2D(i, j) = 0.0;
-                    abscissae2D(i, j) = vector2D::zero;
+                    weights2D(i, j) = Zero;
+                    abscissae2D(i, j) = Zero;
                 }
             }
         }
@@ -518,7 +518,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
         a1 = c11s;
     }
 
-    scalarList Vf(3, 0.0);
+    scalarList Vf(3, Zero);
     forAll(Vf, i)
     {
         Vf[i] = a1*us[i] + a0*(sqr(us[i]) - 1.0);
@@ -551,7 +551,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
         }
     }
 
-    b0 = max(b0, 0.0);
+    b0 = max(b0, scalar(0));
 
     if (pOrder == 2)
     {
@@ -582,7 +582,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
             mu2[i] = b0 + b1*us[i];
         }
 
-        mu2[minMu2i] = 0.0;
+        mu2[minMu2i] = Zero;
     }
 
     // Check realizability of 3rd and 4th order moments
@@ -636,8 +636,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
             eta = sqr(q) + 1.0;
         }
     }
-    scalarList mu3(3, 0.0);
-    scalarList mu4(3, 0.0);
+    scalarList mu3(3, Zero);
+    scalarList mu4(3, Zero);
 
     forAll(mu3, i)
     {
@@ -647,7 +647,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
 
     for (label i = 0; i < 3; i++)
     {
-        univariateMomentSet mMu({1.0, 0.0, mu2[i], mu3[i], mu4[i]}, "R");
+        univariateMomentSet mMu({scalar(1), scalar(0), mu2[i], mu3[i], mu4[i]}, "R");
         univariateInverter_().invert(mMu);
 
         for (label j = 0; j < 3; j++)
@@ -754,7 +754,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         // X and y directions are degenerate
         if (c020 < varMin_)
         {
-            univariateMomentSet mDir3({1.0, 0.0, c002, c003, c004}, "R");
+            univariateMomentSet mDir3({scalar(1), scalar(0), c002, c003, c004}, "R");
 
             // Find univariate quadrature in first direction
             univariateInverter_().invert(mDir3);
@@ -783,9 +783,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             multivariateMomentSet mDir23
             (
                 {
-                    1.0,
-                    0.0,
-                    0.0,
+                    scalar(1),
+                    scalar(0),
+                    scalar(0),
                     c020,
                     c011,
                     c002,
@@ -800,7 +800,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 "R"
             );
 
-            mappedList<scalar> wDir23(9, twoDimNodeIndexes, 0.0);
+            mappedList<scalar> wDir23(9, twoDimNodeIndexes, Zero);
             mappedList<vector2D> absDir23
             (
                 9,
@@ -830,7 +830,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     }
 
     // Invert first direction
-    univariateMomentSet mDir1({1.0, 0.0, c200, c300, c400}, "R");
+    univariateMomentSet mDir1({scalar(1), scalar(0), c200, c300, c400}, "R");
 
     // Find univariate quadrature in first direction
     univariateInverter_().invert(mDir1);
@@ -845,9 +845,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         multivariateMomentSet mDir13
         (
             {
-                1.0,
-                0.0,
-                0.0,
+                scalar(1),
+                scalar(0),
+                scalar(0),
                 c200,
                 c101,
                 c002,
@@ -862,7 +862,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
            "R"
         );
 
-        mappedList<scalar> wDir13(9, twoDimNodeIndexes, 0.0);
+        mappedList<scalar> wDir13(9, twoDimNodeIndexes, Zero);
         mappedList<vector2D> absDir13
         (
             9,
@@ -895,9 +895,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         multivariateMomentSet mDir12
         (
             {
-                1.0,
-                0.0,
-                0.0,
+                scalar(1),
+                scalar(0),
+                scalar(0),
                 c200,
                 c110,
                 c020,
@@ -912,7 +912,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
            "R"
         );
 
-        mappedList<scalar> wDir12(9, twoDimNodeIndexes, 0.0);
+        mappedList<scalar> wDir12(9, twoDimNodeIndexes, Zero);
         mappedList<vector2D> abscissaeDir12
         (
             9,
@@ -953,7 +953,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         }
 
         // Compute Vf reconstruction
-        scalarList Vf(3, 0.0);
+        scalarList Vf(3, Zero);
         for (label i = 0; i < 3; i++)
         {
             Vf[0] += wDir12(0, i)*abscissaeDir12(0, i).y();
@@ -961,7 +961,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             Vf[2] += wDir12(2, i)*abscissaeDir12(2, i).y();
         }
 
-        mappedList<scalar> absDir2(9, twoDimNodeIndexes, 0.0);
+        mappedList<scalar> absDir2(9, twoDimNodeIndexes, Zero);
         for (label i = 0; i < 3; i++)
         {
             for (label j = 0; j < 3; j++)
@@ -974,8 +974,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         scalar sqrtC020 = sqrt(c020);
         scalar sqrtC002 = sqrt(c002);
 
-        scalarSquareMatrix RAB(3, 0.0);
-        scalarSquareMatrix Vps(3, 0.0);
+        scalarSquareMatrix RAB(3, Zero);
+        scalarSquareMatrix Vps(3, Zero);
 
         for (label i = 0; i < 3; i++)
         {
@@ -986,7 +986,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             }
         }
 
-        scalarSquareMatrix UABs(3, 0.0);
+        scalarSquareMatrix UABs(3, Zero);
         scalarSquareMatrix VABs(Vps);
 
         scalarSquareMatrix C00(RAB);
@@ -1091,7 +1091,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         r(4, 0) = c201s;
         r(5, 0) = c021s;
         Foam::SVD svd(A, 1e-3);
-        scalarField c(6, 0.0);
+        scalarField c(6, Zero);
         scalarRectangularMatrix tmpc(svd.VSinvUt()*r);
 
         forAll(c, i)
@@ -1125,7 +1125,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         {
             b0 -= wDir1[i]*sqr(Vf[i])/c020;
         }
-        scalarList d(3, 0.0);
+        scalarList d(3, Zero);
         d[0] = c002 - sum002;
 
         if (NB > 3)
@@ -1137,7 +1137,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             }
         }
 
-        scalarSquareMatrix mu2(3, 0.0);
+        scalarSquareMatrix mu2(3, Zero);
 
         if (d[0] > 0)
         {
@@ -1245,7 +1245,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
             {
                 univariateMomentSet mMu
                 (
-                    {1.0, 0.0, mu2(i, j), mu3(i, j), mu4(i, j)},
+                    {scalar(1), scalar(0), mu2(i, j), mu3(i, j), mu4(i, j)},
                     "R"
                 );
 
@@ -1280,7 +1280,7 @@ bool Foam::multivariateMomentInversions::CHyQMOMPlus::invert
 )
 {
     reset();
-    
+
     if (nvelocityDimensions_ == 3)
     {
         invert3D(moments);
@@ -1314,8 +1314,8 @@ bool Foam::multivariateMomentInversions::CHyQMOMPlus::invert
     }
     else
     {
-        scalarList w(getNNodes(1), 0.0);
-        scalarList u(getNNodes(1), 0.0);
+        scalarList w(getNNodes(1), Zero);
+        scalarList u(getNNodes(1), Zero);
 
         invert1D(moments, w, u);
 

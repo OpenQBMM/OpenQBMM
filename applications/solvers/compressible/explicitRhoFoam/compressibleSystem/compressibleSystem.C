@@ -336,7 +336,7 @@ void Foam::compressibleSystem::setNSteps
                         IOobject::NO_WRITE
                     ),
                     mesh_,
-                    dimensionedScalar("zero", rho_.dimensions()/dimTime, 0.0)
+                    dimensionedScalar("zero", rho_.dimensions()/dimTime, Zero)
                 )
             );
 
@@ -370,7 +370,7 @@ void Foam::compressibleSystem::setNSteps
                         IOobject::NO_WRITE
                     ),
                     mesh_,
-                    dimensionedScalar("zero", rhoE_.dimensions()/dimTime, 0.0)
+                    dimensionedScalar("zero", rhoE_.dimensions()/dimTime, Zero)
                 )
             );
         }
@@ -380,7 +380,7 @@ void Foam::compressibleSystem::setNSteps
 Foam::tmp<Foam::volScalarField>
 Foam::compressibleSystem::speedOfSound() const
 {
-    volScalarField rPsi("rPsi", 1.0/thermoPtr_->psi());
+    volScalarField rPsi("rPsi", scalar(1)/thermoPtr_->psi());
 
     return tmp<volScalarField>
     (

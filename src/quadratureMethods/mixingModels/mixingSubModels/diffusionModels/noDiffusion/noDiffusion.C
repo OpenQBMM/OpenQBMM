@@ -91,7 +91,7 @@ Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
                 false
             ),
             moment.mesh(),
-            dimensionedScalar("zero", inv(dimTime), 0.0)
+            dimensionedScalar("zero", inv(dimTime), Zero)
         )
     );
 
