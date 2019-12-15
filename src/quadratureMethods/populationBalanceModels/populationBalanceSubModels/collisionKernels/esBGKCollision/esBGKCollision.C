@@ -23,6 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "OpenQBMM.H"
 #include "esBGKCollision.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -160,7 +161,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 )
 :
     BGKCollision(dict, mesh, quadrature),
-    e_(dict.lookupType<scalar>("e")),
+    e_(DICT_GET(dict, scalar, "e")),
     b_(dict.lookupOrDefault<scalar>("b", 0)),
     Theta_
     (

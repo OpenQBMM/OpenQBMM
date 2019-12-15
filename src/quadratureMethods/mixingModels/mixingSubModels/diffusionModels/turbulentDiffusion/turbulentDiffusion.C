@@ -23,6 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "OpenQBMM.H"
 #include "turbulentDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -59,8 +60,8 @@ Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion
 )
 :
     mixingDiffusionModel(dict),
-    gammaLam_(dict.lookup("gammaLam")),
-    Sc_(readScalar(dict.lookup("Sc")))
+    gammaLam_(DICT_DIMTYPE(dict, "gammaLam")),
+    Sc_(DICT_GET(dict, scalar, "Sc"))
 {}
 
 

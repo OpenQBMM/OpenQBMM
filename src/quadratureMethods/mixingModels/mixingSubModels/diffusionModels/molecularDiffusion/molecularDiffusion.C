@@ -23,6 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "OpenQBMM.H"
 #include "molecularDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -59,7 +60,7 @@ Foam::mixingSubModels::mixingDiffusionModels::molecularDiffusion
 )
 :
     mixingDiffusionModel(dict),
-    gammaLam_(dict.lookup("gammaLam"))
+    gammaLam_(DICT_DIMTYPE(dict, "gammaLam"))
 {}
 
 
