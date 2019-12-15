@@ -1,11 +1,11 @@
 #!/bin/sh
-cd ${0%/*} || exit 1    # Run from this directory
-
-# Parse arguments for library compilation
-set -x
+cd "${0%/*}" || exit                            # Run from this directory
+#------------------------------------------------------------------------------
 
 wclean libso phaseModel
 wclean libso interfacialModels
 wclean libso phaseCompressibleTurbulenceModels
 wclean libso vdfTransportFoam
 wclean libso diluteVdfTransportFoam
+
+#------------------------------------------------------------------------------
