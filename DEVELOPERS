@@ -18,8 +18,8 @@
  ------------------
 
  This list contains the names of the developers of OpenQBMM, with their period
- of contribution. Main contributions are listed here. Please refer to the
- git repository for details.
+ of contribution. Main contributions are listed here. Please refer to the git 
+ repository for details.
 
 
  Main developers
@@ -46,7 +46,7 @@
 
  Name                   Degree  Period          Contribution
 
- Aziz Ilgun*            Ph.D.   2017 - 2018     Multivariate population balance
+ Aziz Ilgun*            M.Sc.   2017 - 2018     Multivariate population balance
                                                 (TBC)
 
  David Williams*        M.Eng.  2014 - 2016     Population balance kernels
