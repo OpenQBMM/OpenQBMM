@@ -2,8 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015 Matteo Icardi
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2015 Matteo Icardi
+    Copyright (C) 2018 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.

@@ -2,10 +2,13 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2019 OpenFOAM Foundation
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-29-4-2019 Jeff Heylmun:    Added moment transort
+    Copyright (C) 2019 OpenFOAM Foundation
+    Copyright (C) 2019 Jeffrey Heylmun
+-------------------------------------------------------------------------------
+29-4-2019 Jeffrey Heylmun:  Added moment transort
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.

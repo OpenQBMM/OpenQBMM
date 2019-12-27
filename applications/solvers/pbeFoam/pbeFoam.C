@@ -2,8 +2,13 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2015 OpenFOAM Foundation
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2011-2015 OpenFOAM Foundation
+    Copyright (C) 2016-2018 Alberto Passalacqua
+    Copyright (C) 2018 OpenFOAM Foundation
+    Copyright (C) 2019 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-06-21 Alberto Passalacqua: Derived solver from chemFoam.
 2019-11-29 Alberto Passalacqua: Ported to OpenFOAM+ v1906.

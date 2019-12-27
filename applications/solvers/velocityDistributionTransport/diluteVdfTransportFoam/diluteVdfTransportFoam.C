@@ -2,10 +2,13 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2019 OpenFOAM Foundation
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-02-09-2019 Jeff Heylmun:    Added Solution of moment trasporport as well as the
+    Copyright (C) 2011-2019 OpenFOAM Foundation
+    Copyright (C) 2019 Jeffrey Heylmun
+-------------------------------------------------------------------------------
+02-09-2019 Jeffrey Heylmun: Added Solution of moment trasporport as well as the
                             coupling of the continuous phase with the velocity
                             abscissae.
 -------------------------------------------------------------------------------

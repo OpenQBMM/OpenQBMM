@@ -2,8 +2,13 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2012 OpenFOAM Foundation
+    Copyright (C) 2015-2017 Alberto Passalacqua
+    Copyright (C) 2018 OpenFOAM Foundation
+    Copyright (C) 2019 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-03-10 Alberto Passalacqua: Templated class on the type of moment and of
                                 quadrature node.
