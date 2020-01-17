@@ -5,8 +5,6 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2011-2016 OpenFOAM Foundation
-    Copyright (C) 2017-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 2017-07-20 Alberto Passalacqua: Implemented 2D moment initial condition to

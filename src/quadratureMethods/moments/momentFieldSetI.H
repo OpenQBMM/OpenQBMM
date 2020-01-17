@@ -5,8 +5,8 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2012 OpenFOAM Foundation
-    Copyright (C) 2015-2017 Alberto Passalacqua
+    Code created 2012-2018 by Alberto Passalacqua
+    Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
     Copyright (C) 2019 Alberto Passalacqua
 -------------------------------------------------------------------------------

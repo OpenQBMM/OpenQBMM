@@ -36,7 +36,6 @@ Description
     phase through force terms. Particle advection is done using quadrature based
     method of moments.
 
-
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
