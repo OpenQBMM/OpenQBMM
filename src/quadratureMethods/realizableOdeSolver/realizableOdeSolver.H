@@ -80,6 +80,8 @@ class realizableOdeSolver
         //- Stored time step values
         volScalarField localDt_;
 
+        //- Number of times localDt has been adjusted
+        label localDtAdjustments_;
 
 protected:
 
