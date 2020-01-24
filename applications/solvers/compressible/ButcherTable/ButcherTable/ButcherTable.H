@@ -2,11 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Jeff Heylmun
+    \\  /    A nd           | Copyright (C) 2017-2019 Jeff Heylmun
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is derivative work of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ Class
     Foam::ButcherTable
 
 Description
-    Basic class to return Butcher tables for odes
+    Basic class to return Butcher tables for ode solvers.
 
 SourceFiles
     ButcherTable.C
@@ -86,10 +86,10 @@ public:
         virtual label nSteps() const = 0;
 
         //- Conserved variable coeffients
-        virtual List<scalarList> coeffs() const = 0;
+        virtual List<scalarList> conservedVariablesCoeffs() const = 0;
 
         //- Flux coefficients
-        virtual List<scalarList> Fcoeffs() const = 0;
+        virtual List<scalarList> fluxCoeffs() const = 0;
 };
 
 

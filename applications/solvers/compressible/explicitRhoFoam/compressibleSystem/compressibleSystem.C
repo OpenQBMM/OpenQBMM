@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is derivative work of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -232,8 +232,9 @@ Foam::compressibleSystem::compressibleSystem
             )
         );
     }
+    
     thermoPtr_->validate("compressibleSystem ", "e");
-    encode();
+    calcConservativeVariables();
 
     integrator_.set(new fluxIntegrator(*this));
     fluxFunction_ = fluxFunction::New(mesh_);
@@ -260,6 +261,7 @@ void Foam::compressibleSystem::setNSteps
 
     label currFieldIndex = 0;
     label currDeltaIndex = 0;
+
     for (label stepi = 0; stepi < nSteps; stepi++)
     {
         if (storeFields[stepi])
@@ -282,6 +284,7 @@ void Foam::compressibleSystem::setNSteps
                     rho_
                 )
             );
+
             rhoUs_.append
             (
                 new volVectorField
@@ -297,6 +300,7 @@ void Foam::compressibleSystem::setNSteps
                     rhoU_
                 )
             );
+
             rhoEs_.append
             (
                 new volScalarField
@@ -335,6 +339,7 @@ void Foam::compressibleSystem::setNSteps
                     dimensionedScalar("zero", rho_.dimensions()/dimTime, 0.0)
                 )
             );
+
             deltaRhoUs_.append
             (
                 new volVectorField
@@ -351,6 +356,7 @@ void Foam::compressibleSystem::setNSteps
                     dimensionedVector("zero", rhoU_.dimensions()/dimTime, Zero)
                 )
             );
+
             deltaRhoEs_.append
             (
                 new volScalarField
@@ -375,11 +381,12 @@ Foam::tmp<Foam::volScalarField>
 Foam::compressibleSystem::speedOfSound() const
 {
     volScalarField rPsi("rPsi", 1.0/thermoPtr_->psi());
+
     return tmp<volScalarField>
     (
         new volScalarField
         (
-            "c",
+            "speedOfSound",
             sqrt(thermoPtr_->Cp()/thermoPtr_->Cv()*rPsi)
         )
     );
@@ -388,8 +395,8 @@ Foam::compressibleSystem::speedOfSound() const
 void Foam::compressibleSystem::advect
 (
     const label stepi,
-    const scalarList& coeffs,
-    const scalarList& Fcoeffs,
+    const scalarList& conservedVariablesCoeffs,
+    const scalarList& fluxCoeffs,
     const dimensionedScalar& deltaT,
     const dimensionedVector& g
 )
@@ -417,37 +424,39 @@ void Foam::compressibleSystem::advect
         deltaRhoEs_[di] = deltaRhoE;
     }
 
-    volScalarField rho(rho_*coeffs[stepi]);
-    volVectorField rhoU(rhoU_*coeffs[stepi]);
-    volScalarField rhoE(rhoE_*coeffs[stepi]);
+    volScalarField rho(rho_*conservedVariablesCoeffs[stepi]);
+    volVectorField rhoU(rhoU_*conservedVariablesCoeffs[stepi]);
+    volScalarField rhoE(rhoE_*conservedVariablesCoeffs[stepi]);
 
-    deltaRho *= Fcoeffs[stepi];
-    deltaRhoU *= Fcoeffs[stepi];
-    deltaRhoE *= Fcoeffs[stepi];
+    deltaRho *= fluxCoeffs[stepi];
+    deltaRhoU *= fluxCoeffs[stepi];
+    deltaRhoE *= fluxCoeffs[stepi];
 
     label fieldi = 0;
     label deltai = 0;
+
     for (label i = 0; i < stepi; i++)
     {
         if (storedFieldIndexes_[i] != -1)
         {
-            rho += rhos_[fieldi]*coeffs[i];
-            rhoU += rhoUs_[fieldi]*coeffs[i];
-            rhoE += rhoEs_[fieldi]*coeffs[i];
+            rho += rhos_[fieldi]*conservedVariablesCoeffs[i];
+            rhoU += rhoUs_[fieldi]*conservedVariablesCoeffs[i];
+            rhoE += rhoEs_[fieldi]*conservedVariablesCoeffs[i];
             fieldi++;
         }
 
         if (storedDeltaIndexes_[i] != -1)
         {
-            deltaRho += deltaRhos_[deltai]*Fcoeffs[i];
-            deltaRhoU += deltaRhoUs_[deltai]*Fcoeffs[i];
-            deltaRhoE += deltaRhoEs_[deltai]*Fcoeffs[i];
+            deltaRho += deltaRhos_[deltai]*fluxCoeffs[i];
+            deltaRhoU += deltaRhoUs_[deltai]*fluxCoeffs[i];
+            deltaRhoE += deltaRhoEs_[deltai]*fluxCoeffs[i];
             deltai++;
         }
     }
 
     rho_ = rho + deltaT*deltaRho;
     rhoU_ = rhoU + deltaT*deltaRhoU;
+
     //- Ensure unused directions are zero
     rhoU_ =
         cmptMultiply
@@ -470,8 +479,7 @@ void Foam::compressibleSystem::integrateFluxes
 
 void Foam::compressibleSystem::updateFluxes()
 {
-
-    // calculate fluxes with
+    // Calculate fluxes with
     fluxFunction_->updateFluxes
     (
         massFlux_,
@@ -486,7 +494,7 @@ void Foam::compressibleSystem::updateFluxes()
 }
 
 
-void Foam::compressibleSystem::decode()
+void Foam::compressibleSystem::calcPrimitiveVariables()
 {
     thermoPtr_->rho() = rho_;
 
@@ -502,6 +510,7 @@ void Foam::compressibleSystem::decode()
     thermoPtr_->correct();
     p_ = rho_/thermoPtr_->psi();
     p_.correctBoundaryConditions();
+
     rho_.boundaryFieldRef() ==
         thermoPtr_->psi().boundaryField()*p_.boundaryField();
 
@@ -509,7 +518,7 @@ void Foam::compressibleSystem::decode()
 }
 
 
-void Foam::compressibleSystem::encode()
+void Foam::compressibleSystem::calcConservativeVariables()
 {
     rho_ = thermoPtr_->rho();
     rho_.boundaryFieldRef() ==
@@ -519,6 +528,7 @@ void Foam::compressibleSystem::encode()
     rhoU_.boundaryFieldRef() == rho_.boundaryField()*U_.boundaryField();
 
     rhoE_ = rho_*E_;
+
     rhoE_.boundaryFieldRef() ==
         rho_.boundaryField()*
         (
@@ -534,8 +544,10 @@ void Foam::compressibleSystem::correctThermo()
     thermoPtr_->correct();
     p_ = rho_/thermoPtr_->psi();
     p_.correctBoundaryConditions();
+    
     rho_.boundaryFieldRef() ==
         thermoPtr_->psi().boundaryField()*p_.boundaryField();
+
     thermoPtr_->rho() = rho_;
 
     H_ = E_ + p_/rho_;

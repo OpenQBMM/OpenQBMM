@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is derivative work of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -74,10 +74,10 @@ public:
         }
 
         //- Conserved variable coeffients
-        virtual List<scalarList> coeffs() const;
+        virtual List<scalarList> conservedVariablesCoeffs() const;
 
         //- Flux coefficients
-        virtual List<scalarList> Fcoeffs() const;
+        virtual List<scalarList> fluxCoeffs() const;
 };
 
 

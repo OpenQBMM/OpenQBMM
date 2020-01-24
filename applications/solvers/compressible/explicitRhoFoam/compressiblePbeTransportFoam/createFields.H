@@ -9,7 +9,6 @@ fluidThermo& thermo = fluid.thermo();
 thermo.validate(args.executable(), "e");
 
 const volScalarField& rho = fluid.rho();
-
 const volVectorField& U = fluid.U();
 const surfaceScalarField& phi = fluid.phi();
 

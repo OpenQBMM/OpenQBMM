@@ -70,29 +70,30 @@ void Foam::fluxFunctions::Roe::updateFluxes
 {
     surfaceScalarField rhoOwn
     (
-        fvc::interpolate(rho, own_, interpScheme(rho.name()))
+        fvc::interpolate(rho, own_, schemeName(rho.name()))
     );
     surfaceScalarField rhoNei
     (
-        fvc::interpolate(rho, nei_, interpScheme(rho.name()))
+        fvc::interpolate(rho, nei_, schemeName(rho.name()))
     );
 
-    surfaceVectorField UOwn(fvc::interpolate(U, own_, interpScheme(U.name())));
-    surfaceVectorField UNei(fvc::interpolate(U, nei_, interpScheme(U.name())));
+    surfaceVectorField UOwn(fvc::interpolate(U, own_, schemeName(U.name())));
+    surfaceVectorField UNei(fvc::interpolate(U, nei_, schemeName(U.name())));
 
-    surfaceScalarField HOwn(fvc::interpolate(H, own_, interpScheme(H.name())));
-    surfaceScalarField HNei(fvc::interpolate(H, nei_, interpScheme(H.name())));
+    surfaceScalarField HOwn(fvc::interpolate(H, own_, schemeName(H.name())));
+    surfaceScalarField HNei(fvc::interpolate(H, nei_, schemeName(H.name())));
 
-    surfaceScalarField pOwn(fvc::interpolate(p, own_, interpScheme(p.name())));
-    surfaceScalarField pNei(fvc::interpolate(p, nei_, interpScheme(p.name())));
+    surfaceScalarField pOwn(fvc::interpolate(p, own_, schemeName(p.name())));
+    surfaceScalarField pNei(fvc::interpolate(p, nei_, schemeName(p.name())));
 
     surfaceScalarField aOwn
     (
-        fvc::interpolate(a, own_, interpScheme(a.name()))
+        fvc::interpolate(a, own_, schemeName(a.name()))
     );
+
     surfaceScalarField aNei
     (
-        fvc::interpolate(a, nei_, interpScheme(a.name()))
+        fvc::interpolate(a, nei_, schemeName(a.name()))
     );
 
     surfaceVectorField normal(mesh_.Sf()/mesh_.magSf());
@@ -118,12 +119,15 @@ void Foam::fluxFunctions::Roe::updateFluxes
         "UTilde",
         UOwn*wOwn + UNei*wNei
     );
+
     surfaceScalarField UvTilde(UTilde & normal);
+
     surfaceScalarField HTilde
     (
         "HTilde",
         HOwn*wOwn + HNei*wNei
     );
+
     surfaceScalarField aTilde
     (
         "aTilde",
@@ -143,10 +147,12 @@ void Foam::fluxFunctions::Roe::updateFluxes
     (
         deltaRho - deltaP/sqr(aTilde)
     );
+
     surfaceScalarField alpha2
     (
         (deltaP + rhoTilde*aTilde*deltaUv)/(2.0*sqr(aTilde))
     );
+    
     surfaceScalarField alpha3
     (
         (deltaP - rhoTilde*aTilde*deltaUv)/(2.0*sqr(aTilde))

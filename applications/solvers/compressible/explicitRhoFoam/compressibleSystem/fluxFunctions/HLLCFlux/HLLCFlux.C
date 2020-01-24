@@ -76,39 +76,43 @@ void Foam::fluxFunctions::HLLC::updateFluxes
 
     surfaceScalarField rhoOwn
     (
-        fvc::interpolate(rho, own_, interpScheme(rho.name()))
+        fvc::interpolate(rho, own_, schemeName(rho.name()))
     );
+
     surfaceScalarField rhoNei
     (
-        fvc::interpolate(rho, nei_, interpScheme(rho.name()))
+        fvc::interpolate(rho, nei_, schemeName(rho.name()))
     );
 
-    surfaceVectorField UOwn(fvc::interpolate(U, own_, interpScheme(U.name())));
-    surfaceVectorField UNei(fvc::interpolate(U, nei_, interpScheme(U.name())));
+    surfaceVectorField UOwn(fvc::interpolate(U, own_, schemeName(U.name())));
+    surfaceVectorField UNei(fvc::interpolate(U, nei_, schemeName(U.name())));
 
-    surfaceScalarField HOwn(fvc::interpolate(H, own_, interpScheme(H.name())));
-    surfaceScalarField HNei(fvc::interpolate(H, nei_, interpScheme(H.name())));
+    surfaceScalarField HOwn(fvc::interpolate(H, own_, schemeName(H.name())));
+    surfaceScalarField HNei(fvc::interpolate(H, nei_, schemeName(H.name())));
 
-    surfaceScalarField pOwn(fvc::interpolate(p, own_, interpScheme(p.name())));
-    surfaceScalarField pNei(fvc::interpolate(p, nei_, interpScheme(p.name())));
+    surfaceScalarField pOwn(fvc::interpolate(p, own_, schemeName(p.name())));
+    surfaceScalarField pNei(fvc::interpolate(p, nei_, schemeName(p.name())));
 
     volScalarField gamma("gamma", thermo_.gamma());
+
     surfaceScalarField gammaOwn
     (
-        fvc::interpolate(gamma, own_, interpScheme(gamma.name()))
+        fvc::interpolate(gamma, own_, schemeName(gamma.name()))
     );
+
     surfaceScalarField gammaNei
     (
-        fvc::interpolate(gamma, nei_, interpScheme(gamma.name()))
+        fvc::interpolate(gamma, nei_, schemeName(gamma.name()))
     );
 
     surfaceScalarField aOwn
     (
-        fvc::interpolate(a, own_, interpScheme(a.name()))
+        fvc::interpolate(a, own_, schemeName(a.name()))
     );
+
     surfaceScalarField aNei
     (
-        fvc::interpolate(a, nei_, interpScheme(a.name()))
+        fvc::interpolate(a, nei_, schemeName(a.name()))
     );
 
     surfaceScalarField UvOwn(UOwn & normal);
@@ -181,11 +185,14 @@ void Foam::fluxFunctions::HLLC::updateFluxes
     // Compute fluxes
     // Mass
     surfaceScalarField massFluxOwn(rhoOwn*UvOwn);
+
     surfaceScalarField massFluxStarOwn
     (
         SStar*(SOwn*rhoOwn - massFluxOwn)*rDeltaSOwn
     );
+
     surfaceScalarField massFluxNei(rhoNei*UvNei);
+
     surfaceScalarField massFluxStarNei
     (
         SStar*(SNei*rhoNei - massFluxNei)*rDeltaSNei
@@ -193,6 +200,7 @@ void Foam::fluxFunctions::HLLC::updateFluxes
 
     // Momentum
     surfaceVectorField momentumFluxOwn(UOwn*massFluxOwn + pOwn*normal);
+
     surfaceVectorField momentumFluxStarOwn
     (
         (
@@ -200,7 +208,9 @@ void Foam::fluxFunctions::HLLC::updateFluxes
           + SOwn*pOwnNei*normal
         )*rDeltaSOwn
     );
+
     surfaceVectorField momentumFluxNei(UNei*massFluxNei + pNei*normal);
+
     surfaceVectorField momentumFluxStarNei
     (
         (
@@ -211,6 +221,7 @@ void Foam::fluxFunctions::HLLC::updateFluxes
 
     // Energy
     surfaceScalarField energyFluxOwn(HOwn*massFluxOwn);
+
     surfaceScalarField energyFluxStarOwn
     (
         (
@@ -218,7 +229,9 @@ void Foam::fluxFunctions::HLLC::updateFluxes
           + SOwn*pOwnNei*SStar
         )*rDeltaSOwn
     );
+
     surfaceScalarField energyFluxNei(HNei*massFluxNei);
+    
     surfaceScalarField energyFluxStarNei
     (
         (
