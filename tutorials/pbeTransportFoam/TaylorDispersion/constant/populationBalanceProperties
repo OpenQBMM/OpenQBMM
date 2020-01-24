@@ -50,9 +50,9 @@ univariateCoeffs
     growth on;
     growthModel
     {
-        growthModel constant;
-        minAbscissa minAbscissa [ 0 1 0 0 0 0 0 ] 1e-10;
-        maxAbscissa maxAbscissa [ 0 1 0 0 0 0 0 ] 1e10;
+        growthModel     constant;
+        minAbscissa     1e-10;
+        maxAbscissa     1e10;
     }
 
     nucleation off;

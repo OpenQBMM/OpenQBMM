@@ -127,7 +127,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
 )
 :
     collisionKernel(dict, mesh, quadrature),
-    e_(dict.lookupType<scalar>("e")),
+    e_(dict.lookup<scalar>("e")),
     omega_((1.0 + e_)*0.5),
     Enskog_(dict.lookupOrDefault("Enskog", false)),
     scalarIndexes_(quadrature.nodes()[0].scalarIndexes()),

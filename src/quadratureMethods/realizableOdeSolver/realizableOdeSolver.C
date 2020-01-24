@@ -54,6 +54,7 @@ Foam::realizableOdeSolver<momentType, nodeType>::realizableOdeSolver
         mesh,
         mesh.time().deltaT()
     ),
+    localDtAdjustments_(0),
     solveSources_
     (
         dict.subDict("odeCoeffs").lookupOrDefault("solveSources", true)
@@ -251,7 +252,12 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                  || !realizableUpdate3
                 )
                 {
-                    Info << "Not realizable" << endl;
+                    // Avoid spamming the terminal when not realizable
+                    if (localDtAdjustments_ == 0)
+                    {
+                        Info << "Not realizable, adjusting local timestep. This may take a while." << endl;
+                    }
+                    localDtAdjustments_++;
 
                     forAll(oldMoments, mi)
                     {

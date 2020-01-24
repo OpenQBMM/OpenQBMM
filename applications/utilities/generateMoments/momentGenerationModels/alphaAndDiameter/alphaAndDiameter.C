@@ -242,7 +242,11 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         {
             abscissae_[nodei][0] = ds_[nodei];
             scalarField V(pow3(ds_[nodei]));
+<<<<<<< HEAD
             weights_[nodei] = pos(V - SMALL)*alphai/max(V, SMALL);
+=======
+            weights_[nodei] = pos(V - small)*alphai/max(V, small);
+>>>>>>> development
         }
     }
 

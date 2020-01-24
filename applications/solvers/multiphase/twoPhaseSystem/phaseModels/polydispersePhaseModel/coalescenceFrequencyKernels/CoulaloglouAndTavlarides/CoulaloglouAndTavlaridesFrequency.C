@@ -32,6 +32,13 @@ License
 namespace Foam
 {
 namespace populationBalanceSubModels
+<<<<<<< HEAD
+=======
+{
+namespace aggregationKernels
+{
+namespace coalescenceFrequencyKernels
+>>>>>>> development
 {
 namespace aggregationKernels
 {
