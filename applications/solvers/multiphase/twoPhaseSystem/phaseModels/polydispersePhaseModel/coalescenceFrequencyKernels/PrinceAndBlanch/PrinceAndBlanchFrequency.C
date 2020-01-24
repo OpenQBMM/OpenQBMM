@@ -46,11 +46,6 @@ namespace coalescenceFrequencyKernels
         PrinceAndBlanch,
         dictionary
     );
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> development
 } // End namespace coalescenceFrequencyKernels
 } // End namespace aggregationKernels
 } // End namespace populationBalanceSubModels

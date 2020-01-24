@@ -32,20 +32,12 @@ License
 namespace Foam
 {
 namespace populationBalanceSubModels
-<<<<<<< HEAD
-=======
-{
-namespace aggregationKernels
-{
-namespace coalescenceFrequencyKernels
->>>>>>> development
 {
 namespace aggregationKernels
 {
 namespace coalescenceFrequencyKernels
 {
-
-    defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
+   defineTypeNameAndDebug(CoulaloglouAndTavlarides, 0);
 
     addToRunTimeSelectionTable
     (
