@@ -165,7 +165,7 @@ Foam::populationBalanceSubModels::collisionKernels::esBGKCollision
 )
 :
     BGKCollision(dict, mesh, quadrature),
-    e_(dict.lookup<scalar>("e")),
+    e_(readScalar(dict.lookup("e"))),
     b_(dict.lookupOrDefault<scalar>("b", 0)),
     Theta_
     (
