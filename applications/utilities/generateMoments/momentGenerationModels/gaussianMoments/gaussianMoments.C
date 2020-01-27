@@ -73,7 +73,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
         (
             "m0",
             momentDims_(0),
-            0.0
+            Zero
         )
     ),
     U_
@@ -130,7 +130,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
             "Sigma",
             dict,
             sqr(dimVelocity),
-            symmTensor(-1.0)
+            symmTensor::uniform(-1.0) // Placeholder (invalid value)
         )
     ),
     isotropic_(true),
@@ -144,7 +144,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
     {
         Sigma_ = symmTensor::I*Theta_;
     }
-    labelList zeroOrder(momentOrders[0].size(), 0);
+    labelList zeroOrder(momentOrders[0].size(), Zero);
     forAll(momentOrders[0], cmpt)
     {
         labelList orderOne(zeroOrder);
