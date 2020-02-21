@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2019 Alberto Passalacqua
+    Copyright (C) 2015-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -237,7 +237,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                     moments[mi][celli] =
                         oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
 
-                    diff23[mi] = (8.0*k3[mi] - k1[mi] - k2[mi])/12.0;
+                    diff23[mi] = (2.0*k3[mi] - k1[mi] - k2[mi])/3.0;
                 }
 
                 realizableUpdate3 =
@@ -255,7 +255,9 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                     // Avoid spamming the terminal when not realizable
                     if (localDtAdjustments_ == 0)
                     {
-                        Info << "Not realizable, adjusting local timestep. This may take a while." << endl;
+                        Info << "Not realizable, adjusting local timestep." 
+                             << nl
+                             << "This may take a while." << endl;
                     }
                     localDtAdjustments_++;
 
