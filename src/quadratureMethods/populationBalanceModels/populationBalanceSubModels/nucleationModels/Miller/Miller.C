@@ -62,10 +62,10 @@ Foam::populationBalanceSubModels::nucleationModels::Miller::Miller
 )
 :
     nucleationModel(dict, mesh),
-    MCarbon_(dict.lookup("MCarbon")),
-    nCarbonDimer_(dict.lookup("nCarbonDimer")),
-    nCarbonPAM_(dict.lookup("nCarbonPAM")),
-    rhoSoot_(dict.lookup("rhoSoot")),
+    MCarbon_("MCarbon", dimMass/dimMoles, dict),
+    nCarbonDimer_("nCarbonDimer", dimless, dict),
+    nCarbonPAM_("nCarbonPAM", dimless, dict),
+    rhoSoot_("rhoSoot", dimDensity, dict),
     pamConcentration_
     (
         IOobject

@@ -61,7 +61,7 @@ Foam::populationBalanceSubModels::daughterDistributions::erosion
 )
 :
     daughterDistribution(dict),
-    primarySize_(dict.lookup("primarySize"))
+    primarySize_("primarySize", dimLength, dict)
 {}
 
 

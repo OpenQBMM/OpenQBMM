@@ -65,7 +65,7 @@ Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
 :
     diffusionModel(dict),
     continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
-    gammaLam_(dict.lookup("gammaLam")),
+    gammaLam_("gammaLam", dimViscosity, dict),
     Sc_(readScalar(dict.lookup("Sc")))
 {}
 

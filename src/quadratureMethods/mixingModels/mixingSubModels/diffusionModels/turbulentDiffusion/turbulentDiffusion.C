@@ -64,7 +64,7 @@ Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion
 )
 :
     mixingDiffusionModel(dict),
-    gammaLam_(dict.lookup("gammaLam")),
+    gammaLam_("gammaLam", dimViscosity, dict),
     Sc_(readScalar(dict.lookup("Sc")))
 {}
 

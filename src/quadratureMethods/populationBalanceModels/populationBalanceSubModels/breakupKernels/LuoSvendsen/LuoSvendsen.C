@@ -63,7 +63,7 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen
 :
     breakupKernel(dict, mesh),
     continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
-    Cb_(dict.lookup("Cb")),
+    Cb_("Cb", dimless, dict),
     epsilonExp_(readScalar(dict.lookup("epsilonExp"))),
     nuExp_(readScalar(dict.lookup("nuExp"))),
     sizeExp_(readScalar(dict.lookup("sizeExp"))),

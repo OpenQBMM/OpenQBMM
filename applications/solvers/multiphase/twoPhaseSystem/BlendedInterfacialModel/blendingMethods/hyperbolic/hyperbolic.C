@@ -56,7 +56,7 @@ Foam::blendingMethods::hyperbolic::hyperbolic
     (
         "transitionAlphaScale",
         dimless,
-        dict.lookup("transitionAlphaScale")
+        dict
     )
 {
     forAllConstIter(wordList, phaseNames, iter)
@@ -70,7 +70,7 @@ Foam::blendingMethods::hyperbolic::hyperbolic
             (
                 name,
                 dimless,
-                dict.lookup(name)
+                dict
             )
         );
     }

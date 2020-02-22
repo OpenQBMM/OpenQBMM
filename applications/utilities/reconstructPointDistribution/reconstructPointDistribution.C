@@ -55,9 +55,9 @@ int main(int argc, char *argv[])
     // Default to latest time
     label startTime = Times.size() - 1;
 
-    if (args.optionFound("time"))
+    if (args.found("time"))
     {
-        Foam::scalar timeValue = args.optionRead<scalar>("time");
+        Foam::scalar timeValue = args.get<scalar>("time");
         startTime = Foam::Time::findClosestTimeIndex(Times, timeValue);
     }
 

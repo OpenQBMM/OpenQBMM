@@ -92,13 +92,13 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
     (
         "alphaTheta",
         dimensionSet(0, 0, 0, 0, 0),
-        dict.lookup("alphaTheta")
+        dict
     ),
     alphaSigma_
     (
         "alphaSigma",
         dimensionSet(0, 0, 0, 0, 0),
-        dict.lookup("alphaSigma")
+        dict
     ),
     eta_(0.5*(1.0 + this->e_)),
     h2Function_(fluxSplittingFunction::New(dict)),
