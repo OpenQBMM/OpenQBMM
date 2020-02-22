@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -38,7 +38,7 @@ Foam::Vandermonde::Vandermonde
 )
 :
     scalarDiagonalMatrix(A),
-    m_(A.size())
+    n_(A.size())
 {}
 
 
@@ -49,13 +49,13 @@ Foam::Vandermonde::Vandermonde
 )
 :
     scalarDiagonalMatrix(A.m()),
-    m_(A.m())
+    n_(A.m())
 {
     if (checkVandermonde)
     {
-        for (label i = 0; i < m_; i++)
+        for (label i = 0; i < n_; i++)
         {
-            for (label j = 0; i < m_; j++)
+            for (label j = 0; i < n_; j++)
             {
                 if (A[i][j] != pow(A[1][j], i))
                 {
@@ -67,7 +67,7 @@ Foam::Vandermonde::Vandermonde
         }
     }
 
-    for (label i = 0; i < m_; i++)
+    for (label i = 0; i < n_; i++)
     {
         (*this)[i] = A[1][i];
     }
@@ -86,41 +86,41 @@ void Foam::Vandermonde::solve
     const scalarDiagonalMatrix& source
 )
 {
-    scalarDiagonalMatrix c(m_, 0.0);
+    scalarDiagonalMatrix c(n_, 0.0);
 
     scalar t = 1.0;
     scalar r = 1.0;
     scalar s = 0.0;
     scalar xx = 0.0;
 
-    if (m_ == 1)
+    if (n_ == 1)
     {
         x[0] = source[0];
     }
     else
     {
-        c[m_ - 1] = -(*this)[0];
+        c[n_ - 1] = -(*this)[0];
 
-        for (label i = 1; i < m_; i++)
+        for (label i = 1; i < n_; i++)
         {
             xx = -(*this)[i];
 
-            for (label j = m_ - i - 1; j < m_ - 1; j++)
+            for (label j = n_ - i - 1; j < n_ - 1; j++)
             {
                 c[j] += xx*c[j + 1];
             }
             
-            c[m_ - 1] += xx;
+            c[n_ - 1] += xx;
         }
 
-        for (label i = 0; i < m_; i++)
+        for (label i = 0; i < n_; i++)
         {
             xx = (*this)[i];
             t = 1.0;
             r = 1.0;
-            s = source[m_ - 1];
+            s = source[n_ - 1];
 
-            for (label j = m_ - 1; j > 0; j--)
+            for (label j = n_ - 1; j > 0; j--)
             {
                 r = c[j] + r*xx;
                 s += r*source[j - 1];
@@ -134,13 +134,13 @@ void Foam::Vandermonde::solve
 
 Foam::scalarSquareMatrix Foam::Vandermonde::inv()
 {
-    scalarSquareMatrix inv(m_);
-    scalarDiagonalMatrix source(m_);
-    scalarDiagonalMatrix x(m_);
+    scalarSquareMatrix inv(n_);
+    scalarDiagonalMatrix source(n_);
+    scalarDiagonalMatrix x(n_);
 
-    for (label i = 0; i < m_; i++)
+    for (label i = 0; i < n_; i++)
     {
-        for (label j = 0; j < m_; j++)
+        for (label j = 0; j < n_; j++)
         {
             if (i != j)
             {
@@ -154,7 +154,7 @@ Foam::scalarSquareMatrix Foam::Vandermonde::inv()
 
         solve(x, source);
 
-        for (label j = 0; j < m_; j++)
+        for (label j = 0; j < n_; j++)
         {
             inv[j][i] = x[j];
         }
