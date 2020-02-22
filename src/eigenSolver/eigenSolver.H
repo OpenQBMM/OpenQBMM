@@ -37,7 +37,7 @@ Acknowledgments
     library developed at NIST, available at http://math.nist.gov/tnt/index.html
     Their implementation was based upon EISPACK.
 
-    The tridiagonaliseSymmMatrix, symmTridiagQL, Hessemberg and realSchur
+    The tridiagonaliseSymmMatrix, symmTridiagonalQL, Hessemberg and realSchur
     methods are based on the Algol procedures tred2 by Bowdler, Martin, Reinsch,
     and Wilkinson, Handbook for Auto. Comp., Vol. II-Linear Algebra, and the
     corresponding FORTRAN subroutine in EISPACK.
@@ -94,7 +94,7 @@ private:
         void tridiagonaliseSymmMatrix();
 
         //- Symmetric tri-diagonal QL algorithm
-        void symmTridiagQL();
+        void symmTridiagonalQL();
 
         //- Reduction of non-symmetric matrix to Hessemberg form
         void Hessenberg();
