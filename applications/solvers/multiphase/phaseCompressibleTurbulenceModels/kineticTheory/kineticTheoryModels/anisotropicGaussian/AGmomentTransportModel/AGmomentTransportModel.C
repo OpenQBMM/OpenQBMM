@@ -76,7 +76,7 @@ Foam::AGmomentTransportModel::AGmomentTransportModel
     ),
     hq_(3, dict.lookupOrDefault<label>("nHerNodePerDim", 4)),
     weights_(hq_.hermiteWeights().size()),
-    abscissae_(hq_.hermiteAbscissas().size()),
+    abscissae_(hq_.hermiteAbscissae().size()),
     ew_(dict.lookupOrDefault<scalar>("wallRestitutionCoefficient", 1)),
     phiw_(dict.lookupOrDefault<scalar>("wallSpecularityCoefficient", 0)),
     own_
@@ -385,7 +385,7 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
         forAll(weights_, nodei)
         {
             weights_[nodei][celli] = hq_.hermiteWeights()[nodei]*alphap_[celli];
-            abscissae_[nodei][celli] = hq_.hermiteAbscissas()[nodei];
+            abscissae_[nodei][celli] = hq_.hermiteAbscissae()[nodei];
         }
     }
     forAll(alphap_.boundaryField(), patchi)
@@ -402,7 +402,7 @@ void Foam::AGmomentTransportModel::calcMomentFluxes
                 weights_[nodei].boundaryFieldRef()[patchi][facei] =
                     hq_.hermiteWeights()[nodei]*alphap_.boundaryField()[patchi][facei];
                 abscissae_[nodei].boundaryFieldRef()[patchi][facei] =
-                    hq_.hermiteAbscissas()[nodei];
+                    hq_.hermiteAbscissae()[nodei];
             }
         }
     }

@@ -104,17 +104,17 @@ public:
         }
 
         //- Return eigenvectors
-        const vectorList& hermiteAbscissas() const
+        const vectorList& hermiteAbscissae() const
         {
             return resAbs_;
         }
 
-        vectorList& hermiteAbscissas()
+        vectorList& hermiteAbscissae()
         {
             return resAbs_;
         }
 
-        const vectorList& hermiteOriginalAbscissas() const
+        const vectorList& hermiteOriginalAbscissae() const
         {
             return origAbs_;
         }
