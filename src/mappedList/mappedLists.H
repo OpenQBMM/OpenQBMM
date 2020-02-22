@@ -29,10 +29,6 @@ License
 Class
     Foam::mappedLists
 
-Description
-
-SourceFiles
-
 \*---------------------------------------------------------------------------*/
 
 #ifndef mappedLists_H
