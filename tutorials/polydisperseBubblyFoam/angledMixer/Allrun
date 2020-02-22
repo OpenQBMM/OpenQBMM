@@ -4,6 +4,10 @@ cd ${0%/*} || exit 1    # Run from this directory
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
+# Fix to maintain compatibility with both OF and OF+ due to different management
+# of .orig files.
+cp 0/alpha.air.orig 0/alpha.air
+
 runApplication generateMoments
 runApplication setFields
 runApplication decomposePar
