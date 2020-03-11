@@ -129,6 +129,14 @@ Foam::RASModels::phasePressureModel::epsilon() const
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::RASModels::phasePressureModel::omega() const
+{
+    NotImplemented;
+    return nut_;
+}
+
+
 Foam::tmp<Foam::volSymmTensorField>
 Foam::RASModels::phasePressureModel::R() const
 {
