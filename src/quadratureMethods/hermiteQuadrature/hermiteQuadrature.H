@@ -8,7 +8,7 @@
     Code created 2010-2014 by Bo Kong and 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -104,17 +104,17 @@ public:
         }
 
         //- Return eigenvectors
-        const vectorList& hermiteAbscissas() const
+        const vectorList& hermiteAbscissae() const
         {
             return resAbs_;
         }
 
-        vectorList& hermiteAbscissas()
+        vectorList& hermiteAbscissae()
         {
             return resAbs_;
         }
 
-        const vectorList& hermiteOriginalAbscissas() const
+        const vectorList& hermiteOriginalAbscissae() const
         {
             return origAbs_;
         }

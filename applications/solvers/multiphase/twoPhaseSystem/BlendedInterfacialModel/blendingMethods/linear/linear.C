@@ -67,7 +67,7 @@ Foam::blendingMethods::linear::linear
             (
                 nameFull,
                 dimless,
-                dict.lookup(nameFull)
+                dict
             )
         );
 
@@ -83,7 +83,7 @@ Foam::blendingMethods::linear::linear
             (
                 namePart,
                 dimless,
-                dict.lookup(namePart)
+                dict
             )
         );
 

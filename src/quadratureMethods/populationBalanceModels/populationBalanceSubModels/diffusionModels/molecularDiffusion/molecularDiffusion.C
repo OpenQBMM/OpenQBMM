@@ -63,7 +63,7 @@ Foam::populationBalanceSubModels::diffusionModels::molecularDiffusion
 )
 :
     diffusionModel(dict),
-    gammaLam_(dict.lookup("gammaLam"))
+    gammaLam_("gammaLam", dimViscosity, dict)
 {}
 
 

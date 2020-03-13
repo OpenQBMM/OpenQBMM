@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -49,7 +49,7 @@ Foam::eigenSolver::eigenSolver
     {
         eigenvectors_ = A;
         tridiagonaliseSymmMatrix();
-        symmTridiagQL();
+        symmTridiagonalQL();
     }
     else
     {
@@ -71,7 +71,7 @@ Foam::eigenSolver::eigenSolver(const scalarSquareMatrix& A, bool symmetric)
     {
         eigenvectors_ = A;
         tridiagonaliseSymmMatrix();
-        symmTridiagQL();
+        symmTridiagonalQL();
     }
     else
     {
@@ -248,7 +248,7 @@ void Foam::eigenSolver::tridiagonaliseSymmMatrix()
     eigenvaluesIm_[0] = scalar(0);
 }
 
-void Foam::eigenSolver::symmTridiagQL()
+void Foam::eigenSolver::symmTridiagonalQL()
 {
     for (label i = 1; i < n_; i++)
     {

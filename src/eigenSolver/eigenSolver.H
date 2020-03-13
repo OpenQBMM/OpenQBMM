@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,14 +30,14 @@ Class
     Foam::eigenSolver
 
 Description
-    Eigenvalues and eigenvectors of a square real matrix
+    Eigenvalues and eigenvectors of a square real matrix.
 
 Acknowledgments
     This implementation derives almost completely from TNT/JAMA, a public-domain
     library developed at NIST, available at http://math.nist.gov/tnt/index.html
     Their implementation was based upon EISPACK.
 
-    The tridiagonaliseSymmMatrix, symmTridiagQL, Hessemberg and realSchur
+    The tridiagonaliseSymmMatrix, symmTridiagonalQL, Hessemberg and realSchur
     methods are based on the Algol procedures tred2 by Bowdler, Martin, Reinsch,
     and Wilkinson, Handbook for Auto. Comp., Vol. II-Linear Algebra, and the
     corresponding FORTRAN subroutine in EISPACK.
@@ -82,7 +82,7 @@ private:
         //- Matrix with the same size of original matrix
         scalarSquareMatrix H_;
 
-        //- Number of rows and columns
+        //- Number of rows and columns in original matrix
         label n_;
 
     // Private member functions
@@ -94,12 +94,12 @@ private:
         void tridiagonaliseSymmMatrix();
 
         //- Symmetric tri-diagonal QL algorithm
-        void symmTridiagQL();
+        void symmTridiagonalQL();
 
-        //- Reduction of non-symmetric matrix to Hessemberg form
+        //- Reduce non-symmetric matrix to Hessemberg form
         void Hessenberg();
 
-        //- Reduction from Hessenberg to real Schur form
+        //- Reduce matrix from Hessenberg to real Schur form
         void realSchur();
 
 

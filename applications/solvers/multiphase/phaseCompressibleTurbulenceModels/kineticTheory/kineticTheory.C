@@ -160,6 +160,33 @@ Foam::RASModels::kineticTheory::epsilon() const
 }
 
 
+Foam::tmp<Foam::volScalarField>
+Foam::RASModels::kineticTheory::omega() const
+{
+    return tmp<Foam::volScalarField>
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "omega",
+                this->runTime_.timeName(),
+                this->mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            this->mesh(),
+            dimensionedScalar
+            (
+                "omega",
+                dimensionSet(0, 0, -1, 0, 0, 0, 0),
+                0.0
+            )
+        )
+    );
+}
+
+
 Foam::tmp<Foam::volSymmTensorField>
 Foam::RASModels::kineticTheory::R() const
 {

@@ -63,10 +63,10 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
 :
     breakupKernel(dict, mesh),
     continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
-    A_(dict.lookup("A")),
-    df_(dict.lookup("df")),
-    H0_(dict.lookup("H0")),
-    primarySize_(dict.lookup("primarySize")),
+    A_("A", dimEnergy, dict),
+    df_("df", dimless, dict),
+    H0_("H0", dimLength, dict),
+    primarySize_("primarySize", dimLength, dict),
     flThermo_
     (
         mesh_.lookupObject<fluidThermo>

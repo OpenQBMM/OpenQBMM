@@ -82,13 +82,13 @@ JohnsonJacksonParticleThetaFvPatchScalarField
     (
         "restitutionCoefficient",
         dimless,
-        dict.lookup("restitutionCoefficient")
+        dict
     ),
     specularityCoefficient_
     (
         "specularityCoefficient",
         dimless,
-        dict.lookup("specularityCoefficient")
+        dict
     )
 {
     if
@@ -233,7 +233,6 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
         )
        .subDict("RAS")
        .subDict("kineticTheoryCoeffs")
-       .lookup("alphaMax")
     );
 
     // calculate the reference value and the value fraction

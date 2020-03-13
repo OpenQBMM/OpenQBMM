@@ -80,13 +80,13 @@ JohnsonJacksonParticleSlipFvPatchVectorField
     (
         "specularityCoefficient",
         dimless,
-        dict.lookup("specularityCoefficient")
+        dict
     ),
     internalFrictionAngle_
     (
         "internalFrictionAngle",
         dimless,
-        dict.lookup("internalFrictionAngle")
+        dict
     )
 {
     if

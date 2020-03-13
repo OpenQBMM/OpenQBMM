@@ -67,7 +67,7 @@ Foam::kineticTheoryModels::nonEquilibrium::nonEquilibrium
     (
         "alphaTheta",
         dimless,
-        dict.lookup("alphaTheta")
+        dict
     )
 {}
 

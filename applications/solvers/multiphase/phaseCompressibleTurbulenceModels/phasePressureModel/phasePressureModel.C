@@ -66,7 +66,7 @@ Foam::RASModels::phasePressureModel::phasePressureModel
     (
         "g0",
         dimensionSet(1, -1, -2, 0, 0),
-        coeffDict_.lookup("g0")
+        coeffDict_
     )
 {
     nut_ == dimensionedScalar("zero", nut_.dimensions(), 0.0);
@@ -123,6 +123,14 @@ Foam::RASModels::phasePressureModel::k() const
 
 Foam::tmp<Foam::volScalarField>
 Foam::RASModels::phasePressureModel::epsilon() const
+{
+    NotImplemented;
+    return nut_;
+}
+
+
+Foam::tmp<Foam::volScalarField>
+Foam::RASModels::phasePressureModel::omega() const
 {
     NotImplemented;
     return nut_;

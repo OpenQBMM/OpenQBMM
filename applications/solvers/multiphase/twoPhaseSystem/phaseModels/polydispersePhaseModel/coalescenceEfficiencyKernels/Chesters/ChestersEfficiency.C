@@ -62,9 +62,9 @@ Foam::populationBalanceSubModels::aggregationKernels::coalescenceEfficiencyKerne
 :
     coalescenceEfficiencyKernel(dict, mesh, continuousPhase),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
-    Ceff_(dict.lookup("Ceff")),
-    ReExp_(dict.lookup("ReExp")),
-    WeExp_(dict.lookup("WeExp")),
+    Ceff_("Ceff", dimless, dict),
+    ReExp_("ReExp", dimless, dict),
+    WeExp_("WeExp", dimless, dict),
     theta_
     (
         IOobject
