@@ -78,7 +78,11 @@ public:
     // Constructors
 
         //- Construct from components
-        constantGrowth(const dictionary& dict);
+        constantGrowth
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor

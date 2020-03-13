@@ -74,7 +74,11 @@ public:
     // Constructors
 
         //- Construct from components
-        nonLinearEvaporation(const dictionary& dict);
+        nonLinearEvaporation
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor

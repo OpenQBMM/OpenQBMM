@@ -74,7 +74,11 @@ public:
     // Constructors
 
         //- Construct from components
-        linearEvaporation(const dictionary& dict);
+        linearEvaporation
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor

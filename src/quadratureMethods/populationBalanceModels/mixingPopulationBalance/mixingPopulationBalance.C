@@ -180,7 +180,8 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     (
         Foam::populationBalanceSubModels::growthModel::New
         (
-            dict.subDict("growthModel")
+            dict.subDict("growthModel"),
+            phi_.mesh()
         )
     ),
     diffusionModel_

@@ -42,10 +42,12 @@ namespace populationBalanceSubModels
 
 Foam::populationBalanceSubModels::growthModel::growthModel
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
     dict_(dict),
+    mesh_(mesh),
     Cg_
     (
         dimensionedScalar::lookupOrDefault

@@ -100,7 +100,8 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
         growthModel_ =
             Foam::populationBalanceSubModels::growthModel::New
             (
-                dict.subDict("growthModel")
+                dict.subDict("growthModel"),
+                phi_.mesh()
             );
     }
 

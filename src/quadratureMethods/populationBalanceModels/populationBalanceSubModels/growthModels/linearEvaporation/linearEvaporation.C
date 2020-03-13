@@ -53,10 +53,11 @@ namespace growthModels
 Foam::populationBalanceSubModels::growthModels::linearEvaporation
 ::linearEvaporation
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    growthModel(dict)
+    growthModel(dict, mesh)
 {}
 
 

@@ -30,7 +30,8 @@ License
 Foam::autoPtr<Foam::populationBalanceSubModels::growthModel>
 Foam::populationBalanceSubModels::growthModel::New
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 {
     word growthModelType(dict.lookup("growthModel"));
@@ -51,7 +52,7 @@ Foam::populationBalanceSubModels::growthModel::New
             << abort(FatalError);
     }
 
-    return autoPtr<growthModel>(cstrIter()(dict));
+    return autoPtr<growthModel>(cstrIter()(dict, mesh));
 }
 
 
