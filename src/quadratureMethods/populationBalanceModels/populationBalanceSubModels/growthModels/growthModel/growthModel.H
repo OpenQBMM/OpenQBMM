@@ -8,6 +8,7 @@
     Code created 2015 by Matteo Icardi
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
+    Copyright (C) 2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -64,6 +65,8 @@ protected:
 
         const dictionary& dict_;
 
+        const fvMesh& mesh_;
+
         //- Coefficient of aggregation kernel
         const dimensionedScalar Cg_;
 
@@ -80,16 +83,21 @@ public:
         growthModel,
         dictionary,
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const fvMesh& mesh
         ),
-        (dict)
+        (dict, mesh)
     );
 
 
     // Constructors
 
         //- Construct from components
-        growthModel(const dictionary& dict);
+        growthModel
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
         //- Disallow default bitwise copy construct
         growthModel(const growthModel&) = delete;
@@ -99,7 +107,8 @@ public:
 
         static autoPtr<growthModel> New
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const fvMesh& mesh
         );
 
 
@@ -126,7 +135,7 @@ public:
         ) const = 0;
 
         //- Return phase space convection
-        scalar phaseSpaceConvection
+        virtual scalar phaseSpaceConvection
         (
             const labelList& momentOrder,
             const label celli,
@@ -134,7 +143,7 @@ public:
         );
 
         //- Return phase space convection
-        scalar phaseSpaceConvection
+        virtual scalar phaseSpaceConvection
         (
             const labelList& momentOrder,
             const label celli,

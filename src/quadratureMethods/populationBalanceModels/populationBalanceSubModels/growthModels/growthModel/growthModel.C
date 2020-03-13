@@ -8,6 +8,7 @@
     Code created 2015 by Matteo Icardi
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
+    Copyright (C) 2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -46,10 +47,12 @@ namespace populationBalanceSubModels
 
 Foam::populationBalanceSubModels::growthModel::growthModel
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
     dict_(dict),
+    mesh_(mesh),
     Cg_
     (
         dimensionedScalar::lookupOrDefault

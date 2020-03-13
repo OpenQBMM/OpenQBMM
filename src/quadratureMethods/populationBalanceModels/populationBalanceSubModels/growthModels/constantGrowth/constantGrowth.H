@@ -11,6 +11,7 @@
     Copyright (C) 2019 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2017-03-28 Alberto Passalacqua: Adapted to single scalar calculation.
+2020-03-12 Alberto Passalacqua: Added access to fvMesh.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -83,7 +84,11 @@ public:
     // Constructors
 
         //- Construct from components
-        constantGrowth(const dictionary& dict);
+        constantGrowth
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor

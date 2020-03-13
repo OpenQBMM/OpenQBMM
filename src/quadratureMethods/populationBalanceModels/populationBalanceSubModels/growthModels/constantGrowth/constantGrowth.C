@@ -8,7 +8,7 @@
     Code created 2015 by Matteo Icardi and 2017 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2017-03-28 Alberto Passalacqua: Adapted to single scalar calculation.
 -------------------------------------------------------------------------------
@@ -59,10 +59,11 @@ namespace growthModels
 Foam::populationBalanceSubModels::growthModels::constantGrowth
 ::constantGrowth
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    growthModel(dict),
+    growthModel(dict, mesh),
     minAbscissa_(dict.lookupOrDefault("minAbscissa", scalar(0))),
     maxAbscissa_(dict.lookupOrDefault("maxAbscissa", GREAT))
 {}
