@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 2017-03-28 Alberto Passalacqua: Adapted to single scalar calculation.
+2020-03-12 Alberto Passalacqua: Added access to fvMesh.
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.

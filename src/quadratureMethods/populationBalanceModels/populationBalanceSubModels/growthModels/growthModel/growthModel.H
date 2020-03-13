@@ -5,6 +5,8 @@
     \\  /    A nd           | Copyright (C) 2015 Matteo Icardi
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
+2020-03-12 Alberto Passalacqua: Added access to fvMesh.
+-------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
 
