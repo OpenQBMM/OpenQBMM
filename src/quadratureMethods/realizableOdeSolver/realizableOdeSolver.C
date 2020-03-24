@@ -311,6 +311,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             }
             else if (error < 1)
             {
+                localT += localDt;
                 localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
 
                 scalar maxLocalDt = max(globalDt - localT, 0.0);
@@ -329,7 +330,6 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 }
 
                 localDt_[celli] = localDt;
-                localT += localDt;
             }
             else
             {
