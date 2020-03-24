@@ -313,15 +313,8 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             }
             else if (error < 1)
             {
-<<<<<<< HEAD
-                localDt *=
-                    min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
-||||||| merged common ancestors
-                localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
-=======
                 localT += localDt;
                 localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
->>>>>>> development
 
                 scalar maxLocalDt = max(globalDt - localT, scalar(0));
                 localDt = min(maxLocalDt, localDt);
