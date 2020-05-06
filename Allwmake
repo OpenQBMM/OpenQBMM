@@ -1,18 +1,43 @@
 #!/bin/sh
 cd "${0%/*}" || exit                            # Run from this directory
 targetType=libso
+# Get -prefix=.. -> CMAKE_INSTALL_PREFIX if possible
+if [ -f "${WM_PROJECT_DIR:?}"/wmake/scripts/wmake.cmake-args ]
+then  . "${WM_PROJECT_DIR:?}"/wmake/scripts/wmake.cmake-args
+fi
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
 
 #------------------------------------------------------------------------------
 
 # Build hack until issue #137 is more adequately addressed
-# - build into OpenFOAM directories instead of user locations
+# - re-purpose user locations
 
 user_appbin="$FOAM_USER_APPBIN"
 user_libbin="$FOAM_USER_LIBBIN"
 
-export FOAM_USER_APPBIN="$FOAM_APPBIN"
-export FOAM_USER_LIBBIN="$FOAM_LIBBIN"
+# Default is openfoam (FOAM_LIBBIN)
+: "${CMAKE_INSTALL_PREFIX:=${FOAM_LIBBIN%/*}}"
+
+if [ -n "$CMAKE_INSTALL_PREFIX" ]
+then
+    our_appbin="${CMAKE_INSTALL_PREFIX}/bin"
+    our_libbin="${CMAKE_INSTALL_PREFIX}/lib"
+
+    # Add to LD_LIBRARY_PATH for linking
+    case "$our_libbin" in
+    ("$FOAM_LIBBIN" | "$FOAM_SITE_LIBBIN" | "$FOAM_USER_LIBBIN")
+        # No-op, these ones are already in LD_LIBRARY_PATH
+        ;;
+    (*)
+        # Somewhere else, add to LD_LIBRARY_PATH
+        LD_LIBRARY_PATH="${our_libbin}:${LD_LIBRARY_PATH}"
+        ;;
+    esac
+
+    # Override FOAM_USER_{APPBIN,LIBBIN} for installation locations
+    export FOAM_USER_APPBIN="$our_appbin"
+    export FOAM_USER_LIBBIN="$our_libbin"
+fi
 
 #------------------------------------------------------------------------------
 
@@ -22,6 +47,8 @@ echo "Starting compile of OpenQBMM with ${WM_PROJECT_DIR##*/} ${0##*}"
 echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
 echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
 echo
+echo "install prefix : $CMAKE_INSTALL_PREFIX"
+
 
 echo "========================================"
 echo "Compile OpenQBMM libraries"
@@ -40,10 +67,11 @@ export FOAM_USER_LIBBIN="$user_libbin"
 # Build tests?
 unset buildTests
 # buildTests=true
+
 if [ "$buildTests" = true ]
 then
     echo "========================================"
-    echo "Compile OpenQBMM applications"
+    echo "Compile OpenQBMM tests"
     echo
     test/Allwmake $targetType $*
 fi
