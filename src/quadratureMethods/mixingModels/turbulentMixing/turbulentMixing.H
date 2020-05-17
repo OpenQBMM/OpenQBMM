@@ -74,6 +74,7 @@ class turbulentMixing
         //- Diffusion model
         autoPtr<Foam::mixingSubModels::mixingDiffusionModel> diffusionModel_;
 
+
     // Private member functions
 
         //- Calculate implicit source terms
