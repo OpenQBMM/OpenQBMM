@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,7 +30,9 @@ Class
     Foam::mixingSubModels::mixingKernels::IEM
 
 Description
-    Interaction by exchange with the mean mixing model.
+    Interaction by exchange with the mean mixing model. Turbulence modeling is 
+    generic, with support for both incompressible and compressible turbulence 
+    models, as long as a k and epsilon field are provided by the model.
 
     References
     \verbatim
@@ -75,7 +77,11 @@ public:
     // Constructors
 
         //- Construct from components
-        IEM(const dictionary& dict);
+        IEM
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
 
     //- Destructor

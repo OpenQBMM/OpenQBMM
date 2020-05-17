@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,6 +30,9 @@ License
 
 #include "mixingKernel.H"
 
+#include "turbulentTransportModel.H"
+#include "turbulentFluidThermoModel.H"
+
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
@@ -37,7 +40,6 @@ namespace Foam
 namespace mixingSubModels
 {
     defineTypeNameAndDebug(mixingKernel, 0);
-
     defineRunTimeSelectionTable(mixingKernel, dictionary);
 }
 }
@@ -47,10 +49,12 @@ namespace mixingSubModels
 
 Foam::mixingSubModels::mixingKernel::mixingKernel
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
     dict_(dict),
+    mesh_(mesh),
     Cphi_
     (
         dict.lookupOrDefault
@@ -75,5 +79,87 @@ Foam::mixingSubModels::mixingKernel::mixingKernel
 Foam::mixingSubModels::mixingKernel::~mixingKernel()
 {}
 
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+Foam::tmp<Foam::volScalarField> 
+Foam::mixingSubModels::mixingKernel::k() const
+{
+    typedef compressible::turbulenceModel cmpTurbModel;
+    typedef incompressible::turbulenceModel icoTurbModel;
+
+    if 
+    (
+        mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName)
+    )
+    {
+        const cmpTurbModel& turb =
+            mesh_.lookupObject<cmpTurbModel>
+            (
+                cmpTurbModel::propertiesName
+            );
+
+        return turb.k();
+    }
+    else if
+    (
+        mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName)
+    )
+    {
+        const incompressible::turbulenceModel& turb =
+            mesh_.lookupObject<icoTurbModel>
+            (
+                icoTurbModel::propertiesName
+            );
+
+        return turb.k();
+    }
+
+    FatalErrorInFunction
+            << "No valid turbulence model found."
+            << exit(FatalError);
+
+    return volScalarField::null();
+}
+
+Foam::tmp<Foam::volScalarField> 
+Foam::mixingSubModels::mixingKernel::epsilon() const
+{
+    typedef compressible::turbulenceModel cmpTurbModel;
+    typedef incompressible::turbulenceModel icoTurbModel;
+
+    if 
+    (
+        mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName)
+    )
+    {
+        const cmpTurbModel& turb =
+            mesh_.lookupObject<cmpTurbModel>
+            (
+                cmpTurbModel::propertiesName
+            );
+
+        return turb.epsilon();
+    }
+    else if
+    (
+        mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName)
+    )
+    {
+        const incompressible::turbulenceModel& turb =
+            mesh_.lookupObject<icoTurbModel>
+            (
+                icoTurbModel::propertiesName
+            );
+
+        return turb.epsilon();
+    }
+
+    FatalErrorInFunction
+            << "No valid turbulence model found."
+            << exit(FatalError);
+
+    return volScalarField::null();
+}
 
 // ************************************************************************* //

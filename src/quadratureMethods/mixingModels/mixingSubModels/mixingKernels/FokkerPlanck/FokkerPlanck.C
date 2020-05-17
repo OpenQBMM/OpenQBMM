@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -59,10 +59,11 @@ namespace mixingKernels
 Foam::mixingSubModels::mixingKernels::FokkerPlanck
 ::FokkerPlanck
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    mixingKernel(dict)
+    mixingKernel(dict, mesh)
 {}
 
 
@@ -81,27 +82,6 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
     const volScalarMomentFieldSet& moments
 ) const
 {
-    typedef compressible::turbulenceModel cmpTurbModel;
-
-    if
-    (
-        !moment.mesh().foundObject<cmpTurbModel>
-        (
-            cmpTurbModel::propertiesName
-        )
-    )
-    {
-        FatalErrorInFunction
-            << "No valid compressible turbulence model found."
-            << abort(FatalError);
-    }
-
-    const compressible::turbulenceModel& flTurb =
-        moment.mesh().lookupObject<compressible::turbulenceModel>
-        (
-            turbulenceModel::propertiesName
-        );
-
     label momentOrder = moment.order();
 
     tmp<fvScalarMatrix> mixingK
@@ -121,12 +101,12 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
     }
     else
     {
-        mixingK.ref() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
+        mixingK.ref() += momentOrder*Cphi_*epsilon()/k()
             *moments[momentOrder - 1]
             *((Cmixing_ + 1.0)*moments(1) + Cmixing_*(momentOrder - 1)*oneMoment
             *((moments(2) - sqr(moments(1)))/(moments(1)*oneMoment
-            - moments(2)))) - fvm::SuSp(momentOrder*Cphi_*flTurb.epsilon()
-            /flTurb.k()*((Cmixing_ + 1.0) + Cmixing_*(momentOrder - 1)
+            - moments(2)))) - fvm::SuSp(momentOrder*Cphi_*epsilon()
+            /k()*((Cmixing_ + 1.0) + Cmixing_*(momentOrder - 1)
             *((moments(2) - sqr(moments(1)))/(moments(1)*oneMoment
             - moments(2)))), moment);
     }

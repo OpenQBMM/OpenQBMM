@@ -30,7 +30,9 @@ Class
     Foam::mixingModels:turbulentMixing
 
 Description
-    Solve a turbulent mixing model.
+    Solve a turbulent mixing model. Turbulence modeling is generic, with
+    support for both incompressible and compressible turbulence models, as long
+    as a k and epsilon field are provided by the model.
 
 SourceFiles
     turbulentMixing.C

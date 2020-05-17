@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -58,17 +58,17 @@ namespace mixingKernels
 
 Foam::mixingSubModels::mixingKernels::IEM::IEM
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 :
-    mixingKernel(dict)
+    mixingKernel(dict, mesh)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::mixingSubModels::mixingKernels::IEM
-::~IEM()
+Foam::mixingSubModels::mixingKernels::IEM::~IEM()
 {}
 
 
@@ -81,27 +81,6 @@ Foam::mixingSubModels::mixingKernels::IEM::K
     const volScalarMomentFieldSet& moments
 ) const
 {
-    typedef compressible::turbulenceModel cmpTurbModel;
-
-    if
-    (
-        !moment.mesh().foundObject<cmpTurbModel>
-        (
-            cmpTurbModel::propertiesName
-        )
-    )
-    {
-        FatalErrorInFunction
-            << "No valid compressible turbulence model found."
-            << abort(FatalError);
-    }
-
-    const compressible::turbulenceModel& flTurb =
-        moment.mesh().lookupObject<compressible::turbulenceModel>
-        (
-            turbulenceModel::propertiesName
-        );
-
     label momentOrder = moment.order();
 
     tmp<fvScalarMatrix> mixingK
@@ -119,9 +98,9 @@ Foam::mixingSubModels::mixingKernels::IEM::K
     }
     else
     {
-        mixingK.ref() += momentOrder*Cphi_*flTurb.epsilon()/flTurb.k()
+        mixingK.ref() += momentOrder*Cphi_*epsilon()/k()
             *(moments(momentOrder - 1)*moments(1))
-            - fvm::SuSp(momentOrder*Cphi_*flTurb.epsilon()/flTurb.k(), moment);
+            - fvm::SuSp(momentOrder*Cphi_*epsilon()/k(), moment);
     }
 
     return mixingK;

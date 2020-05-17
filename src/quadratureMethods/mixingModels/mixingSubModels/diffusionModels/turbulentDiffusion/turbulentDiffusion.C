@@ -97,7 +97,10 @@ turbViscosity(const volScalarField& moment) const
     typedef compressible::turbulenceModel cmpTurbModel;
     typedef incompressible::turbulenceModel icoTurbModel;
 
-    if (moment.mesh().foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
+    if 
+    (
+        moment.mesh().foundObject<cmpTurbModel>(cmpTurbModel::propertiesName)
+    )
     {
         const cmpTurbModel& turb =
             moment.mesh().lookupObject<cmpTurbModel>

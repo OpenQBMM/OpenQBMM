@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,7 +30,9 @@ Class
     Foam::mixingSubModels::mixingKernel
 
 Description
-    Abstract class for mixing model kernels.
+    Abstract class for mixing model kernels. Turbulence modeling is generic, 
+    with support for both incompressible and compressible turbulence models, 
+    as long as a k and epsilon field are provided by the model.
 
 SourceFiles
     mixingKernel.C
@@ -67,12 +69,19 @@ protected:
 
         const dictionary& dict_;
 
+        const fvMesh& mesh_;
+
         //- Coefficient of aggregation kernel
         const dimensionedScalar Cphi_;
 
         //- Coefficient of relaxation control
         const dimensionedScalar Cmixing_;
 
+        //- Return the turbulent kinetic energy field
+        tmp<volScalarField> k() const;
+
+        //- Return the turbulent dissipation rate field
+        tmp<volScalarField> epsilon() const;
 
 public:
 
@@ -86,16 +95,21 @@ public:
         mixingKernel,
         dictionary,
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const fvMesh& mesh
         ),
-        (dict)
+        (dict, mesh)
     );
 
 
     // Constructors
 
         //- Construct from components
-        mixingKernel(const dictionary& dict);
+        mixingKernel
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
 
         //- Disallow default bitwise copy construct
         mixingKernel(const mixingKernel&) = delete;
@@ -105,7 +119,8 @@ public:
 
         static autoPtr<mixingKernel> New
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const fvMesh& mesh
         );
 
 
