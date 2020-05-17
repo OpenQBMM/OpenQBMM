@@ -69,16 +69,10 @@ class turbulentMixing
         const word name_;
 
         //- Aggregation kernel model
-        autoPtr
-        <
-            Foam::mixingSubModels::mixingKernel
-        > mixingKernel_;
+        autoPtr<Foam::mixingSubModels::mixingKernel> mixingKernel_;
 
         //- Diffusion model
-        autoPtr
-        <
-            Foam::mixingSubModels::mixingDiffusionModel
-        > diffusionModel_;
+        autoPtr<Foam::mixingSubModels::mixingDiffusionModel> diffusionModel_;
 
     // Private member functions
 
