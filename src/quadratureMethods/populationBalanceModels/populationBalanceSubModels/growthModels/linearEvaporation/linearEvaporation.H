@@ -27,7 +27,7 @@ Class
     Foam::populationBalanceSubModels::growthModels::linearEvaporation
 
 Description
-    linear evaporation model.
+    Linear evaporation model.
 
     \f[
         C_g = -E_v \frac{\pi d_i^3}{6}

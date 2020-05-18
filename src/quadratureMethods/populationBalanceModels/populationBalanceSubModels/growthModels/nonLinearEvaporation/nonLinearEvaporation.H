@@ -27,7 +27,7 @@ Class
     Foam::populationBalanceSubModels::growthModels::nonLinearEvaporation
 
 Description
-    nonLinear evaporation model.
+    Non-linear evaporation model.
 
     \f[
         K_g = -\frac{E_v}{2} \left( \frac{3 V_i}{4 \pi} \right) ^{1/3}
