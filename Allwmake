@@ -28,7 +28,7 @@ then
     echo "========================================"
     echo "Compile OpenQBMM tests"
     echo
-    test/Allwmake $targetType $*
+    (cd test && ./Allwmake)
 fi
 
 # Some summary information
