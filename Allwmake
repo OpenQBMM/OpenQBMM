@@ -20,17 +20,13 @@ echo "Compile OpenQBMM applications"
 echo
 applications/Allwmake $targetType $*
 
-# Restore user directories (see hack above)
-export FOAM_USER_APPBIN="$user_appbin"
-export FOAM_USER_LIBBIN="$user_libbin"
-
 # Build tests?
 unset buildTests
 buildTests=true
 if [ "$buildTests" = true ]
 then
     echo "========================================"
-    echo "Compile OpenQBMM applications"
+    echo "Compile OpenQBMM tests"
     echo
     test/Allwmake $targetType $*
 fi

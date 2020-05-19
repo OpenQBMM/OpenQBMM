@@ -4,18 +4,18 @@ cd "${0%/*}" || exit                            # Run from this directory
 #------------------------------------------------------------------------------
 
 # wmake conditionalMomentInversion
-wmake libso eigenSolver
-wmake libso populationBalanceModel
-wmake libso univariateQuadratureApproximation
-wmake libso Vandermonde
-wmake libso univariateMomentAdvection/setMoments1D
-wmake libso univariateMomentAdvection/setMoments2D
+wmake eigenSolver
+wmake populationBalanceModel
+wmake univariateQuadratureApproximation
+wmake Vandermonde
+wmake univariateMomentAdvection/setMoments1D
+wmake univariateMomentAdvection/setMoments2D
 
 wmake -all momentInversions/univariate
-wmake libso momentInversions/multivariate/monoKineticMomentInversion
-wmake libso momentInversions/multivariate/CHyQMOMMomentInversion
-wmake libso momentInversions/multivariate/sizeCHyQMOMMomentInversion
-wmake libso momentInversions/multivariate/TensorProductMomentInversion
+wmake momentInversions/multivariate/monoKineticMomentInversion
+wmake momentInversions/multivariate/CHyQMOMMomentInversion
+wmake momentInversions/multivariate/sizeCHyQMOMMomentInversion
+wmake momentInversions/multivariate/TensorProductMomentInversion
 # conditional moment inversion needs to be updated for new structure
 
 #------------------------------------------------------------------------------

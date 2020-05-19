@@ -4,7 +4,7 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude 
 
 EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
     -lfiniteVolume \
     -lmeshTools \
-    -L$(FOAM_USER_LIBBIN) \
     -leigenSolver
