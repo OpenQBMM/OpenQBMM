@@ -24,12 +24,12 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    hyqmomTransport
+    vdfTransport
 
 Description
-    Basic application to solve moment transport using velocity which is an
-    internal coordinate of the distribution. Collisions are included
-
+    Solves for the moments of the velocity-based number density function for 
+    a pure particulate flow, not coupled to any other phase. Collision effects
+    are described by a run-time selected collision model.
 
 \*---------------------------------------------------------------------------*/
 

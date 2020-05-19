@@ -29,7 +29,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    diluteCoupledHyperbolicFoam
+    diluteVdfTransportFoam
 
 Description
     Transient solver which couples a continuous phase with a dilute dispersed
