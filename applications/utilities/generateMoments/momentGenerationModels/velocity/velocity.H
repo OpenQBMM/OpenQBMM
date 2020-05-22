@@ -29,7 +29,7 @@ Class
     Foam::momentGenerationSubModels::velocity
 
 Description
-    Moment generation done using volume fraction, density, and bubble diameter.
+    Moment generation done using volume fraction and velocity.
 
 SourceFiles
     velocity.C
