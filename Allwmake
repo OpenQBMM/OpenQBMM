@@ -16,7 +16,7 @@ user_appbin="$FOAM_USER_APPBIN"
 user_libbin="$FOAM_USER_LIBBIN"
 
 # Default is openfoam (FOAM_LIBBIN)
-: "${CMAKE_INSTALL_PREFIX:=${FOAM_USER_LIBBIN%/*}}"
+: "${CMAKE_INSTALL_PREFIX:=${FOAM_LIBBIN%/*}}"
 
 if [ -n "$CMAKE_INSTALL_PREFIX" ]
 then
@@ -66,14 +66,14 @@ export FOAM_USER_LIBBIN="$user_libbin"
 
 # Build tests?
 unset buildTests
-buildTests=true
+# buildTests=true
 
 if [ "$buildTests" = true ]
 then
     echo "========================================"
     echo "Compile OpenQBMM tests"
     echo
-    (cd test && ./Allwmake)
+    test/Allwmake $targetType $*
 fi
 
 # Some summary information
