@@ -22,4 +22,4 @@ velocity/fvQuadraturePatch/reflectiveRotatingWall/reflectiveRotatingWallFvQuadra
 velocity/fvQuadraturePatch/outflow/outflowFvQuadraturePatch.C
 velocity/fvQuadraturePatch/fixedTemperature/fixedTemperatureFvQuadraturePatch.C
 
-LIB = $(FOAM_USER_LIBBIN)/libmomentAdvection
+LIB = $(FOAM_MODULE_LIBBIN)/libmomentAdvection

@@ -1,24 +1,35 @@
+sinclude $(GENERAL_RULES)/module-path-user
+
+/* Failsafe - user location */
+ifeq (,$(strip $(FOAM_MODULE_APPBIN)))
+    FOAM_MODULE_APPBIN = $(FOAM_USER_APPBIN)
+endif
+ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
+    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
+endif
+
+QBMM_SRC := ../../../../src
+
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
-    -I../../../../src/mappedList \
-    -I../../../../src/mappedPtrList \
-    -I../../../../src/Vandermonde/lnInclude \
-    -I../../../../src/quadratureMethods/momentSets/lnInclude \
-    -I../../../../src/quadratureMethods/momentInversion/lnInclude \
-    -I../../../../src/quadratureMethods/quadratureNode/lnInclude \
-    -I../../../../src/quadratureMethods/moments \
-    -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
-    -I../../../../src/quadratureMethods/momentAdvection/lnInclude \
-    -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude
-
+    -I$(QBMM_SRC)/mappedList \
+    -I$(QBMM_SRC)/mappedPtrList \
+    -I$(QBMM_SRC)/Vandermonde/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentSets/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentInversion/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/quadratureNode/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/moments \
+    -I$(QBMM_SRC)/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/quadratureApproximations/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentAdvection/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/populationBalanceModels/lnInclude
 
 EXE_LIBS = \
     -lfiniteVolume \
     -lfvOptions \
     -lmeshTools \
-    -L$(FOAM_USER_LIBBIN) \
+    -L$(FOAM_MODULE_LIBBIN) \
     -lvandermonde \
     -lquadratureNode \
     -lmomentSets \

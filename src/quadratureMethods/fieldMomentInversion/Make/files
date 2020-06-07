@@ -4,4 +4,4 @@ basicFieldMomentInversion/basicFieldMomentInversion.C
 extendedFieldMomentInversion/extendedFieldMomentInversion.C
 basicVelocityFieldMomentInversion/basicVelocityFieldMomentInversion.C
 
-LIB = $(FOAM_USER_LIBBIN)/libfieldMomentInversion
+LIB = $(FOAM_MODULE_LIBBIN)/libfieldMomentInversion

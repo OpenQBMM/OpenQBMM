@@ -1,3 +1,12 @@
+sinclude $(GENERAL_RULES)/module-path-user
+
+/* Failsafe - user location */
+ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
+    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
+endif
+
+QBMM_SRC := ../../../../src
+
 EXE_INC = \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
@@ -7,22 +16,21 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/phaseCompressible/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
-    -I../../../../src/quadratureMethods/momentSets/lnInclude \
-    -I../../../../src/quadratureMethods/momentInversion/univariate/basic/lnInclude \
-    -I../../../../src/quadratureMethods/quadratureNode \
-    -I../../../../src/quadratureMethods/moments \
-    -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
-    -I../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I../../../../src/quadratureMethods/momentAdvection/lnInclude \
-    -I../../../../src/quadratureMethods/PDFTransportModels/lnInclude \
-    -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
-    -I../../../../src/quadratureMethods/hermiteQuadrature/lnInclude \
-    -I../../../../src/Vandermonde/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentSets/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentInversion/univariate/basic/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/quadratureNode \
+    -I$(QBMM_SRC)/quadratureMethods/moments \
+    -I$(QBMM_SRC)/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/quadratureApproximations/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentAdvection/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/PDFTransportModels/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/populationBalanceModels/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/hermiteQuadrature/lnInclude \
+    -I$(QBMM_SRC)/Vandermonde/lnInclude \
     -I../phaseModel/lnInclude
 
 LIB_LIBS = \
-    -L$(FOAM_USER_LIBBIN) \
     -lincompressibleTransportModels \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
@@ -30,6 +38,7 @@ LIB_LIBS = \
     -lfvOptions \
     -lmeshTools \
     -lmomentSets \
+    -L$(FOAM_MODULE_LIBBIN) \
     -lfieldMomentInversion \
     -lquadratureApproximation \
     -lmomentAdvection \

@@ -1,3 +1,12 @@
+sinclude $(GENERAL_RULES)/module-path-user
+
+/* Failsafe - user location */
+ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
+    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
+endif
+
+QBMM_SRC := ../../../../src
+
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
@@ -7,13 +16,13 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/phaseCompressible/lnInclude \
-    -I../../../../src/quadratureMethods/populationBalanceModels/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/populationBalanceModels/lnInclude \
     -I../phaseModel/lnInclude
 
 LIB_LIBS = \
-    -L$(FOAM_USER_LIBBIN) \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie \
     -lmeshTools \
+    -L$(FOAM_MODULE_LIBBIN) \
     -lpbePhaseModels

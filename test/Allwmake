@@ -2,6 +2,7 @@
 cd "${0%/*}" || exit                            # Run from this directory
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
 #------------------------------------------------------------------------------
+# Use build from FOAM_MODULE_* (defaults to user locations)
 
 # wmake conditionalMomentInversion
 wmake eigenSolver
