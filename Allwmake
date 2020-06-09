@@ -1,86 +1,50 @@
 #!/bin/sh
 cd "${0%/*}" || exit                            # Run from this directory
 targetType=libso
-# Get -prefix=.. -> CMAKE_INSTALL_PREFIX if possible
-if [ -f "${WM_PROJECT_DIR:?}"/wmake/scripts/wmake.cmake-args ]
-then  . "${WM_PROJECT_DIR:?}"/wmake/scripts/wmake.cmake-args
-fi
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
 
 #------------------------------------------------------------------------------
+# Build into FOAM_USER_{APPBIN,LIBBIN} unless otherwise specified with
+# -prefix or FOAM_MODULE_{APPBIN,LIBBIN} env varables
 
-# Build hack until issue #137 is more adequately addressed
-# - re-purpose user locations
-
-user_appbin="$FOAM_USER_APPBIN"
-user_libbin="$FOAM_USER_LIBBIN"
-
-# Default is openfoam (FOAM_LIBBIN)
-: "${CMAKE_INSTALL_PREFIX:=${FOAM_LIBBIN%/*}}"
-
-if [ -n "$CMAKE_INSTALL_PREFIX" ]
-then
-    our_appbin="${CMAKE_INSTALL_PREFIX}/bin"
-    our_libbin="${CMAKE_INSTALL_PREFIX}/lib"
-
-    # Add to LD_LIBRARY_PATH for linking
-    case "$our_libbin" in
-    ("$FOAM_LIBBIN" | "$FOAM_SITE_LIBBIN" | "$FOAM_USER_LIBBIN")
-        # No-op, these ones are already in LD_LIBRARY_PATH
-        ;;
-    (*)
-        # Somewhere else, add to LD_LIBRARY_PATH
-        LD_LIBRARY_PATH="${our_libbin}:${LD_LIBRARY_PATH}"
-        ;;
-    esac
-
-    # Override FOAM_USER_{APPBIN,LIBBIN} for installation locations
-    export FOAM_USER_APPBIN="$our_appbin"
-    export FOAM_USER_LIBBIN="$our_libbin"
-fi
-
-#------------------------------------------------------------------------------
+moduleName="OpenQBMM"
 
 echo "========================================"
 date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
-echo "Starting compile of OpenQBMM with ${WM_PROJECT_DIR##*/} ${0##*}"
+echo "Starting compile of $moduleName with ${WM_PROJECT_DIR##*/}"
 echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
 echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
+echo "  prefix = ${FOAM_MODULE_PREFIX:-default (user)}"
 echo
-echo "install prefix : $CMAKE_INSTALL_PREFIX"
 
 
 echo "========================================"
-echo "Compile OpenQBMM libraries"
+echo "Compile $moduleName libraries"
 echo
 src/Allwmake $targetType $*
 
 echo "========================================"
-echo "Compile OpenQBMM applications"
+echo "Compile $moduleName applications"
 echo
 applications/Allwmake $targetType $*
-
-# Restore user directories (see hack above)
-export FOAM_USER_APPBIN="$user_appbin"
-export FOAM_USER_LIBBIN="$user_libbin"
 
 # Build tests?
 unset buildTests
 # buildTests=true
 
-if [ "$buildTests" = true ]
+if [ "$buildTests" = true ] && [ -x "test/Allwmake" ]
 then
     echo "========================================"
-    echo "Compile OpenQBMM tests"
+    echo "Compile $moduleName tests"
     echo
-    test/Allwmake $targetType $*
+    "test/Allwmake" $targetType $*
 fi
 
 # Some summary information
 echo
 date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
 echo "========================================"
-echo "  Finished compile of OpenQBMM with ${WM_PROJECT_DIR##*/}"
+echo "  Finished compile of $moduleName with ${WM_PROJECT_DIR##*/}"
 echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
 echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
 echo

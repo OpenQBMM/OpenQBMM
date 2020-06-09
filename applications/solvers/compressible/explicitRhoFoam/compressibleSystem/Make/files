@@ -11,4 +11,4 @@ fluxFunctions/RoeFlux/RoeFlux.C
 fluxIntegrator/fluxIntegrator.C
 
 
-LIB = $(FOAM_USER_LIBBIN)/libcompressibleSystem
+LIB = $(FOAM_MODULE_LIBBIN)/libcompressibleSystem

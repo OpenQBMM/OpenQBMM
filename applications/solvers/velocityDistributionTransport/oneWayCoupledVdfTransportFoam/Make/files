@@ -1,3 +1,3 @@
 oneWayCoupledVdfTransportFoam.C
 
-EXE = $(FOAM_USER_APPBIN)/oneWayCoupledVdfTransportFoam
+EXE = $(FOAM_MODULE_APPBIN)/oneWayCoupledVdfTransportFoam

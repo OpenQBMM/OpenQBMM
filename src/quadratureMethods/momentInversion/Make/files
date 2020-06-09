@@ -20,4 +20,4 @@ multivariate/CHyQMOMPlus/CHyQMOMPlusMomentInversion.C
 multivariate/sizeCHyQMOM/sizeCHyQMOMMomentInversions.C
 multivariate/TensorProduct/TensorProductMomentInversion.C
 
-LIB = $(FOAM_USER_LIBBIN)/libmomentInversion
+LIB = $(FOAM_MODULE_LIBBIN)/libmomentInversion
