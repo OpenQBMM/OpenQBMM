@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -92,8 +92,12 @@ void Foam::fluxFunctions::HLL::updateFluxes
 
     surfaceScalarField aOwn(fvc::interpolate(a, own_, schemeName(a.name())));
     surfaceScalarField aNei(fvc::interpolate(a, nei_, schemeName(a.name())));
+
     surfaceScalarField UvOwn(UOwn & normal);
+    UvOwn.setOriented(false);
+
     surfaceScalarField UvNei(UNei & normal);
+    UvNei.setOriented(false);
 
     surfaceScalarField EOwn("EOwn", HOwn - pOwn/rhoOwn);
     surfaceScalarField ENei("ENei", HNei - pNei/rhoNei);
@@ -106,14 +110,21 @@ void Foam::fluxFunctions::HLL::updateFluxes
     surfaceScalarField massFluxOwn(rhoOwn*UvOwn);
     surfaceScalarField massFluxNei(rhoNei*UvNei);
 
-    surfaceVectorField momentumFluxOwn(UOwn*massFluxOwn + pOwn*normal);
-    surfaceVectorField momentumFluxNei(UNei*massFluxNei + pNei*normal);
+    surfaceVectorField pOwnTimesNormal(pOwn*normal);
+    pOwnTimesNormal.setOriented(false);
+
+    surfaceVectorField pNeiTimesNormal(pNei*normal);
+    pNeiTimesNormal.setOriented(false);
+
+    surfaceVectorField momentumFluxOwn(UOwn*massFluxOwn + pOwnTimesNormal);
+    surfaceVectorField momentumFluxNei(UNei*massFluxNei + pNeiTimesNormal);
 
     surfaceScalarField energyFluxOwn(HOwn*massFluxOwn);
     surfaceScalarField energyFluxNei(HNei*massFluxNei);
 
     surfaceScalarField SOwn("SOwn", min(UvOwn - aOwn, UvNei - aNei));
     surfaceScalarField SNei("SNei", max(UvNei + aNei, UvOwn + aNei));
+
     surfaceScalarField rDeltaS("rDeltaS", 1.0/(SNei - SOwn));
 
     // Compute fluxes

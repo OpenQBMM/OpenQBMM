@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -71,6 +71,7 @@ void Foam::fluxFunctions::AUSMPlus::updateFluxes
 )
 {
     surfaceVectorField normal(mesh_.Sf()/mesh_.magSf());
+    
     dimensionedScalar minU("smallU", dimVelocity, SMALL);
 
     surfaceScalarField rhoOwn
@@ -103,9 +104,12 @@ void Foam::fluxFunctions::AUSMPlus::updateFluxes
     );
 
     surfaceScalarField UvOwn(UOwn & normal);
-    surfaceScalarField UvNei(UNei & normal);
+    UvOwn.setOriented(false); // Specific to OF+
 
-    // Compute slpit Mach numbers
+    surfaceScalarField UvNei(UNei & normal);
+    UvNei.setOriented(false); // Specific to OF+
+
+    // Compute split Mach numbers
     surfaceScalarField MaOwn("MaOwn", UvOwn/max(aOwn, minU));
     surfaceScalarField MaNei("MaNei", UvNei/max(aNei, minU));
     surfaceScalarField magMaOwn(mag(MaOwn));
@@ -183,38 +187,59 @@ void Foam::fluxFunctions::AUSMPlus::updateFluxes
     );
     
     surfaceScalarField rhoHPhi(fvc::interpolate(rho*H*U) & normal);
+    
+    surfaceScalarField a12DeltaMaRho
+    (
+        0.5*a12
+      *(
+           (0.5*deltaMa12 - mag(Ma12))*rhoOwn
+         + (0.5*deltaMa12 + mag(Ma12))*rhoNei
+       )
+    );
+
+    a12DeltaMaRho.setOriented(true);
 
     massFlux =
         mesh_.magSf()
        *(
             rhoPhi
-          - 0.5*a12
-           *(
-                (0.5*deltaMa12 - mag(Ma12))*rhoOwn
-              + (0.5*deltaMa12 + mag(Ma12))*rhoNei
-            )
+          - a12DeltaMaRho
         );
+
+    surfaceVectorField a12DeltaMaRhoU
+    (
+        0.5*a12
+       *(
+            (0.5*deltaMa12 - mag(Ma12))*rhoOwn*UOwn
+          + (0.5*deltaMa12 + mag(Ma12))*rhoNei*UNei
+        )
+    );
+
+    a12DeltaMaRhoU.setOriented(true);
 
     momentumFlux =
         mesh_.magSf()
        *(
             rhoUPhi
-          - 0.5*a12
-           *(
-                (0.5*deltaMa12 - mag(Ma12))*rhoOwn*UOwn
-              + (0.5*deltaMa12 + mag(Ma12))*rhoNei*UNei
-            )
+          - a12DeltaMaRhoU
         );
       - 0.5*deltap*mesh_.Sf();
 
+    surfaceScalarField a12DeltaMaRhoH
+    (
+        0.5*a12
+      *(
+           (0.5*deltaMa12 - mag(Ma12))*rhoOwn*HOwn
+         + (0.5*deltaMa12 + mag(Ma12))*rhoNei*HNei
+       )
+    );
+
+    a12DeltaMaRhoH.setOriented(true);
+    
     energyFlux =
         mesh_.magSf()
        *(
             rhoHPhi
-          - 0.5*a12
-           *(
-                (0.5*deltaMa12 - mag(Ma12))*rhoOwn*HOwn
-              + (0.5*deltaMa12 + mag(Ma12))*rhoNei*HNei
-            )
+          - a12DeltaMaRhoH
         );
 }

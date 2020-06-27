@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -118,7 +118,10 @@ void Foam::fluxFunctions::HLLC::updateFluxes
     );
 
     surfaceScalarField UvOwn(UOwn & normal);
+    UvOwn.setOriented(false);
+
     surfaceScalarField UvNei(UNei & normal);
+    UvNei.setOriented(false);
 
     surfaceScalarField EOwn("EOwn", HOwn - pOwn/rhoOwn);
     surfaceScalarField ENei("ENei", HNei - pNei/rhoNei);
@@ -126,7 +129,6 @@ void Foam::fluxFunctions::HLLC::updateFluxes
     // Averages
     surfaceScalarField aBar("aBar", 0.5*(aOwn + aNei));
     surfaceScalarField rhoBar("rhoBar", 0.5*(rhoOwn + rhoNei));
-
 
     // Estimate pressure
     surfaceScalarField pStar
@@ -158,6 +160,7 @@ void Foam::fluxFunctions::HLLC::updateFluxes
 
     surfaceScalarField SOwn("SOwn", UvOwn - aOwn*rOwn);
     surfaceScalarField SNei("SNei", UvNei + aNei*rNei);
+
     surfaceScalarField SStar
     (
         "SStar",
@@ -201,23 +204,32 @@ void Foam::fluxFunctions::HLLC::updateFluxes
     );
 
     // Momentum
-    surfaceVectorField momentumFluxOwn(UOwn*massFluxOwn + pOwn*normal);
+    surfaceVectorField pOwnTimesNormal(pOwn*normal);
+    pOwnTimesNormal.setOriented(false);
+
+    surfaceVectorField pOwnNeiTimesNormal(pOwnNei*normal);
+    pOwnNeiTimesNormal.setOriented(false);
+
+    surfaceVectorField momentumFluxOwn(UOwn*massFluxOwn + pOwnTimesNormal);
 
     surfaceVectorField momentumFluxStarOwn
     (
         (
             SStar*(SOwn*rhoOwn*UOwn - momentumFluxOwn)
-          + SOwn*pOwnNei*normal
+          + SOwn*pOwnNeiTimesNormal
         )*rDeltaSOwn
     );
 
-    surfaceVectorField momentumFluxNei(UNei*massFluxNei + pNei*normal);
+    surfaceVectorField pNeiTimesNormal(pNei*normal);
+    pNeiTimesNormal.setOriented(false);
+
+    surfaceVectorField momentumFluxNei(UNei*massFluxNei + pNeiTimesNormal);
 
     surfaceVectorField momentumFluxStarNei
     (
         (
             SStar*(SNei*rhoNei*UNei - momentumFluxNei)
-          + SNei*pOwnNei*normal
+          + SNei*pOwnNeiTimesNormal
         )*rDeltaSNei
     );
 
@@ -252,6 +264,8 @@ void Foam::fluxFunctions::HLLC::updateFluxes
           + neg(SNei)*massFluxNei
         );
 
+    massFlux.setOriented(true);
+
     momentumFlux =
         mesh_.magSf()
        *(
@@ -261,6 +275,8 @@ void Foam::fluxFunctions::HLLC::updateFluxes
           + neg(SNei)*momentumFluxNei
         );
 
+    momentumFlux.setOriented(true);
+
     energyFlux =
         mesh_.magSf()
        *(
@@ -269,4 +285,6 @@ void Foam::fluxFunctions::HLLC::updateFluxes
           + pos0(SNei)*neg(SStar)*energyFluxStarNei
           + neg(SNei)*energyFluxNei
         );
+
+    energyFlux.setOriented(true);
 }

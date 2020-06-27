@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -74,6 +74,7 @@ void Foam::fluxFunctions::Roe::updateFluxes
     (
         fvc::interpolate(rho, own_, schemeName(rho.name()))
     );
+
     surfaceScalarField rhoNei
     (
         fvc::interpolate(rho, nei_, schemeName(rho.name()))
@@ -122,7 +123,10 @@ void Foam::fluxFunctions::Roe::updateFluxes
         UOwn*wOwn + UNei*wNei
     );
 
+    UTilde.setOriented(true);
+
     surfaceScalarField UvTilde(UTilde & normal);
+    UvTilde.setOriented(false);
 
     surfaceScalarField HTilde
     (
@@ -138,7 +142,10 @@ void Foam::fluxFunctions::Roe::updateFluxes
 
     surfaceScalarField deltaRho(rhoNei - rhoOwn);
     surfaceVectorField deltaU(UNei - UOwn);
+
     surfaceScalarField deltaUv(deltaU & normal);
+    deltaUv.setOriented(false);
+
     surfaceScalarField deltaP(pNei - pOwn);
 
     surfaceScalarField lambda1(mag(UvTilde));
@@ -223,6 +230,7 @@ void Foam::fluxFunctions::Roe::updateFluxes
     (
         UOwn*massFluxOwn + pOwn*normal
     );
+
     surfaceVectorField momentumFluxNei
     (
         UNei*massFluxNei + pNei*normal
@@ -231,37 +239,44 @@ void Foam::fluxFunctions::Roe::updateFluxes
     surfaceScalarField energyFluxOwn(HOwn*massFluxOwn);
     surfaceScalarField energyFluxNei(HNei*massFluxNei);
 
+    surfaceScalarField lambdaAlpha
+    (
+        mag(lambda1)*alpha1
+      + mag(lambda2)*alpha2
+      + mag(lambda3)*alpha3
+    );
+
+    lambdaAlpha.setOriented(true);
+
     // Compute fluxes
-    massFlux =
-        0.5*mesh_.magSf()
-       *(
-            massFluxOwn + massFluxNei
-          - (
-                mag(lambda1)*alpha1
-              + mag(lambda2)*alpha2
-              + mag(lambda3)*alpha3
-            )
-       );
+    massFlux = 0.5*mesh_.magSf()*(massFluxOwn + massFluxNei - lambdaAlpha);
+    massFlux.setOriented(true);
+
+    surfaceVectorField lambdaAlphaK
+    (
+        mag(lambda1)*alpha1*K21
+      + mag(lambda2)*alpha2*K224
+      + mag(lambda3)*alpha3*K25
+    );
+
+    lambdaAlphaK.setOriented(true);
 
     momentumFlux =
-        0.5*mesh_.magSf()
-       *(
-            momentumFluxOwn + momentumFluxNei
-          - (
-                mag(lambda1)*alpha1*K21
-              + mag(lambda2)*alpha2*K224
-              + mag(lambda3)*alpha3*K25
-            )
-       );
+        0.5*mesh_.magSf()*(momentumFluxOwn + momentumFluxNei - lambdaAlphaK);
+
+    momentumFlux.setOriented(true);
+
+    surfaceScalarField lambdaAlphaKE
+    (
+        mag(lambda1)*alpha1*K31
+      + mag(lambda2)*alpha2*K324
+      + mag(lambda3)*alpha3*K35
+    );
+
+    lambdaAlphaKE.setOriented(true);
 
     energyFlux =
-        0.5*mesh_.magSf()
-       *(
-            energyFluxOwn + energyFluxNei
-          - (
-                mag(lambda1)*alpha1*K31
-              + mag(lambda2)*alpha2*K324
-              + mag(lambda3)*alpha3*K35
-            )
-       );
+        0.5*mesh_.magSf()*(energyFluxOwn + energyFluxNei - lambdaAlphaKE);
+
+    energyFlux.setOriented(true);
 }
