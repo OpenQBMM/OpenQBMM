@@ -1,0 +1,6 @@
+[submodule "validation"]
+	path = validation
+	url = git@github.com:OpenQBMM/OpenQBMM-validation.git
+[submodule "test"]
+	path = test
+	url = git@github.com:OpenQBMM/OpenQBMM-test.git
