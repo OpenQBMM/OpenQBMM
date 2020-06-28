@@ -1,3 +1,0 @@
-setMoments1D.C
-
-EXE = $(FOAM_USER_APPBIN)/setMoments1D
