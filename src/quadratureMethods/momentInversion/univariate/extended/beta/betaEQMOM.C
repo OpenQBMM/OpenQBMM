@@ -371,7 +371,7 @@ Foam::tmp<Foam::scalarField> Foam::betaEQMOM::f(const scalarField& x) const
 
         y +=
             pow(x, lambda - 1)*pow(1.0 - x, mu - 1)
-           /(gamma(lambda)*gamma(mu)/gamma(lambda + mu))
+           /(tgamma(lambda)*tgamma(mu)/tgamma(lambda + mu))
            *this->primaryWeights_[pNodei];
     }
 
