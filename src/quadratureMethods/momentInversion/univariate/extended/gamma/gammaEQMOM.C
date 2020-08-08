@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -260,7 +260,7 @@ void Foam::gammaEQMOM::recurrenceRelation
         a[ai] = (2.0*scalar(ai) + alpha + 1.0);
     }
 
-    b[0] = gamma(1.0 + alpha);
+    b[0] = tgamma(1.0 + alpha);
 
     for (label bi = 1; bi < b.size(); bi++)
     {
@@ -291,7 +291,7 @@ Foam::tmp<Foam::scalarField> Foam::gammaEQMOM::f(const scalarField& x) const
 
         y +=
             pow(x, lambda - 1.0)*exp(-x/theta)
-           /max(gamma(lambda)*pow(theta, lambda), SMALL)
+           /max(tgamma(lambda)*pow(theta, lambda), SMALL)
            *primaryWeights_[pNodei];
     }
 
