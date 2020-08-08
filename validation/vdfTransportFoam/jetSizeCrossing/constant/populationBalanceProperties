@@ -1,0 +1,43 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      populationaBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+populationBalanceModel sizeVelocity;
+
+sizeVelocityCoeffs
+{
+    odeCoeffs
+    {
+        solveOde off;
+        ATol    1.0e-6;
+        RTol    1.0e-3;
+        fac     0.5;
+        facMin  0.5;
+        facMax  5.0;
+        minLocalDt 1.0e-12;
+    }
+
+    collision  on;
+    collisionKernel
+    {
+        collisionKernel esBGK;
+        e  0.8;
+        rho 2500;
+        minD 1e-6;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# read d43average from pbeTransportFoam
+createEpsD10()
+{
+
+    gnuplot<<EOF
+    stats '$4' using 1:2 name 'A'
+
+    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+        dl 8.0
+    set output "sizeCHyQMOM_validation_d10_165rpm.eps"
+    set xlabel "Time [s]"
+    set ylabel "d/d_0"
+    set grid
+    set key right bottom
+    set size 2,2
+    set xrange [0:A_max_x]
+    set yrange [1:A_max_y]
+
+    plot    "$1" using 1:2 title 'Experiments (Serra et al., 1997)'\
+                with points pointtype 7 ps 3 linecolor rgb 'black',\
+            "$2" using 1:2 every 1 title 'Marchisio et al. (2003) C_{Br} = 0.6e-3'\
+                with points pointtype 5 ps 2 linecolor rgb 'blue',\
+            "$3" using 1:2 every 100 title 'Univariate C_{Br} = 0.6e-3'\
+                with points linetype 6 linewidth 5 linecolor rgb 'red',\
+            "$4" using 1:2 every 250 title 'GPBE C_{Br} = 2.0e-3'\
+                with lines lt 1 linewidth 5 linecolor rgb '#9db668'
+EOF
+}
+
+createEpsTheta()
+{
+
+    gnuplot<<EOF
+    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+        dl 8.0
+    set output "sizeCHyQMOM_validation_Theta_165rpm.eps"
+    set xlabel "Time [s]"
+    set ylabel "D [m^2/s^2]"
+    set grid
+    unset key
+    set size 2,2
+    set autoscale
+
+    plot    "$1" using 1:(sqrt(\$3)) every 250 title 'GPBE C_{Br} = 2.0e-3'\
+                with lines lt 1 linewidth 5 linecolor rgb '#9db668'
+EOF
+}
+
+# test if gnuplot exists on the system
+if ! which gnuplot > /dev/null 2>&1
+then
+    echo "gnuplot not found - skipping graph creation" >&2
+    exit 1
+fi
+
+# paths to data
+VALIDATIONDATAROOT=./validationData
+
+echo "    processing d10 profile" > log.createGraphs 2>&1
+OPENQBMM="../postProcessing/averageD10Theta"
+OPENQBMMM_orig="$VALIDATIONDATAROOT/volumeAveragedD43_nonInertial.dat"
+VALIDATION="$VALIDATIONDATAROOT/SerraEtAl1997_d43_165rpm.dat"
+MARCHISIO="$VALIDATIONDATAROOT/Marchisio_165_6.dat"
+
+createEpsD10 $VALIDATION $MARCHISIO $OPENQBMMM_orig $OPENQBMM
+createEpsTheta $OPENQBMM
+
+echo Done

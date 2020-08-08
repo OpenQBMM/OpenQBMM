@@ -1,0 +1,123 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      momentGenerationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases
+(
+    liquid
+);
+
+boundaries
+{
+    inlet
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+    outlet
+    {
+        type    zeroGradient;
+    }
+
+    wedge1
+    {
+        type    wedge;
+    }
+    wedge2
+    {
+        type    wedge;
+    }
+
+    top
+    {
+        type    zeroGradient;
+    }
+
+    axis
+    {
+        type    empty;
+    }
+}
+
+z0 0.1;
+V0 uniform 5.0;
+U0 #codeStream
+{
+    codeInclude
+    #{
+        #include "fvCFD.H"
+        #include "constants.H"
+    #};
+
+    codeOptions
+    #{
+        -I$(LIB_SRC)/OpenFOAM/lnInclude \
+        -I$(LIB_SRC)/finiteVolume/lnInclude \
+        -I$(LIB_SRC)/meshTools/lnInclude
+    #};
+
+    code
+    #{
+        const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+        const fvMesh& mesh = refCast<const fvMesh>(d.db());
+        const pointField& points = mesh.boundary()["inlet"].Cf();
+
+        scalar z0 = 0.05;
+        scalar V0 = 5.0;
+        scalarField u(points.size());
+        forAll (points, celli)
+        {
+            scalar x = points[celli].x();
+            scalar y = points[celli].y();
+            u[celli] = y*sqr(z0/x)*V0/x;
+        }
+        os << "nonuniform " << u << endl;
+    #};
+};
+
+liquid
+{
+    type                weightsAndAbscissae;
+    weightDimension     [0 0 0 0 0 0 0];
+    abscissaDimension0  [0 1 0 0 0 0 0];
+    abscissaDimension   [0 1 -1 0 0 0 0];
+
+    inlet
+    {
+        scale uniform 0.57e-2;
+        node0
+        {
+            weight  uniform 0.5;
+            abscissae0 uniform 2.0e-5;
+
+            abscissae1 $V0;
+            abscissae2 $U0;
+        }
+        node1
+        {
+            weight  uniform 0.5;
+            abscissae0 uniform 6.0e-5;
+
+            abscissae1 $V0;
+            abscissae2 $U0;
+        }
+    }
+    internal
+    {}
+}
+
+
+// ************************************************************************* //

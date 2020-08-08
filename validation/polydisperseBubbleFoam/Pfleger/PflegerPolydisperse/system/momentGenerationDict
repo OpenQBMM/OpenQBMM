@@ -1,0 +1,95 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      momentGenerationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases
+(
+    air
+);
+
+boundaries
+{
+    inlet
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+    defaultFaces
+    {
+        type    empty;
+    }
+    walls
+    {
+        type    zeroGradient;
+    }
+    outlet
+    {
+        type    zeroGradient;
+    }
+}
+
+air
+{
+    type                alphaAndDiameter;
+    weightDimension     [0 -3 0 0 0 0 0];
+    abscissaDimension   [1 0 0 0 0 0 0];
+
+    internal
+    {
+        node0
+        {
+            rho     uniform 1.40;
+            dia     uniform 1.0e-3;
+            alpha   uniform 0.33;
+        }
+        node1
+        {
+            rho     uniform 1.40;
+            dia     uniform 2.0e-3;
+            alpha   uniform 0.34;
+        }
+        node2
+        {
+            rho     uniform 1.40;
+            dia     uniform 3.0e-3;
+            alpha   uniform 0.33;
+        }
+    }
+    inlet
+    {
+        node0
+        {
+            rho     uniform 1.40;
+            dia     uniform 1.0e-3;
+            alpha   uniform 0.33;
+        }
+        node1
+        {
+            rho     uniform 1.40;
+            dia     uniform 2.0e-3;
+            alpha   uniform 0.34;
+        }
+        node2
+        {
+            rho     uniform 1.40;
+            dia     uniform 3.0e-3;
+            alpha   uniform 0.33;
+        }
+    }
+}
+
+
+// ************************************************************************* //

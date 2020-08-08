@@ -1,0 +1,15 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Needed to maintain functionality on OF7 and OF+ due to different management
+# or .orig files
+cp 0/alpha.air.orig 0/alpha.air
+
+runApplication blockMesh
+runApplication generateMoments
+runApplication setFields
+runApplication decomposePar
+runParallel twoPhaseEulerFoam

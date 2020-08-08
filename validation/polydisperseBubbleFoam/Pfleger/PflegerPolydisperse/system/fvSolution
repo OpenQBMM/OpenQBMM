@@ -1,0 +1,123 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    "alpha.*"
+    {
+        solver          GAMG;
+        preconditioner  DIC;
+        nAlphaCorr      2;
+        nAlphaSubCycles 1;
+    }
+    p_rgh
+    {
+        solver          GAMG;
+        smoother        DIC;
+        preconditioner  DIC;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 10;
+        agglomerator    faceAreaPair;
+        mergeLevels     2;
+        tolerance       1e-10;
+        maxIter         1000;
+    }
+
+    p_rghFinal
+    {
+        $p_rgh;
+        relTol          0;
+    }
+
+    "U.air.*"
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-8;
+        relTol          0;
+        minIter         1;
+    }
+
+    U.water
+    {
+        solver          smoothSolver;
+        preconditioner  symGaussSeidel;
+        tolerance       1e-8;
+        relTol          0;
+        minIter         1;
+    }
+
+    "Up.*"
+    {
+        solver          diagonal;
+        smoother        DIC;
+        tolerance       1e-12;
+        relTol          0;
+        minIter         1;
+    }
+
+    "moment.*"
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+        minIter         1;
+    }
+
+    "corr.*"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-12;
+        relTol          0;
+        minIter         1;
+    }
+}
+
+PIMPLE
+{
+    nOuterCorrectors 30;
+    nCorrectors      2;
+    nNonOrthogonalCorrectors 0;
+    nFluxCorrectors 1;
+    corrPatch outlet;
+    pRefCell 0;
+    pRefValue 1e5;
+    outerCorrectorResidualControl
+    {
+        p_rgh
+        {
+            tolerance 1e-5;
+            relTol    0;
+        }
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        p_rgh       0.3;
+    }
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,74 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         cellLimited     leastSquares 0.2;
+    grad(p_rgh)     leastSquares;
+}
+
+divSchemes
+{
+    default                         Gauss upwind phi;
+
+    div(phi,alpha.air)              Gauss upwind;
+    div(phir,alpha.air)             Gauss upwind;
+    div(phi,alpha.water)            Gauss upwind;
+    "div\(phir,alpha.*,alpha.*\)"   Gauss upwind;
+
+    "div\(alphaRhoPhi.*,U.*\)"      Gauss upwind;
+    "div\(phi.*,U.*\)"              Gauss upwind;
+
+    "div\(\(\(\(alpha.*\*thermo:rho.*\)\*nuEff.*\)\*dev2\(T\(grad\(U.*\)\)\)\)\)" Gauss linear;
+
+    div((((alpha.air*rho.air)*nu.air)*dev2(T(grad(U.air))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default                         Gauss linear corrected;
+    laplacian(moment.1.air,corr)    Gauss linear limited 1.0;
+}
+
+interpolationSchemes
+{
+    default                 linear;
+
+    reconstruct(U)          upwind;
+    reconstruct(weight)     upwind;
+    reconstruct(abscissa)   upwind;
+}
+
+snGradSchemes
+{
+    default         corrected;
+    snGrad(corr)    limited     1.0;
+}
+
+wallDist
+{
+    method      meshWave;
+    nRequired   yes;
+}
+
+
+// ************************************************************************* //

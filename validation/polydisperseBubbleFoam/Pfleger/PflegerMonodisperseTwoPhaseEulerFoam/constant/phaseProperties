@@ -1,0 +1,137 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+type heatAndMomentumTransferTwoPhaseSystem;
+
+phases (air water);
+
+air
+{
+    type    purePhaseModel;
+    diameterModel   constant;
+    constantCoeffs
+    {
+        d               2e-3;
+    }
+
+    residualAlpha   1e-5;
+}
+
+water
+{
+    type    purePhaseModel;
+    diameterModel   constant;
+    constantCoeffs
+    {
+        d               1e-4;
+    }
+
+    residualAlpha   1e-6;
+}
+
+blending
+{
+    default
+    {
+        type                            linear;
+        continuousPhase                 water;
+        dispersedPhase                  air;
+
+        maxFullyDispersedAlpha.air 0.3;
+        maxPartlyDispersedAlpha.air 0.5;
+        maxFullyDispersedAlpha.water 0.3;
+        maxPartlyDispersedAlpha.water 0.5;
+    }
+}
+
+sigma
+(
+    (air and water)     0.07
+);
+surfaceTension
+(
+    (air and water)
+    {
+        type            constant;
+        sigma           0.07;
+    }
+);
+
+aspectRatio
+(
+);
+
+drag
+(
+    (air in water)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (water in air)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (air and water)
+    {
+        type            segregated;
+        residualRe      1e-3;
+        residualAlpha   1e-4;
+        m               0.5;
+        n               8;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+);
+
+virtualMass
+(
+);
+
+heatTransfer
+(
+);
+
+lift
+(
+);
+
+wallLubrication
+(
+);
+
+turbulentDispersion
+(
+);
+
+// Minimum allowable pressure
+pMin            1000;
+
+
+// ************************************************************************* //

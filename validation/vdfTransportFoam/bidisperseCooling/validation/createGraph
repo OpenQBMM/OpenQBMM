@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# read d43average from pbeTransportFoam
+createEpsD43()
+{
+
+    gnuplot<<EOF
+    set terminal postscript eps enhanced color font 'Helvetica,40' linewidth 2\
+        dl 8.0
+    set output "OpenQBMM_validation_TRatio_vs_dRatio.eps"
+    set xlabel "d_1/d_2"
+    set ylabel "{/Symbol q}_1/{/Symbol q}_2"
+    set grid
+    set key right top
+    set size 2,2
+    set autoscale
+    set xrange [1:3.2]
+    set yrange [0.77:1.1]
+
+    plot    "$1" using 1:2 title 'Enskog solution (e=0.95)'\
+                with lines linewidth 5 linecolor rgb 'black',\
+            "$2" using 1:2 title 'MD'\
+                with points pointtype 9 ps 5 linecolor rgb 'blue',\
+            "$3" using 1:2 title 'OpenQBMM'\
+                with points pointtype 31 ps 5 linecolor rgb '#9db668', \
+            "$4" using 1:2 title 'Enskog solution (e=0.8)'\
+                with lines dashtype 2 linewidth 5 linecolor rgb 'black',\
+            "$5" using 1:2 title 'MD'\
+                with points pointtype 8 ps 5 linecolor rgb 'blue',\
+            "$6" using 1:2 title 'OpenQBMM'\
+                with points pointtype 5 ps 5 linecolor rgb '#9db668'
+EOF
+}
+
+# test if gnuplot exists on the system
+if ! which gnuplot > /dev/null 2>&1
+then
+    echo "gnuplot not found - skipping graph creation" >&2
+    exit 1
+fi
+
+ratio="0.8 0.95"
+validationCases_0_8="bidisperseGranularCooling_1_5__0_8 bidisperseGranularCooling_2_0__0_8 bidisperseGranularCooling_3_0__0_8"
+validationCases_0_95="bidisperseGranularCooling_1_5__0_95 bidisperseGranularCooling_2_0__0_95 bidisperseGranularCooling_3_0__0_95"
+
+# extract data from log file and put them in a text file for gnuplot
+for caseName in $validationCases_0_8
+do
+    dRatio=$(grep "Diameter ratio = " ../$caseName/log.vdfTransportFoam | tail -1 | cut -d'=' -f2)
+    TRatio=$(grep "Temperature ratio = " ../$caseName/log.vdfTransportFoam | tail -1 | cut -d'=' -f2)
+    echo "$dRatio    $TRatio">>temperatureRatios_0_8.dat
+
+echo $x
+done
+for caseName in $validationCases_0_95
+do
+    dRatio=$(grep "Diameter ratio = " ../$caseName/log.vdfTransportFoam | tail -1 | cut -d'=' -f2)
+    TRatio=$(grep "Temperature ratio = " ../$caseName/log.vdfTransportFoam | tail -1 | cut -d'=' -f2)
+    echo "$dRatio    $TRatio">>temperatureRatios_0_95.dat
+done
+
+# paths to data
+VALIDATIONDATAROOT=./validationData
+
+ENSKOG_0_95="$VALIDATIONDATAROOT/Enskog_0_95.csv"
+MD_0_95="$VALIDATIONDATAROOT/MD_0_95.csv"
+OPENQBMM_0_95="temperatureRatios_0_95.dat"
+
+ENSKOG_0_8="$VALIDATIONDATAROOT/Enskog_0_8.csv"
+MD_0_8="$VALIDATIONDATAROOT/MD_0_8.csv"
+OPENQBMM_0_8="temperatureRatios_0_8.dat"
+
+createEpsD43 $ENSKOG_0_95 $MD_0_95 $OPENQBMM_0_95 $ENSKOG_0_8 $MD_0_8 $OPENQBMM_0_8
+
+rm temperatureRatios_*
+
+echo Done

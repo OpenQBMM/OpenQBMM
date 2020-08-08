@@ -1,0 +1,138 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     vdfTransportFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.05;
+
+deltaT          .001;
+
+writeControl    runTime;
+
+writeInterval   0.001;
+
+purgeWrite      100;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  no;
+
+
+functions
+{
+    temperatureRatio
+    {
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                temperatureRatio;
+        writeControl        timeStep;
+
+        codeInclude
+        #{
+            #include "quadratureApproximations.H"
+        #};
+
+        codeOptions
+        #{
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedList \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedPtrList \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/moments \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/fieldMomentInversion/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/momentSets/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureNode/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureApproximations/lnInclude
+        #};
+
+        codeExecute
+        #{
+        const velocityQuadratureApproximation& quadrature
+                = mesh().lookupObject<velocityQuadratureApproximation>("quadratureProperties.particles");
+
+        labelListList momentOrders
+        (
+            {{0,0,0},{1,0,0},{0,1,0},{0,0,1},{2,0,0},{0,2,0},{0,0,2}}
+        );
+        PtrList<mappedScalarList> moments(2);
+        moments.set(0, new mappedScalarList(momentOrders.size(), momentOrders, 0.0));
+        moments.set(1, new mappedScalarList(momentOrders.size(), momentOrders, 0.0));
+        scalarList xs(2, 0.0);
+        xs[0] = quadrature.nodes()(0).primaryAbscissae()[0][0];
+        xs[1] = quadrature.nodes()(1).primaryAbscissae()[0][0];
+
+        forAll(quadrature.nodes(), nodei)
+        {
+            const labelList& nodeIndex = quadrature.nodeIndexes()[nodei];
+            const volVelocityNode& node = quadrature.nodes()[nodei];
+            label sizei = nodeIndex[0];
+
+            forAll(momentOrders, mi)
+            {
+                const labelList& vOrder = momentOrders[mi];
+
+                scalar mCmpt = node.primaryWeight()[0];
+                forAll(vOrder, cmpt)
+                {
+                    mCmpt *=
+                        pow(node.velocityAbscissae()[0][cmpt], vOrder[cmpt]);
+                }
+                moments[sizei](vOrder) += mCmpt;
+            }
+        }
+
+        scalar Theta1 =
+            (moments[0](2)/moments[0](0))
+          + (moments[0](0,2)/moments[0](0))
+          + (moments[0](0,0,2)/moments[0](0));
+        Theta1 /= 3.0;
+
+        scalar Theta2 =
+            (moments[1](2)/moments[1](0))
+          + (moments[1](0,2)/moments[1](0))
+          + (moments[1](0,0,2)/moments[1](0));
+        Theta2 /= 3.0;
+
+        if (quadrature.moments()(1).dimensions() == dimLength)
+        {
+            Info<< "Diameter ratio = " << xs[1]/xs[0] <<endl;
+        }
+        else
+        {
+            Info<< "Mass ratio = " << xs[1]/xs[0] <<endl;
+        }
+
+        Info<< "Temperature ratio = "<< Theta2/Theta1 <<endl;
+
+        #};
+    }
+}
+// ************************************************************************* //

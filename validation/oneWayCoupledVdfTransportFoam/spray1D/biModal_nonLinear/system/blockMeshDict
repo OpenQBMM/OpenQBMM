@@ -1,0 +1,104 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 1;
+
+x0 0.05;
+x1 0.25;
+
+r0 0.025;
+V0 5.0;
+
+theta 0.1;
+
+r1 #calc "$r0*$x1/$x0";
+
+y0 #calc "$r0*cos($theta)";
+z0 #calc "$r0*sin($theta)";
+nz0 #calc "-$z0";
+
+y1 #calc "$r1*cos($theta)";
+z1 #calc "$r1*sin($theta)";
+nz1 #calc "-$z1";
+
+vertices
+(
+    ($x0 0 0)  // 0
+    ($x1 0 0)  // 1
+    ($x1 $y1 $nz1)
+    ($x0 $y0 $nz0)
+    ($x0 0 0)
+    ($x1 0 0)
+    ($x1 $y1 $z1)
+    ($x0 $y0 $z0)
+
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (200 1 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces ((0 3 7 4));
+    }
+
+    outlet
+    {
+        type patch;
+        faces ((1 2 6 5));
+    }
+
+    wedge1
+    {
+        type wedge;
+        neighbourPatch wedge2;
+        faces ((0 1 2 3));
+    }
+
+    wedge2
+    {
+        type wedge;
+        neighbourPatch wedge1;
+        faces ((4 5 6 7));
+    }
+
+    top
+    {
+        type patch;
+        faces ((3 2 6 7));
+    }
+
+    axis
+    {
+        type empty;
+        faces ((0 1 5 4));
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

@@ -1,0 +1,338 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     diluteCoupledHyperbolicFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          1e-4;
+
+writeControl    adjustableRunTime;
+
+writeInterval   .05;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   10;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.1;
+
+maxDeltaT       1;
+
+functions
+{
+    temperatureRatio
+    {
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                temperatureRatio;
+        writeControl        timeStep;
+
+        codeInclude
+        #{
+            #include "quadratureApproximations.H"
+        #};
+
+        codeOptions
+        #{
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedList \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedPtrList \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/moments \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/fieldMomentInversion/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/momentSets/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureNode/lnInclude \
+            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureApproximations/lnInclude
+        #};
+
+        codeExecute
+        #{
+        const velocityQuadratureApproximation& quadrature =
+            mesh().lookupObject<velocityQuadratureApproximation>("quadratureProperties.particles");
+
+        if (!mesh().foundObject<volScalarField>("alpha.particlesSmall"))
+        {
+            volScalarField* alpha1 =
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "alpha.particlesSmall",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    0.0
+                );
+            volScalarField* alpha2 =
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "alpha.particlesLarge",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    0.0
+                );
+            volVectorField* U1 =
+                new volVectorField
+                (
+                    IOobject
+                    (
+                        "U.particlesSmall",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    dimensionedVector("0", dimVelocity, Zero)
+                );
+            volVectorField* U2 =
+                new volVectorField
+                (
+                    IOobject
+                    (
+                        "U.particlesLarge",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    dimensionedVector("0", dimVelocity, Zero)
+                );
+            volScalarField* Theta1 =
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "Theta.particlesSmall",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    dimensionedScalar("0", sqr(dimVelocity), 0.0)
+                );
+            volScalarField* Theta2 =
+                new volScalarField
+                (
+                    IOobject
+                    (
+                        "Theta.particlesLarge",
+                        mesh().time().timeName(),
+                        mesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh(),
+                    dimensionedScalar("0", sqr(dimVelocity), 0.0)
+                );
+
+            // Transfer ownership of this object to the objectRegistry
+            alpha1->store(alpha1);
+            alpha2->store(alpha2);
+            U1->store(U1);
+            U2->store(U2);
+            Theta1->store(Theta1);
+            Theta2->store(Theta2);
+        }
+        volScalarField& alpha1 =
+        (
+            mesh().lookupObjectRef<volScalarField>("alpha.particlesSmall")
+        );
+        volScalarField& alpha2 =
+        (
+            mesh().lookupObjectRef<volScalarField>("alpha.particlesLarge")
+        );
+        volVectorField& U1 =
+        (
+            mesh().lookupObjectRef<volVectorField>("U.particlesSmall")
+        );
+        volVectorField& U2 =
+        (
+            mesh().lookupObjectRef<volVectorField>("U.particlesLarge")
+        );
+        volScalarField& Theta1 =
+        (
+            mesh().lookupObjectRef<volScalarField>("Theta.particlesSmall")
+        );
+        volScalarField& Theta2 =
+        (
+            mesh().lookupObjectRef<volScalarField>("Theta.particlesLarge")
+        );
+
+        alpha1 = 0.0;
+        alpha2 = 0.0;
+        U1 = dimensionedVector("0", dimVelocity, Zero);
+        U2 = dimensionedVector("0", dimVelocity, Zero);
+        Theta1 = dimensionedScalar("0", sqr(dimVelocity), 0.0);
+        Theta2 = dimensionedScalar("0", sqr(dimVelocity), 0.0);
+
+        forAll(quadrature.nodes(), nodei)
+        {
+            const labelList& nodeIndex = quadrature.nodeIndexes()[nodei];
+            const volVelocityNode& node = quadrature.nodes()[nodei];
+            label sizei = nodeIndex[0];
+
+            if (sizei == 0)
+            {
+                alpha1 += node.primaryWeight();
+                U1 += node.primaryWeight()*node.velocityAbscissae();
+                Theta1 +=
+                    node.primaryWeight()
+                   *(node.velocityAbscissae() & node.velocityAbscissae());
+            }
+            else
+            {
+                alpha2 += node.primaryWeight();
+                U2 += node.primaryWeight()*node.velocityAbscissae();
+                Theta2 +=
+                    node.primaryWeight()
+                   *(node.velocityAbscissae() & node.velocityAbscissae());
+            }
+        }
+        U1 /= max(alpha1, 1e-6);
+        U2 /= max(alpha2, 1e-6);
+        Theta1 /= max(alpha1, 1e-6);
+        Theta2 /= max(alpha2, 1e-6);
+
+        Theta1 -= (U1 & U1);
+        Theta2 -= (U2 & U2);
+
+        Theta1 /= 3.0;
+        Theta2 /= 3.0;
+        #};
+    }
+
+    fieldAverage
+    {
+        type            fieldAverage;
+        functionObjectLibs ( "libfieldFunctionObjects.so" );
+        writeControl    writeTime;
+        timeStart       5;
+        fields
+        (
+            d.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            moment.1000.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            moment.2000.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            moment.3000.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            alpha.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            alpha.particlesSmall
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            alpha.particlesLarge
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            U.particlesSmall
+            {
+                 mean        on;
+                 prime2Mean  on;
+                 base        time;
+            }
+            U.particlesLarge
+            {
+                 mean        on;
+                 prime2Mean  on;
+                 base        time;
+            }
+            Theta.particlesSmall
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            Theta.particlesLarge
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+            U.particles
+            {
+                 mean        on;
+                 prime2Mean  on;
+                 base        time;
+            }
+            Theta.particles
+            {
+                 mean        on;
+                 prime2Mean  off;
+                 base        time;
+            }
+        );
+    }
+}
+
+
+// ************************************************************************* //

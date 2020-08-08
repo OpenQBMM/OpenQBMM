@@ -1,0 +1,170 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters .01;
+
+w       20;
+h       90;
+depth   5;
+dia     1.0;
+R       #calc "$dia/2";
+
+cellSize    0.5;
+
+in1  #calc "$w/4";
+in11 #calc "$in1 - $R";
+in12 #calc "$in1 + $R";
+
+in2  #calc "$w/2";
+in21 #calc "$in2 - $R";
+in22 #calc "$in2 + $R";
+
+in3  #calc "3*$w/4";
+in31 #calc "$in3 - $R";
+in32 #calc "$in3 + $R";
+
+nWallPts    #calc "$in11/$cellSize";
+nInPts      #calc "$dia/$cellSize";
+nCtrPts     #calc "($in21 - $in12)/$cellSize";
+
+nVertPts    #calc "$h/$cellSize";
+nDepthPts   1;
+
+vertices
+(
+    (   0       0       0       )   //0
+    (   $in11   0       0       )   //1
+    (   $in12   0       0       )   //2
+    (   $in21   0       0       )   //3
+    (   $in22   0       0       )   //4
+    (   $in31   0       0       )   //5
+    (   $in32   0       0       )   //6
+    (   $w      0       0       )   //7
+    (   $w      $h      0       )   //8
+    (   $in32   $h      0       )   //9
+    (   $in31   $h      0       )   //10
+    (   $in22   $h      0       )   //11
+    (   $in21   $h      0       )   //12
+    (   $in12   $h      0       )   //13
+    (   $in11   $h      0       )   //14
+    (   0       $h      0       )   //15
+
+    (   0       0       $depth  )   //16
+    (   $in11   0       $depth  )   //17
+    (   $in12   0       $depth  )   //18
+    (   $in21   0       $depth  )   //19
+    (   $in22   0       $depth  )   //20
+    (   $in31   0       $depth  )   //21
+    (   $in32   0       $depth  )   //22
+    (   $w      0       $depth  )   //23
+    (   $w      $h      $depth  )   //24
+    (   $in32   $h      $depth  )   //25
+    (   $in31   $h      $depth  )   //26
+    (   $in22   $h      $depth  )   //27
+    (   $in21   $h      $depth  )   //28
+    (   $in12   $h      $depth  )   //29
+    (   $in11   $h      $depth  )   //30
+    (   0       $h      $depth  )   //31
+
+);
+
+blocks
+(
+    hex (0 1 14 15 16 17 30 31) ($nWallPts $nVertPts $nDepthPts) simpleGrading (1 1 1)
+    hex (1 2 13 14 17 18 29 30) ($nInPts $nVertPts $nDepthPts) simpleGrading (1 1 1)
+    hex (2 3 12 13 18 19 28 29) ($nCtrPts $nVertPts $nDepthPts) simpleGrading (1 1 1)
+    hex (3 4 11 12 19 20 27 28)  ($nInPts $nVertPts $nDepthPts) simpleGrading (1 1 1)
+    hex (4 5 10 11 20 21 26 27) ($nCtrPts $nVertPts $nDepthPts) simpleGrading (1 1 1)
+    hex (5 6 9 10 21 22 25 26)  ($nInPts $nVertPts $nDepthPts) simpleGrading (1 1 1)
+    hex (6 7 8 9 22 23 24 25)   ($nWallPts $nVertPts $nDepthPts) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    /*inlet1
+    {
+        type            wall;
+        faces
+        (
+            (1 2 18 17)
+        );
+    }*/
+    inlet
+    {
+        type            patch;
+        faces
+        (
+            (3 4 20 19)
+
+//             (1 2 18 17)
+//             (5 6 22 21)
+//             (0 1 17 16)
+//             (2 3 19 18)
+//             (4 5 21 20)
+//             (6 7 23 22)
+
+        );
+    }
+    /*inlet3
+    {
+        type            wall;
+        faces
+        (
+            (5 6 22 21)
+        );
+    }*/
+    outlet
+    {
+        type            patch;
+        faces
+        (
+            (14 15 31 30)
+            (13 14 30 29)
+            (12 13 29 28)
+            (11 12 28 27)
+            (10 11 27 26)
+            (9  10 26 25)
+            (8  9  25 24)
+        );
+    }
+    walls
+    {
+        type            wall;
+        faces
+        (
+            (0 1 17 16)
+            (2 3 19 18)
+            (4 5 21 20)
+            (6 7 23 22)
+
+            (15 0 16 31)
+            (7 8 24 23)
+
+            (1 2 18 17)
+            (5 6 22 21)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //)))))

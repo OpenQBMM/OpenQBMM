@@ -1,0 +1,89 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      populationaBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+populationBalanceModel sizeVelocity;
+
+sizeVelocityCoeffs
+{
+    aggregation off;
+    aggregationKernel
+    {
+        aggregationKernel coalescence;
+        frequency shearRate;
+        efficiency constant;
+        Ceff 1.0;
+        continuousPhase gas;
+    }
+
+    breakup off;
+    breakupKernel
+    {
+        breakupKernel LuoSvendsen;
+
+        Cb        Cb        [ 0 0 0 0 0 0 0 ] 0.6e-3;
+        epsilonExp          0.75;
+        nuExp              -1.25;
+        sizeExp             1.0;
+        continuousPhase gas;
+
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
+    }
+
+    diffusionModel
+    {
+        diffusionModel  none;
+        gammaLam        gammaLam    [ 0 2 -1 0 0 0 0 ] 0.0001;
+        Sc              0.7;
+        continuousPhase gas;
+    }
+
+    growth on;
+    growthModel
+    {
+        growthModel	nonLinearEvaporation;
+        Cg 1.99e-7; // nonlinear
+    }
+
+    nucleation off;
+    nucleationModel
+    {
+        nucleationModel none;
+    }
+
+    collision off;
+    collisionKernel
+    {
+        collisionKernel noCollision;
+    }
+
+    odeCoeffs
+    {
+        solveOde off;
+        ATol    1.0e-8;
+        RTol    1.0e-6;
+        fac     0.9;
+        facMin  0.2;
+        facMax  5.0;
+        minLocalDt 1.0e-8;
+    }
+}
+
+
+// ************************************************************************* //

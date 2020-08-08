@@ -1,0 +1,18 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+validationCases="bidisperseGranularCooling_1_5__0_8 bidisperseGranularCooling_1_5__0_95 bidisperseGranularCooling_2_0__0_8 bidisperseGranularCooling_2_0__0_95 bidisperseGranularCooling_3_0__0_8 bidisperseGranularCooling_3_0__0_95"
+
+for caseName in $validationCases
+do
+    echo Running $caseName
+
+    ( cd $caseName && ./Allrun )
+done
+
+( cd validation && ./createGraph )
+
+# ----------------------------------------------------------------- end-of-file

@@ -1,0 +1,106 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fieldMomentInversion basicVelocityFieldMomentInversion;
+
+
+basicVelocityMomentInversion
+{
+    type CHyQMOM;
+    basicQuadrature
+    {
+        univariateMomentInversion   Gauss;
+    }
+}
+
+momentAdvection
+{
+    velocityMomentAdvection   firstOrderKinetic;
+    left
+    {
+        type    fixedTemperature;
+        T       uniform 0.5;
+    }
+    right
+    {
+        type    fixedTemperature;
+        T       uniform 1.0;
+    }
+}
+
+moments
+(
+    (0 0 0)
+    (1 0 0)
+    (0 1 0)
+    (0 0 1)
+    (2 0 0)
+    (1 1 0)
+    (1 0 1)
+    (0 2 0)
+    (0 1 1)
+    (0 0 2)
+    (3 0 0)
+    (2 1 0)
+    (2 0 1)
+    (1 2 0)
+    (1 1 1)
+    (1 0 2)
+    (0 3 0)
+    (0 2 1)
+    (0 1 2)
+    (0 0 3)
+    (4 0 0)
+    (0 4 0)
+    (0 0 4)
+);
+
+nodes
+(
+    (0 0 0)
+    (0 1 0)
+    (0 2 0)
+    (0 0 1)
+    (0 1 1)
+    (0 2 1)
+    (0 0 2)
+    (0 1 2)
+    (0 2 2)
+
+    (1 0 0)
+    (1 1 0)
+    (1 2 0)
+    (1 0 1)
+    (1 1 1)
+    (1 2 1)
+    (1 0 2)
+    (1 1 2)
+    (1 2 2)
+
+    (2 0 0)
+    (2 1 0)
+    (2 2 0)
+    (2 0 1)
+    (2 1 1)
+    (2 2 1)
+    (2 0 2)
+    (2 1 2)
+    (2 2 2)
+);
+
+
+// ************************************************************************* //

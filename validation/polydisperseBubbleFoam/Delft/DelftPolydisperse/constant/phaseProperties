@@ -1,0 +1,162 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases (air water);
+
+air
+{
+    type            polydispersePhaseModel;
+    residualAlpha   1e-4;
+    minD            1e-4;
+    maxD            1.0;
+    diameterScale   1.0e-3;
+}
+
+water
+{
+    type            monodispersePhaseModel;
+    residualAlpha   1e-6;
+    d               1e-4;
+}
+
+pMin 10000;
+
+blending
+{
+    default
+    {
+        type                            linear;
+        maxFullyDispersedAlpha.air      0.3;
+        maxPartlyDispersedAlpha.air     0.5;
+        maxFullyDispersedAlpha.water    0.3;
+        maxPartlyDispersedAlpha.water   0.5;
+    }
+}
+
+sigma
+(
+    (air and water)   0.07
+);
+
+aspectRatio
+(
+    (air in water)
+    {
+        type            constant;
+        E0              1.0;
+    }
+
+    (water in air)
+    {
+        type            constant;
+        E0              1.0;
+    }
+);
+
+drag
+(
+    (air in water)
+    {
+        type            TomiyamaCorrelated;
+        A               24.0;
+        residualRe      1e-3;
+        residualEo      1e-3;
+        residualE       1e-2;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (water in air)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        residualEo      1e-3;
+        residualE       1e-2;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (air and water)
+    {
+        type            segregated;
+        residualRe      1e-3;
+        residualAlpha   1e-4;
+        m               0.5;
+        n               8;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+);
+
+
+turbulentDispersion
+(
+//     (air in water)
+//     {
+//         type    Panicker;
+//     }
+);
+
+virtualMass
+(
+    (air in water)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
+
+    (water in air)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
+);
+
+lift
+(
+    (air in water)
+    {
+        type Tomiyama;
+    }
+);
+
+wallLubrication
+(
+    (air in water)
+     {
+        type            Antal;
+        Cw1             -0.01;
+        Cw2             0.05;
+        Cwc             10.0;
+        Cwd             6.8;
+        p               1.7;
+    }
+);
+
+bubblePressure
+(
+);
+
+heatTransfer
+(
+);

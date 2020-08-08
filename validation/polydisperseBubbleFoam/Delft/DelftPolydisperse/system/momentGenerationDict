@@ -1,0 +1,103 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      momentGenerationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases
+(
+    air
+);
+
+boundaries
+{
+    inlet
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+    outlet
+    {
+        type    zeroGradient;
+    }
+    defaultFaces
+    {
+        type    empty;
+    }
+    walls
+    {
+        type    zeroGradient;
+    }
+}
+
+air
+{
+    type                alphaAndDiameter;
+    weightDimension     [0 -3 0 0 0 0 0];
+    abscissaDimension   [1 0 0 0 0 0 0];
+
+    "default"
+    {
+        node0
+        {
+            rho     1.40;
+            dia     3.5;
+            alpha   0.33;
+        }
+        node1
+        {
+            rho     1.40;
+            dia     4.25;
+            alpha   0.34;
+        }
+        node2
+        {
+            rho     1.40;
+            dia     5.0;
+            alpha   0.33;
+        }
+    }
+    inlet
+    {
+        node0
+        {
+            rho     1.40;
+            dia     3.5;
+            alpha   0.33;
+        }
+        node1
+        {
+            rho     1.40;
+            dia     4.25;
+            alpha   0.34;
+        }
+        node2
+        {
+            rho     1.40;
+            dia     5.0;
+            alpha   0.33;
+        }
+    }
+
+    regions
+    (
+        boxToCell
+        {
+            box (0 0 0) (0.5 0.8 0.5);
+        }
+    );
+}
+
+
+// ************************************************************************* //

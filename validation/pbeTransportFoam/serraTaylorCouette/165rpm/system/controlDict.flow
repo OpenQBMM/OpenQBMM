@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pbeTransportFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         50001;
+
+deltaT          1;
+
+writeControl    runTime;
+
+writeInterval   100;
+
+purgeWrite      10;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   12;
+
+runTimeModifiable true;
+
+functions
+{
+    epsilonVolAverage
+    {
+        type                coded;
+        functionObjectLibs  ("libutilityFunctionObjects.so");
+        name                epsilonVolumeAverage;
+        writeControl        timeStep;
+
+        codeExecute
+        #{
+        const volScalarField& epsilon
+                = mesh().lookupObject<volScalarField>("epsilon");
+
+        scalar volAverage = 0;
+        scalar totalVolume = 0;
+
+        forAll (epsilon, cellI)
+        {
+            totalVolume += mesh().V()[cellI];
+        }
+
+        forAll (epsilon, cellI)
+        {
+            volAverage += epsilon[cellI]*mesh().V()[cellI]/totalVolume;
+        }
+
+        Info<<"Volume averaged epsilon: " << volAverage << endl;
+
+        #};
+    }
+}
+
+
+// ************************************************************************* //

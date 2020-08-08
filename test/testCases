@@ -1,0 +1,44 @@
+/*---------------------------------------------------------------------------*\
+               ____                    ____  ____  __  __ __  __
+              / __ \                  / __ \|  _ \|  \/  |  \/  |
+             | |  | |_ __   ___ _ __ | |  | | |_) | \  / | \  / |
+             | |  | | '_ \ / _ \ '_ \| |  | |  _ <| |\/| | |\/| |
+             | |__| | |_) |  __/ | | | |__| | |_) | |  | | |  | |
+              \____/| .__/ \___|_| |_|\___\_\____/|_|  |_|_|  |_|
+                    | |
+                    |_|
+
+  OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
+
+  Copyright (C) 2014-2015 OpenQBMM developers.
+
+\*---------------------------------------------------------------------------*/
+
+ List of verification test cases
+
+* conditionalMomentInversion
+    Example of use of the conditionalMomentInversion class.
+
+* eigenSolver
+    Simple demonstration of the eigenSolver class.
+
+* extendedMomentInversion
+    Example of use of the extendedMomentInversion class.
+
+* populationBalanceModel
+    Example of use of the populationBalanceModel class.
+
+* univariateMomentAdvection
+    Test cases to verify moment advection schemes.
+
+* univariateMomentInversion
+    Example of use of the univariateMomentInversion class.
+
+* univariateQuadratureApproximation
+    Example of use of the univariateQuadratureApproximation class.
+
+* univariateMomentSet
+    Example of use of the univariateMomentSet class.
+
+* Vandermonde
+    Example of use of the Vandermonde class.

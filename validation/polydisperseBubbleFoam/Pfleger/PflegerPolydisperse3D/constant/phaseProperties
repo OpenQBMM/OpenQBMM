@@ -1,0 +1,125 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases (air water);
+
+air
+{
+    type            polydispersePhaseModel;
+    residualAlpha   1e-6;
+    minD            1e-4;
+    maxD            1e-2;
+}
+
+water
+{
+    type            monodispersePhaseModel;
+    residualAlpha   1e-6;
+    d               1e-4;
+}
+
+pMin    1e3;
+pMax    1e7;
+
+blending
+{
+    default
+    {
+        type                            linear;
+        maxFullyDispersedAlpha.air      0.3;
+        maxPartlyDispersedAlpha.air     0.5;
+        maxFullyDispersedAlpha.water    0.3;
+        maxPartlyDispersedAlpha.water   0.5;
+    }
+}
+
+sigma
+(
+    (air and water)   0.07
+);
+
+aspectRatio
+(
+    (air in water)
+    {
+        type            constant;
+        E0              1.0;
+    }
+
+    (water in air)
+    {
+        type            constant;
+        E0              1.0;
+    }
+);
+
+drag
+(
+    (air in water)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (water in air)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (air and water)
+    {
+        type            segregated;
+        residualRe      1e-3;
+        residualAlpha   1e-4;
+        m               0.5;
+        n               8;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+);
+
+
+turbulentDispersion
+(
+);
+
+virtualMass
+(
+);
+
+lift
+(
+);
+
+wallLubrication
+(
+);
+
+bubblePressure
+(
+);

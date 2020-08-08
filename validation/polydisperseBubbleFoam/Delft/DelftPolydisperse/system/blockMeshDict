@@ -1,0 +1,130 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters .01;
+
+w       24.3;
+h       120;
+depth   5;
+
+//F2
+// x1      0.525; x2       14.475;
+
+//F3
+// x1      1.125; x2       13.875;
+
+//F4
+// x1      1.65;  x2       13.35;
+
+//F4
+// x1      2.25;  x2       12.75;
+
+
+cellSize    0.5;
+
+// nPtsWide1   #calc "round(($w - 2*$x1)/$cellSize)";
+// nPtsWide2   #calc "round($x1/$cellSize)";
+nPtsWide    #calc "round($w/$cellSize)";
+nPtsHigh    #calc "round($h/$cellSize)";
+nDepthPts   1;
+
+vertices
+(
+    (   0       0       0       )   //0
+//     (   $x1     0       0       )   //1
+//     (   $x2     0       0       )   //2
+    (   $w      0       0       )   //3
+    (   $w      $h      0       )   //4
+//     (   $x2     $h      0       )   //5
+//     (   $x1     $h      0       )   //6
+    (   0       $h      0       )   //7
+
+    (   0       0       $depth  )   //8
+//     (   $x1     0       $depth  )   //9
+//     (   $x2     0       $depth  )   //10
+    (   $w      0       $depth  )   //11
+    (   $w      $h      $depth  )   //12
+//     (   $x2     $h      $depth  )   //13
+//     (   $x1     $h      $depth  )   //14
+    (   0       $h      $depth  )   //15
+
+);
+
+blocks
+(
+//     hex (0 1 6 7 8 9 14 15)
+//     ($nPtsWide2 $nPtsHigh $nDepthPts)
+//     simpleGrading (1 1 1)
+//
+//     hex (1 2 5 6 9 10 13 14)
+//     ($nPtsWide1 $nPtsHigh $nDepthPts)
+//     simpleGrading (1 1 1)
+//
+//     hex (2 3 4 5 10 11 12 13)
+//     ($nPtsWide2 $nPtsHigh $nDepthPts)
+//     simpleGrading (1 1 1)
+
+    hex (0 1 2 3 4 5 6 7)
+    ($nPtsWide $nPtsHigh $nDepthPts)
+    simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type            patch;
+        faces
+        (
+//             (1 2 10 9)
+            ( 0 1 5 4)
+        );
+    }
+    outlet
+    {
+        type            patch;
+        faces
+        (
+//             (6 7 15 14)
+//             (5 6 14 13)
+//             (4 5 13 12)
+            (2 3 7 6)
+        );
+    }
+    walls
+    {
+        type            wall;
+        faces
+        (
+//             (0 7 15 8)
+//             (3 4 12 11)
+//             (0 1 9 8)
+//             (2 3 11 10)
+            (0 3 7 4)
+            (1 2 6 5)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //)))))

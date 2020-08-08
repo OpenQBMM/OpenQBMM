@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fieldMomentInversion basicVelocityFieldMomentInversion;
+
+
+basicVelocityMomentInversion
+{
+    type CHyQMOMPlus;
+}
+
+momentAdvection
+{
+    velocityMomentAdvection   Vikas;
+
+    sideWalls
+    {
+        type    reflectiveMovingWall;
+        e       1.0;
+        wallVelocity uniform (0 2 0);
+    }
+    bottomWall
+    {
+        type    reflective;
+        e       1.0;
+    }
+}
+
+moments
+(
+    (0 0)
+    (1 0)
+    (0 1)
+    (1 1)
+    (2 0)
+    (0 2)
+    (3 0)
+    (2 1)
+    (1 2)
+    (0 3)
+    (4 0)
+    (0 4)
+);
+
+nodes
+(
+    (0 0)
+    (0 1)
+    (0 2)
+    (1 0)
+    (1 1)
+    (1 2)
+    (2 0)
+    (2 1)
+    (2 2)
+);
+
+// ************************************************************************* //

@@ -1,0 +1,89 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      populationaBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+populationBalanceModel sizeVelocity;
+
+sizeVelocityCoeffs
+{
+    aggregation on;
+    aggregationKernel
+    {
+        aggregationKernel turbulentBrownian;
+        continuousPhase fluid;
+    }
+
+    breakup on;
+    breakupKernel
+    {
+        breakupKernel LuoSvendsen;
+
+        Cb        Cb        [ 0 0 0 0 0 0 0 ] 0.6e-3;
+        epsilonExp          0.75;
+        nuExp              -1.25;
+        sizeExp             1.0;
+        continuousPhase fluid;
+
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
+    }
+
+    diffusionModel
+    {
+        diffusionModel  turbulentDiffusion;
+        gammaLam        gammaLam    [ 0 2 -1 0 0 0 0 ] 0.0001;
+        Sc              0.7;
+        continuousPhase fluid;
+    }
+
+    growth off;
+    growthModel
+    {
+        growthModel	constant;
+        minAbscissa     minAbscissa [0 -2 0 0 0 0 0] 0.0;
+        maxAbscissa     maxAbscissa [0 -2 0 0 0 0 0] 1.0;
+
+        Cg        Cg        [0 3 -1 0 0 0 0 ] 1.0;
+    }
+
+    nucleation off;
+    nucleationModel
+    {
+        nucleationModel none;
+    }
+
+    collision off;
+    collisionKernel
+    {
+        collisionKernel noCollision;
+    }
+
+    odeCoeffs
+    {
+        solveOde off;
+        ATol    1.0e-6;
+        RTol    1.0e-3;
+        fac     0.9;
+        facMin  0.5;
+        facMax  2.0;
+        minLocalDt 1.0e-5;
+    }
+}
+
+
+// ************************************************************************* //

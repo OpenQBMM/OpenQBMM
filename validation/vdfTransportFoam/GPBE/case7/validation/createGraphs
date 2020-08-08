@@ -1,0 +1,98 @@
+#!/bin/sh
+#------------------------------------------------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           | Copyright (C) 2011-2015 OpenFOAM Foundation
+#    \\/     M anipulation  |
+#-------------------------------------------------------------------------------
+#2015-06-01 Alberto Passalacqua: Adapted script to pbeFoam validation cases
+#-------------------------------------------------------------------------------
+# License
+#     This file is derivative work of OpenFOAM.
+#
+#     OpenFOAM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     createGraphs
+#
+# Description
+#     Creates .eps graph of d43 = moment.4/moment.3 comparing OpenQBMM results,
+#     Madadi and Passalacqua (2015) EQMOM solution, and Vanni (2000) rigorous
+#     solution.
+#
+#------------------------------------------------------------------------------
+
+createEpsD43()
+{
+    openqbmmM1=$1
+    openqbmmM0=$2
+    verif=$3
+    valid=$4
+
+    gnuplot<<EOF
+    set terminal postscript eps enhanced color font 'Helvetica,24' linewidth 2
+    set output "OpenQBMM_validation_d10$i.eps"
+    set xlabel "Time, t / [s]"
+    set ylabel "d_{10} / [{/Symbol m}m]"
+    set grid
+    set key left bottom
+    set size 1,1
+    set xrange [0:10]
+    set yrange [0:8]
+    plot \
+        "$verif" using 1:(\$6/\$5) title "Madadi and Passalacqua (2015)" \
+            with lines linetype -1 linewidth 2 linecolor rgb 'blue', \
+        "$valid" title "Rigorous solution (Vanni, 2000)" \
+            with lines linetype -1 linewidth 2 linecolor rgb 'black', \
+        '< paste $openqbmmM1 $openqbmmM0' using 1:(\$2/\$4) every 1 \
+            title "OpenQBMM" with points linetype -1 pointtype 6 linewidth 2 \
+            linecolor rgb "#9db668"
+
+
+EOF
+}
+
+# test if gnuplot exists on the system
+if ! which gnuplot > /dev/null 2>&1
+then
+    echo "gnuplot not found - skipping graph creation" >&2
+    exit 1
+fi
+
+PROBESDIR="../postProcessing/probes"
+
+if [ ! -d $PROBESDIR ]
+then
+    echo "createGraphs: results sets not available in directory $SETSDIR"
+    exit 0
+fi
+
+# paths to data
+LATESTTIME=`ls $SETSDIR`
+OPENQBMMDATAROOT=$PROBESDIR/0
+VERIFICATIONDATAROOT=./verificationData
+VALIDATIONDATAROOT=./validationData
+
+echo "    processing d10 profile" > log.createGraphs 2>&1
+OPENQBMMM3="$OPENQBMMDATAROOT/moment.0000.particles"
+OPENQBMMM4="$OPENQBMMDATAROOT/moment.1000.particles"
+VERIFICATION="$VERIFICATIONDATAROOT/MadadiPassalacqua2015_d43.dat"
+VALIDATION="$VALIDATIONDATAROOT/Vanni2000_d43.dat"
+
+createEpsD43 $OPENQBMMM4 $OPENQBMMM3 $VERIFICATION $VALIDATION
+
+echo Done
+
+#------------------------------------------------------------------------------

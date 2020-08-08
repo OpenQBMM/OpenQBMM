@@ -1,0 +1,28 @@
+sinclude $(GENERAL_RULES)/module-path-user
+
+/* Failsafe - user location */
+ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
+    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
+endif
+
+QBMM_SRC := ../../../../src
+
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/fvOptions/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I$(QBMM_SRC)/Vandermonde/lnInclude \
+    -I$(QBMM_SRC)/mappedList \
+    -I$(QBMM_SRC)/quadratureMethods/momentSets/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentInversion/lnInclude
+
+EXE_LIBS = \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lmeshTools \
+    -L$(FOAM_MODULE_LIBBIN) \
+    -lsampling \
+    -lvandermonde \
+    -lmomentSets \
+    -lmomentInversion
