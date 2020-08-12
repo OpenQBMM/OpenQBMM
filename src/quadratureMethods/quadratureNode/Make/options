@@ -12,4 +12,5 @@ EXE_INC = \
     -I../momentSets/lnInclude \
     -I../moments \
 
-LIB_LIBS =
+LIB_LIBS = \
+    -lfiniteVolume
