@@ -225,7 +225,7 @@ void Foam::fv::phaseCompressibleMeanVelocityForce::constrain
     const label
 )
 {
-    if (rAPtr_.empty())
+    if (!rAPtr_.valid())
     {
         rAPtr_.reset
         (

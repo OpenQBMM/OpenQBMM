@@ -10,5 +10,7 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/fvOptions/lnInclude
 
-LIB_LIBs = \
+LIB_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
     -lfvOptions
