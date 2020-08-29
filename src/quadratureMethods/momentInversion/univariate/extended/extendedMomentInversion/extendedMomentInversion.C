@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -29,7 +29,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "extendedMomentInversion.H"
-#include "eigenSolver.H"
+#include "EigenMatrix.H"
 #include "IOmanip.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -497,15 +497,15 @@ void Foam::extendedMomentInversion::secondaryQuadrature
             }
 
             // Compute Gaussian quadrature used to find secondary quadrature
-            eigenSolver JEig(J, true);
+            EigenMatrix<scalar> JEig(J, true);
 
-            const scalarDiagonalMatrix& JEigenvaluesRe(JEig.eigenvaluesRe());
+            const scalarDiagonalMatrix& JEigenvaluesRe(JEig.EValsRe());
 
             // Compute secondary weights before normalization and calculate sum
             for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
             {
-                secondaryWeights_[pNodei][sNodei]
-                    = sqr(JEig.eigenvectors()[0][sNodei]);
+                secondaryWeights_[pNodei][sNodei] 
+                    = sqr(JEig.EVecs()[0][sNodei]);
 
                 secondaryAbscissae_[pNodei][sNodei] =
                     secondaryAbscissa(primaryAbscissae_[pNodei],

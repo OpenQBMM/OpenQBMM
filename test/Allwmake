@@ -5,7 +5,6 @@ cd "${0%/*}" || exit                            # Run from this directory
 # Use build from FOAM_MODULE_* (defaults to user locations)
 
 # wmake conditionalMomentInversion
-wmake eigenSolver
 wmake populationBalanceModel
 wmake univariateQuadratureApproximation
 wmake Vandermonde

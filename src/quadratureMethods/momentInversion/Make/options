@@ -8,13 +8,11 @@ endif
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I../../Vandermonde/lnInclude \
-    -I../../eigenSolver/lnInclude \
     -I../../mappedList \
     -I../momentSets/lnInclude
 
 LIB_LIBS = \
     -lfiniteVolume \
     -L$(FOAM_MODULE_LIBBIN) \
-    -leigenSolver \
     -lvandermonde \
     -lmomentSets

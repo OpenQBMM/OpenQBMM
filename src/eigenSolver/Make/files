@@ -1,3 +1,0 @@
-eigenSolver.C
-
-LIB = $(FOAM_MODULE_LIBBIN)/libeigenSolver

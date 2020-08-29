@@ -2,7 +2,6 @@
 cd "${0%/*}" || exit                            # Run from this directory
 #------------------------------------------------------------------------------
 
-wclean eigenSolver
 wclean populationBalanceModel
 wclean all momentInversions
 wclean univariateQuadratureApproximation
