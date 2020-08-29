@@ -27,6 +27,7 @@ Class
     Foam::dragModels::SyamlalOBrien
 
 Description
+    Syamlal et al. (1993) drag law.
 
     Reference
     \verbatim

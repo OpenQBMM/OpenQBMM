@@ -27,7 +27,7 @@ Class
     Foam::dragModels::WenYu
 
 Description
-    Wen and Yu (1966) drag model
+    Wen and Yu (1966) drag model.
 
     Reference:
     \verbatim

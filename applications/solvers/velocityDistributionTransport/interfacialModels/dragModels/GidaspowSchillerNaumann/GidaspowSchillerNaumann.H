@@ -27,7 +27,7 @@ Class
     Foam::dragModels::GidaspowSchillerNaumann
 
 Description
-    Gidaspow, Schiller and Naumann drag model
+    Gidaspow, Schiller and Naumann drag model.
 
     References:
     \verbatim
@@ -35,7 +35,6 @@ Description
         Enwald, H., Peirano, E., Almstedt A-E.
         International Journal of Multiphase Flow, 
         Volume 22, Pages 21-66, 1996
-        Eq. 104, p. 42
     \endverbatim
 
 SourceFiles

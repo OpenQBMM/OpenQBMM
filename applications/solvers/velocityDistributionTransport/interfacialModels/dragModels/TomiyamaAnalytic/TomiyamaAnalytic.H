@@ -27,7 +27,7 @@ Class
     Foam::dragModels::TomiyamaAnalytic
 
 Description
-    Analytical drag model of Tomiyama et al. (1995)
+    Tomiyama et al. (1995) drag law.
 
     Reference:
     \verbatim

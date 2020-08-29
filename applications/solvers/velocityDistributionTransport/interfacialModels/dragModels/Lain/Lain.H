@@ -27,7 +27,7 @@ Class
     Foam::dragModels::Lain
 
 Description
-    Drag model of Lain et al. (2002)
+    Lain et al. (2002) drag law.
 
     References:
     \verbatim

@@ -27,7 +27,7 @@ Class
     Foam::dragModels::TomiyamaCorrelated
 
 Description
-    Correlation of Tomiyama et al. (2002)
+    Tomiyama et al. (2002) drag law.
 
     Reference:
     \verbatim
