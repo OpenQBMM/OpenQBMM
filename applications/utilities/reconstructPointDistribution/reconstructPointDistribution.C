@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -45,6 +45,12 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Utility to reconstructs a number density function in a point from its "
+        " moments."
+    );
+
     #include "addTimeOptions.H"
     #include "setRootCase.H"
     #include "createTime.H"
@@ -169,10 +175,12 @@ int main(int argc, char *argv[])
                     phaseName
                 )
             );
+
             if (useMean)
             {
                 momentName += "Mean";
             }
+
             Info<<"Reading " << momentName << endl;
 
             volScalarField momenti
@@ -196,7 +204,6 @@ int main(int argc, char *argv[])
 
         forAll(mProbes, probei)
         {
-
             autoPtr<extendedMomentInversion> EQMOM
             (
                 extendedMomentInversion::New

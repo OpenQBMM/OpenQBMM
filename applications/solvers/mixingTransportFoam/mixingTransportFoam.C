@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2016-03-12 Alberto Passalacqua: Solver for mixing model on steady velocity
                                 field. It requires a flow field obtained
@@ -50,6 +50,11 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Solver for turbulent mixing problems using a frozen velocity field."
+    );
+
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"

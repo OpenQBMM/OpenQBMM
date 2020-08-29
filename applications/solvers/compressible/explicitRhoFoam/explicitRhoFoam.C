@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -38,6 +38,11 @@ License
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Density-based solver for compressible single-phase flows."
+    );
+
     #define NO_CONTROL
     #include "postProcess.H"
 

@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -30,9 +30,9 @@ Application
     field files for main solver to use as input.
 
 Description
-    Preprocessing application to eliminate the need to create fields for all
-    moments. Instead moments are consucted using inputs from
-    momentGenerationDict. Different methods can be used.
+    Utility to generate moments to initialize solvers. Instead moments are 
+    consucted using inputs from momentGenerationDict. 
+    Different methods can be used to specify the moment definition.
 
 \*---------------------------------------------------------------------------*/
 
@@ -46,6 +46,11 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Utility to generate moments to initialize QBMM solvers."
+    );
+
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"

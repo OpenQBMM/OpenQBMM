@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2016-2019 Alberto Passalacqua
+    Copyright (C) 2016-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,7 +27,7 @@ Application
     reconstructPointDistribution
 
 Description
-    Reconstructs a number density function in a point.
+    Utility to computes moments.
 
 \*---------------------------------------------------------------------------*/
 
@@ -38,6 +38,11 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Utility to computes moments."
+    );
+
     #include "addTimeOptions.H"
     #include "setRootCase.H"
     #include "createTime.H"
