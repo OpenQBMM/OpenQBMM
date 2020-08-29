@@ -55,8 +55,7 @@ namespace aggregationKernels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels::Brownian
-::Brownian
+Foam::populationBalanceSubModels::aggregationKernels::Brownian::Brownian
 (
     const dictionary& dict,
     const fvMesh& mesh
@@ -78,15 +77,13 @@ Foam::populationBalanceSubModels::aggregationKernels::Brownian
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::populationBalanceSubModels::aggregationKernels::Brownian
-::~Brownian()
+Foam::populationBalanceSubModels::aggregationKernels::Brownian::~Brownian()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar
-Foam::populationBalanceSubModels::aggregationKernels::Brownian::Ka
+Foam::scalar Foam::populationBalanceSubModels::aggregationKernels::Brownian::Ka
 (
     const scalar& d1,
     const scalar& d2,
