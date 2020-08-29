@@ -28,14 +28,15 @@ Class
     Foam::dragModels::IshiiZuber
 
 Description
-    Ishii and Zuber (1979) drag model for dense dispersed bubbly flows.
+    Ishii and Zuber (1979) drag model for dense dispersed flows.
 
     Reference:
     \verbatim
         "Drag Coefficient and relative velocity in bubbly, droplet and
          particulate flows",
         Ishii, M., Zuber, N.,
-        AIChE Journal 5, Vol. 25, 1979, pp. 843-855.
+        AIChE Journal 
+        Issue 5 Volume 25, Pages 843-855, 1979
     \endverbatim
 
 SourceFiles

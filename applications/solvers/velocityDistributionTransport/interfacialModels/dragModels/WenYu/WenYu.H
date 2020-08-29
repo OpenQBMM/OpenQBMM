@@ -27,14 +27,14 @@ Class
     Foam::dragModels::WenYu
 
 Description
-    Wen and Yu drag model
+    Wen and Yu (1966) drag model
 
     Reference:
     \verbatim
         "Eulerian Two-Phase Flow Theory Applied to Fluidization"
-        Enwald, H., Peirano, E., Almstedt, A-E.,
-        Int. J. Multiphase Flow, Vol. 22, Suppl, 1996, pp. 21-66
-        Eq. 86-87, p. 40
+        Enwald, H., Peirano, E., Almstedt A-E.
+        International Journal of Multiphase Flow, 
+        Volume 22, Pages 21-66, 1996
     \endverbatim
 
 SourceFiles

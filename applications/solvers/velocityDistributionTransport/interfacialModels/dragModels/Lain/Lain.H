@@ -27,7 +27,7 @@ Class
     Foam::dragModels::Lain
 
 Description
-    Drag model of Lain et al.
+    Drag model of Lain et al. (2002)
 
     References:
     \verbatim
@@ -42,7 +42,7 @@ Description
          Euler-Lagrange procedure"
         Lain, S., Brodera, D., Sommerfelda, M., Goza, M.F.,
         International Journal of Multiphase Flow
-        Volume 28, Issue 8, August 2002, pp. 1381-1407
+        Volume 28, Issue 8, Pages 1381-1407, 2002
     \endverbatim
 
 SourceFiles

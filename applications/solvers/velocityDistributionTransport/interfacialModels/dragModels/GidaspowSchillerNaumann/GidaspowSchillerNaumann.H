@@ -32,15 +32,10 @@ Description
     References:
     \verbatim
         "Eulerian Two-Phase Flow Theory Applied to Fluidization"
-        Enwald, H., Peirano, E., Almstedt, A-E.,
-        Int. J. Multiphase Flow, Vol. 22, Suppl, 1996, pp. 21-66
-        Eq. 86-87, p. 40
-
-        This is identical to the Wen and Yu, Rowe model Table 3.6 p.56  in
-        "Derivation, Implementation and Validation of Computer Simulation Models
-         for Gas-Solid Fluidized Beds",
-        Berend van Wachem
-        Ph.D. thesis.
+        Enwald, H., Peirano, E., Almstedt A-E.
+        International Journal of Multiphase Flow, 
+        Volume 22, Pages 21-66, 1996
+        Eq. 104, p. 42
     \endverbatim
 
 SourceFiles

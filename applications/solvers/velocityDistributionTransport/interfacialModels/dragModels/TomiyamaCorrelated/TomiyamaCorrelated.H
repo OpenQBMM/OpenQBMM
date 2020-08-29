@@ -27,7 +27,7 @@ Class
     Foam::dragModels::TomiyamaCorrelated
 
 Description
-    Correlation of Tomiyama et al.
+    Correlation of Tomiyama et al. (2002)
 
     Reference:
     \verbatim
@@ -35,7 +35,7 @@ Description
          regime"
         Tomiyama, T., Celata, G.P., Hosokawa, S., Yoshida, S.,
         International Journal of Multiphase Flow
-        Volume 28, Issue 9, September 2002, pp. 1497-1519
+        Volume 28, Issue 9, Pages. 1497-1519, 2002
     \endverbatim
 
 SourceFiles

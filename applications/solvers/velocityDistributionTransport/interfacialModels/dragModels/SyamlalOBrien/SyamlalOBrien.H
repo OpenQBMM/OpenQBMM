@@ -27,9 +27,13 @@ Class
     Foam::dragModels::SyamlalOBrien
 
 Description
-    Syamlal, M., Rogers, W. and O'Brien, T. J. (1993) MFIX documentation,
-    Theory Guide. Technical Note DOE/METC-94/1004. Morgantown, West Virginia,
-    USA.
+
+    Reference
+    \verbatim
+        "MFIX documentation, Theory Guide"
+        Syamlal, M., Rogers, W. and O'Brien, T. J. 
+        Technical Note DOE/METC-94/1004. Morgantown, West Virginia, USA, 1993
+    \endverbatim
 
 SourceFiles
     SyamlalOBrien.C

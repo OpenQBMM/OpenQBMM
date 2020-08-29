@@ -37,12 +37,17 @@ Description
         Schiller, L., Naumann Z.,
         Zeitschrift des Vereins Deutscher Ingenieure
         Volume 77, Page 318-320, 1935
+    \endverbatim
 
-        "On the velocity of steady fall of spherical particles through fluid medium"
+    \verbatim
+        "On the velocity of steady fall of spherical particles through fluid 
+        medium"
         Cunningham, E., Larmor, J.
         Proceedings of the Royal Society of London. Series A
         Volume 83, Pages 357–365, 1910
+    \endverbatim
 
+    \verbatim
         "Definitive equations for the fluid resistance of spheres"
         Davies, C.N.
         Proceedings of the Physical Society

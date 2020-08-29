@@ -27,7 +27,7 @@ Class
     Foam::dragModels::GidaspowErgunWenYu
 
 Description
-    Gidaspow, Ergun, Wen and Yu drag model
+    Gidaspow, Ergun, Wen and Yu drag model.
 
     Reference:
     \verbatim
