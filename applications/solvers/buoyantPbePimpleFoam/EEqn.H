@@ -17,7 +17,8 @@
         )
       - fvm::laplacian(turbulence->alphaEff(), he)
      ==
-        radiation->Sh(thermo, he)
+        rho*(U&g)
+      + radiation->Sh(thermo, he)
       + fvOptions(rho, he)
     );
 
