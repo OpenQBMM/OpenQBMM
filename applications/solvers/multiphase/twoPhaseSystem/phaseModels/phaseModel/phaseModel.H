@@ -451,8 +451,8 @@ public:
             return;
         }
 
-        //- Solve change in size moments based on breakup and coalesence
-        virtual void solveBreakupCoalesence()
+        //- Solve change in size moments based on breakup and coalescence
+        virtual void solveBreakupCoalescence()
         {
             return;
         }
