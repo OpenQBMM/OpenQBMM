@@ -221,7 +221,7 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
 
     const scalarField Theta(patchInternalField());
 
-    // lookup the packed volume fraction
+    // lookup the maximum allowed volume fraction
     dimensionedScalar alphaMax
     (
         "alphaMax",

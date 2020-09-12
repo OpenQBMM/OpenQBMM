@@ -253,8 +253,8 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
                 IOobject::groupName("nuFric", phased.name())
             )
         );
-        
-        // lookup the packed volume fraction
+
+        // lookup the maximum allowed volume fraction
         dimensionedScalar alphaMax
         (
             "alphaMax",
