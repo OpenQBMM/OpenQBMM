@@ -145,7 +145,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
     forAll(nodes_, nodei)
     {
         const labelList& nodeIndex = nodeIndexes_[nodei];
-        
+
         nodesNei.set
         (
             nodei,
@@ -155,8 +155,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
                 name_,
                 moments_(0).mesh(),
                 moments_(0).dimensions(),
-                abscissaeDimensions,
-                false
+                abscissaeDimensions
             )
         );
 
@@ -169,8 +168,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
                 name_,
                 moments_(0).mesh(),
                 moments_(0).dimensions(),
-                abscissaeDimensions,
-                false
+                abscissaeDimensions
             )
         );
     }
