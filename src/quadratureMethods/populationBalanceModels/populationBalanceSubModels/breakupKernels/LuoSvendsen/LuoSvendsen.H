@@ -44,7 +44,7 @@ SourceFiles
 #define LuoSvendsen_H
 
 #include "breakupKernel.H"
-#include "turbulentFluidThermoModel.H"
+#include "turbulenceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -81,9 +81,6 @@ private:
 
         //- Exponent of the abscissa
         scalar sizeExp_;
-
-        //- Thermo model
-        const fluidThermo& flThermo_;
 
         //- Turbulence model
         const turbulenceModel& flTurb_;

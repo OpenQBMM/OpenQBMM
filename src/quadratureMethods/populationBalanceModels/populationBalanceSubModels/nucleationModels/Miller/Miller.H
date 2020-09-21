@@ -36,7 +36,6 @@ SourceFiles
 #define Miller_H
 
 #include "nucleationModel.H"
-#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -59,6 +58,9 @@ private:
 
     // Private data
 
+        //- Continuous phase name
+        const word continuousPhase_;
+
         //- Molecular mass of one carbon atom
         dimensionedScalar MCarbon_;
 
@@ -73,9 +75,6 @@ private:
 
         //- PAM concentration field
         volScalarField pamConcentration_;
-
-        //- Thermodynamic model
-        const fluidThermo& flThermo_;
 
         //- Temperature field
         const volScalarField& T_;
