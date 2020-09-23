@@ -59,7 +59,7 @@ SourceFiles
 #define Brownian_H
 
 #include "aggregationKernel.H"
-#include "turbulentFluidThermoModel.H"
+#include "turbulenceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -82,9 +82,6 @@ class Brownian
 
         //- Continuous phase name
         const word continuousPhase_;
-
-        //- Thermo model
-        const fluidThermo& flThermo_;
 
         //- Temperature field
         const volScalarField& T_;

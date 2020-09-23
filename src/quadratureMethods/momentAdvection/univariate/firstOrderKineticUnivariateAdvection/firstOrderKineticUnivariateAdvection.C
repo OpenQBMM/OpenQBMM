@@ -117,8 +117,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
                 name_,
                 moments_(0).mesh(),
                 moments_(0).dimensions(),
-                abscissaDimensions,
-                false
+                abscissaDimensions
             )
         );
 
@@ -131,8 +130,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
                 name_,
                 moments_(0).mesh(),
                 moments_(0).dimensions(),
-                abscissaDimensions,
-                false
+                abscissaDimensions
             )
         );
 
@@ -145,8 +143,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
                 name_,
                 moments_(0).mesh(),
                 moments_(0).dimensions(),
-                abscissaDimensions,
-                false
+                abscissaDimensions
             )
         );
     }
@@ -255,7 +252,7 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
                 (
                     node.primaryAbscissae()[cmpt]
                 );
-                
+
             nodeNei.primaryAbscissae()[cmpt] =
                 abscissaNeiScheme().interpolate
                 (

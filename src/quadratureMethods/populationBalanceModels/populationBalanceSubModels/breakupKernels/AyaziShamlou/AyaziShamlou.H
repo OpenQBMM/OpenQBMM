@@ -45,7 +45,7 @@ SourceFiles
 #define AyaziShamlou_H
 
 #include "breakupKernel.H"
-#include "turbulentFluidThermoModel.H"
+#include "turbulenceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -82,9 +82,6 @@ private:
 
         //- Primary particle size
         dimensionedScalar primarySize_;
-
-        //- Thermo model
-        const fluidThermo& flThermo_;
 
         //- Turbulence model
         const turbulenceModel& flTurb_;

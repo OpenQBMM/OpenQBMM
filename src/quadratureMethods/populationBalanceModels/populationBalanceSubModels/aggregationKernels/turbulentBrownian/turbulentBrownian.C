@@ -59,13 +59,6 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
 :
     aggregationKernel(dict, mesh),
     continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
-    flThermo_
-    (
-        mesh_.lookupObject<fluidThermo>
-        (
-            IOobject::groupName(basicThermo::dictName, continuousPhase_)
-        )
-    ),
     flTurb_
     (
         mesh_.lookupObject<turbulenceModel>
@@ -77,9 +70,33 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
             )
         )
     ),
-    T_(flThermo_.T()),
-    rho_(flThermo_.rho()),
-    mu_(flThermo_.mu()),
+    T_
+    (
+        dict.found("T")
+      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("T"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("T", continuousPhase_)
+        )
+    ),
+    rho_
+    (
+        dict.found("rho")
+      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("rho"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("rho", continuousPhase_)
+        )
+    ),
+    mu_
+    (
+        dict.found("mu")
+      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("mu"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("thermo:mu", continuousPhase_)
+        )
+    ),
     epsilon_(flTurb_.epsilon())
 {}
 

@@ -62,13 +62,6 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen
     epsilonExp_(readScalar(dict.lookup("epsilonExp"))),
     nuExp_(readScalar(dict.lookup("nuExp"))),
     sizeExp_(readScalar(dict.lookup("sizeExp"))),
-    flThermo_
-    (
-        mesh_.lookupObject<fluidThermo>
-        (
-            IOobject::groupName(basicThermo::dictName, continuousPhase_)
-        )
-    ),
     flTurb_
     (
         mesh_.lookupObject<turbulenceModel>
@@ -81,8 +74,24 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen
         )
     ),
     epsilon_(flTurb_.epsilon()),
-    mu_(flThermo_.mu()),
-    rho_(flThermo_.rho())
+    mu_
+    (
+        dict.found("mu")
+      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("mu"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("thermo:mu", continuousPhase_)
+        )
+    ),
+    rho_
+    (
+        dict.found("rho")
+      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("rho"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("rho", continuousPhase_)
+        )
+    )
 {}
 
 

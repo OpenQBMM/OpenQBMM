@@ -57,6 +57,7 @@ Foam::populationBalanceSubModels::nucleationModels::Miller::Miller
 )
 :
     nucleationModel(dict, mesh),
+    continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
     MCarbon_(dict.lookup("MCarbon")),
     nCarbonDimer_(dict.lookup("nCarbonDimer")),
     nCarbonPAM_(dict.lookup("nCarbonPAM")),
@@ -73,8 +74,15 @@ Foam::populationBalanceSubModels::nucleationModels::Miller::Miller
         ),
         mesh
     ),
-    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
-    T_(flThermo_.T())
+    T_
+    (
+        dict.found("T")
+      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("T"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("T", continuousPhase_)
+        )
+    )
 {}
 
 
