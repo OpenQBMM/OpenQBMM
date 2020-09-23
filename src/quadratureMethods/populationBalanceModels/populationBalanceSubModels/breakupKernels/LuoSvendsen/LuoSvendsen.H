@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -49,7 +49,7 @@ SourceFiles
 #define LuoSvendsen_H
 
 #include "breakupKernel.H"
-#include "turbulentFluidThermoModel.H"
+#include "turbulenceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -86,9 +86,6 @@ private:
 
         //- Exponent of the abscissa
         scalar sizeExp_;
-
-        //- Thermo model
-        const fluidThermo& flThermo_;
 
         //- Turbulence model
         const turbulenceModel& flTurb_;

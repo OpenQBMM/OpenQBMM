@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -63,15 +63,24 @@ Foam::populationBalanceSubModels::aggregationKernels::Brownian::Brownian
 :
     aggregationKernel(dict, mesh),
     continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
-    flThermo_
+    T_
     (
-        mesh_.lookupObject<fluidThermo>
+        dict.found("T")
+      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("T"))
+      : mesh.lookupObject<volScalarField>
         (
-            IOobject::groupName(basicThermo::dictName, continuousPhase_)
+            IOobject::groupName("T", continuousPhase_)
         )
     ),
-    T_(flThermo_.T()),
-    mu_(flThermo_.mu())
+    mu_
+    (
+        dict.found("mu")
+      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("mu"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("thermo:mu", continuousPhase_)
+        )
+    )
 {}
 
 
