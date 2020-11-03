@@ -174,7 +174,6 @@ Foam::tmp<Foam::scalarField> Foam::lognormalEQMOM::f(const scalarField& x) const
     (
         new scalarField(x.size(), 0.0)
     );
-    
     scalarField& y = tmpY.ref();
 
     for (label pNodei = 0; pNodei < nPrimaryNodes_; pNodei++)
