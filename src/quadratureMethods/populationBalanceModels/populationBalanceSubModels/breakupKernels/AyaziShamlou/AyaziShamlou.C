@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -82,7 +82,7 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
     mu_
     (
         dict.found("mu")
-      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("mu"))
+      ? mesh.lookupObject<volScalarField>(dict.get<word>("mu"))
       : mesh.lookupObject<volScalarField>
         (
             IOobject::groupName("thermo:mu", continuousPhase_)
@@ -91,7 +91,7 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
     rho_
     (
         dict.found("rho")
-      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("rho"))
+      ? mesh.lookupObject<volScalarField>(dict.get<word>("rho"))
       : mesh.lookupObject<volScalarField>
         (
             IOobject::groupName("rho", continuousPhase_)

@@ -78,7 +78,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
     T_
     (
         dict.found("T")
-      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("T"))
+      ? mesh.lookupObject<volScalarField>(dict.get<word>("T"))
       : mesh.lookupObject<volScalarField>
         (
             IOobject::groupName("T", continuousPhase_)
@@ -87,7 +87,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
     rho_
     (
         dict.found("rho")
-      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("rho"))
+      ? mesh.lookupObject<volScalarField>(dict.get<word>("rho"))
       : mesh.lookupObject<volScalarField>
         (
             IOobject::groupName("rho", continuousPhase_)
@@ -96,7 +96,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
     mu_
     (
         dict.found("mu")
-      ? mesh.lookupObject<volScalarField>(dict.lookupType<word>("mu"))
+      ? mesh.lookupObject<volScalarField>(dict.get<word>("mu"))
       : mesh.lookupObject<volScalarField>
         (
             IOobject::groupName("thermo:mu", continuousPhase_)
