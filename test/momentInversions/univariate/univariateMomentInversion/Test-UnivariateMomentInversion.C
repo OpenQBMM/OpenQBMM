@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 {
     Info << "Testing univariateMomentInversion\n" << endl;
 
-    label nMoments = 5;
+    label nMoments = 10;
 
     Info<< "Reading quadratureProperties\n" << endl;
 
@@ -66,33 +66,48 @@ int main(int argc, char *argv[])
 
     Info << "Moment set (empty): " << m << endl;
 
+    // All moments equal to 1
+    //forAll (m, momenti)
+    //{
+    //    m[momenti] = 1;
+    //}
+
     // Gauss Test
-//     m[0] = 1.0;
-//     m[1] = 2.708217669;
-//     m[2] = 8.951330468;
-//     m[3] = 35.95258119;
+    //m[0] = 1.0;
+    //m[1] = 2.708217669;
+    //m[2] = 8.951330468;
+    //m[3] = 35.95258119;
+
+    // All valid moments (test up to 10)
+    for (label mI = 1; mI < nMoments + 1; mI++)
+    {
+        m[mI - 1] = 1.0/scalar(mI);
+    }
+
+    // Uncomment this to make the set not fully realizable
+    // m[3] = 0;
 
     // Lobatto test
-//     m[0] = 1.0000;
-//     m[1] = 0.2500;
-//     m[2] = 0.1058;
-//     m[3] = 0.0562;
-//     m[4] = 0.0340;
-//     m[5] = 0.0224;
+    //m[0] = 1.0000;
+    //m[1] = 0.2500;
+    //m[2] = 0.1058;
+    //m[3] = 0.0562;
+    //m[4] = 0.0340;
+    //m[5] = 0.0224;
 
     // Radau test
-//     m[0] = 1.0000;
-//     m[1] = 0.2500;
-//     m[2] = 0.1058;
-//     m[3] = 0.0562;
-//     m[4] = 0.0340;
+    //m[0] = 1.0000;
+    //m[1] = 0.2500;
+    //m[2] = 0.1058;
+    //m[3] = 0.0562;
+    //m[4] = 0.0340;
 
 
-    m[0] = 1.00000001612;
-    m[1] = 1.00000001635;
-    m[2] = 1.00000001637;
-    m[3] = 1.00000001619;
-    m[4] = 1.000000016;
+    //m[0] = 1.00000001612;
+    //m[1] = 1.00000001635;
+    //m[2] = 1.00000001637;
+    //m[3] = 1.00000001619;
+    //m[4] = 1.000000016; 
 
     Info << setprecision(16);
 
@@ -118,6 +133,17 @@ int main(int argc, char *argv[])
         Info << "\nThe moment set is not realizable.\n" << endl;
     }
 
+    scalarList zetas = m.zetas();
+
+    Info << "Zetas\n" << endl;
+
+    forAll (zetas, zetai)
+    {
+        Info << "Zeta " << zetai << " = " << zetas[zetai] << endl;
+    }
+
+    Info << endl;
+
     autoPtr<univariateMomentInversion> inversion
     (
         univariateMomentInversion::New(quadratureProperties)
@@ -128,7 +154,7 @@ int main(int argc, char *argv[])
     scalarList weights(inversion().weights());
     scalarList abscissae(inversion().abscissae());
 
-    Info << "Weights and abscissae:\n" << endl;
+    Info << "\nWeights and abscissae:\n" << endl;
 
     forAll (weights, nodei)
     {
