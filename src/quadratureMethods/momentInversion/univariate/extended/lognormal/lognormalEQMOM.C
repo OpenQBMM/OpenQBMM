@@ -184,10 +184,17 @@ Foam::tmp<Foam::scalarField> Foam::lognormalEQMOM::f(const scalarField& x) const
 
     for (label pNodei = 0; pNodei < nPrimaryNodes_; pNodei++)
     {
-        y +=
-            exp(-sqr(log(x) - log(primaryAbscissae_[pNodei]))/(2.0*sqr(sigma_)))
-           /(x*sigma_*sqrt(2.0*Foam::constant::mathematical::pi))
-           *primaryWeights_[pNodei];
+        if (primaryWeights_[pNodei] > SMALL)
+        {
+            y +=
+                exp
+                (
+                  - sqr(log(x) - log(primaryAbscissae_[pNodei]))
+                   /(2.0*sqr(sigma_))
+                )
+               /(x*sigma_*sqrt(2.0*Foam::constant::mathematical::pi))
+              *primaryWeights_[pNodei];
+        }
     }
 
     return tmpY;

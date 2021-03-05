@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2020 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -89,6 +89,16 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 
     reset();
 
+    // Exclude cases where the absolute value of the zero-order moment is very 
+    // SMALL to avoid problems in the inversion due to round-off error
+    if (mag(m[0]) < SMALL)
+    {
+        sigma_ = 0.0;
+        nullSigma_ = true;
+
+        return;
+    }
+
     // Terminate execution if negative number density is encountered
     if (m[0] < 0.0)
     {
@@ -96,16 +106,6 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             << "The zero-order moment is negative." << nl
             << "    Moment set: " << m
             << abort(FatalError);
-    }
-
-    // Exclude cases where the zero-order moment is very SMALL to avoid
-    // problems in the inversion due to round-off error
-    if (m[0] < SMALL)
-    {
-        sigma_ = 0.0;
-        nullSigma_ = true;
-
-        return;
     }
 
     label nRealizableMoments = m.nRealizableMoments();
