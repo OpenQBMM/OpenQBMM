@@ -124,20 +124,28 @@ int main(int argc, char *argv[])
         }
 
         probeSubDir = "postProcessing"/probeSubDir/mesh.time().timeName();
-        probeDir = runTime.path()/probeSubDir;
-
-        // Remove ".."
+        if (Pstream::parRun())
+        {
+            probeDir = runTime.path()/".."/probeSubDir;
+        }
+        else
+        {
+            probeDir = runTime.path()/probeSubDir;
+        }
         probeDir.clean();
         mkDir(probeDir);
 
         unsigned int p = IOstream::defaultPrecision() + 7;
 
-        OFstream outputFile(probeSubDir/"quadrature");
-        outputFile  << "# Quadrature" << nl
-                    << '#' << setw(p - 1)
-                    << "abscissae" << ' ' << setw(p - 9)
-                    << "n" << endl;
-
+        OFstream* outputFile;
+        if (Pstream::master())
+        {
+            outputFile = new OFstream(probeSubDir/"quadrature");
+            (*outputFile)  << "# Quadrature" << nl
+                        << '#' << setw(p - 1)
+                        << "abscissae" << ' ' << setw(p - 9)
+                        << "n" << endl;
+        }
 
         // Create moment set where each entry is the list of probed moments
         mappedList<scalarList> momentProbes
@@ -243,11 +251,14 @@ int main(int argc, char *argv[])
 
             scalarField w(EQMOM->f(x)/moments(0));
 
-            forAll(w, i)
+            if (Pstream::master())
             {
-                outputFile  << ' ' << setw(p) << x[i]
-                            << ' ' << setw(p) << w[i]
-                            << endl;
+                forAll(w, i)
+                {
+                    (*outputFile)  << ' ' << setw(p) << x[i]
+                                << ' ' << setw(p) << w[i]
+                                << endl;
+                }
             }
         }
     }

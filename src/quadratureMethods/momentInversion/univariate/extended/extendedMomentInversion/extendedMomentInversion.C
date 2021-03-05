@@ -81,6 +81,16 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 
     reset();
 
+    // Exclude cases where the zero-order moment is very small to avoid
+    // problems in the inversion due to round-off error
+    if (mag(m[0]) < SMALL)
+    {
+        sigma_ = 0.0;
+        nullSigma_ = true;
+
+        return;
+    }
+
     // Terminate execution if negative number density is encountered
     if (m[0] < 0.0)
     {
@@ -88,16 +98,6 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             << "The zero-order moment is negative." << nl
             << "    Moment set: " << m
             << abort(FatalError);
-    }
-
-    // Exclude cases where the zero-order moment is very small to avoid
-    // problems in the inversion due to round-off error
-    if (m[0] < SMALL)
-    {
-        sigma_ = 0.0;
-        nullSigma_ = true;
-
-        return;
     }
 
     label nRealizableMoments = m.nRealizableMoments();
