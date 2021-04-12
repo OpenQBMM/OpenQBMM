@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -59,10 +59,7 @@ void Foam::fluxIntegrator::setCoeffs
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::fluxIntegrator::fluxIntegrator
-(
-    compressibleSystem& fluid
-)
+Foam::fluxIntegrator::fluxIntegrator(compressibleSystem& fluid)
 :
     fluid_(fluid),
     butcherTable_(ButcherTable::New(fluid.rho().mesh()))
@@ -82,10 +79,7 @@ Foam::fluxIntegrator::~fluxIntegrator()
 
 // * * * * * * * * * * * * * *  Public Functinos * * * * * * * * * * * * * * //
 
-void Foam::fluxIntegrator::integrateFluxes
-(
-    const dimensionedVector& g
-)
+void Foam::fluxIntegrator::integrateFluxes(const dimensionedVector& g)
 {
     List<scalarList> c = butcherTable_->conservedVariablesCoeffs();
     List<scalarList> f = butcherTable_->fluxCoeffs();

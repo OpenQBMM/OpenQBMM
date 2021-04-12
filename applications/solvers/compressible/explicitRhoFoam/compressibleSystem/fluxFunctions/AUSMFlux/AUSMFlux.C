@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -44,9 +44,7 @@ namespace fluxFunctions
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::fluxFunctions::AUSM::AUSM(const fvMesh& mesh)
-:
-    fluxFunction(mesh)
+Foam::fluxFunctions::AUSM::AUSM(const fvMesh& mesh) : fluxFunction(mesh)
 {}
 
 

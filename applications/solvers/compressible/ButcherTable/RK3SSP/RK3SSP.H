@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2017-2019 Jeffrey Heylmun
+    Copyright (C) 2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -51,9 +52,7 @@ namespace ButcherTables
                         Class RK3 Declaration
 \*---------------------------------------------------------------------------*/
 
-class RK3SSP
-:
-    public ButcherTable
+class RK3SSP : public ButcherTable
 {
 public:
 

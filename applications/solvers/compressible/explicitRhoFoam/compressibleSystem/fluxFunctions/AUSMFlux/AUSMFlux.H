@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -52,13 +52,8 @@ namespace fluxFunctions
                   Class fluxFunction Declaration
 \*---------------------------------------------------------------------------*/
 
-class AUSM
-:
-    public fluxFunction
+class AUSM : public fluxFunction
 {
-    // Private Data
-
-
 public:
 
     //- Runtime type information
