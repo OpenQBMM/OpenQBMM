@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2018 OpenFOAM Foundation
-    Copyright (C) 2019-2020 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-06-30 Alberto Passalacqua: Steady-state solver for population balance
                                 equations. It requires a flow field obtained
