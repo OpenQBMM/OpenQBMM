@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2016-2019 Alberto Passalacqua
+    Copyright (C) 2016-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -72,7 +72,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
         dimensionedScalar
         (
             "m0",
-            momentDims_(0),
+            momentDimensions_(0),
             Zero
         )
     ),
@@ -134,7 +134,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
         )
     ),
     isotropic_(true),
-    nVelocityDims_(0)
+    nVelocityDimensions_(0)
 {
     if (Sigma_[0].xx() > 0)
     {
@@ -144,14 +144,17 @@ Foam::momentGenerationSubModels::gaussian::gaussian
     {
         Sigma_ = symmTensor::I*Theta_;
     }
+
     labelList zeroOrder(momentOrders[0].size(), Zero);
+    
     forAll(momentOrders[0], cmpt)
     {
         labelList orderOne(zeroOrder);
         orderOne[cmpt] = 1;
-        if (momentDims_(orderOne)/momentDims_(0) == dimVelocity)
+    
+        if (momentDimensions_(orderOne)/momentDimensions_(0) == dimVelocity)
         {
-            nVelocityDims_++;
+            nVelocityDimensions_++;
         }
     }
 
@@ -197,10 +200,11 @@ void Foam::momentGenerationSubModels::gaussian::setNodes
     else
     {
         label xx = symmTensor::XX;
+
         abscissae_[0][0] = U.component(0) + sqrt(Sigma.component(xx));
         abscissae_[1][0] = U.component(0) - sqrt(Sigma.component(xx));
 
-        if (nVelocityDims_ > 1)
+        if (nVelocityDimensions_ > 1)
         {
             nWeights = 4;
 
@@ -222,7 +226,7 @@ void Foam::momentGenerationSubModels::gaussian::setNodes
                 U.component(1) - sqrt(Sigma.component(xy));
         }
 
-        if (nVelocityDims_ > 2)
+        if (nVelocityDimensions_ > 2)
         {
             nWeights = 8;
 
@@ -230,30 +234,21 @@ void Foam::momentGenerationSubModels::gaussian::setNodes
             label xz = symmTensor::XZ;
             label yz = symmTensor::YZ;
 
-            abscissae_[0][2] =
-                U.component(2) + sqrt(Sigma.component(zz));
-            abscissae_[1][2] =
-                U.component(2) - sqrt(Sigma.component(zz));
+            abscissae_[0][2] = U.component(2) + sqrt(Sigma.component(zz));
+            abscissae_[1][2] = U.component(2) - sqrt(Sigma.component(zz));
 
-            abscissae_[4][0] =
-                U.component(0) + sqrt(Sigma.component(xz));
-            abscissae_[4][2] =
-                U.component(2) + sqrt(Sigma.component(xz));
-            abscissae_[5][0] =
-                U.component(0) - sqrt(Sigma.component(xz));
-            abscissae_[5][2] =
-                U.component(2) - sqrt(Sigma.component(xz));
+            abscissae_[4][0] = U.component(0) + sqrt(Sigma.component(xz));
+            abscissae_[4][2] = U.component(2) + sqrt(Sigma.component(xz));
+            abscissae_[5][0] = U.component(0) - sqrt(Sigma.component(xz));
+            abscissae_[5][2] = U.component(2) - sqrt(Sigma.component(xz));
 
-            abscissae_[6][1] =
-                U.component(1) + sqrt(Sigma.component(yz));
-            abscissae_[6][2] =
-                U.component(2) + sqrt(Sigma.component(yz));
-            abscissae_[7][1] =
-                U.component(1) - sqrt(Sigma.component(yz));
-            abscissae_[7][2] =
-                U.component(2) - sqrt(Sigma.component(yz));
+            abscissae_[6][1] = U.component(1) + sqrt(Sigma.component(yz));
+            abscissae_[6][2] = U.component(2) + sqrt(Sigma.component(yz));
+            abscissae_[7][1] = U.component(1) - sqrt(Sigma.component(yz));
+            abscissae_[7][2] = U.component(2) - sqrt(Sigma.component(yz));
         }
     }
+
     for (label i = 0; i < nWeights; i++)
     {
         weights_[i] = alpha/scalar(nWeights);

@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2019 Alberto Passalacqua
+    Copyright (C) 2015-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -59,17 +59,20 @@ Foam::errorEstimator::errorEstimator(const fvMesh& mesh)
             (
                 dict_.lookupOrDefault("scalarFields", wordList())
             );
+
         vectorFields_ =
             wordList
             (
                 dict_.lookupOrDefault("vectorFields", wordList())
             );
+
         scalarScales_ =
             scalarField
             (
                 dict_.lookupOrDefault
                 ("scalarScaleFactors", scalarField(scalarFields_.size(), 1.0))
             );
+
         vectorScales_ =
             vectorField
             (
@@ -119,6 +122,7 @@ void Foam::errorEstimator::estimateError()
                     error_[own],
                     mag(f[own] - f[nei])/scalarScales_[fieldi]
                 );
+
             error_[nei] = max(error_[nei], error_[own]);
         }
     }
@@ -144,6 +148,7 @@ void Foam::errorEstimator::estimateError()
                            /vectorScales_[fieldi][cmpti]
                         )
                     );
+
                 error_[nei] = max(error_[nei], error_[own]);
             }
         }

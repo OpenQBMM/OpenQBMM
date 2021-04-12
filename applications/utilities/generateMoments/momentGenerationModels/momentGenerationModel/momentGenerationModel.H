@@ -79,7 +79,7 @@ protected:
         const dictionary& dict_;
 
         //- Number of dimensions in distribution
-        const label nDims_;
+        const label nDimensions_;
 
         //- Number of nodes
         const label nNodes_;
@@ -100,7 +100,7 @@ protected:
         mutable List<List<scalarField>> abscissae_;
 
         //- List of moment dimensions
-        mappedPtrList<dimensionSet> momentDims_;
+        mappedPtrList<dimensionSet> momentDimensions_;
 
         //- List of moments
         mutable mappedList<scalarField> moments_;
@@ -173,7 +173,7 @@ public:
             //- Return constant access to moment dimensions
             const mappedPtrList<dimensionSet>& momentDims() const
             {
-                return momentDims_;
+                return momentDimensions_;
             }
 
             //- Return constant access to moments

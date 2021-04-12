@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2020 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -108,7 +108,9 @@ int main(int argc, char *argv[])
                 momentOrders,
                 nNodes
             );
+
         mappedPtrList<dictionary> boundaries(nMoments, momentOrders);
+
         forAll(momentOrders, mi)
         {
             word bName =
@@ -134,6 +136,7 @@ int main(int argc, char *argv[])
         //  Set internal field values and initialize moments.
         {
             Info<< "Setting internal fields" << nl << endl;
+
             const dictionary& dict
             (
                 phaseDict.found("internal")
@@ -146,6 +149,7 @@ int main(int argc, char *argv[])
             forAll(moments, mi)
             {
                 const labelList& momentOrder = momentOrders[mi];
+
                 moments.set
                 (
                     momentOrder,
@@ -176,6 +180,7 @@ int main(int argc, char *argv[])
                         )
                     )
                 );
+
                 moments[mi].primitiveFieldRef() =
                     momentGenerator().moments()(momentOrder);
 
@@ -202,6 +207,7 @@ int main(int argc, char *argv[])
             {
                 Info<< "Setting " << mesh.boundaryMesh()[bi].name()
                     << " boundary" << endl;
+
                 const dictionary& dict
                 (
                     phaseDict.found(mesh.boundaryMesh()[bi].name())
@@ -267,7 +273,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
 
         forAll(moments, mi)
         {

@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// Name of the quadrature approximation (phase for multiphase solvers)
+// Name of the quadrature approximation (phase name for multiphase solvers)
 phases (populationBalance);
 
 populationBalance

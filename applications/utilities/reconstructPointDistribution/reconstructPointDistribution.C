@@ -256,6 +256,7 @@ int main(int argc, char *argv[])
 
             //- COnstruct sample distribution
             scalarField x(nSamples, Zero);
+            
             scalar xMax =
                 phaseDict.lookupOrDefault<scalar>("xMax", max(sAbscissae));
 

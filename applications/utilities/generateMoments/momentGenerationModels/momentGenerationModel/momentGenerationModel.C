@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -49,8 +49,8 @@ void Foam::momentGenerationModel::updateMoments()
 
         forAll(abscissae_, nodei)
         {
-
             scalarField mCmpt = weights_[nodei];
+
             forAll(abscissae_[0], cmpti)
             {
                 mCmpt *=
@@ -60,21 +60,17 @@ void Foam::momentGenerationModel::updateMoments()
                         momentOrder[cmpti]
                     );
             }
+
             moments_[mi] += mCmpt;
         }
     }
 }
 
-Foam::label Foam::momentGenerationModel::reset
-(
-    const label patchi
-)
+Foam::label Foam::momentGenerationModel::reset(const label patchi)
 {
     label size =
     (
-        patchi == -1
-      ? mesh_.nCells()
-      : mesh_.boundaryMesh()[patchi].size()
+        patchi == -1 ? mesh_.nCells() : mesh_.boundaryMesh()[patchi].size()
     );
 
     forAll(abscissae_, nodei)
@@ -83,8 +79,10 @@ Foam::label Foam::momentGenerationModel::reset
         {
             abscissae_[nodei][cmpti] = scalarField(size, Zero);
         }
+
         weights_[nodei] = scalarField(size, Zero);
     }
+
     forAll(moments_, mi)
     {
         moments_[mi] = scalarField(size, Zero);
@@ -94,10 +92,7 @@ Foam::label Foam::momentGenerationModel::reset
 }
 
 
-Foam::label Foam::momentGenerationModel::reset
-(
-    const labelList& cells
-)
+Foam::label Foam::momentGenerationModel::reset(const labelList& cells)
 {
     label size = cells.size();
 
@@ -107,8 +102,10 @@ Foam::label Foam::momentGenerationModel::reset
         {
             abscissae_[nodei][cmpti] = scalarField(size, Zero);
         }
+
         weights_[nodei] = scalarField(size, Zero);
     }
+
     forAll(moments_, mi)
     {
         moments_[mi] = scalarField(size, Zero);
@@ -130,34 +127,43 @@ Foam::momentGenerationModel::momentGenerationModel
 :
     mesh_(mesh),
     dict_(dict),
-    nDims_(momentOrders[0].size()),
+    nDimensions_(momentOrders[0].size()),
     nNodes_(nNodes),
     nMoments_(momentOrders.size()),
     momentOrders_(momentOrders),
     weights_(nNodes_),
-    abscissae_(nNodes_, List<scalarField>(nDims_)),
-    momentDims_(nMoments_, momentOrders_),
+    abscissae_(nNodes_, List<scalarField>(nDimensions_)),
+    momentDimensions_(nMoments_, momentOrders_),
     moments_(nMoments_, momentOrders_)
 {
-    dimensionSet wDims(dict.lookup("weightDimension"));
+    dimensionSet weightDimension_(dict.lookup("weightDimension"));
+    
     forAll(moments_, mi)
     {
         const labelList& momentOrder = momentOrders_[mi];
-        dimensionSet absCmptDims(dimless);
+        dimensionSet abscissaCmptDimensions(dimless);
+
         forAll(momentOrders_[mi], cmpti)
         {
-            word absName ="abscissaDimension" + Foam::name(cmpti);
-            dimensionSet absDim
+            word abscissaName ="abscissaDimension" + Foam::name(cmpti);
+        
+            dimensionSet abscissaDimension_
             (
                 (
-                    dict.found(absName)
-                  ? dict.lookup(absName)
+                    dict.found(abscissaName)
+                  ? dict.lookup(abscissaName)
                   : dict.lookup("abscissaDimension")
                 )
             );
-            absCmptDims *= pow(absDim, momentOrder[cmpti]);
+            
+            abscissaCmptDimensions *= 
+                pow(abscissaDimension_, momentOrder[cmpti]);
         }
-        momentDims_.set(momentOrder, new dimensionSet(wDims*absCmptDims));
+        momentDimensions_.set
+        (
+            momentOrder, 
+            new dimensionSet(weightDimension_*abscissaCmptDimensions)
+        );
     }
 }
 
