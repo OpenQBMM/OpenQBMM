@@ -14,5 +14,6 @@ for (label nodei = 0; nodei < phase2->nNodes(); nodei++)
     UEqn.relax();
     UEqn.solve();
 }
+
 phase2->correct();
 K2 = 0.5*magSqr(U2);

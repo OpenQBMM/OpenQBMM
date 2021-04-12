@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2019 OpenFOAM Foundation
     Copyright (C) 2019 Jeffrey Heylmun
-    Copyright (C) 2020 Alberto Passalacqua
+    Copyright (C) 2020-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 02-09-2019 Jeffrey Heylmun: Added Solution of moment trasporport as well as the
                             coupling of the continuous phase with the velocity

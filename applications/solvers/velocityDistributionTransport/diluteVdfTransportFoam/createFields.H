@@ -81,6 +81,7 @@ alphaRhoPhi2 = fvc::interpolate(rho2)*alphaPhi2;
 
 label pRefCell = 0;
 scalar pRefValue = 0.0;
+
 setRefCell
 (
     p,

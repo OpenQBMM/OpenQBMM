@@ -8,7 +8,7 @@
 2019-04-29 Jeff Heylmun:    Added population balance model
 -------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is derivative work of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -122,9 +122,6 @@ protected:
         //- Stored labelList used to access diameter
         labelList sizeMoment_;
 
-
-
-
 public:
 
     // Constructors
@@ -149,7 +146,10 @@ public:
         virtual label nNodes() const;
 
         //- Constant access to alpha field for nodei
-        virtual tmp<volScalarField> volumeFraction(const label nodei = -1) const;
+        virtual tmp<volScalarField> volumeFraction
+        (
+            const label nodei = -1
+        ) const;
 
         //- Return diameter of nodei
         virtual tmp<volScalarField> d(const label nodei = -1) const;

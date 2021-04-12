@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2019 OpenFOAM Foundation
     Copyright (C) 2019 Jeffrey Heylmun
-    Copyright (C) 2020 Alberto Passalacqua
+    Copyright (C) 2020-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 29-4-2019 Jeffrey Heylmun:  Added moment transort
 -------------------------------------------------------------------------------
@@ -66,8 +66,6 @@ int main(int argc, char *argv[])
     #include "CourantNos.H"
     #include "setInitialDeltaT.H"
 
-
-
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
@@ -83,6 +81,7 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         dilutePhase->solve();
+
         #include "vEqns.H"
 
         runTime.write();
