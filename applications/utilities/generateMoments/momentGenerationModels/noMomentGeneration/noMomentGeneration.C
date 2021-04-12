@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -78,6 +78,7 @@ void Foam::momentGenerationSubModels::noMomentGeneration::updateMoments
 )
 {
     label size = reset(patchi);
+
     forAll(moments_, mi)
     {
         moments_[mi] = scalarField("moment." + Foam::name(mi), dict, size);
@@ -92,6 +93,7 @@ void Foam::momentGenerationSubModels::noMomentGeneration::updateMoments
 )
 {
     label size = reset(cells);
+
     forAll(moments_, mi)
     {
         moments_[mi] = scalarField("moment." + Foam::name(mi), dict, size);
