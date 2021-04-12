@@ -52,19 +52,19 @@ Foam::mappedList<mappedType>::operator()(ArgsT ...args) const
 template <class mappedType>
 const mappedType& Foam::mappedList<mappedType>::operator()
 (
-    const Foam::labelList& l
+    const Foam::labelList& list
 ) const
 {
-    return this->operator[](map_[listToLabel(l, nDims_)]);
+    return this->operator[](map_[listToLabel(list, nDimensions_)]);
 }
 
 template <class mappedType>
 mappedType& Foam::mappedList<mappedType>::operator()
 (
-    const Foam::labelList& l
+    const Foam::labelList& list
 )
 {
-    return this->operator[](map_[listToLabel(l, nDims_)]);
+    return this->operator[](map_[listToLabel(list, nDimensions_)]);
 }
 
 template <class mappedType> const Foam::Map<Foam::label>&

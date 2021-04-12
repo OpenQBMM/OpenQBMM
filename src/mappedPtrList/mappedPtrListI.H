@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -52,19 +52,19 @@ Foam::mappedPtrList<mappedType>::operator()(ArgsT ...args) const
 template <class mappedType>
 const mappedType& Foam::mappedPtrList<mappedType>::operator()
 (
-    const Foam::labelList& l
+    const Foam::labelList& list
 ) const
 {
-    return this->operator[](map_[listToLabel(l, nDims_)]);
+    return this->operator[](map_[listToLabel(list, nDimensions_)]);
 }
 
 template <class mappedType>
 mappedType& Foam::mappedPtrList<mappedType>::operator()
 (
-    const Foam::labelList& l
+    const Foam::labelList& list
 )
 {
-    return this->operator[](map_[listToLabel(l, nDims_)]);
+    return this->operator[](map_[listToLabel(list, nDimensions_)]);
 }
 
 template <class mappedType> const Foam::Map<Foam::label>&
