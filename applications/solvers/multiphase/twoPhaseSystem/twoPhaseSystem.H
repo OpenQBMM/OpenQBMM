@@ -104,7 +104,7 @@ class twoPhaseSystem
         autoPtr<orderedPhasePair> pair2In1_;
 
         //- Blending methods
-        HashTable<autoPtr<blendingMethod>, word, word::hash> blendingMethods_;
+        HashTable<autoPtr<blendingMethod>> blendingMethods_;
 
         //- Drag model
         autoPtr<BlendedInterfacialModel<dragModel>> drag_;
