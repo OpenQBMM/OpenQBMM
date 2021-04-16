@@ -2,8 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2014-2019 OpenFOAM Foundation
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2014-2015 OpenFOAM Foundation
+    Copyright (C) 2017-2021 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,14 +30,6 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::phasePairKey::hash::hash()
-{}
-
-
-Foam::phasePairKey::phasePairKey()
-{}
-
-
 Foam::phasePairKey::phasePairKey
 (
     const word& name1,
@@ -47,45 +42,6 @@ Foam::phasePairKey::phasePairKey
 {}
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::phasePairKey::~phasePairKey()
-{}
-
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-bool Foam::phasePairKey::ordered() const
-{
-    return ordered_;
-}
-
-
-// * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * * //
-
-Foam::label Foam::phasePairKey::hash::operator()
-(
-    const phasePairKey& key
-) const
-{
-    if (key.ordered_)
-    {
-        return
-            word::hash()
-            (
-                key.first(),
-                word::hash()(key.second())
-            );
-    }
-    else
-    {
-        return
-            word::hash()(key.first())
-          + word::hash()(key.second());
-    }
-}
-
-
 // * * * * * * * * * * * * * * Friend Operators  * * * * * * * * * * * * * * //
 
 bool Foam::operator==
@@ -94,14 +50,12 @@ bool Foam::operator==
     const phasePairKey& b
 )
 {
-    const label c = Pair<word>::compare(a, b);
-
+    const int cmp = Pair<word>::compare(a, b);
     return
-        (a.ordered_ == b.ordered_)
-     && (
-            (a.ordered_ && (c == 1))
-         || (!a.ordered_ && (c != 0))
-        );
+    (
+        (a.ordered() == b.ordered())
+     && (a.ordered() ? (cmp == 1) : cmp)
+    );
 }
 
 
@@ -119,29 +73,28 @@ bool Foam::operator!=
 
 Foam::Istream& Foam::operator>>(Istream& is, phasePairKey& key)
 {
-    const FixedList<word, 3> temp(is);
+    const FixedList<word, 3> toks(is);
 
-    key.first() = temp[0];
+    key.first() = toks[0];
+    key.second() = toks[2];
+    const word& order = toks[1];
 
-    if (temp[1] == "and")
-    {
-        key.ordered_ = false;
-    }
-    else if (temp[1] == "in")
+    if (order == "in")
     {
         key.ordered_ = true;
+    }
+    else if (order == "and")
+    {
+        key.ordered_ = false;
     }
     else
     {
         FatalErrorInFunction
-            << "Phase pair type is not recognised. "
-            << temp
-            << "Use (phaseDispersed in phaseContinuous) for an ordered"
-            << "pair, or (phase1 and pase2) for an unordered pair."
+            << "Phase pair type is not recognised. " << toks
+            << "Use (phaseDispersed in phaseContinuous) for an ordered pair,"
+               " or (phase1 and phase2) for an unordered pair.\n"
             << exit(FatalError);
     }
-
-    key.second() = temp[2];
 
     return is;
 }
@@ -154,7 +107,7 @@ Foam::Ostream& Foam::operator<<(Ostream& os, const phasePairKey& key)
     os  << token::BEGIN_LIST
         << key.first()
         << token::SPACE
-        << (key.ordered_ ? "in" : "and")
+        << (key.ordered() ? "in" : "and")
         << token::SPACE
         << key.second()
         << token::END_LIST;
