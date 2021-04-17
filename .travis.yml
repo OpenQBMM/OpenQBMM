@@ -13,12 +13,12 @@ before_install:
     - sudo sh -c "sudo apt-get install -qq openfoam${OF_VERS}-default"
 
 install:
-    - source /usr/lib/openfoam${OF_VERS}/etc/bashrc
+    - source /usr/lib/openfoam/openfoam${OF_VERS}/etc/bashrc
     - simpleFoam -help
     - ./Allwmake
 
 before_script:
-    - source /usr/lib/openfoam${OF_VERS}/etc/bashrc
+    - source /usr/lib/openfoam/openfoam${OF_VERS}/etc/bashrc
 
 script:
     # Should add an automated test runner script here
