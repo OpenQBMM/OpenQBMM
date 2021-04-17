@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4007235.svg)](https://doi.org/10.5281/zenodo.4007235)
+
 ```
 /*---------------------------------------------------------------------------*\
                ____                    ____  ____  __  __ __  __
@@ -35,7 +37,13 @@ version.
 The development of the OpenQBMM solver suite was sponsored by the National
 Science Foundation of the United States, under the SI2 – SSE award
 NSF – ACI 1440443 for the period between October 1st, 2014 and September 30th 
-2019.
+
+## How to cite
+
+Cite OpenQBMM using the Zenodo DOI [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4007235.svg)](https://doi.org/10.5281/zenodo.4007235)
+
+Release-specific DOIs can be found on the Zenodo webpage: click in the badge
+and find the DOI of the desired version in the version list.
 
 ## Contact information
 
