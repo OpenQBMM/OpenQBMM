@@ -10,6 +10,7 @@ env:
 
 before_install:
     - sudo sh -c "wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash"
+    - sudo sh -c "sudo apt-get install -qq openfoam${OF_VERS}-default"
 
 install:
     #- source /usr/lib/openfoam${OF_VERS}/etc/bashrc
