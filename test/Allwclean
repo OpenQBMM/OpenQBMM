@@ -3,10 +3,14 @@ cd "${0%/*}" || exit                            # Run from this directory
 #------------------------------------------------------------------------------
 
 wclean populationBalanceModel
+wclean all momentSets
 wclean all momentInversions
 wclean univariateQuadratureApproximation
 wclean Vandermonde
 wclean univariateMomentAdvection/setMoments1D
 wclean univariateMomentAdvection/setMoments2D
+
+# Cleaning logs in case tests were executed
+rm -f log.*
 
 #------------------------------------------------------------------------------

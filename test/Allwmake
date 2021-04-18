@@ -11,6 +11,7 @@ wmake Vandermonde
 wmake univariateMomentAdvection/setMoments1D
 wmake univariateMomentAdvection/setMoments2D
 
+wmake -all momentSets/univariate
 wmake -all momentInversions/univariate
 wmake momentInversions/multivariate/monoKineticMomentInversion
 wmake momentInversions/multivariate/CHyQMOMMomentInversion
