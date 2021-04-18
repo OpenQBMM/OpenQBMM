@@ -1,0 +1,51 @@
+name: Regression tests
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: 
+      - master
+      - development-openfoam.com
+  pull_request:
+    branches: 
+      - master
+      - development-openfoam.com
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install OpenFOAM
+        run: |
+          wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+          sudo apt-get install -qq openfoam${OF_VERS}-default
+        env: 
+          OF_VERS: 2012
+          
+      - name: Build OpenQBMM
+        run: /usr/bin/openfoam${OF_VERS} ./Allwmake -j
+        env: 
+          OF_VERS: 2012
+          
+      - name: Build OpenQBMM tests
+        run: /usr/bin/openfoam${OF_VERS} ./test/Allwmake -j
+        env: 
+          OF_VERS: 2012
+          
+      - name: Run OpenQBMM tests
+        run: /usr/bin/openfoam${OF_VERS} ./test/Allrun -j
+        env: 
+          OF_VERS: 2012
+          
