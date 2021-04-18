@@ -98,6 +98,7 @@ Foam::univariateMomentSet::univariateMomentSet
     ),
     alpha_(),
     beta_(),
+    zeta_(nMoments_ - 1),
     negativeZeta_(0),
     degenerate_(false),
     fullyRealizable_(true),
