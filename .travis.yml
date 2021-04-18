@@ -16,7 +16,7 @@ install:
     - source /usr/lib/openfoam/openfoam${OF_VERS}/etc/bashrc
     - simpleFoam -help
     - ./Allwmake -j
-    - ./tests/Allwmake -j
+    - ./test/Allwmake -j
 
 before_script:
     - source /usr/lib/openfoam/openfoam${OF_VERS}/etc/bashrc
@@ -25,5 +25,5 @@ script:
     # Should add an automated test runner script here
     # - ./Alltest
     # - ./foamStyleCheck/checkStyle
-    - ./tests/Allrun
+    - ./test/Allrun
     - pbeFoam -help
