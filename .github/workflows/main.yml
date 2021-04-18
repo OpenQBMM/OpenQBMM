@@ -29,13 +29,8 @@ jobs:
         run: |
           wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
           sudo apt-get install -qq openfoam${OF_VERS}-default
+          /usr/bin/openfoam2012 ./Allwmake -j
+          /usr/bin/openfoam2012 ./test/Allwmake -j
         env: 
           OF_VERS: 2012
-
-      - name: Build OpenQBMM
-        run: |
-          source /usr/lib/openfoam/openfoam${OF_VERS}/etc/bashrc
-          ./Allwmake -j
-          ./test/Allwmake -j
-        env: 
-          OF_VERS: 2012
+          
