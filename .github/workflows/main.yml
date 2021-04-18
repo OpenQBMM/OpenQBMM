@@ -1,14 +1,16 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Regression tests
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master, development-openfoam.com ]
+    branches: 
+      - master
+      - development-openfoam.com
   pull_request:
-    branches: [ master, development-openfoam.com ]
+    branches: 
+      - master
+      - development-openfoam.com
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -29,8 +31,21 @@ jobs:
         run: |
           wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
           sudo apt-get install -qq openfoam${OF_VERS}-default
-          /usr/bin/openfoam2012 ./Allwmake -j
-          /usr/bin/openfoam2012 ./test/Allwmake -j
+        env: 
+          OF_VERS: 2012
+          
+      - name: Build OpenQBMM
+        run: /usr/bin/openfoam${OF_VERS} ./Allwmake -j
+        env: 
+          OF_VERS: 2012
+          
+      - name: Build OpenQBMM tests
+        run: /usr/bin/openfoam${OF_VERS} ./test/Allwmake -j
+        env: 
+          OF_VERS: 2012
+          
+      - name: Run OpenQBMM tests
+        run: /usr/bin/openfoam${OF_VERS} ./test/Allrun -j
         env: 
           OF_VERS: 2012
           
