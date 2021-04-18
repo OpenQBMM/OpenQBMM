@@ -16,6 +16,7 @@ install:
     - source /usr/lib/openfoam/openfoam${OF_VERS}/etc/bashrc
     - simpleFoam -help
     - ./Allwmake -j
+    - ./tests/Allwmake -j
 
 before_script:
     - source /usr/lib/openfoam/openfoam${OF_VERS}/etc/bashrc
