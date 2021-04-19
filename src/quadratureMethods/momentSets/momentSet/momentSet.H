@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -54,9 +54,7 @@ namespace Foam
                        Class momentSet Declaration
 \*---------------------------------------------------------------------------*/
 
-class momentSet
-:
-    public mappedList<scalar>
+class momentSet : public mappedList<scalar>
 {
 protected:
 
@@ -73,6 +71,13 @@ protected:
 
         //- Type of support of the measure associated to the moment set
         word support_;
+
+    // Static constants
+
+        //- Maximum dimensions of the NDF
+        //  This is decided based on computational cost and to the extent
+        //  multivariate algorithms have been tested.
+        static const label maxNDFDimensions_ = 5;
 
 
 public:
