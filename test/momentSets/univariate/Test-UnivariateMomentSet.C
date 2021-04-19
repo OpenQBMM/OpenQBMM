@@ -65,6 +65,7 @@ void compareZetas
             << "  Size of computed zetas vector: " << computedZetas.size()
             << endl
             << "  Size of expected zetas vector: " << expectedZetas.size()
+            << endl
             << exit(FatalError);
     }
 
@@ -72,7 +73,7 @@ void compareZetas
     {
         scalar magDiff = mag(computedZetas[zetai] - expectedZetas[zetai]);
 
-        if (!(magDiff < SMALL))
+        if (magDiff >= SMALL)
         {
             FatalErrorInFunction
                 << "Values of zetas do not match: " 
