@@ -2,8 +2,13 @@
 
 cd "${0%/*}" || exit                            # Run from this directory
 
+# Basic functionality
+Test-Vandermonde
+
+# Moment sets
 Test-UnivariateMomentSet
 
+# Quadrature algorithms
 (cd ./momentInversions/univariate/univariateMomentInversion && Test-UnivariateMomentInversion)
 
 # Move back to the main OpenQBMM directory
