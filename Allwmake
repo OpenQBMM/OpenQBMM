@@ -30,7 +30,7 @@ applications/Allwmake $targetType $*
 
 # Build tests?
 unset buildTests
-buildTests=true
+#buildTests=true
 
 if [ "$buildTests" = true ] && [ -x "test/Allwmake" ]
 then
