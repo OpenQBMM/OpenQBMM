@@ -1,5 +1,12 @@
 #!/bin/sh
 
+cd "${0%/*}" || exit                            # Run from this directory
+
 Test-UnivariateMomentSet
+
+(cd ./momentInversions/univariate/univariateMomentInversion && Test-UnivariateMomentInversion)
+
+# Move back to the main OpenQBMM directory
+cd ..
 
 #------------------------------------------------------------------------------
