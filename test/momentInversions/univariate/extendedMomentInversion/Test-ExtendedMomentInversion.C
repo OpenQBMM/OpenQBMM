@@ -49,7 +49,8 @@ using namespace Foam;
 
 int main(int argc, char *argv[])
 {
-    #include "createFields.H"
+    Info<< "Reading quadratureProperties\n" << endl;
+    dictionary quadratureProperties(IFstream("quadratureProperties")());
 
     Info << "Testing extendedMomentInversion\n" << endl;
 
