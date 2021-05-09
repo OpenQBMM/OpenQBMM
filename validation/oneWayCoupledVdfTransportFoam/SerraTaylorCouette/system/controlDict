@@ -55,7 +55,7 @@ functions
     d10Average
     {
         type                coded;
-        functionObjectLibs  ("libutilityFunctionObjects.so");
+        libs                (libutilityFunctionObjects);
         name                d10VolumeAverage;
         writeControl        timeStep;
 

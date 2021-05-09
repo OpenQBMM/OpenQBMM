@@ -55,8 +55,8 @@ functions
 {
     fieldAverage1
     {
-        type            fieldAverage;
-        functionObjectLibs ( "libfieldFunctionObjects.so" );
+        type           fieldAverage;
+        libs           (libfieldFunctionObjects);
         writeControl   outputTime;
         timeStart       50;
         fields

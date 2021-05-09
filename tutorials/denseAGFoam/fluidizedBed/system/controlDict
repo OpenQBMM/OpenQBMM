@@ -92,7 +92,7 @@ functions
     pProbes
     {
         type        probes;
-        functionObjectLibs ("libsampling.so");
+        libs        (libsampling);
         probeLocations
         (
             (0.14   0       0)

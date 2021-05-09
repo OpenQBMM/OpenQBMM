@@ -56,7 +56,7 @@ functions
     temperatureRatio
     {
         type                coded;
-        functionObjectLibs  ("libutilityFunctionObjects.so");
+        libs                (libutilityFunctionObjects);
         name                temperatureRatio;
         writeControl        timeStep;
 
@@ -247,7 +247,7 @@ functions
     fieldAverage
     {
         type            fieldAverage;
-        functionObjectLibs ( "libfieldFunctionObjects.so" );
+        libs            (libfieldFunctionObjects);
         writeControl    writeTime;
         timeStart       5;
         fields

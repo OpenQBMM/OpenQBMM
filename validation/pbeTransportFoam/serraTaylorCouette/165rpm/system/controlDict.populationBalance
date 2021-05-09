@@ -55,7 +55,7 @@ functions
     d43Average
     {
         type                coded;
-        functionObjectLibs  ("libutilityFunctionObjects.so");
+        libs                (libutilityFunctionObjects);
         name                d43VolumeAverage;
         writeControl        timeStep;
 
