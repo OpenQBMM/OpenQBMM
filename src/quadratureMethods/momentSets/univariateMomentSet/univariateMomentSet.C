@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -51,6 +51,7 @@ Foam::univariateMomentSet::univariateMomentSet
     alpha_(),
     beta_(),
     zeta_(nMoments_ - 1),
+    canonicalMoments_(),
     negativeZeta_(0),
     degenerate_(false),
     fullyRealizable_(true),
@@ -80,6 +81,11 @@ Foam::univariateMomentSet::univariateMomentSet
 
     alpha_.setSize(recurrenceSize, 0);
     beta_.setSize(recurrenceSize + 1, 0);
+
+    if (support_ == "01")
+    {
+        canonicalMoments_.setSize(nMoments_ - 1, 0);
+    }
 }
 
 Foam::univariateMomentSet::univariateMomentSet
@@ -144,11 +150,11 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     const label nZeta
 )
 {
-    scalarList canonicalMoments(nZeta, Zero);
+    canonicalMoments_ = 0.0;
 
-    canonicalMoments[0] = zeta[0];
+    canonicalMoments_[0] = zeta[0];
 
-    if (mag(canonicalMoments[0] - 1.0) <= SMALL)
+    if (mag(canonicalMoments_[0] - 1.0) <= SMALL)
     {
         nRealizableMoments_ = 2;
         onMomentSpaceBoundary_ = true;
@@ -158,10 +164,10 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 
     for (label zetai = 1; zetai < nZeta; zetai++)
     {
-        canonicalMoments[zetai]
-            = zeta[zetai]/(1.0 - canonicalMoments[zetai - 1]);
+        canonicalMoments_[zetai]
+            = zeta[zetai]/(1.0 - canonicalMoments_[zetai - 1]);
 
-        if (canonicalMoments[zetai] < 0.0 || canonicalMoments[zetai] > 1.0)
+        if (canonicalMoments_[zetai] < 0.0 || canonicalMoments_[zetai] > 1.0)
         {
             nRealizableMoments_ = zetai + 1;
 
@@ -169,8 +175,8 @@ void Foam::univariateMomentSet::checkCanonicalMoments
         }
         else if
         (
-            mag(canonicalMoments[zetai]) <= SMALL
-         || mag(canonicalMoments[zetai] - 1.0) <= SMALL
+            mag(canonicalMoments_[zetai]) <= SMALL
+         || mag(canonicalMoments_[zetai] - 1.0) <= SMALL
         )
         {
             nRealizableMoments_ = zetai + 2;

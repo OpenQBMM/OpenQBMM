@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -69,6 +69,24 @@ Foam::scalarList& Foam::univariateMomentSet::zetas()
     }
 
     return zeta_;
+}
+
+Foam::scalarList& Foam::univariateMomentSet::canonicalMoments()
+{
+    if (support_ != "01")
+    {
+        FatalErrorInFunction
+            << "Canonical moments are computed only for support [0, 1]." << nl
+            << "    The moment set has support " << support_ << "."
+            << abort(FatalError);
+    }
+
+    if (!realizabilityChecked_)
+    {
+        checkRealizability(false);
+    }
+
+    return canonicalMoments_;
 }
 
 bool Foam::univariateMomentSet::isDegenerate()

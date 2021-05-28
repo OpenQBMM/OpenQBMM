@@ -66,6 +66,9 @@ class univariateMomentSet : public momentSet
         //- Zeta values to check moment realizability
         scalarList zeta_;
 
+        //- Canonical moments associated to the moment vector
+        scalarList canonicalMoments_;
+
         //- Position of first negative zeta
         label negativeZeta_;
 
@@ -152,6 +155,9 @@ public:
 
         //- Returns zeta_k values for the moment set
         inline scalarList& zetas();
+
+        //- Returns the canonical moments if support is [0, 1]
+        inline scalarList& canonicalMoments();
 
         //- Returns degenerate status of the moment set
         inline bool isDegenerate();
