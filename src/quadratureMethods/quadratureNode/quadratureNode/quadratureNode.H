@@ -289,20 +289,25 @@ public:
             virtual velocityAbscissaeType& velocityAbscissae();
 
             //- Return the diameter given an abscissae
-            tmp<volScalarField> d(const volScalarField& x) const;
+            tmp<volScalarField> d(const volScalarField& abscissa) const;
 
             //- Return the diameter given an abscissae and celli
-            scalar d(const label celli, const scalar& x) const;
+            scalar d(const label celli, const scalar& abscissa) const;
 
             //- Return the number density given an abscissae
             tmp<volScalarField> n
             (
-                const volScalarField& w,
-                const volScalarField& x
+                const volScalarField& weight,
+                const volScalarField& abscissa
             ) const;
 
             //- Return the number density given an abscissae and celli
-            scalar n(const label celli, const scalar& w, const scalar& x) const;
+            scalar n
+            (
+                const label celli, 
+                const scalar& weight, 
+                const scalar& abscissa
+            ) const;
 };
 
 

@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -25,7 +25,7 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 \*---------------------------------------------------------------------------*/
 
 #include "quadratureNode.H"
@@ -136,6 +136,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     forAll(abscissae_, dimi)
     {
         label cmpt = scalarIndexes_[dimi];
+
         abscissae_.set
         (
             dimi,
@@ -168,6 +169,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 dimi,
                 new PtrList<weightType>(nSecondaryNodes_)
             );
+
             secondaryAbscissae_.set
             (
                 dimi,
@@ -340,6 +342,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 else if (abscissaeDimensions[dimi] == dimMass)
                 {
                     massBased_ = true;
+
                     word rhoName = 
                         IOobject::groupName
                         (
@@ -368,6 +371,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     forAll(abscissae_, dimi)
     {
         label cmpt = scalarIndexes_[dimi];
+
         abscissae_.set
         (
             dimi,
@@ -514,7 +518,7 @@ template<class scalarType, class vectorType>
 Foam::tmp<Foam::volScalarField>
 Foam::quadratureNode<scalarType, vectorType>::d
 (
-    const volScalarField& x
+    const volScalarField& abscissa
 ) const
 {
     if (sizeIndex_ == -1)
@@ -540,15 +544,15 @@ Foam::quadratureNode<scalarType, vectorType>::d
 
     if (lengthBased_)
     {
-        return x;
+        return abscissa;
     }
 
     if (massBased_ && rhoPtr_)
     {
-        return cbrt(x*6.0/(Foam::constant::mathematical::pi*(*rhoPtr_)));
+        return cbrt(abscissa*6.0/(Foam::constant::mathematical::pi*(*rhoPtr_)));
     }
 
-    return cbrt(x*6.0/Foam::constant::mathematical::pi);
+    return cbrt(abscissa*6.0/Foam::constant::mathematical::pi);
 }
 
 
@@ -556,23 +560,28 @@ template<class scalarType, class vectorType>
 Foam::scalar Foam::quadratureNode<scalarType, vectorType>::d
 (
     const label celli,
-    const scalar& x
+    const scalar& abscissa
 ) const
 {
     if (sizeIndex_ == -1)
     {
         return 0.0;
     }
+
     if (lengthBased_)
     {
-        return x;
+        return abscissa;
     }
 
     if (massBased_ && rhoPtr_)
     {
-        return cbrt(x*6.0/(Foam::constant::mathematical::pi*(*rhoPtr_)[celli]));
+        return cbrt
+        (
+            abscissa*6.0/(Foam::constant::mathematical::pi*(*rhoPtr_)[celli])
+        );
     }
-    return cbrt(x*6.0/Foam::constant::mathematical::pi);
+
+    return cbrt(abscissa*6.0/Foam::constant::mathematical::pi);
 }
 
 
@@ -580,33 +589,34 @@ template<class scalarType, class vectorType>
 Foam::tmp<Foam::volScalarField>
 Foam::quadratureNode<scalarType, vectorType>::n
 (
-    const volScalarField& w,
-    const volScalarField& x
+    const volScalarField& weight,
+    const volScalarField& abscissa
 ) const
 {
     if (!useVolumeFraction_)
     {
-        return w;
+        return weight;
 
     }
 
     tmp<volScalarField> v;
+
     if (massBased_ && rhoPtr_)
     {
-        v = x/(*rhoPtr_);
+        v = abscissa/(*rhoPtr_);
     }
     else if (lengthBased_)
     {
-        v = pow3(x);
+        v = pow3(abscissa);
     }
     else
     {
-        v = x;
+        v = abscissa;
     }
 
     v.ref().max(pow3(SMALL));
 
-    return w/v;
+    return weight/v;
 }
 
 
@@ -614,31 +624,31 @@ template<class scalarType, class vectorType>
 Foam::scalar Foam::quadratureNode<scalarType, vectorType>::n
 (
     const label celli,
-    const scalar& w,
-    const scalar& x
+    const scalar& weight,
+    const scalar& abscissa
 ) const
 {
     if (!useVolumeFraction_)
     {
-        return w;
+        return weight;
     }
 
     scalar v = pow3(SMALL);
 
     if (massBased_ && rhoPtr_)
     {
-        v = max(v, x/(*rhoPtr_)[celli]);
+        v = max(v, abscissa/(*rhoPtr_)[celli]);
     }
     else if (lengthBased_)
     {
-        v = max(v, pow3(x));
+        v = max(v, pow3(abscissa));
     }
     else
     {
-        v = max(v, x);
+        v = max(v, abscissa);
     }
 
-    return w/v;
+    return weight/v;
 }
 
 
