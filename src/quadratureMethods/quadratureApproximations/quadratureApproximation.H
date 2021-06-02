@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -129,7 +129,7 @@ public:
 
         //- Construct from dictionary name, name, momentFieldSet
         //  Moment fields in the momentFieldSet passed as reference are
-        //  used to initialise the local copy of moments. Inversion on
+        //  used to initialize the local copy of moments. Inversion on
         //  creation is optional.
         quadratureApproximation
         (

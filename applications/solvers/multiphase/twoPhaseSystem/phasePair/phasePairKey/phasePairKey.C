@@ -90,7 +90,7 @@ Foam::Istream& Foam::operator>>(Istream& is, phasePairKey& key)
     else
     {
         FatalErrorInFunction
-            << "Phase pair type is not recognised. " << toks
+            << "Phase pair type is not recognized. " << toks
             << "Use (phaseDispersed in phaseContinuous) for an ordered pair,"
                " or (phase1 and phase2) for an unordered pair.\n"
             << exit(FatalError);

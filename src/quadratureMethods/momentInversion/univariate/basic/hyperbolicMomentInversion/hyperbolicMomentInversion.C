@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -124,28 +124,28 @@ void Foam::hyperbolicMomentInversion::invert
     }
 
     // Compute normalized moments
-    scalarList normalisedMoments(moments);
+    scalarList normalizedMoments(moments);
 
-    forAll(normalisedMoments, mi)
+    forAll(normalizedMoments, mi)
     {
-        normalisedMoments[mi] /= moments[0];
+        normalizedMoments[mi] /= moments[0];
     }
 
-    scalar meanVelocity = normalisedMoments[1];
+    scalar meanVelocity = normalizedMoments[1];
 
     // Compute central moments
-    scalarList centralMoments(normalisedMoments);
+    scalarList centralMoments(normalizedMoments);
 
     centralMoments[0] = 1.0;
     centralMoments[2] -= sqr(meanVelocity);
 
     centralMoments[3] -=
-        3.0*meanVelocity*normalisedMoments[2]
+        3.0*meanVelocity*normalizedMoments[2]
       - 2.0*pow3(meanVelocity);
 
     centralMoments[4] -=
-        4.0*meanVelocity*normalisedMoments[3]
-      - 6.0*sqr(meanVelocity)*normalisedMoments[2]
+        4.0*meanVelocity*normalizedMoments[3]
+      - 6.0*sqr(meanVelocity)*normalizedMoments[2]
       + 3.0*pow4(meanVelocity);
 
     // Compute realizability condition
