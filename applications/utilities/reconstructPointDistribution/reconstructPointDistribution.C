@@ -150,12 +150,12 @@ int main(int argc, char *argv[])
         mkDir(probeDir);
 
         unsigned int p = IOstream::defaultPrecision() + 7;
-
-        OFstream* outputFile;
+        OFstream* outputFile = NULL;
 
         if (Pstream::master())
         {
             outputFile = new OFstream(probeSubDir/"quadrature");
+
             (*outputFile)  << "# Quadrature" << nl
                         << '#' << setw(p - 1)
                         << "abscissae" << ' ' << setw(p - 9)
