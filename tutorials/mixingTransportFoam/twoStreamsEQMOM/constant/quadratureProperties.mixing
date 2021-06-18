@@ -42,11 +42,11 @@ extendedMomentInversion
 
 momentAdvection
 {
-    univariateMomentAdvection   firstOrderKinetic;
+    univariateMomentAdvection   zeta;
 
     basicMomentInversion
     {
-        univariateMomentInversion GaussRadau;
+        univariateMomentInversion Gauss;
     }
 }
 

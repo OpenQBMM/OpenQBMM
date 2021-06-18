@@ -100,6 +100,15 @@ Foam::univariateAdvection::zeta::zeta
             << abort(FatalError);
     }
 
+    if (support_ == "RPlus")
+    {
+        Info << endl << "Using zeta scheme with R+ support.\n" << endl;
+    }
+    else
+    {
+        Info << endl << "Using zeta scheme with [0, 1] support.\n" << endl;
+    }
+
     // Populating zeta_k fields and interpolated zeta_k fields
     forAll(auxiliaryFields_, auxiliaryFieldi)
     {
