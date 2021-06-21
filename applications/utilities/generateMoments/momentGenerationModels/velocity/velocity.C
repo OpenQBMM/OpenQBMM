@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -78,9 +78,11 @@ void Foam::momentGenerationSubModels::velocity::updateMoments
 )
 {
     label size = reset(patchi);
+
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
+
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
@@ -107,9 +109,11 @@ void Foam::momentGenerationSubModels::velocity::updateMoments
 )
 {
     label size = reset(cells);
+
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
+        
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));

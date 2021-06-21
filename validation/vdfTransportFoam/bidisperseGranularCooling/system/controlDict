@@ -53,7 +53,7 @@ functions
     temperatureRatio
     {
         type                coded;
-        functionObjectLibs  ("libutilityFunctionObjects.so");
+        libs                (libutilityFunctionObjects);
         name                temperatureRatio;
         writeControl        timeStep;
 

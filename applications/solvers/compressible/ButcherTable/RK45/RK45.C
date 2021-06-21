@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2017-2019 Jeffrey Heylmun
+    Copyright (C) 2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -34,7 +35,6 @@ namespace Foam
 {
 namespace ButcherTables
 {
-
     defineTypeNameAndDebug(RK45, 0);
     addToRunTimeSelectionTable(ButcherTable, RK45, dictionary);
 }
@@ -42,9 +42,7 @@ namespace ButcherTables
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::ButcherTables::RK45::RK45(const fvMesh& mesh)
-:
-    ButcherTable(mesh)
+Foam::ButcherTables::RK45::RK45(const fvMesh& mesh) : ButcherTable(mesh)
 {}
 
 
@@ -68,8 +66,7 @@ Foam::ButcherTables::RK45::conservedVariablesCoeffs() const
     };
 }
 
-Foam::List<Foam::scalarList>
-Foam::ButcherTables::RK45::fluxCoeffs() const
+Foam::List<Foam::scalarList> Foam::ButcherTables::RK45::fluxCoeffs() const
 {
     return
     {

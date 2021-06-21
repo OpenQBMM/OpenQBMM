@@ -10,9 +10,8 @@ endif
 
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I$(LIB_SRC)/sampling/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
-    -I$(LIB_SRC)/fvOptions/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
@@ -29,15 +28,16 @@ EXE_INC = \
 
 EXE_LIBS = \
     -lfiniteVolume \
-    -lsampling \
-    -lmeshTools \
     -lfvOptions \
+    -lmeshTools \
+    -lsampling \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lradiationModels \
     -lspecie \
     -lturbulenceModels \
     -lcompressibleTurbulenceModels \
+    -latmosphericModels \
     -L$(FOAM_MODULE_LIBBIN) \
     -lquadratureNode \
     -lmomentSets \

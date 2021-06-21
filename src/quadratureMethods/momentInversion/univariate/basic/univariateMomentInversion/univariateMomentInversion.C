@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,8 +30,7 @@ License
 
 #include "univariateMomentInversion.H"
 #include "IOmanip.H"
-
-#include "eigenSolver.H"
+#include "EigenMatrix.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -136,13 +135,13 @@ void Foam::univariateMomentInversion::invert
     JacobiMatrix(moments, z, minKnownAbscissa, maxKnownAbscissa);
 
     // Computing weights and abscissae
-    eigenSolver zEig(z, true);
+    EigenMatrix<scalar> zEig(z, true);
 
     // Computing weights and abscissae
     for (label i = 0; i < nNodes_; i++)
     {
-        weights_[i] = moments[0]*sqr(zEig.eigenvectors()[0][i]);
-        abscissae_[i] = zEig.eigenvaluesRe()[i];
+        weights_[i] = moments[0]*sqr(zEig.EVecs()[0][i]);
+        abscissae_[i] = zEig.EValsRe()[i];
     }
 }
 

@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -45,6 +45,12 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Utility to reconstructs a number density function in a point from its "
+        " moments."
+    );
+
     #include "addTimeOptions.H"
     #include "setRootCase.H"
     #include "createTime.H"
@@ -130,20 +136,31 @@ int main(int argc, char *argv[])
         }
 
         probeSubDir = "postProcessing"/probeSubDir/mesh.time().timeName();
-        probeDir = runTime.path()/probeSubDir;
-
-        // Remove ".."
+        
+        if (Pstream::parRun())
+        {
+            probeDir = runTime.path()/".."/probeSubDir;
+        }
+        else
+        {
+            probeDir = runTime.path()/probeSubDir;
+        }
+        
         probeDir.clean();
         mkDir(probeDir);
 
         unsigned int p = IOstream::defaultPrecision() + 7;
+        OFstream* outputFile = NULL;
 
-        OFstream outputFile(probeSubDir/"quadrature");
-        outputFile  << "# Quadrature" << nl
-                    << '#' << setw(p - 1)
-                    << "abscissae" << ' ' << setw(p - 9)
-                    << "n" << endl;
+        if (Pstream::master())
+        {
+            outputFile = new OFstream(probeSubDir/"quadrature");
 
+            (*outputFile)  << "# Quadrature" << nl
+                        << '#' << setw(p - 1)
+                        << "abscissae" << ' ' << setw(p - 9)
+                        << "n" << endl;
+        }
 
         // Create moment set where each entry is the list of probed moments
         mappedList<scalarList> momentProbes
@@ -169,10 +186,12 @@ int main(int argc, char *argv[])
                     phaseName
                 )
             );
+
             if (useMean)
             {
                 momentName += "Mean";
             }
+
             Info<<"Reading " << momentName << endl;
 
             volScalarField momenti
@@ -196,7 +215,6 @@ int main(int argc, char *argv[])
 
         forAll(mProbes, probei)
         {
-
             autoPtr<extendedMomentInversion> EQMOM
             (
                 extendedMomentInversion::New
@@ -238,6 +256,7 @@ int main(int argc, char *argv[])
 
             //- COnstruct sample distribution
             scalarField x(nSamples, Zero);
+            
             scalar xMax =
                 phaseDict.lookupOrDefault<scalar>("xMax", max(sAbscissae));
 
@@ -253,11 +272,14 @@ int main(int argc, char *argv[])
 
             scalarField w(EQMOM->f(x)/moments(0));
 
-            forAll(w, i)
+            if (Pstream::master())
             {
-                outputFile  << ' ' << setw(p) << x[i]
-                            << ' ' << setw(p) << w[i]
-                            << endl;
+                forAll(w, i)
+                {
+                    (*outputFile)  << ' ' << setw(p) << x[i]
+                                << ' ' << setw(p) << w[i]
+                                << endl;
+                }
             }
         }
     }

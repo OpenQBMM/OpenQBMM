@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -43,6 +43,14 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Solves for the moments of the velocity-based number density "
+        "function for a pure particulate flow, not coupled to any other "
+        "phase. Collision effects are described by a run-time selected "
+        "collision model."
+    );
+
     #include "postProcess.H"
 
     #include "setRootCase.H"
@@ -69,6 +77,7 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         populationBalance->solve();
+
         #include "computeParticleFields.H"
 
         runTime.write();

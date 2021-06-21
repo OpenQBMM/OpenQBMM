@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -35,35 +35,35 @@ License
 
 template <class mappedType>
 Foam::word
-Foam::mappedList<mappedType>::listToWord(const labelList& lst)
+Foam::mappedList<mappedType>::listToWord(const labelList& list)
 {
-    word w;
+    word listWord;
 
-    forAll(lst, dimi)
+    forAll(list, dimi)
     {
-        w += Foam::name(lst[dimi]);
+        listWord += Foam::name(list[dimi]);
     }
 
-    return w;
+    return listWord;
 }
 
 template <class mappedType>
 Foam::label
 Foam::mappedList<mappedType>::listToLabel
 (
-    const labelList& lst,
-    const label nDims
+    const labelList& list,
+    const label nDimensions
 )
 {
-    label l = 0;
-    label size = max(nDims, lst.size());
+    label listLabel = 0;
+    label size = max(nDimensions, list.size());
 
-    forAll(lst, dimi)
+    forAll(list, dimi)
     {
-        l += lst[dimi]*pow(scalar(10), size - dimi - 1);
+        listLabel += list[dimi]*pow(scalar(10), size - dimi - 1);
     }
 
-    return l;
+    return listLabel;
 }
 
 
@@ -77,18 +77,18 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 :
     List<mappedType>(size),
     map_(size),
-    nDims_(0)
+    nDimensions_(0)
 {
     forAll(indexes, i)
     {
-        nDims_ = max(nDims_, indexes[i].size());
+        nDimensions_ = max(nDimensions_, indexes[i].size());
     }
 
     forAll(*this, elemi)
     {
         map_.insert
         (
-            listToLabel(indexes[elemi], nDims_),
+            listToLabel(indexes[elemi], nDimensions_),
             elemi
         );
     }
@@ -103,18 +103,18 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 :
     List<mappedType>(size, initValue),
     map_(size),
-    nDims_(0)
+    nDimensions_(0)
 {
     forAll(indexes, i)
     {
-        nDims_ = max(nDims_, indexes[i].size());
+        nDimensions_ = max(nDimensions_, indexes[i].size());
     }
 
     forAll(*this, elemi)
     {
         map_.insert
         (
-            listToLabel(indexes[elemi], nDims_),
+            listToLabel(indexes[elemi], nDimensions_),
             elemi
         );
     }
@@ -129,20 +129,20 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 :
     List<mappedType>(size, initValue),
     map_(map),
-    nDims_(0)
+    nDimensions_(0)
 {
     forAllConstIter(Map<label>, map_, iter)
     {
-        label x = iter.key();
+        label key = iter.key();
         label nD = 0;
 
-        while (x)
+        while (key)
         {
-            x /= 10;
+            key /= 10;
             nD++;
         }
 
-        nDims_ = max(nDims_, nD);
+        nDimensions_ = max(nDimensions_, nD);
     }
 }
 
@@ -154,18 +154,18 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 :
     List<mappedType>(initList),
     map_(initList.size()),
-    nDims_(0)
+    nDimensions_(0)
 {
     forAll(indexes, i)
     {
-        nDims_ = max(nDims_, indexes[i].size());
+        nDimensions_ = max(nDimensions_, indexes[i].size());
     }
 
     forAll(*this, elemi)
     {
         map_.insert
         (
-            listToLabel(indexes[elemi], nDims_),
+            listToLabel(indexes[elemi], nDimensions_),
             elemi
         );
     }
@@ -199,7 +199,7 @@ Foam::label Foam::mappedList<mappedType>::calcMapIndex
         )
         {
             label argIndex = std::distance(indexes.begin(), iter);
-            mapIndex += (*iter)*pow(scalar(10), nDims_ - argIndex - 1);
+            mapIndex += (*iter)*pow(scalar(10), nDimensions_ - argIndex - 1);
         }
     }
 
@@ -220,18 +220,18 @@ void Foam::mappedList<mappedType>::resize(const label newSize)
 }
 
 template <class mappedType>
-bool Foam::mappedList<mappedType>::found(const labelList& l) const
+bool Foam::mappedList<mappedType>::found(const labelList& list) const
 {
-    if (l.size() > nDims_)
+    if (list.size() > nDimensions_)
     {
         return false;
     }
 
     forAllConstIter(Map<label>, map_, iter)
     {
-        label x = iter.key();
+        label key = iter.key();
 
-        if (x == listToLabel(l, nDims_))
+        if (key == listToLabel(list, nDimensions_))
         {
             return true;
         }
@@ -244,16 +244,16 @@ template <class mappedType>
 template <typename ...ArgsT>
 bool Foam::mappedList<mappedType>::found(ArgsT...args) const
 {
-    if (label(std::initializer_list<Foam::label>({args...}).size()) > nDims_)
+    if (label(std::initializer_list<Foam::label>({args...}).size()) > nDimensions_)
     {
         return false;
     }
 
     forAllConstIter(Map<label>, map_, iter)
     {
-        label x = iter.key();
+        label key = iter.key();
 
-        if (x == calcMapIndex({args...}))
+        if (key == calcMapIndex({args...}))
         {
             return true;
         }

@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -67,13 +67,6 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
     df_("df", dimless, dict),
     H0_("H0", dimLength, dict),
     primarySize_("primarySize", dimLength, dict),
-    flThermo_
-    (
-        mesh_.lookupObject<fluidThermo>
-        (
-            IOobject::groupName(basicThermo::dictName, continuousPhase_)
-        )
-    ),
     flTurb_
     (
         mesh_.lookupObject<turbulenceModel>
@@ -86,8 +79,24 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
         )
     ),
     epsilon_(flTurb_.epsilon()),
-    mu_(flThermo_.mu()),
-    rho_(flThermo_.rho())
+    mu_
+    (
+        dict.found("mu")
+      ? mesh.lookupObject<volScalarField>(dict.get<word>("mu"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("thermo:mu", continuousPhase_)
+        )
+    ),
+    rho_
+    (
+        dict.found("rho")
+      ? mesh.lookupObject<volScalarField>(dict.get<word>("rho"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("rho", continuousPhase_)
+        )
+    )
 {}
 
 

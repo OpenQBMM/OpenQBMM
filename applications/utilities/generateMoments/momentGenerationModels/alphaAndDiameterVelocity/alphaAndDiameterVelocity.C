@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -76,10 +76,10 @@ void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::updateMoments
 )
 {
     label size = reset();
+
     forAll(weights_, nodei)
     {
-         const dictionary& nodeDict =
-            dict.subDict("node" + Foam::name(nodei));
+        const dictionary& nodeDict = dict.subDict("node" + Foam::name(nodei));
         vectorField U("U", nodeDict, size);
 
         for (label cmpt = 1; cmpt < abscissae_[nodei].size(); cmpt++)
@@ -98,10 +98,10 @@ void Foam::momentGenerationSubModels::alphaAndDiameterVelocity::updateMoments
 )
 {
     label size = reset();
+
     forAll(weights_, nodei)
     {
-         const dictionary& nodeDict =
-            dict.subDict("node" + Foam::name(nodei));
+        const dictionary& nodeDict = dict.subDict("node" + Foam::name(nodei));
         vectorField U("U", nodeDict, size);
 
         for (label cmpt = 1; cmpt < abscissae_[nodei].size(); cmpt++)

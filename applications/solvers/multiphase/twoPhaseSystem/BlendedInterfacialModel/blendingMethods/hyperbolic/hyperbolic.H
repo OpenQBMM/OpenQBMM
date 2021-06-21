@@ -54,7 +54,7 @@ class hyperbolic
     // Private data
 
         //- Maximum fraction of phases which can be considered dispersed
-        HashTable<dimensionedScalar, word, word::hash> maxDispersedAlpha_;
+        HashTable<dimensionedScalar> maxDispersedAlpha_;
 
         //- Width of the transition
         const dimensionedScalar transitionAlphaScale_;

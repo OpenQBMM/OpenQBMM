@@ -5,13 +5,13 @@ cd "${0%/*}" || exit                            # Run from this directory
 # Use build from FOAM_MODULE_* (defaults to user locations)
 
 # wmake conditionalMomentInversion
-wmake eigenSolver
 wmake populationBalanceModel
 wmake univariateQuadratureApproximation
 wmake Vandermonde
 wmake univariateMomentAdvection/setMoments1D
 wmake univariateMomentAdvection/setMoments2D
 
+wmake -all momentSets/univariate
 wmake -all momentInversions/univariate
 wmake momentInversions/multivariate/monoKineticMomentInversion
 wmake momentInversions/multivariate/CHyQMOMMomentInversion

@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -30,9 +30,9 @@ Application
     field files for main solver to use as input.
 
 Description
-    Preprocessing application to eliminate the need to create fields for all
-    moments. Instead moments are consucted using inputs from
-    momentGenerationDict. Different methods can be used.
+    Utility to generate moments to initialize solvers. Instead moments are 
+    consucted using inputs from momentGenerationDict. 
+    Different methods can be used to specify the moment definition.
 
 \*---------------------------------------------------------------------------*/
 
@@ -46,6 +46,11 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Utility to generate moments to initialize QBMM solvers."
+    );
+
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
@@ -103,7 +108,9 @@ int main(int argc, char *argv[])
                 momentOrders,
                 nNodes
             );
+
         mappedPtrList<dictionary> boundaries(nMoments, momentOrders);
+
         forAll(momentOrders, mi)
         {
             word bName =
@@ -129,6 +136,7 @@ int main(int argc, char *argv[])
         //  Set internal field values and initialize moments.
         {
             Info<< "Setting internal fields" << nl << endl;
+
             const dictionary& dict
             (
                 phaseDict.found("internal")
@@ -141,6 +149,7 @@ int main(int argc, char *argv[])
             forAll(moments, mi)
             {
                 const labelList& momentOrder = momentOrders[mi];
+
                 moments.set
                 (
                     momentOrder,
@@ -171,6 +180,7 @@ int main(int argc, char *argv[])
                         )
                     )
                 );
+
                 moments[mi].primitiveFieldRef() =
                     momentGenerator().moments()(momentOrder);
 
@@ -197,6 +207,7 @@ int main(int argc, char *argv[])
             {
                 Info<< "Setting " << mesh.boundaryMesh()[bi].name()
                     << " boundary" << endl;
+
                 const dictionary& dict
                 (
                     phaseDict.found(mesh.boundaryMesh()[bi].name())
@@ -262,7 +273,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
 
         forAll(moments, mi)
         {

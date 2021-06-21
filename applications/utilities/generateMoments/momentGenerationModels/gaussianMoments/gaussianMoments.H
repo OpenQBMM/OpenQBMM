@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2016-2019 Alberto Passalacqua
+    Copyright (C) 2016-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -74,7 +74,7 @@ protected:
         bool isotropic_;
 
         //- Number of velocity directions
-        label nVelocityDims_;
+        label nVelocityDimensions_;
 
         //- Set nodes give alpha, U, Thea, and Sigma
         void setNodes

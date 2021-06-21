@@ -81,7 +81,6 @@
         pRefValue
     );
 
-
     Info<< "Reading populationBalanceProperties\n" << endl;
 
     IOdictionary populationBalanceProperties

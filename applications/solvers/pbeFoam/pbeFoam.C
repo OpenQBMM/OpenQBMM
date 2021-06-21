@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-06-21 Alberto Passalacqua: Derived solver from chemFoam.
 2019-11-29 Alberto Passalacqua: Ported to OpenFOAM+ v1906.
@@ -49,6 +49,11 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Single-cell solver for the population balance equation."
+    );
+
     argList::noParallel();
 
     #define CREATE_MESH createSingleCellMesh.H

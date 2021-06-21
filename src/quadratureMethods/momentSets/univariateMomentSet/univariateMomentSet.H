@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -53,9 +53,7 @@ namespace Foam
                     Class univariateMomentSet Declaration
 \*---------------------------------------------------------------------------*/
 
-class univariateMomentSet
-:
-    public momentSet
+class univariateMomentSet : public momentSet
 {
     // Private data
 
@@ -67,6 +65,9 @@ class univariateMomentSet
 
         //- Zeta values to check moment realizability
         scalarList zeta_;
+
+        //- Canonical moments associated to the moment vector
+        scalarList canonicalMoments_;
 
         //- Position of first negative zeta
         label negativeZeta_;
@@ -154,6 +155,9 @@ public:
 
         //- Returns zeta_k values for the moment set
         inline scalarList& zetas();
+
+        //- Returns the canonical moments if support is [0, 1]
+        inline scalarList& canonicalMoments();
 
         //- Returns degenerate status of the moment set
         inline bool isDegenerate();

@@ -19,9 +19,6 @@
 * conditionalMomentInversion
     Example of use of the conditionalMomentInversion class.
 
-* eigenSolver
-    Simple demonstration of the eigenSolver class.
-
 * extendedMomentInversion
     Example of use of the extendedMomentInversion class.
 

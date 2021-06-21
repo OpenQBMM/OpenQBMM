@@ -2,8 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2011-2018 OpenFOAM Foundation
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,7 +28,8 @@ Application
     denseAGFoam
 
 Description
-    Uses a normal distribution of velocities in the dilute regime for more
+    Solver for gas-particle flows with anisotropic Gaussian closures. It uses 
+    a normal distribution of velocities in the dilute regime for more
     accurate transport. The 0th, 1st, and 2nd order velocity moments are used
     for transport. A switching function is also used to calculate the
     importance of dense and dilute solutions.
@@ -71,6 +75,11 @@ void explicitSolve
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Solver for gas-particle flows with anisotropic Gaussian closures."
+    );
+    
     #include "postProcess.H"
 
     #include "setRootCase.H"

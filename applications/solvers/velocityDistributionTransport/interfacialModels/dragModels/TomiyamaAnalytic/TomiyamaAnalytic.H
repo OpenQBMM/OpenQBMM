@@ -27,7 +27,7 @@ Class
     Foam::dragModels::TomiyamaAnalytic
 
 Description
-    Analytical drag model of Tomiyama et al.
+    Tomiyama et al. (1995) drag law.
 
     Reference:
     \verbatim
@@ -35,7 +35,7 @@ Description
          Single Bubble in a Stagnant Liquid."
         Tomiyama, A., Kataoka, I., and Sakaguchi, T.,
         Nippon Kikai Gakkai Ronbunshu
-        Volume 61, Issue 587, 1995, pp. 2357-2364
+        Volume 61, Issue 587, 1995, Pages. 2357-2364
     \endverbatim
 
 SourceFiles

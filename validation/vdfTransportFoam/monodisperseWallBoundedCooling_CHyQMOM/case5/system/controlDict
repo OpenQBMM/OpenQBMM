@@ -1,6 +1,6 @@
 /*--------------------------------*- C++ -*----------------------------------*\
   =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox`
    \\    /   O peration     | Website:  https://openfoam.org
     \\  /    A nd           | Version:  dev
      \\/     M anipulation  |
@@ -55,10 +55,10 @@ functions
 {
     fieldAverage1
     {
-        type            fieldAverage;
-        functionObjectLibs ( "libfieldFunctionObjects.so" );
+        type           fieldAverage;
+        libs           (libfieldFunctionObjects);
         writeControl   outputTime;
-        timeStart       50;
+        timeStart      50;
         fields
         (
             U.air

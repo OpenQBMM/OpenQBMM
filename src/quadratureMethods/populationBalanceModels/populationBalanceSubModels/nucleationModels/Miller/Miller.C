@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -62,6 +62,7 @@ Foam::populationBalanceSubModels::nucleationModels::Miller::Miller
 )
 :
     nucleationModel(dict, mesh),
+    continuousPhase_(dict.lookupOrDefault("continuousPhase", word::null)),
     MCarbon_("MCarbon", dimMass/dimMoles, dict),
     nCarbonDimer_("nCarbonDimer", dimless, dict),
     nCarbonPAM_("nCarbonPAM", dimless, dict),
@@ -78,8 +79,15 @@ Foam::populationBalanceSubModels::nucleationModels::Miller::Miller
         ),
         mesh
     ),
-    flThermo_(mesh_.lookupObject<fluidThermo>(basicThermo::dictName)),
-    T_(flThermo_.T())
+    T_
+    (
+        dict.found("T")
+      ? mesh.lookupObject<volScalarField>(dict.get<word>("T"))
+      : mesh.lookupObject<volScalarField>
+        (
+            IOobject::groupName("T", continuousPhase_)
+        )
+    )
 {}
 
 

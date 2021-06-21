@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -122,8 +122,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
                 name_,
                 moments_(0).mesh(),
                 moments_(0).dimensions(),
-                abscissaDimensions,
-                false
+                abscissaDimensions
             )
         );
 
@@ -136,8 +135,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
                 name_,
                 moments_(0).mesh(),
                 moments_(0).dimensions(),
-                abscissaDimensions,
-                false
+                abscissaDimensions
             )
         );
 
@@ -150,8 +148,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
                 name_,
                 moments_(0).mesh(),
                 moments_(0).dimensions(),
-                abscissaDimensions,
-                false
+                abscissaDimensions
             )
         );
     }

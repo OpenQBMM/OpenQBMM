@@ -5,14 +5,14 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2011-2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2011-2017 OpenFOAM Foundation
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-06-21 Alberto Passalacqua: Derived solver from buoyantPimpleFoam and
                                 added solution of population balance.
 -------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is derivative work of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -45,41 +45,46 @@ Description
 #include "radiationModel.H"
 #include "fvOptions.H"
 #include "pimpleControl.H"
-#include "fixedFluxPressureFvPatchScalarField.H"
+#include "pressureControl.H"
 #include "populationBalanceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
 {
-    #include "setRootCase.H"
+    argList::addNote
+    (
+        "Transient solver for with population balance with buoyancy and "
+        "heat transfer."
+    );
+
+    #include "postProcess.H"
+
+    #include "addCheckCaseOptions.H"
+    #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
-
-    pimpleControl pimple(mesh);
-
+    #include "createControl.H"
     #include "createFields.H"
-    #include "createMRF.H"
-    #include "createFvOptions.H"
-    #include "createRadiationModel.H"
+    #include "createFieldRefs.H"
     #include "initContinuityErrs.H"
     #include "createTimeControls.H"
-    #include "CourantNos.H"
+    #include "compressibleCourantNo.H"
     #include "setInitialDeltaT.H"
 
     turbulence->validate();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    Info<< "\nStarting time loop\n" << endl;
+Info<< "\nStarting time loop\n" << endl;
 
     while (runTime.run())
     {
-        #include "createTimeControls.H"
-        #include "CourantNos.H"
+        #include "readTimeControls.H"
+        #include "compressibleCourantNo.H"
         #include "setDeltaT.H"
 
-        runTime++;
+        ++runTime;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
@@ -104,20 +109,15 @@ int main(int argc, char *argv[])
         }
 
         rho = thermo.rho();
-
         populationBalance->solve();
 
         runTime.write();
-
-        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-            << nl << endl;
+        runTime.printExecutionTime(Info);
     }
 
     Info<< "End\n" << endl;
 
     return 0;
 }
-
 
 // ************************************************************************* //

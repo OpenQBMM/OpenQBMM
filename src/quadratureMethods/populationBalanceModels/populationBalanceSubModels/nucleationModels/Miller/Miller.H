@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -41,7 +41,6 @@ SourceFiles
 #define Miller_H
 
 #include "nucleationModel.H"
-#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -64,6 +63,9 @@ private:
 
     // Private data
 
+        //- Continuous phase name
+        const word continuousPhase_;
+
         //- Molecular mass of one carbon atom
         dimensionedScalar MCarbon_;
 
@@ -78,9 +80,6 @@ private:
 
         //- PAM concentration field
         volScalarField pamConcentration_;
-
-        //- Thermodynamic model
-        const fluidThermo& flThermo_;
 
         //- Temperature field
         const volScalarField& T_;

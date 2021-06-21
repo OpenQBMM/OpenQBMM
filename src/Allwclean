@@ -2,7 +2,6 @@
 cd "${0%/*}" || exit                            # Run from this directory
 #------------------------------------------------------------------------------
 
-wclean libso eigenSolver
 wclean libso Vandermonde
 wclean libso quadratureMethods/momentSets
 wclean libso quadratureMethods/momentInversion

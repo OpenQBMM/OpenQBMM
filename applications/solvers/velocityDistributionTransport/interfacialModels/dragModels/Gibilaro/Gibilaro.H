@@ -27,10 +27,15 @@ Class
     Foam::dragModels::Gibilaro
 
 Description
-    H, Enwald, E. Peirano, A-E Almstedt
-    'Eulerian Two-Phase Flow Theory Applied to Fluidization'
-    Int. J. Multiphase Flow, Vol. 22, Suppl, pp. 21-66 (1996)
-    Eq. 106, p. 43
+    Gibilaro drag law.
+
+    Reference:
+    \verbatim
+        "Eulerian Two-Phase Flow Theory Applied to Fluidization"
+        Enwald, H., Peirano, E., Almstedt A-E.
+        International Journal of Multiphase Flow, 
+        Volume 22, Pages 21-66, 1996
+    \endverbatim
 
 SourceFiles
     Gibilaro.C

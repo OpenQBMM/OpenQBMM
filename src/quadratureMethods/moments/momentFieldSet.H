@@ -8,7 +8,7 @@
     Code created 2012-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-03-10 Alberto Passalacqua: Templated class on the type of moment and of
                                 quadrature node.
@@ -122,7 +122,7 @@ public:
         );
 
         //- Construct from size, quadrature nodes, dimensions and moment map
-        //  The list of moments is initialised but moment fields are not
+        //  The list of moments is initialized but moment fields are not
         //  automatically allocated.
         momentFieldSet
         (

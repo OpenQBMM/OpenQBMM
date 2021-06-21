@@ -7,5 +7,4 @@ scalar pbeCoNum = dilutePhase->realizableCo();
 maxCo = min(maxCo, pbeCoNum);
 
 Info<< "Pbe Realizable Courant Number = " << pbeCoNum << endl;
-
 Info<< "Max Courant Number = " << CoNum << endl;

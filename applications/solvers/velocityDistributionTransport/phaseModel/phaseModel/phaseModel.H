@@ -63,7 +63,6 @@ class PhaseCompressibleTurbulenceModel;
                            Class phaseModel Declaration
 \*---------------------------------------------------------------------------*/
 
-
 class phaseModel
 :
     public volScalarField,
@@ -169,13 +168,11 @@ public:
         }
 
         //- Return the turbulence model
-        const PhaseCompressibleTurbulenceModel<phaseModel>&
-            turbulence() const;
+        const PhaseCompressibleTurbulenceModel<phaseModel>& turbulence() const;
 
         //- Return non-const access to the turbulence model
         //  for correction
-        PhaseCompressibleTurbulenceModel<phaseModel>&
-            turbulence();
+        PhaseCompressibleTurbulenceModel<phaseModel>& turbulence();
 
         //- Return the residual phase-fraction for given phase
         //  Used to stabilize the phase momentum as the phase-fraction -> 0

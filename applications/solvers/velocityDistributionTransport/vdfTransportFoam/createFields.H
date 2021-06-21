@@ -37,6 +37,7 @@ volVectorField Up
     mesh,
     dimensionedVector("U", dimVelocity, Zero)
 );
+
 volSymmTensorField Sigmap
 (
     IOobject
@@ -50,6 +51,7 @@ volSymmTensorField Sigmap
     mesh,
     dimensionedSymmTensor("Sigma", sqr(dimVelocity), Zero)
 );
+
 volScalarField Thetap
 (
     IOobject
@@ -73,7 +75,10 @@ autoPtr<populationBalanceModel> populationBalance
 );
 
 velocityQuadratureApproximation& quadrature =
-    mesh.lookupObjectRef<velocityQuadratureApproximation>("quadratureProperties.particles");
+    mesh.lookupObjectRef<velocityQuadratureApproximation>
+    (
+        "quadratureProperties.particles"
+    );
 
 const labelListList& momentOrders = quadrature.momentOrders();
 volVelocityMomentFieldSet& moments = quadrature.moments();
@@ -82,6 +87,7 @@ const labelList& velocityIndexes(nodes[0].velocityIndexes());
 label sizeIndex = nodes[0].sizeIndex();
 
 bool computeVariance = false;
+
 forAll(momentOrders, mi)
 {
     forAll(velocityIndexes, cmpt)
@@ -96,6 +102,7 @@ forAll(momentOrders, mi)
 }
 
 tmp<volScalarField> dMean;
+
 if (sizeIndex != -1)
 {
     dMean = tmp<volScalarField>

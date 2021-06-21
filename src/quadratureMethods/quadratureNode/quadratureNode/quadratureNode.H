@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -91,22 +91,22 @@ protected:
         //- Indicies of abscissa components
         labelList scalarIndexes_;
 
-        //- Indicies of velocity components
+        //- Indices of velocity components
         labelList velocityIndexes_;
 
         //- Index of size component
         label sizeIndex_;
 
-        //- Is the size length based
+        //- Bool to indicate if abscissas are based on length
         bool lengthBased_;
 
-        //- Is the size mass based
+        //- Bool to indicate if abscissas are based on mass
         bool massBased_;
 
         //- Pointer to density field
         const volScalarField* rhoPtr_;
 
-        //- Are weights in volume fraction
+        //- Bool to indicate if weights are volume fractions
         bool useVolumeFraction_;
 
         //- List of secondary weights of the node
@@ -289,20 +289,25 @@ public:
             virtual velocityAbscissaeType& velocityAbscissae();
 
             //- Return the diameter given an abscissae
-            tmp<volScalarField> d(const volScalarField& x) const;
+            tmp<volScalarField> d(const volScalarField& abscissa) const;
 
             //- Return the diameter given an abscissae and celli
-            scalar d(const label celli, const scalar& x) const;
+            scalar d(const label celli, const scalar& abscissa) const;
 
             //- Return the number density given an abscissae
             tmp<volScalarField> n
             (
-                const volScalarField& w,
-                const volScalarField& x
+                const volScalarField& weight,
+                const volScalarField& abscissa
             ) const;
 
             //- Return the number density given an abscissae and celli
-            scalar n(const label celli, const scalar& w, const scalar& x) const;
+            scalar n
+            (
+                const label celli, 
+                const scalar& weight, 
+                const scalar& abscissa
+            ) const;
 };
 
 

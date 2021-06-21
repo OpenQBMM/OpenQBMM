@@ -7,6 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2019 OpenFOAM Foundation
     Copyright (C) 2019 Jeffrey Heylmun
+    Copyright (C) 2020-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 29-4-2019 Jeffrey Heylmun:  Added moment transort
 -------------------------------------------------------------------------------
@@ -33,7 +34,6 @@ Description
     Moment transport of velocity based NDF that interacts with a constant
     velocity field by means of drag.
 
-
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
@@ -47,6 +47,12 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Solver for the moment transport of velocity based NDF coupled to "
+        "a frozen velocity field by means of drag."
+    );
+
     #include "postProcess.H"
 
     #include "setRootCase.H"
@@ -59,8 +65,6 @@ int main(int argc, char *argv[])
     scalar CoNum = 0.0;
     #include "CourantNos.H"
     #include "setInitialDeltaT.H"
-
-
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -77,6 +81,7 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         dilutePhase->solve();
+
         #include "vEqns.H"
 
         runTime.write();

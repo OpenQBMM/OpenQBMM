@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019-2020 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -190,7 +190,7 @@ void Foam::fluxFunctions::AUSMPlus::updateFluxes
     
     surfaceScalarField a12DeltaMaRho
     (
-        0.5*a12
+       0.5*a12
       *(
            (0.5*deltaMa12 - mag(Ma12))*rhoOwn
          + (0.5*deltaMa12 + mag(Ma12))*rhoNei

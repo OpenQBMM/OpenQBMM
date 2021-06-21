@@ -5,15 +5,16 @@ ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
     FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
 endif
 
-QBMM_SRC := ../../src
+QBMM_SRC := ../../../src
 
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I$(LIB_SRC)/meshTools/lnInclude \
-    -I$(QBMM_SRC)/eigenSolver/lnInclude
+    -I$(QBMM_SRC)/mappedList \
+    -I$(QBMM_SRC)/quadratureMethods/momentSets/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentInversion/lnInclude
 
 EXE_LIBS = \
     -lfiniteVolume \
-    -lmeshTools \
     -L$(FOAM_MODULE_LIBBIN) \
-    -leigenSolver
+    -lmomentSets \
+    -lmomentInversion

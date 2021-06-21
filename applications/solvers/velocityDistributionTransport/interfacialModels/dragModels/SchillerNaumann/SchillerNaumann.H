@@ -27,7 +27,15 @@ Class
     Foam::dragModels::SchillerNaumann
 
 Description
-    Schiller and Naumann drag model for dispersed bubbly flows.
+    Schiller and Naumann (1935) drag model.
+
+    References
+    \verbatim
+        "A drag coefficient correlation"
+        Schiller, L., Naumann Z.,
+        Zeitschrift des Vereins Deutscher Ingenieure
+        Volume 77, Page 318-320, 1935
+    \endverbatim
 
 SourceFiles
     SchillerNaumann.C

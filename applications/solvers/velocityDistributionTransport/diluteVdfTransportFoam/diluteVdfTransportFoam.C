@@ -7,6 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2019 OpenFOAM Foundation
     Copyright (C) 2019 Jeffrey Heylmun
+    Copyright (C) 2020-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 02-09-2019 Jeffrey Heylmun: Added Solution of moment trasporport as well as the
                             coupling of the continuous phase with the velocity
@@ -57,6 +58,12 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Transient solver which couples a continuous phase with a dilute "
+        "dispersed phase through momentum exchange terms."
+    );
+
     #include "postProcess.H"
 
     #include "setRootCase.H"

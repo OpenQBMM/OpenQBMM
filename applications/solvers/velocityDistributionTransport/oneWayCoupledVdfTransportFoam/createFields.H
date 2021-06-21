@@ -1,6 +1,7 @@
 #include "readGravitationalAcceleration.H"
 
 Info<< "Reading phaseProperties\n" << endl;
+
 IOdictionary phaseProperties
 (
     IOobject
@@ -14,6 +15,7 @@ IOdictionary phaseProperties
 );
 
 word fluidName(phaseProperties.lookup("continuousPhase"));
+
 phaseModel fluid
 (
     mesh,
@@ -23,6 +25,7 @@ phaseModel fluid
 const volVectorField& U = fluid.U();
 
 word dilutePhaseName(phaseProperties.lookup("dilutePhase"));
+
 autoPtr<phaseModel> dilutePhase
 (
     new vdfPhaseModel
@@ -50,6 +53,7 @@ autoPtr<phasePair> pair
         phaseProperties.subDict("aspectRatio")
     )
 );
+
 autoPtr<dragModel> drag
 (
     dragModel::New

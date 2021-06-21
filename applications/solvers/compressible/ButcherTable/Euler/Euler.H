@@ -51,9 +51,7 @@ namespace ButcherTables
                         Class Euler Declaration
 \*---------------------------------------------------------------------------*/
 
-class Euler
-:
-    public ButcherTable
+class Euler : public ButcherTable
 {
 public:
 

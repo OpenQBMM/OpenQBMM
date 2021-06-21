@@ -77,7 +77,6 @@ public:
     // Selector
     static autoPtr<ButcherTable> New(const fvMesh& mesh);
 
-
     //- Destructor
     virtual ~ButcherTable();
 

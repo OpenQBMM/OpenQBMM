@@ -81,10 +81,12 @@ if (solveEnergy)
     fvOptions.correct(he2);
 
     thermo1.correct();
+
     Info<< "min " << thermo1.T().name()
         << " " << min(thermo1.T()).value() << endl;
 
     thermo2.correct();
+    
     Info<< "min " << thermo2.T().name()
         << " " << min(thermo2.T()).value() << endl;
 }

@@ -253,19 +253,19 @@ void Foam::JohnsonJacksonParticleSlipFvPatchVectorField::updateCoeffs()
                 IOobject::groupName("nuFric", phased.name())
             )
         );
-        // lookup the packed volume fraction
+
+        // lookup the maximum allowed volume fraction
         dimensionedScalar alphaMax
         (
             "alphaMax",
             dimless,
             db()
-           .lookupObject<IOdictionary>
+            .lookupObject<IOdictionary>
             (
                 IOobject::groupName("turbulenceProperties", phased.name())
             )
-           .subDict("RAS")
-           .subDict("kineticTheoryCoeffs")
-           .lookup("alphaMax")
+            .subDict("RAS")
+            .subDict("kineticTheoryCoeffs")
         );
 
         scalarField c

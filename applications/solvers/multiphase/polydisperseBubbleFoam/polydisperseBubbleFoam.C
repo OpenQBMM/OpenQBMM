@@ -2,8 +2,10 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2017 Alberto Passalacqua
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+Copyright (C) 2015-2020 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2016-06-30 Alberto Passalacqua: Implemented quadrature-based bubbly flow solver.
                                 Implementation performed by J. C. Heylmun
@@ -40,11 +42,16 @@ Description
 #include "PhaseCompressibleTurbulenceModel.H"
 #include "fixedValueFvsPatchFields.H"
 
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Solver for polydisperse gas-liquid flows using a quadrature-based "
+        "moment method to describe the gas phase."
+    );
+
     #include "postProcess.H"
 
     #include "setRootCase.H"

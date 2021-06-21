@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2016-2019 Alberto Passalacqua
+    Copyright (C) 2016-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,7 +27,7 @@ Application
     reconstructPointDistribution
 
 Description
-    Reconstructs a number density function in a point.
+    Utility to computes moments.
 
 \*---------------------------------------------------------------------------*/
 
@@ -38,6 +38,11 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Utility to computes moments."
+    );
+
     #include "addTimeOptions.H"
     #include "setRootCase.H"
     #include "createTime.H"
@@ -71,6 +76,7 @@ int main(int argc, char *argv[])
     );
 
     wordList phaseNames(dict.lookup("phases"));
+
     forAll(phaseNames, phasei)
     {
         velocityQuadratureApproximation quadrature
@@ -79,37 +85,44 @@ int main(int argc, char *argv[])
             mesh,
             "RPlus"
         );
+
         autoPtr<mappedPtrList<volVelocityNode>> nodes(&(quadrature.nodes()));
 
-        PtrList<dimensionSet> abscissaeDims(quadrature.momentOrders()[0].size());
+        PtrList<dimensionSet> abscissaeDimensions
+        (
+            quadrature.momentOrders()[0].size()
+        );
+
         labelList scalarIndexes = nodes()[0].scalarIndexes();
+
         if (scalarIndexes.size() == 0)
         {
             scalarIndexes.append(-1);
         }
+
         label si = 0;
 
         forAll(quadrature.momentOrders()[0], cmpti)
         {
             if (cmpti == scalarIndexes[si])
             {
-                abscissaeDims.set
+                abscissaeDimensions.set
                 (
                     cmpti,
                     new dimensionSet(nodes()[0].primaryAbscissae()[si].dimensions())
                 );
+
                 si++;
             }
             else
             {
-                abscissaeDims.set
+                abscissaeDimensions.set
                 (
                     cmpti,
                     new dimensionSet(dimVelocity)
                 );
             }
         }
-
 
         labelListList newMomentOrders
         (
@@ -119,9 +132,10 @@ int main(int argc, char *argv[])
         forAll(newMomentOrders, mi)
         {
             dimensionSet mDims(nodes()[0].primaryWeight().dimensions());
-            forAll(abscissaeDims, cmpti)
+
+            forAll(abscissaeDimensions, cmpti)
             {
-                mDims *= pow(abscissaeDims[cmpti], newMomentOrders[mi][cmpti]);
+                mDims *= pow(abscissaeDimensions[cmpti], newMomentOrders[mi][cmpti]);
             }
 
             volVelocityMoment moment
@@ -142,14 +156,14 @@ int main(int argc, char *argv[])
                     quadrature.moments()[0].boundaryField().types()
                 )
             );
+
             Info<< "Created " << moment.name() << endl;
+
             moment.update();
             moment.updateBoundaries();
             moment.write();
         }
     }
-
-
 
     Info<< nl << "End\n" << endl;
 

@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -95,7 +95,7 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
         mesh,
         dimensionedScalar("rho", dimDensity, 0.0)
     ),
-    ds_(nNodes),
+    diameters_(nNodes),
     alphas_(nNodes),
     sumAlpha_(),
     massBased_(dict.lookupOrDefault("massBased", true))
@@ -107,8 +107,7 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
     }
     else
     {
-        rho_.primitiveFieldRef() =
-            scalarField("rho", dict, mesh.nCells());
+        rho_.primitiveFieldRef() = scalarField("rho", dict, mesh.nCells());
     }
 }
 
@@ -132,26 +131,30 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
+
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            ds_[nodei] = scalarField("dia", nodeDict, size);
+            diameters_[nodei] = scalarField("dia", nodeDict, size);
             alphas_[nodei] = scalarField("alpha", nodeDict, size);
             sumAlpha_ += alphas_[nodei];
         }
         else
         {
-            ds_[nodei] = 0.0;
+            diameters_[nodei] = 0.0;
             alphas_[nodei] = 0.0;
         }
     }
+
     sumAlpha_ = max(sumAlpha_, SMALL);
+    
     scalarField alpha
     (
         patchi == -1
       ? alpha_.primitiveField()
       : alpha_.boundaryField()[patchi]
     );
+    
     scalarField rho
     (
         patchi == -1
@@ -170,7 +173,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         if (massBased_)
         {
             abscissae_[nodei][0] =
-                Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
+                Foam::constant::mathematical::pi/6.0*rho*pow3(diameters_[nodei]);
 
             weights_[nodei] =
                 pos(abscissae_[nodei][0] - SMALL)
@@ -178,8 +181,8 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         }
         else
         {
-            abscissae_[nodei][0] = ds_[nodei];
-            scalarField V(pow3(ds_[nodei]));
+            abscissae_[nodei][0] = diameters_[nodei];
+            scalarField V(pow3(diameters_[nodei]));
             weights_[nodei] = pos(V - SMALL)*alphai/max(V, SMALL);
         }
     }
@@ -196,25 +199,28 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
 {
     label size = reset(cells);
     sumAlpha_ = scalarField(size, Zero);
+    
     forAll(weights_, nodei)
     {
         word nodeName = "node" + Foam::name(nodei);
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            ds_[nodei] = scalarField("dia", nodeDict, size);
+            diameters_[nodei] = scalarField("dia", nodeDict, size);
             alphas_[nodei] = scalarField("alpha", nodeDict, size);
             sumAlpha_ += alphas_[nodei];
         }
         else
         {
-            ds_[nodei] = 0.0;
+            diameters_[nodei] = 0.0;
             alphas_[nodei] = 0.0;
         }
     }
+
     sumAlpha_ = max(sumAlpha_, SMALL);
     scalarField alpha(size, Zero);
     scalarField rho(size, Zero);
+    
     forAll(cells, celli)
     {
         alpha[celli] = alpha_[cells[celli]];
@@ -232,7 +238,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         if (massBased_)
         {
             abscissae_[nodei][0] =
-                Foam::constant::mathematical::pi/6.0*rho*pow3(ds_[nodei]);
+                Foam::constant::mathematical::pi/6.0*rho*pow3(diameters_[nodei]);
 
             weights_[nodei] =
                 pos(abscissae_[nodei][0] - SMALL)
@@ -240,8 +246,8 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         }
         else
         {
-            abscissae_[nodei][0] = ds_[nodei];
-            scalarField V(pow3(ds_[nodei]));
+            abscissae_[nodei][0] = diameters_[nodei];
+            scalarField V(pow3(diameters_[nodei]));
             weights_[nodei] = pos(V - SMALL)*alphai/max(V, SMALL);
         }
     }

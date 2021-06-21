@@ -14,6 +14,7 @@ dragModels/TomiyamaCorrelated/TomiyamaCorrelated.C
 dragModels/TomiyamaAnalytic/TomiyamaAnalytic.C
 dragModels/WenYu/WenYu.C
 dragModels/IshiiZuber/IshiiZuber.C
+dragModels/CunninghamSchillerNaumann/CunninghamSchillerNaumann.C
 
 heatTransferModels/heatTransferModel/heatTransferModel.C
 heatTransferModels/heatTransferModel/newHeatTransferModel.C

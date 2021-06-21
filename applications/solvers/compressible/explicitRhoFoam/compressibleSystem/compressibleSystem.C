@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -39,10 +39,7 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::compressibleSystem::compressibleSystem
-(
-    const fvMesh& mesh
-)
+Foam::compressibleSystem::compressibleSystem(const fvMesh& mesh)
 :
     mesh_(mesh),
     thermoPtr_(rhoThermo::New(mesh)),
@@ -470,10 +467,7 @@ void Foam::compressibleSystem::advect
     rhoE_ = rhoE + deltaT*deltaRhoE;
 }
 
-void Foam::compressibleSystem::integrateFluxes
-(
-    const dimensionedVector& g
-)
+void Foam::compressibleSystem::integrateFluxes(const dimensionedVector& g)
 {
     integrator_->integrateFluxes(g);
 }

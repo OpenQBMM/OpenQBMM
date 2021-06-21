@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -69,7 +69,7 @@ protected:
     volScalarField rho_;
 
     //- List of diameters
-    List<scalarField> ds_;
+    List<scalarField> diameters_;
 
     //- List of volume fractions
     List<scalarField> alphas_;

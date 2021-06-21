@@ -58,9 +58,9 @@ functions1
       channelTurbCalcs1
 	  {
 	    type        channelTurbCalcs;
-	    functionObjectLibs ("libchannelTurbCalcs.so" );
+	    libs        (libchannelTurbCalcs);
 	    enabled true;
-        	timeStart   1.5;
+        timeStart   1.5;
 	    timeEnd         200;
       	    outputControl   outputTime;
 	    //	    outputInterval   1;

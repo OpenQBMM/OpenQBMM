@@ -34,7 +34,6 @@ namespace Foam
 {
 namespace ButcherTables
 {
-
     defineTypeNameAndDebug(Euler, 0);
     addToRunTimeSelectionTable(ButcherTable, Euler, dictionary);
 }
@@ -42,9 +41,7 @@ namespace ButcherTables
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::ButcherTables::Euler::Euler(const fvMesh& mesh)
-:
-    ButcherTable(mesh)
+Foam::ButcherTables::Euler::Euler(const fvMesh& mesh) : ButcherTable(mesh)
 {}
 
 

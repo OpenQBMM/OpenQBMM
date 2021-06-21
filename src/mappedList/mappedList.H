@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -69,9 +69,7 @@ namespace Foam
 \*---------------------------------------------------------------------------*/
 
 template <class mappedType>
-class mappedList
-:
-    public List<mappedType>
+class mappedList : public List<mappedType>
 {
     // Private data
 
@@ -79,7 +77,7 @@ class mappedList
         Map<label> map_;
 
         //- Number of dimensions
-        label nDims_;
+        label nDimensions_;
 
     // Private Member Functions
 
@@ -132,13 +130,13 @@ public:
         // Static member functions
 
             //- Convert a list of labels to a word. {1, 2, 3} -> 123
-            static word listToWord(const labelList& lst);
+            static word listToWord(const labelList& list);
 
             //- Convert a list of labels to a single label. {0, 2, 3} -> 23
             static label listToLabel
             (
-                const labelList& lst,
-                const label nDims = 0
+                const labelList& list,
+                const label nDimensions = 0
             );
 
 
@@ -154,7 +152,7 @@ public:
         // Access
 
             //- Is label list index used
-            bool found(const labelList& l) const;
+            bool found(const labelList& list) const;
 
             //- Is label list index used
             template <typename ...ArgsT>
@@ -169,10 +167,10 @@ public:
             inline const mappedType& operator()(ArgsT ...args) const;
 
             //- Constant access given a label list
-            inline const mappedType& operator()(const labelList& l) const;
+            inline const mappedType& operator()(const labelList& list) const;
 
             //- Non-constant access given a label list
-            inline mappedType& operator()(const labelList& l);
+            inline mappedType& operator()(const labelList& list);
 
             //- Returns const access to the moment map
             inline const Map<label>& map() const;
