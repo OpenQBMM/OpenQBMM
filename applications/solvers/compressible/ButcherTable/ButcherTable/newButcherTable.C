@@ -44,7 +44,7 @@ Foam::autoPtr<Foam::ButcherTable> Foam::ButcherTable::New
 
     Info<< "Selecting Butcher table: " << ButcherTableType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(ButcherTableType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

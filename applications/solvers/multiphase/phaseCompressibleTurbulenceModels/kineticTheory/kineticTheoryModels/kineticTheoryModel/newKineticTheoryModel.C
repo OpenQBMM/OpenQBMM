@@ -39,7 +39,7 @@ Foam::kineticTheoryModel::New
     Info<< "Selecting kineticTheoryModel "
         << kineticTheoryModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(kineticTheoryModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

@@ -39,7 +39,7 @@ Foam::autoPtr<Foam::dragModel> Foam::dragModel::New
     Info<< "Selecting dragModel for "
         << pair << ": " << dragModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(dragModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

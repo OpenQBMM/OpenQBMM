@@ -46,7 +46,7 @@ Foam::populationBalanceSubModels::daughterDistribution::New
     Info<< "Selecting daughterDistribution "
         << daughterDistributionType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(daughterDistributionType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

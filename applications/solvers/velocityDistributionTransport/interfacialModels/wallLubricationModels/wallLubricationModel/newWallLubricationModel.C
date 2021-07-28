@@ -39,7 +39,7 @@ Foam::autoPtr<Foam::wallLubricationModel> Foam::wallLubricationModel::New
     Info<< "Selecting wallLubricationModel for "
         << pair << ": " << wallLubricationModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(wallLubricationModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

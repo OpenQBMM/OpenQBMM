@@ -50,7 +50,7 @@ coalescenceFrequencyKernel::New
     Info<< "Selecting coalescence frequency type "
         << coalescenceFrequencyKernelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(coalescenceFrequencyKernelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

@@ -39,7 +39,7 @@ Foam::autoPtr<Foam::heatTransferModel> Foam::heatTransferModel::New
     Info<< "Selecting heatTransferModel for "
         << pair << ": " << heatTransferModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(heatTransferModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

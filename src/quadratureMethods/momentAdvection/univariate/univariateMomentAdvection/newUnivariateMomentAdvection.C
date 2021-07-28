@@ -49,7 +49,7 @@ Foam::univariateMomentAdvection::New
     Info<< "Selecting univariateMomentAdvection: "
         << univariateMomentAdvectionType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(univariateMomentAdvectionType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

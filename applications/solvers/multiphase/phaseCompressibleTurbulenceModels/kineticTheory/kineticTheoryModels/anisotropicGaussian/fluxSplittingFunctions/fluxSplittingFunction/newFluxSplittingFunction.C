@@ -38,7 +38,7 @@ Foam::kineticTheoryModels::fluxSplittingFunction::New
     Info<< "Selecting fluxSplittingFunction "
         << fluxSplittingFunctionType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(fluxSplittingFunctionType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

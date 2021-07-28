@@ -38,7 +38,7 @@ Foam::autoPtr<Foam::blendingMethod> Foam::blendingMethod::New
     Info<< "Selecting " << dict.dictName() << " blending method: "
         << blendingMethodType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(blendingMethodType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

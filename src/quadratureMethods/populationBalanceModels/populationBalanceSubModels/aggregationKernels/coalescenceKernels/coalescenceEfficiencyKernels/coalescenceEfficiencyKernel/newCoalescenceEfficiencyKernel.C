@@ -50,7 +50,7 @@ coalescenceEfficiencyKernel::New
     Info<< "Selecting coalescence Efficiency Kernel "
         << coalescenceEfficiencyKernelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(coalescenceEfficiencyKernelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

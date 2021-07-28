@@ -45,7 +45,7 @@ Foam::multivariateMomentInversion::New
     Info<< "Selecting multivariateMomentInversion "
         << multivariateMomentInversionType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(multivariateMomentInversionType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
