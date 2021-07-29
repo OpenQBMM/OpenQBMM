@@ -39,7 +39,7 @@ Foam::autoPtr<Foam::liftModel> Foam::liftModel::New
     Info<< "Selecting liftModel for "
         << pair << ": " << liftModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(liftModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

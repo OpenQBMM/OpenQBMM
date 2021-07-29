@@ -44,7 +44,7 @@ Foam::populationBalanceSubModels::environmentMixingModel::New
     Info<< "Selecting environmentMixingModel "
         << environmentMixingModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(environmentMixingModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

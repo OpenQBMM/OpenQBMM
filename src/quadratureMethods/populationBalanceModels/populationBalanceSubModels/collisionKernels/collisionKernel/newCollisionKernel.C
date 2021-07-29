@@ -45,7 +45,7 @@ Foam::populationBalanceSubModels::collisionKernel::New
     Info<< "Selecting collisionKernel: "
         << collisionKernelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(collisionKernelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

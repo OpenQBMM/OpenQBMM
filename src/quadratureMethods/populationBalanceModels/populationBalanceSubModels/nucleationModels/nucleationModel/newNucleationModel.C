@@ -44,7 +44,7 @@ Foam::populationBalanceSubModels::nucleationModel::New
     Info<< "Selecting nucleationModel "
         << nucleationModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(nucleationModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

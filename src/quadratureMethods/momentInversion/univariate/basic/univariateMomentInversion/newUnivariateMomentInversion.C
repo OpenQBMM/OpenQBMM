@@ -46,7 +46,7 @@ Foam::univariateMomentInversion::New
     Info<< "Selecting univariateMomentInversion: "
         << univariateMomentInversionType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(univariateMomentInversionType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

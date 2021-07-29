@@ -38,7 +38,7 @@ Foam::kineticTheoryModels::frictionalStressModel::New
     Info<< "Selecting frictionalStressModel "
         << frictionalStressModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(frictionalStressModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

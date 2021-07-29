@@ -38,7 +38,7 @@ Foam::kineticTheoryModels::radialModel::New
     Info<< "Selecting radialModel "
         << radialModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(radialModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

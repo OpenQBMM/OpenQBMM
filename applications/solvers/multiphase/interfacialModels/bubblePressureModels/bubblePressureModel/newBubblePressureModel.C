@@ -39,7 +39,7 @@ Foam::autoPtr<Foam::bubblePressureModel> Foam::bubblePressureModel::New
     Info<< "Selecting bubblePressureModel for "
         << pair << ": " << bubblePressureModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(bubblePressureModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

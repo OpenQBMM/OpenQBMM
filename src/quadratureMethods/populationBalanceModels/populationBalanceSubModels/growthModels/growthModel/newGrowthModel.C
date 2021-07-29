@@ -43,7 +43,7 @@ Foam::populationBalanceSubModels::growthModel::New
     Info<< "Selecting growthModel "
         << growthModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(growthModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

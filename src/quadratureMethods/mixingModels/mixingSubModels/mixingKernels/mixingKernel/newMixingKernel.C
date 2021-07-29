@@ -44,7 +44,7 @@ Foam::mixingSubModels::mixingKernel::New
     Info<< "Selecting mixingKernel "
         << mixingKernelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(mixingKernelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

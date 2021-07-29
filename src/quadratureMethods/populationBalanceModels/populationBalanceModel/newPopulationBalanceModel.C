@@ -45,7 +45,7 @@ Foam::populationBalanceModel::New
     Info<< "Selecting populationBalanceModel "
         << populationBalanceModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(populationBalanceModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
