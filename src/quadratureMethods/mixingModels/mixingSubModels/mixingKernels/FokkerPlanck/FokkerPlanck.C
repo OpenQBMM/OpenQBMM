@@ -94,7 +94,7 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
     );
 
     dimensionedScalar oneMoment("oneMoment", moments(1).dimensions(), 1.0);
-    dimensionedScalar smallMoment2("smallMoment1", moments(2).dimensions(), SMALL);
+    dimensionedScalar smallMoment2("smallMoment2", moments(2).dimensions(), SMALL);
 
     if (momentOrder == 0)
     {
