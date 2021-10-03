@@ -147,6 +147,9 @@ public:
                 const bool fatalErrorOnFailedRealizabilityTest = true
             );
 
+            //- Return the smallest accepted value for m0
+            scalar smallM0() const;
+
     // Member Operators
 
         //- Disallow default bitwise assignment

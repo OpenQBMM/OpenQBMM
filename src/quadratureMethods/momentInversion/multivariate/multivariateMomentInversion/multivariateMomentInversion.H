@@ -59,6 +59,7 @@ namespace Foam
 class multivariateMomentInversion
 {
 protected:
+
     // Protected member data
 
         //- Number of dimensions in distribution
@@ -167,6 +168,9 @@ public:
 
         //- Return mapped quadrature velocity abscissae for each dimension
         inline const mappedVectorList& velocityAbscissae() const;
+
+        //- Return the smallest accepted value for m0
+        virtual scalar smallM0() const = 0;
 };
 
 

@@ -578,4 +578,9 @@ Foam::scalar Foam::extendedMomentInversion::targetFunction
     return (lastMoment - m2N(sigma, momentsStar))/lastMoment;
 }
 
+Foam::scalar Foam::extendedMomentInversion::smallM0() const
+{
+    return smallM0_;
+}
+
 // ************************************************************************* //

@@ -71,7 +71,8 @@ Foam::multivariateMomentInversions::conditional::conditional
     conditionalWeights_(nNodes_.size()),
     conditionalMoments_(nNodes_.size()),
     invVR_(nNodes_.size() - 1),
-    momentInverters_(nNodes_.size())
+    momentInverters_(nNodes_.size()),
+    smallM0_(SMALL)
 {
     forAll(momentInverters_, dimi)
     {
@@ -83,6 +84,8 @@ Foam::multivariateMomentInversions::conditional::conditional
                 dict.subDict("basicQuadrature" + Foam::name(dimi))
             ).ptr()
         );
+
+        smallM0_ = max(smallM0_, momentInverters_[dimi].smallM0());
     }
 
     forAll(momentOrders_, mi)
@@ -583,6 +586,11 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
 
         return true;
     }
+}
+
+Foam::scalar Foam::multivariateMomentInversions::conditional::smallM0() const
+{
+    return smallM0_;
 }
 
 

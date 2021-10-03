@@ -343,6 +343,9 @@ public:
         //- Return the sum of the kernel density functions at a field of points
         virtual tmp<scalarField> f(const scalarField& x) const = 0;
 
+        //- Return the smallest accepted value for m0
+        scalar smallM0() const;
+
     // Member Operators
 
         //- Disallow default bitwise assignment

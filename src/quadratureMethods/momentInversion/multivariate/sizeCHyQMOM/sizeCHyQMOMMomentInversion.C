@@ -81,8 +81,11 @@ sizeCHyQMOMBase
               : labelList({0, 1, 2})
             )
         )
-    )
-{}
+    ),
+    smallM0_(SMALL)
+{
+    smallM0_ = max(velocityInverter_().smallM0(), sizeInverter_().smallM0());
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -297,5 +300,10 @@ invert
     return true;
 }
 
+template<class velocityInversion>
+Foam::scalar Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallM0() const
+{
+    return smallM0_;
+}
 
 // ************************************************************************* //

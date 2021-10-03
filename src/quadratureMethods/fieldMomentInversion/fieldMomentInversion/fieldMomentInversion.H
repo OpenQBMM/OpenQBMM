@@ -196,6 +196,9 @@ public:
         //- Return extended type
         inline bool extended();
 
+        //- Return the smallest accepted value for m0
+        virtual scalar smallM0() const = 0;
+
     // Member Operators
 
         //- Disallow default bitwise assignment

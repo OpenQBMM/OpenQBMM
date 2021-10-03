@@ -317,4 +317,10 @@ bool Foam::extendedFieldMomentInversion::invertLocalMoments
 
     return true;
 }
+
+Foam::scalar Foam::extendedFieldMomentInversion::smallM0() const
+{
+    return momentInverter_().smallM0();
+}
+
 // ************************************************************************* //

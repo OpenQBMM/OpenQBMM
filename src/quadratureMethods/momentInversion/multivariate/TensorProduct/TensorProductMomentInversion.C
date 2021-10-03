@@ -88,7 +88,8 @@ Foam::multivariateMomentInversions::TensorProduct::TensorProduct
     ),
     nPureMoments_(nNodes_.size(), 0),
     supports_(dict.lookup("supports")),
-    univariateInverters_(nNodes_.size())
+    univariateInverters_(nNodes_.size()),
+    smallM0_(SMALL)
 {
     forAll(univariateInverters_, dimi)
     {
@@ -100,6 +101,8 @@ Foam::multivariateMomentInversions::TensorProduct::TensorProduct
                 dict.subDict("basicQuadrature" + Foam::name(dimi))
             ).ptr()
         );
+
+        smallM0_ = max(smallM0_, univariateInverters_[dimi].smallM0());
     }
 
     forAll(momentOrders_, mi)
@@ -276,5 +279,9 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
     return true;
 }
 
+Foam::scalar Foam::multivariateMomentInversions::TensorProduct::smallM0() const
+{
+    return smallM0_;
+}
 
 // ************************************************************************* //

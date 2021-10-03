@@ -1121,5 +1121,9 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
     return true;
 }
 
+Foam::scalar Foam::multivariateMomentInversions::CHyQMOM::smallM0() const
+{
+    return univariateInverter_().smallM0();
+}
 
 // ************************************************************************* //

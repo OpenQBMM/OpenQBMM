@@ -101,6 +101,9 @@ class conditional
         label vi_;
         label si_;
 
+        //- Minimum value of m0 to be considered
+        scalar smallM0_;
+
 
     // Private member functions
 
@@ -168,6 +171,9 @@ public:
 
         //- Invert moments to find weights and  abscissae
         virtual bool invert(const multivariateMomentSet& moments);
+
+        //- Return the smallest accepted value for m0
+        virtual scalar smallM0() const;
 };
 
 

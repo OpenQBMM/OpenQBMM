@@ -169,5 +169,9 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
     return true;
 }
 
+Foam::scalar Foam::multivariateMomentInversions::monoKinetic::smallM0() const
+{
+    return sizeInverter_().smallM0();
+}
 
 // ************************************************************************* //
