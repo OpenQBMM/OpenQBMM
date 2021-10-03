@@ -169,6 +169,9 @@ public:
         //- Return quadrature weigths
         inline const scalarList& weights() const;
 
+        //- Return the smallest accepted value for m0
+        inline scalar smallM0() const;
+
     // Member Operators
 
         //- Disallow default bitwise assignment

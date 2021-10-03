@@ -45,4 +45,9 @@ const Foam::scalarList& Foam::univariateMomentInversion::weights() const
     return weights_;
 }
 
+Foam::scalar Foam::univariateMomentInversion::smallM0() const
+{
+    return smallM0_;
+}
+
 // ************************************************************************* //

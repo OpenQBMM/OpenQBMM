@@ -53,6 +53,7 @@ Foam::extendedMomentInversion::extendedMomentInversion
     (
         univariateMomentInversion::New(dict.subDict("basicQuadrature"))
     ),
+    smallM0_(momentInverter_().smallM0()),
     nMoments_(nMoments),
     nPrimaryNodes_((nMoments_ - 1)/2),
     nSecondaryNodes_(nSecondaryNodes),
@@ -91,7 +92,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 
     // Exclude cases where the absolute value of the zero-order moment is very 
     // SMALL to avoid problems in the inversion due to round-off error
-    if (mag(m[0]) < SMALL)
+    if (mag(m[0]) < smallM0_)
     {
         sigma_ = 0.0;
         nullSigma_ = true;

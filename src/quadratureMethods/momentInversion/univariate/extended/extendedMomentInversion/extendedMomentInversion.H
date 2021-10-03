@@ -88,6 +88,9 @@ class extendedMomentInversion
         //- Univariate moment inversion method
         autoPtr<univariateMomentInversion> momentInverter_;
 
+         // Private data
+        scalar smallM0_;
+
 
     // Private member functions
 
