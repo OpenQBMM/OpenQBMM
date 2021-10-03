@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2019 Alberto Passalacqua
+    Copyright (C) 2015-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -301,7 +301,9 @@ invert
 }
 
 template<class velocityInversion>
-Foam::scalar Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallM0() const
+Foam::scalar 
+Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallM0() 
+const
 {
     return smallM0_;
 }
