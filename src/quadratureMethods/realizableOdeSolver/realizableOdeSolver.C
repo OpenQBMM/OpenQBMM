@@ -171,6 +171,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 forAll(k1, mi)
                 {
                     const labelList& order = momentOrders[mi];
+
                     k1[mi] =
                         localDt*cellMomentSource
                         (
@@ -179,6 +180,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                             quadrature,
                             enviroment
                         );
+
                     moments[mi][celli] = oldMoments[mi] + k1[mi];
 
                     if (mag(k1[mi]) > SMALL)
@@ -199,6 +201,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                 // Second moment update
                 updateCellMomentSource(celli);
+
                 forAll(k2, mi)
                 {
                     const labelList& order = momentOrders[mi];
@@ -226,6 +229,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 forAll(k3, mi)
                 {
                     const labelList& order = momentOrders[mi];
+
                     k3[mi] =
                         localDt*cellMomentSource
                         (
@@ -234,6 +238,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                             quadrature,
                             enviroment
                         );
+
                     moments[mi][celli] =
                         oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
 
@@ -259,6 +264,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                              << nl
                              << "This may take a while." << endl;
                     }
+
                     localDtAdjustments_++;
 
                     forAll(oldMoments, mi)
@@ -315,7 +321,6 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             {
                 localT += localDt;
                 localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
-
                 scalar maxLocalDt = max(globalDt - localT, scalar(0));
                 localDt = min(maxLocalDt, localDt);
 

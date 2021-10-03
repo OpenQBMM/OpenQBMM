@@ -180,6 +180,9 @@ public:
             //- return node indexes
             inline const labelListList& nodeIndexes() const;
 
+            //- Return the smallest accepted value for m0
+            inline scalar smallM0() const;
+
 
         // Edit
 

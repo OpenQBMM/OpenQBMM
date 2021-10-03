@@ -108,5 +108,11 @@ Foam::quadratureApproximation<momentType, nodeType>::nodeIndexes() const
     return nodeIndexes_;
 }
 
+template <class momentType, class nodeType>
+Foam::scalar
+Foam::quadratureApproximation<momentType, nodeType>::smallM0() const
+{
+    return momentFieldInverter_().smallM0();
+}
 
 // ************************************************************************* //
