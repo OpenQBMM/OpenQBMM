@@ -719,6 +719,12 @@ void Foam::univariateMomentSet::update
     const scalarList& abscissae
 )
 {
+    // If the number of nodes is zero, do not update
+    if (weights.size() == 0)
+    {
+        return;
+    }
+
     // Recomputing all the moments (even if they originally were not realizable)
     // from quadrature (projection step).
     for (label momenti = 0; momenti < nMoments_; momenti++)

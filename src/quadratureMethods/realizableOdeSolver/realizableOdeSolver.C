@@ -125,6 +125,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
     }
 
     Info << "Solving source terms in realizable ODE solver." << endl;
+
     forAll(moments[0], celli)
     {
         // Storing old moments to recover from failed step
@@ -132,6 +133,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         quadrature.updateLocalMoments(celli);
 
         scalarList oldMoments(nMoments, Zero);
+
         forAll(oldMoments, mi)
         {
             oldMoments[mi] = moments[mi][celli];
@@ -168,6 +170,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 // First intermediate update
                 bool nullSource =  true;
                 updateCellMomentSource(celli);
+
                 forAll(k1, mi)
                 {
                     const labelList& order = momentOrders[mi];

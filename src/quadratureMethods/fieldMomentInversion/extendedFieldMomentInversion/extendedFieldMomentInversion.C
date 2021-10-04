@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -172,6 +172,7 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
                             = momentInverter_().secondaryAbscissae()[pNodei][sNodei];
                 }
             }
+            
             for
             (
                 label pNodei = pWeights.size();
@@ -181,13 +182,9 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
             {
                 volScalarNode& node = nodes[pNodei];
 
-                node.primaryWeight().boundaryFieldRef()[patchi][facei]
-                        = 0.0;
-                node.primaryAbscissae()[0].boundaryFieldRef()[patchi][facei]
-                        = 0.0;
-
-                node.sigmas()[0].boundaryFieldRef()[patchi][facei]
-                        = 0.0;
+                node.primaryWeight().boundaryFieldRef()[patchi][facei] = 0.0;
+                node.primaryAbscissae()[0].boundaryFieldRef()[patchi][facei] = 0.0;
+                node.sigmas()[0].boundaryFieldRef()[patchi][facei] = 0.0;
 
                 for
                 (
@@ -196,11 +193,8 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
                     sNodei++
                 )
                 {
-                    node.secondaryWeights()[0][sNodei].boundaryFieldRef()[patchi][facei]
-                            = 0.0;
-
-                    node.secondaryAbscissae()[0][sNodei].boundaryFieldRef()[patchi][facei]
-                            = 0.0;
+                    node.secondaryWeights()[0][sNodei].boundaryFieldRef()[patchi][facei] = 0.0;
+                    node.secondaryAbscissae()[0][sNodei].boundaryFieldRef()[patchi][facei] = 0.0;
                 }
             }
         }

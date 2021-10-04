@@ -283,13 +283,14 @@ void Foam::moment<fieldType, nodeType>::updateBoundaries()
                     m *= pow(abscissaCmpt, cmptMomentOrder);
 
                 }
+                
                 for (label cmpt = 0; cmpt < velocityIndexes.size(); cmpt++)
                 {
                     label cmpti = velocityIndexes[cmpt];
                     const label cmptMomentOrder = cmptOrders()[cmpti];
 
                     tmp<scalarField> abscissaCmpt
-                            = node.velocityAbscissae().boundaryField()[patchi].component(cmpt);
+                        = node.velocityAbscissae().boundaryField()[patchi].component(cmpt);
 
                     m *= pow(abscissaCmpt, cmptMomentOrder);
                 }
