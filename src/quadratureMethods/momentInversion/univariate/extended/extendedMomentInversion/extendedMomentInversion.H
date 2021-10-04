@@ -132,6 +132,9 @@ protected:
         //- Number of primary quadrature nodes
         label nPrimaryNodes_;
 
+        //- Number of actually defined primary nodes
+        label nActualPrimaryNodes_;
+
         //- Number of secondary quadrature nodes
         label nSecondaryNodes_;
 
@@ -236,7 +239,6 @@ protected:
         (
             univariateMomentSet& moments
         ) = 0;
-
 
 public:
 
@@ -345,6 +347,12 @@ public:
 
         //- Return the smallest accepted value for m0
         scalar smallM0() const;
+
+        //- Return the number of actual primary nodes used
+        inline label nActualPrimaryNodes()
+        {
+            return nActualPrimaryNodes_;
+        }
 
     // Member Operators
 

@@ -56,6 +56,7 @@ Foam::extendedMomentInversion::extendedMomentInversion
     smallM0_(momentInverter_().smallM0()),
     nMoments_(nMoments),
     nPrimaryNodes_((nMoments_ - 1)/2),
+    nActualPrimaryNodes_(nPrimaryNodes_),
     nSecondaryNodes_(nSecondaryNodes),
     primaryWeights_(nPrimaryNodes_, Zero),
     primaryAbscissae_(nPrimaryNodes_, Zero),
@@ -96,13 +97,14 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     {
         sigma_ = 0.0;
         nullSigma_ = true;
+        nActualPrimaryNodes_ = 0;
 
         return;
     }
 
     // Terminate execution if negative number density is encountered
     if (m[0] < 0.0)
-    {
+    {       
         FatalErrorInFunction
             << "The zero-order moment is negative." << nl
             << "    Moment set: " << m
@@ -119,6 +121,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         sigma_ = 0.0;
         nullSigma_ = true;
         momentInverter_().invert(m);
+        nActualPrimaryNodes_ = momentInverter_().nNodes();
 
         secondaryQuadrature
         (
@@ -136,6 +139,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         sigma_ = 0.0;
         nullSigma_ = true;
         momentInverter_().invert(m);
+        nActualPrimaryNodes_ = momentInverter_().nNodes();
 
         secondaryQuadrature
         (
@@ -155,6 +159,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             sigma_ = 0.0;
             nullSigma_ = true;
             momentInverter_().invert(m);
+            nActualPrimaryNodes_ = momentInverter_().nNodes();
 
             secondaryQuadrature
             (
@@ -182,6 +187,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             sigma_ = 0.0;
             nullSigma_ = true;
             momentInverter_().invert(m);
+            nActualPrimaryNodes_ = momentInverter_().nNodes();
 
             secondaryQuadrature
             (
@@ -209,6 +215,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                 sigma_ = 0.0;
                 nullSigma_ = true;
                 momentInverter_().invert(m);
+                nActualPrimaryNodes_ = momentInverter_().nNodes();
 
                 secondaryQuadrature
                 (
@@ -220,6 +227,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             }
 
             targetFunction(sigma_, m, mStar);
+            nActualPrimaryNodes_ = momentInverter_().nNodes();
+
             secondaryQuadrature  // secondary quadrature from mStar
             (
                 momentInverter_().weights(),
@@ -269,6 +278,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     sigma_ = 0.0;
                     nullSigma_ = true;
                     momentInverter_().invert(m);
+                    nActualPrimaryNodes_ = momentInverter_().nNodes();
 
                     secondaryQuadrature
                     (
@@ -287,6 +297,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                 )
                 {
                     // Found a value of sigma that preserves all the moments
+                    nActualPrimaryNodes_ = momentInverter_().nNodes();
+
                     secondaryQuadrature  // Secondary quadrature from mStar
                     (
                         momentInverter_().weights(),
@@ -306,6 +318,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                         sigma_ = 0.0;
                         nullSigma_ = true;
                         momentInverter_().invert(m);
+                        nActualPrimaryNodes_ = momentInverter_().nNodes();
 
                         secondaryQuadrature
                         (
@@ -317,7 +330,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     }
 
                     targetFunction(sigma_, m, mStar);
-
+                    nActualPrimaryNodes_ = momentInverter_().nNodes();
+                    
                     secondaryQuadrature // Secondary quadrature from  mStar
                     (
                         momentInverter_().weights(),

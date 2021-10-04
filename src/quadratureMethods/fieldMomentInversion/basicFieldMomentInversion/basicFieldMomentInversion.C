@@ -150,7 +150,13 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             );
 
             label maxNodes = nodes.size();
-            label actualNodes = momentInverter_().nNodes();
+            label nActualPrimaryNodes = momentInverter_().nNodes();
+
+            // Prevent overwriting moments when the quadrature is not defined
+            if (nActualPrimaryNodes == 0)
+            {
+                continue;
+            }
 
             // Copy quadrature data to boundary face
             for (label nodei = 0; nodei < maxNodes; nodei++)
@@ -163,7 +169,7 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
                 volScalarField::Boundary& abscissaBf
                         = node.primaryAbscissae()[0].boundaryFieldRef();
 
-                if (nodei < actualNodes)
+                if (nodei < nActualPrimaryNodes)
                 {
                     weightBf[patchi][facei]
                             = momentInverter_().weights()[nodei];
@@ -220,27 +226,31 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
     );
 
     label maxNodes = nodes.size();
-    label actualNodes = momentInverter_().nNodes();
+    label nActualPrimaryNodes = momentInverter_().nNodes();
 
-    // Recovering quadrature
-    const scalarList& weights(momentInverter_().weights());
-    const scalarList& abscissae(momentInverter_().abscissae());
-
-    for (label nodei = 0; nodei < maxNodes; nodei++)
+    // Prevent overwriting moments when the quadrature is not defined
+    if (nActualPrimaryNodes > 0)
     {
-        volScalarNode& node(nodes[nodei]);
+        // Recovering quadrature
+        const scalarList& weights(momentInverter_().weights());
+        const scalarList& abscissae(momentInverter_().abscissae());
 
-        if (nodei < actualNodes)
+        for (label nodei = 0; nodei < maxNodes; nodei++)
         {
-            node.primaryWeight()[celli] = weights[nodei];
-            node.primaryAbscissae()[0][celli] = abscissae[nodei];
+            volScalarNode& node(nodes[nodei]);
+
+            if (nodei < nActualPrimaryNodes)
+            {
+                node.primaryWeight()[celli] = weights[nodei];
+                node.primaryAbscissae()[0][celli] = abscissae[nodei];
+            }
+            else
+            {
+                node.primaryWeight()[celli] = 0.0;
+                node.primaryAbscissae()[0][celli] = 0.0;
+            }
         }
-        else
-        {
-            node.primaryWeight()[celli] = 0.0;
-            node.primaryAbscissae()[0][celli] = 0.0;
-        }
-    }
+    }  
 
     return true;
 }

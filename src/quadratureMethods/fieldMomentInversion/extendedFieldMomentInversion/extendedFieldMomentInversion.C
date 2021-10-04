@@ -136,6 +136,13 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
             // Inverting moments for EQMOM
             momentInverter_->invert(momentsToInvert);
 
+            // Prevents moments from being overwritten if quadrature is not
+            // defined
+            if (momentInverter_->nActualPrimaryNodes() == 0)
+            {
+                continue;
+            }
+
             // Recovering primary weights and abscissae from moment inverter
             const scalarList& pWeights(momentInverter_().primaryWeights());
 
@@ -240,42 +247,48 @@ bool Foam::extendedFieldMomentInversion::invertLocalMoments
         momentInverter_().primaryAbscissae()
     );
 
-    // Copying EQMOM quadrature to fields
-    for (label pNodei = 0; pNodei < pWeights.size(); pNodei++)
+    label nActualPrimaryNodes = momentInverter_->nActualPrimaryNodes();
+
+    // Do not copy if no nodes are actually used
+    if (nActualPrimaryNodes > 0)
     {
-        volScalarNode& node(nodes[pNodei]);
-
-        // Copy primary node
-        node.primaryWeight()[celli] = pWeights[pNodei];
-        node.primaryAbscissae()[0][celli] = pAbscissae[pNodei];
-
-        // Copy secondary nodes
-        PtrList<volScalarField>& sWeightFields(node.secondaryWeights()[0]);
-        PtrList<volScalarField>& sAbscissaFields(node.secondaryAbscissae()[0]);
-
-        const scalarRectangularMatrix& sWeights
-        (
-            momentInverter_().secondaryWeights()
-        );
-
-        const scalarRectangularMatrix& sAbscissae
-        (
-            momentInverter_().secondaryAbscissae()
-        );
-
-        for
-        (
-            label sNodei = 0;
-            sNodei < nodes[0].nSecondaryNodes();
-            sNodei++
-        )
+        // Copying EQMOM quadrature to fields
+        for (label pNodei = 0; pNodei < pWeights.size(); pNodei++)
         {
-            sWeightFields[sNodei][celli] = sWeights[pNodei][sNodei];
-            sAbscissaFields[sNodei][celli] = sAbscissae[pNodei][sNodei];
-        }
+            volScalarNode& node(nodes[pNodei]);
 
-        // Copy sigma
-        node.sigmas()[0][celli] = momentInverter_().sigma();
+            // Copy primary node
+            node.primaryWeight()[celli] = pWeights[pNodei];
+            node.primaryAbscissae()[0][celli] = pAbscissae[pNodei];
+
+            // Copy secondary nodes
+            PtrList<volScalarField>& sWeightFields(node.secondaryWeights()[0]);
+            PtrList<volScalarField>& sAbscissaFields(node.secondaryAbscissae()[0]);
+
+            const scalarRectangularMatrix& sWeights
+            (
+                momentInverter_().secondaryWeights()
+            );
+
+            const scalarRectangularMatrix& sAbscissae
+            (
+                momentInverter_().secondaryAbscissae()
+            );
+
+            for
+            (
+                label sNodei = 0;
+                sNodei < nodes[0].nSecondaryNodes();
+                sNodei++
+            )
+            {
+                sWeightFields[sNodei][celli] = sWeights[pNodei][sNodei];
+                sAbscissaFields[sNodei][celli] = sAbscissae[pNodei][sNodei];
+            }
+
+            // Copy sigma
+            node.sigmas()[0][celli] = momentInverter_().sigma();
+        }
     }
 
     return true;
