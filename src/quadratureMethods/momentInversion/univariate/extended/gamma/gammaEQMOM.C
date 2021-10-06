@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2020 Alberto Passalacqua
+    Copyright (C) 2019-2021 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -58,7 +58,8 @@ Foam::gammaEQMOM::gammaEQMOM
     const label nSecondaryNodes
 )
 :
-    extendedMomentInversion(dict, nMoments, nSecondaryNodes)
+    extendedMomentInversion(dict, nMoments, nSecondaryNodes),
+    maxGammaArgument_(dict.lookupOrDefault<scalar>("maxGammaArgument_", 170))
 {}
 
 
@@ -260,7 +261,24 @@ void Foam::gammaEQMOM::recurrenceRelation
         a[ai] = (2.0*scalar(ai) + alpha + 1.0);
     }
 
-    b[0] = tgamma(1.0 + alpha);
+    scalar onePlusAlpha = 1.0 + alpha;
+    
+    if (onePlusAlpha > maxGammaArgument_)
+    {
+        WarningInFunction
+            << "Limiting argument of gamma function. Loss of accuracy is "
+            << "possible."
+            << endl
+            << "    If sigma is small, set sigmaMin to a meaningful value.\n"
+            << endl
+            << "    Sigma: " << sigma << "." << endl
+            << "    Primary abscissa: " << primaryAbscissa << "." << endl
+            << "    Primary abscissa/sigma (argument): " << onePlusAlpha << ".\n"
+            << "    Limited argument: " << maxGammaArgument_ << ".\n"
+            << endl;
+    }
+
+    b[0] = tgamma(min(1.0 + alpha, maxGammaArgument_));
 
     for (label bi = 1; bi < b.size(); bi++)
     {
