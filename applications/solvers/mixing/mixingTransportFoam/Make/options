@@ -18,14 +18,14 @@ EXE_INC = \
     -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
-    -I$../../../../src/quadratureMethods/univariateMomentSet/lnInclude \
-    -I$../../../../src/quadratureMethods/momentInversion/lnInclude \
-    -I$../../../../src/quadratureMethods/quadratureNode/lnInclude \
-    -I$../../../../src/quadratureMethods/moments \
-    -I$../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I$../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
-    -I$../../../../src/quadratureMethods/momentAdvection/lnInclude \
-    -I$../../../../src/quadratureMethods/mixingModels/lnInclude
+    -I$../../../../../src/quadratureMethods/univariateMomentSet/lnInclude \
+    -I$../../../../../src/quadratureMethods/momentInversion/lnInclude \
+    -I$../../../../../src/quadratureMethods/quadratureNode/lnInclude \
+    -I$../../../../../src/quadratureMethods/moments \
+    -I$../../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I$../../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
+    -I$../../../../../src/quadratureMethods/momentAdvection/lnInclude \
+    -I$../../../../../src/quadratureMethods/mixingModels/lnInclude
 
 EXE_LIBS = \
     -lfiniteVolume \

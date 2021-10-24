@@ -4,8 +4,8 @@ cd "${0%/*}" || exit                            # Run from this directory
 
 #------------------------------------------------------------------------------
 
-wmake -all $targetType utilities
-solvers/Allwmake
+wmake libso ButcherTable
+wmake -all $targetType explicitRhoFoam
 
 
 #------------------------------------------------------------------------------

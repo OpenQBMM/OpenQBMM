@@ -4,8 +4,11 @@ cd "${0%/*}" || exit                            # Run from this directory
 
 #------------------------------------------------------------------------------
 
-wmake -all $targetType utilities
-solvers/Allwmake
+wmake -all $targetType populationBalance
+wmake -all $targetType mixing
+compressible/Allwmake
+wmake -all $targetType velocityDistributionTransport
+wmake -all $targetType multiphase
 
 
 #------------------------------------------------------------------------------
