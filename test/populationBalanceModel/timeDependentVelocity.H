@@ -11,6 +11,11 @@
     }
 
     U.correctBoundaryConditions();
-    U.write();
+
+    if (runTime.writeTime())
+    {
+        U.write();
+    }
+    
     phi = fvc::flux(U);
 }

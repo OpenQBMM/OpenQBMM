@@ -17,6 +17,8 @@ FoamFile
 
 populationBalanceModel univariate;
 
+timeDependentVelocity true;
+
 univariateCoeffs
 {
     aggregation off;
