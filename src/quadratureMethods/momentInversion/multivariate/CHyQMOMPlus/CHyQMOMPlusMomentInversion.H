@@ -31,6 +31,9 @@ Description
     for velocity. Three nodes are used in each direction. Moment realizability
     is verified analytically.
 
+    Five moments are used in 1D, twelve moments in 2D, and twenty-three moments 
+    in 3D.
+
 SourceFiles
     hyperbolicConditionalMomentInversion.C
 

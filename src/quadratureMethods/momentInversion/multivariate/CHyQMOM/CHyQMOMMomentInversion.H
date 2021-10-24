@@ -31,6 +31,8 @@ Description
     for velocity. Three nodes are used in each direction. Moment realizability
     is verified analytically.
 
+    Five moments are used in 1D, ten moments in 2D, and sixteen moments in 3D.
+
 SourceFiles
     CHyQMOMMomentInversion.C
 
