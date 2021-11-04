@@ -29,6 +29,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "mixingModel.H"
+#include "surfaceMesh.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

@@ -40,7 +40,7 @@ Foam::swarmCorrection::New
     Info<< "Selecting swarmCorrection for "
         << pair << ": " << swarmCorrectionType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(swarmCorrectionType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

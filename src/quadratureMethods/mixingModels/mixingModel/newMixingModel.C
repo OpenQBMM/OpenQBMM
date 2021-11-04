@@ -44,7 +44,7 @@ Foam::autoPtr<Foam::mixingModel> Foam::mixingModel::New
     Info<< "Selecting mixingModel "
         << mixingModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(mixingModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

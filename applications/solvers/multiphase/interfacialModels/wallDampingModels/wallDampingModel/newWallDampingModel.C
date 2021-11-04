@@ -39,7 +39,7 @@ Foam::autoPtr<Foam::wallDampingModel> Foam::wallDampingModel::New
     Info<< "Selecting wallDampingModel for "
         << pair << ": " << wallDampingModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(wallDampingModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

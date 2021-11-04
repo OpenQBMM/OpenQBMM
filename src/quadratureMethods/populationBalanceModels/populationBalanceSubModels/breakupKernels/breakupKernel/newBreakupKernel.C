@@ -44,7 +44,7 @@ Foam::populationBalanceSubModels::breakupKernel::New
     Info<< "Selecting breakupKernel "
         << breakupKernelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(breakupKernelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

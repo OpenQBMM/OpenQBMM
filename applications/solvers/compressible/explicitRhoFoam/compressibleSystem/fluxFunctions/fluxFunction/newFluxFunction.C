@@ -40,7 +40,7 @@ Foam::autoPtr<Foam::fluxFunction> Foam::fluxFunction::New
 
     Info<< "Selecting fluxType: " << fluxModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(fluxModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

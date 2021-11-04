@@ -48,7 +48,7 @@ Foam::velocityMomentAdvection::New
     Info<< "Selecting velocityMomentAdvection: "
         << velocityMomentAdvectionType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(velocityMomentAdvectionType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

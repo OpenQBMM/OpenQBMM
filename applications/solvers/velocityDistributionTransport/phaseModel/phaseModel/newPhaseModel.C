@@ -39,7 +39,7 @@ Foam::autoPtr<Foam::phaseModel> Foam::phaseModel::New
     Info<< "Selecting phaseModel for "
         << phaseName << ": " << phaseModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(phaseModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

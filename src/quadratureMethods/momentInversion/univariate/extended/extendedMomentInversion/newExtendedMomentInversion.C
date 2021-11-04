@@ -44,7 +44,7 @@ Foam::autoPtr<Foam::extendedMomentInversion> Foam::extendedMomentInversion::New
     Info<< "Selecting extendedMomentInversion: "
         << extendedMomentInversionType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(extendedMomentInversionType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

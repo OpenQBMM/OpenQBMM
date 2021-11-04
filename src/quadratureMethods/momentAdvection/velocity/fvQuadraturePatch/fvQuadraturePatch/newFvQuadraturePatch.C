@@ -48,7 +48,7 @@ Foam::autoPtr<Foam::fvQuadraturePatch> Foam::fvQuadraturePatch::New
     Info<< "Selecting fvQuadraturePatch type for " << patch.name() << ": "
         << fvQuadraturePatchType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(fvQuadraturePatchType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

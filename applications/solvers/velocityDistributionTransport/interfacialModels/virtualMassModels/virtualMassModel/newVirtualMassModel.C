@@ -39,7 +39,7 @@ Foam::autoPtr<Foam::virtualMassModel> Foam::virtualMassModel::New
     Info<< "Selecting virtualMassModel for "
         << pair << ": " << virtualMassModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(virtualMassModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

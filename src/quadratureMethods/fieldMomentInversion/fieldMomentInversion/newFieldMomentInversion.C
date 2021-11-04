@@ -50,7 +50,7 @@ Foam::autoPtr<Foam::fieldMomentInversion> Foam::fieldMomentInversion::New
     Info<< "Selecting fieldMomentInversion: "
         << fieldMomentInversionType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(fieldMomentInversionType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

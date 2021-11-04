@@ -40,7 +40,7 @@ Foam::aspectRatioModel::New
     Info<< "Selecting aspectRatioModel for "
         << pair << ": " << aspectRatioModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(aspectRatioModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

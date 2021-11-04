@@ -43,7 +43,7 @@ Foam::populationBalanceSubModels::diffusionModel::New
     Info<< "Selecting diffusionModel "
         << diffusionModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(diffusionModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

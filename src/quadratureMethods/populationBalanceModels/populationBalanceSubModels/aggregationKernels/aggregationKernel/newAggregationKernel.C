@@ -44,7 +44,7 @@ Foam::populationBalanceSubModels::aggregationKernel::New
     Info<< "Selecting aggregationKernel "
         << aggregationKernelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(aggregationKernelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

@@ -44,7 +44,7 @@ Foam::autoPtr<Foam::momentGenerationModel> Foam::momentGenerationModel::New
     Info<< "Selecting momentGenerationModel "
         << momentGenerationModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(momentGenerationModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

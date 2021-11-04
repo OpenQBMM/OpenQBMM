@@ -43,7 +43,7 @@ Foam::mixingSubModels::mixingDiffusionModel::New
     Info<< "Selecting mixingDiffusionModel "
         << mixingDiffusionModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(mixingDiffusionModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())

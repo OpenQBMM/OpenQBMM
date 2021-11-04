@@ -40,7 +40,7 @@ Foam::turbulentDispersionModel::New
     Info<< "Selecting turbulentDispersionModel for "
         << pair << ": " << turbulentDispersionModelType << endl;
 
-    dictionaryConstructorTable::iterator cstrIter =
+    auto cstrIter =
         dictionaryConstructorTablePtr_->find(turbulentDispersionModelType);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
