@@ -41,7 +41,7 @@ Foam::orderedPhasePair::orderedPhasePair
 :
     phasePair(dispersed, continuous, g, sigma, true)
 {
-    aspectRatio_.set
+    aspectRatio_.reset
     (
         aspectRatioModel::New
         (

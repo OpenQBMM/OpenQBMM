@@ -183,7 +183,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         );
     }
 
-    momentFieldInverter_.set
+    momentFieldInverter_.reset
     (
         new basicFieldMomentInversion
         (

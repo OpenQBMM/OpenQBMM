@@ -751,7 +751,7 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
 
 void Foam::polydispersePhaseModel::setModels()
 {
-    coalescenceKernel_.set
+    coalescenceKernel_.reset
     (
         new populationBalanceSubModels::aggregationKernels::coalescence
         (
