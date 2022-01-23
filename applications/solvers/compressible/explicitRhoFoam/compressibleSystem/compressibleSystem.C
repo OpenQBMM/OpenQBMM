@@ -231,11 +231,11 @@ Foam::compressibleSystem::compressibleSystem(const fvMesh& mesh)
             )
         );
     }
-    
+
     thermoPtr_->validate("compressibleSystem ", "e");
     calcConservativeVariables();
 
-    integrator_.set(new fluxIntegrator(*this));
+    integrator_.reset(new fluxIntegrator(*this));
     fluxFunction_ = fluxFunction::New(mesh_);
 }
 
