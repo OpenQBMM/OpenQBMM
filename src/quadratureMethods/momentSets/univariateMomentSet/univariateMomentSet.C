@@ -71,7 +71,7 @@ Foam::univariateMomentSet::univariateMomentSet
     if (nAdditionalQuadraturePoints < 0)
     {
         FatalErrorInFunction
-            << "The number of fixed points must be positive."
+            << "The number of additional quadrature points must be positive."
             << abort(FatalError);
     }
 
