@@ -124,7 +124,7 @@ public:
             const label nMoments,
             const word& support,
             const scalar initValue = 0,
-            const label nFixedQuadraturePoints = 0
+            const label nAdditionalQuadraturePoints = 0
         );
 
         //- Construct from scalarList
@@ -132,7 +132,7 @@ public:
         (
             const scalarList& m,
             const word& support,
-            const label nFixedQuadraturePoints = 0
+            const label nAdditionalQuadraturePoints = 0
         );
 
     //- Destructor

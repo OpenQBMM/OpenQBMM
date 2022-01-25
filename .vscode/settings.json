@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "gaussMomentInversion.C": "cpp",
+        "gaussRadauMomentInversion.C": "cpp",
+        "generalizedMomentInversion.C": "cpp",
+        "Zuber.C": "cpp",
+        "univariateMomentInversion.C": "cpp",
+        "univariateMomentSet.C": "cpp",
+        "basicFieldMomentInversion.C": "cpp"
+    }
+}

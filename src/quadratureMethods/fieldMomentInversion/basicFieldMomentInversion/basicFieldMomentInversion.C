@@ -68,7 +68,7 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     ),
     minKnownAbscissa_(dict.lookupOrDefault<scalar>("minKnownAbscissa", 0)),
     maxKnownAbscissa_(dict.lookupOrDefault<scalar>("maxKnownAbscissa", 1)),
-    nFixedQuadraturePoints_(0),
+    nAdditionalQuadraturePoints_(0),
     momentInverter_
     (
         univariateMomentInversion::New(dict.subDict("basicMomentInversion"))
@@ -78,11 +78,11 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
 
     if (inversionType == "GaussRadau")
     {
-        nFixedQuadraturePoints_ = 1;
+        nAdditionalQuadraturePoints_ = 1;
     }
     else if (inversionType == "GaussLobatto")
     {
-        nFixedQuadraturePoints_ = 2;
+        nAdditionalQuadraturePoints_ = 2;
     }
 }
 
@@ -131,7 +131,7 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
                 moments.size(),
                 moments.support(),
                 scalar(0),                  // Initial value
-                nFixedQuadraturePoints_
+                nAdditionalQuadraturePoints_
             );
 
             // Copying moments from a face
@@ -194,7 +194,7 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
         moments.size(),
         moments.support(),
         scalar(0),                  // Initial value
-        nFixedQuadraturePoints_
+        nAdditionalQuadraturePoints_
     );
 
     // Copying moments from cell

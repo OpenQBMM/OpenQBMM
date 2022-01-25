@@ -37,7 +37,7 @@ Foam::univariateMomentSet::univariateMomentSet
     const label nMoments,
     const word& support,
     const scalar initValue,
-    const label nFixedQuadraturePoints
+    const label nAdditionalQuadraturePoints
 )
 :
     momentSet
@@ -68,16 +68,15 @@ Foam::univariateMomentSet::univariateMomentSet
             << abort(FatalError);
     }
 
-    if (nFixedQuadraturePoints < 0 || nFixedQuadraturePoints > 2)
+    if (nAdditionalQuadraturePoints < 0)
     {
         FatalErrorInFunction
-            << "The specified number of fixed points is not correct." << nl
-            << "    Valid values are: 0, 1 and 2."
+            << "The number of fixed points must be positive."
             << abort(FatalError);
     }
 
     label recurrenceSize =
-            label((nMoments - 2)/2) + 1 + nFixedQuadraturePoints;
+            label((nMoments - 2)/2) + 1 + nAdditionalQuadraturePoints;
 
     alpha_.setSize(recurrenceSize, 0);
     beta_.setSize(recurrenceSize + 1, 0);
@@ -92,7 +91,7 @@ Foam::univariateMomentSet::univariateMomentSet
 (
     const scalarList& m,
     const word& support,
-    const label nFixedQuadraturePoints
+    const label nAdditionalQuadraturePoints
 )
 :
     momentSet
@@ -121,7 +120,7 @@ Foam::univariateMomentSet::univariateMomentSet
             << abort(FatalError);
     }
 
-    if (nFixedQuadraturePoints < 0 || nFixedQuadraturePoints > 2)
+    if (nAdditionalQuadraturePoints < 0 || nAdditionalQuadraturePoints > 2)
     {
         FatalErrorInFunction
             << "The specified number of fixed points /*is*/ not correct." << nl
@@ -130,7 +129,7 @@ Foam::univariateMomentSet::univariateMomentSet
     }
 
     label recurrenceSize =
-            label((nMoments_ - 2)/2) + 1 + nFixedQuadraturePoints;
+            label((nMoments_ - 2)/2) + 1 + nAdditionalQuadraturePoints;
 
     alpha_.setSize(recurrenceSize, 0);
     beta_.setSize(recurrenceSize + 1, 0);
