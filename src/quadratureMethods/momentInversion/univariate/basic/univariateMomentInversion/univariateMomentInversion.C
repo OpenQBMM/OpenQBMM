@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -87,8 +87,8 @@ void Foam::univariateMomentInversion::JacobiMatrix
     for (label i = 0; i < nNodes_ - 1; i++)
     {
         z[i][i] = alpha[i];
-        z[i][i+1] = Foam::sqrt(beta[i+1]);
-        z[i+1][i] = z[i][i+1];
+        z[i][i+1] = Foam::sqrt(beta[i + 1]);
+        z[i+1][i] = z[i][i + 1];
     }
 
     z[nNodes_ - 1][nNodes_ - 1] = alpha[nNodes_ - 1];

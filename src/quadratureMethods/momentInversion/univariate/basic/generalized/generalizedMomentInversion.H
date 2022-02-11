@@ -60,6 +60,9 @@ class generalizedMomentInversion
         // Exponent
         scalar nu_;
 
+        // Maximum number of nodes for generalized quadrature
+        label nMaxNodes_;
+
 public:
 
     //- Runtime type information

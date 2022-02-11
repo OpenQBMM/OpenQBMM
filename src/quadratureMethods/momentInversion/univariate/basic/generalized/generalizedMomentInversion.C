@@ -58,7 +58,8 @@ Foam::generalizedMomentInversion::generalizedMomentInversion
             "nu",
             1.0
         )
-    )
+    ),
+    nMaxNodes_(nMaxNodes)
 {}
 
 
@@ -116,8 +117,8 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
     }
     */
 
-    abscissae_.setSize(nNodes_);
-    weights_.setSize(nNodes_);
+    abscissae_.setSize(nMaxNodes);
+    weights_.setSize(nMaxNodes);
 }
 
 // ************************************************************************* //
