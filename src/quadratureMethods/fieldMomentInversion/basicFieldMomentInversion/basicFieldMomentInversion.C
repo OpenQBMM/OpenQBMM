@@ -71,18 +71,47 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     nAdditionalQuadraturePoints_(0),
     momentInverter_
     (
-        univariateMomentInversion::New(dict.subDict("basicMomentInversion"))
+        univariateMomentInversion::New
+        (
+            dict.subDict("basicMomentInversion"), 
+            nodeIndexes.size()
+        )
     )
 {
     static word inversionType = momentInverter_().type();
 
     if (inversionType == "GaussRadau")
     {
-        nAdditionalQuadraturePoints_ = 1;
+         nAdditionalQuadraturePoints_ = 1;
     }
     else if (inversionType == "GaussLobatto")
     {
         nAdditionalQuadraturePoints_ = 2;
+    }
+    else if (inversionType == "GQMOM")
+    {
+        if (momentOrders.size() % 2 == 0)
+        {
+            FatalErrorInFunction
+                << "Odd number of moments required for generalized QMOM."
+                << exit(FatalError);
+        }
+        else
+        {
+            label nMomentsMinusOne = momentOrders.size() - 1;
+            label nMainNodes = nMomentsMinusOne/2;
+
+            nAdditionalQuadraturePoints_ = nodeIndexes.size() - nMainNodes;
+
+            if (nAdditionalQuadraturePoints_ < 0)
+            {
+                WarningInFunction
+                    << "Using generalized QMOM with a number of nodes "
+                    << "equal or smaller than regular QMOM. This may lead "
+                    << "to lack of moment conservation."
+                    << endl;
+            }
+        }
     }
 }
 

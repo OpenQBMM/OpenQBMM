@@ -44,12 +44,13 @@ namespace Foam
 
 Foam::univariateMomentInversion::univariateMomentInversion
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label nMaxNodes
 )
 :
     smallM0_(dict.lookupOrDefault<scalar>("smallM0", 1.0e-12)),
     nInvertibleMoments_(),
-    nNodes_(),
+    nNodes_(nMaxNodes),
     abscissae_(),
     weights_()
 {}

@@ -6,6 +6,16 @@
         "Zuber.C": "cpp",
         "univariateMomentInversion.C": "cpp",
         "univariateMomentSet.C": "cpp",
-        "basicFieldMomentInversion.C": "cpp"
+        "basicFieldMomentInversion.C": "cpp",
+        "newButcherTable.C": "cpp",
+        "Moraga.C": "cpp",
+        "gaussLobattoMomentInversion.C": "cpp",
+        "fieldMomentInversion.C": "cpp",
+        "extendedFieldMomentInversion.C": "cpp",
+        "newExtendedMomentInversion.C": "cpp",
+        "quadratureApproximation.C": "cpp",
+        "newUnivariateMomentInversion.C": "cpp",
+        "hyperbolicMomentInversion.C": "cpp",
+        "conditionalMomentInversion.C": "cpp"
     }
 }

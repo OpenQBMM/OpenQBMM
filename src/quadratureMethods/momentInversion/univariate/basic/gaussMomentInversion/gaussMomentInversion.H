@@ -68,7 +68,8 @@ public:
         //- Construct from univariateMomentSet
         gaussMomentInversion
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const label nMaxNodes = 0
         );
 
 

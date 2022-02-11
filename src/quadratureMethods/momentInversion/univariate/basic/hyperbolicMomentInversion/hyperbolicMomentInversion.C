@@ -51,10 +51,11 @@ namespace Foam
 
 Foam::hyperbolicMomentInversion::hyperbolicMomentInversion
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label nMaxNodes
 )
 :
-    univariateMomentInversion(dict),
+    univariateMomentInversion(dict, nMaxNodes),
     etaMin_(dict.lookupOrDefault<scalar>("etaMin", 1.0e-10)),
     qMax_(dict.lookupOrDefault<scalar>("qMax", 30.0)),
     smallNegRealizability_

@@ -49,10 +49,11 @@ namespace Foam
 
 Foam::gaussRadauMomentInversion::gaussRadauMomentInversion
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label nMaxNodes
 )
 :
-    univariateMomentInversion(dict),
+    univariateMomentInversion(dict, nMaxNodes),
     forceGauss_(false)
 {}
 

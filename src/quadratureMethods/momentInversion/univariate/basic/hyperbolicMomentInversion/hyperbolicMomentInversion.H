@@ -79,7 +79,8 @@ public:
         //- Construct from univariateMomentSet
         hyperbolicMomentInversion
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const label nMaxNodes = 0
         );
 
 

@@ -46,10 +46,11 @@ namespace Foam
 
 Foam::generalizedMomentInversion::generalizedMomentInversion
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label nMaxNodes
 )
 :
-    univariateMomentInversion(dict),
+    univariateMomentInversion(dict, nMaxNodes),
     nu_
     (
         dict.lookupOrDefault<scalar>
@@ -78,23 +79,9 @@ void Foam::generalizedMomentInversion::correctRecurrence
     const scalar maxKnownAbscissa
 )
 {
-    if (!forceGauss_)
-    {
-        scalar p = minKnownAbscissa - alpha[0];
-        scalar pMinus1 = 1.0;
-        scalar p1 = p;
-
-        for (label i = 1; i < nNodes_ - 1; i++)
-        {
-            p = (minKnownAbscissa - alpha[i])*p1 - beta[i]*pMinus1;
-
-            pMinus1 = p1;
-            p1 = p;
-        }
-
-        alpha[nNodes_ - 1] =
-            minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;
-    }
+    //scalar an = 0;
+    //for (label i = 0; i < )
+    //alpha[nNodes_ - 1] = minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;
 }
 
 void Foam::generalizedMomentInversion::calcNQuadratureNodes
@@ -102,6 +89,7 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
     univariateMomentSet& moments
 )
 {
+    /*
     label nRealizableMoments = moments.nRealizableMoments();
 
     if (nRealizableMoments >= 2)
@@ -126,6 +114,7 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
             << "    Moment set: " << moments
             << abort(FatalError);
     }
+    */
 
     abscissae_.setSize(nNodes_);
     weights_.setSize(nNodes_);

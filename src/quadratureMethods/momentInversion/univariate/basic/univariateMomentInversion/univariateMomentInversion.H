@@ -115,7 +115,8 @@ public:
         //- Construct from univariateMomentSet
         univariateMomentInversion
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const label nMaxNodes = 0
         );
 
         //- Disallow default bitwise copy construct
@@ -130,7 +131,8 @@ public:
 
         static autoPtr<univariateMomentInversion> New
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const label nMaxNodes = 0
         );
 
 

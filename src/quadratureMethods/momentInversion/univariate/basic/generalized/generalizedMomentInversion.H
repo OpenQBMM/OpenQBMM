@@ -71,7 +71,8 @@ public:
         //- Construct from univariateMomentSet
         generalizedMomentInversion
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const label nMaxNodes = 0
         );
 
 

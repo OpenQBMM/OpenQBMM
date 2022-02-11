@@ -49,10 +49,11 @@ namespace Foam
 
 Foam::gaussLobattoMomentInversion::gaussLobattoMomentInversion
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label nMaxNodes
 )
 :
-    univariateMomentInversion(dict),
+    univariateMomentInversion(dict, nMaxNodes),
     forceRadau_(false)
 {}
 

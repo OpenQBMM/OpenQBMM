@@ -75,7 +75,8 @@ public:
         //- Construct from univariateMomentSet
         gaussLobattoMomentInversion
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const label nMaxNodes = 0
         );
 
 

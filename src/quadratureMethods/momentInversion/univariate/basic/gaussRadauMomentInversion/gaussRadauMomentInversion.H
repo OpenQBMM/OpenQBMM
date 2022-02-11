@@ -75,7 +75,8 @@ public:
         //- Construct from univariateMomentSet
         gaussRadauMomentInversion
         (
-            const dictionary& dict
+            const dictionary& dict,
+            const label nMaxNodes = 0
         );
 
 
