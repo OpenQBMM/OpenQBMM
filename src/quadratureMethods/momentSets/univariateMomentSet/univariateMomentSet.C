@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -120,11 +120,10 @@ Foam::univariateMomentSet::univariateMomentSet
             << abort(FatalError);
     }
 
-    if (nAdditionalQuadraturePoints < 0 || nAdditionalQuadraturePoints > 2)
+    if (nAdditionalQuadraturePoints < 0)
     {
         FatalErrorInFunction
-            << "The specified number of fixed points /*is*/ not correct." << nl
-            << "    Valid values are: 0, 1 and 2."
+            << "The specified number of fixed points must be positive." << nl
             << abort(FatalError);
     }
 

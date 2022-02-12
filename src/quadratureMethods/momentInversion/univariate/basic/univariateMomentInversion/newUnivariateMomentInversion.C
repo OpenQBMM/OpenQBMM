@@ -60,7 +60,7 @@ Foam::univariateMomentInversion::New
             << exit(FatalError);
     }
 
-    return cstrIter()(dict);
+    return cstrIter()(dict, nMaxNodes);
 }
 
 

@@ -90,6 +90,14 @@ protected:
         );
 
 
+        // Calculate weights and abscissae
+        void calcQuadrature
+        (
+            const univariateMomentSet& moments,
+            const scalarSquareMatrix& z
+        );
+
+
 public:
 
     //- Runtime type information
@@ -104,9 +112,10 @@ public:
             univariateMomentInversion,
             dictionary,
             (
-                const dictionary& dict
+                const dictionary& dict,
+                const label nMaxNodes
             ),
-            (dict)
+            (dict, nMaxNodes)
         );
 
 

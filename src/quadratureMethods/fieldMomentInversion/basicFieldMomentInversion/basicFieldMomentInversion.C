@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -90,16 +90,16 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     }
     else if (inversionType == "GQMOM")
     {
-        if (momentOrders.size() % 2 == 0)
+        if (momentOrders.size() % 2 != 0)
         {
             FatalErrorInFunction
-                << "Odd number of moments required for generalized QMOM."
+                << "Even number of moments required for generalized QMOM."
                 << exit(FatalError);
         }
         else
         {
-            label nMomentsMinusOne = momentOrders.size() - 1;
-            label nMainNodes = nMomentsMinusOne/2;
+            //label nMomentsMinusOne = momentOrders.size() - 1;
+            label nMainNodes = momentOrders.size()/2;
 
             nAdditionalQuadraturePoints_ = nodeIndexes.size() - nMainNodes;
 

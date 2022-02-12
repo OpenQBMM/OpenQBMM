@@ -16,6 +16,13 @@
         "quadratureApproximation.C": "cpp",
         "newUnivariateMomentInversion.C": "cpp",
         "hyperbolicMomentInversion.C": "cpp",
-        "conditionalMomentInversion.C": "cpp"
+        "conditionalMomentInversion.C": "cpp",
+        "Test-UnivariateMomentInversion.C": "cpp",
+        "Test-ExtendedMomentInversion.C": "cpp",
+        "random": "cpp",
+        "cmath": "cpp",
+        "extendedMomentInversion.C": "cpp",
+        "quadratureNode.C": "cpp",
+        "reconstructPointDistribution.C": "cpp"
     }
 }

@@ -100,7 +100,7 @@ void Foam::univariateMomentInversion::invert
     const scalar minKnownAbscissa,
     const scalar maxKnownAbscissa
 )
-{
+{   
     if (moments.isDegenerate())
     {
         nNodes_ = 1;
@@ -134,7 +134,15 @@ void Foam::univariateMomentInversion::invert
 
     scalarSquareMatrix z(nNodes_, scalar(0));
     JacobiMatrix(moments, z, minKnownAbscissa, maxKnownAbscissa);
+    calcQuadrature(moments, z);
+}
 
+void Foam::univariateMomentInversion::calcQuadrature
+(
+    const univariateMomentSet& moments,
+    const scalarSquareMatrix& z
+)
+{
     // Computing weights and abscissae
     EigenMatrix<scalar> zEig(z, true);
 
@@ -145,6 +153,5 @@ void Foam::univariateMomentInversion::invert
         abscissae_[i] = zEig.EValsRe()[i];
     }
 }
-
 
 // ************************************************************************* //

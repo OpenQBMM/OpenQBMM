@@ -6,6 +6,7 @@ ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
 endif
 
 EXE_INC = \
+    -DFULLDEBUG -g -O0 \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I../../Vandermonde/lnInclude \
     -I../../mappedList \
