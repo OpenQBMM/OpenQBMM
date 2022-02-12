@@ -23,6 +23,9 @@
         "cmath": "cpp",
         "extendedMomentInversion.C": "cpp",
         "quadratureNode.C": "cpp",
-        "reconstructPointDistribution.C": "cpp"
+        "reconstructPointDistribution.C": "cpp",
+        "linearEvaporation.C": "cpp",
+        "growthModel.C": "cpp",
+        "constantGrowth.C": "cpp"
     }
 }

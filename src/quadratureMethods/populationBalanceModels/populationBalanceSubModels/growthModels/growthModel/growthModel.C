@@ -8,7 +8,7 @@
     Code created 2015 by Matteo Icardi
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2020 Alberto Passalacqua
+    Copyright (C) 2020-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -89,11 +89,11 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     {
         return gSource;
     }
+
     label sizeOrder = momentOrder[sizeIndex];
-
-
     bool lengthBased = nodes[0].lengthBased();
     bool volumeFraction = nodes[0].useVolumeFraction();
+
     if (volumeFraction)
     {
         if (lengthBased)
@@ -121,7 +121,9 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
 
             scalar bAbscissa =
                 max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+
             scalar d = node.d(celli, bAbscissa);
+
             scalar n =
                 node.n(celli, node.primaryWeight()[celli], bAbscissa);
 
@@ -143,6 +145,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
                         );
                 }
             }
+
             gSource += gSourcei;
         }
 
@@ -161,7 +164,9 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
                     node.secondaryAbscissae()[sizeIndex][sNodei][celli],
                     scalar(0)
                 );
+
             scalar d = node.d(celli, bAbscissa);
+
             scalar n =
                 node.n(celli, node.primaryWeight()[celli], bAbscissa)
                *node.secondaryWeights()[sizeIndex][sNodei][celli];
@@ -185,6 +190,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
                         );
                 }
             }
+
             gSource += gSourcei;
         }
     }
@@ -209,10 +215,11 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     {
         return gSource;
     }
-    label sizeOrder = momentOrder[sizeIndex];
 
+    label sizeOrder = momentOrder[sizeIndex];
     bool lengthBased = nodes[0].lengthBased();
     bool volumeFraction = nodes[0].useVolumeFraction();
+
     if (volumeFraction)
     {
         if (lengthBased)
@@ -239,7 +246,9 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
 
         scalar bAbscissa =
             max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+
         scalar d = node.d(celli, bAbscissa);
+
         scalar n =
             node.n(celli, node.primaryWeight()[celli], bAbscissa);
 
@@ -258,6 +267,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
                     );
             }
         }
+
         forAll(velocityIndexes, cmpt)
         {
             gSourcei *=
@@ -267,6 +277,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
                     momentOrder[velocityIndexes[cmpt]]
                 );
         }
+
         gSource += gSourcei;
     }
 
