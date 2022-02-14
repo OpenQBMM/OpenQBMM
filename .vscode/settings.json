@@ -26,6 +26,11 @@
         "reconstructPointDistribution.C": "cpp",
         "linearEvaporation.C": "cpp",
         "growthModel.C": "cpp",
-        "constantGrowth.C": "cpp"
+        "constantGrowth.C": "cpp",
+        "LageCondensation.C": "cpp",
+        "StrumendoArastoopourCondensation.C": "cpp",
+        "univariatePopulationBalance.C": "cpp",
+        "univariatePDFTransportModel.C": "cpp",
+        "DiffusionControlledGrowth.C": "cpp"
     }
 }
