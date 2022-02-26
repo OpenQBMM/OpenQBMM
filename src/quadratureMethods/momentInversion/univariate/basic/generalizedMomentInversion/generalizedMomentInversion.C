@@ -55,7 +55,7 @@ Foam::generalizedMomentInversion::generalizedMomentInversion
     (
         dict.lookupOrDefault<scalar>
         (
-            "nu",
+            "a",
             0.0
         )
     ),
