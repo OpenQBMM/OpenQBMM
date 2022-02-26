@@ -115,33 +115,12 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
 )
 {
     label nRealizableMoments = moments.nRealizableMoments(); // Trigger calculations of zeta_k
-    /*
-    if (nRealizableMoments >= 2)
-    {
-        if (nRealizableMoments % 2 == 0)
-        {
-            nInvertibleMoments_ = nRealizableMoments;
-            forceGauss_ = true;
-            nNodes_ = nInvertibleMoments_/2;
-        }
-        else
-        {
-            nInvertibleMoments_ = nRealizableMoments;
-            forceGauss_ = false;
-            nNodes_ = (nInvertibleMoments_ - 1)/2 + 1;
-        }
-    }
-    else
-    {
-        FatalErrorInFunction
-            << "The moment has size less or equal to 1." << nl
-            << "    Moment set: " << moments
-            << abort(FatalError);
-    }
-    */
     
     Info << "nRealizableMoments = " << nRealizableMoments << endl;
-    nRegularQuadratureNodes_ = (nRealizableMoments % 2 != 0) ? label((nRealizableMoments - 1)/2.0) : label(nRealizableMoments/2.0);
+    nRegularQuadratureNodes_ 
+        = (nRealizableMoments % 2 != 0) 
+        ? label((nRealizableMoments - 1)/2.0) 
+        : label(nRealizableMoments/2.0);
 
     if (nRealizableMoments > 3)
     {
@@ -158,8 +137,10 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
     weights_.setSize(nMaxNodes_);
 
     Info << "nNaxNodes = " << nMaxNodes_ << endl;
-    Info << "nRegularQuadratureNodes = " << nRegularQuadratureNodes_ << endl;
-    Info << "nAdditionalQuadratureNodes = " << nAdditionalQuadratureNodes_ << endl;
+    Info << "nRegularQuadratureNodes = " 
+         << nRegularQuadratureNodes_ << endl;
+    Info << "nAdditionalQuadratureNodes = " 
+         << nAdditionalQuadratureNodes_ << endl;
 }
 
 void Foam::generalizedMomentInversion::invert
@@ -169,34 +150,12 @@ void Foam::generalizedMomentInversion::invert
     const scalar maxKnownAbscissa
 )
 {
-    const word& support = moments.support();
-
-    if (support == "R")
-    {
-        (*this).univariateMomentInversion::invert
+    (*this).univariateMomentInversion::invert
         (
             moments, 
             minKnownAbscissa, 
             maxKnownAbscissa
         );
-
-        return;
-    }
-
-    if (support == "RPlus")
-    {
-        (*this).univariateMomentInversion::invert
-        (
-            moments, 
-            minKnownAbscissa, 
-            maxKnownAbscissa
-        );
-    }
-
-    /*if (support == "01")
-    {
-        NotImplemented();
-    }*/
 }
 
 void Foam::generalizedMomentInversion::correctRecurrenceR
@@ -245,7 +204,12 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
                           /(2.0*nRegularQuadratureNodes_);
     }
 
-    for (label i = nRegularQuadratureNodes_; i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0; i++)
+    for 
+    (
+        label i = nRegularQuadratureNodes_; 
+        i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0; 
+        i++
+    )
     {
         zetas[2*i - 1] = (i + a_)*zetas[2*nRegularQuadratureNodes_ - 3]
                         /(nRegularQuadratureNodes_ + a_ - 1.0);
@@ -255,6 +219,7 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
     }
 
     alpha[0] = zetas[0];
+
     for (label i = 1; i < nMaxNodes_; i++)
     {
         alpha[i] = zetas[2*i] + zetas[2*i - 1];
@@ -273,7 +238,40 @@ void Foam::generalizedMomentInversion::correctRecurrence01
     scalarList& beta
 )
 {
-    //NotImplemented();
+    scalarList& zetas(moments.zetas());
+    scalarList& canonicalMoments(moments.canonicalMoments());
+
+    zetas.resize(2*nMaxNodes_);
+    canonicalMoments.resize(2*nMaxNodes_);
+
+    for
+    (
+        label i = nRegularQuadratureNodes_; 
+        i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0; 
+        i++
+    )
+    {
+        canonicalMoments[2*i - 1] = canonicalMoments[2*i - 3];
+        canonicalMoments[2*i] = canonicalMoments[2*i - 2];
+
+        zetas[2*i - 1] 
+            = canonicalMoments[2*i - 1]*(1.0 - canonicalMoments[2*i - 2]);
+
+        zetas[2*i] 
+            = canonicalMoments[2*i]*(1.0 - canonicalMoments[2*i - 1]);
+    }
+
+    alpha[0] = zetas[0];
+
+    for (label i = 1; i < nMaxNodes_; i++)
+    {
+        alpha[i] = zetas[2*i] + zetas[2*i - 1];
+    }
+
+    for (label i = 1; i < nMaxNodes_; i++)
+    {
+        beta[i] = zetas[2*i - 1]*zetas[2*i - 2];
+    }
 }
 
 // ************************************************************************* //

@@ -84,6 +84,7 @@ Foam::univariateMomentSet::univariateMomentSet
     if (support_ == "01")
     {
         canonicalMoments_.setSize(nMoments_ - 1, 0);
+        
     }
 }
 
@@ -132,6 +133,12 @@ Foam::univariateMomentSet::univariateMomentSet
 
     alpha_.setSize(recurrenceSize, 0);
     beta_.setSize(recurrenceSize + 1, 0);
+
+    if (support_ == "01")
+    {
+        canonicalMoments_.setSize(nMoments_ - 1, 0);
+        
+    }
 }
 
 
@@ -149,7 +156,6 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 )
 {
     canonicalMoments_ = 0.0;
-
     canonicalMoments_[0] = zeta[0];
 
     if (mag(canonicalMoments_[0] - 1.0) <= SMALL)

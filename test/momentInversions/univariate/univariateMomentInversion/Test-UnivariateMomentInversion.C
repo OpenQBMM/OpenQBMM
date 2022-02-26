@@ -41,6 +41,7 @@ Description
 #include "IOdictionary.H"
 #include "univariateMomentSet.H"
 #include "univariateMomentInversion.H"
+#include "newUnivariateMomentInversion.C"
 
 using namespace Foam;
 
@@ -446,6 +447,58 @@ int main(int argc, char *argv[])
         quadraturePropertiesGQMOM,
         expectedWeightsTest6,
         expectedAbscissaeTest6,
+        "GQMOM",
+        10
+    );
+
+    // Test 7 - GQMOM on [0, 1]
+    scalarList inputMoments7(10);
+
+    inputMoments7[0] = 1.0/2.0;
+    inputMoments7[1] = 3.0/10.0;
+    inputMoments7[2] = 1.0/5.0;
+    inputMoments7[3] = 1.0/7.0;
+    inputMoments7[4] = 3.0/28.0;
+    inputMoments7[5] = 1.0/12.0;
+    inputMoments7[6] = 1.0/15.0;
+    inputMoments7[7] = 3.0/55.0;
+    inputMoments7[8] = 1.0/22.0;
+    inputMoments7[9] = 1.0/26.0;
+
+    univariateMomentSet mGaussTest7(inputMoments7, "01", 5);
+    
+    scalarList expectedWeightsTest7(10, 0);
+
+    expectedWeightsTest7[0] = 0.001472965161073621;
+    expectedWeightsTest7[1] = 0.007290666094030061;
+    expectedWeightsTest7[2] = 0.02607792027969771;
+    expectedWeightsTest7[3] = 0.05644901695703834;
+    expectedWeightsTest7[4] = 0.08993706994008716;
+    expectedWeightsTest7[5] = 0.1095043050358917;
+    expectedWeightsTest7[6] = 0.09973625344217216;
+    expectedWeightsTest7[7] = 0.07026349397086119; 
+    expectedWeightsTest7[8] = 0.03036943316155661;
+    expectedWeightsTest7[9] = 0.008898875957591762;
+
+    scalarList expectedAbscissaeTest7(10, 0);
+
+    expectedAbscissaeTest7[0] = 0.06436333855492898;
+    expectedAbscissaeTest7[1] = 0.1312614133883395;
+    expectedAbscissaeTest7[2] = 0.2292304832824169;
+    expectedAbscissaeTest7[3] = 0.3425370239645267;
+    expectedAbscissaeTest7[4] = 0.4698644572284845;
+    expectedAbscissaeTest7[5] = 0.596803011949953;
+    expectedAbscissaeTest7[6] = 0.7196012896054178;
+    expectedAbscissaeTest7[7] = 0.8252984507401454; 
+    expectedAbscissaeTest7[8] = 0.9109151928510485; 
+    expectedAbscissaeTest7[9] = 0.9665355947646249;
+
+    testQuadrature
+    (
+        mGaussTest7,
+        quadraturePropertiesGQMOM,
+        expectedWeightsTest7,
+        expectedAbscissaeTest7,
         "GQMOM",
         10
     );
