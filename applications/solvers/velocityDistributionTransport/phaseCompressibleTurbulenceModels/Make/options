@@ -31,14 +31,17 @@ EXE_INC = \
     -I../phaseModel/lnInclude
 
 LIB_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
     -lincompressibleTransportModels \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
+    -lturbulenceModels \
+    -lcompressibleTurbulenceModels \
     -lspecie \
     -lfvOptions \
-    -lmeshTools \
-    -lmomentSets \
     -L$(FOAM_MODULE_LIBBIN) \
+    -lmomentSets \
     -lfieldMomentInversion \
     -lquadratureApproximation \
     -lmomentAdvection \

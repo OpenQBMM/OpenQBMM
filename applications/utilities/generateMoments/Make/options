@@ -21,8 +21,8 @@ EXE_INC = \
 
 EXE_LIBS = \
     -lfiniteVolume \
+    -lmeshTools \
     -lfvOptions \
     -lsampling \
-    -lmeshTools \
     -L$(FOAM_MODULE_LIBBIN) \
     -lmomentGenerationModels

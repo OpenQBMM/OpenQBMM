@@ -29,16 +29,15 @@ EXE_INC = \
 
 EXE_LIBS = \
     -lfiniteVolume \
+    -lmeshTools \
     -lfvOptions \
     -lsampling \
-    -lmeshTools \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie \
     -lradiationModels \
     -lturbulenceModels \
     -lcompressibleTurbulenceModels \
-    -lmeshTools \
     -L$(FOAM_MODULE_LIBBIN) \
     -lquadratureNode \
     -lmomentSets \
