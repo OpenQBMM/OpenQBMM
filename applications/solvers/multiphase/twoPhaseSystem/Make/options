@@ -37,14 +37,16 @@ EXE_INC = \
     -I$(QBMM_SRC)/quadratureMethods/populationBalanceModels/lnInclude \
     -I$(QBMM_SRC)/Vandermonde/lnInclude
 
-EXE_LIBS = \
+LIB_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
     -lincompressibleTransportModels \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie \
     -L$(FOAM_MODULE_LIBBIN) \
     -lquadratureNode \
-    -lmomentSet \
+    -lmomentSets \
     -lfieldMomentInversion \
     -lquadratureApproximation \
     -lfieldMomentInversion \

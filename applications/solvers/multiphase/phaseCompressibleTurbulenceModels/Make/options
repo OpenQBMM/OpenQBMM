@@ -38,8 +38,8 @@ LIB_LIBS = \
     -lturbulenceModels \
     -lcompressibleTurbulenceModels \
     -lincompressibleTransportModels \
-    -lfiniteVolume \
     -lfvOptions \
+    -lfiniteVolume \
     -lmeshTools \
     -L$(FOAM_MODULE_LIBBIN) \
     -lmomentSets \

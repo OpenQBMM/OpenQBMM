@@ -28,8 +28,8 @@ EXE_INC = \
 
 EXE_LIBS = \
     -lfiniteVolume \
-    -lfvOptions \
     -lmeshTools \
+    -lfvOptions \
     -lsampling \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
