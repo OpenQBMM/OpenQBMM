@@ -31,6 +31,9 @@
         "StrumendoArastoopourCondensation.C": "cpp",
         "univariatePopulationBalance.C": "cpp",
         "univariatePDFTransportModel.C": "cpp",
-        "DiffusionControlledGrowth.C": "cpp"
+        "DiffusionControlledGrowth.C": "cpp",
+        "realizableOdeSolver.C": "cpp",
+        "Vandermonde.C": "cpp",
+        "noUnivariateAdvection.C": "cpp"
     }
 }
