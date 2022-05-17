@@ -19,7 +19,6 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/phaseCompressible/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
-    -I$(LIB_SRC)/sampling/lnInclude \
     -I../interfacialModels/lnInclude \
     -I../interfacialModels/aspectRatioModels/aspectRatioModel \
     -I$(QBMM_SRC)/mappedList \
@@ -36,14 +35,18 @@ EXE_INC = \
     -I$(QBMM_SRC)/quadratureMethods/populationBalanceModels/lnInclude \
     -I$(QBMM_SRC)/Vandermonde/lnInclude
 
-EXE_LIBS = \
+LIB_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
+    -lturbulenceModels \
+    -lcompressibleTurbulenceModels \
     -lincompressibleTransportModels \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie \
     -L$(FOAM_MODULE_LIBBIN) \
     -lquadratureNode \
-    -lmomentSet \
+    -lmomentSets \
     -lfieldMomentInversion \
     -lquadratureApproximation \
     -lfieldMomentInversion \

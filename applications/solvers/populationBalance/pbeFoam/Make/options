@@ -27,14 +27,14 @@ EXE_INC = \
     -I$../../../../../src/quadratureMethods/populationBalanceModels/lnInclude
 
 EXE_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
     -lturbulenceModels \
     -lcompressibleTurbulenceModels \
     -lreactionThermophysicalModels \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie \
-    -lfiniteVolume \
-    -lmeshTools \
     -L$(FOAM_MODULE_LIBBIN) \
     -lquadratureNode \
     -lmomentSets \

@@ -42,8 +42,8 @@ EXE_LIBS = \
     -lcompressibleTurbulenceModels \
     -lincompressibleTransportModels \
     -lfiniteVolume \
-    -lfvOptions \
     -lmeshTools \
+    -lfvOptions \
     -lsampling \
     -L$(FOAM_MODULE_LIBBIN) \
     -lquadratureNode \
