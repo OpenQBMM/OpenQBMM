@@ -57,6 +57,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::updateh2Fn()
         this->alphaMinFriction_,
         this->alphaMax_
     );
+
     PsFric_ = this->frictionalStressModel_->frictionalPressure
     (
         this->phase_,
@@ -74,6 +75,7 @@ void Foam::kineticTheoryModels::anisotropicGaussian::updateh2Fn()
         PsFric_,
         this->e_
     );
+    
     h2Fn_.max(this->residualAlpha_);
     h2Fn_.correctBoundaryConditions();
 }
@@ -113,7 +115,7 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
             IOobject::AUTO_WRITE
        ),
        phase.mesh(),
-       1.0
+       dimensionedScalar("one", dimless, 1.0)
     ),
     PsFric_
     (
@@ -144,6 +146,7 @@ Foam::kineticTheoryModels::anisotropicGaussian::anisotropicGaussian
     AGtransport_(phase.mesh(), dict, phase, this->Theta_, Sigma_)
 {
     Sigma_ = 2.0*this->nu_*dev(twoSymm(fvc::grad(this->phase_.U())));
+    Sigma_.write();
 }
 
 

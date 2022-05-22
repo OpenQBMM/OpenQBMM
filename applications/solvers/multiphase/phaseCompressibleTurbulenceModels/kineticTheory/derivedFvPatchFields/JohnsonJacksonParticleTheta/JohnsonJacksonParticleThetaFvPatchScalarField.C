@@ -305,6 +305,7 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
                     IOobject::groupName("h2Fn", phased.name())
                 )
             );
+            
             scalarField Vw(constant::mathematical::pi/6.0*sqrt(3.0*Theta));
 
             this->refGrad() =

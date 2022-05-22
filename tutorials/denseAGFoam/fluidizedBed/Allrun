@@ -26,6 +26,7 @@ do
     fi
 done
 
+blockMesh
 setFields
 decomposePar
 mpirun -np 3 denseAGFoam -parallel
