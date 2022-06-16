@@ -123,7 +123,7 @@ void Foam::fluxFunctions::HLL::updateFluxes
     surfaceScalarField energyFluxNei(HNei*massFluxNei);
 
     surfaceScalarField SOwn("SOwn", min(UvOwn - aOwn, UvNei - aNei));
-    surfaceScalarField SNei("SNei", max(UvNei + aNei, UvOwn + aNei));
+    surfaceScalarField SNei("SNei", max(UvNei + aNei, UvOwn + aOwn));
 
     surfaceScalarField rDeltaS("rDeltaS", 1.0/(SNei - SOwn));
 
