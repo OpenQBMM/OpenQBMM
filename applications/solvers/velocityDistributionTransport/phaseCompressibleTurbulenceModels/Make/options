@@ -7,6 +7,12 @@ endif
 
 QBMM_SRC := ../../../../src
 
+#if (OPENFOAM >= 2206)
+LIB_THERMO_TOOLS := -lthermoTools
+#else
+LIB_THERMO_TOOLS :=
+#endif
+
 EXE_INC = \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
@@ -38,6 +44,7 @@ LIB_LIBS = \
     -lfluidThermophysicalModels \
     -lturbulenceModels \
     -lcompressibleTurbulenceModels \
+    $(LIB_THERMO_TOOLS) \
     -lspecie \
     -lfvOptions \
     -L$(FOAM_MODULE_LIBBIN) \
