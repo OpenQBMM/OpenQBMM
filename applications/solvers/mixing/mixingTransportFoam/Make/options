@@ -8,6 +8,14 @@ ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
     FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
 endif
 
+QBMM_SRC := ../../../../src
+
+#if (OPENFOAM >= 2206)
+LIB_THERMO_TOOLS := -lthermoTools
+#else
+LIB_THERMO_TOOLS :=
+#endif
+
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/fvOptions/lnInclude \
@@ -18,14 +26,14 @@ EXE_INC = \
     -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
-    -I$../../../../../src/quadratureMethods/univariateMomentSet/lnInclude \
-    -I$../../../../../src/quadratureMethods/momentInversion/lnInclude \
-    -I$../../../../../src/quadratureMethods/quadratureNode/lnInclude \
-    -I$../../../../../src/quadratureMethods/moments \
-    -I$../../../../../src/quadratureMethods/fieldMomentInversion/lnInclude \
-    -I$../../../../../src/quadratureMethods/quadratureApproximations/lnInclude \
-    -I$../../../../../src/quadratureMethods/momentAdvection/lnInclude \
-    -I$../../../../../src/quadratureMethods/mixingModels/lnInclude
+    -I$(QBMM_SRC)/quadratureMethods/univariateMomentSet/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentInversion/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/quadratureNode/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/moments \
+    -I$(QBMM_SRC)/quadratureMethods/fieldMomentInversion/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/quadratureApproximations/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentAdvection/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/mixingModels/lnInclude
 
 EXE_LIBS = \
     -lfiniteVolume \
@@ -38,6 +46,7 @@ EXE_LIBS = \
     -lradiationModels \
     -lturbulenceModels \
     -lcompressibleTurbulenceModels \
+    $(LIB_THERMO_TOOLS) \
     -L$(FOAM_MODULE_LIBBIN) \
     -lquadratureNode \
     -lmomentSets \

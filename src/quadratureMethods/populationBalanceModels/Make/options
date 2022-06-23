@@ -5,6 +5,12 @@ ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
     FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
 endif
 
+#if (OPENFOAM >= 2206)
+LIB_THERMO_TOOLS := -lthermoTools
+#else
+LIB_THERMO_TOOLS :=
+#endif
+
 EXE_INC = \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
@@ -37,6 +43,7 @@ LIB_LIBS = \
     -lturbulenceModels \
     -lincompressibleTurbulenceModels \
     -lcompressibleTurbulenceModels \
+    $(LIB_THERMO_TOOLS) \
     -lfiniteVolume \
     -lmeshTools \
     -L$(FOAM_MODULE_LIBBIN) \
