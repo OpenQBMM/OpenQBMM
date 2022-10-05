@@ -51,24 +51,25 @@ Foam::generalizedMomentInversion::generalizedMomentInversion
 )
 :
     univariateMomentInversion(dict, nMaxNodes),
-    a_
-    (
-        dict.lookupOrDefault<scalar>
-        (
-            "a",
-            0.0
-        )
-    ),
     nu_
     (
-        dict.lookupOrDefault<scalar>
-        (
-            "nu",
-            1.0
-        )
+        dict.lookupOrDefault<scalar>("nu", 1.0)
+    ),
+    ndfTypeRPlus_
+    (
+        dict.lookupOrDefault<word>("ndfTypeRPlus", "gamma")
     ),
     nMaxNodes_(nMaxNodes)
-{}
+{
+    
+    if ((ndfTypeRPlus_ != "gamma" && ndfTypeRPlus_ != "lognormal"))
+    {
+        FatalErrorInFunction
+            << "The specified type of NDF for RPlus must be gamma or" << nl
+            << "lognormal. The current value is " << ndfTypeRPlus_
+            << abort(FatalError);
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -93,19 +94,15 @@ void Foam::generalizedMomentInversion::correctRecurrence
     if (support == "R")
     {
         correctRecurrenceR(alpha, beta);
-        return;
     }
-
-    if (support == "RPlus")
+    else if (support == "RPlus")
     {
         correctRecurrenceRPlus(moments, alpha, beta);
-        return;
-    }
 
-    if (support == "01")
+    }
+    else if (support == "01")
     {
         correctRecurrence01(moments, alpha, beta);
-        return;
     }
 }
 
@@ -114,9 +111,12 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
     univariateMomentSet& moments
 )
 {
-    label nRealizableMoments = moments.nRealizableMoments(); // Trigger calculations of zeta_k
+    // Trigger calculations of zeta_k by computing the number of realizable
+    // moments.
+    label nRealizableMoments = moments.nRealizableMoments(); 
     
     Info << "nRealizableMoments = " << nRealizableMoments << endl;
+
     nRegularQuadratureNodes_ 
         = (nRealizableMoments % 2 != 0) 
         ? label((nRealizableMoments - 1)/2.0) 
@@ -136,11 +136,11 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
     abscissae_.setSize(nMaxNodes_);
     weights_.setSize(nMaxNodes_);
 
-    Info << "nNaxNodes = " << nMaxNodes_ << endl;
-    Info << "nRegularQuadratureNodes = " 
-         << nRegularQuadratureNodes_ << endl;
-    Info << "nAdditionalQuadratureNodes = " 
-         << nAdditionalQuadratureNodes_ << endl;
+    /*Info << "nNaxNodes = " << nMaxNodes_ << endl
+         << "nRegularQuadratureNodes = " 
+         << nRegularQuadratureNodes_ << endl
+         << "nAdditionalQuadratureNodes = " 
+         << nAdditionalQuadratureNodes_ << endl;*/
 }
 
 void Foam::generalizedMomentInversion::invert
@@ -164,6 +164,13 @@ void Foam::generalizedMomentInversion::correctRecurrenceR
     scalarList& beta
 )
 {
+    // The realizability test will establish if adding nodes with GQMOM is
+    // feasible and set nAdditionalQuadratureNodes_ if not.
+    if (nAdditionalQuadratureNodes_ <= 0)
+    {
+        return; // Use Gauss if no additional nodes are possible 
+    }
+
     scalar an = 0;
     
     for (label i = 0; i < nRegularQuadratureNodes_; i++)
@@ -177,13 +184,13 @@ void Foam::generalizedMomentInversion::correctRecurrenceR
     {
         alpha[i] = an;
 
-        beta[i-1] = beta[nRegularQuadratureNodes_ - 1]
-                   *pow(scalar(i - 1)/scalar(nRegularQuadratureNodes_ -1), nu_);
+        beta[i-1] = beta[nRegularQuadratureNodes_ - 1]*pow(scalar(i - 1)
+                   /scalar(nRegularQuadratureNodes_ - 1), nu_);
     }
 
     beta[nNodes_ - 1] = beta[nRegularQuadratureNodes_ - 1]
-                        *pow(scalar(nNodes_ - 1)
-                        /scalar(nRegularQuadratureNodes_ -1), nu_);
+                       *pow(scalar(nNodes_ - 1)
+                       /scalar(nRegularQuadratureNodes_ - 1), nu_);
 }
 
 void Foam::generalizedMomentInversion::correctRecurrenceRPlus
@@ -193,30 +200,66 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
     scalarList& beta
 )
 {
+    // The realizability test will establish if adding nodes with GQMOM is
+    // feasible and set nAdditionalQuadratureNodes_ if not.
+    if (nAdditionalQuadratureNodes_ <= 0)
+    {
+        return; // Use Gauss if no additional nodes are possible 
+    }
+
     label nMoments = moments.size();
     scalarList& zetas(moments.zetas());
 
     zetas.resize(2*nMaxNodes_);
 
-    if (nMoments + 1 <= 2*nMaxNodes_)
+    if (ndfTypeRPlus_ == "gamma")
     {
-        zetas[nMoments] = (nMoments + 1.0)*zetas[2*nRegularQuadratureNodes_ - 1]
-                          /(2.0*nRegularQuadratureNodes_);
-    }
+        scalar m1sqr = sqr(moments[1]);
+        scalar alphaCoeff = m1sqr/(moments[0]*moments[2] - m1sqr) - 1.0; 
 
-    for 
-    (
-        label i = nRegularQuadratureNodes_; 
-        i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0; 
-        i++
-    )
+        if (nMoments + 1 <= 2*nMaxNodes_)
+        {
+            zetas[nMoments] = 
+                (nMoments + 1.0)*zetas[2*nRegularQuadratureNodes_ - 1]
+               /(2.0*nRegularQuadratureNodes_);
+        }
+
+        for 
+        (
+            label i = nRegularQuadratureNodes_; 
+            i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0; 
+            i++
+        )
+        {
+            zetas[2*i - 1] = 
+                (i + alphaCoeff)*zetas[2*nRegularQuadratureNodes_ - 3]
+               /(nRegularQuadratureNodes_ + alphaCoeff);
+
+            zetas[2*i] = (i + 1)*zetas[2*nRegularQuadratureNodes_ - 2]
+                        /(nRegularQuadratureNodes_);
+        }            
+    }
+    else if (ndfTypeRPlus_ == "lognormal")
     {
-        zetas[2*i - 1] = (i + a_)*zetas[2*nRegularQuadratureNodes_ - 3]
-                        /(nRegularQuadratureNodes_ + a_ - 1.0);
+        scalar eta = sqrt(moments[0]*moments[2]/sqr(moments[1]));
 
-        zetas[2*i] = (i + 1)*zetas[2*nRegularQuadratureNodes_ - 2]
-                    /(nRegularQuadratureNodes_);
-    }
+        for 
+        (
+            label i = nRegularQuadratureNodes_; 
+            i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0; 
+            i++
+        )
+        {
+            zetas[2*i - 1] = pow(eta, 4*(i - nRegularQuadratureNodes_))
+                            *zetas[2*nRegularQuadratureNodes_ - 3];
+
+            zetas[2*i] = pow(eta, 2*(i - nRegularQuadratureNodes_))
+                        *((pow(eta, 2*i) - 1.0)
+                            /(pow(eta, 2*nRegularQuadratureNodes_) - 1.0))
+                        *zetas[2*nRegularQuadratureNodes_ - 2];
+        }
+        
+    }    
 
     alpha[0] = zetas[0];
 
@@ -238,11 +281,30 @@ void Foam::generalizedMomentInversion::correctRecurrence01
     scalarList& beta
 )
 {
+    // The realizability test will establish if adding nodes with GQMOM is
+    // feasible and set nAdditionalQuadratureNodes_ if not.
+    if (nAdditionalQuadratureNodes_ <= 0)
+    {
+        return; // Use Gauss if no additional nodes are possible 
+    }
+    
     scalarList& zetas(moments.zetas());
     scalarList& canonicalMoments(moments.canonicalMoments());
 
     zetas.resize(2*nMaxNodes_);
     canonicalMoments.resize(2*nMaxNodes_);
+
+    scalar p1 = canonicalMoments[1];
+    scalar p2 = canonicalMoments[2];
+
+    scalar alphaCoeff = (1.0 - p1 - 2*p2 + p1*p2)/p2;
+    scalar betaCoeff = (p1 - p2 - p1*p2)/p2;
+
+    scalar pJ2n_1 = (nRegularQuadratureNodes_)
+        /(2.0*nRegularQuadratureNodes_ + 1.0 + alphaCoeff + betaCoeff);
+
+    scalar pJ2n = (betaCoeff + nRegularQuadratureNodes_)
+        /(2.0*nRegularQuadratureNodes_ + alphaCoeff + betaCoeff);
 
     for
     (
@@ -251,14 +313,41 @@ void Foam::generalizedMomentInversion::correctRecurrence01
         i++
     )
     {
-        canonicalMoments[2*i - 1] = canonicalMoments[2*i - 3];
-        canonicalMoments[2*i] = canonicalMoments[2*i - 2];
+        scalar pJ2i_1 = 
+            (betaCoeff + i - 1.0)/(2.0*(i - 1.0) + alphaCoeff + betaCoeff);
+
+        scalar pJ2i = (i - 1.0)/(2.0*i - 1.0 + alphaCoeff + betaCoeff);
+
+        if (canonicalMoments[2*nRegularQuadratureNodes_ - 3] <= pJ2i_1 
+         || pJ2n_1 >= pJ2i_1)
+        {
+            canonicalMoments[2*i - 1] = 
+                canonicalMoments[2*nRegularQuadratureNodes_ - 3]*pJ2i_1/pJ2n_1;
+        }
+        else
+        {
+            canonicalMoments[2*i - 1] = 
+                (canonicalMoments[2*nRegularQuadratureNodes_ - 3]
+                    *(1.0 - pJ2i_1) + pJ2i_1 - pJ2n_1)/(1.0 - pJ2n_1);
+        }
+
+        if (canonicalMoments[2*nRegularQuadratureNodes_ - 2] <= pJ2n
+         || pJ2n >= pJ2i)
+        {
+            canonicalMoments[2*i] = 
+                canonicalMoments[2*nRegularQuadratureNodes_ - 2]*pJ2i/pJ2n;
+        }
+        else
+        {
+            canonicalMoments[2*i] = 
+                (canonicalMoments[2*nRegularQuadratureNodes_ - 2]
+                    *(1.0 - pJ2i) + pJ2i - pJ2n)/(1.0 - pJ2n);
+        }
 
         zetas[2*i - 1] 
             = canonicalMoments[2*i - 1]*(1.0 - canonicalMoments[2*i - 2]);
 
-        zetas[2*i] 
-            = canonicalMoments[2*i]*(1.0 - canonicalMoments[2*i - 1]);
+        zetas[2*i] = canonicalMoments[2*i]*(1.0 - canonicalMoments[2*i - 1]);
     }
 
     alpha[0] = zetas[0];

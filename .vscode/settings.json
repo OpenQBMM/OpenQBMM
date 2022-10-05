@@ -34,6 +34,21 @@
         "DiffusionControlledGrowth.C": "cpp",
         "realizableOdeSolver.C": "cpp",
         "Vandermonde.C": "cpp",
-        "noUnivariateAdvection.C": "cpp"
+        "noUnivariateAdvection.C": "cpp",
+        "symmetricFragmentation.C": "cpp",
+        "compressibleSystem.C": "cpp",
+        "newFluxFunction.C": "cpp",
+        "newSwarmCorrection.C": "cpp",
+        "nucleationModel.C": "cpp",
+        "noNucleation.C": "cpp",
+        "Miller.C": "cpp",
+        "aggregationKernel.C": "cpp",
+        "newNucleationModel.C": "cpp",
+        "*.tcc": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "StokesEinstein.C": "cpp"
     }
 }

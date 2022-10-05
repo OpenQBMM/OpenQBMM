@@ -57,11 +57,11 @@ class generalizedMomentInversion
 {
     // Private data
 
-        // Coefficient
-        scalar a_;
-
         // Exponent
-        scalar nu_;      
+        scalar nu_;
+
+        // NDF type for R+ support
+        word ndfTypeRPlus_;
 
         // Maximum number of nodes for generalized quadrature
         label nMaxNodes_;
@@ -71,6 +71,7 @@ class generalizedMomentInversion
 
         // Number of additional quadrature nodes for generalized quadrature
         label nAdditionalQuadratureNodes_;
+
 
     // Private member functions
 
