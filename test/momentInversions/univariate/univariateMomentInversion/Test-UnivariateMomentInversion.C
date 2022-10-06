@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -41,6 +41,7 @@ Description
 #include "IOdictionary.H"
 #include "univariateMomentSet.H"
 #include "univariateMomentInversion.H"
+#include "newUnivariateMomentInversion.C"
 
 using namespace Foam;
 
@@ -160,20 +161,24 @@ void testQuadrature
     dictionary& dict,
     scalarList& expectedWeights,
     scalarList& expectedAbscissae,
-    string quadratureName
+    string quadratureName,
+    label nMaxNodes = 0
 )
 {
     showInputMoments(m, quadratureName);
 
     autoPtr<univariateMomentInversion> inversion
     (
-        univariateMomentInversion::New(dict)
+        univariateMomentInversion::New(dict, nMaxNodes)
     );
 
     inversion().invert(m, 0, 1);
 
     scalarList weights(inversion().weights());
     scalarList abscissae(inversion().abscissae());
+
+    Info << "Weights: " << weights << endl;
+    Info << "Abscissae: " << abscissae << endl;
 
     compareQuadrature(expectedWeights, weights, expectedAbscissae, abscissae);
 
@@ -215,7 +220,12 @@ int main(int argc, char *argv[])
         IFstream("quadraturePropertiesLobatto")()
     );
 
-    // Test 2 - m = (1, 1, 1, 1)
+    dictionary quadraturePropertiesGQMOM
+    (
+        IFstream("quadraturePropertiesGQMOM")()
+    );
+
+    // Test 1 - m = (1, 1, 1, 1)
     scalarList inputMoments1(4, 1.0);
     univariateMomentSet mGaussTest1(inputMoments1, "RPlus");
     scalarList expectedWeightsTest1(1, 1.0);
@@ -339,6 +349,158 @@ int main(int argc, char *argv[])
         expectedWeightsTest4,
         expectedAbscissaeTest4,
         "Gauss-Lobatto"
+    );
+
+    // Test 5 - GQMOM on R
+    scalarList inputMoments5(10);
+
+    inputMoments5[0] = 1.0;
+    inputMoments5[1] = 0.0;
+    inputMoments5[2] = 1.0;
+    inputMoments5[3] = 0.0;
+    inputMoments5[4] = 3.0;
+    inputMoments5[5] = 0.0;
+    inputMoments5[6] = 15.0;
+    inputMoments5[7] = 0.0;
+    inputMoments5[8] = 105.0;
+    inputMoments5[9] = 0.0;
+    //inputMoments5[10] = 945.0;
+    
+    univariateMomentSet mGaussTest5(inputMoments5, "R", 5);
+    
+    scalarList expectedWeightsTest5(10, 0);
+
+    expectedWeightsTest5[0] = 4.310652630718267e-06; 
+    expectedWeightsTest5[1] = 0.0007580709343122131; 
+    expectedWeightsTest5[2] = 0.01911158050077029; 
+    expectedWeightsTest5[3] = 0.1354837029802678;
+    expectedWeightsTest5[4] = 0.3446423349320191;
+    expectedWeightsTest5[5] = 0.3446423349320191;
+    expectedWeightsTest5[6] = 0.1354837029802678;
+    expectedWeightsTest5[7] = 0.01911158050077032;
+    expectedWeightsTest5[8] = 0.0007580709343122137;
+    expectedWeightsTest5[9] = 4.310652630718305e-06;
+
+    scalarList expectedAbscissaeTest5(10, 0);
+
+    expectedAbscissaeTest5[0] = -4.859462828332314;
+    expectedAbscissaeTest5[1] = -3.581823483551925;
+    expectedAbscissaeTest5[2] = -2.484325841638955;
+    expectedAbscissaeTest5[3] = -1.465989094391158;
+    expectedAbscissaeTest5[4] = -0.4849357075154974;
+    expectedAbscissaeTest5[5] = 0.4849357075154979;
+    expectedAbscissaeTest5[6] = 1.465989094391158;
+    expectedAbscissaeTest5[7] = 2.484325841638951;
+    expectedAbscissaeTest5[8] = 3.581823483551929;
+    expectedAbscissaeTest5[9] = 4.85946282833231;
+    
+    testQuadrature
+    (
+        mGaussTest5,
+        quadraturePropertiesGQMOM,
+        expectedWeightsTest5,
+        expectedAbscissaeTest5,
+        "GQMOM",
+        10
+    );
+    
+
+    // Test 6 - GQMOM on R+
+    scalarList inputMoments6(10);
+
+    for (label mi = 1; mi < inputMoments6.size() + 1; mi++)
+    {
+        inputMoments6[mi - 1] = 1.0/scalar(mi);
+    }
+
+    univariateMomentSet mGaussTest6(inputMoments6, "RPlus", 5);
+    
+    scalarList expectedWeightsTest6(10, 0);
+
+    expectedWeightsTest6[0] = 0.05425312759509376;
+    expectedWeightsTest6[1] = 0.0831424672400455;
+    expectedWeightsTest6[2] = 0.1350702286390351;
+    expectedWeightsTest6[3] = 0.151991920210894;
+    expectedWeightsTest6[4] = 0.1773272901966484;
+    expectedWeightsTest6[5] = 0.1619822708924677;
+    expectedWeightsTest6[6] = 0.1367233648357529;
+    expectedWeightsTest6[7] = 0.09873055145020466;
+    expectedWeightsTest6[8] = 0.0007787315954269877;
+    expectedWeightsTest6[9] = 4.734443075952662e-08;
+
+    scalarList expectedAbscissaeTest6(10, 0);
+
+    expectedAbscissaeTest6[0] = 0.02276445906247883;
+    expectedAbscissaeTest6[1] = 0.09312626860812966;
+    expectedAbscissaeTest6[2] = 0.2012821161975949;
+    expectedAbscissaeTest6[3] = 0.3476412348445122;
+    expectedAbscissaeTest6[4] = 0.511307436092814;
+    expectedAbscissaeTest6[5] = 0.6864568463904339;
+    expectedAbscissaeTest6[6] = 0.8326551774279829;
+    expectedAbscissaeTest6[7] = 0.9566638853707417;
+    expectedAbscissaeTest6[8] = 1.076481331174686;
+    expectedAbscissaeTest6[9] = 1.422414895629834;
+
+    testQuadrature
+    (
+        mGaussTest6,
+        quadraturePropertiesGQMOM,
+        expectedWeightsTest6,
+        expectedAbscissaeTest6,
+        "GQMOM",
+        10
+    );
+
+    // Test 7 - GQMOM on [0, 1]
+    scalarList inputMoments7(10);
+
+    inputMoments7[0] = 1.0/2.0;
+    inputMoments7[1] = 3.0/10.0;
+    inputMoments7[2] = 1.0/5.0;
+    inputMoments7[3] = 1.0/7.0;
+    inputMoments7[4] = 3.0/28.0;
+    inputMoments7[5] = 1.0/12.0;
+    inputMoments7[6] = 1.0/15.0;
+    inputMoments7[7] = 3.0/55.0;
+    inputMoments7[8] = 1.0/22.0;
+    inputMoments7[9] = 1.0/26.0;
+
+    univariateMomentSet mGaussTest7(inputMoments7, "01", 5);
+    
+    scalarList expectedWeightsTest7(10, 0);
+
+    expectedWeightsTest7[0] = 0.003040501825985009;
+    expectedWeightsTest7[1] = 0.007308836462775083; 
+    expectedWeightsTest7[2] = 0.02992571134547361;
+    expectedWeightsTest7[3] = 0.05550217314071024;
+    expectedWeightsTest7[4] = 0.09382619633132158;
+    expectedWeightsTest7[5] = 0.1045681080382438;
+    expectedWeightsTest7[6] = 0.1015250729354342;
+    expectedWeightsTest7[7] = 0.06575715148700932;
+    expectedWeightsTest7[8] = 0.03064322057420774;
+    expectedWeightsTest7[9] = 0.00790302785883977;
+
+    scalarList expectedAbscissaeTest7(10, 0);
+
+    expectedAbscissaeTest7[0] = 0.08375460047660047;
+    expectedAbscissaeTest7[1] = 0.1439201373771397;
+    expectedAbscissaeTest7[2] = 0.2450781962429096;
+    expectedAbscissaeTest7[3] = 0.3507708218626089;
+    expectedAbscissaeTest7[4] = 0.4809326486752515;
+    expectedAbscissaeTest7[5] = 0.602033878768001;
+    expectedAbscissaeTest7[6] = 0.7259688412730889;
+    expectedAbscissaeTest7[7] = 0.8281513117266451;
+    expectedAbscissaeTest7[8] = 0.9138957561604497;
+    expectedAbscissaeTest7[9] = 0.9676706544358061;
+
+    testQuadrature
+    (
+        mGaussTest7,
+        quadraturePropertiesGQMOM,
+        expectedWeightsTest7,
+        expectedAbscissaeTest7,
+        "GQMOM",
+        10
     );
 
     Info<< "\nEnd\n" << endl;

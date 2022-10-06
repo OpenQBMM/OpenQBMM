@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -68,21 +68,50 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     ),
     minKnownAbscissa_(dict.lookupOrDefault<scalar>("minKnownAbscissa", 0)),
     maxKnownAbscissa_(dict.lookupOrDefault<scalar>("maxKnownAbscissa", 1)),
-    nFixedQuadraturePoints_(0),
+    nAdditionalQuadraturePoints_(0),
     momentInverter_
     (
-        univariateMomentInversion::New(dict.subDict("basicMomentInversion"))
+        univariateMomentInversion::New
+        (
+            dict.subDict("basicMomentInversion"), 
+            nodeIndexes.size()
+        )
     )
 {
     static word inversionType = momentInverter_().type();
 
     if (inversionType == "GaussRadau")
     {
-        nFixedQuadraturePoints_ = 1;
+         nAdditionalQuadraturePoints_ = 1;
     }
     else if (inversionType == "GaussLobatto")
     {
-        nFixedQuadraturePoints_ = 2;
+        nAdditionalQuadraturePoints_ = 2;
+    }
+    else if (inversionType == "GQMOM")
+    {
+        if (momentOrders.size() % 2 != 0)
+        {
+            FatalErrorInFunction
+                << "Even number of moments required for generalized QMOM."
+                << exit(FatalError);
+        }
+        else
+        {
+            //label nMomentsMinusOne = momentOrders.size() - 1;
+            label nMainNodes = momentOrders.size()/2;
+
+            nAdditionalQuadraturePoints_ = nodeIndexes.size() - nMainNodes;
+
+            if (nAdditionalQuadraturePoints_ < 0)
+            {
+                WarningInFunction
+                    << "Using generalized QMOM with a number of nodes "
+                    << "equal or smaller than regular QMOM. This may lead "
+                    << "to lack of moment conservation."
+                    << endl;
+            }
+        }
     }
 }
 
@@ -131,7 +160,7 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
                 moments.size(),
                 moments.support(),
                 scalar(0),                  // Initial value
-                nFixedQuadraturePoints_
+                nAdditionalQuadraturePoints_
             );
 
             // Copying moments from a face
@@ -194,7 +223,7 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
         moments.size(),
         moments.support(),
         scalar(0),                  // Initial value
-        nFixedQuadraturePoints_
+        nAdditionalQuadraturePoints_
     );
 
     // Copying moments from cell

@@ -67,7 +67,7 @@ class basicFieldMomentInversion
         scalar maxKnownAbscissa_;
 
         //- Number of fixed quadrature points
-        label nFixedQuadraturePoints_;
+        label nAdditionalQuadraturePoints_;
 
 
     // Private Member Functions

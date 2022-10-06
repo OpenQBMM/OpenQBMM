@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -124,7 +124,7 @@ public:
             const label nMoments,
             const word& support,
             const scalar initValue = 0,
-            const label nFixedQuadraturePoints = 0
+            const label nAdditionalQuadraturePoints = 0
         );
 
         //- Construct from scalarList
@@ -132,7 +132,7 @@ public:
         (
             const scalarList& m,
             const word& support,
-            const label nFixedQuadraturePoints = 0
+            const label nAdditionalQuadraturePoints = 0
         );
 
     //- Destructor
@@ -152,9 +152,6 @@ public:
 
         //- Returns beta coefficients of the recurrence relation
         inline scalarList& betaRecurrence();
-
-        //- Returns zeta_k values for the moment set
-        inline scalarList& zetas();
 
         //- Returns the canonical moments if support is [0, 1]
         inline scalarList& canonicalMoments();
@@ -223,6 +220,9 @@ public:
 
         //- Set size of moment set
         void setSize(const label newSize);
+
+        //- Returns zeta_k values for the moment set
+        inline scalarList& zetas();
 };
 
 

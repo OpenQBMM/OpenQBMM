@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -35,7 +35,8 @@ License
 Foam::autoPtr<Foam::univariateMomentInversion>
 Foam::univariateMomentInversion::New
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label nMaxNodes
 )
 {
     word univariateMomentInversionType
@@ -59,7 +60,7 @@ Foam::univariateMomentInversion::New
             << exit(FatalError);
     }
 
-    return cstrIter()(dict);
+    return cstrIter()(dict, nMaxNodes);
 }
 
 

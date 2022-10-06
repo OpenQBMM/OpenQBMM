@@ -4,6 +4,7 @@ univariate/basic/gaussMomentInversion/gaussMomentInversion.C
 univariate/basic/gaussLobattoMomentInversion/gaussLobattoMomentInversion.C
 univariate/basic/gaussRadauMomentInversion/gaussRadauMomentInversion.C
 univariate/basic/hyperbolicMomentInversion/hyperbolicMomentInversion.C
+univariate/basic/generalizedMomentInversion/generalizedMomentInversion.C
 
 univariate/extended/extendedMomentInversion/extendedMomentInversion.C
 univariate/extended/extendedMomentInversion/newExtendedMomentInversion.C
