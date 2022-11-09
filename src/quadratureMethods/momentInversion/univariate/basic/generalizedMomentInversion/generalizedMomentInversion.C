@@ -98,7 +98,6 @@ void Foam::generalizedMomentInversion::correctRecurrence
     else if (support == "RPlus")
     {
         correctRecurrenceRPlus(moments, alpha, beta);
-
     }
     else if (support == "01")
     {
