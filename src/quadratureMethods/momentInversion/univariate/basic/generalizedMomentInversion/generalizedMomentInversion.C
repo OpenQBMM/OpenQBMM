@@ -115,8 +115,6 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
     // moments.
     label nRealizableMoments = moments.nRealizableMoments(); 
     
-    Info << "nRealizableMoments = " << nRealizableMoments << endl;
-
     nRegularQuadratureNodes_ 
         = (nRealizableMoments % 2 != 0) 
         ? label((nRealizableMoments - 1)/2.0) 
