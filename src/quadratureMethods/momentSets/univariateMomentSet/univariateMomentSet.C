@@ -36,6 +36,8 @@ Foam::univariateMomentSet::univariateMomentSet
 (
     const label nMoments,
     const word& support,
+    const scalar smallM0,
+    const scalar smallZeta,
     const scalar initValue,
     const label nAdditionalQuadraturePoints
 )
@@ -46,6 +48,8 @@ Foam::univariateMomentSet::univariateMomentSet
         1,
         makeUnivariateMomentOrders(nMoments),
         support,
+        smallM0,
+        smallZeta,
         initValue
     ),
     alpha_(),
@@ -74,17 +78,16 @@ Foam::univariateMomentSet::univariateMomentSet
             << "The number of additional quadrature points must be positive."
             << abort(FatalError);
     }
-
+   
     label recurrenceSize =
             label((nMoments - 2)/2) + 1 + nAdditionalQuadraturePoints;
 
     alpha_.setSize(recurrenceSize, 0);
-    beta_.setSize(recurrenceSize + 1, 0);
+    beta_.setSize(recurrenceSize, 0);
 
     if (support_ == "01")
     {
         canonicalMoments_.setSize(nMoments_ - 1, 0);
-        
     }
 }
 
@@ -92,6 +95,8 @@ Foam::univariateMomentSet::univariateMomentSet
 (
     const scalarList& m,
     const word& support,
+    const scalar smallM0,
+    const scalar smallZeta,
     const label nAdditionalQuadraturePoints
 )
 :
@@ -100,7 +105,9 @@ Foam::univariateMomentSet::univariateMomentSet
         m,
         1,
         makeUnivariateMomentOrders(m.size()),
-        support
+        support,
+        smallM0,
+        smallZeta
     ),
     alpha_(),
     beta_(),
@@ -129,7 +136,7 @@ Foam::univariateMomentSet::univariateMomentSet
     }
 
     label recurrenceSize =
-            label((nMoments_ - 2)/2) + 1 + nAdditionalQuadraturePoints;
+        label((nMoments_ - 2)/2) + 1 + nAdditionalQuadraturePoints;
 
     alpha_.setSize(recurrenceSize, 0);
     beta_.setSize(recurrenceSize + 1, 0);
@@ -137,7 +144,6 @@ Foam::univariateMomentSet::univariateMomentSet
     if (support_ == "01")
     {
         canonicalMoments_.setSize(nMoments_ - 1, 0);
-        
     }
 }
 
@@ -527,6 +533,13 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 
+    Info << " nD = " << nD << endl;
+    Info << " alpha size " << alpha_.size() << endl;
+    Info << " beta size " << beta_.size() << endl;
+    Info << " zRec n " << zRecurrence.n() << endl;
+    Info << " zRec m " << zRecurrence.m() << endl;
+    Info << " zeta size " << zeta_.size() << endl;
+    
     beta_[nD] = zRecurrence[nD][nD]/max(zRecurrence[nD - 1][nD - 1], SMALL);
 
     if (support_ == "R")

@@ -38,6 +38,8 @@ Foam::momentSet::momentSet
     const label nDimensions,
     const labelListList& momentOrders,
     const word& support,
+    const scalar smallM0,
+    const scalar smallZeta,
     const scalar initValue
 )
 :
@@ -45,7 +47,9 @@ Foam::momentSet::momentSet
     nMoments_(nMoments),
     nDimensions_(nDimensions),
     momentOrders_(momentOrders),
-    support_(support)
+    support_(support),
+    smallM0_(smallM0),
+    smallZeta_(smallZeta)
 {
     if (support_ != "R" && support_ != "RPlus" && support_ != "01")
     {
@@ -71,14 +75,18 @@ Foam::momentSet::momentSet
     const scalarList& m,
     const label nDimensions,
     const labelListList& momentOrders,
-    const word& support
+    const word& support,
+    const scalar smallM0,
+    const scalar smallZeta
 )
 :
     mappedList(m, momentOrders),
     nMoments_(m.size()),
     nDimensions_(nDimensions),
     momentOrders_(momentOrders),
-    support_(support)
+    support_(support),
+    smallM0_(smallM0),
+    smallZeta_(smallZeta)
 {
     if (support_ != "R" && support_ != "RPlus" && support_ != "01")
     {

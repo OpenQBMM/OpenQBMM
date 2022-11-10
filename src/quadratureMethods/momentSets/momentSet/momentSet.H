@@ -72,6 +72,13 @@ protected:
         //- Type of support of the measure associated to the moment set
         word support_;
 
+        //- Minimum accepted value for m0
+        scalar smallM0_;
+
+        //- Minimum accepted value for zeta
+        scalar smallZeta_;
+
+
     // Static constants
 
         //- Maximum dimensions of the NDF
@@ -91,6 +98,8 @@ public:
             const label nDimensions,
             const labelListList& momentOrders,
             const word& support,
+            const scalar smallM0,
+            const scalar smallZeta,
             const scalar initValue = 0
         );
 
@@ -100,7 +109,9 @@ public:
             const scalarList& m,
             const label nDimensions,
             const labelListList& momentOrders,
-            const word& support
+            const word& support,
+            const scalar smallM0,
+            const scalar smallZeta
         );
 
     //- Destructor

@@ -35,4 +35,14 @@ const Foam::Map<Foam::label>& Foam::multivariateMomentSet::momentMap() const
     return (*this).map();
 }
 
+void Foam::multivariateMomentSet::correctSmallM0(scalar smallM0)
+{
+    smallM0_ = smallM0;
+}
+
+void Foam::multivariateMomentSet::correctSmallZeta(scalar smallZeta)
+{
+    smallZeta_ = smallZeta;
+}
+
 // ************************************************************************* //

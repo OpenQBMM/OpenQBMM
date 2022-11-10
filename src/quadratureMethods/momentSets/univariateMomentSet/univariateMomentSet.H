@@ -123,6 +123,8 @@ public:
         (
             const label nMoments,
             const word& support,
+            const scalar smallM0,
+            const scalar smallZeta,
             const scalar initValue = 0,
             const label nAdditionalQuadraturePoints = 0
         );
@@ -132,6 +134,8 @@ public:
         (
             const scalarList& m,
             const word& support,
+            const scalar smallM0,
+            const scalar smallZeta,
             const label nAdditionalQuadraturePoints = 0
         );
 

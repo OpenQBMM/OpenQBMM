@@ -465,7 +465,7 @@ void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
     {
         if (m0_[celli] >= SMALL)
         {
-            univariateMomentSet m(nMoments_, support_);
+            univariateMomentSet m(nMoments_, support_, SMALL, SMALL);
 
             for (label mi = 0; mi < nMoments_; mi++)
             {
@@ -509,7 +509,7 @@ void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
         {
             if (m0_.boundaryField()[patchi][facei] >= SMALL)
             {
-                univariateMomentSet m(nMoments_, support_);
+                univariateMomentSet m(nMoments_, support_, SMALL, SMALL);
 
                 for (label mi = 0; mi < nMoments_; mi++)
                 {
@@ -641,7 +641,7 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
     }
 
     // Compute m* and find how many moments are realizable
-    univariateMomentSet mStar(nMoments_, support_);
+    univariateMomentSet mStar(nMoments_, support_, SMALL, SMALL);
 
     forAll(m0_, celli)
     {

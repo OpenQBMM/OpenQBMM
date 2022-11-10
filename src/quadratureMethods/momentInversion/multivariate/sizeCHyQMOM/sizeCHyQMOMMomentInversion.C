@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2021 Alberto Passalacqua
+    Copyright (C) 2015-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -82,9 +82,11 @@ sizeCHyQMOMBase
             )
         )
     ),
-    smallM0_(SMALL)
+    smallM0_(SMALL),
+    smallZeta_(SMALL)
 {
     smallM0_ = max(velocityInverter_().smallM0(), sizeInverter_().smallM0());
+    smallZeta_ = max(SMALL, sizeInverter_().smallZeta());
 }
 
 
@@ -139,7 +141,13 @@ invert
         return true;
     }
 
-    univariateMomentSet sizeMoments(nSizeMoments_, "RPlus", Zero);
+    univariateMomentSet sizeMoments
+    (
+        nSizeMoments_, 
+        "RPlus", 
+        smallM0(), 
+        smallZeta(),
+        Zero);
 
     forAll(sizeMoments, mi)
     {
@@ -234,7 +242,9 @@ invert
                 (
                     velocityMomentOrders_.size(),
                     velocityMomentOrders_,
-                    "R"
+                    "R",
+                    smallM0(), 
+                    smallZeta()
                 );
 
                 forAll(momentsToInvert, mi)
@@ -306,6 +316,14 @@ Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallM0(
 const
 {
     return smallM0_;
+}
+
+template<class velocityInversion>
+Foam::scalar 
+Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallZeta() 
+const
+{
+    return smallZeta_;
 }
 
 // ************************************************************************* //

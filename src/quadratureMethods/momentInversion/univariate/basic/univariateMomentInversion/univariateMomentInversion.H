@@ -58,7 +58,11 @@ class univariateMomentInversion
 {
     // Private data
 
+        //- Smallest accepted value for m0
         scalar smallM0_;
+
+        //- Smallest accepted value for zeta_k
+        scalar smallZeta_;
 
 
 protected:
@@ -182,6 +186,9 @@ public:
 
         //- Return the smallest accepted value for m0
         inline scalar smallM0() const;
+
+        //- Return the smallest accepted value for zeta_k
+        inline scalar smallZeta() const;
 
     // Member Operators
 

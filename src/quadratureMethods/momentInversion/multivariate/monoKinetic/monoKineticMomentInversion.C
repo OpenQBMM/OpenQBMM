@@ -102,7 +102,14 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
 {
     reset();
 
-    univariateMomentSet sizeMoments(nSizeMoments_, "RPlus", Zero);
+    univariateMomentSet sizeMoments
+    (
+        nSizeMoments_, 
+        "RPlus", 
+        sizeInverter_().smallM0(), 
+        sizeInverter_().smallZeta(), 
+        Zero
+    );
 
     forAll(sizeMoments, mi)
     {
@@ -172,6 +179,11 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
 Foam::scalar Foam::multivariateMomentInversions::monoKinetic::smallM0() const
 {
     return sizeInverter_().smallM0();
+}
+
+Foam::scalar Foam::multivariateMomentInversions::monoKinetic::smallZeta() const
+{
+    return sizeInverter_().smallZeta();
 }
 
 // ************************************************************************* //

@@ -171,6 +171,9 @@ public:
 
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const = 0;
+
+        //- Return the smallest accepted value for zeta_k
+        virtual scalar smallZeta() const = 0;
 };
 
 

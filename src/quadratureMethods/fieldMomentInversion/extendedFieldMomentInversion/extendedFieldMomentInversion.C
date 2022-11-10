@@ -123,7 +123,9 @@ void Foam::extendedFieldMomentInversion::invertBoundaryMoments
             univariateMomentSet momentsToInvert
             (
                 moments.size(),
-                moments.support()
+                moments.support(),
+                momentInverter_().smallM0(),
+                momentInverter_().smallZeta()
             );
 
             // Copying moments from a face
@@ -218,7 +220,9 @@ bool Foam::extendedFieldMomentInversion::invertLocalMoments
     univariateMomentSet momentsToInvert
     (
         moments.size(),
-        moments.support()
+        moments.support(),
+        momentInverter_().smallM0(),
+        momentInverter_().smallZeta()
     );
 
     // Copying moment set from a cell to univariateMomentSet

@@ -89,7 +89,8 @@ Foam::multivariateMomentInversions::TensorProduct::TensorProduct
     nPureMoments_(nNodes_.size(), 0),
     supports_(dict.lookup("supports")),
     univariateInverters_(nNodes_.size()),
-    smallM0_(SMALL)
+    smallM0_(SMALL),
+    smallZeta_(SMALL)
 {
     forAll(univariateInverters_, dimi)
     {
@@ -103,6 +104,7 @@ Foam::multivariateMomentInversions::TensorProduct::TensorProduct
         );
 
         smallM0_ = max(smallM0_, univariateInverters_[dimi].smallM0());
+        smallZeta_ = max(smallZeta_, univariateInverters_[dimi].smallZeta());
     }
 
     forAll(momentOrders_, mi)
@@ -146,6 +148,8 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
         (
             nPureMoments_[dimi],
             supports_[dimi],
+            smallM0(), 
+            smallZeta(),
             Zero
         );
 
@@ -282,6 +286,11 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
 Foam::scalar Foam::multivariateMomentInversions::TensorProduct::smallM0() const
 {
     return smallM0_;
+}
+
+Foam::scalar Foam::multivariateMomentInversions::TensorProduct::smallZeta() const
+{
+    return smallZeta_;
 }
 
 // ************************************************************************* //

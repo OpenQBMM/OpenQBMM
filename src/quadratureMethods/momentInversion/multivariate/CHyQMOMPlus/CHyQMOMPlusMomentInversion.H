@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2021 Alberto Passalacqua
+    Copyright (C) 2015-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -186,6 +186,9 @@ public:
 
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const;
+
+        //- Return the smallest accepted value for zeta_k
+        virtual scalar smallZeta() const;
 };
 
 

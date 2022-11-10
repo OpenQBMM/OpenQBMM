@@ -67,12 +67,21 @@ Foam::multivariateMomentInversions::conditional::conditional
     ),
     nPureMoments_(nNodes_.size(), 0),
     supports_(dict.lookup("supports")),
-    moments_(momentOrders.size(), momentOrders, supports_[0], Zero),
+    moments_
+    (
+        momentOrders.size(), 
+        momentOrders, 
+        supports_[0], 
+        SMALL,
+        SMALL,
+        Zero
+    ),
     conditionalWeights_(nNodes_.size()),
     conditionalMoments_(nNodes_.size()),
     invVR_(nNodes_.size() - 1),
     momentInverters_(nNodes_.size()),
-    smallM0_(SMALL)
+    smallM0_(SMALL),
+    smallZeta_(SMALL)
 {
     forAll(momentInverters_, dimi)
     {
@@ -86,6 +95,10 @@ Foam::multivariateMomentInversions::conditional::conditional
         );
 
         smallM0_ = max(smallM0_, momentInverters_[dimi].smallM0());
+        smallZeta_ = max(smallZeta_, momentInverters_[dimi].smallZeta());
+
+        moments_.correctSmallM0(smallM0_);
+        moments_.correctSmallZeta(smallZeta_);
     }
 
     forAll(momentOrders_, mi)
@@ -215,7 +228,13 @@ bool Foam::multivariateMomentInversions::conditional::invert
     // Invert primary direction first
     labelList pos(nNodes_.size(), 0);
 
-    univariateMomentSet momentsToInvert(nPureMoments_[0], supports_[0]);
+    univariateMomentSet momentsToInvert
+    (
+        nPureMoments_[0], 
+        supports_[0], 
+        smallM0_, 
+        smallZeta_
+    );
 
     forAll(momentsToInvert, mi)
     {
@@ -533,7 +552,9 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
         univariateMomentSet momentsToInvert
         (
             nPureMoments_[dimi],
-            supports_[dimi]
+            supports_[dimi],
+            smallM0_,
+            smallZeta_
         );
 
         forAll(momentsToInvert, mi)
@@ -591,6 +612,11 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
 Foam::scalar Foam::multivariateMomentInversions::conditional::smallM0() const
 {
     return smallM0_;
+}
+
+Foam::scalar Foam::multivariateMomentInversions::conditional::smallZeta() const
+{
+    return smallZeta_;
 }
 
 

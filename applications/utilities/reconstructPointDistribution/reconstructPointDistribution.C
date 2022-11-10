@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
                 )
             );
 
-            univariateMomentSet moments(nMoments, "RPlus");
+            univariateMomentSet moments(nMoments, "RPlus", SMALL, SMALL);
 
             forAll(moments, mi)
             {

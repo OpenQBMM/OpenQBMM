@@ -50,4 +50,9 @@ Foam::scalar Foam::univariateMomentInversion::smallM0() const
     return smallM0_;
 }
 
+Foam::scalar Foam::univariateMomentInversion::smallZeta() const
+{
+    return smallZeta_;
+}
+
 // ************************************************************************* //
