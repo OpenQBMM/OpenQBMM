@@ -48,13 +48,30 @@ Foam::univariateMomentInversion::univariateMomentInversion
     const label nMaxNodes
 )
 :
-    smallM0_(dict.lookupOrDefault<scalar>("smallM0", 1.0e-12)),
-    smallZeta_(dict.lookupOrDefault<scalar>("smallZeta", 1.0e-12)),
+    smallM0_(dict.lookupOrDefault<scalar>("smallM0", SMALL)),
+    smallZeta_(dict.lookupOrDefault<scalar>("smallZeta", 0.0)),
     nInvertibleMoments_(),
     nNodes_(nMaxNodes),
     abscissae_(),
     weights_()
-{}
+{
+    if (smallZeta_ < 0.0)
+    {
+        FatalErrorInFunction
+            << "The value of smallZeta must be positive or null."
+            << exit(FatalError);
+    }
+
+    if (smallZeta_ > 0)
+    {
+        WarningInFunction
+            << "The value of smallZeta is larger than zero. " << endl
+            << "This may lead to the exclusion of valid moment vectors." << endl
+            << endl
+            << "smallZeta = " << smallZeta_
+            << endl;
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

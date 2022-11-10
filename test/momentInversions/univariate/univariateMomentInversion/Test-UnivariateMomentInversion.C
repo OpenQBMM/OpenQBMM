@@ -468,30 +468,30 @@ int main(int argc, char *argv[])
     univariateMomentSet mGaussTest7(inputMoments7, "01", SMALL, SMALL, 5);
     
     scalarList expectedWeightsTest7(10, 0);
-
-    expectedWeightsTest7[0] = 0.003040501825985009;
-    expectedWeightsTest7[1] = 0.007308836462775083; 
-    expectedWeightsTest7[2] = 0.02992571134547361;
-    expectedWeightsTest7[3] = 0.05550217314071024;
-    expectedWeightsTest7[4] = 0.09382619633132158;
-    expectedWeightsTest7[5] = 0.1045681080382438;
-    expectedWeightsTest7[6] = 0.1015250729354342;
-    expectedWeightsTest7[7] = 0.06575715148700932;
-    expectedWeightsTest7[8] = 0.03064322057420774;
-    expectedWeightsTest7[9] = 0.00790302785883977;
+    
+    expectedWeightsTest7[0] = 0.001943873229307942;
+    expectedWeightsTest7[1] = 0.007902072129949747; 
+    expectedWeightsTest7[2] = 0.02732546156051659;
+    expectedWeightsTest7[3] = 0.05761179944540628;
+    expectedWeightsTest7[4] = 0.09028841825500214;
+    expectedWeightsTest7[5] = 0.10986807966067;
+    expectedWeightsTest7[6] = 0.09845777421751999;
+    expectedWeightsTest7[7] = 0.06927178902222311;
+    expectedWeightsTest7[8] = 0.02951883479525387;
+    expectedWeightsTest7[9] = 0.007811897684150718;
 
     scalarList expectedAbscissaeTest7(10, 0);
-
-    expectedAbscissaeTest7[0] = 0.08375460047660047;
-    expectedAbscissaeTest7[1] = 0.1439201373771397;
-    expectedAbscissaeTest7[2] = 0.2450781962429096;
-    expectedAbscissaeTest7[3] = 0.3507708218626089;
-    expectedAbscissaeTest7[4] = 0.4809326486752515;
-    expectedAbscissaeTest7[5] = 0.602033878768001;
-    expectedAbscissaeTest7[6] = 0.7259688412730889;
-    expectedAbscissaeTest7[7] = 0.8281513117266451;
-    expectedAbscissaeTest7[8] = 0.9138957561604497;
-    expectedAbscissaeTest7[9] = 0.9676706544358061;
+    
+    expectedAbscissaeTest7[0] = 0.06964594081013871;
+    expectedAbscissaeTest7[1] = 0.14017230848925;
+    expectedAbscissaeTest7[2] = 0.2355328726617618;
+    expectedAbscissaeTest7[3] = 0.3490332042621505;
+    expectedAbscissaeTest7[4] = 0.4750293831698755;
+    expectedAbscissaeTest7[5] = 0.6015400657359764;
+    expectedAbscissaeTest7[6] = 0.723885477138646;
+    expectedAbscissaeTest7[7] = 0.8284968176504827;
+    expectedAbscissaeTest7[8] = 0.9147863479347316;
+    expectedAbscissaeTest7[9] = 0.9684906429192973;
 
     testQuadrature
     (

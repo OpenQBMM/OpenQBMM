@@ -291,17 +291,18 @@ void Foam::generalizedMomentInversion::correctRecurrence01
     zetas.resize(2*nMaxNodes_);
     canonicalMoments.resize(2*nMaxNodes_);
 
-    scalar p1 = canonicalMoments[1];
-    scalar p2 = canonicalMoments[2];
+    // We do not store p0, so canonicalMoments[0] = p1
+    scalar p1 = canonicalMoments[0]; 
+    scalar p2 = canonicalMoments[1];
 
     scalar alphaCoeff = (1.0 - p1 - 2*p2 + p1*p2)/p2;
     scalar betaCoeff = (p1 - p2 - p1*p2)/p2;
 
-    scalar pJ2n_1 = (nRegularQuadratureNodes_)
-        /(2.0*nRegularQuadratureNodes_ + 1.0 + alphaCoeff + betaCoeff);
-
-    scalar pJ2n = (betaCoeff + nRegularQuadratureNodes_)
+    scalar pJ2n_1 = (betaCoeff + nRegularQuadratureNodes_)
         /(2.0*nRegularQuadratureNodes_ + alphaCoeff + betaCoeff);
+    
+    scalar pJ2n = nRegularQuadratureNodes_
+        /(2.0*nRegularQuadratureNodes_ + 1.0 + alphaCoeff + betaCoeff);
 
     for
     (
@@ -310,10 +311,8 @@ void Foam::generalizedMomentInversion::correctRecurrence01
         i++
     )
     {
-        scalar pJ2i_1 = 
-            (betaCoeff + i - 1.0)/(2.0*(i - 1.0) + alphaCoeff + betaCoeff);
-
-        scalar pJ2i = (i - 1.0)/(2.0*i - 1.0 + alphaCoeff + betaCoeff);
+        scalar pJ2i_1 = (betaCoeff + i)/(2.0*i + alphaCoeff + betaCoeff);
+        scalar pJ2i = i/(2.0*i + 1.0 + alphaCoeff + betaCoeff);
 
         if (canonicalMoments[2*nRegularQuadratureNodes_ - 3] <= pJ2i_1 
          || pJ2n_1 >= pJ2i_1)
@@ -324,8 +323,8 @@ void Foam::generalizedMomentInversion::correctRecurrence01
         else
         {
             canonicalMoments[2*i - 1] = 
-                (canonicalMoments[2*nRegularQuadratureNodes_ - 3]
-                    *(1.0 - pJ2i_1) + pJ2i_1 - pJ2n_1)/(1.0 - pJ2n_1);
+                (canonicalMoments[2*nRegularQuadratureNodes_ - 3]*(1.0 - pJ2i_1) 
+                    + pJ2i_1 - pJ2n_1)/(1.0 - pJ2n_1);
         }
 
         if (canonicalMoments[2*nRegularQuadratureNodes_ - 2] <= pJ2n
@@ -337,8 +336,8 @@ void Foam::generalizedMomentInversion::correctRecurrence01
         else
         {
             canonicalMoments[2*i] = 
-                (canonicalMoments[2*nRegularQuadratureNodes_ - 2]
-                    *(1.0 - pJ2i) + pJ2i - pJ2n)/(1.0 - pJ2n);
+                (canonicalMoments[2*nRegularQuadratureNodes_ - 2]*(1.0 - pJ2i) 
+                    + pJ2i - pJ2n)/(1.0 - pJ2n);
         }
 
         zetas[2*i - 1] 
