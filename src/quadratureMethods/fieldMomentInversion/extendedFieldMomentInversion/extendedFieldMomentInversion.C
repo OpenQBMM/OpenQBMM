@@ -327,4 +327,9 @@ Foam::scalar Foam::extendedFieldMomentInversion::smallM0() const
     return momentInverter_().smallM0();
 }
 
+Foam::scalar Foam::extendedFieldMomentInversion::smallZeta() const
+{
+    return momentInverter_().smallZeta();
+}
+
 // ************************************************************************* //

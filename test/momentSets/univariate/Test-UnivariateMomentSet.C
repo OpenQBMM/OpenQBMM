@@ -120,7 +120,7 @@ void testUnitMomentVectorRPlus()
     expectedZetas[0] = 1.0;
 
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "RPlus");
+    univariateMomentSet moments(inputMoments, "RPlus", SMALL, SMALL);
 
     forAll(moments, mi)
     {
@@ -211,7 +211,7 @@ void testFullyRealizableMomentVectorRPlus()
     expectedZetas[18] = 0.2630193512153205;
 
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "RPlus");
+    univariateMomentSet moments(inputMoments, "RPlus", SMALL, SMALL);
 
     forAll(moments, mi)
     {
@@ -295,7 +295,7 @@ void testSubsetRealizableMomentVectorRPlus()
     expectedZetas[2] = -2.666666666666667;
 
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "RPlus");
+    univariateMomentSet moments(inputMoments, "RPlus", SMALL, SMALL);
 
     forAll(moments, mi)
     {
@@ -380,7 +380,7 @@ void testGaussianMomentsR()
     }
 
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "R");
+    univariateMomentSet moments(inputMoments, "R", SMALL, SMALL);
 
     forAll(moments, mi)
     {
@@ -446,7 +446,7 @@ void testRealizableCanonicalMoments()
     }
     
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "01");
+    univariateMomentSet moments(inputMoments, "01", SMALL, SMALL);
 
     forAll(moments, mi)
     {
@@ -515,7 +515,7 @@ void testUnrealizableCanonicalMoments()
     }
     
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "01");
+    univariateMomentSet moments(inputMoments, "01", SMALL, SMALL);
 
     forAll(moments, mi)
     {

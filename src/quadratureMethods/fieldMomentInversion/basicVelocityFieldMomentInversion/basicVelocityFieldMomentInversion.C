@@ -271,4 +271,9 @@ Foam::scalar Foam::basicVelocityFieldMomentInversion::smallM0() const
     return momentInverter_().smallM0();
 }
 
+Foam::scalar Foam::basicVelocityFieldMomentInversion::smallZeta() const
+{
+    return momentInverter_().smallZeta();
+}
+
 // ************************************************************************* //

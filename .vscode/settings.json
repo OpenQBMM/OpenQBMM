@@ -71,6 +71,14 @@
         "regex": "cpp",
         "utility": "cpp",
         "basicVelocityFieldMomentInversion.C": "cpp",
-        "zetaUnivariateAdvection.C": "cpp"
+        "zetaUnivariateAdvection.C": "cpp",
+        "lognormalEQMOM.C": "cpp",
+        "Test-CHyQMOMMomentInversion.C": "cpp",
+        "Test-ConditionalMomentInversion.C": "cpp",
+        "Test-monoKineticMomentInversion.C": "cpp",
+        "Test-sizeCHyQMOMMomentInversion.C": "cpp",
+        "Test-TensorProductMomentInversion.C": "cpp",
+        "Test-UnivariateMomentSet.C": "cpp",
+        "ostream": "cpp"
     }
 }

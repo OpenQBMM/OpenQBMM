@@ -164,7 +164,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     canonicalMoments_ = 0.0;
     canonicalMoments_[0] = zeta[0];
 
-    if (mag(canonicalMoments_[0] - 1.0) <= SMALL)
+    if (mag(canonicalMoments_[0] - 1.0) <= smallZeta_)
     {
         nRealizableMoments_ = 2;
         onMomentSpaceBoundary_ = true;
@@ -177,7 +177,11 @@ void Foam::univariateMomentSet::checkCanonicalMoments
         canonicalMoments_[zetai]
             = zeta[zetai]/(1.0 - canonicalMoments_[zetai - 1]);
 
-        if (canonicalMoments_[zetai] < 0.0 || canonicalMoments_[zetai] > 1.0)
+        if 
+        (
+            canonicalMoments_[zetai] < smallZeta_ 
+         || canonicalMoments_[zetai] > 1.0
+        )
         {
             nRealizableMoments_ = zetai + 1;
 
@@ -185,8 +189,8 @@ void Foam::univariateMomentSet::checkCanonicalMoments
         }
         else if
         (
-            mag(canonicalMoments_[zetai]) <= SMALL
-         || mag(canonicalMoments_[zetai] - 1.0) <= SMALL
+            mag(canonicalMoments_[zetai]) <= smallZeta_
+         || mag(canonicalMoments_[zetai] - 1.0) <= smallZeta_
         )
         {
             nRealizableMoments_ = zetai + 2;
@@ -233,7 +237,7 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 
-    if ((*this)[0] < SMALL && !fatalErrorOnFailedRealizabilityTest)
+    if ((*this)[0] < smallM0_ && !fatalErrorOnFailedRealizabilityTest)
     {
         realizabilityChecked_ = true;
         negativeZeta_ = 0;
@@ -280,7 +284,7 @@ void Foam::univariateMomentSet::checkRealizability
 
         zeta_[0] = (*this)[1]/(*this)[0];
 
-        if (zeta_[0] <= 0.0)
+        if (zeta_[0] <= smallZeta_)
         {
             if (isDegenerate() || zeta_[0] == 0.0)
             {
@@ -400,7 +404,7 @@ void Foam::univariateMomentSet::checkRealizability
 
     zeta_[0] = alpha_[0];
 
-    if (!(support_ == "R") && zeta_[0] <= 0.0)
+    if (!(support_ == "R") && zeta_[0] <= smallZeta_)
     {
         if (isDegenerate() || zeta_[0] == 0.0)
         {
@@ -419,6 +423,8 @@ void Foam::univariateMomentSet::checkRealizability
             FatalErrorInFunction
                 << "Moment set with only one valid moment."
                 << nl << "    Moment set: " << (*this)
+                << "zeta vector = " << zeta_ << endl
+                << "smallZeta = " << smallZeta_
                 << abort(FatalError);
         }
         else
@@ -441,7 +447,7 @@ void Foam::univariateMomentSet::checkRealizability
 
         if (support_ == "R")
         {
-            if (beta_[zetai] <= 0.0)
+            if (beta_[zetai] <= smallZeta_)
             {
                 realizabilityChecked_ = true;
                 nRealizableMoments_ = 2*zetai;
@@ -455,11 +461,11 @@ void Foam::univariateMomentSet::checkRealizability
         {
             zeta_[2*zetai - 1] = beta_[zetai]/zeta_[2*zetai - 2];
 
-            if (zeta_[2*zetai - 1] <= 0.0)
+            if (zeta_[2*zetai - 1] <= smallZeta_)
             {
                 if (support_ == "RPlus")
                 {
-                    if (zeta_[2*zetai - 1] < 0.0)
+                    if (zeta_[2*zetai - 1] < smallZeta_)
                     {
                         negativeZeta_ = 2*zetai;
                         nRealizableMoments_ = negativeZeta_;
@@ -495,11 +501,11 @@ void Foam::univariateMomentSet::checkRealizability
         {
             zeta_[2*zetai] = alpha_[zetai] - zeta_[2*zetai - 1];
 
-            if (zeta_[2*zetai] <= 0.0)
+            if (zeta_[2*zetai] <= smallZeta_)
             {
                 if (support_ == "RPlus")
                 {
-                    if (zeta_[2*zetai] < 0.0)
+                    if (zeta_[2*zetai] < smallZeta_)
                     {
                         negativeZeta_ = 2*zetai + 1;
                         nRealizableMoments_ = negativeZeta_;
@@ -532,14 +538,7 @@ void Foam::univariateMomentSet::checkRealizability
                     - beta_[zetai]*zRecurrence[zetai - 1][columnI];
         }
     }
-
-    Info << " nD = " << nD << endl;
-    Info << " alpha size " << alpha_.size() << endl;
-    Info << " beta size " << beta_.size() << endl;
-    Info << " zRec n " << zRecurrence.n() << endl;
-    Info << " zRec m " << zRecurrence.m() << endl;
-    Info << " zeta size " << zeta_.size() << endl;
-    
+   
     beta_[nD] = zRecurrence[nD][nD]/max(zRecurrence[nD - 1][nD - 1], SMALL);
 
     if (support_ == "R")
@@ -548,7 +547,7 @@ void Foam::univariateMomentSet::checkRealizability
                     - zRecurrence[nD - 1][nD]/max(zRecurrence[nD - 1][nD - 1], 
                     SMALL);
 
-        if (beta_[nD] <= 0.0)
+        if (beta_[nD] <= smallZeta_)
         {
             realizabilityChecked_ = true;
             nRealizableMoments_ = 2*nD;
@@ -571,11 +570,11 @@ void Foam::univariateMomentSet::checkRealizability
     {
         zeta_[2*nD - 1] = beta_[nD]/zeta_[2*nD - 2];
 
-        if (zeta_[2*nD - 1] <= 0.0)
+        if (zeta_[2*nD - 1] <= smallZeta_)
         {
             if (support_ == "RPlus")
             {
-                if (zeta_[2*nD - 1] < 0.0)
+                if (zeta_[2*nD - 1] < smallZeta_)
                 {
                     negativeZeta_ = 2*nD;
                     nRealizableMoments_ = negativeZeta_;
@@ -607,11 +606,11 @@ void Foam::univariateMomentSet::checkRealizability
 
             zeta_[2*nD] = alpha_[nD] - zeta_[2*nD - 1];
 
-            if (zeta_[2*nD] <= 0.0)
+            if (zeta_[2*nD] <= smallZeta_)
             {
                 if (support_ == "RPlus")
                 {
-                    if (zeta_[2*nD] < 0.0)
+                    if (zeta_[2*nD] < smallZeta_)
                     {
                         negativeZeta_ = 2*nD + 1;
                         nRealizableMoments_ = negativeZeta_;

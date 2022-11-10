@@ -408,7 +408,6 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
     };
 
     // Calculate normalized moments
-    // Calculate normalized moments
     scalar s10 = moments(1, 0)/m00;
     scalar s01 = moments(0, 1)/m00;
     scalar s11 = moments(1, 1)/m00;
@@ -1125,6 +1124,7 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
             getNNodes(2),
             twoDimNodeIndexes
         );
+        
         mappedList<vector2D> u
         (
             getNNodes(2),

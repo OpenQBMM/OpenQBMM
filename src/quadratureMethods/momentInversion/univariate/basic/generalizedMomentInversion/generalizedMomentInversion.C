@@ -279,12 +279,12 @@ void Foam::generalizedMomentInversion::correctRecurrence01
 )
 {
     // The realizability test will establish if adding nodes with GQMOM is
-    // feasible and set nAdditionalQuadratureNodes_ if not.
+    // feasible and set nAdditionalQuadratureNodes_ = 0 if not.
     if (nAdditionalQuadratureNodes_ <= 0)
     {
         return; // Use Gauss if no additional nodes are possible 
     }
-    
+        
     scalarList& zetas(moments.zetas());
     scalarList& canonicalMoments(moments.canonicalMoments());
 

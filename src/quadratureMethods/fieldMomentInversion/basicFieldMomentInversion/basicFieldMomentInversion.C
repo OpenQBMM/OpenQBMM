@@ -159,6 +159,8 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             (
                 moments.size(),
                 moments.support(),
+                smallM0(),
+                smallZeta(),
                 scalar(0),                  // Initial value
                 nAdditionalQuadraturePoints_
             );
@@ -222,6 +224,8 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
     (
         moments.size(),
         moments.support(),
+        smallM0(),
+        smallZeta(),
         scalar(0),                  // Initial value
         nAdditionalQuadraturePoints_
     );
@@ -309,4 +313,10 @@ Foam::scalar Foam::basicFieldMomentInversion::smallM0() const
 {
     return momentInverter_().smallM0();
 }
+
+Foam::scalar Foam::basicFieldMomentInversion::smallZeta() const
+{
+    return momentInverter_().smallZeta();
+}
+
 // ************************************************************************* //

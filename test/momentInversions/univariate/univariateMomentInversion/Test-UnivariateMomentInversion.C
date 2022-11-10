@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
 
     // Test 1 - m = (1, 1, 1, 1)
     scalarList inputMoments1(4, 1.0);
-    univariateMomentSet mGaussTest1(inputMoments1, "RPlus");
+    univariateMomentSet mGaussTest1(inputMoments1, "RPlus", SMALL, SMALL);
     scalarList expectedWeightsTest1(1, 1.0);
     scalarList expectedAbscissaeTest1(1, 1.0);
 
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
         inputMoments2[mi - 1] = 1.0/scalar(mi);
     }
 
-    univariateMomentSet mGaussTest2(inputMoments2, "RPlus");
+    univariateMomentSet mGaussTest2(inputMoments2, "RPlus", SMALL, SMALL);
     
     scalarList expectedWeightsTest2(5);
 
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
         inputMoments3[mi - 1] = 1.0/scalar(mi);
     }
 
-    univariateMomentSet mGaussTest3(inputMoments3, "RPlus", 1);
+    univariateMomentSet mGaussTest3(inputMoments3, "RPlus", SMALL, SMALL, 1);
     
     scalarList expectedWeightsTest3(6);
 
@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
         inputMoments4[mi - 1] = 1.0/scalar(mi);
     }
 
-    univariateMomentSet mGaussTest4(inputMoments4, "RPlus", 2);
+    univariateMomentSet mGaussTest4(inputMoments4, "RPlus", SMALL, SMALL, 2);
     
     scalarList expectedWeightsTest4(7);
 
@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
     inputMoments5[9] = 0.0;
     //inputMoments5[10] = 945.0;
     
-    univariateMomentSet mGaussTest5(inputMoments5, "R", 5);
+    univariateMomentSet mGaussTest5(inputMoments5, "R", SMALL, SMALL, 5);
     
     scalarList expectedWeightsTest5(10, 0);
 
@@ -413,7 +413,7 @@ int main(int argc, char *argv[])
         inputMoments6[mi - 1] = 1.0/scalar(mi);
     }
 
-    univariateMomentSet mGaussTest6(inputMoments6, "RPlus", 5);
+    univariateMomentSet mGaussTest6(inputMoments6, "RPlus", SMALL, SMALL, 5);
     
     scalarList expectedWeightsTest6(10, 0);
 
@@ -465,7 +465,7 @@ int main(int argc, char *argv[])
     inputMoments7[8] = 1.0/22.0;
     inputMoments7[9] = 1.0/26.0;
 
-    univariateMomentSet mGaussTest7(inputMoments7, "01", 5);
+    univariateMomentSet mGaussTest7(inputMoments7, "01", SMALL, SMALL, 5);
     
     scalarList expectedWeightsTest7(10, 0);
 

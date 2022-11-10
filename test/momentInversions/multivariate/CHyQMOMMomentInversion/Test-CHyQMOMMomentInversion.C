@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
     Info<< "Original moments:" << endl;
 
-    multivariateMomentSet moments(nMoments, momentOrders, "R");
+    multivariateMomentSet moments(nMoments, momentOrders, "R", SMALL, SMALL);
 
     forAll(momentOrders, mi)
     {
