@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017-2022 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -149,10 +149,10 @@ class polydispersePhaseModel
         //- Update moments
         void updateVelocity();
 
-        //- Coalesence source
+        //- Coalescence source
         scalar coalescenceSource(const label celli, const label momentOrder);
 
-        //- Coalesence source
+        //- Coalescence source
         vector coalescenceSourceU(const label celli, const label momentOrder);
 
         //- Breakup source

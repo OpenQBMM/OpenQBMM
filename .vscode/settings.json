@@ -79,6 +79,11 @@
         "Test-sizeCHyQMOMMomentInversion.C": "cpp",
         "Test-TensorProductMomentInversion.C": "cpp",
         "Test-UnivariateMomentSet.C": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "denseAGFoam.C": "cpp",
+        "PrinceAndBlanchFrequency.C": "cpp",
+        "PrinceAndBlanchEfficiency.C": "cpp",
+        "complex": "cpp",
+        "polydispersePhaseModel.C": "cpp"
     }
 }

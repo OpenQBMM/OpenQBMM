@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017-2022 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -105,6 +105,9 @@ class PrinceAndBlanch
         //- Turbulent dissipation
         volScalarField epsilonf_;
 
+        //- Magnitude of the shear stress of the continuous phase
+        volScalarField liquidShearStressMagnitude_;
+
         //- Switch for turbulence driven coalescence
         Switch turbulent_;
 
@@ -112,7 +115,7 @@ class PrinceAndBlanch
         Switch buoyant_;
 
         //- Switch for laminar shear driven coalescence
-        Switch LS_;
+        Switch laminarShear_;
 
 
 public:
@@ -153,7 +156,6 @@ public:
             const vector& Ur,
             const label celli
         ) const;
-
 };
 
 
