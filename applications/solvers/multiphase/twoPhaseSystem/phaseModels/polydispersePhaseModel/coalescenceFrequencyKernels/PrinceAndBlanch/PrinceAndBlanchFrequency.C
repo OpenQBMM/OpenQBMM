@@ -64,6 +64,7 @@ coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
 :
     coalescenceFrequencyKernel(dict, mesh, continuousPhase),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    C1_(dict.lookupOrDefault<scalar>("C1", 0.089)),
     epsilonf_
     (
         IOobject
@@ -130,7 +131,7 @@ coalescenceFrequencyKernels::PrinceAndBlanch::omega
     if (turbulent_)
     {
         freqSrc +=
-            0.089*constant::mathematical::pi*sqr(d1 + d2)
+           C1_*4*constant::mathematical::pi*sqr(d1 + d2)
            *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
            *cbrt(epsilonf_[celli]);
     }

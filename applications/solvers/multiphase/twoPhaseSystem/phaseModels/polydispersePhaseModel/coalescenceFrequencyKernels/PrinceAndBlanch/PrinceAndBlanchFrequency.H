@@ -31,7 +31,7 @@ Description
 
     \f[
         \omega_{turb} =
-            0.089 \pi (d_i + d_j)^2
+            0.089 \cdot 4 \cdot \pi (d_i + d_j)^2
             \sqrt{d_i^{\frac{2}{3}} + d_j^{\frac{2}{3}} }
             epsilon_f^{frac{1}{3}}
 
@@ -101,6 +101,9 @@ class PrinceAndBlanch
 
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
+
+        //- Coefficient of the coalescence frequency (default is 0.089)
+        scalar C1_;
 
         //- Turbulent dissipation
         volScalarField epsilonf_;
