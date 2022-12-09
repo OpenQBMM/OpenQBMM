@@ -131,7 +131,7 @@ coalescenceFrequencyKernels::PrinceAndBlanch::omega
     if (turbulent_)
     {
         freqSrc +=
-           C1_*4*constant::mathematical::pi*sqr(d1 + d2)
+           4.0*C1_*constant::mathematical::pi*sqr(d1 + d2)
            *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
            *cbrt(epsilonf_[celli]);
     }
