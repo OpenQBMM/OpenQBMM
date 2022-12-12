@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -37,6 +37,8 @@ Foam::multivariateMomentSet::multivariateMomentSet
     const label nMoments,
     const labelListList& momentOrders,
     const word& support,
+    const scalar smallM0,
+    const scalar smallZeta,
     const scalar initValue
 )
 :
@@ -46,6 +48,8 @@ Foam::multivariateMomentSet::multivariateMomentSet
         momentOrders[0].size(),
         momentOrders,
         support,
+        smallM0,
+        smallZeta,
         initValue
     )
 {}
@@ -54,7 +58,9 @@ Foam::multivariateMomentSet::multivariateMomentSet
 (
     const scalarList& m,
     const labelListList& momentOrders,
-    const word& support
+    const word& support,
+    const scalar smallM0,
+    const scalar smallZeta
 )
 :
     momentSet
@@ -62,7 +68,9 @@ Foam::multivariateMomentSet::multivariateMomentSet
         m,
         momentOrders[0].size(),
         momentOrders,
-        support
+        support,
+        smallM0,
+        smallZeta
     )
 {}
 

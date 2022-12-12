@@ -67,7 +67,7 @@ class basicFieldMomentInversion
         scalar maxKnownAbscissa_;
 
         //- Number of fixed quadrature points
-        label nFixedQuadraturePoints_;
+        label nAdditionalQuadraturePoints_;
 
 
     // Private Member Functions
@@ -158,6 +158,9 @@ public:
 
         //- Return the smallest accepted value for m0
         scalar smallM0() const;
+
+        //- Return the smallest accepted value for zeta_k
+        scalar smallZeta() const;
 
     // Member Operators
 

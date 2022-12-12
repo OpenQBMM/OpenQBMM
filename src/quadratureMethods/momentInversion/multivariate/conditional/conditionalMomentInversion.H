@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -101,8 +101,11 @@ class conditional
         label vi_;
         label si_;
 
-        //- Minimum value of m0 to be considered
+        //- Minimum accepted value for m0
         scalar smallM0_;
+
+        //- Minimum accepted value for zeta_k
+        scalar smallZeta_;
 
 
     // Private member functions
@@ -174,6 +177,9 @@ public:
 
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const;
+
+        //- Return the smallest accepted value for zeta_k
+        virtual scalar smallZeta() const;
 };
 
 

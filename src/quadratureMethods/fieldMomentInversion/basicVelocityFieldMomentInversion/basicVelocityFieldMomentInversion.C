@@ -154,7 +154,9 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
             (
                 moments.size(),
                 momentOrders_,
-                moments.support()
+                moments.support(),
+                momentInverter_().smallM0(),
+                momentInverter_().smallZeta()
             );
 
             // Copying moments from a face
@@ -222,7 +224,9 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
     (
         moments.size(),
         momentOrders_,
-        moments.support()
+        moments.support(),
+        momentInverter_().smallM0(),
+        momentInverter_().smallZeta()
     );
 
     // Copying moments from cell
@@ -265,6 +269,11 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
 Foam::scalar Foam::basicVelocityFieldMomentInversion::smallM0() const
 {
     return momentInverter_().smallM0();
+}
+
+Foam::scalar Foam::basicVelocityFieldMomentInversion::smallZeta() const
+{
+    return momentInverter_().smallZeta();
 }
 
 // ************************************************************************* //

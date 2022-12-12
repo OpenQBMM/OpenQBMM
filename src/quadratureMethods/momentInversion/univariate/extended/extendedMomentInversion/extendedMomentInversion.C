@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -53,7 +53,6 @@ Foam::extendedMomentInversion::extendedMomentInversion
     (
         univariateMomentInversion::New(dict.subDict("basicQuadrature"))
     ),
-    smallM0_(momentInverter_().smallM0()),
     nMoments_(nMoments),
     nPrimaryNodes_((nMoments_ - 1)/2),
     nSecondaryNodes_(nSecondaryNodes),
@@ -73,7 +72,9 @@ Foam::extendedMomentInversion::extendedMomentInversion
         dict.lookupOrDefault<scalar>("targetFunctionTol", 1.0e-12)
     ),
     foundUnrealizableSigma_(false),
-    nullSigma_(false)
+    nullSigma_(false),
+    smallM0_(momentInverter_().smallM0()),
+    smallZeta_(momentInverter_().smallZeta())
 {}
 
 
@@ -169,7 +170,13 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         m.resize(nRealizableMoments);
 
         // Local set of starred moments
-        univariateMomentSet mStar(nRealizableMoments, m.support());
+        univariateMomentSet mStar
+        (
+            nRealizableMoments, 
+            m.support(), 
+            smallM0_, 
+            smallZeta_
+        );
 
         // Compute target function for sigma = 0
         scalar sigmaLow = 0.0;
@@ -445,7 +452,13 @@ Foam::scalar Foam::extendedMomentInversion::normalizedMomentError
 
     targetFunction(sigma, moments, momentsStar);
 
-    univariateMomentSet approximatedMoments(moments.size(), moments.support());
+    univariateMomentSet approximatedMoments
+    (
+        moments.size(), 
+        moments.support(),
+        smallM0_,
+        smallZeta_
+    );
 
     momentsStarToMoments(sigma, approximatedMoments, momentsStar);
 
@@ -581,6 +594,11 @@ Foam::scalar Foam::extendedMomentInversion::targetFunction
 Foam::scalar Foam::extendedMomentInversion::smallM0() const
 {
     return smallM0_;
+}
+
+Foam::scalar Foam::extendedMomentInversion::smallZeta() const
+{
+    return smallZeta_;
 }
 
 // ************************************************************************* //

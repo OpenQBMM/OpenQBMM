@@ -344,7 +344,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert1D
             moments(3),
             moments(4)
         },
-        "R"
+        "R",
+        smallM0(), 
+        smallZeta()
     );
 
     // Find univariate quadrature in first direction
@@ -422,7 +424,13 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
 
     if (c20 < varMin_)
     {
-        univariateMomentSet mDir2({scalar(1), scalar(0), c02, c03, c04}, "R");
+        univariateMomentSet mDir2
+        (
+            {scalar(1), scalar(0), c02, c03, c04}, 
+            "R",
+            smallM0(), 
+            smallZeta()
+        );
 
         //NOTE: Leave Vf elements null. AP
         univariateInverter_().invert(mDir2);
@@ -451,7 +459,13 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     }
 
     // One-dimensional inversion with realizability test
-    univariateMomentSet mDir1({scalar(1), scalar(0), c20, c30, c40}, "R");
+    univariateMomentSet mDir1
+    (
+        {scalar(1), scalar(0), c20, c30, c40}, 
+        "R",
+        smallM0(), 
+        smallZeta()
+    );
 
     // Find univariate quadrature in first direction
     univariateInverter_().invert(mDir1);
@@ -649,7 +663,14 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
 
     for (label i = 0; i < 3; i++)
     {
-        univariateMomentSet mMu({scalar(1), scalar(0), mu2[i], mu3[i], mu4[i]}, "R");
+        univariateMomentSet mMu
+        (
+            {scalar(1), scalar(0), mu2[i], mu3[i], mu4[i]}, 
+            "R",
+            smallM0(), 
+            smallZeta()
+        );
+        
         univariateInverter_().invert(mMu);
 
         for (label j = 0; j < 3; j++)
@@ -756,7 +777,13 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         // X and y directions are degenerate
         if (c020 < varMin_)
         {
-            univariateMomentSet mDir3({scalar(1), scalar(0), c002, c003, c004}, "R");
+            univariateMomentSet mDir3
+            (
+                {scalar(1), scalar(0), c002, c003, c004}, 
+                "R",
+                smallM0(), 
+                smallZeta()
+            );
 
             // Find univariate quadrature in first direction
             univariateInverter_().invert(mDir3);
@@ -799,7 +826,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                     c004
                 },
                 twoDimMomentOrders,
-                "R"
+                "R",
+                smallM0(), 
+                smallZeta()
             );
 
             mappedList<scalar> wDir23(9, twoDimNodeIndexes, Zero);
@@ -832,7 +861,13 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     }
 
     // Invert first direction
-    univariateMomentSet mDir1({scalar(1), scalar(0), c200, c300, c400}, "R");
+    univariateMomentSet mDir1
+    (
+        {scalar(1), scalar(0), c200, c300, c400}, 
+        "R",
+        smallM0(), 
+        smallZeta()
+    );
 
     // Find univariate quadrature in first direction
     univariateInverter_().invert(mDir1);
@@ -861,7 +896,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 c004
             },
             twoDimMomentOrders,
-           "R"
+            "R",
+            smallM0(), 
+            smallZeta()
         );
 
         mappedList<scalar> wDir13(9, twoDimNodeIndexes, Zero);
@@ -911,7 +948,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 c040
             },
             twoDimMomentOrders,
-           "R"
+            "R",
+            smallM0(), 
+            smallZeta()
         );
 
         mappedList<scalar> wDir12(9, twoDimNodeIndexes, Zero);
@@ -1248,7 +1287,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 univariateMomentSet mMu
                 (
                     {scalar(1), scalar(0), mu2(i, j), mu3(i, j), mu4(i, j)},
-                    "R"
+                    "R",
+                    smallM0(), 
+                    smallZeta()
                 );
 
                 univariateInverter_().invert(mMu);
@@ -1334,6 +1375,11 @@ bool Foam::multivariateMomentInversions::CHyQMOMPlus::invert
 Foam::scalar Foam::multivariateMomentInversions::CHyQMOMPlus::smallM0() const
 {
     return univariateInverter_().smallM0();
+}
+
+Foam::scalar Foam::multivariateMomentInversions::CHyQMOMPlus::smallZeta() const
+{
+    return univariateInverter_().smallZeta();
 }
 
 // ************************************************************************* //

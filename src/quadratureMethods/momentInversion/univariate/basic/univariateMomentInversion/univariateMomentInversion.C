@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -44,15 +44,34 @@ namespace Foam
 
 Foam::univariateMomentInversion::univariateMomentInversion
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const label nMaxNodes
 )
 :
-    smallM0_(dict.lookupOrDefault<scalar>("smallM0", 1.0e-12)),
+    smallM0_(dict.lookupOrDefault<scalar>("smallM0", SMALL)),
+    smallZeta_(dict.lookupOrDefault<scalar>("smallZeta", 0.0)),
     nInvertibleMoments_(),
-    nNodes_(),
+    nNodes_(nMaxNodes),
     abscissae_(),
     weights_()
-{}
+{
+    if (smallZeta_ < 0.0)
+    {
+        FatalErrorInFunction
+            << "The value of smallZeta must be positive or null."
+            << exit(FatalError);
+    }
+
+    if (smallZeta_ > 0)
+    {
+        WarningInFunction
+            << "The value of smallZeta is larger than zero. " << endl
+            << "This may lead to the exclusion of valid moment vectors." << endl
+            << endl
+            << "smallZeta = " << smallZeta_
+            << endl;
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -86,8 +105,8 @@ void Foam::univariateMomentInversion::JacobiMatrix
     for (label i = 0; i < nNodes_ - 1; i++)
     {
         z[i][i] = alpha[i];
-        z[i][i+1] = Foam::sqrt(beta[i+1]);
-        z[i+1][i] = z[i][i+1];
+        z[i][i+1] = Foam::sqrt(beta[i + 1]);
+        z[i+1][i] = z[i][i + 1];
     }
 
     z[nNodes_ - 1][nNodes_ - 1] = alpha[nNodes_ - 1];
@@ -99,7 +118,7 @@ void Foam::univariateMomentInversion::invert
     const scalar minKnownAbscissa,
     const scalar maxKnownAbscissa
 )
-{
+{   
     if (moments.isDegenerate())
     {
         nNodes_ = 1;
@@ -133,7 +152,15 @@ void Foam::univariateMomentInversion::invert
 
     scalarSquareMatrix z(nNodes_, scalar(0));
     JacobiMatrix(moments, z, minKnownAbscissa, maxKnownAbscissa);
+    calcQuadrature(moments, z);
+}
 
+void Foam::univariateMomentInversion::calcQuadrature
+(
+    const univariateMomentSet& moments,
+    const scalarSquareMatrix& z
+)
+{
     // Computing weights and abscissae
     EigenMatrix<scalar> zEig(z, true);
 
@@ -144,6 +171,5 @@ void Foam::univariateMomentInversion::invert
         abscissae_[i] = zEig.EValsRe()[i];
     }
 }
-
 
 // ************************************************************************* //

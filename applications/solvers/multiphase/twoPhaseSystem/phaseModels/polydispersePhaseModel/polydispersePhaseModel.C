@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017-2022 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -85,7 +85,9 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
         {
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
-            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
+
+            scalar abscissa2 
+                = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
 
             scalar n2 = node2.n(celli, weight2, abscissa2);
             scalar d2 = node2.d(celli, abscissa2);
@@ -138,7 +140,9 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
         {
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.primaryWeight()[celli];
-            scalar abscissa2 = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
+
+            scalar abscissa2 
+                = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
 
             scalar n2 = node2.n(celli, weight2, abscissa2);
             scalar d2 = node2.d(celli, abscissa2);
@@ -174,6 +178,7 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
 )
 {
     scalar bSource = 0.0;
+
     if (!breakup_)
     {
         return bSource;
@@ -1214,6 +1219,7 @@ void Foam::polydispersePhaseModel::averageTransport
                 residualAlpha_
             )
         );
+
         tauC.dimensions().reset(dimDensity/dimTime);
 
         volScalarField alphaRhoi(alphas_[nodei]*rho());
@@ -1232,6 +1238,7 @@ void Foam::polydispersePhaseModel::averageTransport
         UsEqn.relax();
         UsEqn.solve();
     }
+    
     quadrature_.updateAllMoments();
 
     // Update moments with breakup and coalescence sources

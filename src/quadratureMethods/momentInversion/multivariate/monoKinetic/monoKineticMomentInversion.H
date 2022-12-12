@@ -110,6 +110,9 @@ public:
 
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const;
+
+        //- Return the smallest accepted value for zeta_k
+        virtual scalar smallZeta() const;
 };
 
 

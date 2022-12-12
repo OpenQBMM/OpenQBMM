@@ -199,6 +199,9 @@ public:
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const = 0;
 
+        //- Return the smallest accepted value for m0
+        virtual scalar smallZeta() const = 0;
+
     // Member Operators
 
         //- Disallow default bitwise assignment

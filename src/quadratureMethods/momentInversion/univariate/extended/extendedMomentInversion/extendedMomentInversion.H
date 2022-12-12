@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -87,9 +87,6 @@ class extendedMomentInversion
 
         //- Univariate moment inversion method
         autoPtr<univariateMomentInversion> momentInverter_;
-
-         // Private data
-        scalar smallM0_;
 
 
     // Private member functions
@@ -177,6 +174,12 @@ protected:
 
         //- Bool to track if sigma = 0 is root
         bool nullSigma_;
+
+        // Smallest accepted value for m0
+        scalar smallM0_;
+
+        // Smallest accepted value for zeta_k
+        scalar smallZeta_;
 
     //- Protected member functions
 
@@ -345,6 +348,9 @@ public:
 
         //- Return the smallest accepted value for m0
         scalar smallM0() const;
+
+        //- Return the smallest accepted value for zeta_k
+        scalar smallZeta() const;
 
     // Member Operators
 

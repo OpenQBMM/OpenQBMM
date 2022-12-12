@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2015-2019 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2015-2022 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -64,6 +64,7 @@ coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
 :
     coalescenceFrequencyKernel(dict, mesh, continuousPhase),
     fluid_(mesh.lookupObject<twoPhaseSystem>("phaseProperties")),
+    C1_(dict.lookupOrDefault<scalar>("C1", 0.089)),
     epsilonf_
     (
         IOobject
@@ -75,9 +76,14 @@ coalescenceFrequencyKernels::PrinceAndBlanch::PrinceAndBlanch
         fluid_.mesh(),
         dimensionedScalar("zero", sqr(dimVelocity)/dimTime, 0.0)
     ),
+    liquidShearStressMagnitude_
+    (
+        "liquidShearStressMagnitude",
+        sqrt(2.0)*mag(symm(fvc::grad(fluid_.phase2().U())))
+    ),
     turbulent_(dict.lookupOrDefault("turbulentCoalescence", false)),
     buoyant_(dict.lookupOrDefault("buoyantCoalescence", true)),
-    LS_(dict.lookupOrDefault("laminarShearCoalescence", false))
+    laminarShear_(dict.lookupOrDefault("laminarShearCoalescence", false))
 {}
 
 
@@ -100,6 +106,9 @@ coalescenceFrequencyKernels::PrinceAndBlanch::update
 {
     epsilonf_ = turb.epsilon();
     epsilonf_.max(SMALL);
+
+    liquidShearStressMagnitude_ 
+        = sqrt(2.0)*mag(symm(fvc::grad(fluid_.phase2().U())));
 }
 
 
@@ -122,10 +131,11 @@ coalescenceFrequencyKernels::PrinceAndBlanch::omega
     if (turbulent_)
     {
         freqSrc +=
-            0.089*constant::mathematical::pi*sqr(d1 + d2)
+           4.0*C1_*constant::mathematical::pi*sqr(d1 + d2)
            *sqrt(pow(d1, 2.0/3.0) + pow(d2, 2.0/3.0))
            *cbrt(epsilonf_[celli]);
     }
+
     if (buoyant_)
     {
         freqSrc +=
@@ -135,17 +145,12 @@ coalescenceFrequencyKernels::PrinceAndBlanch::omega
              - sqrt(2.14*sigma/(d2*rho) + 0.5*g*d2)
             );
     }
-    if (LS_)
+
+    if (laminarShear_)
     {
-        NotImplemented;
-//         freqSrc +=
-//             1.0/6.0*pow3(d1 + d2)
-//            *mag
-//             (
-//                 fluid_.phase1().Us(nodei)[celli]
-//               - fluid_.phase1().Us(nodej)[celli]
-//             );
+        freqSrc += pow3(d1 + d2)*liquidShearStressMagnitude_[celli]/6.0;
     }
+
     return freqSrc;
 }
 

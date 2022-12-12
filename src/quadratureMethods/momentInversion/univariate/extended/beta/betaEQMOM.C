@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2020 Alberto Passalacqua
+    Copyright (C) 2019-2022 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -303,7 +303,7 @@ Foam::scalar Foam::betaEQMOM::m2N
 
     if (mStar.nRealizableMoments() >= nMomentsStar - 1)
     {
-        univariateMomentSet m(nMomentsStar, "01");
+        univariateMomentSet m(nMomentsStar, "01", smallM0_, smallZeta_);
         momentsStarToMoments(sigma, m, mStar);
 
         return m.last();

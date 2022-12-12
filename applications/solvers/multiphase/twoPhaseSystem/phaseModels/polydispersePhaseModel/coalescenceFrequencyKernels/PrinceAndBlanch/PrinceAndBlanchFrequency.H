@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017-2022 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -31,7 +31,7 @@ Description
 
     \f[
         \omega_{turb} =
-            0.089 \pi (d_i + d_j)^2
+            0.089 \cdot 4 \cdot \pi (d_i + d_j)^2
             \sqrt{d_i^{\frac{2}{3}} + d_j^{\frac{2}{3}} }
             epsilon_f^{frac{1}{3}}
 
@@ -102,8 +102,14 @@ class PrinceAndBlanch
         //- Refrence to two phase system
         const twoPhaseSystem& fluid_;
 
+        //- Coefficient of the coalescence frequency (default is 0.089)
+        scalar C1_;
+
         //- Turbulent dissipation
         volScalarField epsilonf_;
+
+        //- Magnitude of the shear stress of the continuous phase
+        volScalarField liquidShearStressMagnitude_;
 
         //- Switch for turbulence driven coalescence
         Switch turbulent_;
@@ -112,7 +118,7 @@ class PrinceAndBlanch
         Switch buoyant_;
 
         //- Switch for laminar shear driven coalescence
-        Switch LS_;
+        Switch laminarShear_;
 
 
 public:
@@ -153,7 +159,6 @@ public:
             const vector& Ur,
             const label celli
         ) const;
-
 };
 
 

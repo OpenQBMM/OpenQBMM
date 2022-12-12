@@ -77,6 +77,9 @@ class TensorProduct
         //- Minimum value of m0 to be considered
         scalar smallM0_;
 
+        //- Minimum accepted value for zeta_k
+        scalar smallZeta_;
+
 
     // Private member functions
 
@@ -120,6 +123,9 @@ public:
 
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const;
+
+        //- Return the smallest accepted value for zeta_k
+        virtual scalar smallZeta() const;
 };
 
 
