@@ -96,9 +96,11 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         forAll(moments[0], celli)
         {
             updateCellMomentSource(celli);
+
             forAll(moments, mi)
             {
                 const labelList& order = momentOrders[mi];
+
                 moments[mi][celli] +=
                     globalDt
                    *cellMomentSource
@@ -125,6 +127,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
     }
 
     Info << "Solving source terms in realizable ODE solver." << endl;
+
     forAll(moments[0], celli)
     {
         // Storing old moments to recover from failed step
@@ -132,6 +135,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         quadrature.updateLocalMoments(celli);
 
         scalarList oldMoments(nMoments, Zero);
+
         forAll(oldMoments, mi)
         {
             oldMoments[mi] = moments[mi][celli];
@@ -167,7 +171,9 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                 // First intermediate update
                 bool nullSource =  true;
+
                 updateCellMomentSource(celli);
+
                 forAll(k1, mi)
                 {
                     const labelList& order = momentOrders[mi];
@@ -192,12 +198,12 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 realizableUpdate1 =
                         quadrature.updateLocalQuadrature(celli, false);
 
-               quadrature.updateLocalMoments(celli);
+                quadrature.updateLocalMoments(celli);
 
-               if (nullSource)
-               {
-                   break;
-               }
+                if (nullSource)
+                {
+                    break;
+                }
 
                 // Second moment update
                 updateCellMomentSource(celli);
@@ -295,10 +301,13 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
              || !realizableUpdate3
             );
 
+            // Initialize error and change
             scalar error(0);
+            scalar maxChange(0);
 
             for (label mi = 0; mi < nMoments; mi++)
             {
+                // Calculate the scaling factor
                 scalar scalei =
                     ATol_
                   + max
@@ -306,15 +315,36 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                         mag(moments[mi][celli]), mag(oldMoments[mi])
                     )*RTol_;
 
+                // Update the error
                 error += sqr(diff23[mi]/scalei);
+
+                // Update the maximum change in moments
+                maxChange 
+                    = max(maxChange, mag(moments[mi][celli] - oldMoments[mi]));
             }
 
             error = sqrt(error/nMoments);
 
-            if (error < SMALL)
+            if (error < SMALL || maxChange < SMALL)
             {
                 timeComplete = true;
                 localT = Zero;
+
+                // Exiting if the change is small but the error is not to
+                // avoid a possible infinite loop, but informing the user.
+                if (error > SMALL)
+                {
+                    WarningInFunction 
+                        << "The maximum change in moments is small, "
+                        << "but error is not.\n"
+                        << nl
+                        << "Error: " << error << nl
+                        << "Max. change: " << maxChange << nl
+                        << nl
+                        << "\nThis may indicate a problem with the "
+                        << "realizable ODE solver." << endl;
+                }
+
                 break;
             }
             else if (error < 1)

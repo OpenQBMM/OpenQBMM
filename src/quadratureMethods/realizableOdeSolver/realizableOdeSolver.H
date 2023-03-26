@@ -27,8 +27,20 @@ Class
     Foam::realizableOdeSolver
 
 Description
-    Solve a univariate PDF transport equation with the extended quadrature
-    method of moments.
+    Integrates a moment vector in a computational cell using a realizable ODE
+    solver.
+
+    The procedure is adapted from the Nguyen et al. (2016) to fit into the 
+    OpenFOAM structure. Specifically, the time step is calculated to ensure
+    realizability and fit within the global time step of the calling solver.
+
+    Reference:
+    \verbatim
+        "Solution of population balance equations in applications with 
+        fine particles: Mathematical modeling and numerical schemes"
+        Nguyen, T.T., Laurent, F., Fox, R.O., Massot, M.
+        Issue 325, 2016, pp. 129-156.
+    \endverbatim
 
 SourceFiles
     realizableOdeSolver.C
@@ -85,14 +97,15 @@ class realizableOdeSolver
         //- Number of times localDt has been adjusted
         label localDtAdjustments_;
 
+
 protected:
 
     // Protected data
 
-        //- Are the moments updated due to sources
+        //- Switch to activate moment update due to source terms
         Switch solveSources_;
 
-        //- Is the realizable ode solver used
+        //- Switch to activate the realizable ODE solver
         Switch solveOde_;
 
     // Protected member functions
