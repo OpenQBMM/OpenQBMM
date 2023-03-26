@@ -8,7 +8,7 @@
     Code created 2012-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019 Alberto Passalacqua
+    Copyright (C) 2019-2023 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-03-09 Alberto Passalacqua: Templated class on the type of field used to
                                 store the moment and on the type of quadrature

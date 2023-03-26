@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2018 OpenFOAM Foundation
+    Copyright (C) 2019-2023 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-03-09 Alberto Passalacqua: Implemented 1D moment initial condition to
                                 test moment advection schemes.

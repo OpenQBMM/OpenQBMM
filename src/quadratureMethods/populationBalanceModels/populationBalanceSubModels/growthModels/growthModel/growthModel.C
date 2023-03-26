@@ -8,7 +8,7 @@
     Code created 2015 by Matteo Icardi
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2020-2022 Alberto Passalacqua
+    Copyright (C) 2020-2023 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
