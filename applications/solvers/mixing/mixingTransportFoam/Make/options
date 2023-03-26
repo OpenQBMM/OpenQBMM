@@ -26,7 +26,7 @@ EXE_INC = \
     -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
-    -I$(QBMM_SRC)/quadratureMethods/univariateMomentSet/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentSets/lnInclude \
     -I$(QBMM_SRC)/quadratureMethods/momentInversion/lnInclude \
     -I$(QBMM_SRC)/quadratureMethods/quadratureNode/lnInclude \
     -I$(QBMM_SRC)/quadratureMethods/moments \
