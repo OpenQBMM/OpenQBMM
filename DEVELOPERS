@@ -10,7 +10,7 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2021 OpenQBMM developers.
+  Copyright (C) 2014-2023 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 
@@ -46,8 +46,8 @@
 
  Name                   Degree  Period          Contribution
 
- Aziz Ilgun*            M.S.    2017 - 2018     Multivariate population balance
-                                                (TBC)
+ Aziz Ilgun*            M.S.    2017 - 2018     Turbulent mixing with population
+                                                balance
 
  David Williams*        M.Eng.  2014 - 2016     Population balance kernels
 

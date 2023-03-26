@@ -10,7 +10,7 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2021 OpenQBMM developers.
+  Copyright (C) 2014-2023 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 
@@ -23,6 +23,7 @@
   - Formulation of second-order realizable schemes for moment advection
   - Algorithm to check the realizability of a set of moments
   - Improved solution algorithm to find the sigma parameter in EQMOM
+  - Parts of GQMOM
 
  James Guthrie, University of Strathclyde
   - Ensured compatibility with OpenFOAM 3.0.x and testing
