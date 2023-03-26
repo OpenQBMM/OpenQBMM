@@ -83,7 +83,7 @@ Foam::univariateMomentSet::univariateMomentSet
             label((nMoments - 2)/2) + 1 + nAdditionalQuadraturePoints;
 
     alpha_.setSize(recurrenceSize, 0);
-    beta_.setSize(recurrenceSize, 0);
+    beta_.setSize(recurrenceSize + 1, 0);
 
     if (support_ == "01")
     {
