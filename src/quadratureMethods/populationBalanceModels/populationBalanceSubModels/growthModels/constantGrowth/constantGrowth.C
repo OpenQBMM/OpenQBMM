@@ -86,13 +86,9 @@ Foam::populationBalanceSubModels::growthModels::constantGrowth::Kg
     const label environment
 ) const
 {
-    /*Info << "Min abscissa: " << minAbscissa_ << endl;
-    Info << "Max abscissa: " << maxAbscissa_ << endl;
-    Info << "Abscissa: " << abscissa << endl;
-    Info << "Source: " << Cg_.value()*pos(abscissa - minAbscissa_)*neg(abscissa - maxAbscissa_);*/
-
-    return Cg_.value()*pos(abscissa - minAbscissa_)
-        *neg(abscissa - maxAbscissa_);
+    return Cg_.value()
+          *pos0(abscissa - minAbscissa_)
+          *neg0(abscissa - maxAbscissa_);
 }
 
 // ************************************************************************* //
