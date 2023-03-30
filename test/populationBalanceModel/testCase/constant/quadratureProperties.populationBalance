@@ -19,7 +19,7 @@ fieldMomentInversion extendedFieldMomentInversion;
 
 extendedMomentInversion
 {
-    extendedMomentInversion     gamma;
+    extendedMomentInversion     lognormal;
 
     basicQuadrature
     {
@@ -33,7 +33,7 @@ momentAdvection
 
     basicMomentInversion
     {
-        univariateMomentInversion GaussRadau;
+        univariateMomentInversion Gauss;
     }
 }
 
