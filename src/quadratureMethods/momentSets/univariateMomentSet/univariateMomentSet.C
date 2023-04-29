@@ -773,6 +773,7 @@ Foam::labelListList Foam::univariateMomentSet::makeUnivariateMomentOrders
     return mOrd;
 }
 
+
 void Foam::univariateMomentSet::update
 (
     const scalarList& weights,
@@ -794,6 +795,7 @@ void Foam::univariateMomentSet::update
     realizabilityChecked_ = false;
 }
 
+
 void Foam::univariateMomentSet::setSize(const label newSize)
 {
     label oldSize = (*this).size();
@@ -805,6 +807,7 @@ void Foam::univariateMomentSet::setSize(const label newSize)
         makeUnivariateMomentOrders(newSize);
     }
 }
+
 
 void Foam::univariateMomentSet::resize(const label newSize)
 {

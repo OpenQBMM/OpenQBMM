@@ -111,7 +111,10 @@ class univariateMomentSet : public momentSet
         //  number of additional quadrature nodes.
         label nAlphaRecurrence(const label& nAdditionalQuadratureNodes);
 
+        //- Returns the number of elements of the beta vector of the recurrence
+        //  relation. 
         label nBetaRecurrence(const label& nAdditionalQuadratureNodes);
+
 
 protected:
 
