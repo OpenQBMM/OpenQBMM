@@ -80,9 +80,9 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
     map_(size),
     nDimensions_(0)
 {
-    forAll(indexes, i)
+    forAll(indexes, indexi)
     {
-        nDimensions_ = max(nDimensions_, indexes[i].size());
+        nDimensions_ = max(nDimensions_, indexes[indexi].size());
     }
 
     forAll(*this, elemi)
@@ -132,9 +132,9 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
     map_(initList.size()),
     nDimensions_(0)
 {
-    forAll(indexes, i)
+    forAll(indexes, indexi)
     {
-        nDimensions_ = max(nDimensions_, indexes[i].size());
+        nDimensions_ = max(nDimensions_, indexes[indexi].size());
     }
 
     forAll(*this, elemi)
@@ -252,7 +252,10 @@ template <class mappedType>
 template <typename ...ArgsT>
 bool Foam::mappedPtrList<mappedType>::found(ArgsT...args) const
 {
-    if (label(std::initializer_list<Foam::label>({args...}).size()) > nDimensions_)
+    if 
+    (
+        label(std::initializer_list<Foam::label>({args...}).size()) > nDimensions_
+    )
     {
         return false;
     }
