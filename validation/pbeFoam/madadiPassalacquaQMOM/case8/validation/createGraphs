@@ -58,7 +58,7 @@ createEpsD43()
             with lines linetype -1 linewidth 2 linecolor rgb 'black', \
         '< paste $openqbmmM4 $openqbmmM3' using 1:(\$2/\$4) every 1 \
             title "QMOM (OpenQBMM)" with points linetype -1 pointtype 6 \
-            linewidth 2 linecolor rgb "red"
+            linewidth 2 linecolor rgb "#9db668"
 
 
 EOF

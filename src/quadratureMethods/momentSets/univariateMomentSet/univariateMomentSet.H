@@ -105,6 +105,13 @@ class univariateMomentSet : public momentSet
             const label nZeta
         );
 
+        //- Returns the number of elements of the alpha vector of the recurrence
+        //  relation. This is equivalent to the maximum number of quadrature 
+        //  nodes obtained assuming all moments are inverible and adding the
+        //  number of additional quadrature nodes.
+        label nAlphaRecurrence(const label& nAdditionalQuadratureNodes);
+
+        label nBetaRecurrence(const label& nAdditionalQuadratureNodes);
 
 protected:
 

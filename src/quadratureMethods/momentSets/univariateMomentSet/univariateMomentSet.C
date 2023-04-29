@@ -79,11 +79,11 @@ Foam::univariateMomentSet::univariateMomentSet
             << abort(FatalError);
     }
    
-    label recurrenceSize =
-            label((nMoments - 2)/2) + 1 + nAdditionalQuadraturePoints;
+    label nAlpha = nAlphaRecurrence(nAdditionalQuadraturePoints);
+    label nBeta = nBetaRecurrence(nAdditionalQuadraturePoints);;
 
-    alpha_.setSize(recurrenceSize, 0);
-    beta_.setSize(recurrenceSize + 1, 0);
+    alpha_.setSize(nAlpha, 0);
+    beta_.setSize(nBeta, 0);
 
     if (support_ == "01")
     {
@@ -135,11 +135,11 @@ Foam::univariateMomentSet::univariateMomentSet
             << abort(FatalError);
     }
 
-    label recurrenceSize =
-        label((nMoments_ - 2)/2) + 1 + nAdditionalQuadraturePoints;
+    label nAlpha = nAlphaRecurrence(nAdditionalQuadraturePoints);
+    label nBeta = nBetaRecurrence(nAdditionalQuadraturePoints);
 
-    alpha_.setSize(recurrenceSize, 0);
-    beta_.setSize(recurrenceSize + 1, 0);
+    alpha_.setSize(nAlpha, 0);
+    beta_.setSize(nBeta, 0);
 
     if (support_ == "01")
     {
@@ -154,6 +154,24 @@ Foam::univariateMomentSet::~univariateMomentSet()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+Foam::label Foam::univariateMomentSet::nAlphaRecurrence
+(
+    const label& nAdditionalQuadraturePoints
+)
+{
+    return label((nMoments_ - 2)/2) + 1 + nAdditionalQuadraturePoints;
+}
+
+
+Foam::label Foam::univariateMomentSet::nBetaRecurrence
+(
+    const label& nAdditionalQuadraturePoints
+)
+{
+    return label(nMoments_/2) + 1 + nAdditionalQuadraturePoints;
+}
+
 
 void Foam::univariateMomentSet::checkCanonicalMoments
 (
@@ -219,6 +237,8 @@ void Foam::univariateMomentSet::checkRealizability
     {
         if (fatalErrorOnFailedRealizabilityTest)
         {
+            // If the user requested to throw an error when the realizability
+            // test fails, we do so.
             FatalErrorInFunction
                 << "The zero-order moment is negative." << nl
                 << "    Moment set: " << (*this)
@@ -226,6 +246,12 @@ void Foam::univariateMomentSet::checkRealizability
         }
         else
         {
+            // If the zero-order moment is negative, the moment set is not 
+            // realizable. If the user has requested to not throw an error,
+            // we mark the moment set as not realizable, set the number of 
+            // realizable moments to zero and return. This is necessary when
+            // using some adaptive methods which explicitly test for
+            // realizability to make decisions.
             realizabilityChecked_ = true;
             negativeZeta_ = 0;
             nRealizableMoments_ = 0;
@@ -237,6 +263,8 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 
+    // Set flags and return if the zero-order moment is too small but an
+    // error should not be thrown. Do nothing otherwise.
     if ((*this)[0] < smallM0_ && !fatalErrorOnFailedRealizabilityTest)
     {
         realizabilityChecked_ = true;
@@ -249,7 +277,8 @@ void Foam::univariateMomentSet::checkRealizability
         return;
     }
 
-    // Check for the degenerate case where only m0 is defined
+    // Check for the degenerate case where only m0 is defined and throw an error
+    // if this is the case.
     if (nMoments_ <= 1)
     {
         FatalErrorInFunction
@@ -258,18 +287,15 @@ void Foam::univariateMomentSet::checkRealizability
             << abort(FatalError);
     }
 
-    label nN = nMoments_ - 1;
-    label nD = label(nN/2);
-    label nR = nN - 2*nD;
-
-    // Vector of zeta values used to check moment realizability
-    //scalarList zeta(nN);
+    // Reset vector of zeta values to check realizability
     zeta_ = 0.0;
 
-    // Check for the case with only two moments, if support is R+ or [0,1]
-    // In the case of support over R, only check if beta < 0
+    // Check for the case with only two moments
     if (nMoments_ == 2)
     {
+        // In the case of support over R, m0 must be positive and m1 needs to
+        // be a real number. The first condition is satisfied, so only flags
+        // need to be set before returning.
         if (support_ == "R")
         {
             realizabilityChecked_ = true;
@@ -282,6 +308,9 @@ void Foam::univariateMomentSet::checkRealizability
             return;
         }
 
+        // Managing other supports (R+ and [0, 1])
+
+        // Calculate zeta_1 (we do not store zeta_0 because it is always 1)
         zeta_[0] = (*this)[1]/(*this)[0];
 
         if (zeta_[0] <= smallZeta_)
@@ -318,7 +347,7 @@ void Foam::univariateMomentSet::checkRealizability
             }
         }
 
-        if (support_ == "RPlus")
+        if (support_ == "RPlus") // Support on R+ - Check if zetas are positive.
         {
             realizabilityChecked_ = true;
             negativeZeta_ = 0;
@@ -329,7 +358,7 @@ void Foam::univariateMomentSet::checkRealizability
 
             return;
         }
-        else // Support on [0, 1] - Check if canonical moments belong to [0,1]
+        else // Support on [0, 1] - Check if canonical moments belong to [0,1].
         {
             if (zeta_[0] <= 1.0)
             {
@@ -385,16 +414,30 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 
+    // Check for the case with more than two moments
+
+    // Store the number of zeta elements.
+    // This is the number of moments minus one, but it was already calculated
+    // in the constructor, when zeta_ was initialized. It is copied to ensure
+    // consistency.
+    label nN = zeta_.size();
+
+    // Calculate the integer part of nN/2.
+    label nD = label(nN/2);
+
+    // Calculate the remainder of the division nN/2.
+    label nR = nN - 2*nD;
+
     // Matrix used to build the recurrence relation
     scalarRectangularMatrix zRecurrence(nD + 1, nMoments_, Zero);
 
     for (label columnI = 0; columnI < nMoments_; columnI++)
     {
-        zRecurrence[0][columnI] = (*this)[columnI];
+        zRecurrence[0][columnI] = (*this)[columnI]/(*this)[0];
     }
 
     alpha_[0] = (*this)[1]/(*this)[0];
-    beta_[0] = (*this)[0];
+    beta_[0] = 1.0;
 
     for (label columnI = 1; columnI < nMoments_ - 1; columnI++)
     {
@@ -440,7 +483,7 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 
-    for (label zetai = 1; zetai <= nD - 1; zetai++)
+    for (label zetai = 1; zetai < nD; zetai++)
     {
         beta_[zetai] = zRecurrence[zetai][zetai]
                 /zRecurrence[zetai - 1][zetai - 1];
@@ -713,6 +756,7 @@ void Foam::univariateMomentSet::checkRealizability
         }
     }
 }
+
 
 Foam::labelListList Foam::univariateMomentSet::makeUnivariateMomentOrders
 (
