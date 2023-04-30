@@ -38,7 +38,7 @@ divSchemes
     "div\(alphaRhoPhi.*,U.*\)"      Gauss upwind;
     "div\(phi.*,U.*\)"              Gauss upwind;
 
-    "div\(\(\(\(alpha.*\*thermo:rho.*\)\*nuEff.*\)\*dev2\(T\(grad\(U.*\)\)\)\)\)" Gauss linear;
+    "div\(\(\(\(alpha.*\*rho.*\)\*nuEff.*\)\*dev2\(T\(grad\(U.*\)\)\)\)\)" Gauss linear;
 
     div((((alpha.air*rho.air)*nu.air)*dev2(T(grad(U.air))))) Gauss linear;
 }

@@ -50,4 +50,4 @@ phaseCompressibleTurbulenceModels.C
 phasePressureModel/phasePressureModel.C
 kineticTheory/kineticTheory.C
 
-LIB = $(FOAM_MODULE_LIBBIN)/libpdTurbulenceModels
+LIB = $(FOAM_USER_LIBBIN)/libpdTurbulenceModels

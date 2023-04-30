@@ -4,8 +4,8 @@ sinclude $(GENERAL_RULES)/module-path-user
 ifeq (,$(strip $(FOAM_MODULE_APPBIN)))
     FOAM_MODULE_APPBIN = $(FOAM_USER_APPBIN)
 endif
-ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
-    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
+ifeq (,$(strip $(FOAM_USER_LIBBIN)))
+    FOAM_USER_LIBBIN = $(FOAM_USER_LIBBIN)
 endif
 
 QBMM_SRC := ../../../../src
@@ -51,7 +51,7 @@ LIB_LIBS = \
     -lcompressibleTransportModels \
     -lfluidThermophysicalModels \
     -lspecie \
-    -L$(FOAM_MODULE_LIBBIN) \
+    -L$(FOAM_USER_LIBBIN) \
     -lquadratureNode \
     -lmomentSets \
     -lfieldMomentInversion \

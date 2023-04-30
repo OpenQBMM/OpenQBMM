@@ -41,7 +41,6 @@ SourceFiles
 #ifndef velocityMomentAdvection_H
 #define velocityMomentAdvection_H
 
-#include "fvCFD.H"
 #include "IOdictionary.H"
 #include "fvMesh.H"
 #include "volFields.H"

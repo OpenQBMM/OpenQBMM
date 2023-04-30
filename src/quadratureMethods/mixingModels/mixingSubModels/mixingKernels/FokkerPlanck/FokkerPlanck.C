@@ -30,7 +30,7 @@ License
 
 #include "FokkerPlanck.H"
 #include "addToRunTimeSelectionTable.H"
-#include "turbulentFluidThermoModel.H"
+#include "fluidThermophysicalTransportModel.H"
 #include "fundamentalConstants.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //

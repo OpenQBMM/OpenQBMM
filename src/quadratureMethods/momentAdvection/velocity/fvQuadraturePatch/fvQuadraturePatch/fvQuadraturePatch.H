@@ -38,7 +38,6 @@ SourceFiles
 #ifndef fvQuadraturePatch_H
 #define fvQuadraturePatch_H
 
-#include "fvCFD.H"
 #include "IOdictionary.H"
 #include "fvMesh.H"
 #include "volFields.H"

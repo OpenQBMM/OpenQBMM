@@ -8,4 +8,4 @@ alphaAndDiameterVelocity/alphaAndDiameterVelocity.C
 velocity/velocity.C
 gaussianMoments/gaussianMoments.C
 
-LIB = $(FOAM_MODULE_LIBBIN)/libmomentGenerationModels
+LIB = $(FOAM_USER_LIBBIN)/libmomentGenerationModels

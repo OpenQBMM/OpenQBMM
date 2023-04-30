@@ -30,7 +30,7 @@ License
 
 #include "IEM.H"
 #include "addToRunTimeSelectionTable.H"
-#include "turbulentFluidThermoModel.H"
+#include "momentumTransportModel.H"
 #include "fundamentalConstants.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //

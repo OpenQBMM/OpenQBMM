@@ -58,6 +58,7 @@ SourceFiles
 
 #include "diffusionModel.H"
 #include "fvm.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam

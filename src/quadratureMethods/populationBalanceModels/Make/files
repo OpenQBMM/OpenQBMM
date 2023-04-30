@@ -78,4 +78,4 @@ mixingPopulationBalance/mixingPopulationBalance.C
 velocityPopulationBalance/velocityPopulationBalance.C
 sizeVelocityPopulationBalance/sizeVelocityPopulationBalance.C
 
-LIB = $(FOAM_MODULE_LIBBIN)/libpopulationBalance
+LIB = $(FOAM_USER_LIBBIN)/libpopulationBalance

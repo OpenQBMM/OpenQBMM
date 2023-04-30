@@ -64,7 +64,7 @@ SourceFiles
 #define Brownian_H
 
 #include "aggregationKernel.H"
-#include "turbulenceModel.H"
+#include "momentumTransportModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

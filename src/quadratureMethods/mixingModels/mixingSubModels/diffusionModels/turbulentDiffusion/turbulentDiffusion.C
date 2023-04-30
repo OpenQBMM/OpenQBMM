@@ -31,8 +31,10 @@ License
 #include "turbulentDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
-#include "turbulentTransportModel.H"
-#include "turbulentFluidThermoModel.H"
+#include "momentumTransportModel.H"
+#include "incompressibleMomentumTransportModels.H"
+#include "compressibleMomentumTransportModels.H"
+#include "fluidThermophysicalTransportModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -94,39 +96,45 @@ Foam::tmp<Foam::volScalarField>
 Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion::
 turbViscosity(const volScalarField& moment) const
 {
-    typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
+    typedef compressible::momentumTransportModel compressibleMomentumTransportModel;
+    typedef incompressible::momentumTransportModel incompressibleMomentumTransportModel;
 
     if 
     (
-        moment.mesh().foundObject<cmpTurbModel>(cmpTurbModel::propertiesName)
+        moment.mesh().foundObject<compressibleMomentumTransportModel>
+        (
+            compressibleMomentumTransportModel::typeName
+        )
     )
     {
-        const cmpTurbModel& turb =
-            moment.mesh().lookupObject<cmpTurbModel>
+        const compressibleMomentumTransportModel& momentumTransport =
+            moment.mesh().lookupObject<compressibleMomentumTransportModel>
             (
-                cmpTurbModel::propertiesName
+                compressibleMomentumTransportModel::typeName
             );
 
-        return turb.mut()/turb.rho();
+        return momentumTransport.nut(); //momentumTransport.mut()/momentumTransport.rho();
     }
     else if
     (
-        moment.mesh().foundObject<icoTurbModel>(icoTurbModel::propertiesName)
+        moment.mesh().foundObject<incompressibleMomentumTransportModel>
+        (
+            incompressibleMomentumTransportModel::typeName
+        )
     )
     {
-        const incompressible::turbulenceModel& turb =
-            moment.mesh().lookupObject<icoTurbModel>
+        const incompressibleMomentumTransportModel& momentumTransport =
+            moment.mesh().lookupObject<incompressibleMomentumTransportModel>
             (
-                icoTurbModel::propertiesName
+                incompressibleMomentumTransportModel::typeName
             );
 
-        return turb.nut();
+        return momentumTransport.nut();
     }
     else
     {
         FatalErrorInFunction
-            << "No valid turbulence model found."
+            << "No valid momentum transport model found."
             << exit(FatalError);
 
         return volScalarField::null();

@@ -80,7 +80,7 @@ Foam::tmp<Foam::vectorField> Foam::reflectiveRotatingWallFvQuadraturePatch
 ) const
 {
     const fvMesh& mesh = quadrature_.nodes()[0].primaryWeight().mesh();
-    const scalar t = mesh.time().timeOutputValue();
+    const scalar t = mesh.time().userTimeValue();
     scalar om = omega_->value(t);
 
     // Calculate the rotating wall velocity from the specification of the motion

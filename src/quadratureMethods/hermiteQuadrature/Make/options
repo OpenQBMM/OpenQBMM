@@ -1,10 +1,6 @@
-sinclude $(GENERAL_RULES)/module-path-user
+EXE_INC = \
+    -I../../eigenSolver/lnInclude
 
-/* Failsafe - user location */
-ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
-    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
-endif
-
-EXE_INC =
-
-LIB_LIBS =
+LIB_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -leigenSolver

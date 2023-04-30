@@ -113,7 +113,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 else if (abscissaeDimensions[dimi] == dimMass)
                 {
                     massBased_ = true;
-                    word rhoName = IOobject::groupName("thermo:rho", name_);
+                    word rhoName = IOobject::groupName("rho", name_);
 
                     if (mesh.foundObject<volScalarField>(rhoName))
                     {
@@ -346,7 +346,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                     word rhoName = 
                         IOobject::groupName
                         (
-                            "thermo:rho", 
+                            "rho", 
                             IOobject::group(name_)
                         );
 
@@ -510,7 +510,7 @@ Foam::autoPtr<Foam::quadratureNode<scalarType, vectorType>>
 Foam::quadratureNode<scalarType, vectorType>::clone() const
 {
     notImplemented("quadratureNode::clone() const");
-    return nullptr;
+    return autoPtr<quadratureNode<scalarType, vectorType>>(nullptr);
 }
 
 

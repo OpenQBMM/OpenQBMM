@@ -31,7 +31,7 @@ License
 #include "hermiteQuadrature.H"
 #include "scalar.H"
 #include "scalarMatrices.H"
-#include "EigenMatrix.H"
+#include "eigenSolver.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -76,15 +76,15 @@ Foam::hermiteQuadrature::hermiteQuadrature
 
     z[nOrder_-1][nOrder_-1] = ab[nOrder_-1][0];
 
-    EigenMatrix<scalar> zEig(z);
+    eigenSolver zEig(z);
 
     scalarList herWei_(nOrder_, Zero);
     scalarList herAbs_(nOrder_, Zero);
 
     forAll(herWei_,i)
     {
-        herWei_[i] = sqr(zEig.EVecs()[0][i]);
-        herAbs_[i] = zEig.EValsRe()[i];
+        herWei_[i] = sqr(zEig.eigenvectors()[0][i]);
+        herAbs_[i] = zEig.eigenvaluesRe()[i];
     }
 
     scalar wtotal = sum(herWei_) ;
@@ -162,9 +162,9 @@ void Foam::hermiteQuadrature::calcHermiteQuadrature
             z[2][1] = Pp.yz();
             z[2][2] = Pp.zz();
 
-            EigenMatrix<scalar> zEig(z);
-            const scalarDiagonalMatrix& e(zEig.EValsRe());
-            const scalarSquareMatrix& ev(zEig.EVecs());
+            eigenSolver zEig(z);
+            const scalarDiagonalMatrix& e(zEig.eigenvaluesRe());
+            const scalarSquareMatrix& ev(zEig.eigenvectors());
 
             scalarSquareMatrix E(3, Zero);
 
@@ -195,9 +195,9 @@ void Foam::hermiteQuadrature::calcHermiteQuadrature
                 z[1][0] = Pp.xy();
                 z[1][1] = Pp.yy();
 
-                EigenMatrix<scalar> zEig(z);
-                const scalarDiagonalMatrix& e(zEig.EValsRe());
-                const scalarSquareMatrix& ev(zEig.EVecs());
+                eigenSolver zEig(z);
+                const scalarDiagonalMatrix& e(zEig.eigenvaluesRe());
+                const scalarSquareMatrix& ev(zEig.eigenvectors());
 
                 scalarSquareMatrix E(2,Zero);
 

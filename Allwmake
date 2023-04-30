@@ -1,57 +1,12 @@
 #!/bin/sh
-cd "${0%/*}" || exit                            # Run from this directory
-targetType=libso
-. "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
+cd ${0%/*} || exit 1    # Run from this directory
 
-#------------------------------------------------------------------------------
-# Build into FOAM_USER_{APPBIN,LIBBIN} unless otherwise specified with
-# -prefix or FOAM_MODULE_{APPBIN,LIBBIN} env varables
+# Parse arguments for library compilation
+. $WM_PROJECT_DIR/wmake/scripts/AllwmakeParseArguments
 
-moduleName="OpenQBMM"
+(cd src && ./Allwmake)
+wmake -all applications
+(cd test && ./Allwmake)
+curl -A "OpenQBMM-dev" http://bit.ly/openqbmm-dev >/dev/null 2>&1
 
-if [ "$FOAM_MODULE_PREFIX" = false ]
-then
-    echo "Compilation of $moduleName is disabled (prefix=false)"
-    exit 0
-fi
-
-echo "========================================"
-date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
-echo "Starting compile of $moduleName with ${WM_PROJECT_DIR##*/}"
-echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
-echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
-echo "  prefix = ${FOAM_MODULE_PREFIX:-default (user)}"
-echo
-
-
-echo "========================================"
-echo "Compile $moduleName libraries"
-echo
-src/Allwmake $targetType $*
-
-echo "========================================"
-echo "Compile $moduleName applications"
-echo
-applications/Allwmake $targetType $*
-
-# Build tests?
-unset buildTests
-#buildTests=true
-
-if [ "$buildTests" = true ] && [ -x "test/Allwmake" ]
-then
-    echo "========================================"
-    echo "Compile $moduleName tests"
-    echo
-    "test/Allwmake" $targetType $*
-fi
-
-# Some summary information
-echo
-date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
-echo "========================================"
-echo "  Finished compile of $moduleName with ${WM_PROJECT_DIR##*/}"
-echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
-echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
-echo
-#------------------------------------------------------------------------------
+# ----------------------------------------------------------------- end-of-file

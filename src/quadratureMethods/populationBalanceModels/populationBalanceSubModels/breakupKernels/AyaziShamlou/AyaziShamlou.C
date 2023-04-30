@@ -67,31 +67,31 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
     df_("df", dimless, dict),
     H0_("H0", dimLength, dict),
     primarySize_("primarySize", dimLength, dict),
-    flTurb_
+    momentumTransport_
     (
-        mesh_.lookupObject<turbulenceModel>
+        mesh_.lookupObject<momentumTransportModel>
         (
             IOobject::groupName
             (
-                turbulenceModel::propertiesName,
+                momentumTransportModel::typeName,
                 continuousPhase_
             )
         )
     ),
-    epsilon_(flTurb_.epsilon()),
+    epsilon_(momentumTransport_.epsilon()),
     mu_
     (
         dict.found("mu")
-      ? mesh.lookupObject<volScalarField>(dict.get<word>("mu"))
+      ? mesh.lookupObject<volScalarField>(dict.lookup<word>("mu"))
       : mesh.lookupObject<volScalarField>
         (
-            IOobject::groupName("thermo:mu", continuousPhase_)
+            IOobject::groupName("mu", continuousPhase_)
         )
     ),
     rho_
     (
         dict.found("rho")
-      ? mesh.lookupObject<volScalarField>(dict.get<word>("rho"))
+      ? mesh.lookupObject<volScalarField>(dict.lookup<word>("rho"))
       : mesh.lookupObject<volScalarField>
         (
             IOobject::groupName("rho", continuousPhase_)

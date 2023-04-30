@@ -31,7 +31,7 @@ License
 #include "noDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
-#include "turbulentFluidThermoModel.H"
+#include "fluidThermophysicalTransportModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

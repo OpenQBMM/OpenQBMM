@@ -1,8 +1,8 @@
 sinclude $(GENERAL_RULES)/module-path-user
 
 /* Failsafe - user location */
-ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
-    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
+ifeq (,$(strip $(FOAM_USER_LIBBIN)))
+    FOAM_USER_LIBBIN = $(FOAM_USER_LIBBIN)
 endif
 
 #if (OPENFOAM >= 2206)
@@ -33,5 +33,5 @@ LIB_LIBS = \
     -lincompressibleTurbulenceModels \
     -lcompressibleTurbulenceModels \
     $(LIB_THERMO_TOOLS) \
-    -L$(FOAM_MODULE_LIBBIN) \
+    -L$(FOAM_USER_LIBBIN) \
     -lpdPhaseSystem

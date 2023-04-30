@@ -1,3 +1,3 @@
 hermiteQuadrature.C
 
-LIB = $(FOAM_MODULE_LIBBIN)/libhermiteQuadrature
+LIB = $(FOAM_USER_LIBBIN)/libhermiteQuadrature

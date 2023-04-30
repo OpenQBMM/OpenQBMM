@@ -33,8 +33,8 @@ divSchemes
     div(phiRhoPhi.fluid,e.fluid)        bounded Gauss limitedLinear 1;
     div(phiRhoPhi.fluid,K)            bounded Gauss limitedLinear 1;
     div(devRhoReff.fluid)             Gauss linear;
-    div((phi.fluid|interpolate(thermo:rho.fluid)),U.fluid) Gauss linear;
-    div((((alpha.fluid*thermo:rho.fluid)*nuEff.fluid)*dev2(T(grad(U.fluid))))) Gauss linear;
+    div((phi.fluid|interpolate(rho.fluid)),U.fluid) Gauss linear;
+    div((((alpha.fluid*rho.fluid)*nuEff.fluid)*dev2(T(grad(U.fluid))))) Gauss linear;
 }
 
 laplacianSchemes

@@ -31,9 +31,6 @@ License
 #include "molecularDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
-#include "turbulentTransportModel.H"
-#include "turbulentFluidThermoModel.H"
-
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam

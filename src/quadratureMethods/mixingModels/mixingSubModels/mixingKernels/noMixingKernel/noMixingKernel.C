@@ -30,7 +30,6 @@ License
 
 #include "noMixingKernel.H"
 #include "addToRunTimeSelectionTable.H"
-#include "turbulentFluidThermoModel.H"
 #include "fundamentalConstants.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //

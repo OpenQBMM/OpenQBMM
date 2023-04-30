@@ -41,7 +41,6 @@ SourceFiles
 #ifndef univariateMomentAdvection_H
 #define univariateMomentAdvection_H
 
-#include "fvCFD.H"
 #include "IOdictionary.H"
 #include "mappedPtrList.H"
 #include "fvMesh.H"

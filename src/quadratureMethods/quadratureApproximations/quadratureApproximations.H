@@ -38,6 +38,7 @@ SourceFiles
 #ifndef univariateQuadratureApproximations_H
 #define univariateQuadratureApproximations_H
 
+#include "fvc.H"
 #include "volFields.H"
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"

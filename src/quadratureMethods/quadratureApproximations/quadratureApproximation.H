@@ -44,8 +44,9 @@ SourceFiles
 #ifndef quadratureApproximation_H
 #define quadratureApproximation_H
 
-#include "fvCFD.H"
+#include "word.H"
 #include "IOdictionary.H"
+#include "labelList.H"
 #include "mappedPtrList.H"
 #include "fvMesh.H"
 #include "volFields.H"

@@ -89,17 +89,17 @@ preUpdate()
         (
             IOobject::groupName
             (
-                basicThermo::dictName,
+                physicalProperties::typeName,
                 continuousPhase_
             )
         );
 
-    const turbulenceModel& turb =
-        mesh_.lookupObject<turbulenceModel>
+    const momentumTransportModel& turb =
+        mesh_.lookupObject<momentumTransportModel>
         (
             IOobject::groupName
             (
-                turbulenceModel::propertiesName,
+                momentumTransportModel::typeName,
                 continuousPhase_
             )
         );

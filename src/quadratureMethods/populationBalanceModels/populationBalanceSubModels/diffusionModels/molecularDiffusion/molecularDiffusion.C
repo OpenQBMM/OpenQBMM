@@ -31,9 +31,6 @@ License
 #include "molecularDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
-#include "turbulentTransportModel.H"
-#include "turbulentFluidThermoModel.H"
-
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
@@ -84,7 +81,6 @@ Foam::populationBalanceSubModels::diffusionModels::molecularDiffusion
     const volScalarField& moment
 ) const
 {
-
     return fvm::laplacian(gammaLam_, moment);
 }
 

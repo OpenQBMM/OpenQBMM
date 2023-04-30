@@ -93,10 +93,10 @@ Foam::populationBalanceSubModels::aggregationKernels::
 coalescenceFrequencyKernels::Luo::update
 (
     const fluidThermo& thermo,
-    const turbulenceModel& turb
+    const momentumTransportModel& momentumTransport
 )
 {
-    epsilonf_ = turb.epsilon();
+    epsilonf_ = momentumTransport.epsilon();
     epsilonf_.max(SMALL);
 }
 

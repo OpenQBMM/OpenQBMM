@@ -28,4 +28,4 @@ phasePair/orderedPhasePair/orderedPhasePair.C
 
 twoPhaseSystem.C
 
-LIB = $(FOAM_MODULE_LIBBIN)/libpdPhaseSystem
+LIB = $(FOAM_USER_LIBBIN)/libpdPhaseSystem

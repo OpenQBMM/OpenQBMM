@@ -48,8 +48,9 @@ SourceFiles
 #define IEM_H
 
 #include "environmentMixingModel.H"
-#include "turbulentFluidThermoModel.H"
-#include "quadratureApproximations.H"
+#include "momentumTransportModel.H"
+#include "compressibleMomentumTransportModels.H"
+#include "fluidThermophysicalTransportModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -71,7 +72,7 @@ class IEM
     // Private data
 
         //- Turbulence model
-        const compressible::turbulenceModel& flTurb_;
+        const compressible::momentumTransportModel& momentumTransport_;
 
         //- Turbulent kinetic energy field
         const volScalarField& k_;

@@ -1,8 +1,8 @@
 sinclude $(GENERAL_RULES)/module-path-user
 
 /* Failsafe - user location */
-ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
-    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
+ifeq (,$(strip $(FOAM_USER_LIBBIN)))
+    FOAM_USER_LIBBIN = $(FOAM_USER_LIBBIN)
 endif
 
 QBMM_SRC := ../../src

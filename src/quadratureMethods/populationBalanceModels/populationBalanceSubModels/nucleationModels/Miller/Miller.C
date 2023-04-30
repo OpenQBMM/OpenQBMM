@@ -82,7 +82,7 @@ Foam::populationBalanceSubModels::nucleationModels::Miller::Miller
     T_
     (
         dict.found("T")
-      ? mesh.lookupObject<volScalarField>(dict.get<word>("T"))
+      ? mesh.lookupObject<volScalarField>(dict.lookup<word>("T"))
       : mesh.lookupObject<volScalarField>
         (
             IOobject::groupName("T", continuousPhase_)

@@ -50,7 +50,7 @@ SourceFiles
 #define AyaziShamlou_H
 
 #include "breakupKernel.H"
-#include "turbulenceModel.H"
+#include "momentumTransportModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -89,7 +89,7 @@ private:
         dimensionedScalar primarySize_;
 
         //- Turbulence model
-        const turbulenceModel& flTurb_;
+        const momentumTransportModel& momentumTransport_;
 
         //- Turbulent dissipation rate
         const volScalarField& epsilon_;

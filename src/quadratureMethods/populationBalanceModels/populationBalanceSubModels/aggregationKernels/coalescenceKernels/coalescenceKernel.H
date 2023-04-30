@@ -45,7 +45,7 @@ SourceFiles
 #include "dictionary.H"
 #include "volFields.H"
 #include "dimensionedTypes.H"
-#include "turbulentFluidThermoModel.H"
+#include "fluidThermophysicalTransportModel.H"
 #include "coalescenceFrequencyKernel.H"
 #include "coalescenceEfficiencyKernel.H"
 

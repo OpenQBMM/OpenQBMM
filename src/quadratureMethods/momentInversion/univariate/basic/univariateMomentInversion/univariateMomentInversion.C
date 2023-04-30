@@ -30,7 +30,7 @@ License
 
 #include "univariateMomentInversion.H"
 #include "IOmanip.H"
-#include "EigenMatrix.H"
+#include "eigenSolver.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -162,13 +162,13 @@ void Foam::univariateMomentInversion::calcQuadrature
 )
 {
     // Computing weights and abscissae
-    EigenMatrix<scalar> zEig(z, true);
+    eigenSolver zEig(z, true);
 
     // Computing weights and abscissae
     for (label i = 0; i < nNodes_; i++)
     {
-        weights_[i] = moments[0]*sqr(zEig.EVecs()[0][i]);
-        abscissae_[i] = zEig.EValsRe()[i];
+        weights_[i] = moments[0]*sqr(zEig.eigenvectors()[0][i]);
+        abscissae_[i] = zEig.eigenvaluesRe()[i];
     }
 }
 

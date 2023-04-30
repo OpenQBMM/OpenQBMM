@@ -43,8 +43,9 @@ SourceFiles
 #ifndef monoKineticQuadratureApproximation_H
 #define monoKineticQuadratureApproximation_H
 
-#include "fvCFD.H"
+#include "fvc.H"
 #include "quadratureApproximation.H"
+#include "labelList.H"
 #include "PtrList.H"
 #include "fvMesh.H"
 #include "volFields.H"

@@ -130,7 +130,7 @@ Foam::autoPtr<Foam::velocityQuadratureNode<scalarType, vectorType>>
 Foam::velocityQuadratureNode<scalarType, vectorType>::clone() const
 {
     notImplemented("velocityQuadratureNode::clone() const");
-    return nullptr; //autoPtr<velocityQuadratureNode<scalarType, vectorType>>(NULL);
+    return autoPtr<velocityQuadratureNode<scalarType, vectorType>>(nullptr);
 }
 
 // ************************************************************************* //

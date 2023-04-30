@@ -30,8 +30,10 @@ License
 
 #include "mixingKernel.H"
 
-#include "turbulentTransportModel.H"
-#include "turbulentFluidThermoModel.H"
+#include "momentumTransportModel.H"
+#include "incompressibleMomentumTransportModels.H"
+#include "compressibleMomentumTransportModels.H"
+#include "fluidThermophysicalTransportModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -85,39 +87,45 @@ Foam::mixingSubModels::mixingKernel::~mixingKernel()
 Foam::tmp<Foam::volScalarField> 
 Foam::mixingSubModels::mixingKernel::k() const
 {
-    typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
+    typedef compressible::momentumTransportModel compressibleMomentumTransportModel;
+    typedef incompressible::momentumTransportModel incompressibleMomentumTransportModel;
 
     if 
     (
-        mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName)
+        mesh_.foundObject<compressibleMomentumTransportModel>
+        (
+            compressibleMomentumTransportModel::typeName
+        )
     )
     {
-        const cmpTurbModel& turb =
-            mesh_.lookupObject<cmpTurbModel>
+        const compressibleMomentumTransportModel& momentumTransport =
+            mesh_.lookupObject<compressibleMomentumTransportModel>
             (
-                cmpTurbModel::propertiesName
+                compressibleMomentumTransportModel::typeName
             );
 
-        return turb.k();
+        return momentumTransport.k();
     }
     else if
     (
-        mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName)
+        mesh_.foundObject<incompressibleMomentumTransportModel>
+        (
+            incompressibleMomentumTransportModel::typeName
+        )
     )
     {
-        const incompressible::turbulenceModel& turb =
-            mesh_.lookupObject<icoTurbModel>
+        const incompressibleMomentumTransportModel& momentumTransport =
+            mesh_.lookupObject<incompressibleMomentumTransportModel>
             (
-                icoTurbModel::propertiesName
+                incompressibleMomentumTransportModel::typeName
             );
 
-        return turb.k();
+        return momentumTransport.k();
     }
 
     FatalErrorInFunction
-            << "No valid turbulence model found."
-            << exit(FatalError);
+        << "No valid momentum transport model found."
+        << exit(FatalError);
 
     return volScalarField::null();
 }
@@ -125,38 +133,44 @@ Foam::mixingSubModels::mixingKernel::k() const
 Foam::tmp<Foam::volScalarField> 
 Foam::mixingSubModels::mixingKernel::epsilon() const
 {
-    typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
+    typedef compressible::momentumTransportModel compressibleMomentumTransportModel;
+    typedef incompressible::momentumTransportModel incompressibleMomentumTransportModel;
 
     if 
     (
-        mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName)
+        mesh_.foundObject<compressibleMomentumTransportModel>
+        (
+            compressibleMomentumTransportModel::typeName
+        )
     )
     {
-        const cmpTurbModel& turb =
-            mesh_.lookupObject<cmpTurbModel>
+        const compressibleMomentumTransportModel& momentumTransport =
+            mesh_.lookupObject<compressibleMomentumTransportModel>
             (
-                cmpTurbModel::propertiesName
+                compressibleMomentumTransportModel::typeName
             );
 
-        return turb.epsilon();
+        return momentumTransport.epsilon();
     }
     else if
     (
-        mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName)
+        mesh_.foundObject<incompressibleMomentumTransportModel>
+        (
+            incompressibleMomentumTransportModel::typeName
+        )
     )
     {
-        const incompressible::turbulenceModel& turb =
-            mesh_.lookupObject<icoTurbModel>
+        const incompressibleMomentumTransportModel& momentumTransport =
+            mesh_.lookupObject<incompressibleMomentumTransportModel>
             (
-                icoTurbModel::propertiesName
+                incompressibleMomentumTransportModel::typeName
             );
 
-        return turb.epsilon();
+        return momentumTransport.epsilon();
     }
 
     FatalErrorInFunction
-            << "No valid turbulence model found."
+            << "No valid momentum transport model found."
             << exit(FatalError);
 
     return volScalarField::null();

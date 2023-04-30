@@ -41,7 +41,6 @@ SourceFiles
 #define noCollision_H
 
 #include "collisionKernel.H"
-#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

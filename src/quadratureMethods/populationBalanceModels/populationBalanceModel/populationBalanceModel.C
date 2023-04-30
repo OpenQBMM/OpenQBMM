@@ -29,6 +29,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "populationBalanceModel.H"
+#include "surfaceMesh.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

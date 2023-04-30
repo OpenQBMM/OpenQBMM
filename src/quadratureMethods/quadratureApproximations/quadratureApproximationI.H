@@ -31,14 +31,14 @@ License
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template <class momentType, class nodeType>
-const word
+const Foam::word
 Foam::quadratureApproximation<momentType, nodeType>::name() const
 {
     return name_;
 }
 
 template <class momentType, class nodeType>
-const labelList&
+const Foam::labelList&
 Foam::quadratureApproximation<momentType, nodeType>::nNodes() const
 {
     return nNodes_;
@@ -67,14 +67,14 @@ Foam::quadratureApproximation<momentType, nodeType>::nodes()
 }
 
 template <class momentType, class nodeType>
-const momentFieldSet<momentType, nodeType>&
+const Foam::momentFieldSet<momentType, nodeType>&
 Foam::quadratureApproximation<momentType, nodeType>::moments() const
 {
     return moments_;
 }
 
 template <class momentType, class nodeType>
-momentFieldSet<momentType, nodeType>&
+Foam::momentFieldSet<momentType, nodeType>&
 Foam::quadratureApproximation<momentType, nodeType>::moments()
 {
     return moments_;

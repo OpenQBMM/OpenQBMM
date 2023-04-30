@@ -162,7 +162,7 @@ Foam::populationBalanceSubModels::collisionKernel::collisionKernel
                 mesh,
                 IOobject::groupName
                 (
-                    "thermo:rho",
+                    "rho",
                     quadrature.moments()[0].group()
                 ),
                 dict,

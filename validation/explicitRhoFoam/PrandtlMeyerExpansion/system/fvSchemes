@@ -34,7 +34,7 @@ gradSchemes
 divSchemes
 {
     default         none;
-    div((thermo:mu*dev2(T(grad(U)))))   Gauss linear;
+    div((mu*dev2(T(grad(U)))))   Gauss linear;
     div(massFlux,epsilon) bounded Gauss vanLeer;
     div(massFlux,k)      bounded Gauss vanLeer;
     div(massFlux,Ekp)    bounded Gauss vanLeer;

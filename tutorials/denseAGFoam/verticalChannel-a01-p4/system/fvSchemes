@@ -47,13 +47,13 @@ divSchemes
     "div\(Sigma.*\)"                Gauss linear;
     "div\(\(\(alpha.*rho.*\)*R.*\)\)"            Gauss linear;
 
-    div(((alpha.gas*thermo:rho.gas)*R2)) Gauss linear;
+    div(((alpha.gas*rho.gas)*R2)) Gauss linear;
 
     "div\(alphaRhoPhi.*,(k|epsilon).*\)"  Gauss limitedLinear 1;
 
-    div((((alpha.gas*thermo:rho.gas)*nuEff.gas)*dev2(T(grad(U.gas))))) Gauss linear;
+    div((((alpha.gas*rho.gas)*nuEff.gas)*dev2(T(grad(U.gas))))) Gauss linear;
 
-    div((((thermo:rho.particles*nut.particles)*dev2(T(grad(U.particles))))+(((thermo:rho.particles*lambda.particles)*div(phi.particles))*I)))  Gauss linear;
+    div((((rho.particles*nut.particles)*dev2(T(grad(U.particles))))+(((rho.particles*lambda.particles)*div(phi.particles))*I)))  Gauss linear;
 }
 
 laplacianSchemes

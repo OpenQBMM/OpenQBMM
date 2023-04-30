@@ -31,8 +31,10 @@ License
 #include "turbulentDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
-#include "turbulentTransportModel.H"
-#include "turbulentFluidThermoModel.H"
+#include "momentumTransportModel.H"
+#include "incompressibleMomentumTransportModels.H"
+#include "compressibleMomentumTransportModels.H"
+#include "fluidThermophysicalTransportModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -95,23 +97,32 @@ Foam::tmp<Foam::volScalarField>
 Foam::populationBalanceSubModels::diffusionModels::turbulentDiffusion
 ::turbViscosity(const volScalarField& moment) const
 {
-    word turbName = IOobject::groupName
+    word momentumTransportName = IOobject::groupName
         (
-            turbulenceModel::propertiesName,
+            momentumTransportModel::typeName,
             continuousPhase_
         );
 
-    if (moment.mesh().foundObject<turbulenceModel>(turbName))
+    if 
+    (
+        moment.mesh().foundObject<momentumTransportModel>
+        (
+            momentumTransportName
+        )
+    )
     {
-        const turbulenceModel& turb =
-            moment.mesh().lookupObject<turbulenceModel>(turbName);
+        const momentumTransportModel& momentumTransport =
+            moment.mesh().lookupObject<momentumTransportModel>
+            (
+                momentumTransportName
+            );
 
-        return turb.nut();
+        return momentumTransport.nut();
     }
     else
     {
         FatalErrorInFunction
-            << "No valid turbulence model for turbulent diffusion calculation."
+            << "No valid momentum transport model diffusion calculation."
             << exit(FatalError);
 
         return volScalarField::null();

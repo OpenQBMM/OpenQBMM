@@ -29,7 +29,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "extendedMomentInversion.H"
-#include "EigenMatrix.H"
+#include "eigenSolver.H"
 #include "IOmanip.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -511,15 +511,15 @@ void Foam::extendedMomentInversion::secondaryQuadrature
             }
 
             // Compute Gaussian quadrature used to find secondary quadrature
-            EigenMatrix<scalar> JEig(J, true);
+            eigenSolver JEig(J, true);
 
-            const scalarDiagonalMatrix& JEigenvaluesRe(JEig.EValsRe());
+            const scalarDiagonalMatrix& JEigenvaluesRe(JEig.eigenvaluesRe());
 
             // Compute secondary weights before normalization and calculate sum
             for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
             {
                 secondaryWeights_[pNodei][sNodei] 
-                    = sqr(JEig.EVecs()[0][sNodei]);
+                    = sqr(JEig.eigenvectors()[0][sNodei]);
 
                 secondaryAbscissae_[pNodei][sNodei] =
                     secondaryAbscissa(primaryAbscissae_[pNodei],

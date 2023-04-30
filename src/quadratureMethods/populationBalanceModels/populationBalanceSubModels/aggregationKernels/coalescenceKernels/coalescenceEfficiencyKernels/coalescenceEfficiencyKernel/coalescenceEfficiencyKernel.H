@@ -37,7 +37,7 @@ SourceFiles
 #ifndef coalescenceEfficiencyKernel_H
 #define coalescenceEfficiencyKernel_H
 
-#include "turbulentFluidThermoModel.H"
+#include "fluidThermophysicalTransportModel.H"
 #include "dictionary.H"
 #include "volFields.H"
 #include "dimensionedTypes.H"
@@ -127,7 +127,7 @@ public:
         virtual void update
         (
             const fluidThermo& thermo,
-            const turbulenceModel& turb
+            const momentumTransportModel& momentumTransport
         )
         {}
 

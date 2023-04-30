@@ -64,4 +64,4 @@ aspectRatioModels/Wellek/Wellek.C
 
 wallDependentModel/wallDependentModel.C
 
-LIB = $(FOAM_MODULE_LIBBIN)/libpbeInterfacialModels
+LIB = $(FOAM_USER_LIBBIN)/libpbeInterfacialModels
