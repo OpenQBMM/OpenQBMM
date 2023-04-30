@@ -46,10 +46,10 @@
 
     #include "createPhi.H"
 
-    Info << "Creating turbulence model.\n" << endl;
-    autoPtr<compressible::turbulenceModel> turbulence
+    Info << "Creating momentum transport model.\n" << endl;
+    autoPtr<compressible::momentumTransportModel> momentumTransport
     (
-        compressible::turbulenceModel::New
+        compressible::momentumTransportModel::New
         (
             rho,
             U,

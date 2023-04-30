@@ -99,7 +99,7 @@ functions
     pProbes
     {
         type        probes;
-        libs        (libsampling);
+        libs        ("libsampling.so");
         startTime   0;
         probeLocations
         (

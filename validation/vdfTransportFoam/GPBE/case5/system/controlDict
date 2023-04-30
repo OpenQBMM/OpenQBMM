@@ -58,7 +58,7 @@ functions
     probes
     {
         // Where to load it from
-        libs            (libsampling);
+        libs            ("libsampling.so");
 
         type            probes;
 

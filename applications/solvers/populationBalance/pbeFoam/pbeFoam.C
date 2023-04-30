@@ -6,10 +6,11 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2023 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-06-21 Alberto Passalacqua: Derived solver from chemFoam.
 2019-11-29 Alberto Passalacqua: Ported to OpenFOAM+ v1906.
+2023-04-29 Alberto Passalacqua: Ported to OpenFOAM.org (> 10).
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -38,12 +39,19 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-#include "fvCFD.H"
-#include "psiThermo.H"
-#include "turbulentFluidThermoModel.H"
+#include "argList.H"
+#include "timeSelector.H"
+#include "zeroDimensionalFvMesh.H"
 #include "OFstream.H"
-#include "hexCellFvMesh.H"
+#include "psiThermo.H"
+#include "momentumTransportModel.H"
+#include "fluidThermophysicalTransportModel.H"
+#include "OFstream.H"
+#include "fvcFlux.H"
+#include "fvmDdt.H"
 #include "populationBalanceModel.H"
+
+using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -65,7 +73,7 @@ int main(int argc, char *argv[])
     #include "createSingleCellMesh.H"
     #include "createFields.H"
 
-    turbulence->validate();
+    momentumTransport->validate();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -78,7 +86,7 @@ int main(int argc, char *argv[])
         runTime++;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        turbulence->validate();
+        momentumTransport->validate();
         populationBalance->solve();
 
         #include "output.H"

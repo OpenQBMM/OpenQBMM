@@ -1,3 +1,3 @@
 computeMoments.C
 
-EXE = $(FOAM_MODULE_APPBIN)/computeMoments
+EXE = $(FOAM_USER_APPBIN)/computeMoments

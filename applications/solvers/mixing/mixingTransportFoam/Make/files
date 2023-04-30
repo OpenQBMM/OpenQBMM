@@ -1,3 +1,3 @@
 mixingTransportFoam.C
 
-EXE = $(FOAM_MODULE_APPBIN)/mixingTransportFoam
+EXE = $(FOAM_USER_APPBIN)/mixingTransportFoam
