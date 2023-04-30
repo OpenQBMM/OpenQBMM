@@ -66,8 +66,8 @@ int main(int argc, char *argv[])
 
     #define CREATE_MESH createSingleCellMesh.H
     #define NO_CONTROL
-    #include "postProcess.H"
 
+    #include "postProcess.H"
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createSingleCellMesh.H"
