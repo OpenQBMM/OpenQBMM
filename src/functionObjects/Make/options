@@ -1,0 +1,35 @@
+EXE_INC = \
+    -I$(LIB_SRC)/physicalProperties/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+    -I$(LIB_SRC)/twoPhaseModels/interfaceCompression/lnInclude \
+    -I$(LIB_SRC)/MomentumTransportModels/momentumTransportModels/lnInclude \
+    -I$(LIB_SRC)/MomentumTransportModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/MomentumTransportModels/compressible/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I../quadratureMethods/momentSets/lnInclude \
+    -I../quadratureMethods/momentInversion/lnInclude \
+    -I../quadratureMethods/quadratureNode/lnInclude \
+    -I../quadratureMethods/moments \
+    -I../quadratureMethods/fieldMomentInversion/lnInclude \
+    -I../quadratureMethods/quadratureApproximations/lnInclude \
+    -I../quadratureMethods/populationBalanceModels/lnInclude
+
+
+LIB_LIBS = \
+    -lphysicalProperties \
+    -lfluidThermophysicalModels \
+    -lspecie \
+    -linterfaceCompression \
+    -lmomentumTransportModels \
+    -lincompressibleMomentumTransportModels \
+    -lcompressibleMomentumTransportModels \
+    -lfiniteVolume \
+    -lmeshTools \
+    -L$(FOAM_USER_LIBBIN) \
+    -lquadratureNode \
+    -lmomentSets \
+    -lmomentInversion \
+    -lfieldMomentInversion \
+    -lquadratureApproximation \
+    -lpopulationBalance

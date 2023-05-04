@@ -1,0 +1,3 @@
+populationBalanceFunctionObject/populationBalanceFunctionObject.C
+
+LIB = $(FOAM_USER_LIBBIN)/libOpenQBMMFunctionObjects

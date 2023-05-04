@@ -14,4 +14,6 @@ wclean libso quadratureMethods/PDFTransportModels
 wclean libso quadratureMethods/populationBalanceModels
 wclean libso quadratureMethods/mixingModels
 
+wclean libso functionObjects
+
 #------------------------------------------------------------------------------

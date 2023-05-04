@@ -189,6 +189,8 @@
         "setMoments1D.C": "cpp",
         "setMoments2D.C": "cpp",
         "Test-UnivariateQuadratureApproximation.C": "cpp",
-        "Test-Vandermonde.C": "cpp"
+        "Test-Vandermonde.C": "cpp",
+        "populationBalanceFunctionObject.C": "cpp",
+        "istream": "cpp"
     }
 }

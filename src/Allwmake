@@ -16,4 +16,6 @@ wmake libso quadratureMethods/PDFTransportModels
 wmake libso quadratureMethods/mixingModels
 wmake libso quadratureMethods/populationBalanceModels
 
+wmake libso functionObjects
+
 #------------------------------------------------------------------------------
