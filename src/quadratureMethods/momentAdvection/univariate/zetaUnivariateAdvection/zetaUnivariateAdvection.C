@@ -536,6 +536,11 @@ void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
             }
         }
     }
+
+    forAll(auxiliaryFields_, fieldi)
+    {
+        auxiliaryFields_[fieldi].correctBoundaryConditions();
+    }
 }
 
 void Foam::univariateAdvection::zeta::countFacesWithOutgoingFlux()
