@@ -170,6 +170,9 @@ public:
         //- Returns the canonical moments if support is [0, 1]
         inline scalarList& canonicalMoments();
 
+        //- Returns the canonical moments if support is [0, 1]
+        inline const scalarList& canonicalMoments() const;
+
         //- Returns degenerate status of the moment set
         inline bool isDegenerate();
 
@@ -237,6 +240,9 @@ public:
 
         //- Returns zeta_k values for the moment set
         inline scalarList& zetas();
+
+        //- Returns zeta_k values for the moment set
+        inline const scalarList& zetas() const;
 };
 
 

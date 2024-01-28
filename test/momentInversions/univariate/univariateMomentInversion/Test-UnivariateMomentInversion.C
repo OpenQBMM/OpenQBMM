@@ -179,6 +179,7 @@ void testQuadrature
 
     Info << "Weights: " << weights << endl;
     Info << "Abscissae: " << abscissae << endl;
+    Info << "Zetas: " << m.zetas() << endl;
 
     compareQuadrature(expectedWeights, weights, expectedAbscissae, abscissae);
 
@@ -417,29 +418,29 @@ int main(int argc, char *argv[])
     
     scalarList expectedWeightsTest6(10, 0);
 
-    expectedWeightsTest6[0] = 0.05425312759509376;
-    expectedWeightsTest6[1] = 0.0831424672400455;
-    expectedWeightsTest6[2] = 0.1350702286390351;
-    expectedWeightsTest6[3] = 0.151991920210894;
-    expectedWeightsTest6[4] = 0.1773272901966484;
-    expectedWeightsTest6[5] = 0.1619822708924677;
-    expectedWeightsTest6[6] = 0.1367233648357529;
-    expectedWeightsTest6[7] = 0.09873055145020466;
-    expectedWeightsTest6[8] = 0.0007787315954269877;
-    expectedWeightsTest6[9] = 4.734443075952662e-08;
+    expectedWeightsTest6[0] = 0.04676927763440855;
+    expectedWeightsTest6[1] = 0.09238395831062521;
+    expectedWeightsTest6[2] = 0.1338541470311804;
+    expectedWeightsTest6[3] = 0.1656978021914576;
+    expectedWeightsTest6[4] = 0.1735468576392944;
+    expectedWeightsTest6[5] = 0.1798430425746221;
+    expectedWeightsTest6[6] = 0.1249034785658432;
+    expectedWeightsTest6[7] = 0.08286244866468077;
+    expectedWeightsTest6[8] = 0.0001389703139075481;
+    expectedWeightsTest6[9] = 1.707398051215797e-08;
 
     scalarList expectedAbscissaeTest6(10, 0);
 
-    expectedAbscissaeTest6[0] = 0.02276445906247883;
-    expectedAbscissaeTest6[1] = 0.09312626860812966;
-    expectedAbscissaeTest6[2] = 0.2012821161975949;
-    expectedAbscissaeTest6[3] = 0.3476412348445122;
-    expectedAbscissaeTest6[4] = 0.511307436092814;
-    expectedAbscissaeTest6[5] = 0.6864568463904339;
-    expectedAbscissaeTest6[6] = 0.8326551774279829;
-    expectedAbscissaeTest6[7] = 0.9566638853707417;
-    expectedAbscissaeTest6[8] = 1.076481331174686;
-    expectedAbscissaeTest6[9] = 1.422414895629834;
+    expectedAbscissaeTest6[0] = 0.0183308690766393;
+    expectedAbscissaeTest6[1] = 0.09048528273499766;
+    expectedAbscissaeTest6[2] = 0.2014909335053396;
+    expectedAbscissaeTest6[3] = 0.3557178385194207 ;
+    expectedAbscissaeTest6[4] = 0.5232653238609548;
+    expectedAbscissaeTest6[5] = 0.7048225199412453;
+    expectedAbscissaeTest6[6] = 0.8588367392334761;
+    expectedAbscissaeTest6[7] = 0.9639042866192365;
+    expectedAbscissaeTest6[8] = 1.148144194761292 ;
+    expectedAbscissaeTest6[9] = 1.523890900642449;
 
     testQuadrature
     (
@@ -499,6 +500,53 @@ int main(int argc, char *argv[])
         quadraturePropertiesGQMOM,
         expectedWeightsTest7,
         expectedAbscissaeTest7,
+        "GQMOM",
+        10
+    );
+
+    scalarList inputMoments8(6);
+
+    inputMoments8[0] = 1.0;
+    inputMoments8[1] = 1.13;
+    inputMoments8[2] = 1.294;
+    inputMoments8[3] = 1.5;
+    inputMoments8[4] = 1.760;
+    inputMoments8[5] = 2.090237;
+
+    univariateMomentSet mGaussTest8(inputMoments8, "RPlus", SMALL, SMALL, 7);
+
+    scalarList expectedWeightsTest8(10, 0);
+    
+    expectedWeightsTest8[0] = 0.001528021029486816;
+    expectedWeightsTest8[1] = 0.001386763449248363; 
+    expectedWeightsTest8[2] = 0.001866128388630542;
+    expectedWeightsTest8[3] = 0.003630846785146271;
+    expectedWeightsTest8[4] = 0.01421509421173688;
+    expectedWeightsTest8[5] = 0.6853246975604294;
+    expectedWeightsTest8[6] = 0.02431175018572058;
+    expectedWeightsTest8[7] = 0.2675675885682817;
+    expectedWeightsTest8[8] = 0.0001691025284614494;
+    expectedWeightsTest8[9] = 7.292857634940761e-09;        
+
+    scalarList expectedAbscissaeTest8(10, 0);
+    
+    expectedAbscissaeTest8[0] = 0.1840361378198212;
+    expectedAbscissaeTest8[1] = 0.3716851294787171;
+    expectedAbscissaeTest8[2] = 0.541482301270592;
+    expectedAbscissaeTest8[3] = 0.7215189555042092;
+    expectedAbscissaeTest8[4] = 0.9225265146913547;
+    expectedAbscissaeTest8[5] = 1.064838394996712;
+    expectedAbscissaeTest8[6] = 1.153156632425781;
+    expectedAbscissaeTest8[7] = 1.324616410466969;
+    expectedAbscissaeTest8[8] = 1.41694749651431;
+    expectedAbscissaeTest8[9] = 1.763388388042151;  
+    
+    testQuadrature
+    (
+        mGaussTest8,
+        quadraturePropertiesGQMOM,
+        expectedWeightsTest8,
+        expectedAbscissaeTest8,
         "GQMOM",
         10
     );

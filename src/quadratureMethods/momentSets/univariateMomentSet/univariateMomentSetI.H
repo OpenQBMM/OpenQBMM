@@ -71,6 +71,18 @@ Foam::scalarList& Foam::univariateMomentSet::zetas()
     return zeta_;
 }
 
+const Foam::scalarList& Foam::univariateMomentSet::zetas() const
+{
+    if (!realizabilityChecked_)
+    {
+        FatalErrorInFunction
+            << "Zetas are not computed!"
+            << abort(FatalError);
+    }
+
+    return zeta_;
+}
+
 Foam::scalarList& Foam::univariateMomentSet::canonicalMoments()
 {
     if (support_ != "01")
@@ -84,6 +96,26 @@ Foam::scalarList& Foam::univariateMomentSet::canonicalMoments()
     if (!realizabilityChecked_)
     {
         checkRealizability(false);
+    }
+
+    return canonicalMoments_;
+}
+
+const Foam::scalarList& Foam::univariateMomentSet::canonicalMoments() const
+{
+    if (support_ != "01")
+    {
+        FatalErrorInFunction
+            << "Canonical moments are computed only for support [0, 1]." << nl
+            << "    The moment set has support " << support_ << "."
+            << abort(FatalError);
+    }
+
+    if (!realizabilityChecked_)
+    {
+        FatalErrorInFunction
+            << "Canonical moments are not computed!"
+            << abort(FatalError);
     }
 
     return canonicalMoments_;
