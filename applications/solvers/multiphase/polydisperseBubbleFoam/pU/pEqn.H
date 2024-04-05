@@ -289,7 +289,13 @@ while (pimple.correct())
                   + fvm::div(phid1, p_rgh) - fvm::Sp(fvc::div(phid1), p_rgh)
                 )
             );
+
+        // For OpenFOAM-v2312 and earlier was raw pointer instead of unique_ptr
+        #if (OPENFOAM > 2312)
+        pEqnComp1.ref().faceFluxCorrectionPtr(nullptr);
+        #else
         deleteDemandDrivenData(pEqnComp1.ref().faceFluxCorrectionPtr());
+        #endif
         pEqnComp1.ref().relax();
 
         pEqnComp2 =
@@ -305,7 +311,13 @@ while (pimple.correct())
                   + fvm::div(phid2, p_rgh) - fvm::Sp(fvc::div(phid2), p_rgh)
                 )
             );
+
+        // For OpenFOAM-v2312 and earlier was raw pointer instead of unique_ptr
+        #if (OPENFOAM > 2312)
+        pEqnComp2.ref().faceFluxCorrectionPtr(nullptr);
+        #else
         deleteDemandDrivenData(pEqnComp2.ref().faceFluxCorrectionPtr());
+        #endif
         pEqnComp2.ref().relax();
     }
     else
