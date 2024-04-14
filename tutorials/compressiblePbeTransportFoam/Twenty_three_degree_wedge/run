@@ -1,0 +1,7 @@
+#!/bin/bash
+
+blockMesh
+
+decomposePar -force
+
+foamJob -parallel -screen compressiblePbeTransportFoam
