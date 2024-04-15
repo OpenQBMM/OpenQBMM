@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+compressible
+{
+    fluxScheme       HLLC;
+}
+
+ddtSchemes
+{
+    default          Euler;
+    fluxIntegrator   RK2;
+}
+
+gradSchemes
+{
+    default         faceLimited Gauss linear 1.0;
+}
+
+divSchemes
+{
+    default         none;
+    div((thermo:mu*dev2(T(grad(U)))))   Gauss linear;
+    div(massFlux,epsilon) bounded Gauss vanLeer;
+    div(massFlux,k)      bounded Gauss vanLeer;
+    div(massFlux,Ekp)    bounded Gauss vanLeer;
+
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default             linear;
+    reconstruct(U)      vanLeerV;
+    reconstruct(H)      vanLeer;
+    reconstruct(p)      vanLeer;
+    reconstruct(rho)    vanLeer;
+    reconstruct(c)      vanLeer;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+
+// ************************************************************************* //
