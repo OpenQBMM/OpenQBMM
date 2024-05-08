@@ -103,13 +103,28 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
     else
     {
         mixingK.ref() += momentOrder*Cphi_*epsilon()/k()
-            *moments[momentOrder - 1]
-            *((Cmixing_ + 1.0)*moments(1) + Cmixing_*(momentOrder - 1)*oneMoment
-            *((moments(2) - sqr(moments(1)))/max(moments(1)*oneMoment
-            - moments(2), smallMoment2))) - fvm::SuSp(momentOrder*Cphi_*epsilon()
-            /k()*((Cmixing_ + 1.0) + Cmixing_*(momentOrder - 1)
-            *((moments(2) - sqr(moments(1)))/max(moments(1)*oneMoment
-            - moments(2), smallMoment2))), moment);
+           *moments(momentOrder - 1)
+           *(
+                (Cmixing_ + 1.0)*moments(1) 
+              + Cmixing_*(momentOrder - 1)*oneMoment
+               *(
+                    (moments(2) - sqr(moments(1)))
+                   /max(moments(1)*oneMoment - moments(2), smallMoment2)
+                )
+            ) 
+          - fvm::SuSp
+            (
+                momentOrder*Cphi_*epsilon()/k()
+               *(
+                    (Cmixing_ + 1.0) 
+                  + Cmixing_*(momentOrder - 1)
+                   *(
+                        (moments(2) - sqr(moments(1)))
+                       /max(moments(1)*oneMoment - moments(2), smallMoment2)
+                    )
+                ), 
+                moment
+            );
     }
 
     return mixingK;

@@ -1,0 +1,3 @@
+mixingFoam.C
+
+EXE = $(FOAM_MODULE_APPBIN)/mixingFoam
