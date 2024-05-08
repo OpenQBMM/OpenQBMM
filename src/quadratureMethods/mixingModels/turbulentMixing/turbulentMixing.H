@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -46,6 +46,7 @@ SourceFiles
 #include "mixingModel.H"
 #include "mixingKernel.H"
 #include "mixingDiffusionModel.H"
+#include "realizableOdeSolver.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -62,8 +63,12 @@ namespace mixingModels
 
 class turbulentMixing
 :
-    public univariatePDFTransportModel, public mixingModel
+    public univariatePDFTransportModel, 
+    public mixingModel,
+    private realizableOdeSolver<volScalarMoment, volScalarNode>
 {
+    typedef realizableOdeSolver<volScalarMoment, volScalarNode> odeType;
+
     // Private data
 
         const word name_;
@@ -91,6 +96,19 @@ class turbulentMixing
 
         //- Is the realizable ode solver used to solve sources
         virtual bool solveMomentOde() const;
+
+        //- Update explicit source terms
+        virtual void updateCellMomentSource(const label celli);
+
+        //- Calculate source term for moment equation in the specified cell
+        virtual scalar cellMomentSource
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const scalarQuadratureApproximation& nodes,
+            const label environment
+        );
+
 
 
 public:
