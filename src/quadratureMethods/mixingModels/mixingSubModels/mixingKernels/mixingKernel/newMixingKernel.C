@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -36,7 +36,8 @@ Foam::autoPtr<Foam::mixingSubModels::mixingKernel>
 Foam::mixingSubModels::mixingKernel::New
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const volScalarMomentFieldSet& moments
 )
 {
     word mixingKernelType(dict.lookup("mixingKernel"));
@@ -55,10 +56,11 @@ Foam::mixingSubModels::mixingKernel::New
             << mixingKernelType
             << ", constructor not in hash table" << endl << endl
             << "    Valid mixingKernelType types are :" << endl;
+            
         Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
     }
 
-    return autoPtr<mixingKernel>(cstrIter()(dict, mesh));
+    return autoPtr<mixingKernel>(cstrIter()(dict, mesh, moments));
 }
 
 

@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -48,6 +48,8 @@ SourceFiles
 #include "fvMatrices.H"
 #include "fvm.H"
 #include "momentFieldSets.H"
+#include "turbulentTransportModel.H"
+#include "turbulentFluidThermoModel.H"
 #include "runTimeSelectionTables.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -77,12 +79,18 @@ protected:
         //- Coefficient of relaxation control
         const dimensionedScalar Cmixing_;
 
-        //- Return the turbulent kinetic energy field
-        tmp<volScalarField> k() const;
+        //- Turbulence model
+        const turbulenceModel& flTurb_;
 
-        //- Return the turbulent dissipation rate field
-        tmp<volScalarField> epsilon() const;
+        //- Turbulent kinetic energy field
+        const volScalarField& k_;
 
+        //- Turbulent dissipation rate field
+        const volScalarField& epsilon_;
+
+        //- Reference to moments
+        const volScalarMomentFieldSet& moments_;
+        
 public:
 
     //- Runtime type information
@@ -96,9 +104,10 @@ public:
         dictionary,
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+            const volScalarMomentFieldSet& moments
         ),
-        (dict, mesh)
+        (dict, mesh, moments)
     );
 
 
@@ -108,7 +117,8 @@ public:
         mixingKernel
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+            const volScalarMomentFieldSet& moments
         );
 
         //- Disallow default bitwise copy construct
@@ -120,7 +130,8 @@ public:
         static autoPtr<mixingKernel> New
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+            const volScalarMomentFieldSet& moments
         );
 
 
@@ -130,11 +141,12 @@ public:
 
     // Member Functions
 
-        //- Aggregation kernel
-        virtual tmp<fvScalarMatrix> K
+        //- Cell-based mixing kernel
+        virtual scalar mixingSource
         (
-            const volScalarMoment& moment,
-            const volScalarMomentFieldSet& moments
+            const label& momentOrder,
+            const label celli,
+            const label environment = 0
         ) const = 0;
 
 

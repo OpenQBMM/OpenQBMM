@@ -30,7 +30,8 @@ EXE_INC = \
     -I../fieldMomentInversion/lnInclude \
     -I../quadratureApproximations/lnInclude \
     -I../momentAdvection/lnInclude \
-    -I../PDFTransportModels/lnInclude
+    -I../PDFTransportModels/lnInclude \
+    -I../realizableOdeSolver
 
 LIB_LIBS = \
     -lincompressibleTransportModels \

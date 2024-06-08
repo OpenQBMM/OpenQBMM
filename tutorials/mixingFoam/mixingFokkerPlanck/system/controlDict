@@ -1,0 +1,93 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     mixingFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          1;
+
+maxDeltaT       1;
+
+adjustTimeStep  off;        // Currently not available
+
+writeControl    runTime;
+
+writeInterval   1; //0.1;
+
+purgeWrite      0;
+
+writeFormat     binary;     // Use binary to avoid corruption of moments
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+suppressSolverInfo yes;
+
+maxCo           0.5;
+
+functions
+{
+    probes
+    {
+        // Where to load it from
+        libs            (libsampling);
+
+        type            probes;
+
+        // Name of the directory for probe data
+        name            probes;
+
+        // Write at same frequency as fields
+        writeControl   timeStep;
+        writeInterval  1;
+
+        // Fields to be probed
+        fields
+        (
+            moment.0.mixing
+            moment.1.mixing
+            moment.2.mixing
+            moment.3.mixing
+            moment.4.mixing
+            moment.5.mixing
+            moment.6.mixing
+            moment.7.mixing
+            moment.8.mixing
+            moment.9.mixing
+            
+        );
+
+        probeLocations
+        (
+            ( 0.5 0.5 0.5 )
+        );
+    }
+}
+
+// ************************************************************************* //

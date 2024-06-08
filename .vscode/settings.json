@@ -2,5 +2,7 @@
     "files.associations": {
         "*.C": "cpp",
         "*.H": "cpp",
+        "limits": "cpp",
+        "ostream": "cpp"
     }
 }

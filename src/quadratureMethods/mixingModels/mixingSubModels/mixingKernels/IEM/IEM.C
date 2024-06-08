@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -59,10 +59,11 @@ namespace mixingKernels
 Foam::mixingSubModels::mixingKernels::IEM::IEM
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const volScalarMomentFieldSet& moments
 )
 :
-    mixingKernel(dict, mesh)
+    mixingKernel(dict, mesh, moments)
 {}
 
 
@@ -74,36 +75,27 @@ Foam::mixingSubModels::mixingKernels::IEM::~IEM()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::fvScalarMatrix>
-Foam::mixingSubModels::mixingKernels::IEM::K
+Foam::scalar
+Foam::mixingSubModels::mixingKernels::IEM::mixingSource
 (
-    const volScalarMoment& moment,
-    const volScalarMomentFieldSet& moments
+    const label& momentOrder,
+    const label celli,
+    const label environment
 ) const
 {
-    label momentOrder = moment.order();
-
-    tmp<fvScalarMatrix> mixingK
-    (
-        new fvScalarMatrix
-        (
-            moment,
-            moment.dimensions()*dimVol/dimTime
-        )
-    );
-
     if (momentOrder == 0)
     {
-        return mixingK;
-    }
-    else
-    {
-        mixingK.ref() += momentOrder*Cphi_*epsilon()/k()
-            *(moments(momentOrder - 1)*moments(1))
-            - fvm::SuSp(momentOrder*Cphi_*epsilon()/k(), moment);
+        return 0.0;
     }
 
-    return mixingK;
+    scalar source = 
+        momentOrder*Cphi_.value()*epsilon_[celli]/k_[celli]
+       *(
+            (moments_(momentOrder - 1)[celli]*moments_(1)[celli])
+          - moments_(momentOrder)[celli]
+        );
+
+    return source;
 }
 
 // ************************************************************************* //

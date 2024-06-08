@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -60,10 +60,11 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck
 ::FokkerPlanck
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const volScalarMomentFieldSet& moments
 )
 :
-    mixingKernel(dict, mesh)
+    mixingKernel(dict, mesh, moments)
 {}
 
 
@@ -75,44 +76,32 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::~FokkerPlanck()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::fvScalarMatrix>
-Foam::mixingSubModels::mixingKernels::FokkerPlanck::K
+Foam::scalar
+Foam::mixingSubModels::mixingKernels::FokkerPlanck::mixingSource
 (
-    const volScalarMoment& moment,
-    const volScalarMomentFieldSet& moments
+    const label& momentOrder,
+    const label celli,
+    const label environment
 ) const
 {
-    label momentOrder = moment.order();
-
-    tmp<fvScalarMatrix> mixingK
-    (
-        new fvScalarMatrix
-        (
-            moment,
-            moment.dimensions()*dimVol/dimTime
-        )
-    );
-
-    dimensionedScalar oneMoment("oneMoment", moments(1).dimensions(), 1.0);
-    dimensionedScalar smallMoment2("smallMoment2", moments(2).dimensions(), SMALL);
-
     if (momentOrder == 0)
     {
-        return mixingK;
+        return 0.0;
     }
-    else
-    {
-        mixingK.ref() += momentOrder*Cphi_*epsilon()/k()
-            *moments[momentOrder - 1]
-            *((Cmixing_ + 1.0)*moments(1) + Cmixing_*(momentOrder - 1)*oneMoment
-            *((moments(2) - sqr(moments(1)))/max(moments(1)*oneMoment
-            - moments(2), smallMoment2))) - fvm::SuSp(momentOrder*Cphi_*epsilon()
-            /k()*((Cmixing_ + 1.0) + Cmixing_*(momentOrder - 1)
-            *((moments(2) - sqr(moments(1)))/max(moments(1)*oneMoment
-            - moments(2), smallMoment2))), moment);
-    }
-
-    return mixingK;
+    
+    return 
+        Cphi_.value()*epsilon_[celli]/k_[celli]*momentOrder
+       *(
+            (Cmixing_.value() + 1.0)
+           *(
+                moments_(momentOrder - 1)[celli]*moments_(1)[celli] 
+              - moments_(momentOrder)[celli]
+            )
+          + (momentOrder - 1)*Cmixing_.value()
+           *(moments_(2)[celli] - sqr(moments_(1)[celli]))
+           *(moments_(momentOrder - 1)[celli] - moments_(momentOrder)[celli])
+           /max(2.0*(moments_(1)[celli] - moments_(2)[celli]), SMALL)
+        );
 }
 
 // ************************************************************************* //

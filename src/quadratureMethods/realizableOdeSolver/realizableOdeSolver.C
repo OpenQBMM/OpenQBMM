@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -130,6 +130,8 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
     forAll(moments[0], celli)
     {
+        //Info << "OLD MOMENTS" << moments << endl;
+
         // Storing old moments to recover from failed step
         quadrature.updateLocalQuadrature(celli);
         quadrature.updateLocalMoments(celli);
@@ -140,6 +142,8 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         {
             oldMoments[mi] = moments[mi][celli];
         }
+
+        //Info << "Old moments: " << oldMoments << endl;
 
         //- Local time
         scalar localT(0);
@@ -225,7 +229,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 }
 
                 realizableUpdate2 =
-                        quadrature.updateLocalQuadrature(celli, false);
+                    quadrature.updateLocalQuadrature(celli, false);
 
                 quadrature.updateLocalMoments(celli);
 
@@ -252,7 +256,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 }
 
                 realizableUpdate3 =
-                        quadrature.updateLocalQuadrature(celli, false);
+                    quadrature.updateLocalQuadrature(celli, false);
 
                 quadrature.updateLocalMoments(celli);
 

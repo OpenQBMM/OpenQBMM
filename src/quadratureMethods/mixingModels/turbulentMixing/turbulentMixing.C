@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -61,13 +61,15 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::turbulentMixing
 :
     univariatePDFTransportModel(name, dict, phi.mesh(), phi, "01"),
     mixingModel(name, dict, phi),
+    odeType(phi.mesh(), dict),
     name_(name),
     mixingKernel_
     (
         Foam::mixingSubModels::mixingKernel::New
         (
             dict.subDict("mixingKernel"),
-            phi.mesh()
+            phi.mesh(),
+            (*this).quadrature().moments()
         )
     ),
     diffusionModel_
@@ -91,35 +93,30 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::~turbulentMixing()
 
 void Foam::PDFTransportModels::mixingModels::turbulentMixing
 ::explicitMomentSource()
-{}
+{
+    odeType::solve(quadrature_, 0);
+}
 
 
 bool Foam::PDFTransportModels::mixingModels::turbulentMixing
 ::solveMomentSources() const
 {
-    return true;
+    return odeType::solveSources_;
 }
 
 
 bool Foam::PDFTransportModels::mixingModels::turbulentMixing
 ::solveMomentOde() const
 {
-    return false;
+    return odeType::solveOde_;
 }
 
 
-
 Foam::tmp<Foam::fvScalarMatrix>
-Foam::PDFTransportModels::mixingModels::turbulentMixing::implicitMomentSource
-(
-    const volScalarMoment& moment
-)
+Foam::PDFTransportModels::mixingModels::turbulentMixing
+::implicitMomentSource(const volScalarMoment& moment)
 {
-    const volScalarMomentFieldSet& moments = (*this).quadrature().moments();
-
-    return
-        mixingKernel_->K(moment, moments)
-      + diffusionModel_->momentDiff(moment);
+    return diffusionModel_->momentDiff(moment);
 }
 
 
@@ -130,10 +127,39 @@ Foam::scalar Foam::PDFTransportModels::mixingModels::turbulentMixing
 }
 
 
-void Foam::PDFTransportModels::mixingModels::turbulentMixing::solve
-()
+void Foam::PDFTransportModels::mixingModels::turbulentMixing::solve()
 {
     univariatePDFTransportModel::solve();
+}
+
+
+void
+Foam::PDFTransportModels::mixingModels::turbulentMixing
+::updateCellMomentSource(const label)
+{}
+
+
+Foam::scalar
+Foam::PDFTransportModels::mixingModels::turbulentMixing
+::cellMomentSource
+(
+    const labelList& momentOrder,
+    const label celli,
+    const scalarQuadratureApproximation& quadrature,
+    const label environment
+)
+{
+    scalar source(0);
+
+    source +=
+        mixingKernel_->mixingSource
+        (
+            momentOrder[0],
+            celli,
+            0
+        );
+
+    return source;
 }
 
 // ************************************************************************* //

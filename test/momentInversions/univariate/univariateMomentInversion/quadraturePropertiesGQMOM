@@ -17,4 +17,6 @@ FoamFile
 
 univariateMomentInversion	GQMOM;
 
+ndfTypeRPlus gamma;
+
 // ************************************************************************* //

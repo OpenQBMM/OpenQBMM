@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,9 +30,6 @@ License
 
 #include "mixingKernel.H"
 
-#include "turbulentTransportModel.H"
-#include "turbulentFluidThermoModel.H"
-
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
@@ -50,7 +47,8 @@ namespace mixingSubModels
 Foam::mixingSubModels::mixingKernel::mixingKernel
 (
     const dictionary& dict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const volScalarMomentFieldSet& moments
 )
 :
     dict_(dict),
@@ -70,7 +68,27 @@ Foam::mixingSubModels::mixingKernel::mixingKernel
             "Cmixing",
             dimensionedScalar("CmixingDefault", dimless, 1.0)
         )
-    )
+    ),
+    flTurb_
+    (
+        mesh_.lookupObject<turbulenceModel>
+        (
+            IOobject::groupName
+            (
+                turbulenceModel::propertiesName,
+                word::null
+            )
+        )
+    ),
+    k_
+    (
+        flTurb_.k()
+    ),
+    epsilon_
+    (
+        flTurb_.epsilon()
+    ),
+    moments_(moments)
 {}
 
 
@@ -82,84 +100,5 @@ Foam::mixingSubModels::mixingKernel::~mixingKernel()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> 
-Foam::mixingSubModels::mixingKernel::k() const
-{
-    typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
-
-    if 
-    (
-        mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName)
-    )
-    {
-        const cmpTurbModel& turb =
-            mesh_.lookupObject<cmpTurbModel>
-            (
-                cmpTurbModel::propertiesName
-            );
-
-        return turb.k();
-    }
-    else if
-    (
-        mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName)
-    )
-    {
-        const incompressible::turbulenceModel& turb =
-            mesh_.lookupObject<icoTurbModel>
-            (
-                icoTurbModel::propertiesName
-            );
-
-        return turb.k();
-    }
-
-    FatalErrorInFunction
-            << "No valid turbulence model found."
-            << exit(FatalError);
-
-    return volScalarField::null();
-}
-
-Foam::tmp<Foam::volScalarField> 
-Foam::mixingSubModels::mixingKernel::epsilon() const
-{
-    typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
-
-    if 
-    (
-        mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName)
-    )
-    {
-        const cmpTurbModel& turb =
-            mesh_.lookupObject<cmpTurbModel>
-            (
-                cmpTurbModel::propertiesName
-            );
-
-        return turb.epsilon();
-    }
-    else if
-    (
-        mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName)
-    )
-    {
-        const incompressible::turbulenceModel& turb =
-            mesh_.lookupObject<icoTurbModel>
-            (
-                icoTurbModel::propertiesName
-            );
-
-        return turb.epsilon();
-    }
-
-    FatalErrorInFunction
-            << "No valid turbulence model found."
-            << exit(FatalError);
-
-    return volScalarField::null();
-}
 
 // ************************************************************************* //

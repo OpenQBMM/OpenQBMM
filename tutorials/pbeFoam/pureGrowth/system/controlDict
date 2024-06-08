@@ -39,7 +39,7 @@ purgeWrite      0;
 
 writeFormat     binary;     // Use binary to avoid corruption of moments
 
-writeCompression uncompressed;
+writeCompression off;
 
 timeFormat      general;
 

@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -71,7 +71,8 @@ public:
         noMixingKernel
         (
             const dictionary& dict,
-            const fvMesh& mesh
+            const fvMesh& mesh,
+            const volScalarMomentFieldSet& moments
         );
 
 
@@ -81,11 +82,12 @@ public:
 
     // Member Functions
 
-        //- Mixing kernel
-        virtual tmp<fvScalarMatrix> K
+        //- Cell-based mixing kernel
+        virtual scalar mixingSource
         (
-            const volScalarMoment& moment,
-            const volScalarMomentFieldSet& moments
+            const label& momentOrder,
+            const label celli,
+            const label environment = 0
         ) const;
 
 };
