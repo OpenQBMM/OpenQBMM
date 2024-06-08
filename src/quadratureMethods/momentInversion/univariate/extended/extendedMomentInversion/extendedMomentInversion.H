@@ -126,8 +126,20 @@ protected:
         //- Number of moments
         label nMoments_;
 
-        //- Number of primary quadrature nodes
+        //- Number of requested primary quadrature nodes
+        //  This is the desired maximum number of primary nodes. The actual
+        //  number of primary nodes is determined by checking for moment 
+        //  realizability. If the number of requested primary nodes is larger
+        //  than the number of nodes that can be computed, the node weights and
+        //  abscissae that cannot be calculated are set to zero. The secondary
+        //  weights and abscissae corresponding to the primary nodes that 
+        //  cannot be determined are also set to zero.
         label nPrimaryNodes_;
+
+        //- Number of actual primary nodes found from the moment inversion
+        //  This is the number of quadrature nodes actually computed from the 
+        //  moment inversion algorithm.
+        label nActualPrimaryNodes_;
 
         //- Number of secondary quadrature nodes
         label nSecondaryNodes_;
@@ -305,6 +317,12 @@ public:
         inline label nPrimaryNodes()
         {
             return nPrimaryNodes_;
+        }
+
+        //- Return the number of actual primary nodes used
+        inline label nActualPrimaryNodes()
+        {
+            return nActualPrimaryNodes_;
         }
 
         //- Return number of secondary quadrature nodes

@@ -55,6 +55,7 @@ Foam::extendedMomentInversion::extendedMomentInversion
     ),
     nMoments_(nMoments),
     nPrimaryNodes_((nMoments_ - 1)/2),
+    nActualPrimaryNodes_(nPrimaryNodes_),
     nSecondaryNodes_(nSecondaryNodes),
     primaryWeights_(nPrimaryNodes_, Zero),
     primaryAbscissae_(nPrimaryNodes_, Zero),
@@ -97,6 +98,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     {
         sigma_ = 0.0;
         nullSigma_ = true;
+        nActualPrimaryNodes_ = 0;
 
         return;
     }
@@ -120,6 +122,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         sigma_ = 0.0;
         nullSigma_ = true;
         momentInverter_().invert(m);
+        nActualPrimaryNodes_ = momentInverter_().nNodes();
 
         secondaryQuadrature
         (
@@ -137,6 +140,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         sigma_ = 0.0;
         nullSigma_ = true;
         momentInverter_().invert(m);
+        nActualPrimaryNodes_ = momentInverter_().nNodes();
 
         secondaryQuadrature
         (
@@ -156,6 +160,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             sigma_ = 0.0;
             nullSigma_ = true;
             momentInverter_().invert(m);
+            nActualPrimaryNodes_ = momentInverter_().nNodes();
 
             secondaryQuadrature
             (
@@ -189,6 +194,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             sigma_ = 0.0;
             nullSigma_ = true;
             momentInverter_().invert(m);
+            nActualPrimaryNodes_ = momentInverter_().nNodes();
 
             secondaryQuadrature
             (
@@ -216,6 +222,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                 sigma_ = 0.0;
                 nullSigma_ = true;
                 momentInverter_().invert(m);
+                nActualPrimaryNodes_ = momentInverter_().nNodes();
 
                 secondaryQuadrature
                 (
@@ -227,7 +234,9 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             }
 
             targetFunction(sigma_, m, mStar);
-            secondaryQuadrature  // secondary quadrature from mStar
+            nActualPrimaryNodes_ = momentInverter_().nNodes();
+
+            secondaryQuadrature  // Secondary quadrature from mStar
             (
                 momentInverter_().weights(),
                 momentInverter_().abscissae()
@@ -276,6 +285,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     sigma_ = 0.0;
                     nullSigma_ = true;
                     momentInverter_().invert(m);
+                    nActualPrimaryNodes_ = momentInverter_().nNodes();
 
                     secondaryQuadrature
                     (
@@ -293,6 +303,8 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     momentError < momentsTol_
                 )
                 {
+                    nActualPrimaryNodes_ = momentInverter_().nNodes();
+
                     // Found a value of sigma that preserves all the moments
                     secondaryQuadrature  // Secondary quadrature from mStar
                     (
@@ -306,6 +318,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                 {
                     // Root not found. Minimize target function in [0, sigma_]
                     sigma_ = minimizeTargetFunction(0, sigma_, m, mStar);
+                    nActualPrimaryNodes_ = momentInverter_().nNodes();
 
                     // If sigma_ is SMALL, use QMOM
                     if (mag(sigma_) < sigmaMin_)
@@ -324,6 +337,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     }
 
                     targetFunction(sigma_, m, mStar);
+                    nActualPrimaryNodes_ = momentInverter_().nNodes();
 
                     secondaryQuadrature // Secondary quadrature from  mStar
                     (
