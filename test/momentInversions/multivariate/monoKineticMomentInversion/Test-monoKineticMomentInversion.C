@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
         nodeIndexes,
         scalarField(nDims, Zero)
     );
+
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 
     forAll(x, nodei)
@@ -72,24 +73,34 @@ int main(int argc, char *argv[])
         }
     }
 
-    Info<< "Original moments:" << endl;
+    Info<< "Initial abscissae: \n" << x << endl;
+    Info<< "Initial weights: \n" << w << endl;
+
+    Info<< "\nOriginal moments:" << endl;
 
     multivariateMomentSet moments(nMoments, momentOrders, "R", SMALL, SMALL);
 
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
+
         moments(momentOrder) = 0.0;
 
         forAll(nodeIndexes, nodei)
         {
             const labelList& nodeIndex = nodeIndexes[nodei];
-
             scalar cmpt = w(nodeIndex);
 
-            forAll(nodeIndex, dimi)
+            cmpt *= pow(x[nodei][0], momentOrder[0]);
+
+            forAll(velocityIndexes, dimi)
             {
-                cmpt *= pow(x(nodeIndex)[dimi], momentOrder[dimi]);
+                cmpt *=
+                    pow
+                    (
+                        x[nodei][dimi + 1],
+                        momentOrder[dimi + 1]
+                    );
             }
 
             moments(momentOrder) += cmpt;
@@ -114,15 +125,20 @@ int main(int argc, char *argv[])
 
     momentInverter.invert(moments);
 
-    Info<< "\nReconstructed moments:" << endl;
-
     const mappedScalarList& weights = momentInverter.weights();
     const mappedList<scalarList>& sizeAbscissae = momentInverter.abscissae();
 
     const mappedVectorList& velocityAbscissae =
         momentInverter.velocityAbscissae();
 
+    Info << "Weights: " << weights << endl;
+    Info << "Size abscissae: " << sizeAbscissae << endl;
+    Info << "Velocity abscissae: " << velocityAbscissae << endl;
+
+    Info<< "\nReconstructed moments:" << endl;
+
     mappedList<scalar> newMoments(nMoments, momentOrders);
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
