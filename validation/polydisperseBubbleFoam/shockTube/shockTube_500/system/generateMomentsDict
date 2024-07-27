@@ -49,19 +49,19 @@ air
         node0
         {
             rho     uniform 1.40;
-            dia     uniform 1e-3;
+            diameter     uniform 1e-3;
             alpha   uniform 0.033;
         }
         node1
         {
             rho     uniform 1.40;
-            dia     uniform 2e-3;
+            diameter     uniform 2e-3;
             alpha   uniform 0.034;
         }
         node2
         {
             rho     uniform 1.40;
-            dia     uniform 3.0e-3;
+            diameter     uniform 3.0e-3;
             alpha   uniform 0.033;
         }
     }
@@ -70,19 +70,19 @@ air
         node0
         {
             rho     uniform 1.40;
-            dia     uniform 8e-3;
+            diameter     uniform 8e-3;
             alpha   uniform 0;
         }
         node1
         {
             rho     uniform 1.40;
-            dia     uniform 9e-3;
+            diameter     uniform 9e-3;
             alpha   uniform 0;
         }
         node2
         {
             rho     uniform 1.40;
-            dia     uniform 10e-3;
+            diameter     uniform 10e-3;
             alpha   uniform 0;
         }
     }

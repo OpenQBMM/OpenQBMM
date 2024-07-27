@@ -136,7 +136,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            diameters_[nodei] = scalarField("dia", nodeDict, size);
+            diameters_[nodei] = scalarField("diameter", nodeDict, size);
             alphas_[nodei] = scalarField("alpha", nodeDict, size);
             sumAlpha_ += alphas_[nodei];
         }
@@ -207,7 +207,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            diameters_[nodei] = scalarField("dia", nodeDict, size);
+            diameters_[nodei] = scalarField("diameter", nodeDict, size);
             alphas_[nodei] = scalarField("alpha", nodeDict, size);
             sumAlpha_ += alphas_[nodei];
         }
