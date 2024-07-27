@@ -55,11 +55,12 @@ Foam::momentGenerationSubModels::weightsAndAbscissae
 (
     const fvMesh& mesh,
     const dictionary& dict,
+    const word& phaseName,
     const labelListList& momentOrders,
     const label nNodes
 )
 :
-    momentGenerationModel(mesh, dict, momentOrders, nNodes)
+    momentGenerationModel(mesh, dict, phaseName, momentOrders, nNodes)
 {}
 
 

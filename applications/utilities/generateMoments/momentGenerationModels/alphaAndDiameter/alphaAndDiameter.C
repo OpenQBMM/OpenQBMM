@@ -55,11 +55,12 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
 (
     const fvMesh& mesh,
     const dictionary& dict,
+    const word& phaseName,
     const labelListList& momentOrders,
     const label nNodes
 )
 :
-    momentGenerationModel(mesh, dict, momentOrders, nNodes),
+    momentGenerationModel(mesh, dict, phaseName, momentOrders, nNodes),
     alpha_
     (
         IOobject
@@ -67,7 +68,7 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
             IOobject::groupName
             (
                 "alpha",
-                IOobject::group(dict.name())
+                phaseName
             ),
             mesh.time().timeName(),
             mesh,

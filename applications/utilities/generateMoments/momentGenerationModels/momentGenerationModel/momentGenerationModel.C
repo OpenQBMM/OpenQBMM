@@ -121,6 +121,7 @@ Foam::momentGenerationModel::momentGenerationModel
 (
     const fvMesh& mesh,
     const dictionary& dict,
+    const word& phaseName,
     const labelListList& momentOrders,
     const label nNodes
 )
@@ -159,6 +160,7 @@ Foam::momentGenerationModel::momentGenerationModel
             abscissaCmptDimensions *= 
                 pow(abscissaDimension_, momentOrder[cmpti]);
         }
+        
         momentDimensions_.set
         (
             momentOrder, 

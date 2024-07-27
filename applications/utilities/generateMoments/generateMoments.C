@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
             (
                 mesh,
                 phaseDict,
+                phaseName,
                 momentOrders,
                 nNodes
             );

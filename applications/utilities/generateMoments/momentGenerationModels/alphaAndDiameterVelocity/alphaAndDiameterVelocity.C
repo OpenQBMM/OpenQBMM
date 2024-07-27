@@ -53,11 +53,12 @@ Foam::momentGenerationSubModels::alphaAndDiameterVelocity::alphaAndDiameterVeloc
 (
     const fvMesh& mesh,
     const dictionary& dict,
+    const word& phaseName,
     const labelListList& momentOrders,
     const label nNodes
 )
 :
-    alphaAndDiameter(mesh, dict, momentOrders, nNodes)
+    alphaAndDiameter(mesh, dict, phaseName, momentOrders, nNodes)
 {}
 
 

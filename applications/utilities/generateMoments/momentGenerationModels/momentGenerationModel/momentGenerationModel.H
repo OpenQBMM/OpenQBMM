@@ -132,10 +132,11 @@ public:
         (
             const fvMesh& mesh,
             const dictionary& dict,
+            const word& phaseName,
             const labelListList& momentOrders,
             const label nNodes
         ),
-        (mesh, dict, momentOrders, nNodes)
+        (mesh, dict, phaseName, momentOrders, nNodes)
     );
 
 
@@ -146,6 +147,7 @@ public:
         (
             const fvMesh& mesh,
             const dictionary& dict,
+            const word& phaseName,
             const labelListList& momentsOrders,
             const label nNodes
         );
@@ -157,6 +159,7 @@ public:
         (
             const fvMesh& mesh,
             const dictionary& dict,
+            const word& phaseName,
             const labelListList& momentsOrders,
             const label nNodes
         );
@@ -184,7 +187,7 @@ public:
 
         // Member Functions
 
-            //- Update weights and abscissae given a dictionary
+        //- Update weights and abscissae given a dictionary
         virtual void updateMoments
         (
             const dictionary& dict,
