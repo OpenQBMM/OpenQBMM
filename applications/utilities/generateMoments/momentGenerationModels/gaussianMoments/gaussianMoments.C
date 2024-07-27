@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2016-2021 Alberto Passalacqua
+    Copyright (C) 2016-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -53,11 +53,12 @@ Foam::momentGenerationSubModels::gaussian::gaussian
 (
     const fvMesh& mesh,
     const dictionary& dict,
+    const word& phaseName,
     const labelListList& momentOrders,
     const label nNodes
 )
 :
-    momentGenerationModel(mesh, dict, momentOrders, nNodes),
+    momentGenerationModel(mesh, dict, phaseName, momentOrders, nNodes),
     m0_
     (
         IOobject

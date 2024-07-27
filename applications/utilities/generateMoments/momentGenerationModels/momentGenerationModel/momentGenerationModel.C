@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -121,6 +121,7 @@ Foam::momentGenerationModel::momentGenerationModel
 (
     const fvMesh& mesh,
     const dictionary& dict,
+    const word& phaseName,
     const labelListList& momentOrders,
     const label nNodes
 )
@@ -159,6 +160,7 @@ Foam::momentGenerationModel::momentGenerationModel
             abscissaCmptDimensions *= 
                 pow(abscissaDimension_, momentOrder[cmpti]);
         }
+
         momentDimensions_.set
         (
             momentOrder, 

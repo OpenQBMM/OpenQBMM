@@ -21,8 +21,8 @@ w2      #calc "$w/2";
 nw2      #calc "-$w/2";
 h       70;
 depth   4;
-dia     1.6;
-R       #calc "$dia/2";
+diameter     1.6;
+R       #calc "$diameter/2";
 
 cellSize    0.5;
 
@@ -30,7 +30,7 @@ in1 #calc "-$R";
 in2 #calc "$R";
 
 nWallPts    #calc "round(($w2 - $R)/$cellSize)";
-nInPts      #calc "round($dia/$cellSize)";
+nInPts      #calc "round($diameter/$cellSize)";
 nVertPts    #calc "round($h/$cellSize)";
 nDepthPts   1;
 

@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -31,7 +31,7 @@ Application
 
 Description
     Utility to generate moments to initialize solvers. Instead moments are 
-    consucted using inputs from momentGenerationDict. 
+    consucted using inputs from generateMomentsDict. 
     Different methods can be used to specify the moment definition.
 
 \*---------------------------------------------------------------------------*/
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     (
         IOobject
         (
-            "momentGenerationDict",
+            "generateMomentsDict",
             mesh.time().system(),
             mesh,
             IOobject::MUST_READ,
@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
             (
                 mesh,
                 phaseDict,
+                phaseName,
                 momentOrders,
                 nNodes
             );

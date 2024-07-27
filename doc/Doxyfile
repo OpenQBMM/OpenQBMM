@@ -2118,10 +2118,10 @@ CLASS_DIAGRAMS         = YES
 
 MSCGEN_PATH            = 
 
-# You can include diagrams made with dia in doxygen documentation. Doxygen will
-# then run dia to produce the diagram and insert it in the documentation. The
-# DIA_PATH tag allows you to specify the directory where the dia binary resides.
-# If left empty dia is assumed to be found in the default search path.
+# You can include diagrams made with diameter in doxygen documentation. Doxygen will
+# then run diameter to produce the diagram and insert it in the documentation. The
+# DIA_PATH tag allows you to specify the directory where the diameter binary resides.
+# If left empty diameter is assumed to be found in the default search path.
 
 DIA_PATH               = 
 
@@ -2332,7 +2332,7 @@ DOTFILE_DIRS           =
 MSCFILE_DIRS           = 
 
 # The DIAFILE_DIRS tag can be used to specify one or more directories that
-# contain dia files that are included in the documentation (see the \diafile
+# contain diameter files that are included in the documentation (see the \diafile
 # command).
 
 DIAFILE_DIRS           = 

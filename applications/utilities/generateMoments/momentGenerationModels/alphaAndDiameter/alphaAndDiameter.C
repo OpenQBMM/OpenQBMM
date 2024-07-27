@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2016-2018 Alberto Passalacqua
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2021 Alberto Passalacqua
+    Copyright (C) 2019-2024 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -55,11 +55,12 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
 (
     const fvMesh& mesh,
     const dictionary& dict,
+    const word& phaseName,
     const labelListList& momentOrders,
     const label nNodes
 )
 :
-    momentGenerationModel(mesh, dict, momentOrders, nNodes),
+    momentGenerationModel(mesh, dict, phaseName, momentOrders, nNodes),
     alpha_
     (
         IOobject
@@ -67,7 +68,7 @@ Foam::momentGenerationSubModels::alphaAndDiameter::alphaAndDiameter
             IOobject::groupName
             (
                 "alpha",
-                IOobject::group(dict.name())
+                phaseName
             ),
             mesh.time().timeName(),
             mesh,
@@ -135,7 +136,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            diameters_[nodei] = scalarField("dia", nodeDict, size);
+            diameters_[nodei] = scalarField("diameter", nodeDict, size);
             alphas_[nodei] = scalarField("alpha", nodeDict, size);
             sumAlpha_ += alphas_[nodei];
         }
@@ -206,7 +207,7 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
         if(dict.found(nodeName))
         {
             dictionary nodeDict(dict.subDict(nodeName));
-            diameters_[nodei] = scalarField("dia", nodeDict, size);
+            diameters_[nodei] = scalarField("diameter", nodeDict, size);
             alphas_[nodei] = scalarField("alpha", nodeDict, size);
             sumAlpha_ += alphas_[nodei];
         }
