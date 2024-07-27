@@ -31,7 +31,7 @@ Application
 
 Description
     Utility to generate moments to initialize solvers. Instead moments are 
-    consucted using inputs from momentGenerationDict. 
+    consucted using inputs from generateMomentsDict. 
     Different methods can be used to specify the moment definition.
 
 \*---------------------------------------------------------------------------*/
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     (
         IOobject
         (
-            "momentGenerationDict",
+            "generateMomentsDict",
             mesh.time().system(),
             mesh,
             IOobject::MUST_READ,
