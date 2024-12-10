@@ -18,10 +18,10 @@ convertToMeters .01;
 
 w       20;
 w2      #calc "$w/2";
-nw2      #calc "-$w/2";
+nw2     #calc "-$w/2";
 h       90;
 depth   4;
-diameter     1.0;
+diameter     1.6;
 R       #calc "$diameter/2";
 
 cellSize    0.5;
@@ -29,9 +29,9 @@ cellSize    0.5;
 in1 #calc "-$R";
 in2 #calc "$R";
 
-nWallPts    #calc "($w2 - $R)/$cellSize";
-nInPts      #calc "$diameter/$cellSize";
-nVertPts    #calc "$h/$cellSize";
+nWallPts    #calc "round(($w2 - $R)/$cellSize)";
+nInPts      #calc "round($diameter/$cellSize)";
+nVertPts    #calc "round($h/$cellSize)";
 nDepthPts   1;
 
 vertices
