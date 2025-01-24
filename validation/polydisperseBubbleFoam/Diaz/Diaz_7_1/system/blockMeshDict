@@ -21,7 +21,7 @@ w2      #calc "$w/2";
 nw2      #calc "-$w/2";
 h       90;
 depth   4;
-diameter     1.0;
+diameter     1.6;
 R       #calc "$diameter/2";
 
 cellSize    0.5;
@@ -29,10 +29,10 @@ cellSize    0.5;
 in1 #calc "-$R";
 in2 #calc "$R";
 
-nWallPts    #calc "($w2 - $R)/$cellSize";
-nInPts      #calc "$diameter/$cellSize";
-nVertPts    #calc "$h/$cellSize";
-nDepthPts   1;
+nWallPts    #calc "round(($w2 - $R)/$cellSize)";
+nInPts      #calc "round($diameter/$cellSize)";
+nVertPts    #calc "round($h/$cellSize)";
+nDepthPts   1;//#calc "round($depth/$cellSize)";//1;
 
 vertices
 (
@@ -96,6 +96,14 @@ boundary
             (2 3 11 10)
             (3 4 12 11)
             (7 8 0 15)
+
+//             (0 1 6 7)
+//             (1 2 5 6)
+//             (2 3 4 5)
+//
+//             (9 8 15 14)
+//             (10 9 14 13)
+//             (11 10 13 12)
         );
     }
 );
