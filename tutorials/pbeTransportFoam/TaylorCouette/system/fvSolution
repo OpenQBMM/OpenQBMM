@@ -95,7 +95,7 @@ relaxationFactors
     {
         U               0.3;
         "(h|e)"         0.2;
-        "(k|epsilon|omega|R)" 0.2;
+        "(k|epsilon|omega|R)" 0.7;
         "moment.*"      1;
     }
 }
