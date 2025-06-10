@@ -1,9 +1,9 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Version:  dev
-     \\/     M anipulation  |
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -17,29 +17,29 @@ FoamFile
 
 dimensions      [0 2 0 0 0 0 0];
 
-internalField   uniform 1.0e-16;
+internalField   uniform 0;
 
 boundaryField
 {
-    "wedge.*"
-    {
-        type            wedge;
-    }
-    innerWall
-    {
-        type            zeroGradient;
-    }
-    outerWall
-    {
-        type            zeroGradient;
-    }
     inlet
     {
-        type            symmetry;
+        type            fixedValue;
+        value           uniform 1.0; 
     }
+
     outlet
     {
         type            zeroGradient;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    frontAndBack
+    {
+        type            empty;
     }
 }
 
