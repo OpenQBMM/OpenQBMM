@@ -11,41 +11,41 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      moment.4;
+    object      moment.4.populationBalance;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 0 0 0 0 0];
+dimensions      [0 2 0 0 0 0 0];
 
-internalField   uniform 1;
+internalField   uniform 5.0e-16;
 
 boundaryField
 {
-    topWall
+    "wedge.*"
     {
-        type            zeroGradient;
+        type            wedge;
     }
-
-    bottomWall
+    innerWall
     {
-        type            zeroGradient;
+        type            fixedValue;
+        value           uniform 0;
     }
-
-    outlet
+    outerWall
     {
-        type            zeroGradient;
+        type            fixedValue;
+        value           uniform 0;
     }
-
     inlet
     {
         type            fixedValue;
-         value           uniform 1;
+        value           uniform 0;
     }
-
-    frontAndBack
+    outlet
     {
-        type            empty;
+        type            fixedValue;
+        value           uniform 0;
     }
 }
+
 
 // ************************************************************************* //

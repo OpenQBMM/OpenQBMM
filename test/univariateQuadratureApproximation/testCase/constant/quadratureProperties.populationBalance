@@ -42,8 +42,4 @@ nodes
     (1)
 );
 
-fluxQuadrature
-{
-    univariateMomentInversion   GaussRadau;
-}
 // ************************************************************************* //
