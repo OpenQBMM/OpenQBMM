@@ -265,8 +265,19 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
 
         if (nodei < actualNodes)
         {
-            node.primaryWeight()[celli] = weights[nodei];
-            node.primaryAbscissae()[0][celli] = abscissae[nodei];
+            // If the abscissa is smaller than the minimum value set, set the
+            // weight to zero. This is to keep m0 consistent in cases with 
+            // negative growth rates.
+            if (abscissae[nodei] > smallM0())
+            {
+                node.primaryWeight()[celli] = weights[nodei];
+                node.primaryAbscissae()[0][celli] = abscissae[nodei];
+            }
+            else
+            {
+                node.primaryWeight()[celli] = 0.0;
+                node.primaryAbscissae()[0][celli] = 0.0;
+            }
         }
         else
         {

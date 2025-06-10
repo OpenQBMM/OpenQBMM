@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${FOAM_SRC}"
+                "${FOAM_SRC}",
+                "/home/alberto/OpenQBMM/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
