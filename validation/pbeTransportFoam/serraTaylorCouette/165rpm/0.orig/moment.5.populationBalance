@@ -11,7 +11,7 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      moment.4.populationBalance;
+    object      moment.4;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -27,23 +27,19 @@ boundaryField
     }
     innerWall
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
     outerWall
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
     inlet
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            symmetry;
     }
     outlet
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
 }
 
