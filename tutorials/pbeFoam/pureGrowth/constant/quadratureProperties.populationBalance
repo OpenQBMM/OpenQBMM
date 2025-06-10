@@ -20,6 +20,7 @@ fieldMomentInversion    basicFieldMomentInversion;
 basicMomentInversion
 {
     univariateMomentInversion GQMOM;
+    ndfTypeRPlus gamma; // optional - alternative: lognormal
 }
 
 momentAdvection
