@@ -30,8 +30,8 @@ Class
     Foam::univariatePDFTransportModel
 
 Description
-    Solve a univariate PDF transport equation with the extended quadrature
-    method of moments.
+    Solve a univariate PDF transport equation with the quadrature method of 
+    moments.
 
 SourceFiles
     univariatePDFTransportModel.C

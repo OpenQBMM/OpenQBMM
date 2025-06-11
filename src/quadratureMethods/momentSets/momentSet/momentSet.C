@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -40,10 +40,10 @@ Foam::momentSet::momentSet
     const word& support,
     const scalar smallM0,
     const scalar smallZeta,
-    const scalar initValue
+    const scalar initialValue
 )
 :
-    mappedList(nMoments, momentOrders, initValue),
+    mappedList(nMoments, momentOrders, initialValue),
     nMoments_(nMoments),
     nDimensions_(nDimensions),
     momentOrders_(momentOrders),
