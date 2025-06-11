@@ -66,8 +66,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
     minM0_(readScalar((*this).subDict("residuals").lookup("minM0"))),
     minM1_(readScalar((*this).subDict("residuals").lookup("minM1")))
 {
-    //  Set boundary cconditions for velocity abscissae based on
-    //  mean velocity
+    //  Set boundary conditions for velocity abscissae based on mean velocity
     wordList UTypes(U_.boundaryField().types());
 
     forAll(U_.boundaryField(), i)
