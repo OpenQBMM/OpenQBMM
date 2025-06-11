@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -426,7 +426,7 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
 
                 // Invert V martix and create invVR matrix
                 Vandermonde V(x);
-                scalarRectangularMatrix invVR = invR*V.inv();
+                scalarRectangularMatrix invVR = invR*V.invert();
 
                 // Loop over all components of U_{\alpha}
                 for (label cmpti = 0; cmpti < vector::nComponents; cmpti++)
@@ -668,7 +668,7 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
 
         // Invert V martix and create invVR matrix
         Vandermonde V(x);
-        scalarRectangularMatrix invVR = invR*V.inv();
+        scalarRectangularMatrix invVR = invR*V.invert();
 
         // Loop over all components of U_{\alpha}
         for (label cmpti = 0; cmpti < vector::nComponents; cmpti++)

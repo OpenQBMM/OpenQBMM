@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -189,7 +189,7 @@ invert
         }
 
         Vandermonde V(x);
-        scalarSquareMatrix invVR = invR*V.inv();
+        scalarSquareMatrix invVR = invR*V.invert();
 
         // Compute conditional velocity moments and invert
         PtrList<mappedScalarList> conditionalMoments(nSizeNodes);

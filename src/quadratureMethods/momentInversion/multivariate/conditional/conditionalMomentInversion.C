@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -490,7 +490,7 @@ void Foam::multivariateMomentInversions::conditional::setVR
         }
 
         Vandermonde V(x);
-        scalarSquareMatrix invV(V.inv());
+        scalarSquareMatrix invV(V.invert());
         labelList posVR(max(1, dimj), 0);
 
         if (dimj > 0)
