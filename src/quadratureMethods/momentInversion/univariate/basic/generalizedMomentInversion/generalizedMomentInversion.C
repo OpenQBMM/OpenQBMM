@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021-2024 Alberto Passalacqua
+    Copyright (C) 2021-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -65,7 +65,7 @@ Foam::generalizedMomentInversion::generalizedMomentInversion
     if ((ndfTypeRPlus_ != "gamma" && ndfTypeRPlus_ != "lognormal"))
     {
         FatalErrorInFunction
-            << "The specified type of NDF for RPlus must be gamma or" << nl
+            << "The type of NDF for RPlus must be gamma or" << nl
             << "lognormal. The current value is " << ndfTypeRPlus_
             << abort(FatalError);
     }

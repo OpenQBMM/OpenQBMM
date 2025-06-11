@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -161,7 +161,7 @@ void Foam::hyperbolicMomentInversion::invert
         if (centralMoments[2] < -1e-10)
         {
             WarningInFunction
-                << "Second-order central moment is negative. C2 = "
+                << "The second-order central moment is negative. C2 = "
                 << centralMoments[2]
                 << endl;
         }
@@ -208,7 +208,7 @@ void Foam::hyperbolicMomentInversion::invert
             if (realizability < smallNegRealizability_ && debug)
             {
                 WarningInFunction
-                    << "Fourth-order central moment is too SMALL."
+                    << "The fourth-order central moment is too SMALL."
                     << " Realizability = " << realizability << nl
                     << endl;
             }
@@ -301,7 +301,7 @@ void Foam::hyperbolicMomentInversion::invert
         if (weights_[wi] < 0.0)
         {
             FatalErrorInFunction
-                << "Negative weight in hyperbolic moment inversion."
+                << "Negative weight found in hyperbolic moment inversion."
                 << exit(FatalError);
         }
 
