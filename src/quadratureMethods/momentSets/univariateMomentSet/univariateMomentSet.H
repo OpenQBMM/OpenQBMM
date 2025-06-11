@@ -135,7 +135,7 @@ public:
             const word& support,
             const scalar smallM0,
             const scalar smallZeta,
-            const scalar initValue = 0,
+            const scalar initialValue = 0,
             const label nAdditionalQuadraturePoints = 0
         );
 
