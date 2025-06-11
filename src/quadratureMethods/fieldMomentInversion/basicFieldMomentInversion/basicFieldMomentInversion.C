@@ -196,11 +196,23 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
 
                 if (nodei < actualNodes)
                 {
-                    weightBf[patchi][facei]
-                            = momentInverter_().weights()[nodei];
+                    // If the abscissa is smaller than the minimum value set, 
+                    // set the weight to zero. This is to keep m0 consistent in 
+                    // cases with negative growth rates.
+                    scalar abscissaNodei = momentInverter_().abscissae()[nodei];
 
-                    abscissaBf[patchi][facei]
-                            = momentInverter_().abscissae()[nodei];
+                    if (abscissaNodei > smallM0())
+                    {
+                        weightBf[patchi][facei]
+                                = momentInverter_().weights()[nodei];
+
+                        abscissaBf[patchi][facei] = abscissaNodei;
+                    }
+                    else
+                    {
+                        weightBf[patchi][facei] = 0.0;
+                        abscissaBf[patchi][facei] = 0.0;
+                    }
                 }
                 else
                 {
