@@ -78,7 +78,7 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
         const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
         scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], SMALL);
-        scalar n1 = node1.n(celli, weight1, abscissa1);
+        scalar n1 = node1.numberDensity(celli, weight1, abscissa1);
         scalar d1 = node1.d(celli, abscissa1);
 
         forAll(nodes, nodej)
@@ -89,7 +89,7 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
             scalar abscissa2 
                 = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
 
-            scalar n2 = node2.n(celli, weight2, abscissa2);
+            scalar n2 = node2.numberDensity(celli, weight2, abscissa2);
             scalar d2 = node2.d(celli, abscissa2);
             vector Ur = Us_[nodei][celli] - Us_[nodej][celli];
 
@@ -133,7 +133,7 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
         const volScalarNode& node1 = nodes[nodei];
         scalar weight1 = node1.primaryWeight()[celli];
         scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], SMALL);
-        scalar n1 = node1.n(celli, weight1, abscissa1);
+        scalar n1 = node1.numberDensity(celli, weight1, abscissa1);
         scalar d1 = node1.d(celli, abscissa1);
 
         forAll(nodes, nodej)
@@ -144,7 +144,7 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
             scalar abscissa2 
                 = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
 
-            scalar n2 = node2.n(celli, weight2, abscissa2);
+            scalar n2 = node2.numberDensity(celli, weight2, abscissa2);
             scalar d2 = node2.d(celli, abscissa2);
             vector Ur = Us_[nodei][celli] - Us_[nodej][celli];
 
@@ -192,7 +192,7 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
         scalar weight = node.primaryWeight()[celli];
         scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], SMALL);
         scalar d = node.d(celli, abscissa);
-        scalar n = node.n(celli, weight, abscissa);
+        scalar n = node.numberDensity(celli, weight, abscissa);
 
         //- Diameter is used to calculate the breakup kernel in place
         //  of the abscissa
@@ -229,7 +229,7 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
         scalar weight = node.primaryWeight()[celli];
         scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], SMALL);
         scalar d = node.d(celli, abscissa);
-        scalar n = node.n(celli, weight, abscissa);
+        scalar n = node.numberDensity(celli, weight, abscissa);
 
         //- Diameter is used to calculate the breakup kernel in place
         //  of the abscissa

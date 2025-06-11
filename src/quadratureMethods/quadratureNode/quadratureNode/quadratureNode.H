@@ -288,21 +288,23 @@ public:
             //- Non-const access to the velcity abscissa of the node
             virtual velocityAbscissaeType& velocityAbscissae();
 
-            //- Return the diameter given an abscissae
+            //- Return the diameter given an abscissa
             tmp<volScalarField> d(const volScalarField& abscissa) const;
 
-            //- Return the diameter given an abscissae and celli
+            //- Return the diameter given a cell index and an abscissa
             scalar d(const label celli, const scalar& abscissa) const;
 
-            //- Return the number density given an abscissae
-            tmp<volScalarField> n
+            //- Return the number density field given a node weight and
+            //  abscissa
+            tmp<volScalarField> numberDensity
             (
                 const volScalarField& weight,
                 const volScalarField& abscissa
             ) const;
 
-            //- Return the number density given an abscissae and celli
-            scalar n
+            //- Return the number density value in a cell given a cell index and
+            //  a node weight and abscissa
+            scalar numberDensity
             (
                 const label celli, 
                 const scalar& weight, 

@@ -100,7 +100,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 if (sizeIndex_ != -1)
                 {
                     FatalErrorInFunction
-                        << "Only one abscissae can be sized based."
+                        << "Only one abscissa can be sized based."
                         << abort(FatalError);
                 }
 
@@ -587,7 +587,7 @@ Foam::scalar Foam::quadratureNode<scalarType, vectorType>::d
 
 template<class scalarType, class vectorType>
 Foam::tmp<Foam::volScalarField>
-Foam::quadratureNode<scalarType, vectorType>::n
+Foam::quadratureNode<scalarType, vectorType>::numberDensity
 (
     const volScalarField& weight,
     const volScalarField& abscissa
@@ -621,7 +621,7 @@ Foam::quadratureNode<scalarType, vectorType>::n
 
 
 template<class scalarType, class vectorType>
-Foam::scalar Foam::quadratureNode<scalarType, vectorType>::n
+Foam::scalar Foam::quadratureNode<scalarType, vectorType>::numberDensity
 (
     const label celli,
     const scalar& weight,
