@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -240,10 +240,10 @@ public:
             //- Return size index
             label sizeIndex() const;
 
-            //- Is the node length based
+            //- Return if the node length based or not
             bool lengthBased() const;
 
-            //- Is the weight in terms of volume fraction
+            //- Return if the weight is a volume fraction 
             bool useVolumeFraction() const;
 
             //- Is the node extended
