@@ -319,7 +319,7 @@ void Foam::generalizedMomentInversion::correctRecurrence01
         scalar pJ2i_1 = (betaCoeff + i)/(2.0*i + alphaCoeff + betaCoeff);
         scalar pJ2i = i/(2.0*i + 1.0 + alphaCoeff + betaCoeff);
 
-        if (moments.canonicalMoments()[2*nRegularQuadratureNodes_ - 3] <= pJ2i_1 
+        if (moments.canonicalMoments()[2*nRegularQuadratureNodes_ - 3] <= pJ2n_1 
          || pJ2n_1 >= pJ2i_1)
         {
             moments.canonicalMoments()[2*i - 1] = 
