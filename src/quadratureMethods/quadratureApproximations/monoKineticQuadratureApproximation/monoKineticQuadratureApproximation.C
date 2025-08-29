@@ -187,9 +187,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
                 name_,
                 mesh_,
                 moments_[0].dimensions(),
-                abscissaeDimensions,
-                false,
-                0
+                abscissaeDimensions
             )
         );
 
@@ -227,9 +225,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
                 name_,
                 mesh_,
                 moments_[0].dimensions(),
-                abscissaeDimensions,
-                false,
-                0
+                abscissaeDimensions
             )
         );
 

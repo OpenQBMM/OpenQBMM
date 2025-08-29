@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -81,10 +81,6 @@ quadratureApproximation
     moments_(name_, *this, mesh_, nodes_, support),
     nDimensions_(moments_[0].cmptOrders().size()),
     nMoments_(moments_.size()),
-    nSecondaryNodes_
-    (
-        lookupOrDefault<label>("nSecondaryNodes", nMoments_ + 1)
-    ),
     support_(support),
     momentFieldInverter_()
 {
@@ -132,8 +128,7 @@ quadratureApproximation
             mesh_,
             momentOrders_,
             nodeIndexes_,
-            velocityIndexes,
-            nSecondaryNodes_
+            velocityIndexes
         );
 
     // Allocating nodes
@@ -148,9 +143,7 @@ quadratureApproximation
                 mesh_,
                 moments_[0].dimensions(),
                 abscissaeDimensions,
-                moments_[0].boundaryField().types(),
-                momentFieldInverter_().extended(),
-                nSecondaryNodes_
+                moments_[0].boundaryField().types()
             )
         )
     );
@@ -213,10 +206,6 @@ quadratureApproximation
     ),
     nDimensions_(mFieldSet.nDimensions()),
     nMoments_(mFieldSet.size()),
-    nSecondaryNodes_
-    (
-        lookupOrDefault<label>("nSecondaryNodes", nMoments_ + 1)
-    ),
     support_(mFieldSet.support()),
     momentFieldInverter_()
 {
@@ -274,19 +263,8 @@ quadratureApproximation
             mesh_,
             momentOrders_,
             nodeIndexes_,
-            velocityIndexes,
-            nSecondaryNodes_
+            velocityIndexes
         );
-
-    if (nSecondaryNodes_ != 0 && !momentFieldInverter_().extended())
-    {
-        WarningInFunction
-            << "The number of secondary nodes in the quadrature" << nl
-            << "    approximation is not zero, but the selected" << nl
-            << "    inversion algorithm is not of extended type." << nl
-            << "    Proceeding with nSecondaryNodes = 0." << nl
-            << "    No extended quadrature will be computed." << nl;
-    }
 
     // Allocating nodes
     nodes_ = autoPtr<mappedPtrList<nodeType>>
@@ -300,9 +278,7 @@ quadratureApproximation
                 mesh_,
                 moments_[0].dimensions(),
                 abscissaeDimensions,
-                moments_[0].boundaryField().types(),
-                momentFieldInverter_().extended(),
-                nSecondaryNodes_
+                moments_[0].boundaryField().types()
             )
         )
     );

@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -85,10 +85,7 @@ public:
             const word& distributionName,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
-            const PtrList<dimensionSet>& abscissaDimensions,
-            const wordList& boundaryTypes,
-            const bool extended = false,
-            const label nSecondaryNodes = 0
+            const PtrList<dimensionSet>& abscissaDimensions
         );
 
         //- Construct from name, number of secondary nodes, mesh and dimensions
@@ -99,8 +96,7 @@ public:
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const PtrList<dimensionSet>& abscissaDimensions,
-            const bool extended = false,
-            const label nSecondaryNodes = 0
+            const wordList& boundaryTypes
         );
 
         //- Return clone
@@ -115,8 +111,6 @@ public:
             const dimensionSet& weightDimensions_;
             const PtrList<dimensionSet>& abscissaeDimensions_;
             const wordList& boundaryTypes_;
-            const bool extended_;
-            const label nSecondaryNodes_;
 
         public:
 
@@ -126,18 +120,14 @@ public:
                 const fvMesh& mesh,
                 const dimensionSet& weightDimensions,
                 const PtrList<dimensionSet>& abscissaeDimensions,
-                const wordList& boundaryTypes,
-                const bool extended,
-                const label nSecondaryNodes
+                const wordList& boundaryTypes
             )
             :
                 distributionName_(distributionName),
                 mesh_(mesh),
                 weightDimensions_(weightDimensions),
                 abscissaeDimensions_(abscissaeDimensions),
-                boundaryTypes_(boundaryTypes),
-                extended_(extended),
-                nSecondaryNodes_(nSecondaryNodes)
+                boundaryTypes_(boundaryTypes)
             {}
 
             autoPtr<velocityQuadratureNode<scalarType, vectorType>>
@@ -157,9 +147,7 @@ public:
                         mesh_,
                         weightDimensions_,
                         abscissaeDimensions_,
-                        boundaryTypes_,
-                        extended_,
-                        nSecondaryNodes_
+                        boundaryTypes_
                     )
                 );
             }

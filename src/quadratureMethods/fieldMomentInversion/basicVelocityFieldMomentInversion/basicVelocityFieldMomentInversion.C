@@ -54,8 +54,7 @@ Foam::basicVelocityFieldMomentInversion::basicVelocityFieldMomentInversion
     const fvMesh& mesh,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
-    const labelList& velocityIndexes,
-    const label nSecondaryNodes
+    const labelList& velocityIndexes
 )
 :
     fieldMomentInversion
@@ -64,8 +63,7 @@ Foam::basicVelocityFieldMomentInversion::basicVelocityFieldMomentInversion
         mesh,
         momentOrders,
         nodeIndexes,
-        velocityIndexes,
-        nSecondaryNodes
+        velocityIndexes
     ),
     momentInverter_
     (

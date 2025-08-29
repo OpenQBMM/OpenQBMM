@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -139,119 +139,49 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
 
     const labelList& scalarIndexes = nodes[0].scalarIndexes();
 
-
-    if (!nodes[0].extended())
-    {
-        forAll(nodes, pNodei)
-        {
-             const volScalarNode& node = nodes[pNodei];
-
-            scalar bAbscissa =
-                max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
-
-            scalar bSourcei = 0.0;
-
-            if (lengthBased)
-            {
-                bSourcei = nodeSource(bAbscissa, sizeOrder);
-            }
-            else
-            {
-                bSourcei = massNodeSource(bAbscissa, sizeOrder);
-            }
-
-            bSourcei *=
-                node.primaryWeight()[celli]
-               *Kb(bAbscissa, celli);
-
-            if (volumeFraction)
-            {
-                if (lengthBased)
-                {
-                    bSourcei /= pow3(max(bAbscissa, SMALL));
-                }
-                else
-                {
-                    bSourcei /= max(bAbscissa, SMALL);
-                }
-            }
-
-            forAll(scalarIndexes, nodei)
-            {
-                if (scalarIndexes[nodei] != sizeIndex)
-                {
-                    bSourcei *=
-                        pow
-                        (
-                            node.primaryAbscissae()[nodei][celli],
-                            momentOrder[scalarIndexes[nodei]]
-                        );
-                }
-            }
-
-            bSource += bSourcei;
-        }
-
-        return bSource;
-    }
-
     forAll(nodes, pNodei)
     {
-        const volScalarNode& node = nodes[pNodei];
+        const volScalarNode &node = nodes[pNodei];
 
-        forAll(node.secondaryWeights()[0], sNodei)
+        scalar bAbscissa =
+            max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+
+        scalar bSourcei = 0.0;
+
+        if (lengthBased)
         {
-            scalar bAbscissa =
-                max
-                (
-                    node.secondaryAbscissae()[sizeIndex][sNodei][celli],
-                    scalar(0)
-                );
+            bSourcei = nodeSource(bAbscissa, sizeOrder);
+        }
+        else
+        {
+            bSourcei = massNodeSource(bAbscissa, sizeOrder);
+        }
 
-            scalar bSourcei = 0.0;
+        bSourcei *= node.primaryWeight()[celli] * Kb(bAbscissa, celli);
 
+        if (volumeFraction)
+        {
             if (lengthBased)
             {
-                bSourcei = nodeSource(bAbscissa, sizeOrder);
+                bSourcei /= pow3(max(bAbscissa, SMALL));
             }
             else
             {
-                bSourcei = massNodeSource(bAbscissa, sizeOrder);
+                bSourcei /= max(bAbscissa, SMALL);
             }
-
-            bSourcei *=
-                node.primaryWeight()[celli]
-               *node.secondaryWeights()[sizeIndex][sNodei][celli]
-               *Kb(bAbscissa, celli);
-
-            if (volumeFraction)
-            {
-                if (lengthBased)
-                {
-                    bSourcei /= pow3(max(bAbscissa, SMALL));
-                }
-                else
-                {
-                    bSourcei /= max(bAbscissa, SMALL);
-                }
-            }
-
-            forAll(scalarIndexes, cmpt)
-            {
-                if (scalarIndexes[cmpt] != sizeIndex)
-                {
-                    bSourcei *=
-                        node.secondaryWeights()[cmpt][sNodei][celli]
-                       *pow
-                        (
-                            node.secondaryAbscissae()[cmpt][sNodei][celli],
-                            momentOrder[scalarIndexes[cmpt]]
-                        );
-                }
-            }
-
-            bSource += bSourcei;
         }
+
+        forAll(scalarIndexes, nodei)
+        {
+            if (scalarIndexes[nodei] != sizeIndex)
+            {
+                bSourcei *=
+                    pow(node.primaryAbscissae()[nodei][celli],
+                        momentOrder[scalarIndexes[nodei]]);
+            }
+        }
+
+        bSource += bSourcei;
     }
 
     return bSource;
@@ -295,156 +225,63 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
     const labelList& scalarIndexes = nodes[0].scalarIndexes();
     const labelList& velocityIndexes = nodes[0].velocityIndexes();
 
-    if (!nodes[0].extended())
+    scalarList bSources(nSizes, Zero);
+
+    for (label sizei = 0; sizei < nSizes; sizei++)
     {
-        scalarList bSources(nSizes, Zero);
+        const volVelocityNode &node = nodes(sizei);
 
-        for (label sizei = 0; sizei < nSizes; sizei++)
+        scalar bAbscissa =
+            max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+
+        if (lengthBased)
         {
-            const volVelocityNode& node = nodes(sizei);
+            bSources[sizei] = nodeSource(bAbscissa, sizeOrder);
+        }
+        else
+        {
+            bSources[sizei] = massNodeSource(bAbscissa, sizeOrder);
+        }
 
-            scalar bAbscissa =
-                max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+        bSources[sizei] *= Kb(bAbscissa, celli);
 
+        if (volumeFraction)
+        {
             if (lengthBased)
             {
-                bSources[sizei] = nodeSource(bAbscissa, sizeOrder);
+                bSources[sizei] /= pow3(max(bAbscissa, SMALL));
             }
             else
             {
-                bSources[sizei] = massNodeSource(bAbscissa, sizeOrder);
-            }
-
-            bSources[sizei] *= Kb(bAbscissa, celli);
-
-            if (volumeFraction)
-            {
-                if (lengthBased)
-                {
-                    bSources[sizei] /= pow3(max(bAbscissa, SMALL));
-                }
-                else
-                {
-                    bSources[sizei] /= max(bAbscissa, SMALL);
-                }
-            }
-        }
-
-        forAll(nodes, pNodei)
-        {
-             const volVelocityNode& node = nodes[pNodei];
-             label sizei = quadrature.nodeIndexes()[pNodei][sizeIndex];
-
-            scalar bSourcei = node.primaryWeight()[celli]*bSources[sizei];
-
-            forAll(scalarIndexes, nodei)
-            {
-                if (scalarIndexes[nodei] != sizeIndex)
-                {
-                    bSourcei *=
-                        pow
-                        (
-                            node.primaryAbscissae()[nodei][celli],
-                            momentOrder[scalarIndexes[nodei]]
-                        );
-                }
-            }
-
-            forAll(velocityIndexes, cmpt)
-            {
-                bSourcei *=
-                    pow
-                    (
-                        node.velocityAbscissae()[celli][cmpt],
-                        momentOrder[velocityIndexes[cmpt]]
-                    );
-            }
-
-            bSource += bSourcei;
-        }
-
-        return bSource;
-    }
-
-    label nSecondaryNodes(nodes[0].secondaryWeights().size());
-    scalarListList bSources(nSizes, scalarList(nSecondaryNodes, Zero));
-    for (label pNodei = 0; pNodei < nSizes; pNodei++)
-    {
-        for (label sNodei = 0; sNodei < nSecondaryNodes; sNodei++)
-        {
-            const volVelocityNode& node = nodes(pNodei);
-
-            scalar bAbscissa =
-                max
-                (
-                    node.secondaryAbscissae()[sizeIndex][sNodei][celli],
-                    scalar(0)
-                );
-
-            if (lengthBased)
-            {
-                bSources[pNodei][sNodei] = nodeSource(bAbscissa, sizeOrder);
-            }
-            else
-            {
-                bSources[pNodei][sNodei] = massNodeSource(bAbscissa, sizeOrder);
-            }
-
-            bSources[pNodei][sNodei] *= Kb(bAbscissa, celli);
-
-            if (volumeFraction)
-            {
-                if (lengthBased)
-                {
-                    bSources[pNodei][sNodei] /= pow3(max(bAbscissa, SMALL));
-                }
-                else
-                {
-                    bSources[pNodei][sNodei] /= max(bAbscissa, SMALL);
-                }
+                bSources[sizei] /= max(bAbscissa, SMALL);
             }
         }
     }
 
     forAll(nodes, pNodei)
     {
-        const volVelocityNode& node = nodes[pNodei];
+        const volVelocityNode &node = nodes[pNodei];
         label sizei = quadrature.nodeIndexes()[pNodei][sizeIndex];
 
-        scalar bSourcei = 0.0;
+        scalar bSourcei = node.primaryWeight()[celli] * bSources[sizei];
 
-        forAll(node.secondaryWeights()[0], sNodei)
+        forAll(scalarIndexes, nodei)
         {
-            bSourcei +=
-                node.primaryWeight()[celli]
-               *node.secondaryWeights()[sizeIndex][sNodei][celli]
-               *bSources[sizei][sNodei];
-
-        }
-
-        forAll(scalarIndexes, cmpt)
-        {
-            if (scalarIndexes[cmpt] != sizeIndex)
+            if (scalarIndexes[nodei] != sizeIndex)
             {
                 bSourcei *=
-                    pow
-                    (
-                        node.primaryAbscissae()[cmpt][celli],
-                        momentOrder[scalarIndexes[cmpt]]
-                    );
+                    pow(node.primaryAbscissae()[nodei][celli],
+                        momentOrder[scalarIndexes[nodei]]);
             }
         }
 
         forAll(velocityIndexes, cmpt)
         {
             bSourcei *=
-                pow
-                (
-                    node.velocityAbscissae()[celli][cmpt],
-                    momentOrder[velocityIndexes[cmpt]]
-                );
+                pow(node.velocityAbscissae()[celli][cmpt],
+                    momentOrder[velocityIndexes[cmpt]]);
         }
-        
+
         bSource += bSourcei;
     }
 

@@ -9,10 +9,10 @@ wmake libso quadratureMethods/momentInversion
 wmake libso quadratureMethods/hermiteQuadrature
 wmake libso quadratureMethods/quadratureNode
 wmake libso quadratureMethods/fieldMomentInversion
-# wmake libso quadratureMethods/quadratureApproximations
-# wmake libso quadratureMethods/momentAdvection
-# wmake libso quadratureMethods/PDFTransportModels
-# wmake libso quadratureMethods/mixingModels
-# wmake libso quadratureMethods/populationBalanceModels
+wmake libso quadratureMethods/quadratureApproximations
+wmake libso quadratureMethods/momentAdvection
+wmake libso quadratureMethods/PDFTransportModels
+wmake libso quadratureMethods/mixingModels
+wmake libso quadratureMethods/populationBalanceModels
 
 #------------------------------------------------------------------------------
