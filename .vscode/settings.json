@@ -6,6 +6,8 @@
         "ostream": "cpp",
         "random": "cpp",
         "regex": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp"
     }
 }

@@ -232,8 +232,12 @@ void Foam::univariateMomentSet::checkRealizability
         return;
     }
 
+    // Cache moment values used multiple times
+    const scalar m0 = (*this)[0];
+    const scalar m1 = (*this)[1];
+
     // If the zero-order moment is negative, exit immediately.
-    if ((*this)[0] < 0.0)
+    if (m0 < 0.0)
     {
         if (fatalErrorOnFailedRealizabilityTest)
         {
@@ -265,7 +269,7 @@ void Foam::univariateMomentSet::checkRealizability
 
     // Set flags and return if the zero-order moment is too small but an
     // error should not be thrown. Do nothing otherwise.
-    if ((*this)[0] < smallM0_ && !fatalErrorOnFailedRealizabilityTest)
+    if (m0 < smallM0_ && !fatalErrorOnFailedRealizabilityTest)
     {
         realizabilityChecked_ = true;
         negativeZeta_ = 0;
@@ -311,7 +315,7 @@ void Foam::univariateMomentSet::checkRealizability
         // Managing other supports (R+ and [0, 1])
 
         // Calculate zeta_1 (we do not store zeta_0 because it is always 1)
-        zeta_[0] = (*this)[1]/(*this)[0];
+        zeta_[0] = m1/m0;
 
         if (zeta_[0] <= smallZeta_)
         {
@@ -433,10 +437,10 @@ void Foam::univariateMomentSet::checkRealizability
 
     for (label columnI = 0; columnI < nMoments_; columnI++)
     {
-        zRecurrence[0][columnI] = (*this)[columnI]/(*this)[0];
+        zRecurrence[0][columnI] = (*this)[columnI]/m0;
     }
 
-    alpha_[0] = (*this)[1]/(*this)[0];
+    alpha_[0] = m1/m0;
     beta_[0] = 1.0;
 
     for (label columnI = 1; columnI < nMoments_ - 1; columnI++)
