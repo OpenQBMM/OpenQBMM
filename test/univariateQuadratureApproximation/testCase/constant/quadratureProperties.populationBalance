@@ -15,16 +15,11 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-fieldMomentInversion extendedFieldMomentInversion;
+fieldMomentInversion    basicFieldMomentInversion;
 
-extendedMomentInversion
+basicMomentInversion
 {
-    extendedMomentInversion lognormal;
-
-    basicQuadrature
-    {
-        univariateMomentInversion  Gauss;
-    };
+    univariateMomentInversion Gauss;
 }
 
 moments
