@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -34,12 +34,6 @@ const Foam::word&
 Foam::quadratureNode<scalarType, vectorType>::name() const
 {
     return name_;
-}
-
-template<class scalarType, class vectorType>
-bool Foam::quadratureNode<scalarType, vectorType>::extended() const
-{
-    return extended_;
 }
 
 template<class scalarType, class vectorType>
@@ -76,13 +70,6 @@ bool Foam::quadratureNode<scalarType, vectorType>::useVolumeFraction() const
 }
 
 template<class scalarType, class vectorType>
-Foam::label
-Foam::quadratureNode<scalarType, vectorType>::nSecondaryNodes() const
-{
-    return nSecondaryNodes_;
-}
-
-template<class scalarType, class vectorType>
 const scalarType&
 Foam::quadratureNode<scalarType, vectorType>::primaryWeight() const
 {
@@ -111,101 +98,12 @@ Foam::quadratureNode<scalarType, vectorType>::primaryAbscissae()
 }
 
 template<class scalarType, class vectorType>
-const Foam::PtrList<Foam::PtrList<scalarType>>&
-Foam::quadratureNode<scalarType, vectorType>::secondaryWeights() const
-{
-    if (!extended_)
-    {
-        FatalErrorInFunction
-            << "Attempt to access secondary weights of a quadrature node" << nl
-            << "    not of extended type. "
-            << abort(FatalError);
-    }
-
-    return secondaryWeights_;
-}
-
-template<class scalarType, class vectorType>
-Foam::PtrList<Foam::PtrList<scalarType>>&
-Foam::quadratureNode<scalarType, vectorType>::secondaryWeights()
-{
-    if (!extended_)
-    {
-        FatalErrorInFunction
-            << "Attempt to access secondary weights of a quadrature node" << nl
-            << "    not of extended type. "
-            << abort(FatalError);
-    }
-    return secondaryWeights_;
-}
-
-template<class scalarType, class vectorType>
-const Foam::PtrList<Foam::PtrList<scalarType>>&
-Foam::quadratureNode<scalarType, vectorType>::secondaryAbscissae() const
-{
-    if (!extended_)
-    {
-        FatalErrorInFunction
-            << "Attempt to access secondary abscissae of a quadrature" << nl
-            << "   node not of extended type. "
-            << abort(FatalError);
-    }
-
-    return secondaryAbscissae_;
-}
-
-template<class scalarType, class vectorType>
-Foam::PtrList<Foam::PtrList<scalarType>>&
-Foam::quadratureNode<scalarType, vectorType>::secondaryAbscissae()
-{
-    if (!extended_)
-    {
-        FatalErrorInFunction
-            << "Attempt to access secondary abscissae of a quadrature" << nl
-            << "   node not of extended type. "
-            << abort(FatalError);
-    }
-
-    return secondaryAbscissae_;
-}
-
-template<class scalarType, class vectorType>
-const Foam::PtrList<scalarType>&
-Foam::quadratureNode<scalarType, vectorType>::sigmas() const
-{
-    if (!extended_)
-    {
-        FatalErrorInFunction
-            << "Attempt to access sigma field of a quadrature node not" << nl
-            << "   of extended type. "
-            << abort(FatalError);
-    }
-
-    return sigmas_;
-}
-
-template<class scalarType, class vectorType>
-Foam::PtrList<scalarType>&
-Foam::quadratureNode<scalarType, vectorType>::sigmas()
-{
-    if (!extended_)
-    {
-        FatalErrorInFunction
-            << "Attempt to access sigma field of a quadrature node not" << nl
-            << "   of extended type. "
-            << abort(FatalError);
-    }
-
-    return sigmas_;
-}
-
-template<class scalarType, class vectorType>
 const vectorType&
 Foam::quadratureNode<scalarType, vectorType>::velocityAbscissae() const
 {
     FatalErrorInFunction
-        << "Attempt to access velocity abscissa of a quadrature node" << nl
-        << "    with no scalar abscissa. "
+        << "Attempt to access velocity abscissae of a quadrature node" << nl
+        << "    with no velocity abscissae. "
         << abort(FatalError);
 
     return const_cast<const vectorType&>(velocityAbscissaeType::null());
@@ -216,8 +114,8 @@ vectorType&
 Foam::quadratureNode<scalarType, vectorType>::velocityAbscissae()
 {
     FatalErrorInFunction
-        << "Attempt to access velocity abscissa of aquadrature node" << nl
-        << "    with no velocity abscissa. "
+        << "Attempt to access velocity abscissae of a quadrature node" << nl
+        << "    with no velocity abscissae. "
         << abort(FatalError);
     return const_cast<vectorType&>(velocityAbscissaeType::null());
 }

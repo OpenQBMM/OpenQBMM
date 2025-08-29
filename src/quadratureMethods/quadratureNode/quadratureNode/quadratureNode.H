@@ -65,16 +65,11 @@ protected:
         //- Typedefs
 
         typedef scalarType weightType;
-        typedef PtrList<PtrList<weightType>> secondaryWeightsType;
 
         typedef scalarType abscissaType;
         typedef PtrList<abscissaType> abscissaeType;
-        typedef PtrList<abscissaeType> secondaryAbscissaeType;
 
         typedef vectorType velocityAbscissaeType;
-
-        typedef scalarType sigmaType;
-        typedef PtrList<sigmaType> sigmasType;
 
 
     // Protected data
@@ -82,13 +77,13 @@ protected:
         //- Name of the quadrature node
         word name_;
 
-        //- Primary weight of the node
+        //- Node weight
         weightType weight_;
 
-        //- Primary abscissae of the node
+        //- Node abscissae
         abscissaeType abscissae_;
 
-        //- Indicies of abscissa components
+        //- Indices of abscissa components
         labelList scalarIndexes_;
 
         //- Indices of velocity components
@@ -109,22 +104,6 @@ protected:
         //- Bool to indicate if weights are volume fractions
         bool useVolumeFraction_;
 
-        //- List of secondary weights of the node
-        secondaryWeightsType secondaryWeights_;
-
-        //- List of secondary abscissae of the node
-        secondaryAbscissaeType secondaryAbscissae_;
-
-        //- Parameter of the kernel density function used in EQMOM
-        sigmasType sigmas_;
-
-        //- Number of secondary nodes
-        label nSecondaryNodes_;
-
-        //- Boolean variable to identify extended nodes
-        bool extended_;
-
-
 
 public:
 
@@ -140,9 +119,7 @@ public:
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const PtrList<dimensionSet>& abscissaeDimensions,
-            const wordList& boundaryTypes,
-            const bool extended = false,
-            const label nSecondaryNodes = 0
+            const wordList& boundaryTypes
         );
 
         //- Construct from name, number of secondary nodes, mesh and dimensions
@@ -152,9 +129,7 @@ public:
             const word& distributionName,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
-            const PtrList<dimensionSet>& abscissaeDimensions,
-            const bool extended = false,
-            const label nSecondaryNodes = 0
+            const PtrList<dimensionSet>& abscissaeDimensions
         );
 
         //- Return clone
@@ -169,8 +144,6 @@ public:
             const dimensionSet& weightDimensions_;
             const PtrList<dimensionSet>& abscissaeDimensions_;
             const wordList& boundaryTypes_;
-            const bool extended_;
-            const label nSecondaryNodes_;
 
         public:
 
@@ -180,18 +153,14 @@ public:
                 const fvMesh& mesh,
                 const dimensionSet& weightDimensions,
                 const PtrList<dimensionSet>& abscissaeDimensions,
-                const wordList& boundaryTypes,
-                const bool extended,
-                const label nSecondaryNodes
+                const wordList& boundaryTypes
             )
             :
                 distributionName_(distributionName),
                 mesh_(mesh),
                 weightDimensions_(weightDimensions),
                 abscissaeDimensions_(abscissaeDimensions),
-                boundaryTypes_(boundaryTypes),
-                extended_(extended),
-                nSecondaryNodes_(nSecondaryNodes)
+                boundaryTypes_(boundaryTypes)
             {}
 
             autoPtr<quadratureNode<scalarType, vectorType>>
@@ -211,9 +180,7 @@ public:
                         mesh_,
                         weightDimensions_,
                         abscissaeDimensions_,
-                        boundaryTypes_,
-                        extended_,
-                        nSecondaryNodes_
+                        boundaryTypes_
                     )
                 );
             }
@@ -246,12 +213,6 @@ public:
             //- Return if the weight is a volume fraction 
             bool useVolumeFraction() const;
 
-            //- Is the node extended
-            bool extended() const;
-
-            //- Returns the number of secondary nodes
-            label nSecondaryNodes() const;
-
             //- Const access to the weight of the node
             const weightType& primaryWeight() const;
 
@@ -263,24 +224,6 @@ public:
 
             //- Non-const access to the scalar abscissa of the node
             abscissaeType& primaryAbscissae();
-
-            //- Const access to the secondary weights of the node
-            const secondaryWeightsType& secondaryWeights() const;
-
-            //- Non-const access to the secondary weights of the node
-            secondaryWeightsType& secondaryWeights();
-
-            //- Const access to the list of secondary abscissae of the node
-            const secondaryAbscissaeType& secondaryAbscissae() const;
-
-            //- Non-const access to the list of secondary abscissae of the node
-            secondaryAbscissaeType& secondaryAbscissae();
-
-            //- Const access to sigma
-            const sigmasType& sigmas() const;
-
-            //- Non-const access to sigma
-            sigmasType& sigmas();
 
             //- Const access to the velocity abscissa of the node
             virtual const velocityAbscissaeType& velocityAbscissae() const;
