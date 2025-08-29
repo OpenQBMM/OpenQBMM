@@ -81,10 +81,10 @@ protected:
 
     // Static constants
 
-        //- Maximum dimensions of the NDF
+        //- Maximum dimensions of the distribution
         //  This is decided based on computational cost and to the extent
         //  multivariate algorithms have been tested.
-        static const label maxNDFDimensions_ = 5;
+        static const label maxDistributionDimensions_ = 5;
 
 
 public:

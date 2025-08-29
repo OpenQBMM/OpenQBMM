@@ -30,7 +30,7 @@ Class
     Foam::univariateMomentSet
 
 Description
-    Stores a generic moment set with the corresponding list of orders.
+    Stores a generic vector of integer moments.
 
 SourceFiles
     univariateMomentSet.C

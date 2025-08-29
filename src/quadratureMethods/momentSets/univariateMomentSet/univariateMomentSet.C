@@ -767,14 +767,14 @@ Foam::labelListList Foam::univariateMomentSet::makeUnivariateMomentOrders
     const label nMoments
 )
 {
-    labelListList mOrd(nMoments);
+    labelListList mOrders(nMoments);
 
     for (label mI = 0; mI < nMoments; mI++)
     {
-        mOrd[mI] = labelList(1, mI);
+        mOrders[mI] = labelList(1, mI);
     }
 
-    return mOrd;
+    return mOrders;
 }
 
 

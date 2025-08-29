@@ -60,11 +60,11 @@ Foam::momentSet::momentSet
             << abort(FatalError);
     }
 
-    if (nDimensions_ > maxNDFDimensions_)
+    if (nDimensions_ > maxDistributionDimensions_)
     {
         FatalErrorInFunction
-            << "The number of maximum dimensions for the NDF is " 
-            << maxNDFDimensions_ << "." << nl
+            << "The number of maximum dimensions for the distribution is " 
+            << maxDistributionDimensions_ << "." << nl
             << "    Specified number of dimensions: " << nDimensions_
             << abort(FatalError);
     }
@@ -96,11 +96,11 @@ Foam::momentSet::momentSet
             << abort(FatalError);
     }
 
-    if (nDimensions_ > maxNDFDimensions_)
+    if (nDimensions_ > maxDistributionDimensions_)
     {
         FatalErrorInFunction
-            << "The number of maximum dimensions for the NDF is " 
-            << maxNDFDimensions_ << "." << nl
+            << "The number of maximum dimensions for the distribution is " 
+            << maxDistributionDimensions_ << "." << nl
             << "    Specified number of dimensions: " << nDimensions_
             << abort(FatalError);
     }
