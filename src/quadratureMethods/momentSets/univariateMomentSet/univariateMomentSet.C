@@ -798,6 +798,7 @@ void Foam::univariateMomentSet::update
     nRealizableMoments_ = 0;
 }
 
+
 void Foam::univariateMomentSet::updateIntegerMoments
 (
     const scalarList& weights,
@@ -809,45 +810,13 @@ void Foam::univariateMomentSet::updateIntegerMoments
     for (label momenti = 0; momenti < nMoments_; momenti++)
     {
         (*this)[momenti] = Zero;
-    }
 
-    // Compute moments using efficient power calculation
-    for (label nodei = 0; nodei < weights.size(); nodei++)
-    {
-        scalar abscissa = abscissae[nodei];
-        scalar weight = weights[nodei];
-        scalar abscissaPower = 1.0;  // abscissa^0
-        
-        // Moment 0
-        (*this)[0] += weight;
-        
-        // Higher order moments using iterative multiplication
-        for (label momenti = 1; momenti < nMoments_; momenti++)
+        for (label nodei = 0; nodei < weights.size(); nodei++)
         {
-            abscissaPower *= abscissa;  // abscissa^momenti
-            (*this)[momenti] += weight * abscissaPower;
+            (*this)[momenti] += weights[nodei]*pow(abscissae[nodei], momenti);
         }
     }
 }
-
-// void Foam::univariateMomentSet::updateIntegerMoments
-// (
-//     const scalarList& weights,
-//     const scalarList& abscissae
-// )
-// {
-//     // Recomputing all the moments (even if they originally were not realizable)
-//     // from quadrature (projection step).
-//     for (label momenti = 0; momenti < nMoments_; momenti++)
-//     {
-//         (*this)[momenti] = Zero;
-
-//         for (label nodei = 0; nodei < weights.size(); nodei++)
-//         {
-//             (*this)[momenti] += weights[nodei]*pow(abscissae[nodei], momenti);
-//         }
-//     }
-// }
 
 void Foam::univariateMomentSet::setSize(const label newSize)
 {
