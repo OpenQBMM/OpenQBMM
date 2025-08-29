@@ -220,6 +220,13 @@ public:
             const scalarList& abscissae
         );
 
+        //- Update integer moments from the corresponding quadrature
+        virtual void updateIntegerMoments
+        (
+            const scalarList& weights,
+            const scalarList& abscissae
+        );
+
         //- Const access to element
         inline const scalar& operator[](const label index) const;
 

@@ -784,21 +784,70 @@ void Foam::univariateMomentSet::update
     const scalarList& abscissae
 )
 {
+    updateIntegerMoments(weights, abscissae);
+
+    // Realizability needs to be checked again after recomputing moments
+    realizabilityChecked_ = false;
+
+    // Resetting flags after recomputing moments from quadrature
+    degenerate_ = false;
+    fullyRealizable_ = true;
+    subsetRealizable_ = true;
+    onMomentSpaceBoundary_ = false;
+    negativeZeta_ = 0;
+    nRealizableMoments_ = 0;
+}
+
+void Foam::univariateMomentSet::updateIntegerMoments
+(
+    const scalarList& weights,
+    const scalarList& abscissae
+)
+{
     // Recomputing all the moments (even if they originally were not realizable)
     // from quadrature (projection step).
     for (label momenti = 0; momenti < nMoments_; momenti++)
     {
         (*this)[momenti] = Zero;
-
-        for (label nodei = 0; nodei < weights.size(); nodei++)
-        {
-            (*this)[momenti] += weights[nodei]*pow(abscissae[nodei], momenti);
-        }
     }
 
-    realizabilityChecked_ = false;
+    // Compute moments using efficient power calculation
+    for (label nodei = 0; nodei < weights.size(); nodei++)
+    {
+        scalar abscissa = abscissae[nodei];
+        scalar weight = weights[nodei];
+        scalar abscissaPower = 1.0;  // abscissa^0
+        
+        // Moment 0
+        (*this)[0] += weight;
+        
+        // Higher order moments using iterative multiplication
+        for (label momenti = 1; momenti < nMoments_; momenti++)
+        {
+            abscissaPower *= abscissa;  // abscissa^momenti
+            (*this)[momenti] += weight * abscissaPower;
+        }
+    }
 }
 
+// void Foam::univariateMomentSet::updateIntegerMoments
+// (
+//     const scalarList& weights,
+//     const scalarList& abscissae
+// )
+// {
+//     // Recomputing all the moments (even if they originally were not realizable)
+//     // from quadrature (projection step).
+//     for (label momenti = 0; momenti < nMoments_; momenti++)
+//     {
+//         (*this)[momenti] = Zero;
+
+//         for (label nodei = 0; nodei < weights.size(); nodei++)
+//         {
+//             (*this)[momenti] += weights[nodei]*pow(abscissae[nodei], momenti);
+//         }
+//     }
+// }
 
 void Foam::univariateMomentSet::setSize(const label newSize)
 {
