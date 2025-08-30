@@ -89,7 +89,7 @@ Foam::populationBalanceSubModels::collisionKernel::d
     }
 
     const volVelocityNode& node = quadrature_.nodes()(nodei);
-    scalar abscissa = node.primaryAbscissae()[sizeIndex_][celli];
+    scalar abscissa = node.abscissae()[sizeIndex_][celli];
 
     if (node.lengthBased())
     {

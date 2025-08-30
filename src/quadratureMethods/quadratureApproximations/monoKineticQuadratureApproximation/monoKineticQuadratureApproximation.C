@@ -304,16 +304,16 @@ void Foam::monoKineticQuadratureApproximation::interpolateNodes()
         surfaceScalarNode& nodeNei(nodesNei[nodei]);
         surfaceScalarNode& nodeOwn(nodesOwn[nodei]);
 
-        nodes_()[nodei].primaryWeight().correctBoundaryConditions();
-        nodes_()[nodei].primaryAbscissae()[0].correctBoundaryConditions();
+        nodes_()[nodei].weight().correctBoundaryConditions();
+        nodes_()[nodei].abscissae()[0].correctBoundaryConditions();
 
-        nodeOwn.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), own, "reconstruct(weight)");
+        nodeOwn.weight() =
+            fvc::interpolate(node.weight(), own, "reconstruct(weight)");
 
-        nodeOwn.primaryAbscissae()[0] =
+        nodeOwn.abscissae()[0] =
             fvc::interpolate
             (
-                node.primaryAbscissae()[0],
+                node.abscissae()[0],
                 own,
                 "reconstruct(abscissa)"
             );
@@ -322,13 +322,13 @@ void Foam::monoKineticQuadratureApproximation::interpolateNodes()
             fvc::interpolate(velocityAbscissae_[nodei], own, "reconstruct(U)");
 
 
-        nodeNei.primaryWeight() =
-            fvc::interpolate(node.primaryWeight(), nei, "reconstruct(weight)");
+        nodeNei.weight() =
+            fvc::interpolate(node.weight(), nei, "reconstruct(weight)");
 
-        nodeNei.primaryAbscissae()[0] =
+        nodeNei.abscissae()[0] =
             fvc::interpolate
             (
-                node.primaryAbscissae()[0],
+                node.abscissae()[0],
                 nei,
                 "reconstruct(abscissa)"
             );
@@ -367,10 +367,10 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                     //  and to reduce unneeded computation time
                     if
                     (
-                        nodes_()[nodei].primaryWeight().boundaryField()[patchi][facei]
+                        nodes_()[nodei].weight().boundaryField()[patchi][facei]
                       > minM0_
                      &&
-                        nodes_()[nodei].primaryAbscissae()[0].boundaryField()[patchi][facei]
+                        nodes_()[nodei].abscissae()[0].boundaryField()[patchi][facei]
                       > SMALL
                     )
                     {
@@ -394,8 +394,8 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                 velocityAbscissae_[index].boundaryFieldRef()[patchi][facei] =
                     velocityMoments_[1].boundaryField()[patchi][facei]
                    /(
-                        nodes_()[index].primaryWeight().boundaryField()[patchi][facei]
-                       *nodes_()[index].primaryAbscissae()[0].boundaryField()[patchi][facei]
+                        nodes_()[index].weight().boundaryField()[patchi][facei]
+                       *nodes_()[index].abscissae()[0].boundaryField()[patchi][facei]
                     );
             }
             else if (nNonZeroNodes > 1)
@@ -409,11 +409,11 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
                     if (nonZeroNodes[nodei])
                     {
                         x[nodej] =
-                            nodes_()[nodei].primaryAbscissae()[0].boundaryField()[patchi][facei];
+                            nodes_()[nodei].abscissae()[0].boundaryField()[patchi][facei];
 
                         invR[nodej][nodej] =
                             1.0
-                           /nodes_()[nodei].primaryWeight().boundaryField()[patchi][facei];
+                           /nodes_()[nodei].weight().boundaryField()[patchi][facei];
 
                         nodej++;
                     }
@@ -610,8 +610,8 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
             //  and to reduce unneeded computation time
             if
             (
-                nodes_()[nodei].primaryWeight()[celli] > minM0_
-                && nodes_()[nodei].primaryAbscissae()[0][celli] > SMALL
+                nodes_()[nodei].weight()[celli] > minM0_
+                && nodes_()[nodei].abscissae()[0][celli] > SMALL
             )
             {
                 nonZeroNodes[nodei] = true;
@@ -636,8 +636,8 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
         velocityAbscissae_[index][celli] =
             velocityMoments_[1][celli]
             /(
-                nodes_()[index].primaryWeight()[celli]
-                *nodes_()[index].primaryAbscissae()[0][celli]
+                nodes_()[index].weight()[celli]
+                *nodes_()[index].abscissae()[0][celli]
             );
     }
     else if (nNonZeroNodes > 1)
@@ -652,10 +652,10 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocities
             if (nonZeroNodes[nodei])
             {
                 x[nodej] =
-                    nodes_()[nodei].primaryAbscissae()[0][celli];
+                    nodes_()[nodei].abscissae()[0][celli];
 
                 invR[nodej][nodej] =
-                    1.0/nodes_()[nodei].primaryWeight()[celli];
+                    1.0/nodes_()[nodei].weight()[celli];
 
                 nodej++;
             }
@@ -728,7 +728,7 @@ void Foam::monoKineticQuadratureApproximation::updateVelocityMoments()
             forAll(nodes_(), nodei)
             {
                 velocityMoments_[mi] +=
-                    nodes_()[nodei].primaryWeight()*velocityAbscissae_[nodei];
+                    nodes_()[nodei].weight()*velocityAbscissae_[nodei];
             }
 
             velocityMoments_[mi].correctBoundaryConditions();
@@ -738,8 +738,8 @@ void Foam::monoKineticQuadratureApproximation::updateVelocityMoments()
             forAll(nodes_(), nodei)
             {
                 velocityMoments_[mi] +=
-                    nodes_()[nodei].primaryWeight()
-                   *pow(nodes_()[nodei].primaryAbscissae()[0], mi)
+                    nodes_()[nodei].weight()
+                   *pow(nodes_()[nodei].abscissae()[0], mi)
                    *velocityAbscissae_[nodei];
             }
 
@@ -763,7 +763,7 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocityMoments
             forAll(nodes_(), nodei)
             {
                 velocityMoments_[mi][celli] +=
-                    nodes_()[nodei].primaryWeight()[celli]
+                    nodes_()[nodei].weight()[celli]
                    *velocityAbscissae_[nodei][celli];
             }
         }
@@ -772,8 +772,8 @@ void Foam::monoKineticQuadratureApproximation::updateLocalVelocityMoments
             forAll(nodes_(), nodei)
             {
                 velocityMoments_[mi][celli] +=
-                    nodes_()[nodei].primaryWeight()[celli]
-                   *pow(nodes_()[nodei].primaryAbscissae()[0][celli], mi)
+                    nodes_()[nodei].weight()[celli]
+                   *pow(nodes_()[nodei].abscissae()[0][celli], mi)
                    *velocityAbscissae_[nodei][celli];
             }
         }

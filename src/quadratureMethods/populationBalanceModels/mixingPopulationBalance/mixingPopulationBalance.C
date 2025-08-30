@@ -81,19 +81,19 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     ),
     p1_
     (
-        mixingModel_().quadrature().nodes()[0].primaryWeight()
+        mixingModel_().quadrature().nodes()[0].weight()
     ),
     xi1_
     (
-        mixingModel_().quadrature().nodes()[0].primaryAbscissae()[0]
+        mixingModel_().quadrature().nodes()[0].abscissae()[0]
     ),
     p2_
     (
-        mixingModel_().quadrature().nodes()[1].primaryWeight()
+        mixingModel_().quadrature().nodes()[1].weight()
     ),
     xi2_
     (
-        mixingModel_().quadrature().nodes()[1].primaryAbscissae()[0]
+        mixingModel_().quadrature().nodes()[1].abscissae()[0]
     ),
     meanXi_
     (

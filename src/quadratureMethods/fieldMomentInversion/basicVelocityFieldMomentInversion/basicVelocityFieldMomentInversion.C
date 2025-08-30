@@ -188,7 +188,7 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
                 volVelocityNode& node = nodes[nodei];
 
                 volScalarField::Boundary& weightBf =
-                    node.primaryWeight().boundaryFieldRef();
+                    node.weight().boundaryFieldRef();
 
                 volVectorField::Boundary& velocityAbscissaBf =
                     node.velocityAbscissae().boundaryFieldRef();
@@ -201,7 +201,7 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
                 forAll(node.scalarIndexes(), cmpt)
                 {
                     volScalarField::Boundary& abscissaBf =
-                        node.primaryAbscissae()[cmpt].boundaryFieldRef();
+                        node.abscissae()[cmpt].boundaryFieldRef();
 
                     abscissaBf[patchi][facei] = abscissae(nodeIndex)[cmpt];
                 }
@@ -252,12 +252,12 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
         const labelList& nodeIndex = nodeIndexes_[nodei];
         volVelocityNode& node(nodes[nodei]);
 
-        node.primaryWeight()[celli] = weights(nodeIndex);
+        node.weight()[celli] = weights(nodeIndex);
         node.velocityAbscissae()[celli] = velocityAbscissae(nodeIndex);
 
         forAll(node.scalarIndexes(), cmpt)
         {
-            node.primaryAbscissae()[cmpt][celli] = abscissae(nodeIndex)[cmpt];
+            node.abscissae()[cmpt][celli] = abscissae(nodeIndex)[cmpt];
         }
     }
 

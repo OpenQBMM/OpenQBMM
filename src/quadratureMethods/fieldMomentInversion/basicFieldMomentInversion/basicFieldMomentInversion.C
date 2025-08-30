@@ -187,10 +187,10 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
                 volScalarNode& node = nodes[nodei];
 
                 volScalarField::Boundary& weightBf
-                        = node.primaryWeight().boundaryFieldRef();
+                        = node.weight().boundaryFieldRef();
 
                 volScalarField::Boundary& abscissaBf
-                        = node.primaryAbscissae()[0].boundaryFieldRef();
+                        = node.abscissae()[0].boundaryFieldRef();
 
                 if (nodei < actualNodes)
                 {
@@ -280,19 +280,19 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
             // negative growth rates.
             if (abscissae[nodei] > smallM0())
             {
-                node.primaryWeight()[celli] = weights[nodei];
-                node.primaryAbscissae()[0][celli] = abscissae[nodei];
+                node.weight()[celli] = weights[nodei];
+                node.abscissae()[0][celli] = abscissae[nodei];
             }
             else
             {
-                node.primaryWeight()[celli] = 0.0;
-                node.primaryAbscissae()[0][celli] = 0.0;
+                node.weight()[celli] = 0.0;
+                node.abscissae()[0][celli] = 0.0;
             }
         }
         else
         {
-            node.primaryWeight()[celli] = 0.0;
-            node.primaryAbscissae()[0][celli] = 0.0;
+            node.weight()[celli] = 0.0;
+            node.abscissae()[0][celli] = 0.0;
         }
     }
 

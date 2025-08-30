@@ -214,16 +214,16 @@ public:
             bool useVolumeFraction() const;
 
             //- Const access to the weight of the node
-            const weightType& primaryWeight() const;
+            const weightType& weight() const;
 
             //- Non-const access to the weight of the node
-            weightType& primaryWeight();
+            weightType& weight();
 
             //- Const access to the scalar abscissa of the node
-            const abscissaeType& primaryAbscissae() const;
+            const abscissaeType& abscissae() const;
 
             //- Non-const access to the scalar abscissa of the node
-            abscissaeType& primaryAbscissae();
+            abscissaeType& abscissae();
 
             //- Const access to the velocity abscissa of the node
             virtual const velocityAbscissaeType& velocityAbscissae() const;

@@ -149,11 +149,11 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
     forAll(nodes, pNode1i)
     {
         const volScalarNode &node1 = nodes[pNode1i];
-        const volScalarField &pWeight1 = node1.primaryWeight();
-        const PtrList<volScalarField> &pAbscissae1 = node1.primaryAbscissae();
+        const volScalarField &pWeight1 = node1.weight();
+        const PtrList<volScalarField> &pAbscissae1 = node1.abscissae();
 
         scalar bAbscissa1 = 
-            max(node1.primaryAbscissae()[sizeIndex][celli], scalar(0));
+            max(node1.abscissae()[sizeIndex][celli], scalar(0));
         
         scalar d1 = node1.d(celli, bAbscissa1);
         scalar n1 = node1.numberDensity(celli, pWeight1[celli], bAbscissa1);
@@ -163,11 +163,11 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
         forAll(nodes, pNode2i)
         {
             const volScalarNode &node2 = nodes[pNode2i];
-            const volScalarField &pWeight2 = node2.primaryWeight();
+            const volScalarField &pWeight2 = node2.weight();
 
             // Remove SMALL negative values in abscissae
             scalar bAbscissa2 =
-                max(node2.primaryAbscissae()[sizeIndex][celli], scalar(0));
+                max(node2.abscissae()[sizeIndex][celli], scalar(0));
 
             scalar d2 = node2.d(celli, bAbscissa2);
             scalar n2 = node2.numberDensity(celli, pWeight2[celli], bAbscissa2);
@@ -245,10 +245,10 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
         forAll(nodes, pNode1i)
         {
             const volVelocityNode& node1 = nodes[pNode1i];
-            scalar pWeight1 = node1.primaryWeight()[celli];
+            scalar pWeight1 = node1.weight()[celli];
 
             scalar bAbscissa1 =
-                max(node1.primaryAbscissae()[sizeIndex][celli], scalar(0));
+                max(node1.abscissae()[sizeIndex][celli], scalar(0));
 
             scalar d1 = node1.d(celli, bAbscissa1);
             scalar n1 = node1.numberDensity(celli, pWeight1, bAbscissa1);
@@ -259,10 +259,10 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
             forAll(nodes, pNode2i)
             {
                 const volVelocityNode& node2 = nodes[pNode2i];
-                scalar pWeight2 = node2.primaryWeight()[celli];
+                scalar pWeight2 = node2.weight()[celli];
 
                 scalar bAbscissa2 =
-                    max(node2.primaryAbscissae()[sizeIndex][celli], scalar(0));
+                    max(node2.abscissae()[sizeIndex][celli], scalar(0));
 
                 scalar d2 = node2.d(celli, bAbscissa2);
                 scalar n2 = node2.numberDensity(celli, pWeight2, bAbscissa2);
@@ -290,7 +290,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
                     aSourcei *=
                         pow
                         (
-                            node1.primaryAbscissae()[cmpt][celli],
+                            node1.abscissae()[cmpt][celli],
                             momentOrder[scalarIndexes[cmpt]]
                         );
                 }
@@ -317,7 +317,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
         const volVelocityNode &node1 = nodes(sizei);
 
         scalar bAbscissa1 =
-            max(node1.primaryAbscissae()[sizeIndex][celli], scalar(0));
+            max(node1.abscissae()[sizeIndex][celli], scalar(0));
 
         scalar d1 = node1.d(celli, bAbscissa1);
 
@@ -326,7 +326,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
             const volVelocityNode &node2 = nodes(sizej);
 
             scalar bAbscissa2 =
-                max(node2.primaryAbscissae()[sizeIndex][celli], scalar(0));
+                max(node2.abscissae()[sizeIndex][celli], scalar(0));
 
             scalar d2 = node2.d(celli, bAbscissa2);
 
@@ -372,7 +372,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
             label sizej = quadrature.nodeIndexes()[pNode2i][sizeIndex];
 
             aSourcei +=
-                node1.primaryWeight()[celli]*node2.primaryWeight()[celli]
+                node1.weight()[celli]*node2.weight()[celli]
                *aSources[sizei][sizej];
         }
 
@@ -381,7 +381,7 @@ Foam::populationBalanceSubModels::aggregationKernel::aggregationSource
             if (scalarIndexes[cmpt] != sizeIndex)
             {
                 aSourcei *=
-                    pow(node1.primaryAbscissae()[cmpt][celli],
+                    pow(node1.abscissae()[cmpt][celli],
                         momentOrder[scalarIndexes[cmpt]]);
             }
         }

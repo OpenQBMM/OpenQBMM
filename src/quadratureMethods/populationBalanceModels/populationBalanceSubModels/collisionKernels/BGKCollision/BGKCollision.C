@@ -213,7 +213,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         {
             const labelList& vOrder = velocityMomentOrders_[mi];
 
-            scalar mCmpt = node.primaryWeight()[celli];
+            scalar mCmpt = node.weight()[celli];
 
             forAll(vOrder, cmpt)
             {
@@ -234,7 +234,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         ds[sizei] =
             max
             (
-                quadrature_.nodes()(sizei).primaryAbscissae()[sizeIndex_][celli],
+                quadrature_.nodes()(sizei).abscissae()[sizeIndex_][celli],
                 minD_
             );
 
@@ -436,7 +436,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                 mCmpt *=
                     pow
                     (
-                        quadrature_.nodes()(sizei).primaryAbscissae()[sizeIndex_][celli],
+                        quadrature_.nodes()(sizei).abscissae()[sizeIndex_][celli],
                         si
                     );
             }

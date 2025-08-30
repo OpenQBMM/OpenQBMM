@@ -60,8 +60,8 @@ int main(int argc, char *argv[])
 
     for (label nodeI = 0; nodeI < nPrimaryNodes; nodeI++)
     {
-        quadrature.nodes()[nodeI].primaryWeight().write();
-        quadrature.nodes()[nodeI].primaryAbscissae()[0].write();
+        quadrature.nodes()[nodeI].weight().write();
+        quadrature.nodes()[nodeI].abscissae()[0].write();
     }
 
     runTime++;

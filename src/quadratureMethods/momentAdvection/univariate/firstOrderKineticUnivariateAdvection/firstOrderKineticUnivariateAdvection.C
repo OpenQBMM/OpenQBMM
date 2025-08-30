@@ -243,24 +243,24 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
         surfaceScalarNode& nodeNei(nodesNei[rNodei]);
         surfaceScalarNode& nodeOwn(nodesOwn[rNodei]);
 
-        nodeOwn.primaryWeight() =
-            weightOwnScheme().interpolate(node.primaryWeight());
+        nodeOwn.weight() =
+            weightOwnScheme().interpolate(node.weight());
 
-        nodeNei.primaryWeight() =
-            weightNeiScheme().interpolate(node.primaryWeight());
+        nodeNei.weight() =
+            weightNeiScheme().interpolate(node.weight());
 
-        forAll(node.primaryAbscissae(), cmpt)
+        forAll(node.abscissae(), cmpt)
         {
-            nodeOwn.primaryAbscissae()[cmpt] =
+            nodeOwn.abscissae()[cmpt] =
                 abscissaOwnScheme().interpolate
                 (
-                    node.primaryAbscissae()[cmpt]
+                    node.abscissae()[cmpt]
                 );
                 
-            nodeNei.primaryAbscissae()[cmpt] =
+            nodeNei.abscissae()[cmpt] =
                 abscissaNeiScheme().interpolate
                 (
-                    node.primaryAbscissae()[cmpt]
+                    node.abscissae()[cmpt]
                 );
         }
     }

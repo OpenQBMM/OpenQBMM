@@ -83,7 +83,7 @@ void Foam::symmetryFvQuadraturePatch::update()
     }
 
     const PtrList<volVelocityNode>& nodes = quadrature_.nodes();
-    const fvMesh& mesh = nodes[0].primaryWeight().mesh();
+    const fvMesh& mesh = nodes[0].weight().mesh();
 
     const vectorField& bfSf(mesh.Sf().boundaryField()[patchi_]);
     vectorField bfNorm(bfSf/mag(bfSf));
@@ -94,9 +94,9 @@ void Foam::symmetryFvQuadraturePatch::update()
         surfaceVelocityNode& nodeNei(nodesNei_[nodei]);
         surfaceVelocityNode& nodeOwn(nodesOwn_[nodei]);
 
-        const volScalarField& weight = node.primaryWeight();
-        surfaceScalarField& weightOwn = nodeOwn.primaryWeight();
-        surfaceScalarField& weightNei = nodeNei.primaryWeight();
+        const volScalarField& weight = node.weight();
+        surfaceScalarField& weightOwn = nodeOwn.weight();
+        surfaceScalarField& weightNei = nodeNei.weight();
         const volVectorField& U = node.velocityAbscissae();
         surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
         surfaceVectorField& UNei = nodeNei.velocityAbscissae();

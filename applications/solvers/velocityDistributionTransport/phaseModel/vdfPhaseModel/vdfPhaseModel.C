@@ -138,7 +138,7 @@ Foam::vdfPhaseModel::vdfPhaseModel
 
     dimensionSet weightDim
     (
-        quadrature_.nodes()[0].primaryWeight().dimensions()
+        quadrature_.nodes()[0].weight().dimensions()
     );
 
     if (weightDim == dimless)
@@ -152,7 +152,7 @@ Foam::vdfPhaseModel::vdfPhaseModel
 
         dimensionSet sizeDim
         (
-            quadrature_.nodes()[0].primaryAbscissae()[sizeIndex_].dimensions()
+            quadrature_.nodes()[0].abscissae()[sizeIndex_].dimensions()
         );
 
         sizeMoment_[sizeIndex_] = 1;
@@ -248,28 +248,28 @@ Foam::tmp<Foam::volScalarField> Foam::vdfPhaseModel::volumeFraction
 
     if (m0VolumeFraction_)
     {
-        return quadrature_.nodes()[nodei].primaryWeight();
+        return quadrature_.nodes()[nodei].weight();
     }
 
     const volVelocityNode& node = quadrature_.nodes()[nodei];
     if (momentSetType_ == numberDensityMass)
     {
         return
-            node.primaryAbscissae()[sizeIndex_]
-           *node.primaryWeight()
+            node.abscissae()[sizeIndex_]
+           *node.weight()
            /rho();
     }
     else if (momentSetType_ == numberDensityVolume)
     {
         return
-            node.primaryAbscissae()[sizeIndex_]
-           *node.primaryWeight();
+            node.abscissae()[sizeIndex_]
+           *node.weight();
     }
     else if (momentSetType_ == numberDensityLength)
     {
         return
-            pow3(node.primaryAbscissae()[sizeIndex_])
-           *node.primaryWeight();
+            pow3(node.abscissae()[sizeIndex_])
+           *node.weight();
     }
 
     NotImplemented;
@@ -304,7 +304,7 @@ Foam::vdfPhaseModel::d(const label nodei) const
     }
 
     const volScalarField& size =
-        quadrature_.nodes()[nodei].primaryAbscissae()[sizeIndex_];
+        quadrature_.nodes()[nodei].abscissae()[sizeIndex_];
 
     if (sizeType_ == length)
     {

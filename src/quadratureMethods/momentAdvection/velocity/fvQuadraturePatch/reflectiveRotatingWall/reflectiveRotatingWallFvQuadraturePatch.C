@@ -79,7 +79,7 @@ Foam::tmp<Foam::vectorField> Foam::reflectiveRotatingWallFvQuadraturePatch
     const vectorField& n
 ) const
 {
-    const fvMesh& mesh = quadrature_.nodes()[0].primaryWeight().mesh();
+    const fvMesh& mesh = quadrature_.nodes()[0].weight().mesh();
     const scalar t = mesh.time().timeOutputValue();
     scalar om = omega_->value(t);
 

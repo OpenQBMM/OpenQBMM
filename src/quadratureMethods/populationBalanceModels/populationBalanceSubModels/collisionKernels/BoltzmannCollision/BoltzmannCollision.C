@@ -189,7 +189,7 @@ Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                 nodei,
                 new volVectorField
                 (
-                    fvc::grad(quadrature.nodes()[nodei].primaryWeight())
+                    fvc::grad(quadrature.nodes()[nodei].weight())
                 )
             );
         }
@@ -329,7 +329,7 @@ preUpdate()
         forAll(gradWs_, nodei)
         {
             gradWs_[nodei] = 
-                fvc::grad(quadrature_.nodes()[nodei].primaryWeight());
+                fvc::grad(quadrature_.nodes()[nodei].weight());
         }
     }
 }
@@ -386,8 +386,8 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                     //- Zero order source term
                     scalar cSource =
                         6.0*g0/dp_()[celli]
-                       *node1.primaryWeight()[celli]
-                       *node2.primaryWeight()[celli]
+                       *node1.weight()[celli]
+                       *node2.weight()[celli]
                        *mag
                         (
                             node1.velocityAbscissae()[celli]
@@ -406,17 +406,17 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                             eSource +=
                                 I1m
                                *(
-                                    node2.primaryWeight()[celli]
+                                    node2.weight()[celli]
                                    *gradWs_[nodei][celli][m]
-                                  - node1.primaryWeight()[celli]
+                                  - node1.weight()[celli]
                                    *gradWs_[nodej][celli][m]
                                 );
 
                             Gs_[momenti][celli][m] +=
                                 3.0*g0
                                *I1m
-                               *node1.primaryWeight()[celli]
-                               *node2.primaryWeight()[celli];
+                               *node1.weight()[celli]
+                               *node2.weight()[celli];
                         }
 
                         cSource += 3.0*g0*eSource;
@@ -428,7 +428,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                         scalar absCmpt =
                             pow
                             (
-                                node1.primaryAbscissae()[scalarIndexes_[cmpt]][celli],
+                                node1.abscissae()[scalarIndexes_[cmpt]][celli],
                                 momentOrder[scalarIndexes_[cmpt]]
                             );
 
@@ -456,7 +456,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
         scalar d1 = d(sizei, celli);
         scalar V1 = Foam::constant::mathematical::pi/6.0*pow3(d1);
         scalar mass1 = V1*rhos_[sizei];
-        scalar n1 = node1.primaryWeight()[celli]/V1;
+        scalar n1 = node1.weight()[celli]/V1;
 
         forAll(quadrature_.nodes(), nodej)
         {
@@ -465,7 +465,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
             scalar d2 = d(sizej, celli);
             scalar V2 = Foam::constant::mathematical::pi/6.0*pow3(d2);
             scalar mass2 = V2*rhos_[sizej];
-            scalar n2 = node2.primaryWeight()[celli]/V2;
+            scalar n2 = node2.weight()[celli]/V2;
 
             scalar d12 = (d1 + d2)*0.5;
             scalar XiSqr = sqr(d12/d2);
@@ -497,8 +497,8 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                     //- Zero order source term
                     scalar cSource =
                         6.0*XiSqr*g012/d2
-                       *node1.primaryWeight()[celli]
-                       *node2.primaryWeight()[celli]
+                       *node1.weight()[celli]
+                       *node2.weight()[celli]
                        *mag
                         (
                             node1.velocityAbscissae()[celli]
@@ -517,16 +517,16 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                             eSource +=
                                 I1m
                                *(
-                                    d1*node2.primaryWeight()[celli]
+                                    d1*node2.weight()[celli]
                                    *gradWs_[nodei][celli][m]
-                                  - d2*node1.primaryWeight()[celli]
+                                  - d2*node1.weight()[celli]
                                    *gradWs_[nodej][celli][m]
                                 );
                             Gs_[momenti][celli][m] =
                                 enskogCoeff
                                *I1m
-                               *node1.primaryWeight()[celli]
-                               *node2.primaryWeight()[celli];
+                               *node1.weight()[celli]
+                               *node2.weight()[celli];
                         }
                         cSource += enskogCoeff*eSource;
                     }
@@ -537,7 +537,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
                         scalar absCmpt =
                             pow
                             (
-                                node1.primaryAbscissae()[scalarIndexes_[cmpt]][celli],
+                                node1.abscissae()[scalarIndexes_[cmpt]][celli],
                                 momentOrder[scalarIndexes_[cmpt]]
                             );
                         cSource *= absCmpt;

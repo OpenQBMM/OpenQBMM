@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
                 abscissaeDimensions.set
                 (
                     cmpti,
-                    new dimensionSet(nodes()[0].primaryAbscissae()[si].dimensions())
+                    new dimensionSet(nodes()[0].abscissae()[si].dimensions())
                 );
 
                 si++;
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 
         forAll(newMomentOrders, mi)
         {
-            dimensionSet mDims(nodes()[0].primaryWeight().dimensions());
+            dimensionSet mDims(nodes()[0].weight().dimensions());
 
             forAll(abscissaeDimensions, cmpti)
             {

@@ -106,9 +106,9 @@ void Foam::reflectiveFvQuadraturePatch::update()
         surfaceVelocityNode& nodeNei(nodesNei_[nodei]);
         surfaceVelocityNode& nodeOwn(nodesOwn_[nodei]);
 
-        const volScalarField& weight = node.primaryWeight();
-        surfaceScalarField& weightOwn = nodeOwn.primaryWeight();
-        surfaceScalarField& weightNei = nodeNei.primaryWeight();
+        const volScalarField& weight = node.weight();
+        surfaceScalarField& weightOwn = nodeOwn.weight();
+        surfaceScalarField& weightNei = nodeNei.weight();
         const volVectorField& U = node.velocityAbscissae();
         surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
         surfaceVectorField& UNei = nodeNei.velocityAbscissae();
@@ -142,7 +142,7 @@ void Foam::reflectiveFvQuadraturePatch::update()
         forAll(quadrature_.nodes(), nodei)
         {
             scalarField& bfWNei =
-                nodesNei_[nodei].primaryWeight().boundaryFieldRef()[patchi_];
+                nodesNei_[nodei].weight().boundaryFieldRef()[patchi_];
 
             bfWNei *= weightScale;
         }

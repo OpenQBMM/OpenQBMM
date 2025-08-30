@@ -144,7 +144,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
         const volScalarNode &node = nodes[pNodei];
 
         scalar bAbscissa =
-            max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+            max(node.abscissae()[sizeIndex][celli], scalar(0));
 
         scalar bSourcei = 0.0;
 
@@ -157,7 +157,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
             bSourcei = massNodeSource(bAbscissa, sizeOrder);
         }
 
-        bSourcei *= node.primaryWeight()[celli] * Kb(bAbscissa, celli);
+        bSourcei *= node.weight()[celli] * Kb(bAbscissa, celli);
 
         if (volumeFraction)
         {
@@ -176,7 +176,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
             if (scalarIndexes[nodei] != sizeIndex)
             {
                 bSourcei *=
-                    pow(node.primaryAbscissae()[nodei][celli],
+                    pow(node.abscissae()[nodei][celli],
                         momentOrder[scalarIndexes[nodei]]);
             }
         }
@@ -232,7 +232,7 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
         const volVelocityNode &node = nodes(sizei);
 
         scalar bAbscissa =
-            max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+            max(node.abscissae()[sizeIndex][celli], scalar(0));
 
         if (lengthBased)
         {
@@ -263,14 +263,14 @@ Foam::populationBalanceSubModels::breakupKernel::breakupSource
         const volVelocityNode &node = nodes[pNodei];
         label sizei = quadrature.nodeIndexes()[pNodei][sizeIndex];
 
-        scalar bSourcei = node.primaryWeight()[celli] * bSources[sizei];
+        scalar bSourcei = node.weight()[celli] * bSources[sizei];
 
         forAll(scalarIndexes, nodei)
         {
             if (scalarIndexes[nodei] != sizeIndex)
             {
                 bSourcei *=
-                    pow(node.primaryAbscissae()[nodei][celli],
+                    pow(node.abscissae()[nodei][celli],
                         momentOrder[scalarIndexes[nodei]]);
             }
         }

@@ -76,18 +76,18 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
     forAll(nodes, nodei)
     {
         const volScalarNode& node1 = nodes[nodei];
-        scalar weight1 = node1.primaryWeight()[celli];
-        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], SMALL);
+        scalar weight1 = node1.weight()[celli];
+        scalar abscissa1 = Foam::max(node1.abscissae()[0][celli], SMALL);
         scalar n1 = node1.numberDensity(celli, weight1, abscissa1);
         scalar d1 = node1.d(celli, abscissa1);
 
         forAll(nodes, nodej)
         {
             const volScalarNode& node2 = nodes[nodej];
-            scalar weight2 = node2.primaryWeight()[celli];
+            scalar weight2 = node2.weight()[celli];
 
             scalar abscissa2 
-                = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
+                = Foam::max(node2.abscissae()[0][celli], SMALL);
 
             scalar n2 = node2.numberDensity(celli, weight2, abscissa2);
             scalar d2 = node2.d(celli, abscissa2);
@@ -131,18 +131,18 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
     forAll(nodes, nodei)
     {
         const volScalarNode& node1 = nodes[nodei];
-        scalar weight1 = node1.primaryWeight()[celli];
-        scalar abscissa1 = Foam::max(node1.primaryAbscissae()[0][celli], SMALL);
+        scalar weight1 = node1.weight()[celli];
+        scalar abscissa1 = Foam::max(node1.abscissae()[0][celli], SMALL);
         scalar n1 = node1.numberDensity(celli, weight1, abscissa1);
         scalar d1 = node1.d(celli, abscissa1);
 
         forAll(nodes, nodej)
         {
             const volScalarNode& node2 = nodes[nodej];
-            scalar weight2 = node2.primaryWeight()[celli];
+            scalar weight2 = node2.weight()[celli];
 
             scalar abscissa2 
-                = Foam::max(node2.primaryAbscissae()[0][celli], SMALL);
+                = Foam::max(node2.abscissae()[0][celli], SMALL);
 
             scalar n2 = node2.numberDensity(celli, weight2, abscissa2);
             scalar d2 = node2.d(celli, abscissa2);
@@ -189,8 +189,8 @@ Foam::scalar Foam::polydispersePhaseModel::breakupSource
     forAll(nodes, nodei)
     {
         const volScalarNode& node = nodes[nodei];
-        scalar weight = node.primaryWeight()[celli];
-        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], SMALL);
+        scalar weight = node.weight()[celli];
+        scalar abscissa = Foam::max(node.abscissae()[0][celli], SMALL);
         scalar d = node.d(celli, abscissa);
         scalar n = node.numberDensity(celli, weight, abscissa);
 
@@ -226,8 +226,8 @@ Foam::vector Foam::polydispersePhaseModel::breakupSourceU
     forAll(nodes, nodei)
     {
         const volScalarNode& node = nodes[nodei];
-        scalar weight = node.primaryWeight()[celli];
-        scalar abscissa = Foam::max(node.primaryAbscissae()[0][celli], SMALL);
+        scalar weight = node.weight()[celli];
+        scalar abscissa = Foam::max(node.abscissae()[0][celli], SMALL);
         scalar d = node.d(celli, abscissa);
         scalar n = node.numberDensity(celli, weight, abscissa);
 
@@ -796,7 +796,7 @@ void Foam::polydispersePhaseModel::correct()
                 (
                     Foam::pow
                     (
-                        quadrature_.nodes()[0].primaryAbscissae()[0]*6.0
+                        quadrature_.nodes()[0].abscissae()[0]*6.0
                        /(rho()*Foam::constant::mathematical::pi)
                       + dimensionedScalar("smallVolume", dimVolume, SMALL),
                         1.0/3.0
@@ -828,7 +828,7 @@ void Foam::polydispersePhaseModel::correct()
             // Set alpha values such that the moment.1 is equal to the bounded
             // alpha
             alphas_[nodei] =
-                node.primaryWeight()*node.primaryAbscissae()[0]/rho()*scale;
+                node.weight()*node.abscissae()[0]/rho()*scale;
             alphas_[nodei].max(0);
             alphas_[nodei].min(1);
 
@@ -840,7 +840,7 @@ void Foam::polydispersePhaseModel::correct()
                     (
                         Foam::pow
                         (
-                            node.primaryAbscissae()[0]*6.0
+                            node.abscissae()[0]*6.0
                            /(rho()*Foam::constant::mathematical::pi)
                           + dimensionedScalar("smallVolume", dimVolume, SMALL),
                             1.0/3.0
@@ -902,18 +902,18 @@ void Foam::polydispersePhaseModel::relativeTransport()
             // Calculate size moment flux
             surfaceScalarField rFluxVp
             (
-                nodesNei[nodei].primaryWeight()
+                nodesNei[nodei].weight()
                *(
                     pow
                     (
-                        nodesNei[nodei].primaryAbscissae()[0],
+                        nodesNei[nodei].abscissae()[0],
                         mEqni
                     )
                 )*Foam::min(phiv, zeroPhi)
-              + nodesOwn[nodei].primaryWeight()
+              + nodesOwn[nodei].weight()
                *pow
                 (
-                    nodesOwn[nodei].primaryAbscissae()[0],
+                    nodesOwn[nodei].abscissae()[0],
                     mEqni
                 )*Foam::max(phiv, zeroPhi)
             );
@@ -963,19 +963,19 @@ void Foam::polydispersePhaseModel::relativeTransport()
             (
                 "rFluxPp",
                 quadrature_.velocitiesNei()[nodei]
-               *nodesNei[nodei].primaryWeight()
+               *nodesNei[nodei].weight()
                *(
                     pow
                     (
-                        nodesNei[nodei].primaryAbscissae()[0],
+                        nodesNei[nodei].abscissae()[0],
                         mEqni
                     )
                 )*Foam::min(phiv, zeroPhi)
               + quadrature_.velocitiesOwn()[nodei]
-               *nodesOwn[nodei].primaryWeight()
+               *nodesOwn[nodei].weight()
                *pow
                 (
-                    nodesOwn[nodei].primaryAbscissae()[0],
+                    nodesOwn[nodei].abscissae()[0],
                     mEqni
                 )*Foam::max(phiv, zeroPhi)
             );
@@ -1038,11 +1038,11 @@ void Foam::polydispersePhaseModel::averageTransport
                 meanM1Flux +=
                     fvc::surfaceIntegrate
                     (
-                        nodesNei[nodei].primaryWeight()
-                       *nodesNei[nodei].primaryAbscissae()[0]
+                        nodesNei[nodei].weight()
+                       *nodesNei[nodei].abscissae()[0]
                        *Foam::min(phi, zeroPhi)
-                      + nodesOwn[nodei].primaryWeight()
-                       *nodesOwn[nodei].primaryAbscissae()[0]
+                      + nodesOwn[nodei].weight()
+                       *nodesOwn[nodei].abscissae()[0]
                        *Foam::max(phi, zeroPhi)
                     );
             }
@@ -1101,18 +1101,18 @@ void Foam::polydispersePhaseModel::averageTransport
             surfaceScalarField aFluxMp
             (
                 "aFluxMp",
-                nodesNei[nodei].primaryWeight()
+                nodesNei[nodei].weight()
                *(
                     pow
                     (
-                        nodesNei[nodei].primaryAbscissae()[0],
+                        nodesNei[nodei].abscissae()[0],
                         mEqni
                     )
                 )*Foam::min(phi, zeroPhi)
-              + nodesOwn[nodei].primaryWeight()
+              + nodesOwn[nodei].weight()
                *pow
                 (
-                    nodesOwn[nodei].primaryAbscissae()[0],
+                    nodesOwn[nodei].abscissae()[0],
                     mEqni
                 )*Foam::max(phi, zeroPhi)
             );
@@ -1167,19 +1167,19 @@ void Foam::polydispersePhaseModel::averageTransport
             (
                 "aFluxUp",
                 quadrature_.velocitiesNei()[nodei]
-               *nodesNei[nodei].primaryWeight()
+               *nodesNei[nodei].weight()
                *(
                     pow
                     (
-                        nodesNei[nodei].primaryAbscissae()[0],
+                        nodesNei[nodei].abscissae()[0],
                         mEqni
                     )
                 )*Foam::min(phi, zeroPhi)
               + quadrature_.velocitiesOwn()[nodei]
-               *nodesOwn[nodei].primaryWeight()
+               *nodesOwn[nodei].weight()
                *pow
                 (
-                    nodesOwn[nodei].primaryAbscissae()[0],
+                    nodesOwn[nodei].abscissae()[0],
                     mEqni
                 )*Foam::max(phi, zeroPhi)
             );

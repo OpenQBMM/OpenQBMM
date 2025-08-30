@@ -154,14 +154,14 @@ void Foam::moment<fieldType, nodeType>::update()
     forAll(nodes, pNodei)
     {
         const nodeType &node = nodes[pNodei];
-        fieldType m = node.primaryWeight();
+        fieldType m = node.weight();
 
         for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
         {
             label cmpti = scalarIndexes[cmpt];
             const label cmptMomentOrder = cmptOrders()[cmpti];
 
-            tmp<fieldType> abscissaCmpt = node.primaryAbscissae()[cmpt];
+            tmp<fieldType> abscissaCmpt = node.abscissae()[cmpt];
 
             tmp<fieldType> mPow = m * pow(abscissaCmpt, cmptMomentOrder);
             m.dimensions().reset(mPow().dimensions());
@@ -200,7 +200,7 @@ void Foam::moment<fieldType, nodeType>::updateBoundaries()
         forAll(nodes, pNodei)
         {
             const nodeType &node = nodes[pNodei];
-            scalarField m(node.primaryWeight().boundaryField()[patchi]);
+            scalarField m(node.weight().boundaryField()[patchi]);
 
             for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
             {
@@ -208,7 +208,7 @@ void Foam::moment<fieldType, nodeType>::updateBoundaries()
                 const label cmptMomentOrder = cmptOrders()[cmpti];
 
                 const scalarField &abscissaCmpt =
-                    node.primaryAbscissae()[cmpt].boundaryField()[patchi];
+                    node.abscissae()[cmpt].boundaryField()[patchi];
 
                 m *= pow(abscissaCmpt, cmptMomentOrder);
             }
@@ -242,13 +242,13 @@ void Foam::moment<fieldType, nodeType>::updateLocalMoment(label elemi)
     forAll(nodes, pNodei)
     {
         const nodeType &node = nodes[pNodei];
-        scalar m = node.primaryWeight()[elemi];
+        scalar m = node.weight()[elemi];
 
         for (label cmpt = 0; cmpt < scalarIndexes.size(); cmpt++)
         {
             label cmpti = scalarIndexes[cmpt];
             const label cmptMomentOrder = cmptOrders()[cmpti];
-            const scalar abscissaCmpt = node.primaryAbscissae()[cmpt][elemi];
+            const scalar abscissaCmpt = node.abscissae()[cmpt][elemi];
 
             m *= pow(abscissaCmpt, cmptMomentOrder);
         }

@@ -71,28 +71,28 @@ bool Foam::quadratureNode<scalarType, vectorType>::useVolumeFraction() const
 
 template<class scalarType, class vectorType>
 const scalarType&
-Foam::quadratureNode<scalarType, vectorType>::primaryWeight() const
+Foam::quadratureNode<scalarType, vectorType>::weight() const
 {
     return weight_;
 }
 
 template<class scalarType, class vectorType>
 scalarType&
-Foam::quadratureNode<scalarType, vectorType>::primaryWeight()
+Foam::quadratureNode<scalarType, vectorType>::weight()
 {
     return weight_;
 }
 
 template<class scalarType, class vectorType>
 const Foam::PtrList<scalarType>&
-Foam::quadratureNode<scalarType, vectorType>::primaryAbscissae() const
+Foam::quadratureNode<scalarType, vectorType>::abscissae() const
 {
     return abscissae_;
 }
 
 template<class scalarType, class vectorType>
 Foam::PtrList<scalarType>&
-Foam::quadratureNode<scalarType, vectorType>::primaryAbscissae()
+Foam::quadratureNode<scalarType, vectorType>::abscissae()
 {
     return abscissae_;
 }
