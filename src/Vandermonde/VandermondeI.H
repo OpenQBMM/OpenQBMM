@@ -34,11 +34,20 @@ Foam::scalarSquareMatrix Foam::Vandermonde::operator()()
 {
     scalarSquareMatrix tmpV(n_);
 
-    for (label i = 0; i < n_; i++)
+    for (label j = 0; j < n_; j++)
     {
-        for (label j = 0; j < n_; j++)
+        // Cache base value
+        const scalar base = (*this)[j];
+
+        // Initialize iterative calculation of integer power
+        scalar power = 1.0;
+        tmpV[0][j] = power;
+        
+        // Iteratively compute matrix elements
+        for (label i = 1; i < n_; i++)
         {
-            tmpV[i][j] = pow((*this)[j], i);
+            power *= base;
+            tmpV[i][j] = power;
         }
     }
 
@@ -47,7 +56,36 @@ Foam::scalarSquareMatrix Foam::Vandermonde::operator()()
 
 Foam::scalar Foam::Vandermonde::operator()(label i, label j)
 {
-    return pow((*this)[j], i);
+    #ifdef FULLDEBUG
+    if (i >= n_ || j >= n_ || i < 0 || j < 0)
+    {
+        FatalErrorInFunction
+            << "Index out of bounds: (" << i << "," << j 
+            << ") for matrix size " << n_ << "x" << n_ << nl
+            << abort(FatalError);
+    }
+    #endif
+    
+    // Handle trivial cases
+    if (i == 0) 
+    {
+        return 1.0;
+    }
+
+    if (i == 1) 
+    {
+        return (*this)[j];
+    }
+
+    // Compute element using iterative calculation of integer power
+    scalar result = (*this)[j];
+
+    for (label k = 1; k < i; k++)
+    {
+        result *= (*this)[j];
+    }
+    
+    return result;
 }
 
 

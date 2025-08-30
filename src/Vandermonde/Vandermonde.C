@@ -53,17 +53,11 @@ Foam::Vandermonde::Vandermonde
 {
     if (checkVandermonde)
     {
-        for (label i = 0; i < n_; i++)
+        if (!isVandermonde(A))
         {
-            for (label j = 0; i < n_; j++)
-            {
-                if (A[i][j] != pow(A[1][j], i))
-                {
-                    FatalErrorInFunction
-                        << "Source matrix not of Vandermonde type." << nl
-                        << abort(FatalError);
-                }
-            }
+            FatalErrorInFunction
+                << "Source matrix not of Vandermonde type." << nl
+                << abort(FatalError);
         }
     }
 
@@ -80,80 +74,91 @@ Foam::Vandermonde::~Vandermonde()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+bool Foam::Vandermonde::isVandermonde(const scalarSquareMatrix& A) const
+{
+    for (label i = 0; i < n_; i++)
+    {
+        for (label j = 0; j < n_; j++)
+        {
+            if (A[i][j] != pow(A[1][j], i))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 void Foam::Vandermonde::solve
 (
     scalarDiagonalMatrix& x,
     const scalarDiagonalMatrix& source
 )
 {
-    scalarDiagonalMatrix c(n_, 0.0);
-
-    scalar t = 1.0;
-    scalar r = 1.0;
-    scalar s = 0.0;
-    scalar xx = 0.0;
-
     if (n_ == 1)
     {
         x[0] = source[0];
+        return;
     }
-    else
+
+    scalarDiagonalMatrix c(n_, 0.0);
+
+    // Calculate coefficients
+    c[n_ - 1] = -(*this)[0];
+
+    for (label i = 1; i < n_; i++)
     {
-        c[n_ - 1] = -(*this)[0];
+        const scalar xi = -(*this)[i];
 
-        for (label i = 1; i < n_; i++)
+        for (label j = n_ - i - 1; j < n_ - 1; j++)
         {
-            xx = -(*this)[i];
-
-            for (label j = n_ - i - 1; j < n_ - 1; j++)
-            {
-                c[j] += xx*c[j + 1];
-            }
-            
-            c[n_ - 1] += xx;
+            c[j] += xi*c[j + 1];
         }
 
-        for (label i = 0; i < n_; i++)
+        c[n_ - 1] += xi;
+    }
+
+    // Solve system
+    for (label i = 0; i < n_; i++)
+    {
+        const scalar xi = (*this)[i];
+
+        scalar t = 1.0;
+        scalar r = 1.0;
+        scalar s = source[n_ - 1];
+
+        for (label j = n_ - 1; j > 0; j--)
         {
-            xx = (*this)[i];
-            t = 1.0;
-            r = 1.0;
-            s = source[n_ - 1];
-
-            for (label j = n_ - 1; j > 0; j--)
-            {
-                r = c[j] + r*xx;
-                s += r*source[j - 1];
-                t = r + t*xx;
-            }
-
-            x[i] = s/t;
+            r = c[j] + r*xi;
+            s += r*source[j - 1];
+            t = r + t*xi;
         }
+
+        x[i] = s / t;
     }
 }
 
 Foam::scalarSquareMatrix Foam::Vandermonde::invert()
 {
     scalarSquareMatrix inverse(n_);
-    scalarDiagonalMatrix source(n_);
+    scalarDiagonalMatrix source(n_, 0.0);
     scalarDiagonalMatrix x(n_);
 
     for (label i = 0; i < n_; i++)
     {
-        for (label j = 0; j < n_; j++)
+        // Build source vector
+        if (i > 0)
         {
-            if (i != j)
-            {
-                source[j] = 0.0;
-            }
-            else
-            {
-                source[j] = 1.0;
-            }
+            source[i-1] = 0.0; 
         }
+        
+        source[i] = 1.0;
 
+        // Solve
         solve(x, source);
 
+        // Copy solution column
         for (label j = 0; j < n_; j++)
         {
             inverse[j][i] = x[j];

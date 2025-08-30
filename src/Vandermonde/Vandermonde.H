@@ -70,6 +70,12 @@ class Vandermonde
         //- Number of rows and columns (square matrix)
         const label n_;
 
+
+    // Private Member Functions
+
+        //- Check if a square matrix is Vandermonde
+        bool isVandermonde(const scalarSquareMatrix& A) const;
+
 public:
 
     // Constructors
