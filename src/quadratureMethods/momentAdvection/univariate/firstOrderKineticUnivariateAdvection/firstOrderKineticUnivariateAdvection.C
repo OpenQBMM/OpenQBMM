@@ -64,11 +64,11 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     nodesOwn_(),
     momentsNei_
     (
-        name_, nMoments_, nodesNei_, nDimensions_, moments_.map(), support
+        name_, nMoments_, nodesNei_, nDimensions_, moments_.map(), wordList(1, support)
     ),
     momentsOwn_
     (
-        name_, nMoments_, nodesOwn_, nDimensions_, moments_.map(), support
+        name_, nMoments_, nodesOwn_, nDimensions_, moments_.map(), wordList(1, support)
     ),
     momentFieldInverter_()
 {

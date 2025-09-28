@@ -8,7 +8,7 @@
     Code created 2012-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-03-10 Alberto Passalacqua: Templated class on the type of moment and of
                                 quadrature node.
@@ -93,8 +93,8 @@ class momentFieldSet
         //- The number of moments
         const label nMoments_;
 
-        //- Support of the measure associated to the moment moment set
-        word support_;
+        //- Supports of the measure associated to the moment moment set
+        wordList supports_;
 
 
     // Private Member Functions
@@ -118,7 +118,7 @@ public:
             const dictionary& dict,
             const fvMesh& mesh,
             const autoPtr<mappedPtrList<nodeType>>& nodes,
-            const word& support
+            const wordList& supports
         );
 
         //- Construct from size, quadrature nodes, dimensions and moment map
@@ -131,7 +131,7 @@ public:
             const autoPtr<mappedPtrList<nodeType>>& nodes,
             const label nDimensions,
             const Map<label>& momentMap,
-            const word& support
+            const wordList& supports
         );
 
 
@@ -151,7 +151,7 @@ public:
             inline label nDimensions() const;
 
             //- Return support of the measure associated to the moment set
-            inline const word support() const;
+            inline const wordList& supports() const;
 
             //- Recalculate the moments from the quadrature nodes
             void update();

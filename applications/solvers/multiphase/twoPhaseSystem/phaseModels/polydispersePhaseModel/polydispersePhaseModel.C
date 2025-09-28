@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2017-2022 Alberto Passalacqua
+    \\  /    A nd           | Copyright (C) 2017-2025 Alberto Passalacqua
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -584,7 +584,7 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
     solveOde_(pbeDict_.lookupOrDefault("ode", false)),
     coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
-    quadrature_(phaseName, fluid.mesh(), "RPlus"),
+    quadrature_(phaseName, fluid.mesh(), wordList(3, "R")),
     nNodes_(quadrature_.nodes().size()),
     nMoments_(quadrature_.nMoments()),
     alphas_(nNodes_),

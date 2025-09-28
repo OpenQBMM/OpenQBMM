@@ -245,6 +245,9 @@ public:
         //- Set size of moment set
         void setSize(const label newSize);
 
+        //- Return support
+        inline const word& support() const;
+
         //- Returns zeta_k values for the moment set
         inline scalarList& zetas();
 

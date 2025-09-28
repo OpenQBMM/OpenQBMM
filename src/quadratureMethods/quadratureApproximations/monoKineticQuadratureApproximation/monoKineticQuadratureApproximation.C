@@ -45,10 +45,10 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
 (
     const word& name,
     const fvMesh& mesh,
-    const word& support
+    const wordList& supports
 )
 :
-    quadratureApproximation(name, mesh, support),
+    quadratureApproximation(name, mesh, supports),
     U_
     (
         mesh_.lookupObject<volVectorField>

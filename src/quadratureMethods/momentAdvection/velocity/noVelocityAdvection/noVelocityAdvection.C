@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -51,10 +51,10 @@ Foam::velocityAdvection::noAdvection::noAdvection
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const word& support
+    const wordList& supports
 )
 :
-    velocityMomentAdvection(dict, quadrature, support)
+    velocityMomentAdvection(dict, quadrature, supports)
 {}
 
 

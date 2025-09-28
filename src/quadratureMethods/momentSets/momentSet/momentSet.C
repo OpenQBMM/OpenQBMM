@@ -37,7 +37,7 @@ Foam::momentSet::momentSet
     const label nMoments,
     const label nDimensions,
     const labelListList& momentOrders,
-    const word& support,
+    const wordList& supports,
     const scalar smallM0,
     const scalar smallZeta,
     const scalar initialValue
@@ -47,27 +47,11 @@ Foam::momentSet::momentSet
     nMoments_(nMoments),
     nDimensions_(nDimensions),
     momentOrders_(momentOrders),
-    support_(support),
+    supports_(supports),
     smallM0_(smallM0),
     smallZeta_(smallZeta)
 {
-    if (support_ != "R" && support_ != "RPlus" && support_ != "01")
-    {
-        FatalErrorInFunction
-            << "The specified support is invalid." << nl
-            << "    Valid supports are: R, RPlus and 01." << nl
-            << "    Moment set: " << (*this)
-            << abort(FatalError);
-    }
-
-    if (nDimensions_ > maxDistributionDimensions_)
-    {
-        FatalErrorInFunction
-            << "The number of maximum dimensions for the distribution is " 
-            << maxDistributionDimensions_ << "." << nl
-            << "    Specified number of dimensions: " << nDimensions_
-            << abort(FatalError);
-    }
+    validate();
 }
 
 Foam::momentSet::momentSet
@@ -75,7 +59,7 @@ Foam::momentSet::momentSet
     const scalarList& m,
     const label nDimensions,
     const labelListList& momentOrders,
-    const word& support,
+    const wordList& supports,
     const scalar smallM0,
     const scalar smallZeta
 )
@@ -84,26 +68,11 @@ Foam::momentSet::momentSet
     nMoments_(m.size()),
     nDimensions_(nDimensions),
     momentOrders_(momentOrders),
-    support_(support),
+    supports_(supports),
     smallM0_(smallM0),
     smallZeta_(smallZeta)
 {
-    if (support_ != "R" && support_ != "RPlus" && support_ != "01")
-    {
-        FatalErrorInFunction
-            << "The specified support is invalid." << nl
-            << "    Valid supports are: R, RPlus and 01."
-            << abort(FatalError);
-    }
-
-    if (nDimensions_ > maxDistributionDimensions_)
-    {
-        FatalErrorInFunction
-            << "The number of maximum dimensions for the distribution is " 
-            << maxDistributionDimensions_ << "." << nl
-            << "    Specified number of dimensions: " << nDimensions_
-            << abort(FatalError);
-    }
+    validate();
 }
 
 
@@ -123,6 +92,46 @@ void Foam::momentSet::setSize(const label newSize)
 void Foam::momentSet::resize(const label newSize)
 {
     (*this).setSize(newSize);
+}
+
+void Foam::momentSet::validateSupports() const
+{
+    forAll(supports_, i)
+    {
+        if (supports_[i] != "R" 
+         && supports_[i] != "RPlus" 
+         && supports_[i] != "01")
+        {
+            FatalErrorInFunction
+                << "The specified support for dimension " << i 
+                << " is invalid." << nl
+                << "    Valid supports are: R, RPlus and 01." << nl
+                << "    Moment set: " << (*this)
+                << abort(FatalError);
+        }
+    }
+}
+
+void Foam::momentSet::validateMomentOrders() const
+{
+    forAll(momentOrders_, i)
+    {
+        if (momentOrders_[i].size() != nDimensions_)
+        {
+            FatalErrorInFunction
+                << "The moment order " << momentOrders_[i] 
+                << " does not have the correct number of dimensions." << nl
+                << "    Expected number of dimensions: " << nDimensions_ << nl
+                << "    Moment set: " << (*this)
+                << abort(FatalError);
+        }
+    }
+}
+
+void Foam::momentSet::validate() const
+{
+    validateSupports();
+    validateMomentOrders();
 }
 
 // ************************************************************************* //

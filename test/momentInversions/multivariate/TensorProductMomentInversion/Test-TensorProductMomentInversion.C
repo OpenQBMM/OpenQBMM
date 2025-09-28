@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2023 Alberto Passalacqua
+    Copyright (C) 2014-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -69,7 +69,14 @@ int main(int argc, char *argv[])
 
     Info<< "Original moments:" << endl;
 
-    multivariateMomentSet moments(nMoments, momentOrders, "R", SMALL, SMALL);
+    multivariateMomentSet moments
+    (
+        nMoments, 
+        momentOrders, 
+        wordList(momentOrders[0].size(), "R"),
+        SMALL, 
+        SMALL
+    );
 
     forAll(momentOrders, mi)
     {

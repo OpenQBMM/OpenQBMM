@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -60,7 +60,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     const surfaceScalarField& phi
 )
 :
-    velocityPDFTransportModel(name, dict, phi.mesh(), "R"),
+    velocityPDFTransportModel(name, dict, phi.mesh(), wordList(3, "R")),
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
     collision_(dict.lookup("collision")),

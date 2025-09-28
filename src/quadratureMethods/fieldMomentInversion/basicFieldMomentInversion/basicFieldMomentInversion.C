@@ -155,7 +155,7 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             univariateMomentSet momentsToInvert
             (
                 moments.size(),
-                moments.support(),
+                moments.supports()[0],
                 smallM0(),
                 smallZeta(),
                 scalar(0),                  // Initial value
@@ -232,7 +232,7 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
     univariateMomentSet momentsToInvert
     (
         moments.size(),
-        moments.support(),
+        moments.supports()[0],
         smallM0(),
         smallZeta(),
         scalar(0),                  // Initial value

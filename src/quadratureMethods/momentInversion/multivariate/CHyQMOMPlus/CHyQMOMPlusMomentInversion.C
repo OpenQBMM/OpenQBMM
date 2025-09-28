@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -826,7 +826,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                     c004
                 },
                 twoDimMomentOrders,
-                "R",
+                {"R", "R"},
                 smallM0(), 
                 smallZeta()
             );
@@ -896,7 +896,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 c004
             },
             twoDimMomentOrders,
-            "R",
+            {"R", "R"},
             smallM0(), 
             smallZeta()
         );
@@ -948,7 +948,7 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 c040
             },
             twoDimMomentOrders,
-            "R",
+            {"R", "R"},
             smallM0(), 
             smallZeta()
         );
@@ -1324,11 +1324,11 @@ bool Foam::multivariateMomentInversions::CHyQMOMPlus::invert
 {
     reset();
 
-    if (nvelocityDimensions_ == 3)
+    if (nVelocityDimensions_ == 3)
     {
         invert3D(moments);
     }
-    else if (nvelocityDimensions_ == 2)
+    else if (nVelocityDimensions_ == 2)
     {
         mappedScalarList w
         (

@@ -103,7 +103,7 @@ protected:
         const label nMoments_;
 
         //- Support of the distribution function
-        word support_;
+        wordList supports_;
 
         //- Extended moment inversion method
         autoPtr<fieldMomentInversion> momentFieldInverter_;
@@ -121,7 +121,7 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const word& support
+            const wordList& supports
         );
 
         //- Construct from dictionary name, name, momentFieldSet

@@ -65,7 +65,7 @@ public:
         (
             const label nMoments,
             const labelListList& momentOrders,
-            const word& support,
+            const wordList& supports,
             const scalar smallM0,
             const scalar smallZeta,
             const scalar initialValue = 0
@@ -76,7 +76,7 @@ public:
         (
             const scalarList& m,
             const labelListList& momentOrders,
-            const word& support,
+            const wordList& supports,
             const scalar smallM0,
             const scalar smallZeta
         );

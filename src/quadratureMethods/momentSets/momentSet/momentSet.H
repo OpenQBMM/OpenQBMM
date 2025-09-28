@@ -69,8 +69,8 @@ protected:
         //- List of moment orders
         labelListList momentOrders_;
 
-        //- Type of support of the measure associated to the moment set
-        word support_;
+        //- List of supports of the measure associated to the moment set
+        wordList supports_;
 
         //- Minimum value for the zero-order moment.
         // Below this value, the moment is considered negligible.
@@ -81,13 +81,16 @@ protected:
         scalar smallZeta_;
 
 
-    // Static constants
+    // Protected Member Functions
 
-        //- Maximum dimensions of the distribution
-        //  This is decided based on computational cost and to the extent
-        //  multivariate algorithms have been tested.
-        static const label maxDistributionDimensions_ = 5;
+        //- Validate list of supports
+        void validateSupports() const;
 
+        //- Validate compatibility between number of dimensions and moment orders
+        void validateMomentOrders() const;
+
+        //- Validate
+        void validate() const;
 
 public:
 
@@ -99,7 +102,7 @@ public:
             const label nMoments,
             const label nDimensions,
             const labelListList& momentOrders,
-            const word& support,
+            const wordList& supports,
             const scalar smallM0,
             const scalar smallZeta,
             const scalar initialValue = 0
@@ -111,7 +114,7 @@ public:
             const scalarList& m,
             const label nDimensions,
             const labelListList& momentOrders,
-            const word& support,
+            const wordList& supports,
             const scalar smallM0,
             const scalar smallZeta
         );
@@ -138,7 +141,7 @@ public:
         void setSize(const label newSize);
 
         //- Return support
-        inline const word support() const;
+        inline const wordList& supports() const;
 };
 
 

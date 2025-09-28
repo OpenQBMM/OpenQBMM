@@ -8,7 +8,7 @@
     Code created 2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -37,7 +37,7 @@ Foam::velocityMomentAdvection::New
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const word& support
+    const wordList& supports
 )
 {
     word velocityMomentAdvectionType
@@ -61,7 +61,7 @@ Foam::velocityMomentAdvection::New
             << exit(FatalError);
     }
 
-    return cstrIter()(dict, quadrature, support);
+    return cstrIter()(dict, quadrature, supports);
 }
 
 

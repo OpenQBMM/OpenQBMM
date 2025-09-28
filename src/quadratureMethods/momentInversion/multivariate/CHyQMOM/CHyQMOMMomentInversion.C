@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -784,7 +784,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                     c004
                 },
                 twoDimMomentOrders,
-                "R",
+                {"R", "R"},
                 smallM0(), 
                 smallZeta()
             );
@@ -835,9 +835,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                 c004
             },
             twoDimMomentOrders,
-           "R",
-           smallM0(), 
-           smallZeta()
+            {"R", "R"},
+            smallM0(), 
+            smallZeta()
         );
 
         mappedList<scalar> wDir13(9, twoDimNodeIndexes, Zero);
@@ -885,12 +885,13 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                 c040
             },
             twoDimMomentOrders,
-           "R",
-           smallM0(), 
-           smallZeta()
+            {"R", "R"},
+            smallM0(), 
+            smallZeta()
         );
 
         mappedList<scalar> wDir12(9, twoDimNodeIndexes, Zero);
+
         mappedList<vector2D> abscissaeDir12
         (
             9,
@@ -917,8 +918,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
 
             return;
         }
-        // All directions are non-degenerate
-        else
+        else // All directions are non-degenerate
         {
             // Scale weights in directions 12
             scalar sumWeights1 = 0.0;
@@ -941,6 +941,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
 
             // Compute Vf reconstruction
             scalarList Vf(3, Zero);
+
             for (label i = 0; i < 3; i++)
             {
                 Vf[0] += wDir12(0, i)*abscissaeDir12(0, i).y();
@@ -949,6 +950,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
             }
 
             mappedList<scalar> absDir12(9, twoDimNodeIndexes, Zero);
+
             for (label i = 0; i < 3; i++)
             {
                 for (label j = 0; j < 3; j++)
@@ -1113,11 +1115,11 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
 {
     reset();
 
-    if (nvelocityDimensions_ == 3)
+    if (nVelocityDimensions_ == 3)
     {
         invert3D(moments);
     }
-    else if (nvelocityDimensions_ == 2)
+    else if (nVelocityDimensions_ == 2)
     {
         mappedScalarList w
         (

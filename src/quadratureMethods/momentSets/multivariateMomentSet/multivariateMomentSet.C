@@ -36,7 +36,7 @@ Foam::multivariateMomentSet::multivariateMomentSet
 (
     const label nMoments,
     const labelListList& momentOrders,
-    const word& support,
+    const wordList& supports,
     const scalar smallM0,
     const scalar smallZeta,
     const scalar initialValue
@@ -47,7 +47,7 @@ Foam::multivariateMomentSet::multivariateMomentSet
         nMoments,
         momentOrders[0].size(),
         momentOrders,
-        support,
+        supports,
         smallM0,
         smallZeta,
         initialValue
@@ -58,7 +58,7 @@ Foam::multivariateMomentSet::multivariateMomentSet
 (
     const scalarList& m,
     const labelListList& momentOrders,
-    const word& support,
+    const wordList& supports,
     const scalar smallM0,
     const scalar smallZeta
 )
@@ -68,7 +68,7 @@ Foam::multivariateMomentSet::multivariateMomentSet
         m,
         momentOrders[0].size(),
         momentOrders,
-        support,
+        supports,
         smallM0,
         smallZeta
     )

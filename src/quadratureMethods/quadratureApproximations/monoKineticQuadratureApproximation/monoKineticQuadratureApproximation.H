@@ -108,7 +108,7 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const word& support
+            const wordList& supports
         );
 
 

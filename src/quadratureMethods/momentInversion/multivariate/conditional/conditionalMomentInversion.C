@@ -71,7 +71,7 @@ Foam::multivariateMomentInversions::conditional::conditional
     (
         momentOrders.size(), 
         momentOrders, 
-        supports_[0], 
+        supports_,
         SMALL,
         SMALL,
         Zero

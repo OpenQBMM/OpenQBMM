@@ -51,7 +51,7 @@ sizeCHyQMOMBase
     (
         velocityInversion::getMomentOrders
         (
-            nvelocityDimensions_
+            nVelocityDimensions_
         )
     ),
     nSizeNodes_(nSizeMoments_/2),
@@ -59,7 +59,7 @@ sizeCHyQMOMBase
     (
         velocityInversion::getNodeIndexes
         (
-            nvelocityDimensions_
+            nVelocityDimensions_
         )
     ),
     sizeInverter_
@@ -73,10 +73,10 @@ sizeCHyQMOMBase
             dict,
             velocityMomentOrders_,
             velocityNodeIndexes_,
-            nvelocityDimensions_ == 1
+            nVelocityDimensions_ == 1
           ? labelList({0})
           : (
-                (nvelocityDimensions_ == 2)
+                (nVelocityDimensions_ == 2)
               ? labelList({0, 1})
               : labelList({0, 1, 2})
             )
@@ -242,7 +242,7 @@ invert
                 (
                     velocityMomentOrders_.size(),
                     velocityMomentOrders_,
-                    "R",
+                    wordList(nVelocityDimensions_, "R"),
                     smallM0(), 
                     smallZeta()
                 );

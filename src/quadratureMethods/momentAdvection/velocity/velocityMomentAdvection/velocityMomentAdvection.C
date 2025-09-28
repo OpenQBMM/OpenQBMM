@@ -47,7 +47,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const word& support
+    const wordList& supports
 )
 :
     name_(quadrature.name()),
@@ -78,7 +78,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
         moments_(0).mesh(),
         dimensionedScalar("nei", dimless, -1.0)
     ),
-    support_(support),
+    supports_(supports),
     momentOrders_(quadrature.momentOrders()),
     nodeIndexes_(quadrature.nodeIndexes()),
     divMoments_(nMoments_),

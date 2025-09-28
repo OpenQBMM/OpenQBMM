@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2023 Alberto Passalacqua
+    Copyright (C) 2014-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
         nodeIndexes,
         scalarField(nDims, Zero)
     );
+    
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 
     forAll(x, nodei)
@@ -73,7 +74,19 @@ int main(int argc, char *argv[])
 
     Info<< "Original moments:" << endl;
 
-    multivariateMomentSet moments(nMoments, momentOrders, "R", SMALL, SMALL);
+    wordList supports(1, "RPlus");
+    wordList velocitySupports(momentOrders[0].size() - 1, "R");
+    supports.append(velocitySupports);
+
+    multivariateMomentSet moments
+    (
+        nMoments, 
+        momentOrders, 
+        supports, 
+        SMALL, 
+        SMALL
+    );
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];

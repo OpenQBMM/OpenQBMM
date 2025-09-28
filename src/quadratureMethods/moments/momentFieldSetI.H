@@ -8,7 +8,7 @@
     Code created 2012-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-03-10 Alberto Passalacqua: Templated class on the type of moment and of
                                 quadrature node.
@@ -40,9 +40,9 @@ Foam::label Foam::momentFieldSet<momentType, nodeType>::nDimensions() const
 }
 
 template <class momentType, class nodeType>
-const Foam::word Foam::momentFieldSet<momentType, nodeType>::support() const
+const Foam::wordList& Foam::momentFieldSet<momentType, nodeType>::supports() const
 {
-    return support_;
+    return supports_;
 }
 
 // ************************************************************************* //

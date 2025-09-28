@@ -152,7 +152,7 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
             (
                 moments.size(),
                 momentOrders_,
-                moments.support(),
+                moments.supports(),
                 momentInverter_().smallM0(),
                 momentInverter_().smallZeta()
             );
@@ -222,7 +222,7 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
     (
         moments.size(),
         momentOrders_,
-        moments.support(),
+        moments.supports(),
         momentInverter_().smallM0(),
         momentInverter_().smallZeta()
     );

@@ -148,7 +148,7 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
         scalarSquareMatrix invVR = invR*V.invert();
 
         // Compute conditional velocity moments and invert
-        for (label dimi = 0; dimi < nvelocityDimensions_; dimi++)
+        for (label dimi = 0; dimi < nVelocityDimensions_; dimi++)
         {
             labelList pureMomentOrder(nDistributionDims_, 0);
             pureMomentOrder[dimi + 1] = 1;

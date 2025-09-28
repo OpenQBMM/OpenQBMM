@@ -54,10 +54,10 @@ Foam::velocityAdvection::firstOrderKinetic::firstOrderKinetic
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const word& support
+    const wordList& supports
 )
 :
-    velocityMomentAdvection(dict, quadrature, support),
+    velocityMomentAdvection(dict, quadrature, supports),
     weightScheme_("upwind"),
     scalarAbscissaeScheme_("upwind"),
     velocityAbscissaeScheme_("upwind")

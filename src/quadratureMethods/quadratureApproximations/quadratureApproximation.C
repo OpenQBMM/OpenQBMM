@@ -45,7 +45,7 @@ quadratureApproximation
 (
     const word& name,
     const fvMesh& mesh,
-    const word& support
+    const wordList& supports
 )
 :
     IOdictionary
@@ -78,10 +78,10 @@ quadratureApproximation
     ),
     nNodes_(momentOrders_[0].size(), 1),
     nodes_(),
-    moments_(name_, *this, mesh_, nodes_, support),
+    moments_(name_, *this, mesh_, nodes_, supports),
     nDimensions_(moments_[0].cmptOrders().size()),
     nMoments_(moments_.size()),
-    support_(support),
+    supports_(supports),
     momentFieldInverter_()
 {
     forAll(nodeIndexes_, nodei)
@@ -202,11 +202,11 @@ quadratureApproximation
         nodes_,
         mFieldSet.nDimensions(),
         mFieldSet.map(),
-        mFieldSet.support()
+        mFieldSet.supports()
     ),
     nDimensions_(mFieldSet.nDimensions()),
     nMoments_(mFieldSet.size()),
-    support_(mFieldSet.support()),
+    supports_(mFieldSet.supports()),
     momentFieldInverter_()
 {
     forAll(nodeIndexes_, nodei)
