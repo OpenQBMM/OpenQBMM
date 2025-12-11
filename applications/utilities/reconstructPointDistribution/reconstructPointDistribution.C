@@ -129,6 +129,11 @@ int main(int argc, char *argv[])
         fileName probeDir;
         fileName probeSubDir = phaseName + "Probes";
         probes mProbes(probeSubDir, runTime, probesDict);
+        #if (OPENFOAM > 2506)
+        const label nProbes = mProbes.probeModel().size();
+        #else
+        const label nProbes = mProbes.size();
+        #endif
 
         if (mesh.name() != polyMesh::defaultRegion)
         {
@@ -136,7 +141,7 @@ int main(int argc, char *argv[])
         }
 
         probeSubDir = "postProcessing"/probeSubDir/mesh.time().timeName();
-        
+
         if (Pstream::parRun())
         {
             probeDir = runTime.path()/".."/probeSubDir;
@@ -145,7 +150,7 @@ int main(int argc, char *argv[])
         {
             probeDir = runTime.path()/probeSubDir;
         }
-        
+
         probeDir.clean();
         mkDir(probeDir);
 
@@ -167,7 +172,7 @@ int main(int argc, char *argv[])
         (
             nMoments,
             momentOrders,
-            scalarList(mProbes.size())
+            scalarList(nProbes)
         );
 
         // Read moments in from fields and copy probed location
@@ -207,13 +212,18 @@ int main(int argc, char *argv[])
                 mesh
             );
 
+            #if (OPENFOAM > 2506)
+            momentProbes(momentOrder) =
+                mProbes.probeModel().template sample<scalar>(momenti);
+            #else
             momentProbes(momentOrder) = mProbes.sample(momenti);
+            #endif
         }
 
-        scalarListList weights(mProbes.size());
-        scalarListList abscissae(mProbes.size());
+        scalarListList weights(nProbes);
+        scalarListList abscissae(nProbes);
 
-        forAll(mProbes, probei)
+        for (label probei = 0; probei < nProbes; ++probei)
         {
             autoPtr<extendedMomentInversion> EQMOM
             (
@@ -256,7 +266,7 @@ int main(int argc, char *argv[])
 
             //- COnstruct sample distribution
             scalarField x(nSamples, Zero);
-            
+
             scalar xMax =
                 phaseDict.lookupOrDefault<scalar>("xMax", max(sAbscissae));
 
