@@ -148,20 +148,21 @@ void Foam::momentGenerationSubModels::alphaAndDiameter::updateMoments
     }
 
     sumAlpha_ = max(sumAlpha_, SMALL);
-    
-    scalarField alpha
-    (
-        patchi == -1
-      ? alpha_.primitiveField()
-      : alpha_.boundaryField()[patchi]
-    );
-    
-    scalarField rho
-    (
-        patchi == -1
-      ? rho_.primitiveField()
-      : rho_.boundaryField()[patchi]
-    );
+
+    // Local alpha and rho fields.
+    // Copy from internal field or boundary field
+
+    scalarField alpha, rho;
+    if (patchi == -1)
+    {
+        alpha = alpha_.primitiveField();
+        rho = rho_.primitiveField();
+    }
+    else
+    {
+        alpha = alpha_.boundaryField()[patchi];
+        rho = rho_.boundaryField()[patchi];
+    }
 
     forAll(weights_, nodei)
     {
