@@ -58,6 +58,7 @@ SourceFiles
 
 #include "mixingDiffusionModel.H"
 #include "fvm.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
