@@ -75,18 +75,29 @@ Foam::Vandermonde::~Vandermonde()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 bool Foam::Vandermonde::isVandermonde(const scalarSquareMatrix& A) const
-{
-    for (label i = 0; i < n_; i++)
+{    
+    for (label j = 0; j < n_; j++)
     {
-        for (label j = 0; j < n_; j++)
+        // Check first row (should be all ones)
+        if (mag(A[0][j] - 1.0) > SMALL)
         {
-            if (A[i][j] != pow(A[1][j], i))
+            return false;
+        }
+        
+        const scalar base = A[1][j];
+        scalar expectedPower = 1.0;
+        
+        for (label i = 0; i < n_; i++)
+        {
+            if (mag(A[i][j] - expectedPower) > SMALL)
             {
                 return false;
             }
+            
+            expectedPower *= base;
         }
     }
-
+    
     return true;
 }
 
