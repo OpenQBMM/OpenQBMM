@@ -166,6 +166,18 @@ void Foam::momentSet::validate() const
 {
     validateSupports();
     validateMomentOrders();
+
+    // Ensure that moments are finite and throw an exception otherwise
+    forAll((*this), i)
+    {
+        if (!std::isfinite((*this)[i]))
+        {
+            FatalErrorInFunction
+                << "Moment " << i << " is not finite: " << (*this)[i] << nl
+                << "    Moment set: " << (*this)
+                << abort(FatalError);
+        }
+    }
 }
 
 // ************************************************************************* //
