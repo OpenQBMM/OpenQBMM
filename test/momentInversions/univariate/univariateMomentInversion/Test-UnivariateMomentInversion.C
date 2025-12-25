@@ -57,6 +57,11 @@ void compareQuadrature
 {
     Info<< "\n" << endl;
 
+    const scalar tolerance = 1.0e-14;
+
+    Info<< "Comparing quadrature weights and abscissae with tolerance "
+        << tolerance << "\n" << endl;
+
     if (expectedWeights.size() != computedWeights.size())
     {
         FatalErrorInFunction
@@ -93,7 +98,7 @@ void compareQuadrature
             << computedWeights[weightsi] 
             << endl;
 
-        if (magDiff >= SMALL)
+        if (magDiff >= tolerance)
         {
             FatalErrorInFunction
                 << "Values of the quadrature weights do not match: " 
@@ -123,7 +128,7 @@ void compareQuadrature
             << computedAbscissae[abscissai] 
             << endl;
 
-        if (magDiff >= SMALL)
+        if (magDiff >= tolerance)
         {
             FatalErrorInFunction
                 << "Values of the quadrature abscissae do not match: " 

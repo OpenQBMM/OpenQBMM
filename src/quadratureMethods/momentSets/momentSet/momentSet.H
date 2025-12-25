@@ -60,9 +60,6 @@ protected:
 
     // Protected data
 
-        //- Number of moments
-        label nMoments_;
-
         //- Number of dimensions of the the NDF associated to the moment set
         label nDimensions_;
 
@@ -135,10 +132,10 @@ public:
         inline label nMoments() const;
 
         //- Resizes moment set
-        void resize(const label newSize);
+        void resize(const label newSize, labelListList& newMomentOrders);
 
         //- Set size of moment set
-        void setSize(const label newSize);
+        void setSize(const label newSize, labelListList& newMomentOrders);
 
         //- Return support
         inline const wordList& supports() const;

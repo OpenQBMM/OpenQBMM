@@ -44,7 +44,6 @@ Foam::momentSet::momentSet
 )
 :
     mappedList(nMoments, momentOrders, initialValue),
-    nMoments_(nMoments),
     nDimensions_(nDimensions),
     momentOrders_(momentOrders),
     supports_(supports),
@@ -65,7 +64,6 @@ Foam::momentSet::momentSet
 )
 :
     mappedList(m, momentOrders),
-    nMoments_(m.size()),
     nDimensions_(nDimensions),
     momentOrders_(momentOrders),
     supports_(supports),
@@ -83,15 +81,51 @@ Foam::momentSet::~momentSet()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::momentSet::setSize(const label newSize)
+void Foam::momentSet::setSize
+(
+    const label newSize, 
+    labelListList& newMomentOrders
+)
 {
+    // Check if new size is valid
+    if (newSize < 2)
+    {
+        FatalErrorInFunction
+            << "The new size of the moment set must be greater than 1." << endl
+            << abort(FatalError);
+    }
+
+    // Do not resize if the size is unchanged
+    if (newSize == nMoments())
+    {
+        return;
+    }
+
     Foam::mappedList<scalar>::setSize(newSize);
-    nMoments_ = newSize;
+    
+    // Check that the new moment orders are valid
+    if (newMomentOrders.size() != newSize)
+    {
+        FatalErrorInFunction
+            << "The size of the new moment orders list is inconsistent "<< endl
+            << "with the new size of the moment set." << endl
+            << "    New size of moment set: " << newSize << endl
+            << "    Size of new moment orders list: " << newMomentOrders.size() 
+            << endl
+            << abort(FatalError);
+    }
+
+    momentOrders_ = newMomentOrders;
+    validateMomentOrders();
 }
 
-void Foam::momentSet::resize(const label newSize)
+void Foam::momentSet::resize
+(
+    const label newSize, 
+    labelListList& newMomentOrders
+)
 {
-    (*this).setSize(newSize);
+    (*this).setSize(newSize, newMomentOrders);
 }
 
 void Foam::momentSet::validateSupports() const

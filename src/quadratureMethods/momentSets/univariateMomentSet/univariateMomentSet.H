@@ -57,6 +57,9 @@ class univariateMomentSet : public momentSet
 {
     // Private data
 
+        //- Number of additional quadrature points for the recurrence relation
+        label nAdditionalQuadraturePoints_;
+
         //- Alpha coefficients of the recurrence relation
         scalarList alpha_;
 

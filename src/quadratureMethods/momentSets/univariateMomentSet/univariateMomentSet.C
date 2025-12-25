@@ -52,9 +52,10 @@ Foam::univariateMomentSet::univariateMomentSet
         smallZeta,
         initValue
     ),
+    nAdditionalQuadraturePoints_(nAdditionalQuadraturePoints),
     alpha_(),
     beta_(),
-    zeta_(nMoments_ - 1),
+    zeta_(nMoments - 1),
     canonicalMoments_(),
     negativeZeta_(0),
     degenerate_(false),
@@ -71,15 +72,15 @@ Foam::univariateMomentSet::univariateMomentSet
             << abort(FatalError);
     }
    
-    label nAlpha = nAlphaRecurrence(nAdditionalQuadraturePoints);
-    label nBeta = nBetaRecurrence(nAdditionalQuadraturePoints);;
+    label nAlpha = nAlphaRecurrence(nAdditionalQuadraturePoints_);
+    label nBeta = nBetaRecurrence(nAdditionalQuadraturePoints_);
 
     alpha_.setSize(nAlpha, 0);
     beta_.setSize(nBeta, 0);
 
     if (support == "01")
     {
-        canonicalMoments_.setSize(nMoments_ - 1, 0);
+        canonicalMoments_.setSize(nMoments - 1, 0);
     }
 }
 
@@ -103,7 +104,7 @@ Foam::univariateMomentSet::univariateMomentSet
     ),
     alpha_(),
     beta_(),
-    zeta_(nMoments_ - 1),
+    zeta_(m.size() - 1),
     negativeZeta_(0),
     degenerate_(false),
     fullyRealizable_(true),
@@ -127,7 +128,7 @@ Foam::univariateMomentSet::univariateMomentSet
 
     if (support == "01")
     {
-        canonicalMoments_.setSize(nMoments_ - 1, 0);
+        canonicalMoments_.setSize(m.size() - 1, 0);
     }
 }
 
@@ -144,7 +145,7 @@ Foam::label Foam::univariateMomentSet::nAlphaRecurrence
     const label& nAdditionalQuadraturePoints
 )
 {
-    return label((nMoments_ - 2)/2) + 1 + nAdditionalQuadraturePoints;
+    return label((nMoments() - 2)/2) + 1 + nAdditionalQuadraturePoints;
 }
 
 
@@ -153,7 +154,7 @@ Foam::label Foam::univariateMomentSet::nBetaRecurrence
     const label& nAdditionalQuadraturePoints
 )
 {
-    return label(nMoments_/2) + 1 + nAdditionalQuadraturePoints;
+    return label(nMoments()/2) + 1 + nAdditionalQuadraturePoints;
 }
 
 
@@ -222,6 +223,7 @@ void Foam::univariateMomentSet::checkRealizability
     // Cache moment values used multiple times
     const scalar m0 = (*this)[0];
     const scalar m1 = (*this)[1];
+    const label nMoments = (*this).nMoments();
 
     // If the zero-order moment is negative, exit immediately.
     if (m0 < 0.0)
@@ -270,7 +272,7 @@ void Foam::univariateMomentSet::checkRealizability
 
     // Check for the degenerate case where only m0 is defined and throw an error
     // if this is the case.
-    if (nMoments_ <= 1)
+    if (nMoments <= 1)
     {
         FatalErrorInFunction
             << "The moment has size less or equal to 1." << nl
@@ -282,7 +284,7 @@ void Foam::univariateMomentSet::checkRealizability
     zeta_ = 0.0;
 
     // Check for the case with only two moments
-    if (nMoments_ == 2)
+    if (nMoments == 2)
     {
         // In the case of support over R, m0 must be positive and m1 needs to
         // be a real number. The first condition is satisfied, so only flags
@@ -420,9 +422,9 @@ void Foam::univariateMomentSet::checkRealizability
     label nR = nN - 2*nD;
 
     // Matrix used to build the recurrence relation
-    scalarRectangularMatrix zRecurrence(nD + 1, nMoments_, Zero);
+    scalarRectangularMatrix zRecurrence(nD + 1, nMoments, Zero);
 
-    for (label columnI = 0; columnI < nMoments_; columnI++)
+    for (label columnI = 0; columnI < nMoments; columnI++)
     {
         zRecurrence[0][columnI] = (*this)[columnI]/m0;
     }
@@ -430,7 +432,7 @@ void Foam::univariateMomentSet::checkRealizability
     alpha_[0] = m1/m0;
     beta_[0] = 1.0;
 
-    for (label columnI = 1; columnI < nMoments_ - 1; columnI++)
+    for (label columnI = 1; columnI < nMoments - 1; columnI++)
     {
         zRecurrence[1][columnI] = zRecurrence[0][columnI + 1]
               - alpha_[0]*zRecurrence[0][columnI];
@@ -593,7 +595,7 @@ void Foam::univariateMomentSet::checkRealizability
         else
         {
             realizabilityChecked_ = true;
-            nRealizableMoments_ = nMoments_;
+            nRealizableMoments_ = nMoments;
             fullyRealizable_ = true;
             subsetRealizable_ = true;
 
@@ -654,7 +656,7 @@ void Foam::univariateMomentSet::checkRealizability
                     else
                     {
                         negativeZeta_ = nN;
-                        nRealizableMoments_ = nMoments_;
+                        nRealizableMoments_ = nMoments;
                         fullyRealizable_ = true;
                         onMomentSpaceBoundary_ = true;
                     }
@@ -685,7 +687,7 @@ void Foam::univariateMomentSet::checkRealizability
                 if (mSupport == "RPlus")
                 {
                     negativeZeta_ = nN;
-                    nRealizableMoments_ = nMoments_;
+                    nRealizableMoments_ = nMoments;
                     fullyRealizable_ = true;
                     onMomentSpaceBoundary_ = false;
                 }
@@ -720,14 +722,14 @@ void Foam::univariateMomentSet::checkRealizability
                 negativeZeta_ = nN;
                 fullyRealizable_ = true;
                 subsetRealizable_ = true;
-                nRealizableMoments_ = nMoments_;
+                nRealizableMoments_ = nMoments;
                 onMomentSpaceBoundary_ = false;
             }
             else
             {
                 checkCanonicalMoments(zeta_, nN);
 
-                if (nRealizableMoments_ == nMoments_)
+                if (nRealizableMoments_ == nMoments)
                 {
                     negativeZeta_ = nN;
                     fullyRealizable_ = true;
@@ -794,7 +796,7 @@ void Foam::univariateMomentSet::updateIntegerMoments
 {
     // Recomputing all the moments (even if they originally were not realizable)
     // from quadrature (projection step).
-    for (label momenti = 0; momenti < nMoments_; momenti++)
+    for (label momenti = 0; momenti < nMoments(); momenti++)
     {
         (*this)[momenti] = Zero;
 
@@ -807,14 +809,45 @@ void Foam::univariateMomentSet::updateIntegerMoments
 
 void Foam::univariateMomentSet::setSize(const label newSize)
 {
-    label oldSize = (*this).size();
-    Foam::momentSet::setSize(newSize);
-    realizabilityChecked_ = false;
-
-    if (oldSize > newSize)
+    // Check that the new size is valid
+    if (newSize < 2)
     {
-        makeUnivariateMomentOrders(newSize);
+        FatalErrorInFunction
+            << "The new size of the moment set must be at least 2." << nl
+            << "    New size: " << newSize << nl
+            << abort(FatalError);
     }
+
+    // Do not resize if the size is unchanged
+    if (newSize == nMoments())
+    {
+        return;
+    }
+
+    labelListList newMomentOrders(makeUnivariateMomentOrders(newSize));
+    // Resize the base moment set
+    Foam::momentSet::setSize(newSize, newMomentOrders);
+
+    // Resize zeta and canonical moments
+    zeta_.setSize(newSize - 1, 0);
+
+    if (supports_[0] == "01")
+    {
+        canonicalMoments_.setSize(newSize - 1, 0);
+    }
+    
+    // Resize alpha and beta coefficients of the recurrence relation
+    alpha_.setSize(nAlphaRecurrence(nAdditionalQuadraturePoints_), 0);
+    beta_.setSize(nBetaRecurrence(nAdditionalQuadraturePoints_), 0);
+
+    // Reset realizability status
+    realizabilityChecked_ = false;
+    degenerate_ = false;
+    fullyRealizable_ = true;
+    subsetRealizable_ = true;
+    onMomentSpaceBoundary_ = false;
+    negativeZeta_ = 0;
+    nRealizableMoments_ = 0;
 }
 
 void Foam::univariateMomentSet::resize(const label newSize)

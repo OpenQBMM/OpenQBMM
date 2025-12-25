@@ -37,7 +37,7 @@ const Foam::labelListList& Foam::momentSet::momentOrders() const
 
 Foam::label Foam::momentSet::nMoments() const
 {
-    return nMoments_;
+    return (*this).size();
 }
 
 Foam::label Foam::momentSet::nDimensions() const
