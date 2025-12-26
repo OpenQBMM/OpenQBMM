@@ -27,6 +27,7 @@ License
 
 #include "CHyQMOMMomentInversion.H"
 #include "mappedLists.H"
+#include "supportType.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -370,7 +371,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert1D
             centralMoments(3),
             centralMoments(4)
         },
-        "R",
+        supportType::R,
         smallM0(),
         smallZeta()
     );
@@ -445,9 +446,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
     // One-dimensional inversion with realizability test
     univariateMomentSet mDir1
     (
-        {scalar(1), scalar(0), c20, c30, c40}, 
-        "R", 
-        smallM0(), 
+        {scalar(1), scalar(0), c20, c30, c40},
+        supportType::R,
+        smallM0(),
         smallZeta()
     );
 
@@ -472,9 +473,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
 
         univariateMomentSet mDir2
         (
-            {scalar(1), scalar(0), c02, c03, c04}, 
-            "R",
-            smallM0(), 
+            {scalar(1), scalar(0), c02, c03, c04},
+            supportType::R,
+            smallM0(),
             smallZeta()
         );
 
@@ -550,8 +551,8 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
                 mu[3],
                 mu[4]
             },
-            "R",
-            smallM0(), 
+            supportType::R,
+            smallM0(),
             smallZeta()
         );
 
@@ -718,9 +719,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
     // Invert first direction
     univariateMomentSet mDir1
     (
-        {scalar(1), scalar(0), c200, c300, c400}, 
-        "R",
-        smallM0(), 
+        {scalar(1), scalar(0), c200, c300, c400},
+        supportType::R,
+        smallM0(),
         smallZeta()
     );
 
@@ -739,9 +740,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
         {
             univariateMomentSet mDir3
             (
-                {scalar(1), scalar(0), c002, c003, c004}, 
-                "R",
-                smallM0(), 
+                {scalar(1), scalar(0), c002, c003, c004},
+                supportType::R,
+                smallM0(),
                 smallZeta()
             );
 
@@ -784,8 +785,8 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                     c004
                 },
                 twoDimMomentOrders,
-                {"R", "R"},
-                smallM0(), 
+                {supportType::R, supportType::R},
+                smallM0(),
                 smallZeta()
             );
 
@@ -835,8 +836,8 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                 c004
             },
             twoDimMomentOrders,
-            {"R", "R"},
-            smallM0(), 
+            {supportType::R, supportType::R},
+            smallM0(),
             smallZeta()
         );
 
@@ -885,8 +886,8 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                 c040
             },
             twoDimMomentOrders,
-            {"R", "R"},
-            smallM0(), 
+            {supportType::R, supportType::R},
+            smallM0(),
             smallZeta()
         );
 
@@ -1027,6 +1028,7 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
 
             scalar sumVarDir3 = 0.0;
             scalarSquareMatrix Wf(3, 0.0);
+
             for (label i = 0; i < 3; i++)
             {
                 for (label j = 0; j < 3; j++)
@@ -1072,9 +1074,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
             // Invert final direction
             univariateMomentSet mDir3
             (
-                {scalar(1), scalar(0), mu[2], mu[3], mu[4]}, 
-                "R",
-                smallM0(), 
+                {scalar(1), scalar(0), mu[2], mu[3], mu[4]},
+                supportType::R,
+                smallM0(),
                 smallZeta()
             );
 
@@ -1126,7 +1128,7 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
             getNNodes(2),
             twoDimNodeIndexes
         );
-        
+
         mappedList<vector2D> u
         (
             getNNodes(2),

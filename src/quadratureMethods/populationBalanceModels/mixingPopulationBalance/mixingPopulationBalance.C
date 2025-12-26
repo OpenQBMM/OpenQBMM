@@ -30,6 +30,7 @@ License
 
 #include "mixingPopulationBalance.H"
 #include "addToRunTimeSelectionTable.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -103,13 +104,13 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     (
         name + "MeanMoments",
         phi_.mesh(),
-        wordList(1, "RPlus")
+        List<supportType>(1, supportType::RPlus)
     ),
     meanMomentsVarianceQuadrature_
     (
         name + "MeanMomentsVariance",
         phi_.mesh(),
-        wordList(1, "RPlus")
+        List<supportType>(1, supportType::RPlus)
     ),
     meanMomentsAdvection_
     (
@@ -118,7 +119,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             meanMomentsQuadrature_.subDict("momentAdvection"),
             meanMomentsQuadrature_,
             phi_,
-            "RPlus"
+            supportType::RPlus
         )
     ),
     meanMomentsVarianceAdvection_
@@ -128,7 +129,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             meanMomentsVarianceQuadrature_.subDict("momentAdvection"),
             meanMomentsVarianceQuadrature_,
             phi_,
-            "RPlus"
+            supportType::RPlus
         )
     ),
     meanMoments_

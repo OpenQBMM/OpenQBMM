@@ -40,7 +40,8 @@ Foam::label Foam::momentFieldSet<momentType, nodeType>::nDimensions() const
 }
 
 template <class momentType, class nodeType>
-const Foam::wordList& Foam::momentFieldSet<momentType, nodeType>::supports() const
+const Foam::List<Foam::supportType>&
+Foam::momentFieldSet<momentType, nodeType>::supports() const
 {
     return supports_;
 }

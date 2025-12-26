@@ -54,7 +54,7 @@ Foam::velocityAdvection::firstOrderKinetic::firstOrderKinetic
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const wordList& supports
+    const List<supportType>& supports
 )
 :
     velocityMomentAdvection(dict, quadrature, supports),
@@ -679,7 +679,7 @@ void Foam::velocityAdvection::firstOrderKinetic::update
                             abscissaNeiCmpt,
                             cmptMomentOrder
                         );
-                        
+
                     momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
                     momentCmptOwn == mOwnPow;
 

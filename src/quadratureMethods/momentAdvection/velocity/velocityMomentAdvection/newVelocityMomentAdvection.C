@@ -37,7 +37,7 @@ Foam::velocityMomentAdvection::New
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const wordList& supports
+    const List<supportType>& supports
 )
 {
     word velocityMomentAdvectionType

@@ -55,7 +55,7 @@ Foam::univariateAdvection::noAdvection::noAdvection
     const dictionary& dict,
     const scalarQuadratureApproximation& quadrature,
     const surfaceScalarField& phi,
-    const word& support
+    const supportType& support
 )
 :
     univariateMomentAdvection(dict, quadrature, phi, support)

@@ -82,10 +82,10 @@ int main(int argc, char *argv[])
 
     multivariateMomentSet moments
     (
-        nMoments, 
-        momentOrders, 
-        wordList(momentOrders[0].size(), "R"),
-        SMALL, 
+        nMoments,
+        momentOrders,
+        List<supportType>(momentOrders[0].size(), supportType::R),
+        SMALL,
         SMALL
     );
 
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
         }
         Info<< ": " << newMoments(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) 
+            << (mag(moments(momentOrder)
                 - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
 
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
         }
         Info<< ": " << newMomentsp(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) 
+            << (mag(moments(momentOrder)
                 - newMomentsp(momentOrder))/moments(momentOrder))<< endl;
     }
 

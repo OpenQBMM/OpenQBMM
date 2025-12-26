@@ -41,6 +41,7 @@ SourceFiles
 #define firstOrderKineticVelocityAdvection_H
 
 #include "velocityMomentAdvection.H"
+#include "supportType.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -87,7 +88,7 @@ public:
         (
             const dictionary& dict,
             const velocityQuadratureApproximation& quadrature,
-            const wordList& supports
+            const List<supportType>& supports
         );
 
 

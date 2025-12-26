@@ -30,6 +30,7 @@ License
 
 #include "velocityPopulationBalance.H"
 #include "addToRunTimeSelectionTable.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -60,7 +61,10 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     const surfaceScalarField& phi
 )
 :
-    velocityPDFTransportModel(name, dict, phi.mesh(), wordList(3, "R")),
+    velocityPDFTransportModel
+    (
+        name, dict, phi.mesh(), List<supportType>(3, supportType::R)
+    ),
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
     collision_(dict.lookup("collision")),
@@ -189,7 +193,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 }
 
 
-void 
+void
 Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::solve()
 {
@@ -198,7 +202,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 }
 
 
-bool 
+bool
 Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::readIfModified()
 {

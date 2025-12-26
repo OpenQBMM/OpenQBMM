@@ -65,7 +65,7 @@ public:
         (
             const label nMoments,
             const labelListList& momentOrders,
-            const wordList& supports,
+            const List<supportType>& supports,
             const scalar smallM0,
             const scalar smallZeta,
             const scalar initialValue = 0
@@ -76,7 +76,7 @@ public:
         (
             const scalarList& m,
             const labelListList& momentOrders,
-            const wordList& supports,
+            const List<supportType>& supports,
             const scalar smallM0,
             const scalar smallZeta
         );
@@ -95,7 +95,7 @@ public:
 
         //- Correct the value of smallM0
         inline void correctSmallM0(scalar smallM0);
-        
+
         //- Correct the value of smallZeta
         inline void correctSmallZeta(scalar smallZeta);
 };

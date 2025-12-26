@@ -43,6 +43,7 @@ SourceFiles
 
 #include "momentSet.H"
 #include "scalarMatrices.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -109,13 +110,13 @@ class univariateMomentSet : public momentSet
         );
 
         //- Returns the number of elements of the alpha vector of the recurrence
-        //  relation. This is equivalent to the maximum number of quadrature 
+        //  relation. This is equivalent to the maximum number of quadrature
         //  nodes obtained assuming all moments are inverible and adding the
         //  number of additional quadrature nodes.
         label nAlphaRecurrence(const label& nAdditionalQuadratureNodes);
 
         //- Returns the number of elements of the beta vector of the recurrence
-        //  relation. 
+        //  relation.
         label nBetaRecurrence(const label& nAdditionalQuadratureNodes);
 
 
@@ -135,7 +136,7 @@ public:
         univariateMomentSet
         (
             const label nMoments,
-            const word& support,
+            const supportType& support,
             const scalar smallM0,
             const scalar smallZeta,
             const scalar initialValue = 0,
@@ -146,7 +147,7 @@ public:
         univariateMomentSet
         (
             const scalarList& m,
-            const word& support,
+            const supportType& support,
             const scalar smallM0,
             const scalar smallZeta,
             const label nAdditionalQuadraturePoints = 0
@@ -249,7 +250,7 @@ public:
         void setSize(const label newSize);
 
         //- Return support
-        inline const word& support() const;
+        inline const supportType& support() const;
 
         //- Returns zeta_k values for the moment set
         inline scalarList& zetas();

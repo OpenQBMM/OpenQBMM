@@ -32,6 +32,7 @@ License
 #include "scalar.H"
 #include "scalarMatrices.H"
 #include "constants.H"
+#include "supportType.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -303,7 +304,11 @@ Foam::scalar Foam::betaEQMOM::m2N
 
     if (mStar.nRealizableMoments() >= nMomentsStar - 1)
     {
-        univariateMomentSet m(nMomentsStar, "01", smallM0_, smallZeta_);
+        univariateMomentSet m
+        (
+            nMomentsStar, supportType::ZeroOne, smallM0_, smallZeta_
+        );
+
         momentsStarToMoments(sigma, m, mStar);
 
         return m.last();

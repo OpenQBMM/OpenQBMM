@@ -64,6 +64,7 @@ SourceFiles
 #include "mappedPtrList.H"
 #include "volFields.H"
 #include "Map.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -94,7 +95,7 @@ class momentFieldSet
         const label nMoments_;
 
         //- Supports of the measure associated to the moment moment set
-        wordList supports_;
+        List<supportType> supports_;
 
 
     // Private Member Functions
@@ -118,7 +119,7 @@ public:
             const dictionary& dict,
             const fvMesh& mesh,
             const autoPtr<mappedPtrList<nodeType>>& nodes,
-            const wordList& supports
+            const List<supportType>& supports
         );
 
         //- Construct from size, quadrature nodes, dimensions and moment map
@@ -131,7 +132,7 @@ public:
             const autoPtr<mappedPtrList<nodeType>>& nodes,
             const label nDimensions,
             const Map<label>& momentMap,
-            const wordList& supports
+            const List<supportType>& supports
         );
 
 
@@ -151,7 +152,7 @@ public:
             inline label nDimensions() const;
 
             //- Return support of the measure associated to the moment set
-            inline const wordList& supports() const;
+            inline const List<supportType>& supports() const;
 
             //- Recalculate the moments from the quadrature nodes
             void update();

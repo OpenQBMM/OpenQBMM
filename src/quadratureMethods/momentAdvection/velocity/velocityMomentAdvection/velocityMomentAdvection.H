@@ -46,6 +46,7 @@ SourceFiles
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "supportType.H"
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
 #include "quadratureApproximations.H"
@@ -91,7 +92,7 @@ protected:
         surfaceScalarField nei_;
 
         //- Support of the distribution function
-        wordList supports_;
+        List<supportType> supports_;
 
         //- Moment indicies ues to map moments
         labelListList momentOrders_;
@@ -128,7 +129,7 @@ public:
             (
                 const dictionary& dict,
                 const velocityQuadratureApproximation& quadrature,
-                const wordList& supports
+                const List<supportType>& supports
             ),
             (dict, quadrature, supports)
         );
@@ -141,7 +142,7 @@ public:
         (
             const dictionary& dict,
             const velocityQuadratureApproximation& quadrature,
-            const wordList& supports
+            const List<supportType>& supports
         );
 
         //- Disallow default bitwise copy construct
@@ -158,7 +159,7 @@ public:
         (
             const dictionary& dict,
             const velocityQuadratureApproximation& quadrature,
-            const wordList& supports
+            const List<supportType>& supports
         );
 
 

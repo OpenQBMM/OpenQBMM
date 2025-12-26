@@ -50,6 +50,7 @@ SourceFiles
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "supportType.H"
 #include "fieldMomentInversion.H"
 #include "volVelocityNode.H"
 #include "surfaceVelocityNode.H"
@@ -103,7 +104,7 @@ protected:
         const label nMoments_;
 
         //- Support of the distribution function
-        wordList supports_;
+        List<supportType> supports_;
 
         //- Extended moment inversion method
         autoPtr<fieldMomentInversion> momentFieldInverter_;
@@ -121,7 +122,7 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const wordList& supports
+            const List<supportType>& supports
         );
 
         //- Construct from dictionary name, name, momentFieldSet
@@ -189,7 +190,7 @@ public:
             //- Recalculate the quadrature nodes from the moments
             //  on boundaries
             void updateBoundaryQuadrature();
-            
+
             //- Recalculate the moments from the quadrature nodes
             void updateMoments();
 

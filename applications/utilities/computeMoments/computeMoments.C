@@ -32,6 +32,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "supportType.H"
 #include "quadratureApproximations.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -88,7 +89,7 @@ int main(int argc, char *argv[])
         (
             phaseNames[phasei],
             mesh,
-            wordList(newMomentOrders[0].size(), "R")
+            List<supportType>(newMomentOrders[0].size(), supportType::R)
         );
 
         autoPtr<mappedPtrList<volVelocityNode>> nodes(&(quadrature.nodes()));
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
 
             forAll(abscissaeDimensions, cmpti)
             {
-                mDims *= 
+                mDims *=
                     pow(abscissaeDimensions[cmpti], newMomentOrders[mi][cmpti]);
             }
 

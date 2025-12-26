@@ -55,7 +55,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     const dictionary& dict,
     const scalarQuadratureApproximation& quadrature,
     const surfaceScalarField& phi,
-    const word& support
+    const supportType& support
 )
 :
     univariateMomentAdvection(dict, quadrature, phi, support),
@@ -64,11 +64,21 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     nodesOwn_(),
     momentsNei_
     (
-        name_, nMoments_, nodesNei_, nDimensions_, moments_.map(), wordList(1, support)
+        name_,
+        nMoments_,
+        nodesNei_,
+        nDimensions_,
+        moments_.map(),
+        List<supportType>(1, support)
     ),
     momentsOwn_
     (
-        name_, nMoments_, nodesOwn_, nDimensions_, moments_.map(), wordList(1, support)
+        name_,
+        nMoments_,
+        nodesOwn_,
+        nDimensions_,
+        moments_.map(),
+        List<supportType>(1, support)
     ),
     momentFieldInverter_()
 {
@@ -256,7 +266,7 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
                 (
                     node.abscissae()[cmpt]
                 );
-                
+
             nodeNei.abscissae()[cmpt] =
                 abscissaNeiScheme().interpolate
                 (

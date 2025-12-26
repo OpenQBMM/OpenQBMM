@@ -40,6 +40,7 @@ Description
 #include "OFstream.H"
 #include "scalarList.H"
 #include "scalarMatrices.H"
+#include "supportType.H"
 #include "univariateMomentSet.H"
 #include "extendedMomentInversion.H"
 
@@ -55,8 +56,7 @@ int main(int argc, char *argv[])
     Info << "Testing extendedMomentInversion\n" << endl;
 
     label nMoments = 5;
-    word support = "RPlus";
-    univariateMomentSet moments(nMoments, support, SMALL, SMALL);
+    univariateMomentSet moments(nMoments, supportType::RPlus, SMALL, SMALL);
 
     // Dirac delta function
 //     moments[0] = 1.0;

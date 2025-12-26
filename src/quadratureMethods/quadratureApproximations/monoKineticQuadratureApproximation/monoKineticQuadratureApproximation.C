@@ -45,7 +45,7 @@ Foam::monoKineticQuadratureApproximation::monoKineticQuadratureApproximation
 (
     const word& name,
     const fvMesh& mesh,
-    const wordList& supports
+    const List<supportType>& supports
 )
 :
     quadratureApproximation(name, mesh, supports),

@@ -35,7 +35,7 @@ License
 Foam::univariateMomentSet::univariateMomentSet
 (
     const label nMoments,
-    const word& support,
+    const supportType& support,
     const scalar smallM0,
     const scalar smallZeta,
     const scalar initValue,
@@ -47,7 +47,7 @@ Foam::univariateMomentSet::univariateMomentSet
         nMoments,
         1,
         makeUnivariateMomentOrders(nMoments),
-        wordList(1, support),
+        List<supportType>(1, support),
         smallM0,
         smallZeta,
         initValue
@@ -71,14 +71,14 @@ Foam::univariateMomentSet::univariateMomentSet
             << "The number of additional quadrature points must be positive."
             << abort(FatalError);
     }
-   
+
     label nAlpha = nAlphaRecurrence(nAdditionalQuadraturePoints_);
     label nBeta = nBetaRecurrence(nAdditionalQuadraturePoints_);
 
     alpha_.setSize(nAlpha, 0);
     beta_.setSize(nBeta, 0);
 
-    if (support == "01")
+    if (support == supportType::ZeroOne)
     {
         canonicalMoments_.setSize(nMoments - 1, 0);
     }
@@ -87,7 +87,7 @@ Foam::univariateMomentSet::univariateMomentSet
 Foam::univariateMomentSet::univariateMomentSet
 (
     const scalarList& m,
-    const word& support,
+    const supportType& support,
     const scalar smallM0,
     const scalar smallZeta,
     const label nAdditionalQuadraturePoints
@@ -98,7 +98,7 @@ Foam::univariateMomentSet::univariateMomentSet
         m,
         1,
         makeUnivariateMomentOrders(m.size()),
-        wordList(1, support),
+        List<supportType>(1, support),
         smallM0,
         smallZeta
     ),
@@ -126,7 +126,7 @@ Foam::univariateMomentSet::univariateMomentSet
     alpha_.setSize(nAlpha, 0);
     beta_.setSize(nBeta, 0);
 
-    if (support == "01")
+    if (support == supportType::ZeroOne)
     {
         canonicalMoments_.setSize(m.size() - 1, 0);
     }
@@ -180,9 +180,9 @@ void Foam::univariateMomentSet::checkCanonicalMoments
         canonicalMoments_[zetai]
             = zeta[zetai]/(1.0 - canonicalMoments_[zetai - 1]);
 
-        if 
+        if
         (
-            canonicalMoments_[zetai] < smallZeta_ 
+            canonicalMoments_[zetai] < smallZeta_
          || canonicalMoments_[zetai] > 1.0
         )
         {
@@ -218,7 +218,7 @@ void Foam::univariateMomentSet::checkRealizability
     }
 
     // Locally store support
-    const word& mSupport = supports_[0];
+    const supportType& mSupport = supports_[0];
 
     // Cache moment values used multiple times
     const scalar m0 = (*this)[0];
@@ -239,9 +239,9 @@ void Foam::univariateMomentSet::checkRealizability
         }
         else
         {
-            // If the zero-order moment is negative, the moment set is not 
+            // If the zero-order moment is negative, the moment set is not
             // realizable. If the user has requested to not throw an error,
-            // we mark the moment set as not realizable, set the number of 
+            // we mark the moment set as not realizable, set the number of
             // realizable moments to zero and return. This is necessary when
             // using some adaptive methods which explicitly test for
             // realizability to make decisions.
@@ -289,7 +289,7 @@ void Foam::univariateMomentSet::checkRealizability
         // In the case of support over R, m0 must be positive and m1 needs to
         // be a real number. The first condition is satisfied, so only flags
         // need to be set before returning.
-        if (mSupport == "R")
+        if (mSupport == supportType::R)
         {
             realizabilityChecked_ = true;
             negativeZeta_ = 0;
@@ -340,7 +340,7 @@ void Foam::univariateMomentSet::checkRealizability
             }
         }
 
-        if (mSupport == "RPlus") // Support on R+ - Check if zetas are positive.
+        if (mSupport == supportType::RPlus) // Support on R+ - Check if zetas are positive.
         {
             realizabilityChecked_ = true;
             negativeZeta_ = 0;
@@ -440,7 +440,7 @@ void Foam::univariateMomentSet::checkRealizability
 
     zeta_[0] = alpha_[0];
 
-    if (!(mSupport == "R") && zeta_[0] <= smallZeta_)
+    if (!(mSupport == supportType::R) && zeta_[0] <= smallZeta_)
     {
         if (isDegenerate() || zeta_[0] == 0.0)
         {
@@ -481,7 +481,7 @@ void Foam::univariateMomentSet::checkRealizability
         beta_[zetai] = zRecurrence[zetai][zetai]
                 /zRecurrence[zetai - 1][zetai - 1];
 
-        if (mSupport == "R")
+        if (mSupport == supportType::R)
         {
             if (beta_[zetai] <= smallZeta_)
             {
@@ -499,7 +499,7 @@ void Foam::univariateMomentSet::checkRealizability
 
             if (zeta_[2*zetai - 1] <= smallZeta_)
             {
-                if (mSupport == "RPlus")
+                if (mSupport == supportType::RPlus)
                 {
                     if (zeta_[2*zetai - 1] < smallZeta_)
                     {
@@ -533,13 +533,13 @@ void Foam::univariateMomentSet::checkRealizability
           - zRecurrence[zetai - 1][zetai]
            /zRecurrence[zetai - 1][zetai - 1];
 
-        if (!(mSupport == "R"))
+        if (!(mSupport == supportType::R))
         {
             zeta_[2*zetai] = alpha_[zetai] - zeta_[2*zetai - 1];
 
             if (zeta_[2*zetai] <= smallZeta_)
             {
-                if (mSupport == "RPlus")
+                if (mSupport == supportType::RPlus)
                 {
                     if (zeta_[2*zetai] < smallZeta_)
                     {
@@ -574,13 +574,13 @@ void Foam::univariateMomentSet::checkRealizability
                     - beta_[zetai]*zRecurrence[zetai - 1][columnI];
         }
     }
-   
+
     beta_[nD] = zRecurrence[nD][nD]/max(zRecurrence[nD - 1][nD - 1], SMALL);
 
-    if (mSupport == "R")
+    if (mSupport == supportType::R)
     {
         alpha_[nD] = zRecurrence[nD][nD + 1]/max(zRecurrence[nD][nD], SMALL)
-                    - zRecurrence[nD - 1][nD]/max(zRecurrence[nD - 1][nD - 1], 
+                    - zRecurrence[nD - 1][nD]/max(zRecurrence[nD - 1][nD - 1],
                     SMALL);
 
         if (beta_[nD] <= smallZeta_)
@@ -608,7 +608,7 @@ void Foam::univariateMomentSet::checkRealizability
 
         if (zeta_[2*nD - 1] <= smallZeta_)
         {
-            if (mSupport == "RPlus")
+            if (mSupport == supportType::RPlus)
             {
                 if (zeta_[2*nD - 1] < smallZeta_)
                 {
@@ -644,7 +644,7 @@ void Foam::univariateMomentSet::checkRealizability
 
             if (zeta_[2*nD] <= smallZeta_)
             {
-                if (mSupport == "RPlus")
+                if (mSupport == supportType::RPlus)
                 {
                     if (zeta_[2*nD] < smallZeta_)
                     {
@@ -684,7 +684,7 @@ void Foam::univariateMomentSet::checkRealizability
             }
             else // zeta_[2*nD] > 0.0
             {
-                if (mSupport == "RPlus")
+                if (mSupport == supportType::RPlus)
                 {
                     negativeZeta_ = nN;
                     nRealizableMoments_ = nMoments;
@@ -717,7 +717,7 @@ void Foam::univariateMomentSet::checkRealizability
         {
             // If support is [0, + inf[ and this level is reached, the full set
             // of moments is realizable
-            if (mSupport == "RPlus")
+            if (mSupport == supportType::RPlus)
             {
                 negativeZeta_ = nN;
                 fullyRealizable_ = true;
@@ -831,11 +831,11 @@ void Foam::univariateMomentSet::setSize(const label newSize)
     // Resize zeta and canonical moments
     zeta_.setSize(newSize - 1, 0);
 
-    if (supports_[0] == "01")
+    if (supports_[0] == supportType::ZeroOne)
     {
         canonicalMoments_.setSize(newSize - 1, 0);
     }
-    
+
     // Resize alpha and beta coefficients of the recurrence relation
     alpha_.setSize(nAlphaRecurrence(nAdditionalQuadraturePoints_), 0);
     beta_.setSize(nBetaRecurrence(nAdditionalQuadraturePoints_), 0);

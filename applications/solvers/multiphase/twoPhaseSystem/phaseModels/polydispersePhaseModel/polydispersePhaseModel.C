@@ -34,6 +34,7 @@ License
 #include "fixedValueFvsPatchFields.H"
 #include "slipFvPatchFields.H"
 #include "partialSlipFvPatchFields.H"
+#include "supportType.H"
 #include "momentFieldSets.H"
 #include "vectorList.H"
 #include "fixedFaceFvPatchScalarField.H"
@@ -86,7 +87,7 @@ Foam::scalar Foam::polydispersePhaseModel::coalescenceSource
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.weight()[celli];
 
-            scalar abscissa2 
+            scalar abscissa2
                 = Foam::max(node2.abscissae()[0][celli], SMALL);
 
             scalar n2 = node2.numberDensity(celli, weight2, abscissa2);
@@ -141,7 +142,7 @@ Foam::vector Foam::polydispersePhaseModel::coalescenceSourceU
             const volScalarNode& node2 = nodes[nodej];
             scalar weight2 = node2.weight()[celli];
 
-            scalar abscissa2 
+            scalar abscissa2
                 = Foam::max(node2.abscissae()[0][celli], SMALL);
 
             scalar n2 = node2.numberDensity(celli, weight2, abscissa2);
@@ -584,7 +585,12 @@ Foam::polydispersePhaseModel::polydispersePhaseModel
     solveOde_(pbeDict_.lookupOrDefault("ode", false)),
     coalescence_(pbeDict_.lookup("coalescence")),
     breakup_(pbeDict_.lookup("breakup")),
-    quadrature_(phaseName, fluid.mesh(), wordList(3, "R")),
+    quadrature_
+    (
+        phaseName,
+        fluid.mesh(),
+        List<supportType>(3, supportType::RPlus)
+    ),
     nNodes_(quadrature_.nodes().size()),
     nMoments_(quadrature_.nMoments()),
     alphas_(nNodes_),
@@ -1238,7 +1244,7 @@ void Foam::polydispersePhaseModel::averageTransport
         UsEqn.relax();
         UsEqn.solve();
     }
-    
+
     quadrature_.updateAllMoments();
 
     // Update moments with breakup and coalescence sources

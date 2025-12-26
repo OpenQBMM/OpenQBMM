@@ -44,6 +44,7 @@ SourceFiles
 #include "labelList.H"
 #include "scalarList.H"
 #include "mappedLists.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -67,7 +68,7 @@ protected:
         labelListList momentOrders_;
 
         //- List of supports of the measure associated to the moment set
-        wordList supports_;
+        List<supportType> supports_;
 
         //- Minimum value for the zero-order moment.
         // Below this value, the moment is considered negligible.
@@ -99,7 +100,7 @@ public:
             const label nMoments,
             const label nDimensions,
             const labelListList& momentOrders,
-            const wordList& supports,
+            const List<supportType>& supports,
             const scalar smallM0,
             const scalar smallZeta,
             const scalar initialValue = 0
@@ -111,7 +112,7 @@ public:
             const scalarList& m,
             const label nDimensions,
             const labelListList& momentOrders,
-            const wordList& supports,
+            const List<supportType>& supports,
             const scalar smallM0,
             const scalar smallZeta
         );
@@ -138,7 +139,7 @@ public:
         void setSize(const label newSize, labelListList& newMomentOrders);
 
         //- Return support
-        inline const wordList& supports() const;
+        inline const List<supportType>& supports() const;
 };
 
 

@@ -35,6 +35,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "supportType.H"
 #include "univariateMomentSet.H"
 #include "extendedMomentInversion.H"
 #include "mappedPtrList.H"
@@ -235,7 +236,13 @@ int main(int argc, char *argv[])
                 )
             );
 
-            univariateMomentSet moments(nMoments, "RPlus", SMALL, SMALL);
+            univariateMomentSet moments
+            (
+                nMoments,
+                supportType::RPlus,
+                SMALL,
+                SMALL
+            );
 
             forAll(moments, mi)
             {

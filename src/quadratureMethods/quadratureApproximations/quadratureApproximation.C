@@ -45,7 +45,7 @@ quadratureApproximation
 (
     const word& name,
     const fvMesh& mesh,
-    const wordList& supports
+    const List<supportType>& supports
 )
 :
     IOdictionary
@@ -249,7 +249,7 @@ quadratureApproximation
                 moments_(firstOrder).dimensions()/moments_(0).dimensions()
             )
         );
-        
+
         if (abscissaeDimensions[dimi] == dimVelocity)
         {
             velocityIndexes.append(dimi);

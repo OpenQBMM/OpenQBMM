@@ -47,7 +47,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const wordList& supports
+    const List<supportType>& supports
 )
 :
     name_(quadrature.name()),
@@ -150,7 +150,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
     forAll(nodes_, nodei)
     {
         const labelList& nodeIndex = nodeIndexes_[nodei];
-        
+
         nodesNei.set
         (
             nodei,

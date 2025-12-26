@@ -42,6 +42,7 @@ SourceFiles
 #define velocityPDFTransportModel_H
 
 #include "PDFTransportModel.H"
+#include "supportType.H"
 #include "quadratureApproximations.H"
 #include "velocityMomentAdvection.H"
 
@@ -101,7 +102,7 @@ public:
             const word& name,
             const dictionary& dict,
             const fvMesh& mesh,
-            const wordList& supports
+            const List<supportType>& supports
         );
 
 

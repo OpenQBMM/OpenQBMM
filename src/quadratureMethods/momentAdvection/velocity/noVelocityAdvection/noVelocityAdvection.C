@@ -51,7 +51,7 @@ Foam::velocityAdvection::noAdvection::noAdvection
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const wordList& supports
+    const List<supportType>& supports
 )
 :
     velocityMomentAdvection(dict, quadrature, supports)

@@ -27,6 +27,7 @@ License
 
 #include "generalizedMomentInversion.H"
 #include "addToRunTimeSelectionTable.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -61,7 +62,7 @@ Foam::generalizedMomentInversion::generalizedMomentInversion
     ),
     nMaxNodes_(nMaxNodes)
 {
-    
+
     if ((ndfTypeRPlus_ != "gamma" && ndfTypeRPlus_ != "lognormal"))
     {
         FatalErrorInFunction
@@ -89,21 +90,21 @@ void Foam::generalizedMomentInversion::correctRecurrence
     const scalar maxKnownAbscissa
 )
 {
-    const word& support = moments.support();
+    const supportType& support = moments.support();
 
     #ifdef FULLDEBUG
-        Info << "Support = " << support << endl;
+        Info << "Support = " << supportTypeToWord(support) << endl;
     #endif
 
-    if (support == "R")
+    if (support == supportType::R)
     {
         correctRecurrenceR(alpha, beta);
     }
-    else if (support == "RPlus")
+    else if (support == supportType::RPlus)
     {
         correctRecurrenceRPlus(moments, alpha, beta);
     }
-    else if (support == "01")
+    else if (support == supportType::ZeroOne)
     {
         correctRecurrence01(moments, alpha, beta);
     }
@@ -116,11 +117,11 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
 {
     // Trigger calculations of zeta_k by computing the number of realizable
     // moments.
-    label nRealizableMoments = moments.nRealizableMoments(); 
+    label nRealizableMoments = moments.nRealizableMoments();
 
-    nRegularQuadratureNodes_ 
-        = (nRealizableMoments % 2 != 0) 
-        ? label((nRealizableMoments - 1)/2.0) 
+    nRegularQuadratureNodes_
+        = (nRealizableMoments % 2 != 0)
+        ? label((nRealizableMoments - 1)/2.0)
         : label(nRealizableMoments/2.0);
 
     if (nRealizableMoments > 3)
@@ -133,33 +134,37 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
         nAdditionalQuadratureNodes_ = 0;
         nNodes_ = nRegularQuadratureNodes_;
     }
-    
+
     // Resize list of weights and abscissae
     // Note: the lists for the alpha and beta coefficients of the recurrence
     //       relationship do NOT need to be resized because they are allocated
     //       with the correct size in the constructor of univariateMomentSet.
     weights_.setSize(nMaxNodes_);
     abscissae_.setSize(nMaxNodes_);
-    
+
 
     // Resize list of zeta_k, if needed (the resize method in OpenFOAM checks
     // if resizing is necessary or if the desired size equals the current one)
-    if (moments.support() == "RPlus" || moments.support() == "01")
+    if
+    (
+        moments.support() == supportType::RPlus
+     || moments.support() == supportType::ZeroOne
+    )
     {
         moments.zetas().resize(2*nMaxNodes_ - 1, 0.0);
     }
 
     // Resize list of canonical moments
-    if (moments.support() == "01")
+    if (moments.support() == supportType::ZeroOne)
     {
         moments.canonicalMoments().resize(2*nMaxNodes_ - 1);
     }
 
     #ifdef FULLDEBUG
         Info << "nMaxNodes = " << nMaxNodes_ << endl
-            << "nRegularQuadratureNodes = " 
+            << "nRegularQuadratureNodes = "
             << nRegularQuadratureNodes_ << endl
-            << "nAdditionalQuadratureNodes = " 
+            << "nAdditionalQuadratureNodes = "
             << nAdditionalQuadratureNodes_ << endl;
     #endif
 }
@@ -173,8 +178,8 @@ void Foam::generalizedMomentInversion::invert
 {
     (*this).univariateMomentInversion::invert
         (
-            moments, 
-            minKnownAbscissa, 
+            moments,
+            minKnownAbscissa,
             maxKnownAbscissa
         );
 }
@@ -189,11 +194,11 @@ void Foam::generalizedMomentInversion::correctRecurrenceR
     // feasible and set nAdditionalQuadratureNodes_ if not.
     if (nAdditionalQuadratureNodes_ <= 0)
     {
-        return; // Use Gauss if no additional nodes are possible 
+        return; // Use Gauss if no additional nodes are possible
     }
 
     scalar an = 0;
-    
+
     for (label i = 0; i < nRegularQuadratureNodes_; i++)
     {
         an += alpha[i];
@@ -230,12 +235,12 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
     // feasible and set nAdditionalQuadratureNodes_ if not.
     if (nAdditionalQuadratureNodes_ <= 0)
     {
-        return; // Use Gauss if no additional nodes are possible 
+        return; // Use Gauss if no additional nodes are possible
     }
 
     //moments.zetas().resize(2*nMaxNodes_ - 1, 0.0);
 
-    // Take a reference to zetas and use it instead than 
+    // Take a reference to zetas and use it instead than
     // accessing moments.zetas() directly.
     scalarList& zetas(moments.zetas());
 
@@ -244,18 +249,18 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
         const scalar m1sqr = sqr(moments(1));
         const scalar alphaCoeff = m1sqr/(moments(0)*moments(2) - m1sqr) - 1.0;
 
-        for 
+        for
         (
-            label i = nRegularQuadratureNodes_; 
-            i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0; 
+            label i = nRegularQuadratureNodes_;
+            i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0;
             i++
         )
         {
-            zetas[2*i - 1] = 
+            zetas[2*i - 1] =
                 (i + alphaCoeff)*zetas[2*nRegularQuadratureNodes_ - 3]
                /(nRegularQuadratureNodes_ - 1 + alphaCoeff);
 
-            zetas[2*i] = 
+            zetas[2*i] =
                 (i + 1)*zetas[2*nRegularQuadratureNodes_ - 2]
                /(nRegularQuadratureNodes_);
 
@@ -265,7 +270,7 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
                 Info << "zetas[2*i] = " << zetas[2*i] << endl;
                 Info << "2i = " << 2*i << endl;
             #endif
-        }   
+        }
     }
     else if (ndfTypeRPlus_ == "lognormal")
     {
@@ -273,12 +278,12 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
 
         for
         (
-            label i = nRegularQuadratureNodes_; 
-            i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0; 
+            label i = nRegularQuadratureNodes_;
+            i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0;
             i++
         )
         {
-            zetas[2*i - 1] = 
+            zetas[2*i - 1] =
                 pow(eta, 2*(i + 1 - nRegularQuadratureNodes_))
                *(
                     (pow(eta, 2*(i+1)) - 1.0)
@@ -286,7 +291,7 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
                 )
                *zetas[2*nRegularQuadratureNodes_ - 3];
 
-            zetas[2*i] = 
+            zetas[2*i] =
                 pow(eta, 4*(i + 1 - nRegularQuadratureNodes_))
                *zetas[2*nRegularQuadratureNodes_ - 2];
 
@@ -297,7 +302,7 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
                 Info << "2i = " << 2*i << endl;
             #endif
         }
-    }    
+    }
 
     alpha[0] = zetas[0];
 
@@ -328,9 +333,9 @@ void Foam::generalizedMomentInversion::correctRecurrence01
     // feasible and set nAdditionalQuadratureNodes_ = 0 if not.
     if (nAdditionalQuadratureNodes_ <= 0)
     {
-        return; // Use Gauss if no additional nodes are possible 
+        return; // Use Gauss if no additional nodes are possible
     }
-    
+
     // We do not store z0 = 1, so we have 2*nRegularQuadratureNodes_ - 1 zetas
     //moments.zetas().resize(2*nMaxNodes_ - 1);
 
@@ -342,7 +347,7 @@ void Foam::generalizedMomentInversion::correctRecurrence01
     scalarList& canonicalMoments(moments.canonicalMoments());
 
     // We do not store p0, so canonicalMoments[0] = p1
-    scalar p1 = canonicalMoments[0]; 
+    scalar p1 = canonicalMoments[0];
     scalar p2 = canonicalMoments[1];
 
     scalar alphaCoeff = (1.0 - p1 - 2*p2 + p1*p2)/p2;
@@ -350,30 +355,30 @@ void Foam::generalizedMomentInversion::correctRecurrence01
 
     scalar pJ2n_1 = (betaCoeff + nRegularQuadratureNodes_)
         /(2.0*nRegularQuadratureNodes_ + alphaCoeff + betaCoeff);
-    
+
     scalar pJ2n = nRegularQuadratureNodes_
         /(2.0*nRegularQuadratureNodes_ + 1.0 + alphaCoeff + betaCoeff);
 
     for
     (
-        label i = nRegularQuadratureNodes_; 
-        i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0; 
+        label i = nRegularQuadratureNodes_;
+        i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0;
         i++
     )
     {
         scalar pJ2i_1 = (betaCoeff + i)/(2.0*i + alphaCoeff + betaCoeff);
         scalar pJ2i = i/(2.0*i + 1.0 + alphaCoeff + betaCoeff);
 
-        if (canonicalMoments[2*nRegularQuadratureNodes_ - 3] <= pJ2n_1 
+        if (canonicalMoments[2*nRegularQuadratureNodes_ - 3] <= pJ2n_1
          || pJ2n_1 >= pJ2i_1)
         {
-            canonicalMoments[2*i - 1] = 
+            canonicalMoments[2*i - 1] =
                 canonicalMoments[2*nRegularQuadratureNodes_ - 3]
                *pJ2i_1/pJ2n_1;
         }
         else
         {
-            canonicalMoments[2*i - 1] = 
+            canonicalMoments[2*i - 1] =
                 (canonicalMoments[2*nRegularQuadratureNodes_ - 3]
                *(1.0 - pJ2i_1) + pJ2i_1 - pJ2n_1)/(1.0 - pJ2n_1);
         }
@@ -381,22 +386,22 @@ void Foam::generalizedMomentInversion::correctRecurrence01
         if (canonicalMoments[2*nRegularQuadratureNodes_ - 2] <= pJ2n
          || pJ2n >= pJ2i)
         {
-            canonicalMoments[2*i] = 
+            canonicalMoments[2*i] =
                 canonicalMoments[2*nRegularQuadratureNodes_ - 2]
                *pJ2i/pJ2n;
         }
         else
         {
-            canonicalMoments[2*i] = 
+            canonicalMoments[2*i] =
                 (canonicalMoments[2*nRegularQuadratureNodes_ - 2]
                *(1.0 - pJ2i) + pJ2i - pJ2n)/(1.0 - pJ2n);
         }
 
-        zetas[2*i - 1] = 
+        zetas[2*i - 1] =
             canonicalMoments[2*i - 1]
            *(1.0 - canonicalMoments[2*i - 2]);
 
-        zetas[2*i] = 
+        zetas[2*i] =
             canonicalMoments[2*i]
            *(1.0 - canonicalMoments[2*i - 1]);
 

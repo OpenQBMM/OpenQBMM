@@ -18,6 +18,7 @@ EXE_INC = \
     -I$(QBMM_SRC)/mappedList \
     -I$(QBMM_SRC)/mappedPtrList \
     -I$(QBMM_SRC)/Vandermonde/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/supportType \
     -I$(QBMM_SRC)/quadratureMethods/momentInversion/lnInclude \
     -I$(QBMM_SRC)/quadratureMethods/momentSets/lnInclude
 

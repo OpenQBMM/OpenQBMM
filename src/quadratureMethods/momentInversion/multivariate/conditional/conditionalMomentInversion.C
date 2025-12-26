@@ -66,11 +66,11 @@ Foam::multivariateMomentInversions::conditional::conditional
         velocityIndexes
     ),
     nPureMoments_(nNodes_.size(), 0),
-    supports_(dict.lookup("supports")),
+    supports_(wordListToSupportTypeList(dict.lookup("supports"))),
     moments_
     (
-        momentOrders.size(), 
-        momentOrders, 
+        momentOrders.size(),
+        momentOrders,
         supports_,
         SMALL,
         SMALL,
@@ -230,9 +230,9 @@ bool Foam::multivariateMomentInversions::conditional::invert
 
     univariateMomentSet momentsToInvert
     (
-        nPureMoments_[0], 
-        supports_[0], 
-        smallM0_, 
+        nPureMoments_[0],
+        supports_[0],
+        smallM0_,
         smallZeta_
     );
 
@@ -585,7 +585,7 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
             pos[dimi] = index;
 
             bool sameNode = compare(pos, nodeIndex);
-            
+
             if (index < weights.size() && sameNode)
             {
                 weights_[nodei] *= weights[index];

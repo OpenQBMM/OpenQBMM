@@ -2,5 +2,5 @@ scalarQuadratureApproximation quadrature
 (
     "populationBalance",
     mesh,
-    wordList(1, "RPlus")
+    List<supportType>(1, supportType::RPlus)
 );

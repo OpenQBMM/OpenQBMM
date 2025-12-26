@@ -36,6 +36,7 @@ Description
 #include "OFstream.H"
 #include "scalarMatrices.H"
 #include "IOdictionary.H"
+#include "supportType.H"
 #include "univariateMomentSet.H"
 #include "univariateMomentInversion.H"
 
@@ -45,22 +46,22 @@ using namespace Foam;
 
 void compareZetas
 (
-    const scalarList& computedZetas, 
+    const scalarList& computedZetas,
     const scalarList& expectedZetas
 )
 {
     Info << "\nExpected zetas\n" << endl;
     forAll (expectedZetas, zetai)
     {
-        Info<< "  expectedZetas[" << zetai << "] = " << expectedZetas[zetai] 
-            << ", computedZetas[" << zetai << "] = " << computedZetas[zetai] 
+        Info<< "  expectedZetas[" << zetai << "] = " << expectedZetas[zetai]
+            << ", computedZetas[" << zetai << "] = " << computedZetas[zetai]
             << endl;
     }
 
     if (computedZetas.size() != expectedZetas.size())
     {
         FatalErrorInFunction
-            << "Zeta vectors have different size: " 
+            << "Zeta vectors have different size: "
             << endl
             << "  Size of computed zetas vector: " << computedZetas.size()
             << endl
@@ -76,7 +77,7 @@ void compareZetas
         if (magDiff >= SMALL)
         {
             FatalErrorInFunction
-                << "Values of zetas do not match: " 
+                << "Values of zetas do not match: "
                 << endl
                 << "  Position: " << zetai
                 << endl
@@ -97,7 +98,7 @@ void compareZetas
 //
 // m = (1 1 1 1 1 1 1 1 1 1)
 //
-// The moment vector is degenerate. The realizability test should 
+// The moment vector is degenerate. The realizability test should
 void testUnitMomentVectorRPlus()
 {
     const int nMoments = 10;
@@ -120,7 +121,7 @@ void testUnitMomentVectorRPlus()
     expectedZetas[0] = 1.0;
 
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "RPlus", SMALL, SMALL);
+    univariateMomentSet moments(inputMoments, supportType::RPlus, SMALL, SMALL);
 
     forAll(moments, mi)
     {
@@ -149,8 +150,8 @@ void testUnitMomentVectorRPlus()
     if (!moments.isSubsetRealizable())
     {
         FatalErrorInFunction
-            << "A subset of the input moment vector is not identified as " 
-            << "realizable. " 
+            << "A subset of the input moment vector is not identified as "
+            << "realizable. "
             << endl
             << "  Moment vector: " << moments
             << endl
@@ -166,7 +167,7 @@ void testUnitMomentVectorRPlus()
 }
 
 // This function tests a fully realizable moment vector built as
-// 
+//
 // m_{i-1} = 1/m_i, with i = 1, ..., nMoments - 1
 //
 void testFullyRealizableMomentVectorRPlus()
@@ -182,14 +183,14 @@ void testFullyRealizableMomentVectorRPlus()
     for (label mi = 1; mi < nMoments + 1; mi++)
     {
         inputMoments[mi - 1] = 1.0/scalar(mi);
-        Info << "  inputMoments[" << mi - 1 << "] = " 
+        Info << "  inputMoments[" << mi - 1 << "] = "
              << inputMoments[mi - 1] << endl;
     }
 
     // Expected values of zeta_k
     const int nZetas = nMoments - 1;
     scalarList expectedZetas(nZetas);
-    
+
     expectedZetas[0] = 0.5;
     expectedZetas[1] = 0.1666666666666666;
     expectedZetas[2] = 0.3333333333333338;
@@ -211,7 +212,7 @@ void testFullyRealizableMomentVectorRPlus()
     expectedZetas[18] = 0.2630193512153205;
 
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "RPlus", SMALL, SMALL);
+    univariateMomentSet moments(inputMoments, supportType::RPlus, SMALL, SMALL);
 
     forAll(moments, mi)
     {
@@ -240,8 +241,8 @@ void testFullyRealizableMomentVectorRPlus()
     if (!moments.isSubsetRealizable())
     {
         FatalErrorInFunction
-            << "A subset of the input moment vector is not identified as " 
-            << "realizable. " 
+            << "A subset of the input moment vector is not identified as "
+            << "realizable. "
             << endl
             << "  Moment vector: " << moments
             << endl
@@ -257,7 +258,7 @@ void testFullyRealizableMomentVectorRPlus()
 }
 
 // This function tests a fully realizable moment vector built as
-// 
+//
 // m_{i-1} = 1/m_i, with i = 1, ..., nMoments - 1
 // m_1 = 0
 //
@@ -268,9 +269,9 @@ void testSubsetRealizableMomentVectorRPlus()
     // All input moments are 1
     scalarList inputMoments(nMoments);
 
-    Info << "\nTesting with moment vector with three realizable moments\n" 
+    Info << "\nTesting with moment vector with three realizable moments\n"
          << endl
-         << "---------------------------------------------------------" 
+         << "---------------------------------------------------------"
          << endl;
 
     for (label mi = 1; mi < nMoments + 1; mi++)
@@ -282,20 +283,20 @@ void testSubsetRealizableMomentVectorRPlus()
             inputMoments[mi - 1] = 0.0;
         }
 
-        Info << "  inputMoments[" << mi - 1 << "] = " 
+        Info << "  inputMoments[" << mi - 1 << "] = "
              << inputMoments[mi - 1] << endl;
     }
 
     // Expected values of zeta_k
     const int nZetas = nMoments - 1;
     scalarList expectedZetas(nZetas, 0.0);
-    
+
     expectedZetas[0] = 0.5;
     expectedZetas[1] = 0.1666666666666666;
     expectedZetas[2] = -2.666666666666667;
 
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "RPlus", SMALL, SMALL);
+    univariateMomentSet moments(inputMoments, supportType::RPlus, SMALL, SMALL);
 
     forAll(moments, mi)
     {
@@ -324,8 +325,8 @@ void testSubsetRealizableMomentVectorRPlus()
     if (!moments.isSubsetRealizable())
     {
         FatalErrorInFunction
-            << "A subset of the input moment vector is not identified as " 
-            << "realizable. " 
+            << "A subset of the input moment vector is not identified as "
+            << "realizable. "
             << endl
             << "  Moment vector: " << moments
             << endl
@@ -351,9 +352,9 @@ void testGaussianMomentsR()
     // All input moments are 1
     scalarList inputMoments(nMoments);
 
-    Info << "\nTesting with Gaussian moments\n" 
+    Info << "\nTesting with Gaussian moments\n"
          << endl
-         << "------------------------------" 
+         << "------------------------------"
          << endl;
 
     inputMoments[0] = 1.0;
@@ -363,24 +364,24 @@ void testGaussianMomentsR()
     inputMoments[4] = pow4(mu) + 6.0*sqr(mu)*sqr(sigma) + 3.0*pow3(sigma);
     inputMoments[5] = pow5(mu) + 10.0*pow3(mu)*sqr(sigma) + 15.0*mu*pow4(sigma);
 
-    inputMoments[6] = pow6(mu) + 15.0*pow4(mu)*sqr(sigma) 
+    inputMoments[6] = pow6(mu) + 15.0*pow4(mu)*sqr(sigma)
         + 45.0*sqr(mu)*pow4(sigma) + 15.0*pow6(sigma);
 
-    inputMoments[7] = pow(mu, 7) + 21.0*pow5(mu)*sqr(sigma) 
+    inputMoments[7] = pow(mu, 7) + 21.0*pow5(mu)*sqr(sigma)
         + 105.0*pow3(mu)*pow4(sigma) + 105.0*mu*pow6(sigma);
 
-    inputMoments[8] = pow(mu, 8) + 28.0*pow6(mu)*sqr(sigma) 
-        + 210.0*pow4(mu)*pow4(sigma) + 420.0*sqr(mu)*pow6(sigma) 
+    inputMoments[8] = pow(mu, 8) + 28.0*pow6(mu)*sqr(sigma)
+        + 210.0*pow4(mu)*pow4(sigma) + 420.0*sqr(mu)*pow6(sigma)
         + 105.0*pow(sigma, 8);
-    
+
     for (label mi = 1; mi < nMoments + 1; mi++)
     {
-        Info << "  inputMoments[" << mi - 1 << "] = " 
+        Info << "  inputMoments[" << mi - 1 << "] = "
              << inputMoments[mi - 1] << endl;
     }
 
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "R", SMALL, SMALL);
+    univariateMomentSet moments(inputMoments, supportType::R, SMALL, SMALL);
 
     forAll(moments, mi)
     {
@@ -409,8 +410,8 @@ void testGaussianMomentsR()
     if (!moments.isSubsetRealizable())
     {
         FatalErrorInFunction
-            << "A subset of the input moment vector is not identified as " 
-            << "realizable. " 
+            << "A subset of the input moment vector is not identified as "
+            << "realizable. "
             << endl
             << "  Moment vector: " << moments
             << endl
@@ -432,21 +433,24 @@ void testRealizableCanonicalMoments()
     // All input moments are 1
     scalarList inputMoments(nMoments);
 
-    Info << "\nTesting canonical moments\n" 
+    Info << "\nTesting canonical moments\n"
          << endl
-         << "---------------------------" 
+         << "---------------------------"
          << endl;
 
     for (label mi = 1; mi < nMoments + 1; mi++)
     {
         inputMoments[mi - 1] = 1.0/scalar(mi);
 
-        Info << "  inputMoments[" << mi - 1 << "] = " 
+        Info << "  inputMoments[" << mi - 1 << "] = "
              << inputMoments[mi - 1] << endl;
     }
-    
+
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "01", SMALL, SMALL);
+    univariateMomentSet moments
+    (
+        inputMoments, supportType::ZeroOne, SMALL, SMALL
+    );
 
     forAll(moments, mi)
     {
@@ -475,8 +479,8 @@ void testRealizableCanonicalMoments()
     if (!moments.isSubsetRealizable())
     {
         FatalErrorInFunction
-            << "A subset of the input moment vector is not identified as " 
-            << "realizable. " 
+            << "A subset of the input moment vector is not identified as "
+            << "realizable. "
             << endl
             << "  Moment vector: " << moments
             << endl
@@ -496,9 +500,9 @@ void testUnrealizableCanonicalMoments()
     // All input moments are 1
     scalarList inputMoments(nMoments);
 
-    Info << "\nTesting canonical moments\n" 
+    Info << "\nTesting canonical moments\n"
          << endl
-         << "---------------------------" 
+         << "---------------------------"
          << endl;
 
     for (label mi = 1; mi < nMoments + 1; mi++)
@@ -510,12 +514,15 @@ void testUnrealizableCanonicalMoments()
             inputMoments[mi - 1] = -1.0;
         }
 
-        Info << "  inputMoments[" << mi - 1 << "] = " 
+        Info << "  inputMoments[" << mi - 1 << "] = "
              << inputMoments[mi - 1] << endl;
     }
-    
+
     Info << "\nAllocating univariateMomentSet\n" << endl;
-    univariateMomentSet moments(inputMoments, "01", SMALL, SMALL);
+    univariateMomentSet moments
+    (
+        inputMoments, supportType::ZeroOne, SMALL, SMALL
+    );
 
     forAll(moments, mi)
     {
@@ -544,8 +551,8 @@ void testUnrealizableCanonicalMoments()
     if (!moments.isSubsetRealizable())
     {
         FatalErrorInFunction
-            << "A subset of the input moment vector is not identified as " 
-            << "realizable. " 
+            << "A subset of the input moment vector is not identified as "
+            << "realizable. "
             << endl
             << "  Moment vector: " << moments
             << endl

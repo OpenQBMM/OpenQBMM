@@ -37,7 +37,7 @@ Foam::PDFTransportModels::velocityPDFTransportModel::velocityPDFTransportModel
     const word& name,
     const dictionary& dict,
     const fvMesh& mesh,
-    const wordList& supports
+    const List<supportType>& supports
 )
 :
     PDFTransportModel(name, dict, mesh),
@@ -66,7 +66,7 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
 
     // Solve moment transport equations
     updateImplicitMomentSource();
-    
+
     forAll(quadrature_.moments(), momenti)
     {
         volVelocityMoment& m = quadrature_.moments()[momenti];

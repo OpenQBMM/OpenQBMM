@@ -45,7 +45,7 @@ Foam::label Foam::momentSet::nDimensions() const
     return nDimensions_;
 }
 
-const Foam::wordList& Foam::momentSet::supports() const
+const Foam::List<Foam::supportType>& Foam::momentSet::supports() const
 {
     return supports_;
 }

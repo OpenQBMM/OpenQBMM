@@ -30,6 +30,7 @@ License
 
 #include "univariatePopulationBalance.H"
 #include "addToRunTimeSelectionTable.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -61,7 +62,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(name, dict, phi.mesh(), phi, "RPlus"),
+    univariatePDFTransportModel(name, dict, phi.mesh(), phi, supportType::RPlus),
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
     aggregation_(dict.lookupOrDefault("aggregation", false)),
@@ -256,7 +257,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 }
 
 
-bool 
+bool
 Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 ::readIfModified()
 {
@@ -264,7 +265,7 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
     (
         populationBalanceProperties_.subDict(type() + "Coeffs")
     );
-    
+
     return true;
 }
 

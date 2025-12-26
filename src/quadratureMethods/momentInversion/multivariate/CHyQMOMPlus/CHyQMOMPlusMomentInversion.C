@@ -29,6 +29,7 @@ License
 #include "QRMatrix.H"
 #include "SVD.H"
 #include "mappedLists.H"
+#include "supportType.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -344,8 +345,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert1D
             moments(3),
             moments(4)
         },
-        "R",
-        smallM0(), 
+        supportType::R,
+        smallM0(),
         smallZeta()
     );
 
@@ -426,9 +427,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     {
         univariateMomentSet mDir2
         (
-            {scalar(1), scalar(0), c02, c03, c04}, 
-            "R",
-            smallM0(), 
+            {scalar(1), scalar(0), c02, c03, c04},
+            supportType::R,
+            smallM0(),
             smallZeta()
         );
 
@@ -461,9 +462,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     // One-dimensional inversion with realizability test
     univariateMomentSet mDir1
     (
-        {scalar(1), scalar(0), c20, c30, c40}, 
-        "R",
-        smallM0(), 
+        {scalar(1), scalar(0), c20, c30, c40},
+        supportType::R,
+        smallM0(),
         smallZeta()
     );
 
@@ -665,12 +666,12 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     {
         univariateMomentSet mMu
         (
-            {scalar(1), scalar(0), mu2[i], mu3[i], mu4[i]}, 
-            "R",
-            smallM0(), 
+            {scalar(1), scalar(0), mu2[i], mu3[i], mu4[i]},
+            supportType::R,
+            smallM0(),
             smallZeta()
         );
-        
+
         univariateInverter_().invert(mMu);
 
         for (label j = 0; j < 3; j++)
@@ -779,9 +780,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         {
             univariateMomentSet mDir3
             (
-                {scalar(1), scalar(0), c002, c003, c004}, 
-                "R",
-                smallM0(), 
+                {scalar(1), scalar(0), c002, c003, c004},
+                supportType::R,
+                smallM0(),
                 smallZeta()
             );
 
@@ -826,8 +827,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                     c004
                 },
                 twoDimMomentOrders,
-                {"R", "R"},
-                smallM0(), 
+                {supportType::R, supportType::R},
+                smallM0(),
                 smallZeta()
             );
 
@@ -863,9 +864,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
     // Invert first direction
     univariateMomentSet mDir1
     (
-        {scalar(1), scalar(0), c200, c300, c400}, 
-        "R",
-        smallM0(), 
+        {scalar(1), scalar(0), c200, c300, c400},
+        supportType::R,
+        smallM0(),
         smallZeta()
     );
 
@@ -896,8 +897,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 c004
             },
             twoDimMomentOrders,
-            {"R", "R"},
-            smallM0(), 
+            {supportType::R, supportType::R},
+            smallM0(),
             smallZeta()
         );
 
@@ -948,8 +949,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 c040
             },
             twoDimMomentOrders,
-            {"R", "R"},
-            smallM0(), 
+            {supportType::R, supportType::R},
+            smallM0(),
             smallZeta()
         );
 
@@ -1287,8 +1288,8 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
                 univariateMomentSet mMu
                 (
                     {scalar(1), scalar(0), mu2(i, j), mu3(i, j), mu4(i, j)},
-                    "R",
-                    smallM0(), 
+                    supportType::R,
+                    smallM0(),
                     smallZeta()
                 );
 

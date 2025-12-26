@@ -39,11 +39,11 @@ Foam::PDFTransportModels::univariatePDFTransportModel
     const dictionary& dict,
     const fvMesh& mesh,
     const surfaceScalarField& phi,
-    const word& support
+    const supportType& support
 )
 :
     PDFTransportModel(name, dict, mesh),
-    quadrature_(name, mesh, wordList(1, support)),
+    quadrature_(name, mesh, List<supportType>(1, support)),
     momentAdvection_
     (
         univariateMomentAdvection::New
@@ -88,13 +88,13 @@ void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
             )
         );
     }
-    
+
     forAll (momentEqns, mEqni)
     {
         momentEqns[mEqni].relax();
         momentEqns[mEqni].solve();
     }
-    
+
     quadrature_.updateQuadrature();
 
     if (solveMomentSources())

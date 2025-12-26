@@ -83,20 +83,22 @@ const Foam::scalarList& Foam::univariateMomentSet::zetas() const
     return zeta_;
 }
 
-const Foam::word& Foam::univariateMomentSet::support() const
+const Foam::supportType& Foam::univariateMomentSet::support() const
 {
     return supports_[0];
 }
 
 Foam::scalarList& Foam::univariateMomentSet::canonicalMoments()
 {
-    const word& support = supports_[0];
+    const supportType& support = supports_[0];
 
-    if (support != "01")
+    if (support != supportType::ZeroOne)
     {
         FatalErrorInFunction
             << "Canonical moments are computed only for support [0, 1]." << nl
-            << "    The moment set has support " << support << "."
+            << "    The moment set has support "
+            << supportTypeToWord(support)
+            << "."
             << abort(FatalError);
     }
 
@@ -110,13 +112,15 @@ Foam::scalarList& Foam::univariateMomentSet::canonicalMoments()
 
 const Foam::scalarList& Foam::univariateMomentSet::canonicalMoments() const
 {
-    const word& support = supports_[0];
+    const supportType& support = supports_[0];
 
-    if (support != "01")
+    if (support != supportType::ZeroOne)
     {
         FatalErrorInFunction
-            << "Canonical moments are computed only for support [0, 1]." << nl
-            << "    The moment set has support " << support << "."
+            << "Canonical moments are computed only for support [0, 1]."
+            << endl
+            << "    The moment set has support " << supportTypeToWord(support)
+            << "."
             << abort(FatalError);
     }
 

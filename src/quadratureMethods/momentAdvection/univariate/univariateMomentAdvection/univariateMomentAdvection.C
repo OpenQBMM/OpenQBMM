@@ -46,7 +46,7 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
     const dictionary& dict,
     const scalarQuadratureApproximation& quadrature,
     const surfaceScalarField& phi,
-    const word& support
+    const supportType& support
 )
 :
     name_(quadrature.name()),

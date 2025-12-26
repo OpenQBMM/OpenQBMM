@@ -51,7 +51,7 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::VikasQuasiSecondOrder
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const wordList& supports
+    const List<supportType>& supports
 )
 :
     firstOrderKinetic(dict, quadrature, supports)

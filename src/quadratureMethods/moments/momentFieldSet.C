@@ -44,7 +44,7 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     const dictionary& dict,
     const fvMesh& mesh,
     const autoPtr<mappedPtrList<nodeType>>& nodes,
-    const wordList& supports
+    const List<supportType>& supports
 )
 :
     mappedPtrList<momentType>
@@ -86,7 +86,7 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     const autoPtr<mappedPtrList<nodeType>>& nodes,
     const label nDimensions,
     const Map<label>& momentMap,
-    const wordList& supports
+    const List<supportType>& supports
 )
 :
     mappedPtrList<momentType>(nMoments, momentMap),

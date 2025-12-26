@@ -49,6 +49,7 @@ SourceFiles
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "supportType.H"
 #include "univariateMomentSet.H"
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
@@ -108,7 +109,7 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const wordList& supports
+            const List<supportType>& supports
         );
 
 

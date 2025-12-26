@@ -27,6 +27,7 @@ License
 
 #include "monoKineticMomentInversion.H"
 #include "mappedLists.H"
+#include "supportType.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -104,10 +105,10 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
 
     univariateMomentSet sizeMoments
     (
-        nSizeMoments_, 
-        "RPlus", 
-        sizeInverter_().smallM0(), 
-        sizeInverter_().smallZeta(), 
+        nSizeMoments_,
+        supportType::RPlus,
+        sizeInverter_().smallM0(),
+        sizeInverter_().smallZeta(),
         Zero
     );
 
@@ -154,7 +155,7 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
             pureMomentOrder[dimi + 1] = 1;
 
             scalarRectangularMatrix M(nSizeNodes, 1, 0);
-            
+
             for (label nodei = 0; nodei < nSizeNodes; nodei++)
             {
                 pureMomentOrder[0] = nodei;

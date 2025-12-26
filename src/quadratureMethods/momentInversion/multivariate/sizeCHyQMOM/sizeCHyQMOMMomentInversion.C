@@ -26,6 +26,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "sizeCHyQMOMMomentInversion.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -143,9 +144,9 @@ invert
 
     univariateMomentSet sizeMoments
     (
-        nSizeMoments_, 
-        "RPlus", 
-        smallM0(), 
+        nSizeMoments_,
+        supportType::RPlus,
+        smallM0(),
         smallZeta(),
         Zero);
 
@@ -242,8 +243,8 @@ invert
                 (
                     velocityMomentOrders_.size(),
                     velocityMomentOrders_,
-                    wordList(nVelocityDimensions_, "R"),
-                    smallM0(), 
+                    List<supportType>(nVelocityDimensions_, supportType::R),
+                    smallM0(),
                     smallZeta()
                 );
 
@@ -257,7 +258,7 @@ invert
 
                 forAll(velocityNodeIndexes_, nodei)
                 {
-                    const labelList& velocityNodeIndex = 
+                    const labelList& velocityNodeIndex =
                         velocityNodeIndexes_[nodei];
 
                     labelList nodeIndex(nDistributionDims_, 0);
@@ -283,7 +284,7 @@ invert
             {
                 forAll(velocityNodeIndexes_, nodei)
                 {
-                    const labelList& velocityNodeIndex = 
+                    const labelList& velocityNodeIndex =
                         velocityNodeIndexes_[nodei];
 
                     labelList nodeIndex(nDistributionDims_, 0);
@@ -293,7 +294,7 @@ invert
                     {
                         nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
                     }
-                    
+
                     weights_(nodeIndex) /= (weights_.size()/nSizeNodes_);
                 }
             }
@@ -311,16 +312,16 @@ invert
 }
 
 template<class velocityInversion>
-Foam::scalar 
-Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallM0() 
+Foam::scalar
+Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallM0()
 const
 {
     return smallM0_;
 }
 
 template<class velocityInversion>
-Foam::scalar 
-Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallZeta() 
+Foam::scalar
+Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallZeta()
 const
 {
     return smallZeta_;
