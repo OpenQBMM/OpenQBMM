@@ -105,6 +105,7 @@ wordList supportTypeListToWordList(const List<supportType>& supports)
 Ostream& operator<<(Ostream& os, const supportType& support)
 {
     os << supportTypeToWord(support);
+
     return os;
 }
 
@@ -113,6 +114,7 @@ Istream& operator>>(Istream& is, supportType& support)
     word supportName;
     is >> supportName;
     support = wordToSupportType(supportName);
+
     return is;
 }
 

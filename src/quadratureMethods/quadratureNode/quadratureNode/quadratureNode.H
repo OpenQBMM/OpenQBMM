@@ -30,9 +30,8 @@ Class
     Foam::quadratureNode
 
 Description
-    Extended version of the quadrature node, which stores the list of secondary
-    weights and abscissae associated to the primary weight and abscissa, and
-    the sigma parameter.
+    Quadrature node, which stores the fields of a quadrature weight and the
+    corresponding abscissa.
 
 SourceFiles
     quadratureNode.C
@@ -65,10 +64,8 @@ protected:
         //- Typedefs
 
         typedef scalarType weightType;
-
         typedef scalarType abscissaType;
         typedef PtrList<abscissaType> abscissaeType;
-
         typedef vectorType velocityAbscissaeType;
 
 
@@ -170,7 +167,7 @@ public:
             ) const
             {
                 labelList ent(is);
-                
+
                 return autoPtr<quadratureNode<scalarType, vectorType>>
                 (
                     new quadratureNode<scalarType, vectorType>
@@ -210,7 +207,7 @@ public:
             //- Return if the node length based or not
             bool lengthBased() const;
 
-            //- Return if the weight is a volume fraction 
+            //- Return if the weight is a volume fraction
             bool useVolumeFraction() const;
 
             //- Const access to the weight of the node
@@ -249,8 +246,8 @@ public:
             //  a node weight and abscissa
             scalar numberDensity
             (
-                const label celli, 
-                const scalar& weight, 
+                const label celli,
+                const scalar& weight,
                 const scalar& abscissa
             ) const;
 };
