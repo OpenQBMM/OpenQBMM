@@ -141,12 +141,6 @@ public:
 
         // Modifiers
 
-            //- Resize mapped list
-            void resize(const label newSize);
-
-            //- Set mapped list size
-            void setSize(const label newSize);
-
             //- Set size and rebuild map with new indexes
             void setSize
             (
