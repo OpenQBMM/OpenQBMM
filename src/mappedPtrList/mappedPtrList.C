@@ -61,7 +61,16 @@ Foam::mappedPtrList<mappedType>::listToLabel
 
     forAll(list, dimi)
     {
-        listLabel += list[dimi]*pow(scalar(10), size - dimi - 1);
+        const label exponent = size - dimi - 1;
+
+        // Compute 10^exponent using integer arithmetic
+        label factor = 1;
+        for (label i = 0; i < exponent; ++i)
+        {
+            factor *= 10;
+        }
+
+        listLabel += list[dimi]*factor;
     }
 
     return listLabel;
@@ -184,8 +193,17 @@ Foam::label Foam::mappedPtrList<mappedType>::calcMapIndex
             iter++
         )
         {
-            label argIndex = std::distance(indexes.begin(), iter);
-            mapIndex += (*iter)*pow(scalar(10), nDimensions_ - argIndex - 1);
+            const label argIndex = std::distance(indexes.begin(), iter);
+            const label exponent = nDimensions_ - argIndex - 1;
+
+            // Compute 10^exponent using integer arithmetic
+            label factor = 1;
+            for (label i = 0; i < exponent; ++i)
+            {
+                factor *= 10;
+            }
+
+            mapIndex += (*iter) * factor;
         }
     }
 
@@ -202,7 +220,7 @@ void Foam::mappedPtrList<mappedType>::setMap(const Map<label>& map)
     {
         label key = iter.key();
         label nD = 0;
-        
+
         while (key)
         {
             key /= 10;
@@ -252,7 +270,7 @@ template <class mappedType>
 template <typename ...ArgsT>
 bool Foam::mappedPtrList<mappedType>::found(ArgsT...args) const
 {
-    if 
+    if
     (
         label(std::initializer_list<Foam::label>({args...}).size()) > nDimensions_
     )
