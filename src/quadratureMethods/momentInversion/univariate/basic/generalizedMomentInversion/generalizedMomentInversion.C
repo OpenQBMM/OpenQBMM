@@ -142,7 +142,6 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
     weights_.setSize(nMaxNodes_);
     abscissae_.setSize(nMaxNodes_);
 
-
     // Resize list of zeta_k, if needed (the resize method in OpenFOAM checks
     // if resizing is necessary or if the desired size equals the current one)
     if

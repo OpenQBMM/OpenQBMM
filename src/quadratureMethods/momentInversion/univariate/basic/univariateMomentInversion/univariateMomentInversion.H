@@ -82,6 +82,9 @@ protected:
         //- Quadrature weights
         scalarList weights_;
 
+        //- Jacobi matrix
+        mutable scalarSquareMatrix jacobiMatrix_;
+
 
     // Protected member functions
 
