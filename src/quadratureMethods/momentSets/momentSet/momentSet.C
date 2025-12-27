@@ -101,7 +101,7 @@ void Foam::momentSet::setSize
         return;
     }
 
-    Foam::mappedList<scalar>::setSize(newSize);
+    Foam::mappedList<scalar>::setSize(newSize, newMomentOrders);
 
     // Check that the new moment orders are valid
     if (newMomentOrders.size() != newSize)

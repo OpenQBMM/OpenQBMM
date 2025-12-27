@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -230,16 +230,53 @@ Foam::label Foam::mappedList<mappedType>::calcMapIndex
 }
 
 template <class mappedType>
-void Foam::mappedList<mappedType>::setSize(const label newSize)
+void Foam::mappedList<mappedType>::setSize
+(
+    const label newSize,
+    const labelListList& newIndexes
+)
 {
+    if (newIndexes.size() != newSize)
+    {
+        FatalErrorInFunction
+            << "Size mismatch: "
+            << endl
+            << "  New list size =" << newSize
+            << endl
+            << "  New indexes list size = " << newIndexes.size()
+            << exit(FatalError);
+    }
+
+    // Resize the underlying list
     Foam::List<mappedType>::setSize(newSize);
-    map_.resize(newSize);
+
+    // Rebuild the map with new indexes
+    map_.clear();
+    nDimensions_ = 0;
+
+    forAll(newIndexes, indexi)
+    {
+        nDimensions_ = max(nDimensions_, newIndexes[indexi].size());
+    }
+
+    forAll(*this, elemi)
+    {
+        map_.insert
+        (
+            listToLabel(newIndexes[elemi], nDimensions_),
+            elemi
+        );
+    }
 }
 
 template <class mappedType>
-void Foam::mappedList<mappedType>::resize(const label newSize)
+void Foam::mappedList<mappedType>::resize
+(
+    const label newSize,
+    const labelListList& newIndexes
+)
 {
-    (*this).setSize(newSize);
+    (*this).setSize(newSize, newIndexes);
 }
 
 template <class mappedType>

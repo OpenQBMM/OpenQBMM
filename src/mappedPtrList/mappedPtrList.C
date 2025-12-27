@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -334,5 +334,55 @@ void Foam::mappedPtrList<mappedType>::set
     PtrList<mappedType>::set(map_[listToLabel(list, nDimensions_)], entry);
 }
 
+
+template <class mappedType>
+void Foam::mappedPtrList<mappedType>::setSize
+(
+    const label newSize,
+    const labelListList& newIndexes
+)
+{
+    if (newIndexes.size() != newSize)
+    {
+        FatalErrorInFunction
+            << "Size mismatch: "
+            << endl
+            << "  New list size =" << newSize
+            << endl
+            << "  New indexes list size = " << newIndexes.size()
+            << exit(FatalError);
+    }
+
+    // Resize the underlying list
+    Foam::PtrList<mappedType>::setSize(newSize);
+
+    // Rebuild the map with new indexes
+    map_.clear();
+    nDimensions_ = 0;
+
+    forAll(newIndexes, indexi)
+    {
+        nDimensions_ = max(nDimensions_, newIndexes[indexi].size());
+    }
+
+    forAll(*this, elemi)
+    {
+        map_.insert
+        (
+            listToLabel(newIndexes[elemi], nDimensions_),
+            elemi
+        );
+    }
+}
+
+template <class mappedType>
+void Foam::mappedPtrList<mappedType>::resize
+(
+    const label newSize,
+    const labelListList& indexes
+)
+{
+    (*this).setSize(newSize, indexes);
+}
 
 // ************************************************************************* //
