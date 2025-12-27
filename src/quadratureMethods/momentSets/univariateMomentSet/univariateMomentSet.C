@@ -422,11 +422,18 @@ void Foam::univariateMomentSet::checkRealizability
     label nR = nN - 2*nD;
 
     // Matrix used to build the recurrence relation
-    scalarRectangularMatrix zRecurrence(nD + 1, nMoments, Zero);
+    //scalarRectangularMatrix zRecurrence_(nD + 1, nMoments, Zero);
+
+    if (zRecurrence_.m() != nD + 1 || zRecurrence_.n() != nMoments)
+    {
+        zRecurrence_.setSize(nD + 1, nMoments);
+    }
+
+    zRecurrence_ = 0.0;
 
     for (label columnI = 0; columnI < nMoments; columnI++)
     {
-        zRecurrence[0][columnI] = (*this)[columnI]/m0;
+        zRecurrence_[0][columnI] = (*this)[columnI]/m0;
     }
 
     alpha_[0] = m1/m0;
@@ -434,8 +441,8 @@ void Foam::univariateMomentSet::checkRealizability
 
     for (label columnI = 1; columnI < nMoments - 1; columnI++)
     {
-        zRecurrence[1][columnI] = zRecurrence[0][columnI + 1]
-              - alpha_[0]*zRecurrence[0][columnI];
+        zRecurrence_[1][columnI] = zRecurrence_[0][columnI + 1]
+              - alpha_[0]*zRecurrence_[0][columnI];
     }
 
     zeta_[0] = alpha_[0];
@@ -478,8 +485,8 @@ void Foam::univariateMomentSet::checkRealizability
 
     for (label zetai = 1; zetai < nD; zetai++)
     {
-        beta_[zetai] = zRecurrence[zetai][zetai]
-                /zRecurrence[zetai - 1][zetai - 1];
+        beta_[zetai] = zRecurrence_[zetai][zetai]
+                /zRecurrence_[zetai - 1][zetai - 1];
 
         if (mSupport == supportType::R)
         {
@@ -528,10 +535,10 @@ void Foam::univariateMomentSet::checkRealizability
         }
 
         alpha_[zetai] =
-            zRecurrence[zetai][zetai + 1]
-           /max(zRecurrence[zetai][zetai], SMALL)
-          - zRecurrence[zetai - 1][zetai]
-           /zRecurrence[zetai - 1][zetai - 1];
+            zRecurrence_[zetai][zetai + 1]
+           /max(zRecurrence_[zetai][zetai], SMALL)
+          - zRecurrence_[zetai - 1][zetai]
+           /zRecurrence_[zetai - 1][zetai - 1];
 
         if (!(mSupport == supportType::R))
         {
@@ -569,18 +576,18 @@ void Foam::univariateMomentSet::checkRealizability
 
         for (label columnI = zetai + 1; columnI <= nN - zetai - 1; columnI++)
         {
-            zRecurrence[zetai + 1][columnI] = zRecurrence[zetai][columnI + 1]
-                    - alpha_[zetai]*zRecurrence[zetai][columnI]
-                    - beta_[zetai]*zRecurrence[zetai - 1][columnI];
+            zRecurrence_[zetai + 1][columnI] = zRecurrence_[zetai][columnI + 1]
+                    - alpha_[zetai]*zRecurrence_[zetai][columnI]
+                    - beta_[zetai]*zRecurrence_[zetai - 1][columnI];
         }
     }
 
-    beta_[nD] = zRecurrence[nD][nD]/max(zRecurrence[nD - 1][nD - 1], SMALL);
+    beta_[nD] = zRecurrence_[nD][nD]/max(zRecurrence_[nD - 1][nD - 1], SMALL);
 
     if (mSupport == supportType::R)
     {
-        alpha_[nD] = zRecurrence[nD][nD + 1]/max(zRecurrence[nD][nD], SMALL)
-                    - zRecurrence[nD - 1][nD]/max(zRecurrence[nD - 1][nD - 1],
+        alpha_[nD] = zRecurrence_[nD][nD + 1]/max(zRecurrence_[nD][nD], SMALL)
+                    - zRecurrence_[nD - 1][nD]/max(zRecurrence_[nD - 1][nD - 1],
                     SMALL);
 
         if (beta_[nD] <= smallZeta_)
@@ -637,8 +644,8 @@ void Foam::univariateMomentSet::checkRealizability
 
         if (nR == 1)
         {
-            alpha_[nD] = zRecurrence[nD][nD + 1]/zRecurrence[nD][nD]
-                    - zRecurrence[nD - 1][nD]/zRecurrence[nD - 1][nD - 1];
+            alpha_[nD] = zRecurrence_[nD][nD + 1]/zRecurrence_[nD][nD]
+                    - zRecurrence_[nD - 1][nD]/zRecurrence_[nD - 1][nD - 1];
 
             zeta_[2*nD] = alpha_[nD] - zeta_[2*nD - 1];
 

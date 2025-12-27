@@ -73,6 +73,9 @@ class univariateMomentSet : public momentSet
         //- Canonical moments associated to the moment vector
         scalarList canonicalMoments_;
 
+        //- Matrix used to build the recurrence relation
+        mutable scalarRectangularMatrix zRecurrence_;
+
         //- Position of first negative zeta
         label negativeZeta_;
 
