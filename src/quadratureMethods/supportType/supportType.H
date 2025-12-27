@@ -53,9 +53,9 @@ namespace Foam
 //- Enumeration for support types
 enum class supportType
 {
-    R,          // Positive real line ]-∞, +∞[
-    RPlus,      // Positive real numbers [0, +∞[
-    ZeroOne     // Compact unit interval [0, 1]
+    R,          // Positive real line ]-∞, +∞[.
+    RPlus,      // Positive real line [0, +∞[.
+    ZeroOne     // Compact unit interval [0, 1].
 };
 
 //- Convert string to supportType enum
