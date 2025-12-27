@@ -75,7 +75,7 @@ Foam::Vandermonde::~Vandermonde()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 bool Foam::Vandermonde::isVandermonde(const scalarSquareMatrix& A) const
-{    
+{
     for (label j = 0; j < n_; j++)
     {
         // Check first row (should be all ones)
@@ -83,21 +83,21 @@ bool Foam::Vandermonde::isVandermonde(const scalarSquareMatrix& A) const
         {
             return false;
         }
-        
+
         const scalar base = A[1][j];
         scalar expectedPower = 1.0;
-        
+
         for (label i = 0; i < n_; i++)
         {
             if (mag(A[i][j] - expectedPower) > SMALL)
             {
                 return false;
             }
-            
+
             expectedPower *= base;
         }
     }
-    
+
     return true;
 }
 
@@ -106,11 +106,11 @@ void Foam::Vandermonde::solve
     scalarDiagonalMatrix& x,
     const scalarDiagonalMatrix& source
 )
-{ 
+{
     if (source.size() != n_)
     {
         FatalErrorInFunction
-            << "Source vector size (" << source.size() 
+            << "Source vector size (" << source.size()
             << ") does not match matrix size (" << n_ << ")" << nl
             << abort(FatalError);
     }
@@ -118,7 +118,7 @@ void Foam::Vandermonde::solve
     if (x.size() != n_)
     {
         FatalErrorInFunction
-            << "Solution vector size (" << x.size() 
+            << "Solution vector size (" << x.size()
             << ") does not match matrix size (" << n_ << ")" << nl
             << abort(FatalError);
     }
@@ -166,7 +166,8 @@ void Foam::Vandermonde::solve
         if (mag(t) < VSMALL)
         {
             FatalErrorInFunction
-                << "Near-singular Vandermonde matrix detected" << nl
+                << "Near-singular Vandermonde matrix at index " << i << nl
+                << "Element value: " << xi << nl
                 << abort(FatalError);
         }
 
@@ -185,9 +186,9 @@ Foam::scalarSquareMatrix Foam::Vandermonde::invert()
         // Build source vector
         if (i > 0)
         {
-            source[i-1] = 0.0; 
+            source[i-1] = 0.0;
         }
-        
+
         source[i] = 1.0;
 
         // Solve
