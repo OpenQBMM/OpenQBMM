@@ -341,9 +341,9 @@ void Foam::monoKineticQuadratureApproximation::interpolateNodes()
 void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
 {
     const volScalarField& m0 = moments_[0];
+    const auto& m0Bf = m0.boundaryField();
 
     // Update boundary node velocities
-    const volScalarField::Boundary& m0Bf = m0.boundaryField();
     forAll(m0Bf, patchi)
     {
         const fvPatchScalarField& m0Patch = m0Bf[patchi];
@@ -473,7 +473,7 @@ void Foam::monoKineticQuadratureApproximation::updateBoundaryVelocities()
 void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
 {
     const volScalarField& m0 = moments_[0];
-    const volScalarField::Boundary m0Bf = m0.boundaryField();
+    const auto& m0Bf = m0.boundaryField();
 
     // Check for SMALL moments at cell centers
     forAll(m0, celli)
@@ -535,9 +535,9 @@ bool Foam::monoKineticQuadratureApproximation::updateAllLocalQuadrature
 )
 {
     const volScalarField& m0 = moments_[0];
-    const volScalarField::Boundary m0Bf = m0.boundaryField();
+    const auto& m0Bf = m0.boundaryField();
 
-        //- Make sure moments are below 0 before checking if they
+    //- Make sure moments are below 0 before checking if they
     //  are SMALL enough to be neglected
     if (m0[celli] < 0 && mag(m0[celli]) < minM0_)
     {

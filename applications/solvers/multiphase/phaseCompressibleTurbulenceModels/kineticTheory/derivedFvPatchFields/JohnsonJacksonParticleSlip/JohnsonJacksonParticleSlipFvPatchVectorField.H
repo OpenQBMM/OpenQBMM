@@ -67,7 +67,10 @@ class JohnsonJacksonParticleSlipFvPatchVectorField
 :
     public partialSlipFvPatchVectorField
 {
-    // Private data
+    typedef JohnsonJacksonParticleSlipFvPatchVectorField this_bctype;
+    typedef partialSlipFvPatchVectorField parent_bctype;
+
+    // Private Data
 
         //- Specularity coefficient
         dimensionedScalar specularityCoefficient_;
@@ -102,35 +105,20 @@ public:
         //- Construct by mapping onto a new patch
         JohnsonJacksonParticleSlipFvPatchVectorField
         (
-            const JohnsonJacksonParticleSlipFvPatchVectorField&,
+            const this_bctype&,
             const fvPatch&,
             const DimensionedField<vector, volMesh>&,
             const fvPatchFieldMapper&
         );
 
-        //- Construct as copy
-        JohnsonJacksonParticleSlipFvPatchVectorField
-        (
-            const JohnsonJacksonParticleSlipFvPatchVectorField&
-        );
-
-        //- Construct and return a clone
-        virtual tmp<fvPatchVectorField> clone() const
-        {
-            return tmp<fvPatchVectorField>
-            (
-                new JohnsonJacksonParticleSlipFvPatchVectorField(*this)
-            );
-        }
-
         //- Construct as copy setting internal field reference
         JohnsonJacksonParticleSlipFvPatchVectorField
         (
-            const JohnsonJacksonParticleSlipFvPatchVectorField&,
+            const this_bctype&,
             const DimensionedField<vector, volMesh>&
         );
 
-        //- Construct and return a clone setting internal field reference
+        //- Clone with an internal field reference
         virtual tmp<fvPatchVectorField> clone
         (
             const DimensionedField<vector, volMesh>& iF
@@ -139,6 +127,24 @@ public:
             return tmp<fvPatchVectorField>
             (
                 new JohnsonJacksonParticleSlipFvPatchVectorField(*this, iF)
+            );
+        }
+
+        //- No copy construct without an internal field
+        JohnsonJacksonParticleSlipFvPatchVectorField(const this_bctype& pfld)
+        :
+            this_bctype(pfld, pfld.internalField())
+        {}
+
+        //- Construct and return a clone
+        virtual tmp<fvPatchVectorField> clone() const
+        {
+            return tmp<fvPatchVectorField>
+            (
+                new JohnsonJacksonParticleSlipFvPatchVectorField
+                (
+                    *this, this->internalField()
+                )
             );
         }
 
@@ -166,6 +172,11 @@ public:
         //- Write
         virtual void write(Ostream&) const;
 
+
+    // Member Operators
+
+        //- Inherit assignment
+        using parent_bctype::operator=;
 };
 
 
