@@ -54,10 +54,12 @@ class fixedFaceFvPatchScalarField
 :
     public mixedFvPatchField<scalar>
 {
+    typedef fixedFaceFvPatchScalarField this_bctype;
+    typedef mixedFvPatchField<scalar> parent_bctype;
 
 protected:
 
-    // Protected data
+    // Protected Data
 
         //- Reference value
         scalar refValue_;
@@ -89,34 +91,19 @@ public:
             const dictionary&
         );
 
-        //- Construct by mapping given fixedFaceFvPatchScalarField onto a new patch
+        //- Construct by mapping onto a new patch
         fixedFaceFvPatchScalarField
         (
-            const fixedFaceFvPatchScalarField&,
+            const this_bctype&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
-        //- Construct as copy
-        fixedFaceFvPatchScalarField
-        (
-            const fixedFaceFvPatchScalarField&
-        );
-
-        //- Construct and return a clone
-        virtual tmp<fvPatchField<scalar>> clone() const
-        {
-            return tmp<fvPatchField<scalar>>
-            (
-                new fixedFaceFvPatchScalarField(*this)
-            );
-        }
-
         //- Construct as copy setting internal field reference
         fixedFaceFvPatchScalarField
         (
-            const fixedFaceFvPatchScalarField&,
+            const this_bctype&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -129,6 +116,21 @@ public:
             return tmp<fvPatchField<scalar>>
             (
                 new fixedFaceFvPatchScalarField(*this, iF)
+            );
+        }
+
+        //- No copy construct without an internal field
+        fixedFaceFvPatchScalarField(const this_bctype& pfld)
+        :
+            this_bctype(pfld, pfld.internalField())
+        {}
+
+        //- Construct and return a clone
+        virtual tmp<fvPatchField<scalar>> clone() const
+        {
+            return tmp<fvPatchField<scalar>>
+            (
+                new fixedFaceFvPatchScalarField(*this, this->internalField())
             );
         }
 
@@ -151,9 +153,10 @@ public:
         virtual void write(Ostream&) const;
 
 
-    // Member operators
+    // Member Operators
 
-        virtual void operator=(const fvPatchField<scalar>& pvf);
+        //- Inherit assignment
+        using parent_bctype::operator=;
 };
 
 

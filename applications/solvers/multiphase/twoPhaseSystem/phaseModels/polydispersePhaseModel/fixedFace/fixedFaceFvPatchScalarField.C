@@ -34,35 +34,35 @@ Foam::fixedFaceFvPatchScalarField::fixedFaceFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    mixedFvPatchField<scalar>(p, iF),
-    fixProc_(true)
+    parent_bctype(p, iF),
+    fixProc_(false)
 {
     refValue() = Zero;
     refGrad() = Zero;
     valueFraction() = 0.0;
 
-    if (Pstream::parRun())
+    if (UPstream::parRun())
     {
-        labelList minProcl(1, Pstream::nProcs());
+        #if (OPENFOAM >= 2512)
+        fixProc_ =
+        (
+            UPstream::find_first(p.size() > 0, UPstream::worldComm)
+         == UPstream::myProcNo(UPstream::worldComm)
+        );
+        #else
+        label minProc = p.size() > 0 ? Pstream::myProcNo() : Pstream::nProcs();
 
-        if (p.size() > 0)
-        {
-            minProcl[0] = Pstream::myProcNo();
-        }
+        Foam::reduce(minProc, minOp<label>());
 
-        label minProc = gMin(minProcl);
-        
-        if (Pstream::myProcNo() == minProc)
-        {
-            fixProc_ = true;
-            valueFraction()[0] = 1.0;
-        }
-        else
-        {
-            fixProc_ = false;
-        }
+        fixProc_ = (minProc == Pstream::myProcNo());
+        #endif
     }
     else
+    {
+        fixProc_ = (p.size() > 0);
+    }
+
+    if (fixProc_)
     {
         valueFraction()[0] = 1.0;
     }
@@ -71,13 +71,13 @@ Foam::fixedFaceFvPatchScalarField::fixedFaceFvPatchScalarField
 
 Foam::fixedFaceFvPatchScalarField::fixedFaceFvPatchScalarField
 (
-    const fixedFaceFvPatchScalarField& ptf,
+    const this_bctype& ptf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    mixedFvPatchField<scalar>(ptf, p, iF, mapper),
+    parent_bctype(ptf, p, iF, mapper),
     fixProc_(ptf.fixProc_)
 {}
 
@@ -89,33 +89,35 @@ Foam::fixedFaceFvPatchScalarField::fixedFaceFvPatchScalarField
     const dictionary& dict
 )
 :
-    mixedFvPatchField<scalar>(p, iF),
-    fixProc_(true)
+    parent_bctype(p, iF),
+    fixProc_(false)
 {
     refValue() = Zero;
     refGrad() = Zero;
     valueFraction() = 0.0;
 
-    if (Pstream::parRun())
+    if (UPstream::parRun())
     {
-        labelList minProcl(1, Pstream::nProcs());
-        if (p.size() > 0)
-        {
-            minProcl[0] = Pstream::myProcNo();
-        }
-        label minProc = gMin(minProcl);
+        #if (OPENFOAM >= 2512)
+        fixProc_ =
+        (
+            UPstream::find_first(p.size() > 0, UPstream::worldComm)
+         == UPstream::myProcNo(UPstream::worldComm)
+        );
+        #else
+        label minProc = p.size() > 0 ? Pstream::myProcNo() : Pstream::nProcs();
 
-        if (Pstream::myProcNo() == minProc)
-        {
-            fixProc_ = true;
-            valueFraction()[0] = 1.0;
-        }
-        else
-        {
-            fixProc_ = false;
-        }
+        Foam::reduce(minProc, minOp<label>());
+
+        fixProc_ = (minProc == Pstream::myProcNo());
+        #endif
     }
     else
+    {
+        fixProc_ = (p.size() > 0);
+    }
+
+    if (fixProc_)
     {
         valueFraction()[0] = 1.0;
     }
@@ -124,21 +126,11 @@ Foam::fixedFaceFvPatchScalarField::fixedFaceFvPatchScalarField
 
 Foam::fixedFaceFvPatchScalarField::fixedFaceFvPatchScalarField
 (
-    const fixedFaceFvPatchScalarField& ptf
-)
-:
-    mixedFvPatchField<scalar>(ptf),
-    fixProc_(ptf.fixProc_)
-{}
-
-
-Foam::fixedFaceFvPatchScalarField::fixedFaceFvPatchScalarField
-(
-    const fixedFaceFvPatchScalarField& ptf,
+    const this_bctype& ptf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    mixedFvPatchField<scalar>(ptf, iF),
+    parent_bctype(ptf, iF),
     fixProc_(ptf.fixProc_)
 {}
 
@@ -168,14 +160,6 @@ void Foam::fixedFaceFvPatchScalarField::write(Ostream& os) const
     //writeEntry(os, "value", *this);
 }
 
-
-// * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
-
-void Foam::fixedFaceFvPatchScalarField::operator=
-(
-    const fvPatchField<scalar>& ptf
-)
-{}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

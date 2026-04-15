@@ -47,7 +47,7 @@ JohnsonJacksonParticleThetaFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    mixedFvPatchScalarField(p, iF),
+    parent_bctype(p, iF),
     restitutionCoefficient_("restitutionCoefficient", dimless, 0),
     specularityCoefficient_("specularityCoefficient", dimless, 0)
 {}
@@ -56,13 +56,13 @@ JohnsonJacksonParticleThetaFvPatchScalarField
 Foam::JohnsonJacksonParticleThetaFvPatchScalarField::
 JohnsonJacksonParticleThetaFvPatchScalarField
 (
-    const JohnsonJacksonParticleThetaFvPatchScalarField& ptf,
+    const this_bctype& ptf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    mixedFvPatchScalarField(ptf, p, iF, mapper),
+    parent_bctype(ptf, p, iF, mapper),
     restitutionCoefficient_(ptf.restitutionCoefficient_),
     specularityCoefficient_(ptf.specularityCoefficient_)
 {
@@ -123,23 +123,11 @@ JohnsonJacksonParticleThetaFvPatchScalarField
 Foam::JohnsonJacksonParticleThetaFvPatchScalarField::
 JohnsonJacksonParticleThetaFvPatchScalarField
 (
-    const JohnsonJacksonParticleThetaFvPatchScalarField& ptf
-)
-:
-    mixedFvPatchScalarField(ptf),
-    restitutionCoefficient_(ptf.restitutionCoefficient_),
-    specularityCoefficient_(ptf.specularityCoefficient_)
-{}
-
-
-Foam::JohnsonJacksonParticleThetaFvPatchScalarField::
-JohnsonJacksonParticleThetaFvPatchScalarField
-(
-    const JohnsonJacksonParticleThetaFvPatchScalarField& ptf,
+    const this_bctype& ptf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    mixedFvPatchScalarField(ptf, iF),
+    parent_bctype(ptf, iF),
     restitutionCoefficient_(ptf.restitutionCoefficient_),
     specularityCoefficient_(ptf.specularityCoefficient_)
 {}
@@ -305,7 +293,7 @@ void Foam::JohnsonJacksonParticleThetaFvPatchScalarField::updateCoeffs()
                     IOobject::groupName("h2Fn", phased.name())
                 )
             );
-            
+
             scalarField Vw(constant::mathematical::pi/6.0*sqrt(3.0*Theta));
 
             this->refGrad() =
