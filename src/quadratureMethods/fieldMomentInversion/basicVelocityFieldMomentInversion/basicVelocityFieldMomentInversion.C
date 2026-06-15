@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -54,8 +54,7 @@ Foam::basicVelocityFieldMomentInversion::basicVelocityFieldMomentInversion
     const fvMesh& mesh,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
-    const labelList& velocityIndexes,
-    const label nSecondaryNodes
+    const labelList& velocityIndexes
 )
 :
     fieldMomentInversion
@@ -64,8 +63,7 @@ Foam::basicVelocityFieldMomentInversion::basicVelocityFieldMomentInversion
         mesh,
         momentOrders,
         nodeIndexes,
-        velocityIndexes,
-        nSecondaryNodes
+        velocityIndexes
     ),
     momentInverter_
     (
@@ -154,7 +152,7 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
             (
                 moments.size(),
                 momentOrders_,
-                moments.support(),
+                moments.supports(),
                 momentInverter_().smallM0(),
                 momentInverter_().smallZeta()
             );
@@ -190,7 +188,7 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
                 volVelocityNode& node = nodes[nodei];
 
                 volScalarField::Boundary& weightBf =
-                    node.primaryWeight().boundaryFieldRef();
+                    node.weight().boundaryFieldRef();
 
                 volVectorField::Boundary& velocityAbscissaBf =
                     node.velocityAbscissae().boundaryFieldRef();
@@ -203,7 +201,7 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
                 forAll(node.scalarIndexes(), cmpt)
                 {
                     volScalarField::Boundary& abscissaBf =
-                        node.primaryAbscissae()[cmpt].boundaryFieldRef();
+                        node.abscissae()[cmpt].boundaryFieldRef();
 
                     abscissaBf[patchi][facei] = abscissae(nodeIndex)[cmpt];
                 }
@@ -224,7 +222,7 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
     (
         moments.size(),
         momentOrders_,
-        moments.support(),
+        moments.supports(),
         momentInverter_().smallM0(),
         momentInverter_().smallZeta()
     );
@@ -254,12 +252,12 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
         const labelList& nodeIndex = nodeIndexes_[nodei];
         volVelocityNode& node(nodes[nodei]);
 
-        node.primaryWeight()[celli] = weights(nodeIndex);
+        node.weight()[celli] = weights(nodeIndex);
         node.velocityAbscissae()[celli] = velocityAbscissae(nodeIndex);
 
         forAll(node.scalarIndexes(), cmpt)
         {
-            node.primaryAbscissae()[cmpt][celli] = abscissae(nodeIndex)[cmpt];
+            node.abscissae()[cmpt][celli] = abscissae(nodeIndex)[cmpt];
         }
     }
 

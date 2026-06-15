@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -39,6 +39,7 @@ Description
 #include "OFstream.H"
 #include "scalarMatrices.H"
 #include "IOdictionary.H"
+#include "supportType.H"
 #include "univariateMomentSet.H"
 #include "univariateMomentInversion.H"
 #include "newUnivariateMomentInversion.C"
@@ -49,7 +50,7 @@ using namespace Foam;
 
 void compareQuadrature
 (
-    scalarList& expectedWeights, 
+    scalarList& expectedWeights,
     scalarList& computedWeights,
     scalarList& expectedAbscissae,
     scalarList& computedAbscissae
@@ -57,10 +58,15 @@ void compareQuadrature
 {
     Info<< "\n" << endl;
 
+    const scalar tolerance = 1.0e-14;
+
+    Info<< "Comparing quadrature weights and abscissae with tolerance "
+        << tolerance << "\n" << endl;
+
     if (expectedWeights.size() != computedWeights.size())
     {
         FatalErrorInFunction
-            << "Weights vectors have different size: " 
+            << "Weights vectors have different size: "
             << endl
             << "  Size of computed weights vector: " << computedWeights.size()
             << endl
@@ -72,11 +78,11 @@ void compareQuadrature
     if (expectedAbscissae.size() != computedAbscissae.size())
     {
         FatalErrorInFunction
-            << "Abscissae vectors have different size: " 
+            << "Abscissae vectors have different size: "
             << endl
-            << "  Size of computed abscissae vector: " 
+            << "  Size of computed abscissae vector: "
             << computedAbscissae.size() << endl
-            << "  Size of expected abscissae vector: " 
+            << "  Size of expected abscissae vector: "
             << expectedAbscissae.size()
             << endl
             << exit(FatalError);
@@ -84,19 +90,19 @@ void compareQuadrature
 
     forAll(expectedWeights, weightsi)
     {
-        scalar magDiff 
+        scalar magDiff
             = mag(expectedWeights[weightsi] - computedWeights[weightsi]);
 
-        Info<< "  expectedWeights[" << weightsi << "] = " 
-            << expectedWeights[weightsi] 
-            << ", computedWeights[" << weightsi << "] = " 
-            << computedWeights[weightsi] 
+        Info<< "  expectedWeights[" << weightsi << "] = "
+            << expectedWeights[weightsi]
+            << ", computedWeights[" << weightsi << "] = "
+            << computedWeights[weightsi]
             << endl;
 
-        if (magDiff >= SMALL)
+        if (magDiff >= tolerance)
         {
             FatalErrorInFunction
-                << "Values of the quadrature weights do not match: " 
+                << "Values of the quadrature weights do not match: "
                 << endl
                 << "  Position: " << weightsi
                 << endl
@@ -114,19 +120,19 @@ void compareQuadrature
 
     forAll(expectedAbscissae, abscissai)
     {
-        scalar magDiff 
+        scalar magDiff
             = mag(expectedAbscissae[abscissai] - computedAbscissae[abscissai]);
 
-        Info<< "  expectedAbscissae[" << abscissai << "] = " 
-            << expectedAbscissae[abscissai] 
-            << ", computedAbscissae[" << abscissai << "] = " 
-            << computedAbscissae[abscissai] 
+        Info<< "  expectedAbscissae[" << abscissai << "] = "
+            << expectedAbscissae[abscissai]
+            << ", computedAbscissae[" << abscissai << "] = "
+            << computedAbscissae[abscissai]
             << endl;
 
-        if (magDiff >= SMALL)
+        if (magDiff >= tolerance)
         {
             FatalErrorInFunction
-                << "Values of the quadrature abscissae do not match: " 
+                << "Values of the quadrature abscissae do not match: "
                 << endl
                 << "  Position: " << abscissai
                 << endl
@@ -157,7 +163,7 @@ void showInputMoments(univariateMomentSet& inputMoments, string quadratureName)
 
 void testQuadrature
 (
-    univariateMomentSet& m, 
+    univariateMomentSet& m,
     dictionary& dict,
     scalarList& expectedWeights,
     scalarList& expectedAbscissae,
@@ -228,7 +234,12 @@ int main(int argc, char *argv[])
 
     // Test 1 - m = (1, 1, 1, 1)
     scalarList inputMoments1(4, 1.0);
-    univariateMomentSet mGaussTest1(inputMoments1, "RPlus", SMALL, SMALL);
+
+    univariateMomentSet mGaussTest1
+    (
+        inputMoments1, supportType::RPlus, SMALL, SMALL
+    );
+
     scalarList expectedWeightsTest1(1, 1.0);
     scalarList expectedAbscissaeTest1(1, 1.0);
 
@@ -249,8 +260,11 @@ int main(int argc, char *argv[])
         inputMoments2[mi - 1] = 1.0/scalar(mi);
     }
 
-    univariateMomentSet mGaussTest2(inputMoments2, "RPlus", SMALL, SMALL);
-    
+    univariateMomentSet mGaussTest2
+    (
+        inputMoments2, supportType::RPlus, SMALL, SMALL
+    );
+
     scalarList expectedWeightsTest2(5);
 
     expectedWeightsTest2[0] = 0.1184634425280107;
@@ -284,8 +298,11 @@ int main(int argc, char *argv[])
         inputMoments3[mi - 1] = 1.0/scalar(mi);
     }
 
-    univariateMomentSet mGaussTest3(inputMoments3, "RPlus", SMALL, SMALL, 1);
-    
+    univariateMomentSet mGaussTest3
+    (
+        inputMoments3, supportType::RPlus, SMALL, SMALL, 1
+    );
+
     scalarList expectedWeightsTest3(6);
 
     expectedWeightsTest3[0] = 0.02777777777722189;
@@ -321,8 +338,11 @@ int main(int argc, char *argv[])
         inputMoments4[mi - 1] = 1.0/scalar(mi);
     }
 
-    univariateMomentSet mGaussTest4(inputMoments4, "RPlus", SMALL, SMALL, 2);
-    
+    univariateMomentSet mGaussTest4
+    (
+        inputMoments4, supportType::RPlus, SMALL, SMALL, 2
+    );
+
     scalarList expectedWeightsTest4(7);
 
     expectedWeightsTest4[0] = 0.02380952380528316;
@@ -366,14 +386,17 @@ int main(int argc, char *argv[])
     inputMoments5[8] = 105.0;
     inputMoments5[9] = 0.0;
     //inputMoments5[10] = 945.0;
-    
-    univariateMomentSet mGaussTest5(inputMoments5, "R", SMALL, SMALL, 5);
-    
+
+    univariateMomentSet mGaussTest5
+    (
+        inputMoments5, supportType::R, SMALL, SMALL, 5
+    );
+
     scalarList expectedWeightsTest5(10, 0);
 
-    expectedWeightsTest5[0] = 4.310652630718267e-06; 
-    expectedWeightsTest5[1] = 0.0007580709343122131; 
-    expectedWeightsTest5[2] = 0.01911158050077029; 
+    expectedWeightsTest5[0] = 4.310652630718267e-06;
+    expectedWeightsTest5[1] = 0.0007580709343122131;
+    expectedWeightsTest5[2] = 0.01911158050077029;
     expectedWeightsTest5[3] = 0.1354837029802678;
     expectedWeightsTest5[4] = 0.3446423349320191;
     expectedWeightsTest5[5] = 0.3446423349320191;
@@ -394,7 +417,7 @@ int main(int argc, char *argv[])
     expectedAbscissaeTest5[7] = 2.484325841638951;
     expectedAbscissaeTest5[8] = 3.581823483551929;
     expectedAbscissaeTest5[9] = 4.85946282833231;
-    
+
     testQuadrature
     (
         mGaussTest5,
@@ -404,7 +427,7 @@ int main(int argc, char *argv[])
         "GQMOM",
         10
     );
-    
+
 
     // Test 6 - GQMOM on R+
     scalarList inputMoments6(10);
@@ -414,8 +437,11 @@ int main(int argc, char *argv[])
         inputMoments6[mi - 1] = 1.0/scalar(mi);
     }
 
-    univariateMomentSet mGaussTest6(inputMoments6, "RPlus", SMALL, SMALL, 5);
-    
+    univariateMomentSet mGaussTest6
+    (
+        inputMoments6, supportType::RPlus, SMALL, SMALL, 5
+    );
+
     scalarList expectedWeightsTest6(10, 0);
 
     expectedWeightsTest6[0] = 0.04676927763440855;
@@ -466,12 +492,15 @@ int main(int argc, char *argv[])
     inputMoments7[8] = 1.0/22.0;
     inputMoments7[9] = 1.0/26.0;
 
-    univariateMomentSet mGaussTest7(inputMoments7, "01", SMALL, SMALL, 5);
-    
+    univariateMomentSet mGaussTest7
+    (
+        inputMoments7, supportType::ZeroOne, SMALL, SMALL, 5
+    );
+
     scalarList expectedWeightsTest7(10, 0);
-    
+
     expectedWeightsTest7[0] = 0.001943873229307942;
-    expectedWeightsTest7[1] = 0.007902072129949747; 
+    expectedWeightsTest7[1] = 0.007902072129949747;
     expectedWeightsTest7[2] = 0.02732546156051659;
     expectedWeightsTest7[3] = 0.05761179944540628;
     expectedWeightsTest7[4] = 0.09028841825500214;
@@ -482,7 +511,7 @@ int main(int argc, char *argv[])
     expectedWeightsTest7[9] = 0.007811897684150718;
 
     scalarList expectedAbscissaeTest7(10, 0);
-    
+
     expectedAbscissaeTest7[0] = 0.06964594081013871;
     expectedAbscissaeTest7[1] = 0.14017230848925;
     expectedAbscissaeTest7[2] = 0.2355328726617618;
@@ -513,12 +542,15 @@ int main(int argc, char *argv[])
     inputMoments8[4] = 1.760;
     inputMoments8[5] = 2.090237;
 
-    univariateMomentSet mGaussTest8(inputMoments8, "RPlus", SMALL, SMALL, 7);
+    univariateMomentSet mGaussTest8
+    (
+        inputMoments8, supportType::RPlus, SMALL, SMALL, 7
+    );
 
     scalarList expectedWeightsTest8(10, 0);
-    
+
     expectedWeightsTest8[0] = 0.001528021029486816;
-    expectedWeightsTest8[1] = 0.001386763449248363; 
+    expectedWeightsTest8[1] = 0.001386763449248363;
     expectedWeightsTest8[2] = 0.001866128388630542;
     expectedWeightsTest8[3] = 0.003630846785146271;
     expectedWeightsTest8[4] = 0.01421509421173688;
@@ -526,10 +558,10 @@ int main(int argc, char *argv[])
     expectedWeightsTest8[6] = 0.02431175018572058;
     expectedWeightsTest8[7] = 0.2675675885682817;
     expectedWeightsTest8[8] = 0.0001691025284614494;
-    expectedWeightsTest8[9] = 7.292857634940761e-09;        
+    expectedWeightsTest8[9] = 7.292857634940761e-09;
 
     scalarList expectedAbscissaeTest8(10, 0);
-    
+
     expectedAbscissaeTest8[0] = 0.1840361378198212;
     expectedAbscissaeTest8[1] = 0.3716851294787171;
     expectedAbscissaeTest8[2] = 0.541482301270592;
@@ -539,8 +571,8 @@ int main(int argc, char *argv[])
     expectedAbscissaeTest8[6] = 1.153156632425781;
     expectedAbscissaeTest8[7] = 1.324616410466969;
     expectedAbscissaeTest8[8] = 1.41694749651431;
-    expectedAbscissaeTest8[9] = 1.763388388042151;  
-    
+    expectedAbscissaeTest8[9] = 1.763388388042151;
+
     testQuadrature
     (
         mGaussTest8,

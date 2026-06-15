@@ -15,28 +15,21 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-fieldMomentInversion    extendedFieldMomentInversion;
+fieldMomentInversion    basicFieldMomentInversion;
 
-extendedMomentInversion
+basicMomentInversion
 {
-    extendedMomentInversion     lognormal;
-
-    maxSigmaIter        1000;
-    momentsTol          1.0e-6;
-    sigmaMin            1.0e-8;
-    targetFunctionTol   1.0e-8;
-
-    basicQuadrature
-    {
-        univariateMomentInversion   Gauss;
-    }
+    univariateMomentInversion GQMOM;
+    ndfTypeRPlus lognormal; // Default: gamma
 }
 
 momentAdvection
 {
+    univariateMomentAdvection   firstOrderKinetic;
+
     basicMomentInversion
     {
-        univariateMomentInversion GaussRadau;
+        univariateMomentInversion Gauss;
     }
 }
 
@@ -47,33 +40,15 @@ moments
     (2)
     (3)
     (4)
+    (5)
 );
 
 nodes
 (
     (0)
     (1)
+    (2)
+    (3)
 );
-
-extendedMomentInversionCoeff
-{
-    extendedMomentInversion     lognormal;
-
-    maxSigmaIter        1000;
-    momentsTol          1.0e-6;
-    sigmaTol            1.0e-8;
-    targetFunctionTol   1.0e-8;
-
-    basicQuadrature
-    {
-        univariateMomentInversion   Gauss;
-    }
-}
-
-fluxQuadrature
-{
-    univariateMomentInversion   GaussRadau;
-}
-
 
 // ************************************************************************* //

@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -61,7 +61,16 @@ Foam::mappedPtrList<mappedType>::listToLabel
 
     forAll(list, dimi)
     {
-        listLabel += list[dimi]*pow(scalar(10), size - dimi - 1);
+        const label exponent = size - dimi - 1;
+
+        // Compute 10^exponent using integer arithmetic
+        label factor = 1;
+        for (label i = 0; i < exponent; ++i)
+        {
+            factor *= 10;
+        }
+
+        listLabel += list[dimi]*factor;
     }
 
     return listLabel;
@@ -184,8 +193,17 @@ Foam::label Foam::mappedPtrList<mappedType>::calcMapIndex
             iter++
         )
         {
-            label argIndex = std::distance(indexes.begin(), iter);
-            mapIndex += (*iter)*pow(scalar(10), nDimensions_ - argIndex - 1);
+            const label argIndex = std::distance(indexes.begin(), iter);
+            const label exponent = nDimensions_ - argIndex - 1;
+
+            // Compute 10^exponent using integer arithmetic
+            label factor = 1;
+            for (label i = 0; i < exponent; ++i)
+            {
+                factor *= 10;
+            }
+
+            mapIndex += (*iter) * factor;
         }
     }
 
@@ -202,7 +220,7 @@ void Foam::mappedPtrList<mappedType>::setMap(const Map<label>& map)
     {
         label key = iter.key();
         label nD = 0;
-        
+
         while (key)
         {
             key /= 10;
@@ -252,7 +270,7 @@ template <class mappedType>
 template <typename ...ArgsT>
 bool Foam::mappedPtrList<mappedType>::found(ArgsT...args) const
 {
-    if 
+    if
     (
         label(std::initializer_list<Foam::label>({args...}).size()) > nDimensions_
     )
@@ -316,5 +334,55 @@ void Foam::mappedPtrList<mappedType>::set
     PtrList<mappedType>::set(map_[listToLabel(list, nDimensions_)], entry);
 }
 
+
+template <class mappedType>
+void Foam::mappedPtrList<mappedType>::setSize
+(
+    const label newSize,
+    const labelListList& newIndexes
+)
+{
+    if (newIndexes.size() != newSize)
+    {
+        FatalErrorInFunction
+            << "Size mismatch: "
+            << endl
+            << "  New list size =" << newSize
+            << endl
+            << "  New indexes list size = " << newIndexes.size()
+            << exit(FatalError);
+    }
+
+    // Resize the underlying list
+    Foam::PtrList<mappedType>::setSize(newSize);
+
+    // Rebuild the map with new indexes
+    map_.clear();
+    nDimensions_ = 0;
+
+    forAll(newIndexes, indexi)
+    {
+        nDimensions_ = max(nDimensions_, newIndexes[indexi].size());
+    }
+
+    forAll(*this, elemi)
+    {
+        map_.insert
+        (
+            listToLabel(newIndexes[elemi], nDimensions_),
+            elemi
+        );
+    }
+}
+
+template <class mappedType>
+void Foam::mappedPtrList<mappedType>::resize
+(
+    const label newSize,
+    const labelListList& indexes
+)
+{
+    (*this).setSize(newSize, indexes);
+}
 
 // ************************************************************************* //

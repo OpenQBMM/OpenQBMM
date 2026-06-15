@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -31,7 +31,7 @@ Class
 
 Description
     Stores the second row of a Vandermonde matrix, and solves the associated
-    linear system.
+    linear system. 
 
     References
     \verbatim
@@ -70,6 +70,12 @@ class Vandermonde
         //- Number of rows and columns (square matrix)
         const label n_;
 
+
+    // Private Member Functions
+
+        //- Check if a square matrix is Vandermonde
+        bool isVandermonde(const scalarSquareMatrix& A) const;
+
 public:
 
     // Constructors
@@ -103,16 +109,16 @@ public:
         );
 
         //- Invert Vandermonde matrix
-        scalarSquareMatrix inv();
+        scalarSquareMatrix invert();
 
 
     // Member Operators
 
         //- Return the Vandermonde matrix
-        inline scalarSquareMatrix operator()();
+        inline scalarSquareMatrix operator()() const;
 
         //- Return a given element of the Vandermonde matrix
-        inline scalar operator()(label i, label j);
+        inline scalar operator()(label i, label j) const;
 };
 
 

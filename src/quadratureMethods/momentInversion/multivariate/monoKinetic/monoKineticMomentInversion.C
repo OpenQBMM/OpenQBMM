@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -27,6 +27,7 @@ License
 
 #include "monoKineticMomentInversion.H"
 #include "mappedLists.H"
+#include "supportType.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -104,10 +105,10 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
 
     univariateMomentSet sizeMoments
     (
-        nSizeMoments_, 
-        "RPlus", 
-        sizeInverter_().smallM0(), 
-        sizeInverter_().smallZeta(), 
+        nSizeMoments_,
+        supportType::RPlus,
+        sizeInverter_().smallM0(),
+        sizeInverter_().smallZeta(),
         Zero
     );
 
@@ -145,16 +146,16 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
         }
 
         Vandermonde V(x);
-        scalarSquareMatrix invVR = invR*V.inv();
+        scalarSquareMatrix invVR = invR*V.invert();
 
         // Compute conditional velocity moments and invert
-        for (label dimi = 0; dimi < nvelocityDimensions_; dimi++)
+        for (label dimi = 0; dimi < nVelocityDimensions_; dimi++)
         {
             labelList pureMomentOrder(nDistributionDims_, 0);
             pureMomentOrder[dimi + 1] = 1;
 
             scalarRectangularMatrix M(nSizeNodes, 1, 0);
-            
+
             for (label nodei = 0; nodei < nSizeNodes; nodei++)
             {
                 pureMomentOrder[0] = nodei;

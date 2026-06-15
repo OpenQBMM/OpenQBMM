@@ -108,7 +108,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
         return;
     }
 
-    const fvMesh& mesh = nodesOwn_[0].primaryWeight().mesh();
+    const fvMesh& mesh = nodesOwn_[0].weight().mesh();
 
     const volVelocityMomentFieldSet& moments = quadrature_.moments();
 
@@ -174,9 +174,9 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
         surfaceVelocityNode& nodeNei(nodesNei_[nodei]);
         surfaceVelocityNode& nodeOwn(nodesOwn_[nodei]);
 
-        const volScalarField& weight = node.primaryWeight();
-        surfaceScalarField& weightOwn = nodeOwn.primaryWeight();
-        surfaceScalarField& weightNei = nodeNei.primaryWeight();
+        const volScalarField& weight = node.weight();
+        surfaceScalarField& weightOwn = nodeOwn.weight();
+        surfaceScalarField& weightNei = nodeNei.weight();
         const volVectorField& U = node.velocityAbscissae();
         surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
         surfaceVectorField& UNei = nodeNei.velocityAbscissae();
@@ -200,7 +200,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
 
     forAll(nodes, nodei)
     {
-        nodesNei_[nodei].primaryWeight().boundaryFieldRef()[patchi_] *=
+        nodesNei_[nodei].weight().boundaryFieldRef()[patchi_] *=
             weightScale;
     }
 }

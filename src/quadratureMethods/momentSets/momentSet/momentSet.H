@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -44,6 +44,7 @@ SourceFiles
 #include "labelList.H"
 #include "scalarList.H"
 #include "mappedLists.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -60,32 +61,34 @@ protected:
 
     // Protected data
 
-        //- Number of moments
-        label nMoments_;
-
         //- Number of dimensions of the the NDF associated to the moment set
         label nDimensions_;
 
         //- List of moment orders
         labelListList momentOrders_;
 
-        //- Type of support of the measure associated to the moment set
-        word support_;
+        //- List of supports of the measure associated to the moment set
+        List<supportType> supports_;
 
-        //- Minimum accepted value for m0
+        //- Minimum value for the zero-order moment.
+        // Below this value, the moment is considered negligible.
         scalar smallM0_;
 
-        //- Minimum accepted value for zeta
+        //- Minimum value for zeta_k.
+        // Below this value, zeta_k is considered negligible.
         scalar smallZeta_;
 
 
-    // Static constants
+    // Protected Member Functions
 
-        //- Maximum dimensions of the NDF
-        //  This is decided based on computational cost and to the extent
-        //  multivariate algorithms have been tested.
-        static const label maxNDFDimensions_ = 5;
+        //- Validate list of supports
+        void validateSupports() const;
 
+        //- Validate compatibility between number of dimensions and moment orders
+        void validateMomentOrders() const;
+
+        //- Validate
+        void validate() const;
 
 public:
 
@@ -97,10 +100,10 @@ public:
             const label nMoments,
             const label nDimensions,
             const labelListList& momentOrders,
-            const word& support,
+            const List<supportType>& supports,
             const scalar smallM0,
             const scalar smallZeta,
-            const scalar initValue = 0
+            const scalar initialValue = 0
         );
 
         //- Construct from scalarList
@@ -109,7 +112,7 @@ public:
             const scalarList& m,
             const label nDimensions,
             const labelListList& momentOrders,
-            const word& support,
+            const List<supportType>& supports,
             const scalar smallM0,
             const scalar smallZeta
         );
@@ -130,13 +133,13 @@ public:
         inline label nMoments() const;
 
         //- Resizes moment set
-        void resize(const label newSize);
+        void resize(const label newSize, labelListList& newMomentOrders);
 
         //- Set size of moment set
-        void setSize(const label newSize);
+        void setSize(const label newSize, labelListList& newMomentOrders);
 
         //- Return support
-        inline const word support() const;
+        inline const List<supportType>& supports() const;
 };
 
 

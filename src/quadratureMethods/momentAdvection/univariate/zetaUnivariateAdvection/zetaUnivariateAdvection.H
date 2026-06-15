@@ -33,12 +33,12 @@ Description
     Second-order univariate moment advection with zeta simplified scheme for
     moments of NDF supported on R+ or [0, 1].
 
-    Auxiliary quantities are used to perform the reconstruction. These 
-    quantities are the zeta_k scalars determined when verifying the 
-    realizability of the moment vector, in the case of support over R+. 
+    Auxiliary quantities are used to perform the reconstruction. These
+    quantities are the zeta_k scalars determined when verifying the
+    realizability of the moment vector, in the case of support over R+.
     Canonical moments are used when suppor is over [0, 1].
 
-    This scheme is suitable, for example, for population balance and turbulent 
+    This scheme is suitable, for example, for population balance and turbulent
     mixing applications.
 
     References
@@ -51,7 +51,7 @@ Description
     \endverbatim
 
     \verbatim
-        "A second-order realizable scheme for moment advection on unstructured 
+        "A second-order realizable scheme for moment advection on unstructured
         grids"
         A Passalacqua, F Laurent, R. O. Fox
         Computer Physics Communications
@@ -67,6 +67,7 @@ SourceFiles
 #define zetaUnivariateAdvection_H
 
 #include "univariateMomentAdvection.H"
+#include "supportType.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -210,7 +211,7 @@ public:
             const dictionary& dict,
             const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
-            const word& support
+            const supportType& support
         );
 
 

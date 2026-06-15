@@ -8,7 +8,7 @@
     Code created 2016-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -40,6 +40,7 @@ Description
 #include "OFstream.H"
 #include "scalarList.H"
 #include "scalarMatrices.H"
+#include "supportType.H"
 #include "univariateMomentSet.H"
 #include "extendedMomentInversion.H"
 
@@ -55,8 +56,7 @@ int main(int argc, char *argv[])
     Info << "Testing extendedMomentInversion\n" << endl;
 
     label nMoments = 5;
-    word support = "RPlus";
-    univariateMomentSet moments(nMoments, support, SMALL, SMALL);
+    univariateMomentSet moments(nMoments, supportType::RPlus, SMALL, SMALL);
 
     // Dirac delta function
 //     moments[0] = 1.0;

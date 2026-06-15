@@ -8,7 +8,7 @@
     Code created 2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -46,6 +46,7 @@ SourceFiles
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "supportType.H"
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
 #include "quadratureApproximations.H"
@@ -91,7 +92,7 @@ protected:
         surfaceScalarField nei_;
 
         //- Support of the distribution function
-        word support_;
+        List<supportType> supports_;
 
         //- Moment indicies ues to map moments
         labelListList momentOrders_;
@@ -128,9 +129,9 @@ public:
             (
                 const dictionary& dict,
                 const velocityQuadratureApproximation& quadrature,
-                const word& support
+                const List<supportType>& supports
             ),
-            (dict, quadrature, support)
+            (dict, quadrature, supports)
         );
 
 
@@ -141,7 +142,7 @@ public:
         (
             const dictionary& dict,
             const velocityQuadratureApproximation& quadrature,
-            const word& support
+            const List<supportType>& supports
         );
 
         //- Disallow default bitwise copy construct
@@ -158,7 +159,7 @@ public:
         (
             const dictionary& dict,
             const velocityQuadratureApproximation& quadrature,
-            const word& support
+            const List<supportType>& supports
         );
 
 

@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -26,6 +26,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "sizeCHyQMOMMomentInversion.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -51,7 +52,7 @@ sizeCHyQMOMBase
     (
         velocityInversion::getMomentOrders
         (
-            nvelocityDimensions_
+            nVelocityDimensions_
         )
     ),
     nSizeNodes_(nSizeMoments_/2),
@@ -59,7 +60,7 @@ sizeCHyQMOMBase
     (
         velocityInversion::getNodeIndexes
         (
-            nvelocityDimensions_
+            nVelocityDimensions_
         )
     ),
     sizeInverter_
@@ -73,10 +74,10 @@ sizeCHyQMOMBase
             dict,
             velocityMomentOrders_,
             velocityNodeIndexes_,
-            nvelocityDimensions_ == 1
+            nVelocityDimensions_ == 1
           ? labelList({0})
           : (
-                (nvelocityDimensions_ == 2)
+                (nVelocityDimensions_ == 2)
               ? labelList({0, 1})
               : labelList({0, 1, 2})
             )
@@ -143,9 +144,9 @@ invert
 
     univariateMomentSet sizeMoments
     (
-        nSizeMoments_, 
-        "RPlus", 
-        smallM0(), 
+        nSizeMoments_,
+        supportType::RPlus,
+        smallM0(),
         smallZeta(),
         Zero);
 
@@ -189,7 +190,7 @@ invert
         }
 
         Vandermonde V(x);
-        scalarSquareMatrix invVR = invR*V.inv();
+        scalarSquareMatrix invVR = invR*V.invert();
 
         // Compute conditional velocity moments and invert
         PtrList<mappedScalarList> conditionalMoments(nSizeNodes);
@@ -242,8 +243,8 @@ invert
                 (
                     velocityMomentOrders_.size(),
                     velocityMomentOrders_,
-                    "R",
-                    smallM0(), 
+                    List<supportType>(nVelocityDimensions_, supportType::R),
+                    smallM0(),
                     smallZeta()
                 );
 
@@ -257,7 +258,7 @@ invert
 
                 forAll(velocityNodeIndexes_, nodei)
                 {
-                    const labelList& velocityNodeIndex = 
+                    const labelList& velocityNodeIndex =
                         velocityNodeIndexes_[nodei];
 
                     labelList nodeIndex(nDistributionDims_, 0);
@@ -283,7 +284,7 @@ invert
             {
                 forAll(velocityNodeIndexes_, nodei)
                 {
-                    const labelList& velocityNodeIndex = 
+                    const labelList& velocityNodeIndex =
                         velocityNodeIndexes_[nodei];
 
                     labelList nodeIndex(nDistributionDims_, 0);
@@ -293,7 +294,7 @@ invert
                     {
                         nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
                     }
-                    
+
                     weights_(nodeIndex) /= (weights_.size()/nSizeNodes_);
                 }
             }
@@ -311,16 +312,16 @@ invert
 }
 
 template<class velocityInversion>
-Foam::scalar 
-Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallM0() 
+Foam::scalar
+Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallM0()
 const
 {
     return smallM0_;
 }
 
 template<class velocityInversion>
-Foam::scalar 
-Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallZeta() 
+Foam::scalar
+Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::smallZeta()
 const
 {
     return smallZeta_;

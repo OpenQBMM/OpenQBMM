@@ -48,22 +48,24 @@ JohnsonJacksonParticleSlipFvPatchVectorField
     const DimensionedField<vector, volMesh>& iF
 )
 :
-    partialSlipFvPatchVectorField(p, iF),
-    specularityCoefficient_("specularityCoefficient", dimless, 0)
+    parent_bctype(p, iF),
+    specularityCoefficient_("specularityCoefficient", dimless, 0),
+    internalFrictionAngle_("internalFrictionAngle", dimless, 0)
 {}
 
 
 Foam::JohnsonJacksonParticleSlipFvPatchVectorField::
 JohnsonJacksonParticleSlipFvPatchVectorField
 (
-    const JohnsonJacksonParticleSlipFvPatchVectorField& ptf,
+    const this_bctype& ptf,
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    partialSlipFvPatchVectorField(ptf, p, iF, mapper),
-    specularityCoefficient_(ptf.specularityCoefficient_)
+    parent_bctype(ptf, p, iF, mapper),
+    specularityCoefficient_(ptf.specularityCoefficient_),
+    internalFrictionAngle_(ptf.internalFrictionAngle_)
 {}
 
 
@@ -75,19 +77,9 @@ JohnsonJacksonParticleSlipFvPatchVectorField
     const dictionary& dict
 )
 :
-    partialSlipFvPatchVectorField(p, iF),
-    specularityCoefficient_
-    (
-        "specularityCoefficient",
-        dimless,
-        dict
-    ),
-    internalFrictionAngle_
-    (
-        "internalFrictionAngle",
-        dimless,
-        dict
-    )
+    parent_bctype(p, iF),
+    specularityCoefficient_("specularityCoefficient", dimless, dict),
+    internalFrictionAngle_("internalFrictionAngle", dimless, dict)
 {
     if
     (
@@ -110,23 +102,13 @@ JohnsonJacksonParticleSlipFvPatchVectorField
 Foam::JohnsonJacksonParticleSlipFvPatchVectorField::
 JohnsonJacksonParticleSlipFvPatchVectorField
 (
-    const JohnsonJacksonParticleSlipFvPatchVectorField& ptf
-)
-:
-    partialSlipFvPatchVectorField(ptf),
-    specularityCoefficient_(ptf.specularityCoefficient_)
-{}
-
-
-Foam::JohnsonJacksonParticleSlipFvPatchVectorField::
-JohnsonJacksonParticleSlipFvPatchVectorField
-(
-    const JohnsonJacksonParticleSlipFvPatchVectorField& ptf,
+    const this_bctype& ptf,
     const DimensionedField<vector, volMesh>& iF
 )
 :
-    partialSlipFvPatchVectorField(ptf, iF),
-    specularityCoefficient_(ptf.specularityCoefficient_)
+    parent_bctype(ptf, iF),
+    specularityCoefficient_(ptf.specularityCoefficient_),
+    internalFrictionAngle_(ptf.internalFrictionAngle_)
 {}
 
 

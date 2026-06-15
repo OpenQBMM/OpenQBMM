@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -35,9 +35,7 @@ Foam::velocityQuadratureNode<scalarType, vectorType>::velocityQuadratureNode
     const word& distributionName,
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
-    const PtrList<dimensionSet>& abscissaeDimensions,
-    const bool extended,
-    const label nSecondaryNodes
+    const PtrList<dimensionSet>& abscissaeDimensions
 )
 :
     quadratureNode<scalarType, vectorType>
@@ -46,9 +44,7 @@ Foam::velocityQuadratureNode<scalarType, vectorType>::velocityQuadratureNode
         distributionName,
         mesh,
         weightDimensions,
-        abscissaeDimensions,
-        extended,
-        nSecondaryNodes
+        abscissaeDimensions
     ),
     velocityAbscissae_(createVelocityAbscissae(this->weight_))
 {}
@@ -62,9 +58,7 @@ Foam::velocityQuadratureNode<scalarType, vectorType>::velocityQuadratureNode
     const fvMesh& mesh,
     const dimensionSet& weightDimensions,
     const PtrList<dimensionSet>& abscissaeDimensions,
-    const wordList& boundaryTypes,
-    const bool extended,
-    const label nSecondaryNodes
+    const wordList& boundaryTypes
 )
 :
     quadratureNode<scalarType, vectorType>
@@ -74,9 +68,7 @@ Foam::velocityQuadratureNode<scalarType, vectorType>::velocityQuadratureNode
         mesh,
         weightDimensions,
         abscissaeDimensions,
-        boundaryTypes,
-        extended,
-        nSecondaryNodes
+        boundaryTypes
     ),
     velocityAbscissae_(createVelocityAbscissae(this->weight_, boundaryTypes))
 {}

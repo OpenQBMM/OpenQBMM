@@ -10,7 +10,7 @@
 
   OpenQBMM - An open-source implementation of Quadrature-Based Moment Methods.
 
-  Copyright (C) 2014-2019 OpenQBMM developers.
+  Copyright (C) 2014-2025 OpenQBMM developers.
 
 \*---------------------------------------------------------------------------*/
 
@@ -39,7 +39,7 @@
 
 * pbeFoam
     Tutorials for the single-cell solver pbeFoam to demonstrate kernel functions
-    and perform verification and validation studies.
+    and quadrature closures.
 
 * pbeTransportFoam
     Tutorials for the solver for population balance equations on steady velocity

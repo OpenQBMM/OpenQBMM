@@ -11,6 +11,7 @@ EXE_INC = \
     -I../../mappedList \
     -I../../mappedPtrList \
     -I../../Vandermonde \
+    -I../supportType \
     -I../quadratureNode/lnInclude \
     -I../moments \
     -I../momentSets/lnInclude \

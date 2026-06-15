@@ -8,7 +8,7 @@
     Code created 2012-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 2015-03-10 Alberto Passalacqua: Templated class on the type of moment and of
                                 quadrature node.
@@ -44,7 +44,7 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     const dictionary& dict,
     const fvMesh& mesh,
     const autoPtr<mappedPtrList<nodeType>>& nodes,
-    const word& support
+    const List<supportType>& supports
 )
 :
     mappedPtrList<momentType>
@@ -56,7 +56,7 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     nodes_(nodes),
     nDimensions_((*this)[0].nDimensions()),
     nMoments_((*this).size()),
-    support_(support)
+    supports_(supports)
 {
     Map<label> momentMap(nMoments_);
 
@@ -72,6 +72,8 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
             mI
         );
     }
+
+    // Set the map
     this->setMap(momentMap);
 }
 
@@ -84,7 +86,7 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     const autoPtr<mappedPtrList<nodeType>>& nodes,
     const label nDimensions,
     const Map<label>& momentMap,
-    const word& support
+    const List<supportType>& supports
 )
 :
     mappedPtrList<momentType>(nMoments, momentMap),
@@ -92,7 +94,7 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     nodes_(nodes),
     nDimensions_(nDimensions),
     nMoments_(nMoments),
-    support_(support)
+    supports_(supports)
 {}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

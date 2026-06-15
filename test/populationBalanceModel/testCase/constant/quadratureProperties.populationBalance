@@ -15,16 +15,11 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-fieldMomentInversion extendedFieldMomentInversion;
+fieldMomentInversion    basicFieldMomentInversion;
 
-extendedMomentInversion
+basicMomentInversion
 {
-    extendedMomentInversion     lognormal;
-
-    basicQuadrature
-    {
-        univariateMomentInversion   Gauss;
-    }
+    univariateMomentInversion GQMOM;
 }
 
 momentAdvection
@@ -44,12 +39,15 @@ moments
     (2)
     (3)
     (4)
+    (5)
 );
 
 nodes
 (
     (0)
     (1)
+    (2)
+    (3)
 );
 
 // ************************************************************************* //

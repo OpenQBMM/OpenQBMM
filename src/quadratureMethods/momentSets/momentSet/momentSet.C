@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -37,37 +37,20 @@ Foam::momentSet::momentSet
     const label nMoments,
     const label nDimensions,
     const labelListList& momentOrders,
-    const word& support,
+    const List<supportType>& supports,
     const scalar smallM0,
     const scalar smallZeta,
-    const scalar initValue
+    const scalar initialValue
 )
 :
-    mappedList(nMoments, momentOrders, initValue),
-    nMoments_(nMoments),
+    mappedList(nMoments, momentOrders, initialValue),
     nDimensions_(nDimensions),
     momentOrders_(momentOrders),
-    support_(support),
+    supports_(supports),
     smallM0_(smallM0),
     smallZeta_(smallZeta)
 {
-    if (support_ != "R" && support_ != "RPlus" && support_ != "01")
-    {
-        FatalErrorInFunction
-            << "The specified support is invalid." << nl
-            << "    Valid supports are: R, RPlus and 01." << nl
-            << "    Moment set: " << (*this)
-            << abort(FatalError);
-    }
-
-    if (nDimensions_ > maxNDFDimensions_)
-    {
-        FatalErrorInFunction
-            << "The number of maximum dimensions for the NDF is " 
-            << maxNDFDimensions_ << "." << nl
-            << "    Specified number of dimensions: " << nDimensions_
-            << abort(FatalError);
-    }
+    validate();
 }
 
 Foam::momentSet::momentSet
@@ -75,35 +58,19 @@ Foam::momentSet::momentSet
     const scalarList& m,
     const label nDimensions,
     const labelListList& momentOrders,
-    const word& support,
+    const List<supportType>& supports,
     const scalar smallM0,
     const scalar smallZeta
 )
 :
     mappedList(m, momentOrders),
-    nMoments_(m.size()),
     nDimensions_(nDimensions),
     momentOrders_(momentOrders),
-    support_(support),
+    supports_(supports),
     smallM0_(smallM0),
     smallZeta_(smallZeta)
 {
-    if (support_ != "R" && support_ != "RPlus" && support_ != "01")
-    {
-        FatalErrorInFunction
-            << "The specified support is invalid." << nl
-            << "    Valid supports are: R, RPlus and 01."
-            << abort(FatalError);
-    }
-
-    if (nDimensions_ > maxNDFDimensions_)
-    {
-        FatalErrorInFunction
-            << "The number of maximum dimensions for the NDF is " 
-            << maxNDFDimensions_ << "." << nl
-            << "    Specified number of dimensions: " << nDimensions_
-            << abort(FatalError);
-    }
+    validate();
 }
 
 
@@ -114,15 +81,103 @@ Foam::momentSet::~momentSet()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::momentSet::setSize(const label newSize)
+void Foam::momentSet::setSize
+(
+    const label newSize,
+    labelListList& newMomentOrders
+)
 {
-    Foam::mappedList<scalar>::setSize(newSize);
-    nMoments_ = newSize;
+    // Check if new size is valid
+    if (newSize < 2)
+    {
+        FatalErrorInFunction
+            << "The new size of the moment set must be greater than 1." << endl
+            << abort(FatalError);
+    }
+
+    // Do not resize if the size is unchanged
+    if (newSize == nMoments())
+    {
+        return;
+    }
+
+    Foam::mappedList<scalar>::setSize(newSize, newMomentOrders);
+
+    // Check that the new moment orders are valid
+    if (newMomentOrders.size() != newSize)
+    {
+        FatalErrorInFunction
+            << "The size of the new moment orders list is inconsistent "<< endl
+            << "with the new size of the moment set." << endl
+            << "    New size of moment set: " << newSize << endl
+            << "    Size of new moment orders list: " << newMomentOrders.size()
+            << endl
+            << abort(FatalError);
+    }
+
+    momentOrders_ = newMomentOrders;
+    validateMomentOrders();
 }
 
-void Foam::momentSet::resize(const label newSize)
+void Foam::momentSet::resize
+(
+    const label newSize,
+    labelListList& newMomentOrders
+)
 {
-    (*this).setSize(newSize);
+    (*this).setSize(newSize, newMomentOrders);
+}
+
+void Foam::momentSet::validateSupports() const
+{
+    forAll(supports_, i)
+    {
+        if (supports_[i] != supportType::R
+         && supports_[i] != supportType::RPlus
+         && supports_[i] != supportType::ZeroOne)
+        {
+            FatalErrorInFunction
+                << "The specified support for dimension " << i
+                << " is invalid." << nl
+                << "    Valid supports are: R, RPlus and 01." << nl
+                << "    Moment set: " << (*this)
+                << abort(FatalError);
+        }
+    }
+}
+
+void Foam::momentSet::validateMomentOrders() const
+{
+    forAll(momentOrders_, i)
+    {
+        if (momentOrders_[i].size() != nDimensions_)
+        {
+            FatalErrorInFunction
+                << "The moment order " << momentOrders_[i]
+                << " does not have the correct number of dimensions." << nl
+                << "    Expected number of dimensions: " << nDimensions_ << nl
+                << "    Moment set: " << (*this)
+                << abort(FatalError);
+        }
+    }
+}
+
+void Foam::momentSet::validate() const
+{
+    validateSupports();
+    validateMomentOrders();
+
+    // Ensure that moments are finite and throw an exception otherwise
+    forAll((*this), i)
+    {
+        if (!std::isfinite((*this)[i]))
+        {
+            FatalErrorInFunction
+                << "Moment " << i << " is not finite: " << (*this)[i] << nl
+                << "    Moment set: " << (*this)
+                << abort(FatalError);
+        }
+    }
 }
 
 // ************************************************************************* //

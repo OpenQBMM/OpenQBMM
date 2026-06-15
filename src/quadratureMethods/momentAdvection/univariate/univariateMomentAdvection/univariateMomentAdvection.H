@@ -47,6 +47,7 @@ SourceFiles
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "supportType.H"
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
 #include "basicFieldMomentInversion.H"
@@ -89,7 +90,7 @@ protected:
         const surfaceScalarField& phi_;
 
         //- Support of the distribution function
-        word support_;
+        supportType support_;
 
         //- Dimensions of the underlying distribution
         label nDimensions_;
@@ -119,7 +120,7 @@ public:
                 const dictionary& dict,
                 const scalarQuadratureApproximation& quadrature,
                 const surfaceScalarField& phi,
-                const word& support
+                const supportType& support
             ),
             (dict, quadrature, phi, support)
         );
@@ -133,7 +134,7 @@ public:
             const dictionary& dict,
             const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
-            const word& support
+            const supportType& support
         );
 
         //- Disallow default bitwise copy construct
@@ -151,7 +152,7 @@ public:
             const dictionary& dict,
             const scalarQuadratureApproximation& quadrature,
             const surfaceScalarField& phi,
-            const word& support
+            const supportType& support
         );
 
 

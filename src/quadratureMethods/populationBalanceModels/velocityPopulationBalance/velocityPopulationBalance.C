@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,6 +30,7 @@ License
 
 #include "velocityPopulationBalance.H"
 #include "addToRunTimeSelectionTable.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -60,7 +61,10 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
     const surfaceScalarField& phi
 )
 :
-    velocityPDFTransportModel(name, dict, phi.mesh(), "R"),
+    velocityPDFTransportModel
+    (
+        name, dict, phi.mesh(), List<supportType>(3, supportType::R)
+    ),
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
     collision_(dict.lookup("collision")),
@@ -189,7 +193,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 }
 
 
-void 
+void
 Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::solve()
 {
@@ -198,7 +202,7 @@ Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 }
 
 
-bool 
+bool
 Foam::PDFTransportModels::populationBalanceModels::velocityPopulationBalance
 ::readIfModified()
 {

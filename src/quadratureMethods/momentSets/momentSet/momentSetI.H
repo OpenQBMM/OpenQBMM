@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -37,7 +37,7 @@ const Foam::labelListList& Foam::momentSet::momentOrders() const
 
 Foam::label Foam::momentSet::nMoments() const
 {
-    return nMoments_;
+    return (*this).size();
 }
 
 Foam::label Foam::momentSet::nDimensions() const
@@ -45,9 +45,9 @@ Foam::label Foam::momentSet::nDimensions() const
     return nDimensions_;
 }
 
-const Foam::word Foam::momentSet::support() const
+const Foam::List<Foam::supportType>& Foam::momentSet::supports() const
 {
-    return support_;
+    return supports_;
 }
 
 // ************************************************************************* //

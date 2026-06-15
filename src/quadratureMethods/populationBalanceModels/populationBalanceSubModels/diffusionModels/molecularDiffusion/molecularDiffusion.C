@@ -8,7 +8,7 @@
     Code created 2015 by Matteo Icardi
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,9 +30,6 @@ License
 
 #include "molecularDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
-
-#include "turbulentTransportModel.H"
-#include "turbulentFluidThermoModel.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

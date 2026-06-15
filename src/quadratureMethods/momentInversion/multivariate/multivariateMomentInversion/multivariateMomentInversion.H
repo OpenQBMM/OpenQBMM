@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -66,7 +66,7 @@ protected:
         const label nDistributionDims_;
 
         //- Number of dimensions in velocity space
-        const label nvelocityDimensions_;
+        const label nVelocityDimensions_;
 
         //- Moment orders of full distribution
         const labelListList& momentOrders_;

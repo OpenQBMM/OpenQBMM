@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -35,6 +35,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "supportType.H"
 #include "quadratureApproximations.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -50,12 +51,8 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     label nPrimaryNodes = quadrature.nodes().size();
-    label nSecondaryNodes = quadrature.nodes()[0].nSecondaryNodes();
 
     Info << "\nNumber of primary nodes: " << nPrimaryNodes << endl;
-
-    Info << "\nNumber of secondary nodes: " << nSecondaryNodes << endl;
-
     Info << "\nInverting moments. " << endl;
 
     quadrature.updateQuadrature();
@@ -64,15 +61,8 @@ int main(int argc, char *argv[])
 
     for (label nodeI = 0; nodeI < nPrimaryNodes; nodeI++)
     {
-        quadrature.nodes()[nodeI].primaryWeight().write();
-        quadrature.nodes()[nodeI].primaryAbscissae()[0].write();
-        quadrature.nodes()[nodeI].sigmas()[0].write();
-
-        for (label sNodeI = 0; sNodeI < nSecondaryNodes; sNodeI++)
-        {
-            quadrature.nodes()[nodeI].secondaryWeights()[0][sNodeI].write();
-            quadrature.nodes()[nodeI].secondaryAbscissae()[0][sNodeI].write();
-        }
+        quadrature.nodes()[nodeI].weight().write();
+        quadrature.nodes()[nodeI].abscissae()[0].write();
     }
 
     runTime++;

@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -65,10 +65,10 @@ public:
         (
             const label nMoments,
             const labelListList& momentOrders,
-            const word& support,
+            const List<supportType>& supports,
             const scalar smallM0,
             const scalar smallZeta,
-            const scalar initValue = 0
+            const scalar initialValue = 0
         );
 
         //- Construct from scalarList
@@ -76,7 +76,7 @@ public:
         (
             const scalarList& m,
             const labelListList& momentOrders,
-            const word& support,
+            const List<supportType>& supports,
             const scalar smallM0,
             const scalar smallZeta
         );
@@ -95,7 +95,7 @@ public:
 
         //- Correct the value of smallM0
         inline void correctSmallM0(scalar smallM0);
-        
+
         //- Correct the value of smallZeta
         inline void correctSmallZeta(scalar smallZeta);
 };

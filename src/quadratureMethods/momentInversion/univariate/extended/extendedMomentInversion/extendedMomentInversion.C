@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -92,7 +92,7 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 
     reset();
 
-    // Exclude cases where the absolute value of the zero-order moment is very 
+    // Exclude cases where the absolute value of the zero-order moment is very
     // SMALL to avoid problems in the inversion due to round-off error
     if (mag(m[0]) < smallM0_)
     {
@@ -177,9 +177,9 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         // Local set of starred moments
         univariateMomentSet mStar
         (
-            nRealizableMoments, 
-            m.support(), 
-            smallM0_, 
+            nRealizableMoments,
+            m.support(),
+            smallM0_,
             smallZeta_
         );
 
@@ -468,7 +468,7 @@ Foam::scalar Foam::extendedMomentInversion::normalizedMomentError
 
     univariateMomentSet approximatedMoments
     (
-        moments.size(), 
+        moments.size(),
         moments.support(),
         smallM0_,
         smallZeta_
@@ -532,7 +532,7 @@ void Foam::extendedMomentInversion::secondaryQuadrature
             // Compute secondary weights before normalization and calculate sum
             for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
             {
-                secondaryWeights_[pNodei][sNodei] 
+                secondaryWeights_[pNodei][sNodei]
                     = sqr(JEig.EVecs()[0][sNodei]);
 
                 secondaryAbscissae_[pNodei][sNodei] =

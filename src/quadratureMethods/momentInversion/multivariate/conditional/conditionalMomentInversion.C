@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -66,12 +66,12 @@ Foam::multivariateMomentInversions::conditional::conditional
         velocityIndexes
     ),
     nPureMoments_(nNodes_.size(), 0),
-    supports_(dict.lookup("supports")),
+    supports_(wordListToSupportTypeList(dict.lookup("supports"))),
     moments_
     (
-        momentOrders.size(), 
-        momentOrders, 
-        supports_[0], 
+        momentOrders.size(),
+        momentOrders,
+        supports_,
         SMALL,
         SMALL,
         Zero
@@ -230,9 +230,9 @@ bool Foam::multivariateMomentInversions::conditional::invert
 
     univariateMomentSet momentsToInvert
     (
-        nPureMoments_[0], 
-        supports_[0], 
-        smallM0_, 
+        nPureMoments_[0],
+        supports_[0],
+        smallM0_,
         smallZeta_
     );
 
@@ -490,7 +490,7 @@ void Foam::multivariateMomentInversions::conditional::setVR
         }
 
         Vandermonde V(x);
-        scalarSquareMatrix invV(V.inv());
+        scalarSquareMatrix invV(V.invert());
         labelList posVR(max(1, dimj), 0);
 
         if (dimj > 0)
@@ -585,7 +585,7 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
             pos[dimi] = index;
 
             bool sameNode = compare(pos, nodeIndex);
-            
+
             if (index < weights.size() && sameNode)
             {
                 weights_[nodei] *= weights[index];

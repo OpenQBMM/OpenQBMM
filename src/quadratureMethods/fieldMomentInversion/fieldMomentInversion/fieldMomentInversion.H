@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -92,16 +92,14 @@ public:
                 const fvMesh& mesh,
                 const labelListList& momentOrders,
                 const labelListList& nodeIndexes,
-                const labelList& velocityIndexes,
-                const label nSecondaryNodes
+                const labelList& velocityIndexes
             ),
             (
                 dict,
                 mesh,
                 momentOrders,
                 nodeIndexes,
-                velocityIndexes,
-                nSecondaryNodes
+                velocityIndexes
             )
         );
 
@@ -115,8 +113,7 @@ public:
             const fvMesh& mesh,
             const labelListList& momentOrders,
             const labelListList& nodeIndexes,
-            const labelList& velocityIndexes,
-            const label nSecondaryNodes
+            const labelList& velocityIndexes
         );
 
         //- Disallow default bitwise copy construct
@@ -135,8 +132,7 @@ public:
             const fvMesh& mesh,
             const labelListList& momentOrders,
             const labelListList& nodeIndexes,
-            const labelList& velocityIndexes,
-            const label nSecondaryNodes
+            const labelList& velocityIndexes
         );
 
 
@@ -193,9 +189,6 @@ public:
                 const bool fatalErrorOnFailedRealizabilityTest = true
             ) = 0;
 
-        //- Return extended type
-        inline bool extended();
-
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const = 0;
 
@@ -214,8 +207,6 @@ public:
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#include "fieldMomentInversionI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

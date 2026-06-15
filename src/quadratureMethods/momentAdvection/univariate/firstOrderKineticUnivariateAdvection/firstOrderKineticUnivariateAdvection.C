@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -55,7 +55,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     const dictionary& dict,
     const scalarQuadratureApproximation& quadrature,
     const surfaceScalarField& phi,
-    const word& support
+    const supportType& support
 )
 :
     univariateMomentAdvection(dict, quadrature, phi, support),
@@ -64,11 +64,21 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
     nodesOwn_(),
     momentsNei_
     (
-        name_, nMoments_, nodesNei_, nDimensions_, moments_.map(), support
+        name_,
+        nMoments_,
+        nodesNei_,
+        nDimensions_,
+        moments_.map(),
+        List<supportType>(1, support)
     ),
     momentsOwn_
     (
-        name_, nMoments_, nodesOwn_, nDimensions_, moments_.map(), support
+        name_,
+        nMoments_,
+        nodesOwn_,
+        nDimensions_,
+        moments_.map(),
+        List<supportType>(1, support)
     ),
     momentFieldInverter_()
 {
@@ -191,8 +201,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
             moments_[0].mesh(),
             quadrature.momentOrders(),
             quadrature.nodeIndexes(),
-            nodes_()[0].velocityIndexes(),
-            0
+            nodes_()[0].velocityIndexes()
         )
     );
 }
@@ -244,24 +253,24 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
         surfaceScalarNode& nodeNei(nodesNei[rNodei]);
         surfaceScalarNode& nodeOwn(nodesOwn[rNodei]);
 
-        nodeOwn.primaryWeight() =
-            weightOwnScheme().interpolate(node.primaryWeight());
+        nodeOwn.weight() =
+            weightOwnScheme().interpolate(node.weight());
 
-        nodeNei.primaryWeight() =
-            weightNeiScheme().interpolate(node.primaryWeight());
+        nodeNei.weight() =
+            weightNeiScheme().interpolate(node.weight());
 
-        forAll(node.primaryAbscissae(), cmpt)
+        forAll(node.abscissae(), cmpt)
         {
-            nodeOwn.primaryAbscissae()[cmpt] =
+            nodeOwn.abscissae()[cmpt] =
                 abscissaOwnScheme().interpolate
                 (
-                    node.primaryAbscissae()[cmpt]
+                    node.abscissae()[cmpt]
                 );
-                
-            nodeNei.primaryAbscissae()[cmpt] =
+
+            nodeNei.abscissae()[cmpt] =
                 abscissaNeiScheme().interpolate
                 (
-                    node.primaryAbscissae()[cmpt]
+                    node.abscissae()[cmpt]
                 );
         }
     }

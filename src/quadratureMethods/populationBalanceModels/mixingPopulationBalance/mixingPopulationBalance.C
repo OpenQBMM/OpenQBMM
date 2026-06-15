@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,6 +30,7 @@ License
 
 #include "mixingPopulationBalance.H"
 #include "addToRunTimeSelectionTable.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -81,19 +82,19 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     ),
     p1_
     (
-        mixingModel_().quadrature().nodes()[0].primaryWeight()
+        mixingModel_().quadrature().nodes()[0].weight()
     ),
     xi1_
     (
-        mixingModel_().quadrature().nodes()[0].primaryAbscissae()[0]
+        mixingModel_().quadrature().nodes()[0].abscissae()[0]
     ),
     p2_
     (
-        mixingModel_().quadrature().nodes()[1].primaryWeight()
+        mixingModel_().quadrature().nodes()[1].weight()
     ),
     xi2_
     (
-        mixingModel_().quadrature().nodes()[1].primaryAbscissae()[0]
+        mixingModel_().quadrature().nodes()[1].abscissae()[0]
     ),
     meanXi_
     (
@@ -103,13 +104,13 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     (
         name + "MeanMoments",
         phi_.mesh(),
-        "RPlus"
+        List<supportType>(1, supportType::RPlus)
     ),
     meanMomentsVarianceQuadrature_
     (
         name + "MeanMomentsVariance",
         phi_.mesh(),
-        "RPlus"
+        List<supportType>(1, supportType::RPlus)
     ),
     meanMomentsAdvection_
     (
@@ -118,7 +119,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             meanMomentsQuadrature_.subDict("momentAdvection"),
             meanMomentsQuadrature_,
             phi_,
-            "RPlus"
+            supportType::RPlus
         )
     ),
     meanMomentsVarianceAdvection_
@@ -128,7 +129,7 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
             meanMomentsVarianceQuadrature_.subDict("momentAdvection"),
             meanMomentsVarianceQuadrature_,
             phi_,
-            "RPlus"
+            supportType::RPlus
         )
     ),
     meanMoments_

@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,7 +30,7 @@ Class
     Foam::univariateMomentSet
 
 Description
-    Stores a generic moment set with the corresponding list of orders.
+    Stores a generic vector of integer moments.
 
 SourceFiles
     univariateMomentSet.C
@@ -43,6 +43,7 @@ SourceFiles
 
 #include "momentSet.H"
 #include "scalarMatrices.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -57,6 +58,9 @@ class univariateMomentSet : public momentSet
 {
     // Private data
 
+        //- Number of additional quadrature points for the recurrence relation
+        label nAdditionalQuadraturePoints_;
+
         //- Alpha coefficients of the recurrence relation
         scalarList alpha_;
 
@@ -68,6 +72,9 @@ class univariateMomentSet : public momentSet
 
         //- Canonical moments associated to the moment vector
         scalarList canonicalMoments_;
+
+        //- Matrix used to build the recurrence relation
+        mutable scalarRectangularMatrix zRecurrence_;
 
         //- Position of first negative zeta
         label negativeZeta_;
@@ -106,13 +113,13 @@ class univariateMomentSet : public momentSet
         );
 
         //- Returns the number of elements of the alpha vector of the recurrence
-        //  relation. This is equivalent to the maximum number of quadrature 
+        //  relation. This is equivalent to the maximum number of quadrature
         //  nodes obtained assuming all moments are inverible and adding the
         //  number of additional quadrature nodes.
         label nAlphaRecurrence(const label& nAdditionalQuadratureNodes);
 
         //- Returns the number of elements of the beta vector of the recurrence
-        //  relation. 
+        //  relation.
         label nBetaRecurrence(const label& nAdditionalQuadratureNodes);
 
 
@@ -132,10 +139,10 @@ public:
         univariateMomentSet
         (
             const label nMoments,
-            const word& support,
+            const supportType& support,
             const scalar smallM0,
             const scalar smallZeta,
-            const scalar initValue = 0,
+            const scalar initialValue = 0,
             const label nAdditionalQuadraturePoints = 0
         );
 
@@ -143,7 +150,7 @@ public:
         univariateMomentSet
         (
             const scalarList& m,
-            const word& support,
+            const supportType& support,
             const scalar smallM0,
             const scalar smallZeta,
             const label nAdditionalQuadraturePoints = 0
@@ -220,6 +227,13 @@ public:
             const scalarList& abscissae
         );
 
+        //- Update integer moments from the corresponding quadrature
+        virtual void updateIntegerMoments
+        (
+            const scalarList& weights,
+            const scalarList& abscissae
+        );
+
         //- Const access to element
         inline const scalar& operator[](const label index) const;
 
@@ -237,6 +251,9 @@ public:
 
         //- Set size of moment set
         void setSize(const label newSize);
+
+        //- Return support
+        inline const supportType& support() const;
 
         //- Returns zeta_k values for the moment set
         inline scalarList& zetas();

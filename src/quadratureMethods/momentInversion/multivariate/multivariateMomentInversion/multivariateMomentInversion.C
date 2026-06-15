@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -89,7 +89,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
 )
 :
     nDistributionDims_(momentOrders[0].size()),
-    nvelocityDimensions_
+    nVelocityDimensions_
     (
         velocityIndexes[0] == -1 ? 0 : velocityIndexes.size()
     ),
@@ -102,7 +102,7 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
     (
         nodeIndexes.size(),
         nodeIndexes,
-        scalarList(nDistributionDims_ - nvelocityDimensions_, Zero)
+        scalarList(nDistributionDims_ - nVelocityDimensions_, Zero)
     ),
     velocityAbscissae_(nodeIndexes.size(), nodeIndexes, Zero)
 {

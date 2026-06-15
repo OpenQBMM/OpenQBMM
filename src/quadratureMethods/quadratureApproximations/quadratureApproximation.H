@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -50,6 +50,7 @@ SourceFiles
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "supportType.H"
 #include "fieldMomentInversion.H"
 #include "volVelocityNode.H"
 #include "surfaceVelocityNode.H"
@@ -102,11 +103,8 @@ protected:
         //- Number of moments
         const label nMoments_;
 
-        //- Number of secondary nodes
-        const label nSecondaryNodes_;
-
         //- Support of the distribution function
-        word support_;
+        List<supportType> supports_;
 
         //- Extended moment inversion method
         autoPtr<fieldMomentInversion> momentFieldInverter_;
@@ -124,7 +122,7 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const word& support
+            const List<supportType>& supports
         );
 
         //- Construct from dictionary name, name, momentFieldSet
@@ -192,7 +190,7 @@ public:
             //- Recalculate the quadrature nodes from the moments
             //  on boundaries
             void updateBoundaryQuadrature();
-            
+
             //- Recalculate the moments from the quadrature nodes
             void updateMoments();
 

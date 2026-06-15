@@ -69,7 +69,7 @@ class TensorProduct
         labelList nPureMoments_;
 
         //- Support of the NDF
-        wordList supports_;
+        List<supportType> supports_;
 
         //- Univariate moment inversion method
         PtrList<univariateMomentInversion> univariateInverters_;

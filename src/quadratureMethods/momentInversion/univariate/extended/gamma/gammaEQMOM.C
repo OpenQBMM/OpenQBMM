@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -32,6 +32,7 @@ License
 #include "scalar.H"
 #include "scalarMatrices.H"
 #include "constants.H"
+#include "supportType.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -236,7 +237,11 @@ Foam::scalar Foam::gammaEQMOM::m2N
 
     if (mStar.nRealizableMoments() >= nMomentsStar - 1)
     {
-        univariateMomentSet m(nMomentsStar, "RPlus", smallM0_, smallZeta_);
+        univariateMomentSet m
+        (
+            nMomentsStar, supportType::RPlus, smallM0_, smallZeta_
+        );
+
         momentsStarToMoments(sigma, m, mStar);
 
         return m.last();

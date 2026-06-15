@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2023 Alberto Passalacqua
+    Copyright (C) 2014-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -36,6 +36,7 @@ Description
 #include "IFstream.H"
 #include "OFstream.H"
 #include "mappedLists.H"
+#include "supportType.H"
 #include "monoKineticMomentInversion.H"
 #include "Random.H"
 
@@ -78,7 +79,14 @@ int main(int argc, char *argv[])
 
     Info<< "\nOriginal moments:" << endl;
 
-    multivariateMomentSet moments(nMoments, momentOrders, "R", SMALL, SMALL);
+    multivariateMomentSet moments
+    (
+        nMoments,
+        momentOrders,
+        List<supportType>(momentOrders[0].size(), supportType::R),
+        SMALL,
+        SMALL
+    );
 
     forAll(momentOrders, mi)
     {
@@ -163,7 +171,7 @@ int main(int argc, char *argv[])
         }
 
         Info<< "moment.";
-        
+
         forAll(momentOrder, dimi)
         {
             Info<< momentOrder[dimi];
@@ -171,7 +179,7 @@ int main(int argc, char *argv[])
 
         Info<< ": " << newMoments(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) 
+            << (mag(moments(momentOrder)
                 - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
 

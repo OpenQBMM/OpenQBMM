@@ -30,6 +30,7 @@ License
 
 #include "turbulentMixing.H"
 #include "addToRunTimeSelectionTable.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -59,7 +60,7 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::turbulentMixing
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(name, dict, phi.mesh(), phi, "01"),
+    univariatePDFTransportModel(name, dict, phi.mesh(), phi, supportType::ZeroOne),
     mixingModel(name, dict, phi),
     odeType(phi.mesh(), dict),
     name_(name),

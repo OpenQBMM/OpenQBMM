@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,8 +30,7 @@ Class
     Foam::mappedList
 
 Description
-    Stores a list, with a Map<label> that takes a label key and returns
-    the index into the list.
+    A list with additional mapping for named access to elements.
 
     Example
 
@@ -43,7 +42,7 @@ Description
          2 0 0       200         4
          2 1 0       210         5
 
-    The operator () is overloaded in order to hide the above mapping.
+    Provides O(1) by index and O(log n) by key access to the elements.
 
 SourceFiles
     mappedListI.H
@@ -142,11 +141,19 @@ public:
 
         // Modifiers
 
-            //- Resize mapped list
-            void resize(const label newSize);
+            //- Set size and rebuild map with new indexes
+            void setSize
+            (
+                const label newSize,
+                const labelListList& newIndexes
+            );
 
-            //- Set mapped list size
-            void setSize(const label newSize);
+            //- Resize and rebuild map with new indexes
+            void resize
+            (
+                const label newSize,
+                const labelListList& newIndexes
+            );
 
 
         // Access
@@ -173,7 +180,7 @@ public:
             inline mappedType& operator()(const labelList& list);
 
             //- Returns const access to the moment map
-            inline const Map<label>& map() const;
+            inline const Map<label>& map() const noexcept;
 };
 
 

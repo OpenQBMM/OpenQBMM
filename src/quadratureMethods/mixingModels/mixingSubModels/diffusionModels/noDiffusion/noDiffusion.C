@@ -31,8 +31,6 @@ License
 #include "noDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
 
-#include "turbulentFluidThermoModel.H"
-
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam

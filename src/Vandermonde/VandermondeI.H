@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,24 +30,63 @@ License
 
 // * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
 
-Foam::scalarSquareMatrix Foam::Vandermonde::operator()()
+Foam::scalarSquareMatrix Foam::Vandermonde::operator()() const
 {
     scalarSquareMatrix tmpV(n_);
 
-    for (label i = 0; i < n_; i++)
+    for (label j = 0; j < n_; j++)
     {
-        for (label j = 0; j < n_; j++)
+        // Cache base value
+        const scalar base = (*this)[j];
+
+        // Initialize iterative calculation of integer power
+        scalar power = 1.0;
+        tmpV[0][j] = power;
+        
+        // Iteratively compute matrix elements
+        for (label i = 1; i < n_; i++)
         {
-            tmpV[i][j] = pow((*this)[j], i);
+            power *= base;
+            tmpV[i][j] = power;
         }
     }
 
     return tmpV;
 }
 
-Foam::scalar Foam::Vandermonde::operator()(label i, label j)
+Foam::scalar Foam::Vandermonde::operator()(label i, label j) const
 {
-    return pow((*this)[j], i);
+    #ifdef FULLDEBUG
+    if (i >= n_ || j >= n_ || i < 0 || j < 0)
+    {
+        FatalErrorInFunction
+            << "Index out of bounds: (" << i << "," << j 
+            << ") for matrix size " << n_ << "x" << n_ << nl
+            << abort(FatalError);
+    }
+    #endif
+    
+    // Handle trivial cases
+    if (i == 0) 
+    {
+        return 1.0;
+    }
+
+    if (i == 1) 
+    {
+        return (*this)[j];
+    }
+
+    // Compute element using iterative calculation of integer power
+    const scalar base = (*this)[j];
+    scalar result = 1.0;
+    
+    for (label k = 0; k < i; k++)
+    {
+        result *= base;
+    }
+    
+    return result;
 }
 
 

@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -61,6 +61,20 @@ Foam::mappedList<mappedType>::listToLabel
     forAll(list, dimi)
     {
         listLabel += list[dimi]*pow(scalar(10), size - dimi - 1);
+    }
+
+    forAll(list, dimi)
+    {
+        const label exponent = size - dimi - 1;
+
+        // Compute 10^exponent using integer arithmetic
+        label factor = 1;
+        for (label i = 0; i < exponent; ++i)
+        {
+            factor *= 10;
+        }
+
+        listLabel += list[dimi] * factor;
     }
 
     return listLabel;
@@ -198,8 +212,17 @@ Foam::label Foam::mappedList<mappedType>::calcMapIndex
             iter++
         )
         {
-            label argIndex = std::distance(indexes.begin(), iter);
-            mapIndex += (*iter)*pow(scalar(10), nDimensions_ - argIndex - 1);
+            const label argIndex = std::distance(indexes.begin(), iter);
+            const label exponent = nDimensions_ - argIndex - 1;
+
+            // Compute 10^exponent using integer arithmetic
+            label factor = 1;
+            for (label i = 0; i < exponent; ++i)
+            {
+                factor *= 10;
+            }
+
+            mapIndex += (*iter)*factor;
         }
     }
 
@@ -207,16 +230,53 @@ Foam::label Foam::mappedList<mappedType>::calcMapIndex
 }
 
 template <class mappedType>
-void Foam::mappedList<mappedType>::setSize(const label newSize)
+void Foam::mappedList<mappedType>::setSize
+(
+    const label newSize,
+    const labelListList& newIndexes
+)
 {
+    if (newIndexes.size() != newSize)
+    {
+        FatalErrorInFunction
+            << "Size mismatch: "
+            << endl
+            << "  New list size =" << newSize
+            << endl
+            << "  New indexes list size = " << newIndexes.size()
+            << exit(FatalError);
+    }
+
+    // Resize the underlying list
     Foam::List<mappedType>::setSize(newSize);
-    map_.resize(newSize);
+
+    // Rebuild the map with new indexes
+    map_.clear();
+    nDimensions_ = 0;
+
+    forAll(newIndexes, indexi)
+    {
+        nDimensions_ = max(nDimensions_, newIndexes[indexi].size());
+    }
+
+    forAll(*this, elemi)
+    {
+        map_.insert
+        (
+            listToLabel(newIndexes[elemi], nDimensions_),
+            elemi
+        );
+    }
 }
 
 template <class mappedType>
-void Foam::mappedList<mappedType>::resize(const label newSize)
+void Foam::mappedList<mappedType>::resize
+(
+    const label newSize,
+    const labelListList& newIndexes
+)
 {
-    (*this).setSize(newSize);
+    (*this).setSize(newSize, newIndexes);
 }
 
 template <class mappedType>
@@ -244,7 +304,7 @@ template <class mappedType>
 template <typename ...ArgsT>
 bool Foam::mappedList<mappedType>::found(ArgsT...args) const
 {
-    if 
+    if
     (
         label(std::initializer_list<Foam::label>({args...}).size()) > nDimensions_
     )

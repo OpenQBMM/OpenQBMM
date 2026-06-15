@@ -30,7 +30,6 @@ License
 
 #include "turbulentDiffusion.H"
 #include "addToRunTimeSelectionTable.H"
-
 #include "turbulentTransportModel.H"
 #include "turbulentFluidThermoModel.H"
 

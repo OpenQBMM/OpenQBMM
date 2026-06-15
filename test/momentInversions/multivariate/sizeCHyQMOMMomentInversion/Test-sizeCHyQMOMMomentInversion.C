@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2023 Alberto Passalacqua
+    Copyright (C) 2014-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -36,6 +36,7 @@ Description
 #include "IFstream.H"
 #include "OFstream.H"
 #include "mappedLists.H"
+#include "supportType.H"
 #include "sizeCHyQMOMMomentInversions.H"
 #include "Random.H"
 
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
         nodeIndexes,
         scalarField(nDims, Zero)
     );
+
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 
     forAll(x, nodei)
@@ -73,7 +75,25 @@ int main(int argc, char *argv[])
 
     Info<< "Original moments:" << endl;
 
-    multivariateMomentSet moments(nMoments, momentOrders, "R", SMALL, SMALL);
+    List<supportType> supports(1, supportType::RPlus);
+
+    List<supportType> velocitySupports
+    (
+        momentOrders[0].size() - 1,
+        supportType::R
+    );
+
+    supports.append(velocitySupports);
+
+    multivariateMomentSet moments
+    (
+        nMoments,
+        momentOrders,
+        supports,
+        SMALL,
+        SMALL
+    );
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
@@ -151,7 +171,7 @@ int main(int argc, char *argv[])
 
         Info<< ": " << newMoments(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) 
+            << (mag(moments(momentOrder)
                 - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
 
@@ -206,7 +226,7 @@ int main(int argc, char *argv[])
         }
         Info<< ": " << newMomentsp(momentOrder)
             << ",\trel error: "
-            << (mag(moments(momentOrder) 
+            << (mag(moments(momentOrder)
                 - newMomentsp(momentOrder))/moments(momentOrder))<< endl;
     }
 

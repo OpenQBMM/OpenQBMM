@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -30,9 +30,8 @@ Class
     Foam::quadratureNode
 
 Description
-    Extended version of the quadrature node, which stores the list of secondary
-    weights and abscissae associated to the primary weight and abscissa, and
-    the sigma parameter.
+    Quadrature node, which stores the fields of a quadrature weight and the
+    corresponding abscissa.
 
 SourceFiles
     quadratureNode.C
@@ -65,16 +64,9 @@ protected:
         //- Typedefs
 
         typedef scalarType weightType;
-        typedef PtrList<PtrList<weightType>> secondaryWeightsType;
-
         typedef scalarType abscissaType;
         typedef PtrList<abscissaType> abscissaeType;
-        typedef PtrList<abscissaeType> secondaryAbscissaeType;
-
         typedef vectorType velocityAbscissaeType;
-
-        typedef scalarType sigmaType;
-        typedef PtrList<sigmaType> sigmasType;
 
 
     // Protected data
@@ -82,13 +74,13 @@ protected:
         //- Name of the quadrature node
         word name_;
 
-        //- Primary weight of the node
+        //- Node weight
         weightType weight_;
 
-        //- Primary abscissae of the node
+        //- Node abscissae
         abscissaeType abscissae_;
 
-        //- Indicies of abscissa components
+        //- Indices of abscissa components
         labelList scalarIndexes_;
 
         //- Indices of velocity components
@@ -109,22 +101,6 @@ protected:
         //- Bool to indicate if weights are volume fractions
         bool useVolumeFraction_;
 
-        //- List of secondary weights of the node
-        secondaryWeightsType secondaryWeights_;
-
-        //- List of secondary abscissae of the node
-        secondaryAbscissaeType secondaryAbscissae_;
-
-        //- Parameter of the kernel density function used in EQMOM
-        sigmasType sigmas_;
-
-        //- Number of secondary nodes
-        label nSecondaryNodes_;
-
-        //- Boolean variable to identify extended nodes
-        bool extended_;
-
-
 
 public:
 
@@ -140,9 +116,7 @@ public:
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
             const PtrList<dimensionSet>& abscissaeDimensions,
-            const wordList& boundaryTypes,
-            const bool extended = false,
-            const label nSecondaryNodes = 0
+            const wordList& boundaryTypes
         );
 
         //- Construct from name, number of secondary nodes, mesh and dimensions
@@ -152,9 +126,7 @@ public:
             const word& distributionName,
             const fvMesh& mesh,
             const dimensionSet& weightDimensions,
-            const PtrList<dimensionSet>& abscissaeDimensions,
-            const bool extended = false,
-            const label nSecondaryNodes = 0
+            const PtrList<dimensionSet>& abscissaeDimensions
         );
 
         //- Return clone
@@ -169,8 +141,6 @@ public:
             const dimensionSet& weightDimensions_;
             const PtrList<dimensionSet>& abscissaeDimensions_;
             const wordList& boundaryTypes_;
-            const bool extended_;
-            const label nSecondaryNodes_;
 
         public:
 
@@ -180,18 +150,14 @@ public:
                 const fvMesh& mesh,
                 const dimensionSet& weightDimensions,
                 const PtrList<dimensionSet>& abscissaeDimensions,
-                const wordList& boundaryTypes,
-                const bool extended,
-                const label nSecondaryNodes
+                const wordList& boundaryTypes
             )
             :
                 distributionName_(distributionName),
                 mesh_(mesh),
                 weightDimensions_(weightDimensions),
                 abscissaeDimensions_(abscissaeDimensions),
-                boundaryTypes_(boundaryTypes),
-                extended_(extended),
-                nSecondaryNodes_(nSecondaryNodes)
+                boundaryTypes_(boundaryTypes)
             {}
 
             autoPtr<quadratureNode<scalarType, vectorType>>
@@ -201,7 +167,7 @@ public:
             ) const
             {
                 labelList ent(is);
-                
+
                 return autoPtr<quadratureNode<scalarType, vectorType>>
                 (
                     new quadratureNode<scalarType, vectorType>
@@ -211,9 +177,7 @@ public:
                         mesh_,
                         weightDimensions_,
                         abscissaeDimensions_,
-                        boundaryTypes_,
-                        extended_,
-                        nSecondaryNodes_
+                        boundaryTypes_
                     )
                 );
             }
@@ -240,47 +204,23 @@ public:
             //- Return size index
             label sizeIndex() const;
 
-            //- Is the node length based
+            //- Return if the node length based or not
             bool lengthBased() const;
 
-            //- Is the weight in terms of volume fraction
+            //- Return if the weight is a volume fraction
             bool useVolumeFraction() const;
 
-            //- Is the node extended
-            bool extended() const;
-
-            //- Returns the number of secondary nodes
-            label nSecondaryNodes() const;
-
             //- Const access to the weight of the node
-            const weightType& primaryWeight() const;
+            const weightType& weight() const;
 
             //- Non-const access to the weight of the node
-            weightType& primaryWeight();
+            weightType& weight();
 
             //- Const access to the scalar abscissa of the node
-            const abscissaeType& primaryAbscissae() const;
+            const abscissaeType& abscissae() const;
 
             //- Non-const access to the scalar abscissa of the node
-            abscissaeType& primaryAbscissae();
-
-            //- Const access to the secondary weights of the node
-            const secondaryWeightsType& secondaryWeights() const;
-
-            //- Non-const access to the secondary weights of the node
-            secondaryWeightsType& secondaryWeights();
-
-            //- Const access to the list of secondary abscissae of the node
-            const secondaryAbscissaeType& secondaryAbscissae() const;
-
-            //- Non-const access to the list of secondary abscissae of the node
-            secondaryAbscissaeType& secondaryAbscissae();
-
-            //- Const access to sigma
-            const sigmasType& sigmas() const;
-
-            //- Non-const access to sigma
-            sigmasType& sigmas();
+            abscissaeType& abscissae();
 
             //- Const access to the velocity abscissa of the node
             virtual const velocityAbscissaeType& velocityAbscissae() const;
@@ -288,24 +228,26 @@ public:
             //- Non-const access to the velcity abscissa of the node
             virtual velocityAbscissaeType& velocityAbscissae();
 
-            //- Return the diameter given an abscissae
+            //- Return the diameter given an abscissa
             tmp<volScalarField> d(const volScalarField& abscissa) const;
 
-            //- Return the diameter given an abscissae and celli
+            //- Return the diameter given a cell index and an abscissa
             scalar d(const label celli, const scalar& abscissa) const;
 
-            //- Return the number density given an abscissae
-            tmp<volScalarField> n
+            //- Return the number density field given a node weight and
+            //  abscissa
+            tmp<volScalarField> numberDensity
             (
                 const volScalarField& weight,
                 const volScalarField& abscissa
             ) const;
 
-            //- Return the number density given an abscissae and celli
-            scalar n
+            //- Return the number density value in a cell given a cell index and
+            //  a node weight and abscissa
+            scalar numberDensity
             (
-                const label celli, 
-                const scalar& weight, 
+                const label celli,
+                const scalar& weight,
                 const scalar& abscissa
             ) const;
 };

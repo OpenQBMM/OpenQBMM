@@ -27,6 +27,7 @@ License
 
 #include "TensorProductMomentInversion.H"
 #include "addToRunTimeSelectionTable.H"
+#include "supportType.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -87,7 +88,7 @@ Foam::multivariateMomentInversions::TensorProduct::TensorProduct
         velocityIndexes
     ),
     nPureMoments_(nNodes_.size(), 0),
-    supports_(dict.lookup("supports")),
+    supports_(wordListToSupportTypeList(dict.lookup("supports"))),
     univariateInverters_(nNodes_.size()),
     smallM0_(SMALL),
     smallZeta_(SMALL)
@@ -148,7 +149,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
         (
             nPureMoments_[dimi],
             supports_[dimi],
-            smallM0(), 
+            smallM0(),
             smallZeta(),
             Zero
         );

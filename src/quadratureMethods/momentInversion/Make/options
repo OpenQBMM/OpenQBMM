@@ -9,7 +9,8 @@ EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I../../Vandermonde/lnInclude \
     -I../../mappedList \
-    -I../momentSets/lnInclude 
+    -I../supportType \
+    -I../momentSets/lnInclude
 
 LIB_LIBS = \
     -lfiniteVolume \

@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2018-2023 Alberto Passalacqua
+    Copyright (C) 2018-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -51,10 +51,10 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::VikasQuasiSecondOrder
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const word& support
+    const List<supportType>& supports
 )
 :
-    firstOrderKinetic(dict, quadrature, support)
+    firstOrderKinetic(dict, quadrature, supports)
 {
     weightScheme_ = "Minmod";
 }
@@ -95,7 +95,7 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
         {
             const labelList& cell = mesh.cells()[celli];
 
-            scalar num = this->nodes_[nodei].primaryWeight()[celli];
+            scalar num = this->nodes_[nodei].weight()[celli];
             scalar den = 0;
             forAll(cell, facei)
             {
@@ -104,13 +104,13 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
                     if (own[cell[facei]] == celli)
                     {
                         den +=
-                            this->nodesOwn_()[nodei].primaryWeight()[cell[facei]]
+                            this->nodesOwn_()[nodei].weight()[cell[facei]]
                            *max(phiOwn[cell[facei]], scalar(0));
                     }
                     else if (nei[cell[facei]] == celli)
                     {
                         den -=
-                            this->nodesNei_()[nodei].primaryWeight()[cell[facei]]
+                            this->nodesNei_()[nodei].weight()[cell[facei]]
                            *min(phiNei[cell[facei]], scalar(0));
                     }
                 }

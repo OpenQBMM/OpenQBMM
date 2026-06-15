@@ -8,7 +8,7 @@
     Code created 2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -42,6 +42,7 @@ SourceFiles
 #define velocityPDFTransportModel_H
 
 #include "PDFTransportModel.H"
+#include "supportType.H"
 #include "quadratureApproximations.H"
 #include "velocityMomentAdvection.H"
 
@@ -101,7 +102,7 @@ public:
             const word& name,
             const dictionary& dict,
             const fvMesh& mesh,
-            const word& support
+            const List<supportType>& supports
         );
 
 

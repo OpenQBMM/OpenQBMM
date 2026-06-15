@@ -30,8 +30,8 @@ Class
     Foam::univariatePDFTransportModel
 
 Description
-    Solve a univariate PDF transport equation with the extended quadrature
-    method of moments.
+    Solve a univariate PDF transport equation with the quadrature method of
+    moments.
 
 SourceFiles
     univariatePDFTransportModel.C
@@ -42,6 +42,7 @@ SourceFiles
 #define univariatePDFTransportModel_H
 
 #include "PDFTransportModel.H"
+#include "supportType.H"
 #include "quadratureApproximations.H"
 #include "univariateMomentAdvection.H"
 
@@ -100,7 +101,7 @@ public:
             const dictionary& dict,
             const fvMesh& mesh,
             const surfaceScalarField& phi,
-            const word& support
+            const supportType& support
         );
 
 

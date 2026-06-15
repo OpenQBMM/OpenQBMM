@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -53,8 +53,7 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     const fvMesh& mesh,
     const labelListList& momentOrders,
     const labelListList& nodeIndexes,
-    const labelList& velocityIndexes,
-    const label nSecondaryNodes
+    const labelList& velocityIndexes
 )
 :
     fieldMomentInversion
@@ -63,8 +62,7 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
         mesh,
         momentOrders,
         nodeIndexes,
-        velocityIndexes,
-        nSecondaryNodes
+        velocityIndexes
     ),
     minKnownAbscissa_(dict.lookupOrDefault<scalar>("minKnownAbscissa", 0)),
     maxKnownAbscissa_(dict.lookupOrDefault<scalar>("maxKnownAbscissa", 1)),
@@ -98,7 +96,6 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
         }
         else
         {
-            //label nMomentsMinusOne = momentOrders.size() - 1;
             label nMainNodes = momentOrders.size()/2;
 
             nAdditionalQuadraturePoints_ = nodeIndexes.size() - nMainNodes;
@@ -158,7 +155,7 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             univariateMomentSet momentsToInvert
             (
                 moments.size(),
-                moments.support(),
+                moments.supports()[0],
                 smallM0(),
                 smallZeta(),
                 scalar(0),                  // Initial value
@@ -189,18 +186,30 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
                 volScalarNode& node = nodes[nodei];
 
                 volScalarField::Boundary& weightBf
-                        = node.primaryWeight().boundaryFieldRef();
+                        = node.weight().boundaryFieldRef();
 
                 volScalarField::Boundary& abscissaBf
-                        = node.primaryAbscissae()[0].boundaryFieldRef();
+                        = node.abscissae()[0].boundaryFieldRef();
 
                 if (nodei < actualNodes)
                 {
-                    weightBf[patchi][facei]
-                            = momentInverter_().weights()[nodei];
+                    // If the abscissa is smaller than the minimum value set, 
+                    // set the weight to zero. This is to keep m0 consistent in 
+                    // cases with negative growth rates.
+                    scalar abscissaNodei = momentInverter_().abscissae()[nodei];
 
-                    abscissaBf[patchi][facei]
-                            = momentInverter_().abscissae()[nodei];
+                    if (abscissaNodei > smallM0())
+                    {
+                        weightBf[patchi][facei]
+                                = momentInverter_().weights()[nodei];
+
+                        abscissaBf[patchi][facei] = abscissaNodei;
+                    }
+                    else
+                    {
+                        weightBf[patchi][facei] = 0.0;
+                        abscissaBf[patchi][facei] = 0.0;
+                    }
                 }
                 else
                 {
@@ -223,7 +232,7 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
     univariateMomentSet momentsToInvert
     (
         moments.size(),
-        moments.support(),
+        moments.supports()[0],
         smallM0(),
         smallZeta(),
         scalar(0),                  // Initial value
@@ -265,13 +274,24 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
 
         if (nodei < actualNodes)
         {
-            node.primaryWeight()[celli] = weights[nodei];
-            node.primaryAbscissae()[0][celli] = abscissae[nodei];
+            // If the abscissa is smaller than the minimum value set, set the
+            // weight to zero. This is to keep m0 consistent in cases with 
+            // negative growth rates.
+            if (abscissae[nodei] > smallM0())
+            {
+                node.weight()[celli] = weights[nodei];
+                node.abscissae()[0][celli] = abscissae[nodei];
+            }
+            else
+            {
+                node.weight()[celli] = 0.0;
+                node.abscissae()[0][celli] = 0.0;
+            }
         }
         else
         {
-            node.primaryWeight()[celli] = 0.0;
-            node.primaryAbscissae()[0][celli] = 0.0;
+            node.weight()[celli] = 0.0;
+            node.abscissae()[0][celli] = 0.0;
         }
     }
 

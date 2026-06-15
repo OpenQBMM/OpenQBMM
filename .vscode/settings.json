@@ -3,6 +3,17 @@
         "*.C": "cpp",
         "*.H": "cpp",
         "limits": "cpp",
-        "ostream": "cpp"
-    }
-}
+        "ostream": "cpp",
+        "random": "cpp",
+        "regex": "cpp",
+        "unordered_map": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "vector": "cpp"
+    },
+
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true}

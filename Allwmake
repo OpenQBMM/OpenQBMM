@@ -34,9 +34,9 @@ echo "Compile $moduleName applications"
 echo
 applications/Allwmake $targetType $*
 
-# Build tests?
+# Enable or disable test compilation
 unset buildTests
-#buildTests=true
+buildTests=false
 
 if [ "$buildTests" = true ] && [ -x "test/Allwmake" ]
 then

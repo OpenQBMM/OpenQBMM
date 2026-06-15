@@ -8,7 +8,7 @@
     Code created 2015 by Matteo Icardi
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2020-2023 Alberto Passalacqua
+    Copyright (C) 2020-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -113,86 +113,33 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
 
     const labelList& scalarIndexes = nodes[0].scalarIndexes();
 
-    if (!nodes[0].extended())
+    forAll(nodes, nodeI)
     {
-        forAll(nodes, pNodeI)
+        const volScalarNode &node = nodes[nodeI];
+
+        scalar bAbscissa =
+            max(node.abscissae()[sizeIndex][celli], scalar(0));
+
+        scalar d = node.d(celli, bAbscissa);
+
+        scalar numberDensity =
+            node.numberDensity(celli, node.weight()[celli], bAbscissa);
+
+        scalar gSourcei =
+            numberDensity*Kg(d, lengthBased)*sizeOrder
+           *pow(bAbscissa, sizeOrder - 1);
+
+        forAll(scalarIndexes, nodei)
         {
-            const volScalarNode& node = nodes[pNodeI];
-
-            scalar bAbscissa =
-                max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
-
-            scalar d = node.d(celli, bAbscissa);
-
-            scalar n =
-                node.n(celli, node.primaryWeight()[celli], bAbscissa);
-
-            scalar gSourcei =
-                n
-               *Kg(d, lengthBased)
-               *sizeOrder
-               *pow(bAbscissa, sizeOrder - 1);
-
-            forAll(scalarIndexes, nodei)
+            if (scalarIndexes[nodei] != sizeIndex)
             {
-                if (scalarIndexes[nodei] != sizeIndex)
-                {
-                    gSourcei *=
-                        pow
-                        (
-                            node.primaryAbscissae()[nodei][celli],
-                            momentOrder[scalarIndexes[nodei]]
-                        );
-                }
+                gSourcei *=
+                    pow(node.abscissae()[nodei][celli],
+                        momentOrder[scalarIndexes[nodei]]);
             }
-
-            gSource += gSourcei;
         }
 
-        return gSource;
-    }
-
-    forAll(nodes, pNodeI)
-    {
-        const volScalarNode& node = nodes[pNodeI];
-
-        forAll(node.secondaryWeights()[sizeIndex], sNodei)
-        {
-            scalar bAbscissa =
-                max
-                (
-                    node.secondaryAbscissae()[sizeIndex][sNodei][celli],
-                    scalar(0)
-                );
-
-            scalar d = node.d(celli, bAbscissa);
-
-            scalar n =
-                node.n(celli, node.primaryWeight()[celli], bAbscissa)
-               *node.secondaryWeights()[sizeIndex][sNodei][celli];
-
-            scalar gSourcei =
-                n
-               *Kg(d, lengthBased)
-               *sizeOrder
-               *pow(bAbscissa, sizeOrder - 1);
-
-            forAll(scalarIndexes, cmpt)
-            {
-                if (scalarIndexes[cmpt] != sizeIndex)
-                {
-                    gSourcei *=
-                        node.secondaryWeights()[cmpt][sNodei][celli]
-                       *pow
-                        (
-                            node.secondaryAbscissae()[cmpt][sNodei][celli],
-                            momentOrder[scalarIndexes[cmpt]]
-                        );
-                }
-            }
-
-            gSource += gSourcei;
-        }
+        gSource += gSourcei;
     }
 
     return gSource;
@@ -240,20 +187,21 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
     const labelList& scalarIndexes = nodes[0].scalarIndexes();
     const labelList& velocityIndexes = nodes[0].velocityIndexes();
 
-    forAll(nodes, pNodeI)
+    forAll(nodes, nodeI)
     {
-        const volVelocityNode& node = nodes[pNodeI];
+        const volVelocityNode& node = nodes[nodeI];
 
         scalar bAbscissa =
-            max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+            max(node.abscissae()[sizeIndex][celli], scalar(0));
 
         scalar d = node.d(celli, bAbscissa);
 
-        scalar n =
-            node.n(celli, node.primaryWeight()[celli], bAbscissa);
+        scalar numberDensity =
+            node.numberDensity(celli, node.weight()[celli], bAbscissa);
 
         scalar gSourcei =
-            n*Kg(d, lengthBased)*sizeOrder*pow(bAbscissa, sizeOrder - 1);
+            numberDensity*Kg(d, lengthBased)*sizeOrder
+           *pow(bAbscissa, sizeOrder - 1);
 
         forAll(scalarIndexes, nodei)
         {
@@ -262,7 +210,7 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
                 gSourcei *=
                     pow
                     (
-                        node.primaryAbscissae()[nodei][celli],
+                        node.abscissae()[nodei][celli],
                         momentOrder[scalarIndexes[nodei]]
                     );
             }

@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
     Info<< "-------------------\n" << endl;
 
     label matrixSize = 5;
+
     const scalar expectedError = 8.53672259787214e-13;
     scalarSquareMatrix expectedInverse(matrixSize);
 
@@ -95,13 +96,13 @@ int main(int argc, char *argv[])
     }
 
     Vandermonde Vm(A);
-    Vandermonde V(Vm());
+    Vandermonde V(Vm(), true);
 
     Info<< "Initial vector: " << A << endl;
 
     Info<< "Vector constructed from square Vandermonde matrix: " << V << endl;
 
-    scalarSquareMatrix invVm = Vm.inv();
+    scalarSquareMatrix invVm = Vm.invert();
 
     Info<< nl << "Vandermonde matrix:\n" << endl;
 
@@ -178,6 +179,53 @@ int main(int argc, char *argv[])
 
     Info<< nl << "Total magnitude of error when Vandermonde matrix is"
         << nl << "inverted twice: " << error << ", OK." << endl;
+
+
+    // Test the Vandermonde solve method
+    scalarDiagonalMatrix source(matrixSize);
+    scalarDiagonalMatrix x(matrixSize);
+
+    for (label i = 0; i < matrixSize; i++)
+    {
+        source[i] = i;
+    }
+
+    Vm.solve(x, source);
+
+    Info<< "\nTesting solve method: " << endl;
+
+    // Print the known vector
+    Info<< "\nKnown vector: " << source << endl;
+
+    // Print the solution vector
+    Info<< "\nSolution vector: " << x << endl;
+
+    // Verify the solution by multiplying the matrix by the solution vector
+    scalarDiagonalMatrix verification(matrixSize);
+    
+    for (label i = 0; i < matrixSize; i++)
+    {
+        verification[i] = 0.0;
+        for (label j = 0; j < matrixSize; j++)
+        {
+            verification[i] += Vm(i, j) * x[j];
+        }
+    }
+
+    Info<< "\nCalculated source vector: " << verification << endl;
+
+    // Calculate the difference between the components of the source vector 
+    /// and of the recomputed source vector (absolute value)
+    scalarDiagonalMatrix difference(matrixSize);
+
+    for (label i = 0; i < matrixSize; i++)
+    {
+        difference[i] = mag(verification[i] - source[i]);
+    }
+
+    // Print the difference vector
+    Info<< "\nDifference between source vector components: " 
+        << difference << endl;
 
     Info<< "\nEnd\n" << endl;
 

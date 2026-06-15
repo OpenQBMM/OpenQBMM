@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2016-2021 Alberto Passalacqua
+    Copyright (C) 2016-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,14 +24,15 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    reconstructPointDistribution
+    computeMoments
 
 Description
-    Utility to computes moments.
+    Utility to compute moments.
 
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "supportType.H"
 #include "quadratureApproximations.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -79,11 +80,16 @@ int main(int argc, char *argv[])
 
     forAll(phaseNames, phasei)
     {
+        labelListList newMomentOrders
+        (
+            dict.subDict(phaseNames[phasei]).lookup("moments")
+        );
+
         velocityQuadratureApproximation quadrature
         (
             phaseNames[phasei],
             mesh,
-            "RPlus"
+            List<supportType>(newMomentOrders[0].size(), supportType::R)
         );
 
         autoPtr<mappedPtrList<volVelocityNode>> nodes(&(quadrature.nodes()));
@@ -109,7 +115,7 @@ int main(int argc, char *argv[])
                 abscissaeDimensions.set
                 (
                     cmpti,
-                    new dimensionSet(nodes()[0].primaryAbscissae()[si].dimensions())
+                    new dimensionSet(nodes()[0].abscissae()[si].dimensions())
                 );
 
                 si++;
@@ -124,18 +130,14 @@ int main(int argc, char *argv[])
             }
         }
 
-        labelListList newMomentOrders
-        (
-            dict.subDict(phaseNames[phasei]).lookup("moments")
-        );
-
         forAll(newMomentOrders, mi)
         {
-            dimensionSet mDims(nodes()[0].primaryWeight().dimensions());
+            dimensionSet mDims(nodes()[0].weight().dimensions());
 
             forAll(abscissaeDimensions, cmpti)
             {
-                mDims *= pow(abscissaeDimensions[cmpti], newMomentOrders[mi][cmpti]);
+                mDims *=
+                    pow(abscissaeDimensions[cmpti], newMomentOrders[mi][cmpti]);
             }
 
             volVelocityMoment moment

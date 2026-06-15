@@ -65,9 +65,12 @@ namespace Foam
 
 class JohnsonJacksonParticleThetaFvPatchScalarField
 :
-    public mixedFvPatchScalarField
+    public mixedFvPatchField<scalar>
 {
-    // Private data
+    typedef JohnsonJacksonParticleThetaFvPatchScalarField this_bctype;
+    typedef mixedFvPatchField<scalar> parent_bctype;
+
+    // Private Data
 
         //- Particle-wall restitution coefficient
         dimensionedScalar restitutionCoefficient_;
@@ -102,35 +105,20 @@ public:
         //- Construct by mapping onto a new patch
         JohnsonJacksonParticleThetaFvPatchScalarField
         (
-            const JohnsonJacksonParticleThetaFvPatchScalarField&,
+            const this_bctype&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
-        //- Construct as copy
-        JohnsonJacksonParticleThetaFvPatchScalarField
-        (
-            const JohnsonJacksonParticleThetaFvPatchScalarField&
-        );
-
-        //- Construct and return a clone
-        virtual tmp<fvPatchScalarField> clone() const
-        {
-            return tmp<fvPatchScalarField>
-            (
-                new JohnsonJacksonParticleThetaFvPatchScalarField(*this)
-            );
-        }
-
         //- Construct as copy setting internal field reference
         JohnsonJacksonParticleThetaFvPatchScalarField
         (
-            const JohnsonJacksonParticleThetaFvPatchScalarField&,
+            const this_bctype&,
             const DimensionedField<scalar, volMesh>&
         );
 
-        //- Construct and return a clone setting internal field reference
+        //- Clone with an internal field reference
         virtual tmp<fvPatchScalarField> clone
         (
             const DimensionedField<scalar, volMesh>& iF
@@ -139,6 +127,24 @@ public:
             return tmp<fvPatchScalarField>
             (
                 new JohnsonJacksonParticleThetaFvPatchScalarField(*this, iF)
+            );
+        }
+
+        //- No copy construct without an internal field
+        JohnsonJacksonParticleThetaFvPatchScalarField(const this_bctype& pfld)
+        :
+            this_bctype(pfld, pfld.internalField())
+        {}
+
+        //- Construct and return a clone
+        virtual tmp<fvPatchScalarField> clone() const
+        {
+            return tmp<fvPatchScalarField>
+            (
+                new JohnsonJacksonParticleThetaFvPatchScalarField
+                (
+                    *this, this->internalField()
+                )
             );
         }
 
@@ -165,6 +171,12 @@ public:
 
         //- Write
         virtual void write(Ostream&) const;
+
+
+    // Member Operators
+
+        //- Inherit assignment
+        using parent_bctype::operator=;
 };
 
 

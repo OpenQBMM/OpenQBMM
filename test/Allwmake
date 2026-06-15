@@ -4,19 +4,20 @@ cd "${0%/*}" || exit                            # Run from this directory
 #------------------------------------------------------------------------------
 # Use build from FOAM_MODULE_* (defaults to user locations)
 
-# wmake conditionalMomentInversion
-wmake populationBalanceModel
-wmake univariateQuadratureApproximation
 wmake Vandermonde
-wmake univariateMomentAdvection/setMoments1D
-wmake univariateMomentAdvection/setMoments2D
-
 wmake -all momentSets/univariate
 wmake -all momentInversions/univariate
+
+# conditional moment inversion needs to be updated for new structure
+# wmake conditionalMomentInversion
 wmake momentInversions/multivariate/monoKineticMomentInversion
 wmake momentInversions/multivariate/CHyQMOMMomentInversion
 wmake momentInversions/multivariate/sizeCHyQMOMMomentInversion
 wmake momentInversions/multivariate/TensorProductMomentInversion
-# conditional moment inversion needs to be updated for new structure
+
+wmake populationBalanceModel
+wmake univariateQuadratureApproximation
+wmake univariateMomentAdvection/setMoments1D
+wmake univariateMomentAdvection/setMoments2D
 
 #------------------------------------------------------------------------------

@@ -8,7 +8,7 @@
     Code created 2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -47,7 +47,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
 (
     const dictionary& dict,
     const velocityQuadratureApproximation& quadrature,
-    const word& support
+    const List<supportType>& supports
 )
 :
     name_(quadrature.name()),
@@ -78,7 +78,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
         moments_(0).mesh(),
         dimensionedScalar("nei", dimless, -1.0)
     ),
-    support_(support),
+    supports_(supports),
     momentOrders_(quadrature.momentOrders()),
     nodeIndexes_(quadrature.nodeIndexes()),
     divMoments_(nMoments_),
@@ -150,7 +150,7 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
     forAll(nodes_, nodei)
     {
         const labelList& nodeIndex = nodeIndexes_[nodei];
-        
+
         nodesNei.set
         (
             nodei,

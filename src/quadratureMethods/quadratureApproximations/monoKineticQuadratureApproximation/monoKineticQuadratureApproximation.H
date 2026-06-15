@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -49,6 +49,7 @@ SourceFiles
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "supportType.H"
 #include "univariateMomentSet.H"
 #include "quadratureNodes.H"
 #include "momentFieldSets.H"
@@ -108,7 +109,7 @@ public:
         (
             const word& name,
             const fvMesh& mesh,
-            const word& support
+            const List<supportType>& supports
         );
 
 

@@ -54,6 +54,7 @@ SourceFiles
 #include "scalar.H"
 #include "scalarMatrices.H"
 #include "dictionary.H"
+#include "supportType.H"
 #include "multivariateMomentInversion.H"
 #include "univariateMomentSet.H"
 #include "univariateMomentInversion.H"
@@ -80,7 +81,7 @@ class conditional
         labelList nPureMoments_;
 
         //- Type of support for each direction
-        wordList supports_;
+        List<supportType> supports_;
 
         //- Stored moments
         multivariateMomentSet moments_;

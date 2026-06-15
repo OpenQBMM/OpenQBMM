@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2025 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -118,7 +118,7 @@ void Foam::univariateMomentInversion::invert
     const scalar minKnownAbscissa,
     const scalar maxKnownAbscissa
 )
-{   
+{
     if (moments.isDegenerate())
     {
         nNodes_ = 1;
@@ -134,8 +134,8 @@ void Foam::univariateMomentInversion::invert
     {
         nNodes_ = 0;
 
-        weights_.setSize(nNodes_);
-        abscissae_.setSize(nNodes_);
+        weights_.clear();
+        abscissae_.clear();
 
         return;
     }
@@ -150,9 +150,14 @@ void Foam::univariateMomentInversion::invert
         return;
     }
 
-    scalarSquareMatrix z(nNodes_, scalar(0));
-    JacobiMatrix(moments, z, minKnownAbscissa, maxKnownAbscissa);
-    calcQuadrature(moments, z);
+    // Resize Jacobi matrix only if necessary
+    if (jacobiMatrix_.n() != nNodes_)
+    {
+        jacobiMatrix_.setSize(nNodes_);
+    }
+
+    JacobiMatrix(moments, jacobiMatrix_, minKnownAbscissa, maxKnownAbscissa);
+    calcQuadrature(moments, jacobiMatrix_);
 }
 
 void Foam::univariateMomentInversion::calcQuadrature
