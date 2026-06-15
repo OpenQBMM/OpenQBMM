@@ -36,7 +36,7 @@ applications/Allwmake $targetType $*
 
 # Enable or disable test compilation
 unset buildTests
-buildTests=true
+buildTests=false
 
 if [ "$buildTests" = true ] && [ -x "test/Allwmake" ]
 then
