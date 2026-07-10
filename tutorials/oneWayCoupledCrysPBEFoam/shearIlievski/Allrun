@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+if [ -z "${WM_PROJECT_DIR:-}" ]; then
+    echo "OpenFOAM environment is not loaded."
+    exit 1
+fi
+
+. "${WM_PROJECT_DIR}/bin/tools/RunFunctions"
+
+runApplication blockMesh
+runApplication oneWayCoupledCrysPBEFoam

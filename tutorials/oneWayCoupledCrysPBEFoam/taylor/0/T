@@ -1,0 +1,90 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  v2606
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 323.15; // 初始主体溶液温度 Tb = 50 C
+
+boundaryField
+{
+// === 等温模式：内壁 ===
+    innerWall
+    {
+        type            uniformFixedValue;
+        uniformValue    table
+        (
+            (0       323.15)  // t=0s, 50.0 C
+            (10154   301.15)  // t=10154s, 降至 28.0 C (斜率=0.13 C/min)
+            (21600   301.15)  // t=6h, 保持 28.0 C
+        );
+    }
+
+    // === 等温模式：外壁 (与内壁完全相同) ===
+    outerWall
+    {
+        type            uniformFixedValue;
+        uniformValue    table
+        (
+            (0       323.15)
+            (10154    301.15)
+            (21600   301.15)
+        );
+    }
+    bottom
+    {
+        type            zeroGradient;
+    }
+    top
+    {
+        type            zeroGradient;
+    }
+
+    front
+    {
+        type            wedge;
+    }
+    back
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //
+
+/*
+innerWall
+    {
+        type            uniformFixedValue;
+        uniformValue    table
+        (
+            (0       323.15)  // t=0s, 初始 50.0 C
+            (5077    305.55)  // t=5077s, 降至 32.4 C (降温较慢，最终温度较高)
+            (21600   305.55)  // 保持阶段
+        );
+    }
+
+    // === 非等温模式：外壁 (较冷，用于重结晶) ===
+    outerWall
+    {
+        type            uniformFixedValue;
+        uniformValue    table
+        (
+            (0       323.15)  // t=0s, 初始 50.0 C
+            (5077    296.75)  // t=5077s, 降至 23.6 C (降温较快，最终温度较低)
+            (21600   296.75)  // 保持阶段
+        );
+    }
+*/

@@ -1,0 +1,19 @@
+{
+  "case_name": "05_shear_Ilievski",
+  "cooling_end_time_s": 13800.0,
+  "cooling_rate_degC_per_min": 0.1,
+  "end_time_s": 13800.0,
+  "epsilon_m2_s3": 0.08437499999999999,
+  "initial_concentration_kg_m3": 147.46,
+  "k_m2_s2": 0.021173310649823144,
+  "model_tag": "shear_Ilievski",
+  "nut_m2_s": 0.0004781963561321752,
+  "power_number_assumed": 1.5,
+  "rho_crystal_kg_m3": 2666.0,
+  "rpm": 250.0,
+  "shape_factor": 0.5235987755982988,
+  "suite": "screening",
+  "t_end_K": 295.15,
+  "t_start_K": 318.15,
+  "u_tip": 0.7853981633974482
+}

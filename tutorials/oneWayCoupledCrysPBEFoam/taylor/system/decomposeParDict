@@ -1,0 +1,16 @@
+
+// * * * * * * * * * //
+FoamFile
+{
+	version 0.5;
+	format ascii;
+	root "ROOT";
+	case "CASE";
+	class dictionary;
+	object nix;
+}
+method scotch;
+numberOfSubdomains 8;
+scotchCoeffs
+{
+}
