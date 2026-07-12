@@ -30,10 +30,6 @@ subModels/aggregationModels/aggregationSubModel/crystalAggregation/crystalAggreg
 
 subModels/aggregationModels/aggregationSubModel/LinnikovModel/linnikovAggregation.C
 
-subModels/depositionModels/depositionModel/depositionModel.C
-subModels/depositionModels/depositionModel/newDepositionModel.C
-subModels/depositionModels/porousMediaFiltration/porousMediaFiltration.C
-
 crystalPopulationBalance/crystalPopulationBalance.C
 
 LIB = $(FOAM_MODULE_LIBBIN)/libcrystalPopuBal

@@ -55,7 +55,6 @@ SourceFiles
 #include "aggregationKernel.H"
 #include "breakupKernel.H"
 #include "diffusionModel.H"
-#include "depositionModel.H"
 #include "solutionSaturationModel.H"
 #include "realizableOdeSolver.H"
 
@@ -100,10 +99,7 @@ class crystalPopulationBalance
         //- Switch indicating the status of the breakup model
         Switch breakup_;
 
-        //- Switch for deposition
-        Switch deposition_;
-
-        //- Switch for deposition
+        //- Switch for saturation
         Switch saturation_;
 
         //- Switch for concentration coupling through crystal mass transfer
@@ -140,11 +136,6 @@ class crystalPopulationBalance
             Foam::populationBalanceSubModels::breakupKernel
         > breakupKernel_;
 
-        //- deposition kernel
-        autoPtr
-        <
-            populationBalanceSubModels::depositionModel
-        > depositionModel_;
 
 
         //- saturationModel

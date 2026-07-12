@@ -54,7 +54,9 @@ solvers
 
     "(k|omega|epsilon)Final"
     {
-        $k;
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-08;
         relTol          0;
     }
 
@@ -68,7 +70,9 @@ solvers
 
     "(T|C)Final"
     {
-        $T;
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-06;
         relTol          0;
     }
 

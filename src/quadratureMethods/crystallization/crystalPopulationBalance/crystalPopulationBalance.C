@@ -73,7 +73,6 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
     growth_(dict.lookupOrDefault("growth", false)),
     aggregation_(dict.lookupOrDefault("aggregation", false)),
     breakup_(dict.lookupOrDefault("breakup", false)),
-    deposition_(dict.lookupOrDefault("deposition", false)),
     saturation_(dict.lookup("saturation")),
     speciesCoupled_(dict.lookupOrDefault("speciesCoupled", false)),
     nucleationModel_(),
@@ -87,7 +86,6 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
     ),
     aggregationKernel_(),
     breakupKernel_(),
-    depositionModel_(),
     saturationModel_(),
     rhop_
     (
@@ -255,15 +253,6 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
             );
     }
 
-    if (deposition_)
-    {
-        depositionModel_ = 
-             Foam:: populationBalanceSubModels::depositionModel::New
-            (
-                dict.subDict("depositionModel"),
-                phi_.mesh()
-            );
-    }
 
     updateCharacteristicLengths();
 
@@ -425,7 +414,7 @@ bool
 Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
 ::solveMomentSources() const
 {
-    if (nucleation_ ||  growth_ || aggregation_ ||   deposition_)
+    if (nucleation_ || growth_ || aggregation_)
     {
         return odeType::solveSources_;
     }
@@ -626,11 +615,6 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
 ::explicitMomentSource()
 {
     odeType::solve(quadrature_, 0);
-
-    if (deposition_)
-    {
-        depositionModel_->correct(quadrature_);
-    }
 
 }
 

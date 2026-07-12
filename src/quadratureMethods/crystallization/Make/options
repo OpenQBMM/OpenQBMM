@@ -7,7 +7,7 @@ ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
     FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
 endif
 
-QBMM_SRC := ..
+QBMM_SRC := ../..
 phaseSystem = $(LIB_SRC)/phaseSystemModels/twoPhaseEuler
 
 
@@ -39,6 +39,7 @@ EXE_INC = \
     -I$(LIB_SRC)/faOptions/lnInclude \
     -I$(QBMM_SRC)/mappedList \
     -I$(QBMM_SRC)/mappedPtrList \
+    -I$(QBMM_SRC)/quadratureMethods/supportType \
     -I$(QBMM_SRC)/quadratureMethods/momentSets/lnInclude \
     -I$(QBMM_SRC)/quadratureMethods/momentSets/momentSet \
     -I$(QBMM_SRC)/quadratureMethods/momentSets/multivariateMomentSet \
