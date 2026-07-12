@@ -1,10 +1,6 @@
 solutionSaturationModels/solutionSaturationModel/solutionSaturationModel.C
-solutionSaturationModels/KclH2o/KclH2o.C
-solutionSaturationModels/Naclo3/Naclo3.C
 solutionSaturationModels/LlysineH2O/LlysineH2O.C
 solutionSaturationModels/K2SO4H2O/K2SO4H2O.C
-
-
 
 
 subModels/growthModels/coolCrysGrowth/coolCrysGrowth.C

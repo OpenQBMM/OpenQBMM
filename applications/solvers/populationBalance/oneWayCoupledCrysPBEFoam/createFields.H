@@ -214,11 +214,14 @@ uniformDimensionedScalarField rhop
 // Store rhop in the object registry so it can be found by populationBalance
 rhop.store();
 
-autoPtr<populationBalanceModel> populationBalance
+autoPtr<PDFTransportModels::populationBalanceModels::crystalPopulationBalance>
+populationBalance
 (
-    populationBalanceModel::New
+    new PDFTransportModels::populationBalanceModels::crystalPopulationBalance
     (
-        "populationBalance", populationBalanceProperties, phi
+        "populationBalance",
+        crystalCoeffs,
+        phi
     )
 );
 

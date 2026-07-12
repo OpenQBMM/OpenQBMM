@@ -9,8 +9,11 @@ FoamFile
 	class dictionary;
 	object nix;
 }
-method scotch;
+method simple;
 numberOfSubdomains 8;
-scotchCoeffs
+
+simpleCoeffs
 {
+    n (2 1 4);
+    delta 0.001;
 }

@@ -80,6 +80,9 @@ private:
         
         //- Oversaturation field (driving force for growth)
         const volScalarField& sigma_;
+
+        //- Cell being evaluated by phaseSpaceConvection
+        label activeCelli_;
         
         //- Growth rate field for output
         volScalarField GField_;
@@ -112,9 +115,22 @@ public:
         (
             const scalar& abscissa,
             const bool lengthBased,
-            const label celli,
             const label environment = 0
-        ) const;
+        ) const override;
+
+        virtual scalar phaseSpaceConvection
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const scalarQuadratureApproximation& quadrature
+        ) override;
+
+        virtual scalar phaseSpaceConvection
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const velocityQuadratureApproximation& quadrature
+        ) override;
 
 };
 

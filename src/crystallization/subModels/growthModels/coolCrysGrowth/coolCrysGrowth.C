@@ -64,6 +64,7 @@ Foam::populationBalanceSubModels::growthModels::coolCrysGrowth
     ),
     powCoeff_(readScalar(dict.lookup("powCoeff"))),
     sigma_(mesh.lookupObject<volScalarField>("sigma")),
+    activeCelli_(0),
     GField_
     (
         IOobject
@@ -90,10 +91,13 @@ Foam::populationBalanceSubModels::growthModels::coolCrysGrowth
 (
     const scalar& abscissa,
     const bool lengthBased,
-    const label celli,
     const label environment
 ) const
 {
+    const label celli = activeCelli_;
+    (void)abscissa;
+    (void)lengthBased;
+    (void)environment;
 
     scalar G = 0.0;
     
@@ -121,6 +125,32 @@ Foam::populationBalanceSubModels::growthModels::coolCrysGrowth
 
     return G;          // dL/dt
 
+}
+
+Foam::scalar
+Foam::populationBalanceSubModels::growthModels::coolCrysGrowth
+::phaseSpaceConvection
+(
+    const labelList& momentOrder,
+    const label celli,
+    const scalarQuadratureApproximation& quadrature
+)
+{
+    activeCelli_ = celli;
+    return growthModel::phaseSpaceConvection(momentOrder, celli, quadrature);
+}
+
+Foam::scalar
+Foam::populationBalanceSubModels::growthModels::coolCrysGrowth
+::phaseSpaceConvection
+(
+    const labelList& momentOrder,
+    const label celli,
+    const velocityQuadratureApproximation& quadrature
+)
+{
+    activeCelli_ = celli;
+    return growthModel::phaseSpaceConvection(momentOrder, celli, quadrature);
 }
 
 // ************************************************************************* //

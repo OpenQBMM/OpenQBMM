@@ -89,6 +89,7 @@ Foam::populationBalanceSubModels::growthModels::coolCrysAreaInhibitionGrowth
     ),
     areaPower_(dict.lookupOrDefault<scalar>("areaPower", 1.0)),
     sigma_(mesh.lookupObject<volScalarField>("sigma")),
+    activeCelli_(0),
     m2Ptr_(nullptr),
     GField_
     (
@@ -125,10 +126,10 @@ Foam::populationBalanceSubModels::growthModels::coolCrysAreaInhibitionGrowth
 (
     const scalar& abscissa,
     const bool lengthBased,
-    const label celli,
     const label environment
 ) const
 {
+    const label celli = activeCelli_;
     (void)abscissa;
     (void)lengthBased;
     (void)environment;
@@ -166,4 +167,29 @@ Foam::populationBalanceSubModels::growthModels::coolCrysAreaInhibitionGrowth
     return G;
 }
 
+Foam::scalar
+Foam::populationBalanceSubModels::growthModels::coolCrysAreaInhibitionGrowth
+::phaseSpaceConvection
+(
+    const labelList& momentOrder,
+    const label celli,
+    const scalarQuadratureApproximation& quadrature
+)
+{
+    activeCelli_ = celli;
+    return growthModel::phaseSpaceConvection(momentOrder, celli, quadrature);
+}
+
+Foam::scalar
+Foam::populationBalanceSubModels::growthModels::coolCrysAreaInhibitionGrowth
+::phaseSpaceConvection
+(
+    const labelList& momentOrder,
+    const label celli,
+    const velocityQuadratureApproximation& quadrature
+)
+{
+    activeCelli_ = celli;
+    return growthModel::phaseSpaceConvection(momentOrder, celli, quadrature);
+}
 // ************************************************************************* //

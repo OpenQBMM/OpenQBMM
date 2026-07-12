@@ -87,6 +87,9 @@ private:
         //- Supersaturation field
         const volScalarField& sigma_;
 
+        //- Cell being evaluated by phaseSpaceConvection
+        label activeCelli_;
+
         //- Second-moment field used for inhibition
         const volScalarField* m2Ptr_;
 
@@ -121,9 +124,22 @@ public:
         (
             const scalar& abscissa,
             const bool lengthBased,
-            const label celli,
             const label environment = 0
-        ) const;
+        ) const override;
+
+        virtual scalar phaseSpaceConvection
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const scalarQuadratureApproximation& quadrature
+        ) override;
+
+        virtual scalar phaseSpaceConvection
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const velocityQuadratureApproximation& quadrature
+        ) override;
 };
 
 

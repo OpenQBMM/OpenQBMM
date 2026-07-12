@@ -106,6 +106,9 @@ class crystalPopulationBalance
         //- Switch for deposition
         Switch saturation_;
 
+        //- Switch for concentration coupling through crystal mass transfer
+        Switch speciesCoupled_;
+
         //- Nucleation model
         autoPtr
         <
@@ -177,6 +180,9 @@ class crystalPopulationBalance
         //- Legacy mean crystal size output. Prefer L10_ or L32_.
         volScalarField d_;
 
+        //- Active solute-mass source for the concentration equation
+        volScalarField SYact_;
+
         dimensionedScalar d_nucleation_;
 
     // Private member functions
@@ -245,6 +251,18 @@ public:
         //- Return the courant number based on abscissae
         virtual scalar CoNum() const;
 
+
+        //- Whether concentration is coupled to the crystal mass transfer
+        bool speciesCoupled() const
+        {
+            return speciesCoupled_;
+        }
+
+        //- Active concentration source [kg/(m3 s)]
+        const volScalarField::Internal& SYact() const
+        {
+            return SYact_();
+        }
         //- Solve population balance equation
         void solve();
 

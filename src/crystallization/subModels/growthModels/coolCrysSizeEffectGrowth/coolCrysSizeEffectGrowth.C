@@ -85,6 +85,7 @@ Foam::populationBalanceSubModels::growthModels::coolCrysSizeEffectGrowth
     ),
     qSize_(dict.lookupOrDefault<scalar>("qSize", 2.0)),
     sigma_(mesh.lookupObject<volScalarField>("sigma")),
+    activeCelli_(0),
     GField_
     (
         IOobject
@@ -147,10 +148,10 @@ Foam::populationBalanceSubModels::growthModels::coolCrysSizeEffectGrowth
 (
     const scalar& abscissa,
     const bool lengthBased,
-    const label celli,
     const label environment
 ) const
 {
+    const label celli = activeCelli_;
     (void)environment;
 
     const scalar Li =
@@ -161,7 +162,10 @@ Foam::populationBalanceSubModels::growthModels::coolCrysSizeEffectGrowth
         // coordinate and map it to a characteristic length through cbrt.
         Foam::cbrt(max(abscissa, SMALL));
 
-    return growthRateForLength(Li, celli);
+    const scalar G = growthRateForLength(Li, celli);
+    const_cast<volScalarField&>(GField_)[celli] = G;
+
+    return G;
 }
 
 
@@ -192,7 +196,7 @@ void Foam::populationBalanceSubModels::growthModels::coolCrysSizeEffectGrowth
         const scalar d = node.d(celli, bAbscissa);
         const scalar numberDensity =
             node.n(celli, node.primaryWeight()[celli], bAbscissa);
-        const scalar G = Kg(d, node.lengthBased(), celli);
+        const scalar G = Kg(d, node.lengthBased());
 
         if (std::isfinite(numberDensity) && std::isfinite(G) && numberDensity > SMALL)
         {
@@ -235,7 +239,7 @@ void Foam::populationBalanceSubModels::growthModels::coolCrysSizeEffectGrowth
         const scalar d = node.d(celli, bAbscissa);
         const scalar numberDensity =
             node.n(celli, node.primaryWeight()[celli], bAbscissa);
-        const scalar G = Kg(d, node.lengthBased(), celli);
+        const scalar G = Kg(d, node.lengthBased());
 
         if (std::isfinite(numberDensity) && std::isfinite(G) && numberDensity > SMALL)
         {
@@ -260,8 +264,7 @@ Foam::populationBalanceSubModels::growthModels::coolCrysSizeEffectGrowth
     const scalarQuadratureApproximation& quadrature
 )
 {
-    updateMeanGrowthRate(celli, quadrature);
-
+    activeCelli_ = celli;
     return growthModel::phaseSpaceConvection(momentOrder, celli, quadrature);
 }
 
@@ -275,8 +278,7 @@ Foam::populationBalanceSubModels::growthModels::coolCrysSizeEffectGrowth
     const velocityQuadratureApproximation& quadrature
 )
 {
-    updateMeanGrowthRate(celli, quadrature);
-
+    activeCelli_ = celli;
     return growthModel::phaseSpaceConvection(momentOrder, celli, quadrature);
 }
 

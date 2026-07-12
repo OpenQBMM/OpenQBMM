@@ -84,6 +84,7 @@ Note
 #include "localEulerDdtScheme.H"
 #include "fvcSmooth.H"
 #include "populationBalanceModel.H"
+#include "crystalPopulationBalance.H"
 #include "solutionSaturationModel.H"
 
 

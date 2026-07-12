@@ -84,6 +84,9 @@ private:
         //- Supersaturation field
         const volScalarField& sigma_;
 
+        //- Cell being evaluated by phaseSpaceConvection
+        label activeCelli_;
+
         //- Growth rate field for output
         volScalarField GField_;
 
@@ -139,25 +142,24 @@ public:
         (
             const scalar& abscissa,
             const bool lengthBased,
-            const label celli,
             const label environment = 0
-        ) const;
+        ) const override;
 
-        //- Return phase space convection and update mean growthRate output
+        //- Return phase space convection
         virtual scalar phaseSpaceConvection
         (
             const labelList& momentOrder,
             const label celli,
             const scalarQuadratureApproximation& quadrature
-        );
+        ) override;
 
-        //- Return phase space convection and update mean growthRate output
+        //- Return phase space convection
         virtual scalar phaseSpaceConvection
         (
             const labelList& momentOrder,
             const label celli,
             const velocityQuadratureApproximation& quadrature
-        );
+        ) override;
 };
 
 

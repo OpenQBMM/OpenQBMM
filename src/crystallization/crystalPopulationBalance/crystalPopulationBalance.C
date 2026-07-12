@@ -75,6 +75,7 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
     breakup_(dict.lookupOrDefault("breakup", false)),
     deposition_(dict.lookupOrDefault("deposition", false)),
     saturation_(dict.lookup("saturation")),
+    speciesCoupled_(dict.lookupOrDefault("speciesCoupled", false)),
     nucleationModel_(),
     growthModel_(),
     diffusionModel_
@@ -171,6 +172,20 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
         ),
         phi.mesh(),
         dimLength,
+        fvPatchFieldBase::zeroGradientType()
+    ),
+    SYact_
+    (
+        IOobject
+        (
+            "SYact",
+            phi.mesh().time().timeName(),
+            phi.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        phi.mesh(),
+        dimensionedScalar("zero", dimDensity/dimTime, 0.0),
         fvPatchFieldBase::zeroGradientType()
     ),
     d_nucleation_
@@ -293,24 +308,14 @@ void
 Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
 ::subModelsPreUpdate()
 {
-    if(! steadyFlow()) 
+    if (aggregation_)
     {
-    
-        if (nucleation_)
-        {
-            nucleationModel_->preUpdate();
-        }
+        aggregationKernel_->preUpdate();
+    }
 
-        if (growth_)
-        {
-            growthModel_->preUpdate();
-        }
-
-        if (aggregation_)
-        {
-            aggregationKernel_->preUpdate();
-        }
-
+    if (breakup_)
+    {
+        breakupKernel_->preUpdate();
     }
 }
 
@@ -512,6 +517,7 @@ void
 Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
 ::calcSpeciesTransfer()
 {
+    SYact_ = dimensionedScalar("zero", dimDensity/dimTime, 0.0);
 
 
     if(speciesCoupled())
@@ -580,7 +586,7 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
                     
                     if (mag(SYact_calc) > maxDissolutionRate)
                     {
-                        SYact_calc = -0.9 * maxDissolutionRate;
+                        SYact_final = -0.9 * maxDissolutionRate;
                     }
                     else
                     {
@@ -595,10 +601,10 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
                 SYact_final = min(SYact_calc, min(maxSYact_local, maxSYact_abs));
             }   
 
-            SYact_()[celli] = SYact_final;
+            SYact_[celli] = SYact_final;
 
             maxSource = max(maxSource, mag(source));
-            maxSYact = max(maxSYact, mag(SYact_()[celli]));
+            maxSYact = max(maxSYact, mag(SYact_[celli]));
             
             // warning logic (optional, suggest only alarm when growth is limited, dissolution is usually normal)
             if (mag(SYact_calc) > mag(SYact_final) + SMALL && phi_.mesh().time().timeIndex() % 100 == 0)
@@ -610,6 +616,7 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
         }
 
     }
+    SYact_.correctBoundaryConditions();
 
 }
 
