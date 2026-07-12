@@ -192,10 +192,10 @@ void Foam::populationBalanceSubModels::growthModels::coolCrysSizeEffectGrowth
     {
         const volScalarNode& node = nodes[nodeI];
         const scalar bAbscissa =
-            max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+            max(node.abscissae()[sizeIndex][celli], scalar(0));
         const scalar d = node.d(celli, bAbscissa);
         const scalar numberDensity =
-            node.n(celli, node.primaryWeight()[celli], bAbscissa);
+            node.numberDensity(celli, node.weight()[celli], bAbscissa);
         const scalar G = Kg(d, node.lengthBased());
 
         if (std::isfinite(numberDensity) && std::isfinite(G) && numberDensity > SMALL)
@@ -235,10 +235,10 @@ void Foam::populationBalanceSubModels::growthModels::coolCrysSizeEffectGrowth
     {
         const volVelocityNode& node = nodes[nodeI];
         const scalar bAbscissa =
-            max(node.primaryAbscissae()[sizeIndex][celli], scalar(0));
+            max(node.abscissae()[sizeIndex][celli], scalar(0));
         const scalar d = node.d(celli, bAbscissa);
         const scalar numberDensity =
-            node.n(celli, node.primaryWeight()[celli], bAbscissa);
+            node.numberDensity(celli, node.weight()[celli], bAbscissa);
         const scalar G = Kg(d, node.lengthBased());
 
         if (std::isfinite(numberDensity) && std::isfinite(G) && numberDensity > SMALL)

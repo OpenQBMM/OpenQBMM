@@ -64,7 +64,14 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
     const surfaceScalarField& phi
 )
 :
-    univariatePDFTransportModel(name, dict, phi.mesh(), phi, "RPlus"),
+    univariatePDFTransportModel
+    (
+        name,
+        dict,
+        phi.mesh(),
+        phi,
+        supportType::RPlus
+    ),
     populationBalanceModel(name, dict, phi),
     odeType(phi.mesh(), dict),
     fixedSize_(dict.lookupOrDefault("fixedSize", false)),
@@ -193,12 +200,6 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
         dict.lookupOrDefault<scalar>("d_nucleation", dict.lookupOrDefault<scalar>("deltaWidth", 1.0e-6))
     )
 {
-    if (quadrature_.nodes().size() && quadrature_.nodes()[0].extended())
-    {
-        FatalErrorInFunction
-            << "crystalPopulationBalance supports non-extended quadrature only."
-            << abort(FatalError);
-    }
 
     if (saturation_ )
     {
@@ -267,8 +268,8 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
     {
         const    volScalarMomentFieldSet& moments = quadrature_.moments();
         PtrList<volScalarNode>& nodes = quadrature_.nodes();
-        PtrList<volScalarField>& absc = nodes[0].primaryAbscissae();
-        volScalarField& weig = nodes[0].primaryWeight();
+        PtrList<volScalarField>& absc = nodes[0].abscissae();
+        volScalarField& weig = nodes[0].weight();
         absc[0] = d_nucleation_.value();
         weig = moments[0];
         L10_ = d_nucleation_;
@@ -677,7 +678,7 @@ Foam::PDFTransportModels::populationBalanceModels::crystalPopulationBalance
     {
 
         PtrList<volScalarNode>& nodes = quadrature_.nodes();
-        nodes[0].primaryWeight() = quadrature_.moments()[0];
+        nodes[0].weight() = quadrature_.moments()[0];
     
     }
 
