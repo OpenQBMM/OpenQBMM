@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -32,9 +32,11 @@ License
 
 Foam::scalarSquareMatrix Foam::Vandermonde::operator()() const
 {
-    scalarSquareMatrix tmpV(n_);
+    const label n = this->size();
 
-    for (label j = 0; j < n_; j++)
+    scalarSquareMatrix tmpV(n);
+
+    for (label j = 0; j < n; j++)
     {
         // Cache base value
         const scalar base = (*this)[j];
@@ -42,9 +44,9 @@ Foam::scalarSquareMatrix Foam::Vandermonde::operator()() const
         // Initialize iterative calculation of integer power
         scalar power = 1.0;
         tmpV[0][j] = power;
-        
+
         // Iteratively compute matrix elements
-        for (label i = 1; i < n_; i++)
+        for (label i = 1; i < n; i++)
         {
             power *= base;
             tmpV[i][j] = power;
@@ -57,12 +59,14 @@ Foam::scalarSquareMatrix Foam::Vandermonde::operator()() const
 Foam::scalar Foam::Vandermonde::operator()(label i, label j) const
 {
     #ifdef FULLDEBUG
-    if (i >= n_ || j >= n_ || i < 0 || j < 0)
+    const label n = this->size();
+
+    if (i >= n || j >= n || i < 0 || j < 0)
     {
         FatalErrorInFunction
-            << "Index out of bounds: (" << i << "," << j 
-            << ") for matrix size " << n_ << "x" << n_ << nl
-            << abort(FatalError);
+            << "Index out of bounds: (" << i << "," << j
+            << ") for matrix size " << n << "x" << n << nl
+            << exit(FatalError);
     }
     #endif
     

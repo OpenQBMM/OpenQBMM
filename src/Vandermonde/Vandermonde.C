@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -37,8 +37,7 @@ Foam::Vandermonde::Vandermonde
     const scalarDiagonalMatrix& A
 )
 :
-    scalarDiagonalMatrix(A),
-    n_(A.size())
+    scalarDiagonalMatrix(A)
 {}
 
 
@@ -48,8 +47,7 @@ Foam::Vandermonde::Vandermonde
     const bool checkVandermonde
 )
 :
-    scalarDiagonalMatrix(A.m()),
-    n_(A.m())
+    scalarDiagonalMatrix(A.m())
 {
     if (checkVandermonde)
     {
@@ -57,39 +55,48 @@ Foam::Vandermonde::Vandermonde
         {
             FatalErrorInFunction
                 << "Source matrix not of Vandermonde type." << nl
-                << abort(FatalError);
+                << exit(FatalError);
         }
     }
 
-    for (label i = 0; i < n_; i++)
+    const label n = this->size();
+
+    if (n > 1)
     {
-        (*this)[i] = A[1][i];
+        for (label i = 0; i < n; i++)
+        {
+            (*this)[i] = A[1][i];
+        }
+    }
+    else if (n == 1)
+    {
+        // A 1x1 Vandermonde matrix is [1] regardless of the base value,
+        // so there is no second row to read it from; solve()/invert()/
+        // operator() never consult it in this case either.
+        (*this)[0] = 0.0;
     }
 }
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::Vandermonde::~Vandermonde()
-{}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 bool Foam::Vandermonde::isVandermonde(const scalarSquareMatrix& A) const
 {
-    for (label j = 0; j < n_; j++)
-    {
-        // Check first row (should be all ones)
-        if (mag(A[0][j] - 1.0) > SMALL)
-        {
-            return false;
-        }
+    const label n = this->size();
 
-        const scalar base = A[1][j];
+    for (label j = 0; j < n; j++)
+    {
+        const scalar base = (n > 1) ? A[1][j] : 0.0;
         scalar expectedPower = 1.0;
 
-        for (label i = 0; i < n_; i++)
+        for (label i = 0; i < n; i++)
         {
-            if (mag(A[i][j] - expectedPower) > SMALL)
+            // Relative tolerance: expectedPower grows like base^i, so a
+            // fixed absolute tolerance rejects perfectly valid matrices
+            // as soon as the abscissae move away from the unit scale.
+            const scalar tol = ROOTSMALL*max(mag(expectedPower), 1.0);
+
+            if (mag(A[i][j] - expectedPower) > tol)
             {
                 return false;
             }
@@ -105,83 +112,102 @@ void Foam::Vandermonde::solve
 (
     scalarDiagonalMatrix& x,
     const scalarDiagonalMatrix& source
-)
+) const
 {
-    if (source.size() != n_)
+    const label n = this->size();
+
+    if (source.size() != n)
     {
         FatalErrorInFunction
             << "Source vector size (" << source.size()
-            << ") does not match matrix size (" << n_ << ")" << nl
-            << abort(FatalError);
+            << ") does not match matrix size (" << n << ")" << nl
+            << exit(FatalError);
     }
 
-    if (x.size() != n_)
+    if (x.size() != n)
     {
         FatalErrorInFunction
             << "Solution vector size (" << x.size()
-            << ") does not match matrix size (" << n_ << ")" << nl
-            << abort(FatalError);
+            << ") does not match matrix size (" << n << ")" << nl
+            << exit(FatalError);
     }
 
-    if (n_ == 1)
+    if (n == 1)
     {
         x[0] = source[0];
         return;
     }
 
-    scalarDiagonalMatrix c(n_, 0.0);
+    // A repeated (or nearly repeated) abscissa makes the Vandermonde
+    // matrix singular. Detect it directly here: the natural scale of the
+    // accumulated product t below is (abscissa)^(n - 1), which is not
+    // comparable to a fixed absolute tolerance such as VSMALL.
+    for (label i = 0; i < n; i++)
+    {
+        for (label j = i + 1; j < n; j++)
+        {
+            const scalar diff = mag((*this)[i] - (*this)[j]);
+            const scalar scale = max(mag((*this)[i]), mag((*this)[j]));
+
+            if (diff < ROOTSMALL*max(scale, 1.0))
+            {
+                FatalErrorInFunction
+                    << "Near-singular Vandermonde matrix: abscissae " << i
+                    << " and " << j << " are not sufficiently distinct."
+                    << nl
+                    << "  Value " << i << ": " << (*this)[i] << nl
+                    << "  Value " << j << ": " << (*this)[j] << nl
+                    << exit(FatalError);
+            }
+        }
+    }
+
+    scalarDiagonalMatrix c(n, 0.0);
 
     // Calculate coefficients
-    c[n_ - 1] = -(*this)[0];
+    c[n - 1] = -(*this)[0];
 
-    for (label i = 1; i < n_; i++)
+    for (label i = 1; i < n; i++)
     {
         const scalar xi = -(*this)[i];
 
-        for (label j = n_ - i - 1; j < n_ - 1; j++)
+        for (label j = n - i - 1; j < n - 1; j++)
         {
             c[j] += xi*c[j + 1];
         }
 
-        c[n_ - 1] += xi;
+        c[n - 1] += xi;
     }
 
     // Solve system
-    for (label i = 0; i < n_; i++)
+    for (label i = 0; i < n; i++)
     {
         const scalar xi = (*this)[i];
 
         scalar t = 1.0;
         scalar r = 1.0;
-        scalar s = source[n_ - 1];
+        scalar s = source[n - 1];
 
-        for (label j = n_ - 1; j > 0; j--)
+        for (label j = n - 1; j > 0; j--)
         {
             r = c[j] + r*xi;
             s += r*source[j - 1];
             t = r + t*xi;
         }
 
-        // Check for nearly singular conditions
-        if (mag(t) < VSMALL)
-        {
-            FatalErrorInFunction
-                << "Near-singular Vandermonde matrix at index " << i << nl
-                << "Element value: " << xi << nl
-                << abort(FatalError);
-        }
-
         x[i] = s / t;
     }
 }
 
-Foam::scalarSquareMatrix Foam::Vandermonde::invert()
+Foam::scalarSquareMatrix Foam::Vandermonde::invert() const
 {
-    scalarSquareMatrix inverse(n_);
-    scalarDiagonalMatrix source(n_, 0.0);
-    scalarDiagonalMatrix x(n_);
+    const label n = this->size();
 
-    for (label i = 0; i < n_; i++)
+    scalarSquareMatrix inverse(n);
+    scalarDiagonalMatrix source(n, 0.0);
+    scalarDiagonalMatrix x(n);
+
+    for (label i = 0; i < n; i++)
     {
         // Build source vector
         if (i > 0)
@@ -195,7 +221,7 @@ Foam::scalarSquareMatrix Foam::Vandermonde::invert()
         solve(x, source);
 
         // Copy solution column
-        for (label j = 0; j < n_; j++)
+        for (label j = 0; j < n; j++)
         {
             inverse[j][i] = x[j];
         }

@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -65,12 +65,6 @@ class Vandermonde
 :
     public scalarDiagonalMatrix
 {
-    // Private data
-
-        //- Number of rows and columns (square matrix)
-        const label n_;
-
-
     // Private Member Functions
 
         //- Check if a square matrix is Vandermonde
@@ -95,10 +89,6 @@ public:
         );
 
 
-    //- Destructor
-    ~Vandermonde();
-
-
     // Member Functions
 
         //- Solve the Vandermonde linear system with the given source vector x
@@ -106,10 +96,10 @@ public:
         (
             scalarDiagonalMatrix& x,
             const scalarDiagonalMatrix& source
-        );
+        ) const;
 
         //- Invert Vandermonde matrix
-        scalarSquareMatrix invert();
+        scalarSquareMatrix invert() const;
 
 
     // Member Operators

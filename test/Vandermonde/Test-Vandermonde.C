@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -34,6 +34,7 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
+#include <cmath>
 #include "fvCFD.H"
 #include "IOmanip.H"
 #include "IFstream.H"
@@ -55,7 +56,6 @@ int main(int argc, char *argv[])
 
     label matrixSize = 5;
 
-    const scalar expectedError = 8.53672259787214e-13;
     scalarSquareMatrix expectedInverse(matrixSize);
 
     expectedInverse(0, 0) = 1;
@@ -98,11 +98,15 @@ int main(int argc, char *argv[])
     Vandermonde Vm(A);
     Vandermonde V(Vm(), true);
 
+    // solve() and invert() are const: exercise them through a const
+    // reference so a regression on that is caught at compile time.
+    const Vandermonde& constVm = Vm;
+
     Info<< "Initial vector: " << A << endl;
 
     Info<< "Vector constructed from square Vandermonde matrix: " << V << endl;
 
-    scalarSquareMatrix invVm = Vm.invert();
+    scalarSquareMatrix invVm = constVm.invert();
 
     Info<< nl << "Vandermonde matrix:\n" << endl;
 
@@ -165,12 +169,19 @@ int main(int argc, char *argv[])
 
     error = Foam::sqrt(error);
 
-    if (mag(error - expectedError) >= SMALL)
+    // The exact value of this round-trip error depends on the platform's
+    // BLAS/LAPACK implementation, so check that it stays comfortably
+    // small rather than pinning it to one machine's result to the last
+    // digit.
+    const scalar maxExpectedError = 1.0e-9;
+
+    if (error > maxExpectedError)
     {
         FatalErrorInFunction
-                << "The error accumulated during two inversions is large: " 
+                << "The error accumulated during two inversions is too "
+                << "large: "
                 << endl
-                << "  Expected maximum error: " << expectedError
+                << "  Maximum expected error: " << maxExpectedError
                 << endl
                 << "  Actual error: " << error
                 << endl
@@ -190,7 +201,7 @@ int main(int argc, char *argv[])
         source[i] = i;
     }
 
-    Vm.solve(x, source);
+    constVm.solve(x, source);
 
     Info<< "\nTesting solve method: " << endl;
 
@@ -224,8 +235,74 @@ int main(int argc, char *argv[])
     }
 
     // Print the difference vector
-    Info<< "\nDifference between source vector components: " 
+    Info<< "\nDifference between source vector components: "
         << difference << endl;
+
+    // Test that a structurally valid Vandermonde matrix with large,
+    // independently computed entries is accepted by isVandermonde(). An
+    // absolute tolerance previously rejected this: matrix entries grow
+    // like base^i, so round-off between std::pow() and the repeated
+    // multiplication isVandermonde() checks against is not comparable to
+    // a fixed tolerance once the abscissae move away from unit scale.
+    Info<< "\nTesting isVandermonde() with large-magnitude entries: "
+        << endl;
+
+    const label largeSize = 6;
+
+    scalarDiagonalMatrix largeBase(largeSize);
+    largeBase[0] = 0.0;
+    largeBase[1] = 1.0;
+    largeBase[2] = 2.0;
+    largeBase[3] = 5.0;
+    largeBase[4] = 9.1;
+    largeBase[5] = 12.4;
+
+    scalarSquareMatrix largeA(largeSize);
+
+    for (label j = 0; j < largeSize; j++)
+    {
+        for (label i = 0; i < largeSize; i++)
+        {
+            largeA(i, j) = std::pow(largeBase[j], scalar(i));
+        }
+    }
+
+    // Constructing with checkVandermonde = true would FatalError if the
+    // matrix were (incorrectly) rejected.
+    Vandermonde largeV(largeA, true);
+
+    Info<< "OK" << endl;
+
+    // Test the degenerate 1x1 case: the constructor and isVandermonde()
+    // previously read a non-existent second matrix row (A[1][...]) for a
+    // 1x1 matrix, which is undefined behaviour.
+    Info<< "\nTesting the degenerate 1x1 case: " << endl;
+
+    scalarSquareMatrix A1(1);
+    A1(0, 0) = 1.0;
+
+    Vandermonde V1(A1, true);
+
+    scalarDiagonalMatrix source1(1);
+    scalarDiagonalMatrix x1(1);
+    source1[0] = 7.0;
+
+    V1.solve(x1, source1);
+
+    if (mag(x1[0] - source1[0]) > SMALL)
+    {
+        FatalErrorInFunction
+            << "Solving the 1x1 Vandermonde system did not return the "
+            << "source value: "
+            << endl
+            << "  Expected value: " << source1[0]
+            << endl
+            << "  Computed value: " << x1[0]
+            << endl
+            << exit(FatalError);
+    }
+
+    Info<< "OK" << endl;
 
     Info<< "\nEnd\n" << endl;
 
