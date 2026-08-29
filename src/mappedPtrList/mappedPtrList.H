@@ -85,6 +85,10 @@ class mappedPtrList
         //- Returns an element provided the indeces of the order
         label calcMapIndex(std::initializer_list<label> indexes) const;
 
+        //- Insert the key for the given indexes at position elemi in the
+        //  map, checking for colliding keys
+        void insertKey(const labelList& indexes, const label elemi);
+
 
 public:
 
@@ -114,10 +118,6 @@ public:
         //- Construct from Istream using given Istream constructor class
         template<class INew>
         mappedPtrList(Istream&, const INew&);
-
-
-    //- Destructor
-    ~mappedPtrList();
 
 
     // Member Functions
@@ -175,6 +175,10 @@ public:
 
             //- Set map after PtrList has been constructed
             void setMap(const Map<label>& map);
+
+            //- Set map from the labelListList of indexes after PtrList has
+            //  been constructed
+            void setMap(const labelListList& indexes);
 
             //- Set mapped location using pointer
             void set(const label i, mappedType* entry);

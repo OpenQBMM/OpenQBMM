@@ -34,6 +34,8 @@ template <class mappedType>
 template <typename ...ArgsT>
 mappedType& Foam::mappedPtrList<mappedType>::operator()(ArgsT ...args)
 {
+    const label mapIndex = calcMapIndex({args...});
+
     #ifdef FULLDEBUG
     if (!found(args...))
     {
@@ -44,8 +46,6 @@ mappedType& Foam::mappedPtrList<mappedType>::operator()(ArgsT ...args)
     }
     #endif
 
-    label mapIndex = calcMapIndex({args...});
-
     return this->operator[](map_[mapIndex]);
 }
 
@@ -54,6 +54,8 @@ template <typename ...ArgsT>
 const mappedType&
 Foam::mappedPtrList<mappedType>::operator()(ArgsT ...args) const
 {
+    const Foam::label mapIndex = calcMapIndex({args...});
+
     #ifdef FULLDEBUG
     if (!found(args...))
     {
@@ -64,7 +66,6 @@ Foam::mappedPtrList<mappedType>::operator()(ArgsT ...args) const
     }
     #endif
 
-    Foam::label mapIndex = calcMapIndex({args...});
     return this->operator[](map_[mapIndex]);
 }
 
@@ -74,6 +75,8 @@ const mappedType& Foam::mappedPtrList<mappedType>::operator()
     const Foam::labelList& list
 ) const
 {
+    const Foam::label key = listToLabel(list, nDimensions_);
+
     #ifdef FULLDEBUG
     if (!found(list))
     {
@@ -84,8 +87,6 @@ const mappedType& Foam::mappedPtrList<mappedType>::operator()
     }
     #endif
 
-    const Foam::label key = listToLabel(list, nDimensions_);
-
     return this->operator[](map_[key]);
 }
 
@@ -95,6 +96,8 @@ mappedType& Foam::mappedPtrList<mappedType>::operator()
     const Foam::labelList& list
 )
 {
+    const Foam::label key = listToLabel(list, nDimensions_);
+
     #ifdef FULLDEBUG
     if (!found(list))
     {
@@ -104,8 +107,6 @@ mappedType& Foam::mappedPtrList<mappedType>::operator()
             << exit(FatalError);
     }
     #endif
-
-    const Foam::label key = listToLabel(list, nDimensions_);
 
     return this->operator[](map_[key]);
 }

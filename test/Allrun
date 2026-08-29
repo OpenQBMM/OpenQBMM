@@ -4,6 +4,8 @@ cd "${0%/*}" || exit                            # Run from this directory
 
 # Basic functionality
 Test-Vandermonde
+Test-MappedList
+Test-MappedPtrList
 
 # Moment sets
 Test-UnivariateMomentSet

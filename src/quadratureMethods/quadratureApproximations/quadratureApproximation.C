@@ -148,7 +148,7 @@ quadratureApproximation
         )
     );
 
-    nodes_().setMap(mappedPtrList<scalar>(nodes_().size(), nodeIndexes_).map());
+    nodes_().setMap(nodeIndexes_);
 
     updateQuadrature();
 }
@@ -283,7 +283,7 @@ quadratureApproximation
         )
     );
 
-    nodes_().setMap(mappedPtrList<scalar>(nodes_().size(), nodeIndexes_).map());
+    nodes_().setMap(nodeIndexes_);
 
     if (calcQuadratureOnCreation)
     {

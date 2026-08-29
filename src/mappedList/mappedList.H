@@ -83,6 +83,10 @@ class mappedList : public List<mappedType>
         //- Returns an element provided the indeces of the order
         label calcMapIndex(std::initializer_list<label> indexes) const;
 
+        //- Insert the key for the given indexes at position elemi in the
+        //  map, checking for colliding keys
+        void insertKey(const labelList& indexes, const label elemi);
+
 
 public:
 
@@ -118,10 +122,6 @@ public:
             const List<mappedType>& initList,
             const labelListList& indexes
         );
-
-
-    //- Destructor
-    ~mappedList();
 
 
     // Member Functions

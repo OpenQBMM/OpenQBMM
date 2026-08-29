@@ -88,6 +88,17 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
     map_(size),
     nDimensions_(0)
 {
+    if (indexes.size() != size)
+    {
+        FatalErrorInFunction
+            << "Size mismatch: "
+            << endl
+            << "  List size = " << size
+            << endl
+            << "  Indexes list size = " << indexes.size()
+            << exit(FatalError);
+    }
+
     forAll(indexes, indexi)
     {
         nDimensions_ = max(nDimensions_, indexes[indexi].size());
@@ -95,11 +106,7 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 
     forAll(*this, elemi)
     {
-        map_.insert
-        (
-            listToLabel(indexes[elemi], nDimensions_),
-            elemi
-        );
+        insertKey(indexes[elemi], elemi);
     }
 }
 
@@ -114,6 +121,17 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
     map_(size),
     nDimensions_(0)
 {
+    if (indexes.size() != size)
+    {
+        FatalErrorInFunction
+            << "Size mismatch: "
+            << endl
+            << "  List size = " << size
+            << endl
+            << "  Indexes list size = " << indexes.size()
+            << exit(FatalError);
+    }
+
     forAll(indexes, indexi)
     {
         nDimensions_ = max(nDimensions_, indexes[indexi].size());
@@ -121,11 +139,7 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 
     forAll(*this, elemi)
     {
-        map_.insert
-        (
-            listToLabel(indexes[elemi], nDimensions_),
-            elemi
-        );
+        insertKey(indexes[elemi], elemi);
     }
 }
 
@@ -140,16 +154,20 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
     map_(map),
     nDimensions_(0)
 {
+    // Note: the number of dimensions is recovered from the decimal digit
+    // count of the keys already in map, which undercounts leading-zero
+    // components (e.g. key 1 for order {0, 1} looks one-dimensional).
+    // Prefer constructing from a labelListList of indexes when available.
     forAllConstIter(Map<label>, map_, iter)
     {
         label key = iter.key();
         label nD = 0;
 
-        while (key)
+        do
         {
             key /= 10;
             nD++;
-        }
+        } while (key);
 
         nDimensions_ = max(nDimensions_, nD);
     }
@@ -165,6 +183,17 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
     map_(initList.size()),
     nDimensions_(0)
 {
+    if (indexes.size() != initList.size())
+    {
+        FatalErrorInFunction
+            << "Size mismatch: "
+            << endl
+            << "  List size = " << initList.size()
+            << endl
+            << "  Indexes list size = " << indexes.size()
+            << exit(FatalError);
+    }
+
     forAll(indexes, indexi)
     {
         nDimensions_ = max(nDimensions_, indexes[indexi].size());
@@ -172,20 +201,9 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 
     forAll(*this, elemi)
     {
-        map_.insert
-        (
-            listToLabel(indexes[elemi], nDimensions_),
-            elemi
-        );
+        insertKey(indexes[elemi], elemi);
     }
 }
-
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-template <class mappedType>
-Foam::mappedList<mappedType>::~mappedList()
-{}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -225,6 +243,26 @@ Foam::label Foam::mappedList<mappedType>::calcMapIndex
 }
 
 template <class mappedType>
+void Foam::mappedList<mappedType>::insertKey
+(
+    const labelList& indexes,
+    const label elemi
+)
+{
+    const label key = listToLabel(indexes, nDimensions_);
+
+    if (!map_.insert(key, elemi))
+    {
+        FatalErrorInFunction
+            << "Duplicate mapped key " << key << " for indexes " << indexes
+            << " (element " << elemi << ")." << nl
+            << "Another entry already maps to this key - check for "
+            << "colliding orders." << nl
+            << exit(FatalError);
+    }
+}
+
+template <class mappedType>
 void Foam::mappedList<mappedType>::setSize
 (
     const label newSize,
@@ -256,11 +294,7 @@ void Foam::mappedList<mappedType>::setSize
 
     forAll(*this, elemi)
     {
-        map_.insert
-        (
-            listToLabel(newIndexes[elemi], nDimensions_),
-            elemi
-        );
+        insertKey(newIndexes[elemi], elemi);
     }
 }
 
@@ -282,42 +316,19 @@ bool Foam::mappedList<mappedType>::found(const labelList& list) const
         return false;
     }
 
-    forAllConstIter(Map<label>, map_, iter)
-    {
-        label key = iter.key();
-
-        if (key == listToLabel(list, nDimensions_))
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return map_.found(listToLabel(list, nDimensions_));
 }
 
 template <class mappedType>
 template <typename ...ArgsT>
 bool Foam::mappedList<mappedType>::found(ArgsT...args) const
 {
-    if
-    (
-        label(std::initializer_list<Foam::label>({args...}).size()) > nDimensions_
-    )
+    if (label(sizeof...(args)) > nDimensions_)
     {
         return false;
     }
 
-    forAllConstIter(Map<label>, map_, iter)
-    {
-        label key = iter.key();
-
-        if (key == calcMapIndex({args...}))
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return map_.found(calcMapIndex({args...}));
 }
 
 // ************************************************************************* //
