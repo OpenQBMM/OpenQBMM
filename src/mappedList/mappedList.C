@@ -60,11 +60,6 @@ Foam::mappedList<mappedType>::listToLabel
 
     forAll(list, dimi)
     {
-        listLabel += list[dimi]*pow(scalar(10), size - dimi - 1);
-    }
-
-    forAll(list, dimi)
-    {
         const label exponent = size - dimi - 1;
 
         // Compute 10^exponent using integer arithmetic
