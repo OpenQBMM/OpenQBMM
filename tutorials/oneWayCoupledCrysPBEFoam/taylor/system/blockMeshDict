@@ -1,0 +1,116 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Website:  https://openfoam.org                  |
+|   \\  /    A nd           | Version:  v2012                                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale 1;
+
+// === 定义参数 (在这里修改，下面会自动计算) ===
+rIn    0.024;    // 内半径
+rOut   0.028;    // 外半径
+L      0.16;      // 长度
+angle  2.5;      // 半角 (总角度为 5 度)
+
+// === 自动计算坐标 (不要修改这里) ===
+// 使用 #calc 进行高精度计算，避免手动输入的截断误差
+xIn    #calc "$rIn  * cos(degToRad($angle))";
+yIn    #calc "$rIn  * sin(degToRad($angle))";
+xOut   #calc "$rOut * cos(degToRad($angle))";
+yOut   #calc "$rOut * sin(degToRad($angle))";
+
+vertices
+(
+    // Bottom plane (z=0)
+    ($xIn   #calc "-$yIn"  0)    // 0: inner, -2.5 deg
+    ($xOut  #calc "-$yOut" 0)    // 1: outer, -2.5 deg
+    ($xOut  $yOut          0)    // 2: outer, +2.5 deg
+    ($xIn   $yIn           0)    // 3: inner, +2.5 deg
+
+    // Top plane (z=L)
+    ($xIn   #calc "-$yIn"  $L)   // 4: inner, -2.5 deg
+    ($xOut  #calc "-$yOut" $L)   // 5: outer, -2.5 deg
+    ($xOut  $yOut          $L)   // 6: outer, +2.5 deg
+    ($xIn   $yIn           $L)   // 7: inner, +2.5 deg
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) 
+    (60 1 320)
+    simpleGrading
+    (
+        // 径向分级 (双向加密)
+        (
+            (0.5 0.5 20)
+            (0.5 0.5 0.05)
+        )
+        // 切向
+        1
+        // 轴向分级 (端部加密)
+        (
+            (0.1 0.1 5)
+            (0.8 0.8 1)
+            (0.1 0.1 0.2)
+        )
+    )
+);
+
+edges
+(
+    // 使用变量确保弧线半径与顶点完美匹配
+    arc 0 3 ($rIn  0 0)
+    arc 1 2 ($rOut 0 0)
+    arc 4 7 ($rIn  0 $L)
+    arc 5 6 ($rOut 0 $L)
+);
+
+boundary
+(
+    innerWall
+    {
+        type wall;
+        faces ( (0 4 7 3) );
+    }
+    outerWall
+    {
+        type wall;
+        faces ( (1 2 6 5) );
+    }
+    bottom
+    {
+        type wall;
+        faces ( (0 3 2 1) );
+    }
+    top
+    {
+        type wall;
+        faces ( (4 5 6 7) );
+    }
+    front
+    {
+        type wedge;
+        faces ( (2 3 7 6) );
+    }
+    back
+    {
+        type wedge;
+        faces ( (0 1 5 4) );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

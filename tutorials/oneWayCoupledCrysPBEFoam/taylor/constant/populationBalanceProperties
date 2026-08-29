@@ -1,0 +1,87 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  v2606
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      populationBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Moment correction parameters
+
+populationBalanceModel crystal;
+
+crystalCoeffs
+{
+    minM0           1;      // Minimum number density [#/m³]
+    rhop            1136;         // Crystal density [kg/m³]
+    shapeFactor     1;            // pi/6 for sphere (dimensionless)
+    Pr              1;            // Prandtl number
+    Prt             1;            // Turbulent Prandtl number
+    Sct             0.7;          // Schmidt number
+    molarDiff       1e-5;         // Molar diffusivity [m²/s]
+
+    speciesCoupled      on;
+
+    saturation on;
+    saturationModel
+    {
+        solutionSaturationModel LlysineH2O;
+    }
+    
+    
+    aggregation off;
+    aggregationKernel
+    {
+        aggregationKernel constant;
+    }
+
+    breakup off;
+    breakupKernel
+    {
+        breakupKernel powerLaw;
+    }
+
+    diffusionModel
+    {
+        diffusionModel  none;
+    }
+
+    growth on;
+    growthModel
+    {
+        growthModel     coolCrysGrowth;
+        minAbscissa     1.0e-9;
+        maxAbscissa     1.0e-3;
+        CgGrowth        [0 1 -1 0 0 0 0]    9.5208e-05;
+        powCoeff        1.201;
+    }
+
+    nucleation on;
+    nucleationModel
+    {
+        nucleationModel     deltaNucleation;
+        kb                  [0 -3 -1 0 0 0 0]   9.9596e+07;
+        powCoeff            0.804;
+    }
+
+    odeCoeffs
+    {
+        ATol    1.0e-8;
+        RTol    1.0e-4;
+        fac     0.9;
+        facMin  0.5;
+        facMax  2.0;
+        minLocalDt 1.0e-6;
+    }
+}
+
+
+// ************************************************************************* //

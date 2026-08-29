@@ -1,0 +1,97 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  v2606
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      populationBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+populationBalanceModel crystal;
+
+crystalCoeffs
+{
+    sizeDefault     1.0e-6;
+    minM0           1.0;
+    rhop            2666.0;
+    shapeFactor     0.523598775598;
+
+    speciesCoupled      on;
+
+    saturation on;
+    saturationModel
+    {
+        solutionSaturationModel K2SO4H2O;
+    }
+
+    aggregation on;
+    aggregationKernel
+    {
+        aggregationKernel crystalAggregation;
+        Ca Ca [0 0 -1 0 0 0 0] 1;
+        crystalCollisionFrequency shear;
+        Cshear 0.1666666667;
+        crystalAggregationEfficiency Ilievski;
+        Utip 0.785398163397;
+        psi0 0.009;
+        CIlievski 6.25e-19;
+    }
+
+    breakup off;
+    breakupKernel
+    {
+        breakupKernel powerLaw;
+    }
+
+    diffusionModel
+    {
+        diffusionModel none;
+    }
+
+    growth on;
+    growthModel
+    {
+        growthModel     coolCrysSizeEffectGrowth;
+        minAbscissa     1.0e-9;
+        maxAbscissa     2.0e-3;
+        CgGrowth        CgGrowth [0 1 -1 0 0 0 0] 9e-05;
+        powCoeff        1.95;
+        Lc              Lc [0 0 1 0 0 0 0] 400e-6;
+        qSize           4;
+    }
+
+    nucleation on;
+    nucleationModel
+    {
+        nucleationModel areaNucleation;
+        kb              kb [0 -3 -1 0 0 0 0] 56000000;
+        b               3;
+        alpha           2;
+        momentGroup     populationBalance;
+        deltaWidth      1.0e-6;
+    }
+
+    Pr              7.0;
+    Prt             0.85;
+    molarDiff       1.0e-9;
+    Sct             0.7;
+
+    odeCoeffs
+    {
+        ATol        1.0e-8;
+        RTol        1.0e-4;
+        fac         0.9;
+        facMin      0.5;
+        facMax      2.0;
+        minLocalDt  1.0e-6;
+    }
+}
+
+// ************************************************************************* //

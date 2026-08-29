@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  v2606
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+libs            ("libcrystalPopuBal.so");
+
+application     oneWayCoupledCrysPBEFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         13800;
+
+deltaT          1.0;
+
+writeControl    runTime;
+
+writeInterval   300;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  off;
+
+functions
+{
+    probes
+    {
+        type            probes;
+        libs            (libsampling);
+        name            probes;
+        writeControl    timeStep;
+        writeInterval   1;
+        fields
+        (
+            C
+            T
+            sigma
+            epsilon
+            growthRate
+            L10.crystal
+            L32.crystal
+            moment.0.populationBalance
+            moment.1.populationBalance
+            moment.2.populationBalance
+            moment.3.populationBalance
+            moment.4.populationBalance
+            moment.5.populationBalance
+        );
+        probeLocations
+        (
+            (0.0005 0.0005 0.0005)
+        );
+    }
+}
+
+// ************************************************************************* //

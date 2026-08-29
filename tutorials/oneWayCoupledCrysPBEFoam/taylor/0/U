@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  v2606
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    // 内圆柱：旋转边界条件
+    innerWall
+    {
+        type            rotatingWallVelocity;
+        origin          (0 0 0);
+        axis            (0 0 1); // 绕 Z 轴旋转
+        omega           52.36;   // 500 rpm   300rpm:31.42   1000rpm:104.72
+    }
+
+    // 外圆柱：静止
+    outerWall
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+
+    // 顶部和底部：无滑移壁面
+    bottom
+    {
+        type            noSlip; //或者fixedValue (0 0 0)
+    }
+    top
+    {
+        type            noSlip;
+    }
+
+    // 轴对称边界
+    front
+    {
+        type            wedge;
+    }
+    back
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //
