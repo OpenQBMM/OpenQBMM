@@ -210,6 +210,127 @@ void testQuadrature
 // realizability check reports four realizable moments, because the zeta chain
 // limps one step further on round-off, so the number of realizable moments
 // alone does not exclude the extension. GQMOM must fall back to Gauss.
+void testOddMomentCountGQMOM(dictionary& dict)
+{
+    // Exact moments of a gamma distribution with shape 2 and scale 1, so
+    // m_n = (n + 1)!, which is a strictly realizable moment vector of odd
+    // size. GQMOM has no restriction on the parity of the moment count: it
+    // takes the number of regular quadrature nodes from the parity of the
+    // number of realizable moments, and extends the recurrence relationship
+    // in terms of that number alone.
+    scalarList inputMoments({1.0, 2.0, 6.0, 24.0, 120.0, 720.0, 5040.0});
+
+    const label nMoments = inputMoments.size();
+    const label nMaxNodes = 5;
+
+    autoPtr<univariateMomentInversion> inversion
+    (
+        univariateMomentInversion::New(dict, nMaxNodes)
+    );
+
+    // The moment set has to reserve the room the quadrature asks for
+    const label nAdditionalPoints =
+        inversion().nAdditionalQuadraturePoints(nMoments);
+
+    Info<< "\nTesting GQMOM with an odd number of moments\n" << endl;
+    Info<< "  Number of moments = " << nMoments << endl;
+    Info<< "  Number of additional quadrature points = "
+        << nAdditionalPoints << endl;
+
+    if (nAdditionalPoints != nMaxNodes - nMoments/2)
+    {
+        FatalErrorInFunction
+            << "The number of additional quadrature points of GQMOM is not "
+            << "the one an odd number of moments determines." << nl
+            << "    Number of additional quadrature points: "
+            << nAdditionalPoints << ", expected " << nMaxNodes - nMoments/2
+            << nl << exit(FatalError);
+    }
+
+    univariateMomentSet m
+    (
+        inputMoments,
+        supportType::RPlus,
+        SMALL,
+        0.0,
+        nAdditionalPoints
+    );
+
+    showInputMoments(m, "GQMOM, odd number of moments");
+
+    const label nRealizableMoments = m.nRealizableMoments(false);
+
+    if (nRealizableMoments != nMoments)
+    {
+        FatalErrorInFunction
+            << "This test needs a fully realizable moment vector." << nl
+            << "    Number of realizable moments: " << nRealizableMoments
+            << ", expected " << nMoments << nl
+            << exit(FatalError);
+    }
+
+    inversion().invert(m);
+
+    Info<< "\nVerifying the number of quadrature nodes...";
+
+    if (inversion().nNodes() != nMaxNodes)
+    {
+        FatalErrorInFunction
+            << "GQMOM did not extend the quadrature to the requested number "
+            << "of nodes." << nl
+            << "    Number of quadrature nodes: " << inversion().nNodes()
+            << ", expected " << nMaxNodes << nl
+            << exit(FatalError);
+    }
+
+    Info<< "OK" << endl;
+
+    // The additional nodes leave the moments the regular quadrature
+    // determines untouched. An odd number of moments determines
+    // (nMoments - 1)/2 regular nodes, which preserve the moments of order
+    // lower than nMoments - 1.
+    const label nRegularNodes = (nMoments - 1)/2;
+    const scalarList& weights(inversion().weights());
+    const scalarList& abscissae(inversion().abscissae());
+
+    const scalar tolerance = 1.0e-10;
+
+    Info<< "\nVerifying moment conservation with tolerance " << tolerance
+        << "\n" << endl;
+
+    for (label mi = 0; mi < 2*nRegularNodes; mi++)
+    {
+        scalar momentFromQuadrature = 0.0;
+
+        forAll(weights, nodei)
+        {
+            momentFromQuadrature += weights[nodei]*pow(abscissae[nodei], mi);
+        }
+
+        Info<< "  moment " << mi << " from quadrature = "
+            << momentFromQuadrature << ", expected " << inputMoments[mi]
+            << endl;
+
+        if
+        (
+            mag(momentFromQuadrature - inputMoments[mi])
+          > tolerance*max(mag(inputMoments[mi]), SMALL)
+        )
+        {
+            FatalErrorInFunction
+                << "The quadrature does not reproduce the moments it is "
+                << "built from." << nl
+                << "    Moment order: " << mi << nl
+                << "    Moment from quadrature: " << momentFromQuadrature << nl
+                << "    Expected: " << inputMoments[mi] << nl
+                << exit(FatalError);
+        }
+    }
+
+    Info<< endl;
+}
+
+
 void testDegenerateVarianceGQMOM
 (
     dictionary& dict,
@@ -680,6 +801,8 @@ int main(int argc, char *argv[])
         "GQMOM",
         10
     );
+
+    testOddMomentCountGQMOM(quadraturePropertiesGQMOM);
 
     testDegenerateVarianceGQMOM(quadraturePropertiesGQMOM, "gamma");
     testDegenerateVarianceGQMOM(quadraturePropertiesGQMOM, "lognormal");

@@ -51,7 +51,11 @@ Foam::extendedMomentInversion::extendedMomentInversion
 :
     momentInverter_
     (
-        univariateMomentInversion::New(dict.subDict("basicQuadrature"))
+        univariateMomentInversion::New
+        (
+            dict.subDict("basicQuadrature"),
+            (nMoments - 1)/2
+        )
     ),
     nMoments_(nMoments),
     nPrimaryNodes_((nMoments_ - 1)/2),
@@ -76,7 +80,27 @@ Foam::extendedMomentInversion::extendedMomentInversion
     nullSigma_(false),
     smallM0_(momentInverter_().smallM0()),
     smallZeta_(momentInverter_().smallZeta())
-{}
+{
+    // The extended quadrature method of moments determines nPrimaryNodes_
+    // weights, nPrimaryNodes_ abscissae and sigma from nMoments_ = 2 n + 1
+    // moments, so the primary quadrature has to be the Gauss quadrature of
+    // the starred moments. A quadrature that fixes an abscissa builds one
+    // node more, which leaves the moment set over-determined and overruns the
+    // lists of the primary and secondary quadrature.
+    if (momentInverter_().nAdditionalQuadraturePoints(nMoments_) != 0)
+    {
+        FatalErrorInFunction
+            << "The primary quadrature builds more nodes than the extended "
+            << "quadrature method of moments can use." << nl
+            << "    Primary quadrature: " << momentInverter_().type() << nl
+            << "    Number of moments: " << nMoments_ << nl
+            << "    Number of primary nodes: " << nPrimaryNodes_ << nl
+            << nl
+            << "Select a quadrature that does not fix an abscissa, such as "
+            << "Gauss, in the basicQuadrature sub-dictionary." << nl
+            << exit(FatalError);
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

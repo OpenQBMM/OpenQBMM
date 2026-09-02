@@ -116,4 +116,13 @@ void Foam::gaussRadauMomentInversion::calcNQuadratureNodes
     weights_.setSize(nNodes_);
 }
 
+
+Foam::label Foam::gaussRadauMomentInversion::nAdditionalQuadraturePoints
+(
+    const label nMoments
+) const
+{
+    return 1;
+}
+
 // ************************************************************************* //

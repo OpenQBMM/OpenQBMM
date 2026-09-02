@@ -139,6 +139,40 @@ bool Foam::generalizedMomentInversion::canExtendRecurrence
 }
 
 
+Foam::label Foam::generalizedMomentInversion::nAdditionalQuadraturePoints
+(
+    const label nMoments
+) const
+{
+    // The moments determine at most nMoments/2 quadrature nodes, for an even
+    // and for an odd number of moments alike, and the recurrence relationship
+    // is extended with a model number density function to the remaining ones
+    const label nAdditionalNodes = nMaxNodes_ - nMoments/2;
+
+    if (nAdditionalNodes < 0)
+    {
+        FatalErrorInFunction
+            << "Generalized QMOM is asked for fewer quadrature nodes than "
+            << "the moments determine." << nl
+            << "    Number of moments: " << nMoments << nl
+            << "    Number of quadrature nodes: " << nMaxNodes_ << nl
+            << "    Number of nodes of regular QMOM: " << nMoments/2 << nl
+            << nl
+            << "The moments beyond the ones the requested nodes support "
+            << "would be lost, and the quadrature would not conserve them. "
+            << "The number of nodes cannot be raised to the one of regular "
+            << "QMOM either, because the nodes in excess of the ones the "
+            << "case declares are discarded when the quadrature is stored."
+            << nl
+            << "Declare at least " << nMoments/2 << " nodes, or reduce the "
+            << "number of moments." << nl
+            << exit(FatalError);
+    }
+
+    return nAdditionalNodes;
+}
+
+
 void Foam::generalizedMomentInversion::calcNQuadratureNodes
 (
     univariateMomentSet& moments
@@ -153,6 +187,10 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
         ? label((nRealizableMoments - 1)/2.0)
         : label(nRealizableMoments/2.0);
 
+    // Note: nRegularQuadratureNodes_ is at most nMoments/2, because the
+    //       realizable moments are at most all of them, and the owner of the
+    //       moment set has checked that nMaxNodes_ is not smaller than that,
+    //       so the number of additional nodes below cannot be negative.
     if (nRealizableMoments > 3 && canExtendRecurrence(moments))
     {
         nAdditionalQuadratureNodes_ = nMaxNodes_ - nRegularQuadratureNodes_;

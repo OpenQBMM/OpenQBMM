@@ -205,6 +205,12 @@ public:
             const scalar maxKnownAbscissa = 0
         );
 
+        //- Return the number of quadrature nodes, in excess of the ones a
+        //  Gauss quadrature builds from nMoments moments, for which the
+        //  moment set has to reserve room in the coefficients of the
+        //  recurrence relationship and in the chain of the zeta_k
+        virtual label nAdditionalQuadraturePoints(const label nMoments) const;
+
         //- Return quadrature abscissae
         inline const scalarList& abscissae() const;
 

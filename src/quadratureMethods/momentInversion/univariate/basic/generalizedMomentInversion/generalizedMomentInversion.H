@@ -137,6 +137,11 @@ public:
             univariateMomentSet& moments
         );
 
+        //- Return the number of additional quadrature nodes. Generalized
+        //  QMOM extends the recurrence relationship of the moments to the
+        //  nodes the user asks for beyond the ones the moments determine
+        virtual label nAdditionalQuadraturePoints(const label nMoments) const;
+
         //- Invert the set of moments to compute weights and abscissae
         void invert
         (

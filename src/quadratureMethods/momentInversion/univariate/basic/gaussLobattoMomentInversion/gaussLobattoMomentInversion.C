@@ -138,4 +138,13 @@ void Foam::gaussLobattoMomentInversion::calcNQuadratureNodes
     weights_.setSize(nNodes_);
 }
 
+
+Foam::label Foam::gaussLobattoMomentInversion::nAdditionalQuadraturePoints
+(
+    const label nMoments
+) const
+{
+    return 2;
+}
+
 // ************************************************************************* //

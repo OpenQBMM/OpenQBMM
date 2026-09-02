@@ -79,6 +79,17 @@ Foam::univariateMomentInversion::univariateMomentInversion
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+Foam::label Foam::univariateMomentInversion::nAdditionalQuadraturePoints
+(
+    const label nMoments
+) const
+{
+    // A quadrature of nMoments/2 nodes is what the moment set is sized for,
+    // so a quadrature that does not go beyond it needs no additional room
+    return 0;
+}
+
+
 Foam::scalar Foam::univariateMomentInversion::orthogonalPolynomial
 (
     const scalarList& alpha,

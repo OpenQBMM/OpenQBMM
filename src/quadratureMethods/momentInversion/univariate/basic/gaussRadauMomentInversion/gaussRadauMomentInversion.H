@@ -98,6 +98,11 @@ public:
         (
             univariateMomentSet& moments
         );
+
+        //- Return the number of additional quadrature nodes. Gauss-Radau
+        //  fixes one abscissa, which costs one node over the Gauss
+        //  quadrature built from the same moments
+        virtual label nAdditionalQuadraturePoints(const label nMoments) const;
 };
 
 

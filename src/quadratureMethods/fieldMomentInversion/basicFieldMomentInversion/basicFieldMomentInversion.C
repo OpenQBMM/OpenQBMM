@@ -77,46 +77,18 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
         )
     )
 {
-    // Note: this must not be a function-local static. More than one
+    // The quadrature decides how much room the moment set has to reserve for
+    // the coefficients of the recurrence relationship, and for the zeta_k, of
+    // the nodes it builds beyond the ones a Gauss quadrature would.
+    //
+    // Note: this must be asked of the inverter this object owns, and the
+    // answer must not be cached across objects. More than one
     // basicFieldMomentInversion is built per run - quadratureApproximation
     // builds one from the top-level dictionary, and firstOrderKinetic builds
-    // another from the momentAdvection sub-dictionary - and a static would
-    // freeze the type of the first one for all the others, sizing their
-    // recurrence relationship for the wrong quadrature.
-    const word& inversionType = momentInverter_().type();
-
-    if (inversionType == "GaussRadau")
-    {
-         nAdditionalQuadraturePoints_ = 1;
-    }
-    else if (inversionType == "GaussLobatto")
-    {
-        nAdditionalQuadraturePoints_ = 2;
-    }
-    else if (inversionType == "GQMOM")
-    {
-        if (momentOrders.size() % 2 != 0)
-        {
-            FatalErrorInFunction
-                << "Even number of moments required for generalized QMOM."
-                << exit(FatalError);
-        }
-        else
-        {
-            label nMainNodes = momentOrders.size()/2;
-
-            nAdditionalQuadraturePoints_ = nodeIndexes.size() - nMainNodes;
-
-            if (nAdditionalQuadraturePoints_ < 0)
-            {
-                WarningInFunction
-                    << "Using generalized QMOM with a number of nodes "
-                    << "equal or smaller than regular QMOM. This may lead "
-                    << "to lack of moment conservation."
-                    << endl;
-            }
-        }
-    }
+    // another from the momentAdvection sub-dictionary - and each of them can
+    // select a different quadrature.
+    nAdditionalQuadraturePoints_ =
+        momentInverter_().nAdditionalQuadraturePoints(momentOrders.size());
 }
 
 
