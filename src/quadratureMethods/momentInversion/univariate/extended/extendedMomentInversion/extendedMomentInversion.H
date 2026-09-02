@@ -311,25 +311,25 @@ public:
         void invert(const univariateMomentSet& moments);
 
         //- Return number of moments
-        inline label nMoments()
+        inline label nMoments() const
         {
             return nMoments_;
         }
 
         //- Return number of primary quadrature nodes
-        inline label nPrimaryNodes()
+        inline label nPrimaryNodes() const
         {
             return nPrimaryNodes_;
         }
 
         //- Return the number of actual primary nodes used
-        inline label nActualPrimaryNodes()
+        inline label nActualPrimaryNodes() const
         {
             return nActualPrimaryNodes_;
         }
 
         //- Return number of secondary quadrature nodes
-        inline label nSecondaryNodes()
+        inline label nSecondaryNodes() const
         {
             return nSecondaryNodes_;
         }

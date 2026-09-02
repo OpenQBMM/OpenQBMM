@@ -12,6 +12,7 @@ Test-UnivariateMomentSet
 
 # Quadrature algorithms
 (cd ./momentInversions/univariate/univariateMomentInversion && Test-UnivariateMomentInversion)
+(cd ./momentInversions/univariate/extendedMomentInversion && Test-ExtendedMomentInversion)
 
 # Move back to the main OpenQBMM directory
 cd ..

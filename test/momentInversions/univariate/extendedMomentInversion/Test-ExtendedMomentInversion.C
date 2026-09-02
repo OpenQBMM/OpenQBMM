@@ -5,10 +5,10 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Code created 2016-2018 by Alberto Passalacqua
+    Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -27,17 +27,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Test-ExtendedMomentInversion.C
+    Test-ExtendedMomentInversion
 
 Description
-    Test the extendedMomentInversion class and its subclasses.
+    Test the extendedMomentInversion class and its kernel density functions.
+
+    The check that carries the weight is the reconstruction of the moments:
+    the extended quadrature method of moments determines n weights, n
+    abscissae and sigma from 2 n + 1 moments, so the quadrature it builds has
+    to reproduce every one of them. That is a property of the method, not a
+    value recorded from a previous run, and it fails for any corruption of
+    the primary quadrature, of the parameter of the kernel, or of the
+    secondary quadrature.
 
 \*---------------------------------------------------------------------------*/
 
-#include "fvCFD.H"
 #include "IOmanip.H"
 #include "IFstream.H"
-#include "OFstream.H"
 #include "scalarList.H"
 #include "scalarMatrices.H"
 #include "supportType.H"
@@ -48,153 +54,291 @@ using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-int main(int argc, char *argv[])
+void compareScalar
+(
+    const scalar computed,
+    const scalar expected,
+    const scalar tolerance,
+    const string& name
+)
 {
-    Info<< "Reading quadratureProperties\n" << endl;
-    dictionary quadratureProperties(IFstream("quadratureProperties")());
+    Info<< "  " << name << " = " << computed
+        << ", expected " << expected << endl;
 
-    Info << "Testing extendedMomentInversion\n" << endl;
+    const scalar difference = mag(computed - expected);
 
-    label nMoments = 5;
-    univariateMomentSet moments(nMoments, supportType::RPlus, SMALL, SMALL);
-
-    // Dirac delta function
-//     moments[0] = 1.0;
-//     moments[1] = 1.0;
-//     moments[2] = 1.0;
-//     moments[3] = 1.0;
-//     moments[4] = 1.0;
-
-//  Valid moment set
-   moments[0] = 1.0;
-   moments[1] = 2.708217669;
-   moments[2] = 8.951330468;
-   moments[3] = 35.95258119;
-   moments[4] = 174.4370267;
-
-//  Unrealizable moment star
-//     moments[0] = 0.567128698550116;
-//     moments[1] = 0.659798044636756;
-//     moments[2] = 0.796168501018439;
-//     moments[3] = 1.0;
-//     moments[4] = 1.3103698092;
-
-//  Set of moment with sigma = 0 as root
-//     moments[0] = 1.0;
-//     moments[1] = 1.6487212707;
-//     moments[2] = 2.7182818285;
-//     moments[3] = 4.4816890703;
-//     moments[4] = 7.3890560989;
-
-// Set of moments with multiple roots not bracketed by sigmaMax
-//     moments[0] = 1.0;
-//     moments[1] = 1.055795897;
-//     moments[2] = 1.247672408;
-//     moments[3] = 1.670093417;
-//     moments[4] = 2.578636894;
-//     moments[5] = 4.688985807;
-//     moments[6] = 10.22526492;
-//     moments[7] = 27.0370458224;
-//     moments[8] = 86.9534420717;
-
-// Moment set on edge of moment space
-//     moments[0] = 3.125e12;
-//     moments[1] = 6.25e6;
-//     moments[2] = 12.5;
-//     moments[3] = 2.5e-5;
-//     moments[4] = 5.0e-11;
-
-//     moments[0] = 1.0;
-//     moments[1] = 2.0;
-//     moments[2] = 4.0;
-//     moments[3] = 8.0;
-//     moments[4] = 16.0;
-
-//     moments[0] = 0.9996;
-//     moments[1] =  0.99970396842;
-//     moments[2] = 0.999834960421;
-//     moments[3] = 1;
-//     moments[4] = 1.00020793684;
-
-
-// Moment set provided by Frederique Laurent-Negre
-// M_k = 1/k; k = 1, 2*N + 1
-// Test with 11 moments - All should be reproduced
-//        for (label mI = 1; mI < nMoments + 1; mI++)
-//        {
-//            moments[mI - 1] = 1.0/scalar(mI);
-//        }
-//
-//        moments[9] = 0;
-
-// Moment set provided by Frederique Laurent-Negre
-// Last moment not preserved
-//    moments[0] = 1.0;
-//    moments[1] = 1.0;
-//    moments[2] = 1.1;
-//    moments[3] = 1.41;
-//    moments[4] = 2.371;
-//    moments[5] = 5.4501;
-//    moments[6] = 15.75531;
-
-    Info << setprecision(16);
-    Info << "Input moments\n" << endl;
-
-    for (label momentI = 0; momentI < nMoments; momentI++)
+    if (difference > tolerance*max(mag(expected), SMALL))
     {
-        Info << "Moment " << momentI << " = " << moments[momentI] << endl;
+        FatalErrorInFunction
+            << "The value of " << name << " is not the expected one." << nl
+            << "    Computed: " << computed << nl
+            << "    Expected: " << expected << nl
+            << "    Difference: " << difference << nl
+            << "    Tolerance: " << tolerance << nl
+            << exit(FatalError);
+    }
+}
+
+
+//- Moment of order momentOrder of the reconstructed distribution, computed
+//  from the primary and secondary quadrature
+Foam::scalar momentFromQuadrature
+(
+    const extendedMomentInversion& EQMOM,
+    const label momentOrder
+)
+{
+    const scalarList& pWeights(EQMOM.primaryWeights());
+    const scalarRectangularMatrix& sWeights(EQMOM.secondaryWeights());
+    const scalarRectangularMatrix& sAbscissae(EQMOM.secondaryAbscissae());
+
+    scalar moment = 0.0;
+
+    for (label pNodei = 0; pNodei < EQMOM.nPrimaryNodes(); pNodei++)
+    {
+        scalar secondarySum = 0.0;
+
+        for (label sNodei = 0; sNodei < EQMOM.nSecondaryNodes(); sNodei++)
+        {
+            secondarySum +=
+                sWeights[pNodei][sNodei]
+               *pow(sAbscissae[pNodei][sNodei], momentOrder);
+        }
+
+        moment += pWeights[pNodei]*secondarySum;
     }
 
-    Info << endl;
+    return moment;
+}
+
+
+void showInputMoments(const scalarList& moments, const string& name)
+{
+    Info<< "\nTesting " << name << "\n" << endl;
+
+    forAll(moments, momenti)
+    {
+        Info<< "  inputMoments[" << momenti << "] = " << moments[momenti]
+            << endl;
+    }
+
+    Info<< endl;
+}
+
+
+//- Invert a moment vector and check that the quadrature reproduces it.
+//  nPreservedMoments is the number of moments the method conserves, which is
+//  all of them when a valid sigma is found.
+void testEQMOM
+(
+    const dictionary& dict,
+    const word& kernel,
+    const scalarList& inputMoments,
+    const supportType& support,
+    const scalar expectedSigma,
+    const label nPreservedMoments,
+    const scalar tolerance
+)
+{
+    dictionary quadratureDict(dict);
+    quadratureDict.set("extendedMomentInversion", kernel);
+
+    showInputMoments(inputMoments, kernel + " kernel density function");
+
+    univariateMomentSet moments(inputMoments, support, SMALL, SMALL);
 
     autoPtr<extendedMomentInversion> EQMOM
     (
         extendedMomentInversion::New
         (
-            quadratureProperties,
-            nMoments,
-            readLabel(quadratureProperties.lookup("nSecondaryNodes"))
+            quadratureDict,
+            inputMoments.size(),
+            readLabel(quadratureDict.lookup("nSecondaryNodes"))
         )
     );
 
-    Info << "\nInverting moments.\n" << endl;
+    EQMOM->invert(moments);
+
+    Info<< "\nVerifying the parameter of the kernel density function\n" << endl;
+
+    compareScalar(EQMOM->sigma(), expectedSigma, tolerance, "sigma");
+
+    Info<< "\nVerifying moment conservation\n" << endl;
+
+    for (label momenti = 0; momenti < nPreservedMoments; momenti++)
+    {
+        compareScalar
+        (
+            momentFromQuadrature(EQMOM(), momenti),
+            inputMoments[momenti],
+            tolerance,
+            "moment " + Foam::name(momenti)
+        );
+    }
+
+    Info<< endl;
+}
+
+
+//- A moment vector of a Dirac delta has no spread for the kernel density
+//  function to represent, so sigma has to be null and the reconstruction has
+//  to fall back on the primary quadrature alone
+void testDiracDelta
+(
+    const dictionary& dict,
+    const word& kernel,
+    const scalarList& inputMoments,
+    const supportType& support
+)
+{
+    dictionary quadratureDict(dict);
+    quadratureDict.set("extendedMomentInversion", kernel);
+
+    showInputMoments
+    (
+        inputMoments,
+        kernel + " kernel density function, Dirac delta"
+    );
+
+    univariateMomentSet moments(inputMoments, support, SMALL, SMALL);
+
+    autoPtr<extendedMomentInversion> EQMOM
+    (
+        extendedMomentInversion::New
+        (
+            quadratureDict,
+            inputMoments.size(),
+            readLabel(quadratureDict.lookup("nSecondaryNodes"))
+        )
+    );
 
     EQMOM->invert(moments);
 
-    Info << "Sigma = " << EQMOM->sigma() << endl;
-    Info << "\nExtracting secondary quadrature." << endl;
-    Info << "\nRecovering secondary weights and abscissae." << endl;
+    Info<< "\nVerifying the fall back to the primary quadrature...";
 
-    const scalarList& pWeights(EQMOM->primaryWeights());
-    const scalarList& pAbscissae(EQMOM->primaryAbscissae());
-    const scalarRectangularMatrix& sWeights(EQMOM->secondaryWeights());
-    const scalarRectangularMatrix& sAbscissae(EQMOM->secondaryAbscissae());
-
-    Info << "\nStoring quadrature." << endl;
-
-    OFstream outputFile("./secondaryQuadrature");
-
-    label nPrimaryNodes = EQMOM->nPrimaryNodes();
-    label nSecondaryNodes = EQMOM->nSecondaryNodes();
-
-    for (label pNodeI = 0; pNodeI < nPrimaryNodes; pNodeI++)
+    if (EQMOM->sigma() != 0.0)
     {
-        outputFile << "Primary node " << pNodeI
-            << "\nPrimary weight = " << pWeights[pNodeI]
-            << "\nPrimary abscissa = " << pAbscissae[pNodeI] << endl;
-
-        outputFile << "\nSecondary nodes" << endl;
-
-        for (label sNodeI = 0; sNodeI < nSecondaryNodes; sNodeI++)
-        {
-            outputFile << sWeights[pNodeI][sNodeI] << ", "
-                << sAbscissae[pNodeI][sNodeI] << endl;
-        }
-
-        outputFile << "\n\n";
+        FatalErrorInFunction
+            << "The kernel density function of a Dirac delta has a non-null "
+            << "parameter." << nl
+            << "    sigma: " << EQMOM->sigma() << nl
+            << exit(FatalError);
     }
 
-    Info << "\nEnd\n" << endl;
+    Info<< "OK" << endl;
+
+    Info<< "\nVerifying moment conservation\n" << endl;
+
+    // The zero and first order moments are the ones a single node of the
+    // primary quadrature determines
+    for (label momenti = 0; momenti < 2; momenti++)
+    {
+        compareScalar
+        (
+            momentFromQuadrature(EQMOM(), momenti),
+            inputMoments[momenti],
+            1.0e-10,
+            "moment " + Foam::name(momenti)
+        );
+    }
+
+    Info<< endl;
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+int main(int argc, char *argv[])
+{
+    Info<< "Reading quadratureProperties\n" << endl;
+
+    IFstream quadraturePropertiesFile("quadratureProperties");
+    dictionary quadratureProperties(quadraturePropertiesFile);
+
+    Info<< setprecision(16);
+
+    // Moments of a lognormal distribution of parameter sigma = 0.4, the
+    // moment vector this test has always used. The kernel density function
+    // of the same family has to recover that parameter, to the accuracy of
+    // the ten significant digits the moments are given with.
+    const scalarList lognormalMoments
+    ({
+        1.0, 2.708217669, 8.951330468, 35.95258119, 174.4370267
+    });
+
+    testEQMOM
+    (
+        quadratureProperties,
+        "lognormal",
+        lognormalMoments,
+        supportType::RPlus,
+        0.4,
+        5,
+        1.0e-8
+    );
+
+    // A gamma kernel density function on the same moment vector has no
+    // closed form to recover, so the value is the one the method converges
+    // to. It is here to catch a change of the search for sigma.
+    testEQMOM
+    (
+        quadratureProperties,
+        "gamma",
+        lognormalMoments,
+        supportType::RPlus,
+        0.4379509305189075,
+        5,
+        1.0e-8
+    );
+
+    // Exact moments of a beta distribution of shape a = 2 and b = 3, which
+    // has support over [0, 1]. The kernel density function of the same
+    // family has to recover it exactly, with a parameter
+    // sigma = 1/(a + b + 1) = 1/6, and a single primary node carrying it.
+    const scalarList betaMoments
+    ({
+        1.0,
+        0.4,
+        0.2,
+        0.11428571428571428,
+        0.07142857142857142
+    });
+
+    testEQMOM
+    (
+        quadratureProperties,
+        "beta",
+        betaMoments,
+        supportType::ZeroOne,
+        1.0/6.0,
+        5,
+        1.0e-12
+    );
+
+    // Moments of a Dirac delta at exp(1/2), which the commented moment
+    // vectors of this test used to cover
+    const scalarList diracMoments
+    ({
+        1.0, 1.6487212707, 2.7182818285, 4.4816890703, 7.3890560989
+    });
+
+    testDiracDelta
+    (
+        quadratureProperties,
+        "lognormal",
+        diracMoments,
+        supportType::RPlus
+    );
+
+    testDiracDelta
+    (
+        quadratureProperties,
+        "gamma",
+        diracMoments,
+        supportType::RPlus
+    );
+
+    Info<< "\nEnd\n" << endl;
 
     return 0;
 }
