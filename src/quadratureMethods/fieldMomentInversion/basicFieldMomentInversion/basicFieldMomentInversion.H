@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -69,11 +69,24 @@ class basicFieldMomentInversion
         //- Number of fixed quadrature points
         label nAdditionalQuadraturePoints_;
 
+        //- Moment set used to invert the moments of a single cell or of a
+        //  single boundary face. It is allocated on first use and reused, so
+        //  that the inversion does not rebuild the lists and the index map of
+        //  a moment set for every cell of the mesh.
+        autoPtr<univariateMomentSet> momentsToInvert_;
+
 
     // Private Member Functions
 
         //- Moment inverter
         autoPtr<univariateMomentInversion> momentInverter_;
+
+        //- Return the moment set used to invert a single cell or face,
+        //  allocating it on first use
+        univariateMomentSet& localMomentSet
+        (
+            const volScalarMomentFieldSet& moments
+        );
 
 
 public:

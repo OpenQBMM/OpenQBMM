@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -460,13 +460,15 @@ void Foam::univariateAdvection::zeta::auxiliaryQuantitiesToMoments
 
 void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
 {
+    // The moment set is allocated once and reused over cells and faces, so
+    // that its lists and index map are not rebuilt for every cell
+    univariateMomentSet m(nMoments_, support_, SMALL, SMALL);
+
     // Cell-center values
     forAll(m0_, celli)
     {
         if (m0_[celli] >= SMALL)
         {
-            univariateMomentSet m(nMoments_, support_, SMALL, SMALL);
-
             for (label mi = 0; mi < nMoments_; mi++)
             {
                 m[mi] = moments_(mi)[celli];
@@ -509,8 +511,6 @@ void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
         {
             if (m0_.boundaryField()[patchi][facei] >= SMALL)
             {
-                univariateMomentSet m(nMoments_, support_, SMALL, SMALL);
-
                 for (label mi = 0; mi < nMoments_; mi++)
                 {
                     m[mi] = moments_(mi).boundaryField()[patchi][facei];

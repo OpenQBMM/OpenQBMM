@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -58,12 +58,6 @@ Foam::gaussRadauMomentInversion::gaussRadauMomentInversion
 {}
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::gaussRadauMomentInversion::~gaussRadauMomentInversion()
-{}
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::gaussRadauMomentInversion::correctRecurrence
@@ -77,17 +71,11 @@ void Foam::gaussRadauMomentInversion::correctRecurrence
 {
     if (!forceGauss_)
     {
-        scalar p = minKnownAbscissa - alpha[0];
+        // Fix the known abscissa by correcting the last alpha coefficient
         scalar pMinus1 = 1.0;
-        scalar p1 = p;
 
-        for (label i = 1; i < nNodes_ - 1; i++)
-        {
-            p = (minKnownAbscissa - alpha[i])*p1 - beta[i]*pMinus1;
-
-            pMinus1 = p1;
-            p1 = p;
-        }
+        const scalar p =
+            orthogonalPolynomial(alpha, beta, minKnownAbscissa, pMinus1);
 
         alpha[nNodes_ - 1] =
             minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;

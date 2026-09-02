@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -58,12 +58,6 @@ Foam::gaussLobattoMomentInversion::gaussLobattoMomentInversion
 {}
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::gaussLobattoMomentInversion::~gaussLobattoMomentInversion()
-{}
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::gaussLobattoMomentInversion::correctRecurrence
@@ -77,47 +71,29 @@ void Foam::gaussLobattoMomentInversion::correctRecurrence
 {
     if (forceRadau_)
     {
-        scalar p = minKnownAbscissa - alpha[0];
+        // Only the lower abscissa is fixed, as in Gauss-Radau
         scalar pMinus1 = 1.0;
-        scalar p1 = p;
 
-        for (label i = 1; i < nNodes_ - 1; i++)
-        {
-            p = (minKnownAbscissa - alpha[i])*p1 - beta[i]*pMinus1;
-
-            pMinus1 = p1;
-            p1 = p;
-        }
+        const scalar p =
+            orthogonalPolynomial(alpha, beta, minKnownAbscissa, pMinus1);
 
         alpha[nNodes_ - 1] =
                 minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;
     }
     else
     {
-        scalar pLeft = minKnownAbscissa - alpha[0];
-        scalar pRight = maxKnownAbscissa - alpha[0];
-
+        // Both abscissae are fixed, which requires correcting the last alpha
+        // and beta coefficients by solving a 2x2 system
         scalar pMinus1Left = 1.0;
         scalar pMinus1Right = 1.0;
 
-        scalar p1Left = pLeft;
-        scalar p1Right = pRight;
+        const scalar pLeft =
+            orthogonalPolynomial(alpha, beta, minKnownAbscissa, pMinus1Left);
 
-        for (label i = 1; i < nNodes_ - 1; i++)
-        {
-            pLeft = (minKnownAbscissa - alpha[i])*p1Left
-                    - beta[i]*pMinus1Left;
+        const scalar pRight =
+            orthogonalPolynomial(alpha, beta, maxKnownAbscissa, pMinus1Right);
 
-            pRight = (maxKnownAbscissa - alpha[i])*p1Right
-                    - beta[i]*pMinus1Right;
-
-            pMinus1Left = p1Left;
-            pMinus1Right = p1Right;
-            p1Left = pLeft;
-            p1Right = pRight;
-        }
-
-        scalar d = pLeft*pMinus1Right - pRight*pMinus1Left;
+        const scalar d = pLeft*pMinus1Right - pRight*pMinus1Left;
 
         alpha[nNodes_ - 1] =
                 (minKnownAbscissa*pLeft*pMinus1Right

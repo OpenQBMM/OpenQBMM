@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -53,7 +53,10 @@ Foam::univariateMomentInversion::univariateMomentInversion
     nInvertibleMoments_(),
     nNodes_(nMaxNodes),
     abscissae_(),
-    weights_()
+    weights_(),
+    jacobiMatrix_(),
+    alpha_(),
+    beta_()
 {
     if (smallZeta_ < 0.0)
     {
@@ -74,13 +77,33 @@ Foam::univariateMomentInversion::univariateMomentInversion
 }
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::univariateMomentInversion::~univariateMomentInversion()
-{}
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+Foam::scalar Foam::univariateMomentInversion::orthogonalPolynomial
+(
+    const scalarList& alpha,
+    const scalarList& beta,
+    const scalar x,
+    scalar& pMinus1
+) const
+{
+    // Three-term recurrence of the monic orthogonal polynomials:
+    // p_{k+1}(x) = (x - alpha_k) p_k(x) - beta_k p_{k-1}(x), with p_0 = 1
+    scalar p = x - alpha[0];
+
+    pMinus1 = 1.0;
+
+    for (label i = 1; i < nNodes_ - 1; i++)
+    {
+        const scalar pNext = (x - alpha[i])*p - beta[i]*pMinus1;
+
+        pMinus1 = p;
+        p = pNext;
+    }
+
+    return p;
+}
+
 
 void Foam::univariateMomentInversion::JacobiMatrix
 (
@@ -90,26 +113,45 @@ void Foam::univariateMomentInversion::JacobiMatrix
     const scalar maxKnownAbscissa
 )
 {
-    scalarList alpha(moments.alphaRecurrence());
-    scalarList beta(moments.betaRecurrence());
+    const scalarList& momentAlpha = moments.alphaRecurrence();
+    const scalarList& momentBeta = moments.betaRecurrence();
+
+    if (nNodes_ > momentAlpha.size() || nNodes_ > momentBeta.size())
+    {
+        FatalErrorInFunction
+            << "The recurrence relationship of the moment set is too short "
+            << "for the requested number of quadrature nodes." << nl
+            << "    Number of quadrature nodes: " << nNodes_ << nl
+            << "    Size of the alpha list: " << momentAlpha.size() << nl
+            << "    Size of the beta list: " << momentBeta.size() << nl
+            << "    Moment set: " << moments << nl
+            << exit(FatalError);
+    }
+
+    // correctRecurrence builds the coefficients of the quadrature, leaving
+    // the ones of the moment set untouched, so they are copied into the work
+    // lists. Both are members, so the copy does not allocate once the
+    // inversion has run on the first cell.
+    alpha_ = momentAlpha;
+    beta_ = momentBeta;
 
     correctRecurrence
     (
         moments,
-        alpha,
-        beta,
+        alpha_,
+        beta_,
         minKnownAbscissa,
         maxKnownAbscissa
     );
 
     for (label i = 0; i < nNodes_ - 1; i++)
     {
-        z[i][i] = alpha[i];
-        z[i][i+1] = Foam::sqrt(beta[i + 1]);
+        z[i][i] = alpha_[i];
+        z[i][i+1] = Foam::sqrt(beta_[i + 1]);
         z[i+1][i] = z[i][i + 1];
     }
 
-    z[nNodes_ - 1][nNodes_ - 1] = alpha[nNodes_ - 1];
+    z[nNodes_ - 1][nNodes_ - 1] = alpha_[nNodes_ - 1];
 }
 
 void Foam::univariateMomentInversion::invert
@@ -119,18 +161,23 @@ void Foam::univariateMomentInversion::invert
     const scalar maxKnownAbscissa
 )
 {
+    // The moments are read through the const accessor, so that the
+    // realizability check performed by the caller is not invalidated and
+    // recomputed by calcNQuadratureNodes below
+    const scalar m0 = moments.moment(0);
+
     if (moments.isDegenerate())
     {
         nNodes_ = 1;
         weights_.setSize(nNodes_);
         abscissae_.setSize(nNodes_);
-        weights_[0] = moments[0];
+        weights_[0] = m0;
         abscissae_[0] = 0.0;
 
         return;
     }
 
-    if (moments[0] < smallM0_)
+    if (m0 < smallM0_)
     {
         nNodes_ = 0;
 
@@ -144,8 +191,8 @@ void Foam::univariateMomentInversion::invert
 
     if (nInvertibleMoments_ == 2)
     {
-        weights_[0] = moments[0];
-        abscissae_[0] = moments[1]/moments[0];
+        weights_[0] = m0;
+        abscissae_[0] = moments.moment(1)/m0;
 
         return;
     }
@@ -172,7 +219,7 @@ void Foam::univariateMomentInversion::calcQuadrature
     // Computing weights and abscissae
     for (label i = 0; i < nNodes_; i++)
     {
-        weights_[i] = moments[0]*sqr(zEig.EVecs()[0][i]);
+        weights_[i] = moments.moment(0)*sqr(zEig.EVecs()[0][i]);
         abscissae_[i] = zEig.EValsRe()[i];
     }
 }

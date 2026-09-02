@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021-2025 Alberto Passalacqua
+    Copyright (C) 2021-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -73,12 +73,6 @@ Foam::generalizedMomentInversion::generalizedMomentInversion
 }
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::generalizedMomentInversion::~generalizedMomentInversion()
-{}
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::generalizedMomentInversion::correctRecurrence
@@ -135,28 +129,29 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
         nNodes_ = nRegularQuadratureNodes_;
     }
 
-    // Resize list of weights and abscissae
+    // Resize list of weights and abscissae.
     // Note: the lists for the alpha and beta coefficients of the recurrence
-    //       relationship do NOT need to be resized because they are allocated
-    //       with the correct size in the constructor of univariateMomentSet.
+    //       relationship, and those for the zeta_k and the canonical moments,
+    //       do NOT need to be resized: univariateMomentSet allocates them
+    //       with room for the additional quadrature nodes.
     weights_.setSize(nMaxNodes_);
     abscissae_.setSize(nMaxNodes_);
 
-    // Resize list of zeta_k, if needed (the resize method in OpenFOAM checks
-    // if resizing is necessary or if the desired size equals the current one)
-    if
-    (
-        moments.support() == supportType::RPlus
-     || moments.support() == supportType::ZeroOne
-    )
+    if (moments.zetas().size() < 2*nMaxNodes_ - 1)
     {
-        moments.zetas().resize(2*nMaxNodes_ - 1, 0.0);
-    }
-
-    // Resize list of canonical moments
-    if (moments.support() == supportType::ZeroOne)
-    {
-        moments.canonicalMoments().resize(2*nMaxNodes_ - 1);
+        FatalErrorInFunction
+            << "The moment set does not reserve room for the zeta_k of the "
+            << "additional quadrature nodes." << nl
+            << "    Number of quadrature nodes: " << nMaxNodes_ << nl
+            << "    Size of the zeta list: " << moments.zetas().size() << nl
+            << "    Required size: " << 2*nMaxNodes_ - 1 << nl
+            << nl
+            << "The moment set was built for a quadrature with fewer nodes "
+            << "than GQMOM requires. Check that the number of additional "
+            << "quadrature points of the fieldMomentInversion that owns this "
+            << "moment set was derived from GQMOM, and not from the "
+            << "quadrature selected in another dictionary of the case." << nl
+            << exit(FatalError);
     }
 
     #ifdef FULLDEBUG
@@ -237,16 +232,19 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
         return; // Use Gauss if no additional nodes are possible
     }
 
-    //moments.zetas().resize(2*nMaxNodes_ - 1, 0.0);
-
     // Take a reference to zetas and use it instead than
     // accessing moments.zetas() directly.
     scalarList& zetas(moments.zetas());
 
     if (ndfTypeRPlus_ == "gamma")
     {
-        const scalar m1sqr = sqr(moments(1));
-        const scalar alphaCoeff = m1sqr/(moments(0)*moments(2) - m1sqr) - 1.0;
+        // The moments are read through the const accessor, so that the
+        // realizability check, and with it the zeta chain extended below, is
+        // not invalidated
+        const scalar m1sqr = sqr(moments.moment(1));
+
+        const scalar alphaCoeff =
+            m1sqr/(moments.moment(0)*moments.moment(2) - m1sqr) - 1.0;
 
         for
         (
@@ -273,7 +271,11 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
     }
     else if (ndfTypeRPlus_ == "lognormal")
     {
-        const scalar eta = sqrt(moments(0)*moments(2)/sqr(moments(1)));
+        const scalar eta =
+            sqrt
+            (
+                moments.moment(0)*moments.moment(2)/sqr(moments.moment(1))
+            );
 
         for
         (
@@ -303,17 +305,10 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
         }
     }
 
-    alpha[0] = zetas[0];
-
-    for (label i = 1; i < nMaxNodes_; i++)
-    {
-        alpha[i] = zetas[2*i] + zetas[2*i - 1];
-    }
-
-    for (label i = 1; i < nMaxNodes_; i++)
-    {
-        beta[i] = zetas[2*i - 1]*zetas[2*i - 2];
-    }
+    // The zeta chain is the primary representation of the recurrence
+    // relationship for measures with support over R+ and [0, 1]: recover
+    // alpha and beta from the chain extended above
+    moments.zetasToRecurrence(2*nMaxNodes_ - 1, alpha, beta);
 
     #ifdef FULLDEBUG
         Info << "Corrected alpha: " << alpha << endl;
@@ -334,13 +329,6 @@ void Foam::generalizedMomentInversion::correctRecurrence01
     {
         return; // Use Gauss if no additional nodes are possible
     }
-
-    // We do not store z0 = 1, so we have 2*nRegularQuadratureNodes_ - 1 zetas
-    //moments.zetas().resize(2*nMaxNodes_ - 1);
-
-    // We do not store p0, so canonicalMoments[0] = p1, which means that
-    // we have 2*nRegularQuadratureNodes_ - 1 canonical moments
-    //moments.canonicalMoments().resize(2*nMaxNodes_ - 1);
 
     scalarList& zetas(moments.zetas());
     scalarList& canonicalMoments(moments.canonicalMoments());
@@ -414,17 +402,10 @@ void Foam::generalizedMomentInversion::correctRecurrence01
         #endif
     }
 
-    alpha[0] = zetas[0];
-
-    for (label i = 1; i < nMaxNodes_; i++)
-    {
-        alpha[i] = zetas[2*i] + zetas[2*i - 1];
-    }
-
-    for (label i = 1; i < nMaxNodes_; i++)
-    {
-        beta[i] = zetas[2*i - 1]*zetas[2*i - 2];
-    }
+    // The zeta chain is the primary representation of the recurrence
+    // relationship for measures with support over R+ and [0, 1]: recover
+    // alpha and beta from the chain extended above
+    moments.zetasToRecurrence(2*nMaxNodes_ - 1, alpha, beta);
 
     #ifdef FULLDEBUG
         Info << "Corrected alpha: " << alpha << endl;

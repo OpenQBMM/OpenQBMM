@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -83,7 +83,21 @@ protected:
         scalarList weights_;
 
         //- Jacobi matrix
-        mutable scalarSquareMatrix jacobiMatrix_;
+        scalarSquareMatrix jacobiMatrix_;
+
+        //- Work copy of the alpha coefficients of the recurrence relation.
+        //  correctRecurrence builds the coefficients of the quadrature, which
+        //  are not the ones the moment vector determines: Gauss-Radau and
+        //  Gauss-Lobatto correct the last of them to fix a known abscissa,
+        //  and GQMOM extends them to the additional nodes. The coefficients
+        //  of the moment set are left untouched, so the work is done on a
+        //  copy, kept as a member to avoid allocating it on every inversion.
+        //  Note that GQMOM does extend the zeta chain of the moment set in
+        //  place, which the realizability check rebuilds for the next cell.
+        scalarList alpha_;
+
+        //- Work copy of the beta coefficients of the recurrence relation
+        scalarList beta_;
 
 
     // Protected member functions
@@ -104,6 +118,18 @@ protected:
             const univariateMomentSet& moments,
             const scalarSquareMatrix& z
         );
+
+        //- Evaluate the monic orthogonal polynomials of the recurrence
+        //  relationship at x, up to degree nNodes_ - 1, and return the value
+        //  of the polynomial of degree nNodes_ - 2 in pMinus1. Used by
+        //  Gauss-Radau and Gauss-Lobatto to fix a known abscissa.
+        scalar orthogonalPolynomial
+        (
+            const scalarList& alpha,
+            const scalarList& beta,
+            const scalar x,
+            scalar& pMinus1
+        ) const;
 
 
 public:
@@ -141,7 +167,7 @@ public:
 
 
     //- Destructor
-    virtual ~univariateMomentInversion();
+    virtual ~univariateMomentInversion() = default;
 
 
     // Selectors

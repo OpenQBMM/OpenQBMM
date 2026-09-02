@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -67,6 +67,7 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     minKnownAbscissa_(dict.lookupOrDefault<scalar>("minKnownAbscissa", 0)),
     maxKnownAbscissa_(dict.lookupOrDefault<scalar>("maxKnownAbscissa", 1)),
     nAdditionalQuadraturePoints_(0),
+    momentsToInvert_(nullptr),
     momentInverter_
     (
         univariateMomentInversion::New
@@ -76,7 +77,13 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
         )
     )
 {
-    static word inversionType = momentInverter_().type();
+    // Note: this must not be a function-local static. More than one
+    // basicFieldMomentInversion is built per run - quadratureApproximation
+    // builds one from the top-level dictionary, and firstOrderKinetic builds
+    // another from the momentAdvection sub-dictionary - and a static would
+    // freeze the type of the first one for all the others, sizing their
+    // recurrence relationship for the wrong quadrature.
+    const word& inversionType = momentInverter_().type();
 
     if (inversionType == "GaussRadau")
     {
@@ -121,6 +128,47 @@ Foam::basicFieldMomentInversion::~basicFieldMomentInversion()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+Foam::univariateMomentSet& Foam::basicFieldMomentInversion::localMomentSet
+(
+    const volScalarMomentFieldSet& moments
+)
+{
+    if (!momentsToInvert_)
+    {
+        momentsToInvert_.reset
+        (
+            new univariateMomentSet
+            (
+                moments.size(),
+                moments.supports()[0],
+                smallM0(),
+                smallZeta(),
+                scalar(0),                  // Initial value
+                nAdditionalQuadraturePoints_
+            )
+        );
+    }
+    else if
+    (
+        momentsToInvert_().nMoments() != moments.size()
+     || momentsToInvert_().support() != moments.supports()[0]
+    )
+    {
+        FatalErrorInFunction
+            << "The moment field set is inconsistent with the moment set "
+            << "used to invert it." << nl
+            << "    Number of moments: " << moments.size()
+            << ", expected " << momentsToInvert_().nMoments() << nl
+            << "    Support: " << supportTypeToWord(moments.supports()[0])
+            << ", expected "
+            << supportTypeToWord(momentsToInvert_().support()) << nl
+            << exit(FatalError);
+    }
+
+    return momentsToInvert_();
+}
+
+
 void Foam::basicFieldMomentInversion::invert
 (
     const volScalarMomentFieldSet& moments,
@@ -150,18 +198,10 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
     {
         const fvPatchScalarField& m0Patch = bf[patchi];
 
+        univariateMomentSet& momentsToInvert(localMomentSet(moments));
+
         forAll(m0Patch, facei)
         {
-            univariateMomentSet momentsToInvert
-            (
-                moments.size(),
-                moments.supports()[0],
-                smallM0(),
-                smallZeta(),
-                scalar(0),                  // Initial value
-                nAdditionalQuadraturePoints_
-            );
-
             // Copying moments from a face
             forAll(momentsToInvert, momenti)
             {
@@ -229,15 +269,7 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
     const bool fatalErrorOnFailedRealizabilityTest
 )
 {
-    univariateMomentSet momentsToInvert
-    (
-        moments.size(),
-        moments.supports()[0],
-        smallM0(),
-        smallZeta(),
-        scalar(0),                  // Initial value
-        nAdditionalQuadraturePoints_
-    );
+    univariateMomentSet& momentsToInvert(localMomentSet(moments));
 
     // Copying moments from cell
     forAll(momentsToInvert, momenti)

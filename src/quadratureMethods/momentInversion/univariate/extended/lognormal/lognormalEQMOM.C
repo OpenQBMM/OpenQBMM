@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -159,13 +159,35 @@ Foam::scalar Foam::lognormalEQMOM::sigmaMax(univariateMomentSet& moments)
 {
     label nRealizableMoments = moments.nRealizableMoments();
 
+    // The moments are read through the const accessor, so that the
+    // realizability check just performed is not invalidated
     scalar sigmaZeta1 =
-            sqrt(2.0*log(sqrt(moments[0]*moments[2]/(sqr(moments[1])))));
+        sqrt
+        (
+            2.0*log
+            (
+                sqrt
+                (
+                    moments.moment(0)*moments.moment(2)
+                   /sqr(moments.moment(1))
+                )
+            )
+        );
 
     if (nRealizableMoments > 3)
     {
         scalar sigmaZeta2 =
-            sqrt(2.0*log(sqrt(moments[1]*moments[3]/(sqr(moments[2])))));
+            sqrt
+            (
+                2.0*log
+                (
+                    sqrt
+                    (
+                        moments.moment(1)*moments.moment(3)
+                       /sqr(moments.moment(2))
+                    )
+                )
+            );
 
         return min(sigmaZeta1, sigmaZeta2);
     }

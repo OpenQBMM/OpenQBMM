@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -92,9 +92,13 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
 
     reset();
 
+    // The moments are read through the const accessor, so that the
+    // realizability check is not invalidated and recomputed on every access
+    const scalar m0 = m.moment(0);
+
     // Exclude cases where the absolute value of the zero-order moment is very
     // SMALL to avoid problems in the inversion due to round-off error
-    if (mag(m[0]) < smallM0_)
+    if (mag(m0) < smallM0_)
     {
         sigma_ = 0.0;
         nullSigma_ = true;
@@ -104,12 +108,12 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
     }
 
     // Terminate execution if negative number density is encountered
-    if (m[0] < 0.0)
+    if (m0 < 0.0)
     {
         FatalErrorInFunction
             << "The zero-order moment is negative." << nl
-            << "    Moment set: " << m
-            << abort(FatalError);
+            << "    Moment set: " << m << nl
+            << exit(FatalError);
     }
 
     label nRealizableMoments = m.nRealizableMoments();
@@ -155,7 +159,10 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
         // particularly acute in the calculation of the recurrence relationship
         // of the Jacobi orthogonal polynomials used for the beta kernel density
         // function.
-        if (m[1]/m[0] < minMean_ || (m[2]/m[0] - sqr(m[1]/m[0])) < minVariance_)
+        const scalar mean = m.moment(1)/m0;
+        const scalar variance = m.moment(2)/m0 - sqr(mean);
+
+        if (mean < minMean_ || variance < minVariance_)
         {
             sigma_ = 0.0;
             nullSigma_ = true;

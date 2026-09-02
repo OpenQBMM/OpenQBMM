@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -55,34 +55,34 @@ Foam::univariateMomentSet::univariateMomentSet
     nAdditionalQuadraturePoints_(nAdditionalQuadraturePoints),
     alpha_(),
     beta_(),
-    zeta_(nMoments - 1),
+    zeta_(),
     canonicalMoments_(),
-    negativeZeta_(0),
-    degenerate_(false),
-    fullyRealizable_(true),
-    subsetRealizable_(true),
-    onMomentSpaceBoundary_(false),
-    nRealizableMoments_(0),
-    realizabilityChecked_(false)
+    zRecurrence_(),
+    status_()
 {
     if (nAdditionalQuadraturePoints < 0)
     {
         FatalErrorInFunction
             << "The number of additional quadrature points must be positive."
-            << abort(FatalError);
+            << nl
+            << "    Number of additional quadrature points: "
+            << nAdditionalQuadraturePoints << nl
+            << exit(FatalError);
     }
 
-    label nAlpha = nAlphaRecurrence(nAdditionalQuadraturePoints_);
-    label nBeta = nBetaRecurrence(nAdditionalQuadraturePoints_);
-
-    alpha_.setSize(nAlpha, 0);
-    beta_.setSize(nBeta, 0);
+    alpha_.setSize(nAlphaRecurrence(nAdditionalQuadraturePoints_), 0);
+    beta_.setSize(nBetaRecurrence(nAdditionalQuadraturePoints_), 0);
+    zeta_.setSize(nZetaRecurrence(nAdditionalQuadraturePoints_), 0);
 
     if (support == supportType::ZeroOne)
     {
-        canonicalMoments_.setSize(nMoments - 1, 0);
+        canonicalMoments_.setSize
+        (
+            nZetaRecurrence(nAdditionalQuadraturePoints_), 0
+        );
     }
 }
+
 
 Foam::univariateMomentSet::univariateMomentSet
 (
@@ -102,659 +102,75 @@ Foam::univariateMomentSet::univariateMomentSet
         smallM0,
         smallZeta
     ),
+    nAdditionalQuadraturePoints_(nAdditionalQuadraturePoints),
     alpha_(),
     beta_(),
-    zeta_(m.size() - 1),
-    negativeZeta_(0),
-    degenerate_(false),
-    fullyRealizable_(true),
-    subsetRealizable_(true),
-    onMomentSpaceBoundary_(false),
-    nRealizableMoments_(0),
-    realizabilityChecked_(false)
+    zeta_(),
+    canonicalMoments_(),
+    zRecurrence_(),
+    status_()
 {
     if (nAdditionalQuadraturePoints < 0)
     {
         FatalErrorInFunction
-            << "The specified number of fixed points must be positive." << nl
-            << abort(FatalError);
+            << "The number of additional quadrature points must be positive."
+            << nl
+            << "    Number of additional quadrature points: "
+            << nAdditionalQuadraturePoints << nl
+            << exit(FatalError);
     }
 
-    label nAlpha = nAlphaRecurrence(nAdditionalQuadraturePoints);
-    label nBeta = nBetaRecurrence(nAdditionalQuadraturePoints);
-
-    alpha_.setSize(nAlpha, 0);
-    beta_.setSize(nBeta, 0);
+    alpha_.setSize(nAlphaRecurrence(nAdditionalQuadraturePoints_), 0);
+    beta_.setSize(nBetaRecurrence(nAdditionalQuadraturePoints_), 0);
+    zeta_.setSize(nZetaRecurrence(nAdditionalQuadraturePoints_), 0);
 
     if (support == supportType::ZeroOne)
     {
-        canonicalMoments_.setSize(m.size() - 1, 0);
+        canonicalMoments_.setSize
+        (
+            nZetaRecurrence(nAdditionalQuadraturePoints_), 0
+        );
     }
 }
 
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::univariateMomentSet::~univariateMomentSet()
-{}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::label Foam::univariateMomentSet::nAlphaRecurrence
 (
-    const label& nAdditionalQuadraturePoints
-)
+    const label nAdditionalQuadratureNodes
+) const
 {
-    return label((nMoments() - 2)/2) + 1 + nAdditionalQuadraturePoints;
+    // With nMoments = 2p moments the recurrence relationship determines
+    // alpha_0, ..., alpha_{p-1}; with nMoments = 2p + 1 moments it determines
+    // the same coefficients, because alpha_p would require the moment of
+    // order 2p + 1. In both cases the list holds nMoments/2 coefficients.
+    return nMoments()/2 + nAdditionalQuadratureNodes;
 }
 
 
 Foam::label Foam::univariateMomentSet::nBetaRecurrence
 (
-    const label& nAdditionalQuadraturePoints
-)
+    const label nAdditionalQuadratureNodes
+) const
 {
-    return label(nMoments()/2) + 1 + nAdditionalQuadraturePoints;
+    return nMoments()/2 + 1 + nAdditionalQuadratureNodes;
 }
 
 
-void Foam::univariateMomentSet::checkCanonicalMoments
+Foam::label Foam::univariateMomentSet::nZetaRecurrence
 (
-    const scalarList& zeta,
-    const label nZeta
-)
+    const label nAdditionalQuadratureNodes
+) const
 {
-    canonicalMoments_ = 0.0;
-    canonicalMoments_[0] = zeta[0];
-
-    if (mag(canonicalMoments_[0] - 1.0) <= smallZeta_)
-    {
-        nRealizableMoments_ = 2;
-        onMomentSpaceBoundary_ = true;
-
-        return;
-    }
-
-    for (label zetai = 1; zetai < nZeta; zetai++)
-    {
-        canonicalMoments_[zetai]
-            = zeta[zetai]/(1.0 - canonicalMoments_[zetai - 1]);
-
-        if
-        (
-            canonicalMoments_[zetai] < smallZeta_
-         || canonicalMoments_[zetai] > 1.0
-        )
-        {
-            nRealizableMoments_ = zetai + 1;
-
-            return;
-        }
-        else if
-        (
-            mag(canonicalMoments_[zetai]) <= smallZeta_
-         || mag(canonicalMoments_[zetai] - 1.0) <= smallZeta_
-        )
-        {
-            nRealizableMoments_ = zetai + 2;
-            onMomentSpaceBoundary_ = true;
-
-            return;
-        }
-    }
-
-    onMomentSpaceBoundary_ = false;
-    nRealizableMoments_ = nZeta + 1;
-}
-
-void Foam::univariateMomentSet::checkRealizability
-(
-    bool fatalErrorOnFailedRealizabilityTest
-)
-{
-    if (realizabilityChecked_)
-    {
-        return;
-    }
-
-    // Locally store support
-    const supportType& mSupport = supports_[0];
-
-    // Cache moment values used multiple times
-    const scalar m0 = (*this)[0];
-    const scalar m1 = (*this)[1];
-    const label nMoments = (*this).nMoments();
-
-    // If the zero-order moment is negative, exit immediately.
-    if (m0 < 0.0)
-    {
-        if (fatalErrorOnFailedRealizabilityTest)
-        {
-            // If the user requested to throw an error when the realizability
-            // test fails, we do so.
-            FatalErrorInFunction
-                << "The zero-order moment is negative." << nl
-                << "    Moment set: " << (*this)
-                << abort(FatalError);
-        }
-        else
-        {
-            // If the zero-order moment is negative, the moment set is not
-            // realizable. If the user has requested to not throw an error,
-            // we mark the moment set as not realizable, set the number of
-            // realizable moments to zero and return. This is necessary when
-            // using some adaptive methods which explicitly test for
-            // realizability to make decisions.
-            realizabilityChecked_ = true;
-            negativeZeta_ = 0;
-            nRealizableMoments_ = 0;
-            fullyRealizable_ = false;
-            subsetRealizable_ = false;
-            onMomentSpaceBoundary_ = false;
-
-            return;
-        }
-    }
-
-    // Set flags and return if the zero-order moment is too small but an
-    // error should not be thrown. Do nothing otherwise.
-    if (m0 < smallM0_ && !fatalErrorOnFailedRealizabilityTest)
-    {
-        realizabilityChecked_ = true;
-        negativeZeta_ = 0;
-        nRealizableMoments_ = 0;
-        fullyRealizable_ = false;
-        subsetRealizable_ = false;
-        onMomentSpaceBoundary_ = false;
-
-        return;
-    }
-
-    // Check for the degenerate case where only m0 is defined and throw an error
-    // if this is the case.
-    if (nMoments <= 1)
-    {
-        FatalErrorInFunction
-            << "The moment has size less or equal to 1." << nl
-            << "    Moment set: " << (*this)
-            << abort(FatalError);
-    }
-
-    // Reset vector of zeta values to check realizability
-    zeta_ = 0.0;
-
-    // Check for the case with only two moments
-    if (nMoments == 2)
-    {
-        // In the case of support over R, m0 must be positive and m1 needs to
-        // be a real number. The first condition is satisfied, so only flags
-        // need to be set before returning.
-        if (mSupport == supportType::R)
-        {
-            realizabilityChecked_ = true;
-            negativeZeta_ = 0;
-            nRealizableMoments_ = 2;
-            fullyRealizable_ = true;
-            subsetRealizable_ = true;
-            onMomentSpaceBoundary_ = false;
-
-            return;
-        }
-
-        // Managing other supports (R+ and [0, 1])
-
-        // Calculate zeta_1 (we do not store zeta_0 because it is always 1)
-        zeta_[0] = m1/m0;
-
-        if (zeta_[0] <= smallZeta_)
-        {
-            if (isDegenerate() || zeta_[0] == 0.0)
-            {
-                realizabilityChecked_ = true;
-                negativeZeta_ = 0;
-                nRealizableMoments_ = 2;
-                fullyRealizable_ = true;
-                subsetRealizable_ = true;
-                onMomentSpaceBoundary_ = true;
-
-                return;
-            }
-
-            if (fatalErrorOnFailedRealizabilityTest)
-            {
-                FatalErrorInFunction
-                << "Moment set with dimension 2 and only one valid moment."
-                << nl << "    Moment set: " << (*this)
-                << abort(FatalError);
-            }
-            else
-            {
-                realizabilityChecked_ = true;
-                negativeZeta_ = 1;
-                nRealizableMoments_ = 1;
-                fullyRealizable_ = false;
-                subsetRealizable_ = false;
-                onMomentSpaceBoundary_ = false;
-
-                return;
-            }
-        }
-
-        if (mSupport == supportType::RPlus) // Support on R+ - Check if zetas are positive.
-        {
-            realizabilityChecked_ = true;
-            negativeZeta_ = 0;
-            nRealizableMoments_ = 2;
-            fullyRealizable_ = true;
-            subsetRealizable_ = true;
-            onMomentSpaceBoundary_ = false;
-
-            return;
-        }
-        else // Support on [0, 1] - Check if canonical moments belong to [0,1].
-        {
-            if (zeta_[0] <= 1.0)
-            {
-                realizabilityChecked_ = true;
-                nRealizableMoments_ = 2;
-                fullyRealizable_ = true;
-                subsetRealizable_ = true;
-
-                if (zeta_[0] < 1.0)
-                {
-                    onMomentSpaceBoundary_ = false;
-                }
-                else
-                {
-                    onMomentSpaceBoundary_ = true;
-                }
-
-                return;
-            }
-            else
-            {
-                if (isDegenerate())
-                {
-                    realizabilityChecked_ = true;
-                    negativeZeta_ = 0;
-                    nRealizableMoments_ = 2;
-                    fullyRealizable_ = true;
-                    subsetRealizable_ = true;
-                    onMomentSpaceBoundary_ = true;
-
-                    return;
-                }
-
-                if (fatalErrorOnFailedRealizabilityTest)
-                {
-                    FatalErrorInFunction
-                    << "Moment set with dimension 2 and only one valid moment."
-                    << nl << "    Moment set: " << (*this)
-                    << abort(FatalError);
-                }
-                else
-                {
-                    realizabilityChecked_ = true;
-                    negativeZeta_ = 1;
-                    nRealizableMoments_ = 1;
-                    fullyRealizable_ = false;
-                    subsetRealizable_ = false;
-                    onMomentSpaceBoundary_ = false;
-
-                    return;
-                }
-            }
-        }
-    }
-
-    // Check for the case with more than two moments
-
-    // Store the number of zeta elements.
-    // This is the number of moments minus one, but it was already calculated
-    // in the constructor, when zeta_ was initialized. It is copied to ensure
-    // consistency.
-    label nN = zeta_.size();
-
-    // Calculate the integer part of nN/2.
-    label nD = label(nN/2);
-
-    // Calculate the remainder of the division nN/2.
-    label nR = nN - 2*nD;
-
-    // Matrix used to build the recurrence relation
-    //scalarRectangularMatrix zRecurrence_(nD + 1, nMoments, Zero);
-
-    if (zRecurrence_.m() != nD + 1 || zRecurrence_.n() != nMoments)
-    {
-        zRecurrence_.setSize(nD + 1, nMoments);
-    }
-
-    zRecurrence_ = 0.0;
-
-    for (label columnI = 0; columnI < nMoments; columnI++)
-    {
-        zRecurrence_[0][columnI] = (*this)[columnI]/m0;
-    }
-
-    alpha_[0] = m1/m0;
-    beta_[0] = 1.0;
-
-    for (label columnI = 1; columnI < nMoments - 1; columnI++)
-    {
-        zRecurrence_[1][columnI] = zRecurrence_[0][columnI + 1]
-              - alpha_[0]*zRecurrence_[0][columnI];
-    }
-
-    zeta_[0] = alpha_[0];
-
-    if (!(mSupport == supportType::R) && zeta_[0] <= smallZeta_)
-    {
-        if (isDegenerate() || zeta_[0] == 0.0)
-        {
-            realizabilityChecked_ = true;
-            negativeZeta_ = 0;
-            nRealizableMoments_ = 2;
-            fullyRealizable_ = false;
-            subsetRealizable_ = true;
-            onMomentSpaceBoundary_ = true;
-
-            return;
-        }
-
-        if (fatalErrorOnFailedRealizabilityTest)
-        {
-            FatalErrorInFunction
-                << "Moment set with only one valid moment."
-                << nl << "    Moment set: " << (*this)
-                << "zeta vector = " << zeta_ << endl
-                << "smallZeta = " << smallZeta_
-                << abort(FatalError);
-        }
-        else
-        {
-            realizabilityChecked_ = true;
-            negativeZeta_ = 1;
-            nRealizableMoments_ = 1;
-            fullyRealizable_ = false;
-            subsetRealizable_ = false;
-            onMomentSpaceBoundary_ = false;
-
-            return;
-        }
-    }
-
-    for (label zetai = 1; zetai < nD; zetai++)
-    {
-        beta_[zetai] = zRecurrence_[zetai][zetai]
-                /zRecurrence_[zetai - 1][zetai - 1];
-
-        if (mSupport == supportType::R)
-        {
-            if (beta_[zetai] <= smallZeta_)
-            {
-                realizabilityChecked_ = true;
-                nRealizableMoments_ = 2*zetai;
-                fullyRealizable_ = false;
-                subsetRealizable_ = true;
-
-                return;
-            }
-        }
-        else
-        {
-            zeta_[2*zetai - 1] = beta_[zetai]/zeta_[2*zetai - 2];
-
-            if (zeta_[2*zetai - 1] <= smallZeta_)
-            {
-                if (mSupport == supportType::RPlus)
-                {
-                    if (zeta_[2*zetai - 1] < smallZeta_)
-                    {
-                        negativeZeta_ = 2*zetai;
-                        nRealizableMoments_ = negativeZeta_;
-                        onMomentSpaceBoundary_ = false;
-                    }
-                    else
-                    {
-                        negativeZeta_ = 2*zetai + 1;
-                        nRealizableMoments_ = negativeZeta_;
-                        onMomentSpaceBoundary_ = true;
-                    }
-                }
-                else // Support on [0,1]
-                {
-                    checkCanonicalMoments(zeta_, 2*zetai);
-                }
-
-                realizabilityChecked_ = true;
-                fullyRealizable_ = false;
-                subsetRealizable_ = true;
-
-                return;
-            }
-        }
-
-        alpha_[zetai] =
-            zRecurrence_[zetai][zetai + 1]
-           /max(zRecurrence_[zetai][zetai], SMALL)
-          - zRecurrence_[zetai - 1][zetai]
-           /zRecurrence_[zetai - 1][zetai - 1];
-
-        if (!(mSupport == supportType::R))
-        {
-            zeta_[2*zetai] = alpha_[zetai] - zeta_[2*zetai - 1];
-
-            if (zeta_[2*zetai] <= smallZeta_)
-            {
-                if (mSupport == supportType::RPlus)
-                {
-                    if (zeta_[2*zetai] < smallZeta_)
-                    {
-                        negativeZeta_ = 2*zetai + 1;
-                        nRealizableMoments_ = negativeZeta_;
-                        onMomentSpaceBoundary_ = false;
-                    }
-                    else
-                    {
-                        negativeZeta_ = 2*zetai + 2;
-                        nRealizableMoments_ = negativeZeta_;
-                        onMomentSpaceBoundary_ = true;
-                    }
-                }
-                else // Support on [0,1]
-                {
-                    checkCanonicalMoments(zeta_, 2*zetai + 1);
-                }
-
-                realizabilityChecked_ = true;
-                fullyRealizable_ = false;
-                subsetRealizable_ = true;
-
-                return;
-            }
-        }
-
-        for (label columnI = zetai + 1; columnI <= nN - zetai - 1; columnI++)
-        {
-            zRecurrence_[zetai + 1][columnI] = zRecurrence_[zetai][columnI + 1]
-                    - alpha_[zetai]*zRecurrence_[zetai][columnI]
-                    - beta_[zetai]*zRecurrence_[zetai - 1][columnI];
-        }
-    }
-
-    beta_[nD] = zRecurrence_[nD][nD]/max(zRecurrence_[nD - 1][nD - 1], SMALL);
-
-    if (mSupport == supportType::R)
-    {
-        alpha_[nD] = zRecurrence_[nD][nD + 1]/max(zRecurrence_[nD][nD], SMALL)
-                    - zRecurrence_[nD - 1][nD]/max(zRecurrence_[nD - 1][nD - 1],
-                    SMALL);
-
-        if (beta_[nD] <= smallZeta_)
-        {
-            realizabilityChecked_ = true;
-            nRealizableMoments_ = 2*nD;
-            fullyRealizable_ = false;
-            subsetRealizable_ = true;
-
-            return;
-        }
-        else
-        {
-            realizabilityChecked_ = true;
-            nRealizableMoments_ = nMoments;
-            fullyRealizable_ = true;
-            subsetRealizable_ = true;
-
-            return;
-        }
-    }
-    else
-    {
-        zeta_[2*nD - 1] = beta_[nD]/zeta_[2*nD - 2];
-
-        if (zeta_[2*nD - 1] <= smallZeta_)
-        {
-            if (mSupport == supportType::RPlus)
-            {
-                if (zeta_[2*nD - 1] < smallZeta_)
-                {
-                    negativeZeta_ = 2*nD;
-                    nRealizableMoments_ = negativeZeta_;
-                    onMomentSpaceBoundary_ = false;
-                }
-                else
-                {
-                    negativeZeta_ = 2*nD + 1;
-                    nRealizableMoments_ = negativeZeta_;
-                    onMomentSpaceBoundary_ = true;
-                }
-            }
-            else  // Support on [0,1]
-            {
-                checkCanonicalMoments(zeta_, 2*nD);
-            }
-
-            realizabilityChecked_ = true;
-            fullyRealizable_ = false;
-            subsetRealizable_ = true;
-
-            return;
-        }
-
-        if (nR == 1)
-        {
-            alpha_[nD] = zRecurrence_[nD][nD + 1]/zRecurrence_[nD][nD]
-                    - zRecurrence_[nD - 1][nD]/zRecurrence_[nD - 1][nD - 1];
-
-            zeta_[2*nD] = alpha_[nD] - zeta_[2*nD - 1];
-
-            if (zeta_[2*nD] <= smallZeta_)
-            {
-                if (mSupport == supportType::RPlus)
-                {
-                    if (zeta_[2*nD] < smallZeta_)
-                    {
-                        negativeZeta_ = 2*nD + 1;
-                        nRealizableMoments_ = negativeZeta_;
-                        fullyRealizable_ = false;
-                        onMomentSpaceBoundary_ = false;
-                    }
-                    else
-                    {
-                        negativeZeta_ = nN;
-                        nRealizableMoments_ = nMoments;
-                        fullyRealizable_ = true;
-                        onMomentSpaceBoundary_ = true;
-                    }
-                }
-                else // Support on [0,1]
-                {
-                    checkCanonicalMoments(zeta_, 2*nD + 1);
-
-                    if (onMomentSpaceBoundary_)
-                    {
-                        negativeZeta_ = nN;
-                        fullyRealizable_ = true;
-                    }
-                    else
-                    {
-                        negativeZeta_ = 2*nD + 1;
-                        fullyRealizable_ = false;
-                    }
-                }
-
-                realizabilityChecked_ = true;
-                subsetRealizable_ = true;
-
-                return;
-            }
-            else // zeta_[2*nD] > 0.0
-            {
-                if (mSupport == supportType::RPlus)
-                {
-                    negativeZeta_ = nN;
-                    nRealizableMoments_ = nMoments;
-                    fullyRealizable_ = true;
-                    onMomentSpaceBoundary_ = false;
-                }
-                else // Support on [0,1]
-                {
-                    checkCanonicalMoments(zeta_, 2*nD + 1);
-
-                    if (onMomentSpaceBoundary_)
-                    {
-                        negativeZeta_ = nN;
-                        fullyRealizable_ = true;
-                    }
-                    else
-                    {
-                        negativeZeta_ = 2*nD + 1;
-                        fullyRealizable_ = false;
-                    }
-                }
-
-                realizabilityChecked_ = true;
-                subsetRealizable_ = true;
-
-                return;
-            }
-        }
-        else
-        {
-            // If support is [0, + inf[ and this level is reached, the full set
-            // of moments is realizable
-            if (mSupport == supportType::RPlus)
-            {
-                negativeZeta_ = nN;
-                fullyRealizable_ = true;
-                subsetRealizable_ = true;
-                nRealizableMoments_ = nMoments;
-                onMomentSpaceBoundary_ = false;
-            }
-            else
-            {
-                checkCanonicalMoments(zeta_, nN);
-
-                if (nRealizableMoments_ == nMoments)
-                {
-                    negativeZeta_ = nN;
-                    fullyRealizable_ = true;
-                    subsetRealizable_ = true;
-                }
-                else
-                {
-                    negativeZeta_ = nN;
-                    fullyRealizable_ = false;
-                    subsetRealizable_ = true;
-                }
-            }
-
-            realizabilityChecked_ = true;
-
-            return;
-        }
-    }
+    // The moments determine nMoments - 1 values of zeta_k. The additional
+    // quadrature nodes extend the chain to 2*nNodes - 1 values, which is what
+    // GQMOM fills with a model number density function.
+    return max
+    (
+        nMoments() - 1,
+        2*(nMoments()/2 + nAdditionalQuadratureNodes) - 1
+    );
 }
 
 
@@ -774,24 +190,85 @@ Foam::labelListList Foam::univariateMomentSet::makeUnivariateMomentOrders
 }
 
 
+void Foam::univariateMomentSet::resetStatus()
+{
+    status_ = realizabilityStatus();
+
+    alpha_ = 0.0;
+    beta_ = 0.0;
+    zeta_ = 0.0;
+    canonicalMoments_ = 0.0;
+}
+
+
+void Foam::univariateMomentSet::zetasToRecurrence
+(
+    const label nZeta,
+    scalarList& alpha,
+    scalarList& beta
+) const
+{
+    if (supports_[0] == supportType::R)
+    {
+        FatalErrorInFunction
+            << "The recurrence relationship cannot be recovered from the "
+            << "zeta_k for measures with support over R." << nl
+            << exit(FatalError);
+    }
+
+    if (nZeta < 1 || nZeta > zeta_.size())
+    {
+        FatalErrorInFunction
+            << "The number of zeta_k is inconsistent with the size of the "
+            << "zeta list." << nl
+            << "    Number of zeta_k: " << nZeta << nl
+            << "    Size of the zeta list: " << zeta_.size() << nl
+            << exit(FatalError);
+    }
+
+    // Number of coefficients determined by nZeta values of the zeta chain.
+    // alpha_i requires zeta_{2i} while beta_i only requires zeta_{2i-1}, so
+    // with an even number of values one more beta is determined than alpha.
+    const label nAlpha = (nZeta + 1)/2;
+    const label nBeta = nZeta/2 + 1;
+
+    if (nAlpha > alpha.size() || nBeta > beta.size())
+    {
+        FatalErrorInFunction
+            << "The lists of the recurrence relationship are too small to "
+            << "store the coefficients determined by the zeta_k." << nl
+            << "    Number of zeta_k: " << nZeta << nl
+            << "    Number of alpha coefficients: " << nAlpha
+            << ", size of the alpha list: " << alpha.size() << nl
+            << "    Number of beta coefficients: " << nBeta
+            << ", size of the beta list: " << beta.size() << nl
+            << exit(FatalError);
+    }
+
+    alpha[0] = zeta_[0];
+    beta[0] = 1.0;
+
+    for (label i = 1; i < nAlpha; i++)
+    {
+        alpha[i] = zeta_[2*i] + zeta_[2*i - 1];
+    }
+
+    for (label i = 1; i < nBeta; i++)
+    {
+        beta[i] = zeta_[2*i - 1]*zeta_[2*i - 2];
+    }
+}
+
+
 void Foam::univariateMomentSet::update
 (
     const scalarList& weights,
     const scalarList& abscissae
 )
 {
+    // updateIntegerMoments resets the realizability status, because the
+    // moments it recomputes are not necessarily realizable
     updateIntegerMoments(weights, abscissae);
-
-    // Realizability needs to be checked again after recomputing moments
-    realizabilityChecked_ = false;
-
-    // Resetting flags after recomputing moments from quadrature
-    degenerate_ = false;
-    fullyRealizable_ = true;
-    subsetRealizable_ = true;
-    onMomentSpaceBoundary_ = false;
-    negativeZeta_ = 0;
-    nRealizableMoments_ = 0;
 }
 
 
@@ -805,14 +282,19 @@ void Foam::univariateMomentSet::updateIntegerMoments
     // from quadrature (projection step).
     for (label momenti = 0; momenti < nMoments(); momenti++)
     {
-        (*this)[momenti] = Zero;
+        scalar& m = scalarList::operator[](momenti);
 
-        for (label nodei = 0; nodei < weights.size(); nodei++)
+        m = Zero;
+
+        forAll(weights, nodei)
         {
-            (*this)[momenti] += weights[nodei]*pow(abscissae[nodei], momenti);
+            m += weights[nodei]*pow(abscissae[nodei], momenti);
         }
     }
+
+    resetStatus();
 }
+
 
 void Foam::univariateMomentSet::setSize(const label newSize)
 {
@@ -822,7 +304,7 @@ void Foam::univariateMomentSet::setSize(const label newSize)
         FatalErrorInFunction
             << "The new size of the moment set must be at least 2." << nl
             << "    New size: " << newSize << nl
-            << abort(FatalError);
+            << exit(FatalError);
     }
 
     // Do not resize if the size is unchanged
@@ -832,34 +314,33 @@ void Foam::univariateMomentSet::setSize(const label newSize)
     }
 
     labelListList newMomentOrders(makeUnivariateMomentOrders(newSize));
+
     // Resize the base moment set
     Foam::momentSet::setSize(newSize, newMomentOrders);
 
-    // Resize zeta and canonical moments
-    zeta_.setSize(newSize - 1, 0);
+    // Resize the recurrence relationship and the zeta chain. These depend on
+    // the new number of moments, so they are recomputed here.
+    alpha_.setSize(nAlphaRecurrence(nAdditionalQuadraturePoints_), 0);
+    beta_.setSize(nBetaRecurrence(nAdditionalQuadraturePoints_), 0);
+    zeta_.setSize(nZetaRecurrence(nAdditionalQuadraturePoints_), 0);
 
     if (supports_[0] == supportType::ZeroOne)
     {
-        canonicalMoments_.setSize(newSize - 1, 0);
+        canonicalMoments_.setSize
+        (
+            nZetaRecurrence(nAdditionalQuadraturePoints_), 0
+        );
     }
 
-    // Resize alpha and beta coefficients of the recurrence relation
-    alpha_.setSize(nAlphaRecurrence(nAdditionalQuadraturePoints_), 0);
-    beta_.setSize(nBetaRecurrence(nAdditionalQuadraturePoints_), 0);
-
     // Reset realizability status
-    realizabilityChecked_ = false;
-    degenerate_ = false;
-    fullyRealizable_ = true;
-    subsetRealizable_ = true;
-    onMomentSpaceBoundary_ = false;
-    negativeZeta_ = 0;
-    nRealizableMoments_ = 0;
+    resetStatus();
 }
+
 
 void Foam::univariateMomentSet::resize(const label newSize)
 {
     setSize(newSize);
 }
+
 
 // ************************************************************************* //

@@ -8,7 +8,7 @@
     Code created 2014-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -74,11 +74,6 @@ Foam::momentSet::momentSet
 }
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::momentSet::~momentSet()
-{}
-
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 void Foam::momentSet::setSize
@@ -92,7 +87,7 @@ void Foam::momentSet::setSize
     {
         FatalErrorInFunction
             << "The new size of the moment set must be greater than 1." << endl
-            << abort(FatalError);
+            << exit(FatalError);
     }
 
     // Do not resize if the size is unchanged
@@ -112,7 +107,7 @@ void Foam::momentSet::setSize
             << "    New size of moment set: " << newSize << endl
             << "    Size of new moment orders list: " << newMomentOrders.size()
             << endl
-            << abort(FatalError);
+            << exit(FatalError);
     }
 
     momentOrders_ = newMomentOrders;
@@ -141,7 +136,7 @@ void Foam::momentSet::validateSupports() const
                 << " is invalid." << nl
                 << "    Valid supports are: R, RPlus and 01." << nl
                 << "    Moment set: " << (*this)
-                << abort(FatalError);
+                << exit(FatalError);
         }
     }
 }
@@ -157,7 +152,7 @@ void Foam::momentSet::validateMomentOrders() const
                 << " does not have the correct number of dimensions." << nl
                 << "    Expected number of dimensions: " << nDimensions_ << nl
                 << "    Moment set: " << (*this)
-                << abort(FatalError);
+                << exit(FatalError);
         }
     }
 }
@@ -175,7 +170,7 @@ void Foam::momentSet::validate() const
             FatalErrorInFunction
                 << "Moment " << i << " is not finite: " << (*this)[i] << nl
                 << "    Moment set: " << (*this)
-                << abort(FatalError);
+                << exit(FatalError);
         }
     }
 }

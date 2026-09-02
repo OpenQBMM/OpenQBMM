@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021-2025 Alberto Passalacqua
+    Copyright (C) 2021-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -113,9 +113,6 @@ public:
             const label nMaxNodes = 0
         );
 
-
-    //- Destructor
-    virtual ~generalizedMomentInversion();
 
 
     // Public member functions
