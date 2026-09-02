@@ -104,6 +104,41 @@ void Foam::generalizedMomentInversion::correctRecurrence
     }
 }
 
+bool Foam::generalizedMomentInversion::canExtendRecurrence
+(
+    const univariateMomentSet& moments
+) const
+{
+    // The model number density functions that extend the recurrence
+    // relationship to the additional nodes are singular for a moment vector
+    // without spread: the gamma coefficient divides by m0 m2 - m1^2, the
+    // lognormal one by eta^(2n) - 1 with eta^2 = m0 m2/m1^2, which underflows
+    // to zero for the same reason, and the Jacobi one by the second canonical
+    // moment. A moment vector of that kind is a Dirac delta, which the
+    // regular quadrature nodes already represent exactly, so there is nothing
+    // for the additional nodes to add and Gauss is used instead.
+    const supportType& support = moments.support();
+
+    if (support == supportType::RPlus)
+    {
+        const scalar m1 = moments.moment(1);
+        const scalar variance = moments.moment(0)*moments.moment(2) - sqr(m1);
+
+        return m1 > 0 && variance > SMALL*sqr(m1);
+    }
+
+    if (support == supportType::ZeroOne)
+    {
+        return moments.canonicalMoments()[1] > SMALL;
+    }
+
+    // Over R the recurrence relationship is extended from the mean of the
+    // alpha coefficients and a power law on the beta ones, which is regular
+    // for every moment vector with more than three realizable moments
+    return true;
+}
+
+
 void Foam::generalizedMomentInversion::calcNQuadratureNodes
 (
     univariateMomentSet& moments
@@ -118,7 +153,7 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
         ? label((nRealizableMoments - 1)/2.0)
         : label(nRealizableMoments/2.0);
 
-    if (nRealizableMoments > 3)
+    if (nRealizableMoments > 3 && canExtendRecurrence(moments))
     {
         nAdditionalQuadratureNodes_ = nMaxNodes_ - nRegularQuadratureNodes_;
         nNodes_ = nMaxNodes_;
@@ -137,7 +172,11 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
     weights_.setSize(nMaxNodes_);
     abscissae_.setSize(nMaxNodes_);
 
-    if (moments.zetas().size() < 2*nMaxNodes_ - 1)
+    if
+    (
+        nAdditionalQuadratureNodes_ > 0
+     && moments.zetas().size() < 2*nMaxNodes_ - 1
+    )
     {
         FatalErrorInFunction
             << "The moment set does not reserve room for the zeta_k of the "

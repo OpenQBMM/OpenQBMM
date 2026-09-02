@@ -199,6 +199,104 @@ void testQuadrature
     }
 }
 
+// A moment vector that is a Dirac delta to within round-off, taken from the
+// first time step of tutorials/pbeTransportFoam/TaylorDispersion, whose
+// initial condition is the unit moment vector.
+//
+// The model number density functions GQMOM uses to extend the recurrence
+// relationship to the additional nodes are singular for such a vector: the
+// gamma coefficient divides by m0 m2 - m1^2 and the lognormal one by
+// eta^(2n) - 1, both of which are null when the variance is null. The
+// realizability check reports four realizable moments, because the zeta chain
+// limps one step further on round-off, so the number of realizable moments
+// alone does not exclude the extension. GQMOM must fall back to Gauss.
+void testDegenerateVarianceGQMOM
+(
+    dictionary& dict,
+    const word& ndfType
+)
+{
+    dict.set("ndfTypeRPlus", ndfType);
+
+    scalarList inputMoments
+    ({
+        1.0000000019725894, 1.0100000019923152, 1.0201000020122384,
+        1.0303015020323618, 1.040606028719355,  1.0510151359381159
+    });
+
+    // smallZeta is null by default, which is what lets the chain reach four
+    // realizable moments
+    univariateMomentSet m(inputMoments, supportType::RPlus, SMALL, 0.0, 1);
+
+    showInputMoments(m, "GQMOM, " + ndfType + ", null variance");
+
+    const label nRealizableMoments = m.nRealizableMoments(false);
+
+    if (nRealizableMoments != 4)
+    {
+        FatalErrorInFunction
+            << "This test needs a moment vector with four realizable "
+            << "moments, otherwise the number of realizable moments alone "
+            << "would exclude the extension of the recurrence." << nl
+            << "    Number of realizable moments: " << nRealizableMoments
+            << nl << exit(FatalError);
+    }
+
+    autoPtr<univariateMomentInversion> inversion
+    (
+        univariateMomentInversion::New(dict, 4)
+    );
+
+    inversion().invert(m, 0, 1);
+
+    // Four realizable moments give two regular nodes. GQMOM must not have
+    // added any.
+    Info<< "\nVerifying the fall back to Gauss...";
+
+    if (inversion().nNodes() != 2)
+    {
+        FatalErrorInFunction
+            << "GQMOM did not fall back to Gauss on a moment vector with "
+            << "null variance." << nl
+            << "    Number of quadrature nodes: " << inversion().nNodes()
+            << ", expected 2" << nl
+            << exit(FatalError);
+    }
+
+    Info<< "OK" << endl;
+
+    // The quadrature has to reproduce the moments it is built from
+    const scalarList& weights(inversion().weights());
+    const scalarList& abscissae(inversion().abscissae());
+
+    for (label mi = 0; mi < 2; mi++)
+    {
+        scalar moment = 0;
+
+        for (label nodei = 0; nodei < inversion().nNodes(); nodei++)
+        {
+            moment += weights[nodei]*pow(abscissae[nodei], mi);
+        }
+
+        const scalar magDiff = mag(moment - inputMoments[mi]);
+
+        Info<< "  moment " << mi << " from quadrature = " << moment
+            << ", expected " << inputMoments[mi] << endl;
+
+        if (magDiff > 1.0e-12*mag(inputMoments[mi]))
+        {
+            FatalErrorInFunction
+                << "The quadrature does not reproduce moment " << mi << nl
+                << "    Computed: " << moment << nl
+                << "    Expected: " << inputMoments[mi] << nl
+                << exit(FatalError);
+        }
+    }
+
+    Info<< "\n" << endl;
+}
+
+
 int main(int argc, char *argv[])
 {
     Info<< setprecision(16);
@@ -582,6 +680,9 @@ int main(int argc, char *argv[])
         "GQMOM",
         10
     );
+
+    testDegenerateVarianceGQMOM(quadraturePropertiesGQMOM, "gamma");
+    testDegenerateVarianceGQMOM(quadraturePropertiesGQMOM, "lognormal");
 
     Info<< "\nEnd\n" << endl;
 

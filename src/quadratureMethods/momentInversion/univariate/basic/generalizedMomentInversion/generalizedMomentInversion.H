@@ -75,6 +75,10 @@ class generalizedMomentInversion
 
     // Private member functions
 
+        //- Returns true if the moment vector supports the extension of the
+        //  recurrence relationship to the additional quadrature nodes
+        bool canExtendRecurrence(const univariateMomentSet& moments) const;
+
         // Correct recurrence relation for R support
         void correctRecurrenceR
         (
