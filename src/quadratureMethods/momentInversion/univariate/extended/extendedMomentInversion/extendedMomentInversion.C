@@ -214,6 +214,17 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
             smallZeta_
         );
 
+        // Moments rebuilt from the starred ones, used to measure the error
+        // of a candidate sigma. It is built here, and not where it is filled,
+        // because the search for sigma below fills it on every iteration.
+        univariateMomentSet approximatedMoments
+        (
+            nRealizableMoments,
+            m.support(),
+            smallM0_,
+            smallZeta_
+        );
+
         // Compute target function for sigma = 0
         scalar sigmaLow = 0.0;
         scalar fLow = targetFunction(sigmaLow, m, mStar);
@@ -327,7 +338,14 @@ void Foam::extendedMomentInversion::invert(const univariateMomentSet& moments)
                     return;
                 }
 
-                scalar momentError = normalizedMomentError(sigma_, m, mStar);
+                scalar momentError =
+                    normalizedMomentError
+                    (
+                        sigma_,
+                        m,
+                        mStar,
+                        approximatedMoments
+                    );
 
                 if
                 (
@@ -490,20 +508,13 @@ Foam::scalar Foam::extendedMomentInversion::normalizedMomentError
 (
     scalar sigma,
     const univariateMomentSet& moments,
-    univariateMomentSet& momentsStar
+    univariateMomentSet& momentsStar,
+    univariateMomentSet& approximatedMoments
 )
 {
     scalar norm = 0.0;
 
     targetFunction(sigma, moments, momentsStar);
-
-    univariateMomentSet approximatedMoments
-    (
-        moments.size(),
-        moments.support(),
-        smallM0_,
-        smallZeta_
-    );
 
     momentsStarToMoments(sigma, approximatedMoments, momentsStar);
 

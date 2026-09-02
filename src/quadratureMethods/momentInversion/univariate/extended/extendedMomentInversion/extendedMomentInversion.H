@@ -226,12 +226,15 @@ protected:
             const univariateMomentSet& momentsStar
         ) = 0;
 
-        //- Compute the normalized moment error
+        //- Compute the normalized moment error. The moment set holding the
+        //  moments rebuilt from the starred ones is supplied by the caller,
+        //  so that the search for sigma does not build one on every iteration
         scalar normalizedMomentError
         (
             scalar sigma,
             const univariateMomentSet& moments,
-            univariateMomentSet& momentsStar
+            univariateMomentSet& momentsStar,
+            univariateMomentSet& approximatedMoments
         );
 
         //- Recurrence relation for polynomials orthogonal to kernel function
