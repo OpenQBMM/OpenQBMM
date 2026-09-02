@@ -34,34 +34,6 @@ Description
 
 #include "univariateMomentSet.H"
 
-// * * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * //
-
-namespace Foam
-{
-
-//- Ratio of the Wheeler recursion, with an optional floor on the denominator.
-//
-//  The floor is applied inconsistently by the algorithm: the last step of the
-//  walk guards denominators that the previous steps leave unguarded, and it
-//  guards them differently again for support over R. The guards are preserved
-//  exactly as they are, because applying a single consistent choice changes
-//  the quadrature in cells where the Wheeler table becomes singular, that is
-//  where the moment set is close to degenerate. Which floor, if any, is the
-//  correct treatment of those cells is a decision on the algorithm, not a
-//  question of how the code is organized.
-static inline scalar wheelerRatio
-(
-    const scalar numerator,
-    const scalar denominator,
-    const bool guarded
-)
-{
-    return numerator/(guarded ? max(denominator, SMALL) : denominator);
-}
-
-} // End namespace Foam
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::univariateMomentSet::checkCanonicalMoments
@@ -348,18 +320,15 @@ Foam::label Foam::univariateMomentSet::buildRecurrence()
 
     for (label j = 1; j <= nD; j++)
     {
-        // The last step of the walk guards the denominators that the previous
-        // steps leave unguarded, and it guards them differently again for
-        // support over R. See wheelerRatio above.
-        const bool lastStep = (j == nD);
-
-        beta_[j] =
-            wheelerRatio
-            (
-                zRecurrence_[j][j],
-                zRecurrence_[j - 1][j - 1],
-                lastStep
-            );
+        // The denominators of the Wheeler recursion are strictly positive
+        // wherever the walk reaches them: the table is seeded with
+        // zRecurrence_[0][0] = 1, and the positivity the previous step
+        // required of beta_{j-1}, directly for support over R and through
+        // zeta_{2j-3} otherwise, is what makes zRecurrence_[j-1][j-1]
+        // positive. They are therefore divided by as they are. Flooring them
+        // would leave the quotient of a moment set that is close to
+        // degenerate, but still realizable, silently wrong.
+        beta_[j] = zRecurrence_[j][j]/zRecurrence_[j - 1][j - 1];
 
         // Odd position of the zeta chain, determined by beta_j
         const label oddZetai = 2*j - 1;
@@ -391,18 +360,8 @@ Foam::label Foam::univariateMomentSet::buildRecurrence()
         if (evenZetai <= nZ - 1)
         {
             alpha_[j] =
-                wheelerRatio
-                (
-                    zRecurrence_[j][j + 1],
-                    zRecurrence_[j][j],
-                    !lastStep || overR
-                )
-              - wheelerRatio
-                (
-                    zRecurrence_[j - 1][j],
-                    zRecurrence_[j - 1][j - 1],
-                    lastStep && overR
-                );
+                zRecurrence_[j][j + 1]/zRecurrence_[j][j]
+              - zRecurrence_[j - 1][j]/zRecurrence_[j - 1][j - 1];
 
             if (!overR)
             {
