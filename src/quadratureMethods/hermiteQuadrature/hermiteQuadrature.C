@@ -32,6 +32,7 @@ License
 #include "scalar.H"
 #include "scalarMatrices.H"
 #include "EigenMatrix.H"
+#include "GolubWelsch.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -58,34 +59,22 @@ Foam::hermiteQuadrature::hermiteQuadrature
             << abort(FatalError);
     }
 
-    scalarRectangularMatrix ab(nOrder_, 2, scalar(0));
+    // Coefficients of the recurrence relationship of the monic Hermite
+    // polynomials of the probabilists: alpha_i = 0, beta_i = i
+    scalarList alpha(nOrder_, Zero);
+    scalarList beta(nOrder_, Zero);
 
     for(label i = 0; i < nOrder_; i++)
     {
-        ab[i][1]= scalar(i);
+        beta[i] = scalar(i);
     }
-
-    scalarSquareMatrix z(nOrder_, Zero);
-
-    for (label i = 0; i < nOrder_ - 1; i++)
-    {
-        z[i][i] = ab[i][0];
-        z[i][i+1] = Foam::sqrt(ab[i+1][1]);
-        z[i+1][i] = z[i][i+1];
-    }
-
-    z[nOrder_-1][nOrder_-1] = ab[nOrder_-1][0];
-
-    EigenMatrix<scalar> zEig(z);
 
     scalarList herWei_(nOrder_, Zero);
     scalarList herAbs_(nOrder_, Zero);
 
-    forAll(herWei_,i)
-    {
-        herWei_[i] = sqr(zEig.EVecs()[0][i]);
-        herAbs_[i] = zEig.EValsRe()[i];
-    }
+    GolubWelsch golubWelsch;
+
+    golubWelsch.quadrature(alpha, beta, nOrder_, 1.0, herAbs_, herWei_);
 
     scalar wtotal = sum(herWei_) ;
 

@@ -29,7 +29,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "extendedMomentInversion.H"
-#include "EigenMatrix.H"
 #include "IOmanip.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -66,6 +65,11 @@ Foam::extendedMomentInversion::extendedMomentInversion
     sigma_(0.0),
     secondaryWeights_(nPrimaryNodes_, nSecondaryNodes_),
     secondaryAbscissae_(nPrimaryNodes_, nSecondaryNodes_),
+    golubWelsch_(nSecondaryNodes_),
+    secondaryAlpha_(nSecondaryNodes_, Zero),
+    secondaryBeta_(nSecondaryNodes_, Zero),
+    secondaryNodeAbscissae_(nSecondaryNodes_, Zero),
+    secondaryNodeWeights_(nSecondaryNodes_, Zero),
     minMean_(dict.lookupOrDefault<scalar>("minMean", 1.0e-8)),
     minVariance_(dict.lookupOrDefault<scalar>("minVariance", 1.0e-8)),
     maxSigmaIter_(dict.lookupOrDefault<label>("maxSigmaIter", 1000)),
@@ -541,45 +545,38 @@ void Foam::extendedMomentInversion::secondaryQuadrature
 
     if (!nullSigma_)
     {
-        // Coefficients of the recurrence relation
-        scalarDiagonalMatrix a(nSecondaryNodes_, Zero);
-        scalarDiagonalMatrix b(nSecondaryNodes_, Zero);
-
         forAll(pWeights, pNodei)
         {
             // Compute coefficients of the recurrence relation
-            recurrenceRelation(a, b, primaryAbscissae_[pNodei], sigma_);
+            recurrenceRelation
+            (
+                secondaryAlpha_,
+                secondaryBeta_,
+                primaryAbscissae_[pNodei],
+                sigma_
+            );
 
-            // Define the Jacobi matrix
-            scalarSquareMatrix J(nSecondaryNodes_, Zero);
-
-            // Fill diagonal of Jacobi matrix
-            forAll(a, ai)
-            {
-                J[ai][ai] = a[ai];
-            }
-
-            // Fill off-diagonal terms of the Jacobi matrix
-            for (label bi = 0; bi < nSecondaryNodes_ - 1; bi++)
-            {
-                J[bi][bi + 1] = Foam::sqrt(b[bi + 1]);
-                J[bi + 1][bi] = J[bi][bi + 1];
-            }
-
-            // Compute Gaussian quadrature used to find secondary quadrature
-            EigenMatrix<scalar> JEig(J, true);
-
-            const scalarDiagonalMatrix& JEigenvaluesRe(JEig.EValsRe());
+            // Compute the Gaussian quadrature of the kernel density function
+            // of the primary node. Its moment of order zero is one.
+            golubWelsch_.quadrature
+            (
+                secondaryAlpha_,
+                secondaryBeta_,
+                nSecondaryNodes_,
+                1.0,
+                secondaryNodeAbscissae_,
+                secondaryNodeWeights_
+            );
 
             // Compute secondary weights before normalization and calculate sum
             for (label sNodei = 0; sNodei < nSecondaryNodes_; sNodei++)
             {
-                secondaryWeights_[pNodei][sNodei]
-                    = sqr(JEig.EVecs()[0][sNodei]);
+                secondaryWeights_[pNodei][sNodei] =
+                    secondaryNodeWeights_[sNodei];
 
                 secondaryAbscissae_[pNodei][sNodei] =
                     secondaryAbscissa(primaryAbscissae_[pNodei],
-                        JEigenvaluesRe[sNodei], sigma_);
+                        secondaryNodeAbscissae_[sNodei], sigma_);
             }
         }
 

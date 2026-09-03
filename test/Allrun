@@ -4,6 +4,7 @@ cd "${0%/*}" || exit                            # Run from this directory
 
 # Basic functionality
 Test-Vandermonde
+Test-GolubWelsch
 Test-MappedList
 Test-MappedPtrList
 

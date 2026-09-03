@@ -30,7 +30,6 @@ License
 
 #include "univariateMomentInversion.H"
 #include "IOmanip.H"
-#include "EigenMatrix.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -54,7 +53,7 @@ Foam::univariateMomentInversion::univariateMomentInversion
     nNodes_(nMaxNodes),
     abscissae_(),
     weights_(),
-    jacobiMatrix_(),
+    golubWelsch_(),
     alpha_(),
     beta_()
 {
@@ -116,10 +115,9 @@ Foam::scalar Foam::univariateMomentInversion::orthogonalPolynomial
 }
 
 
-void Foam::univariateMomentInversion::JacobiMatrix
+void Foam::univariateMomentInversion::correctedRecurrence
 (
     univariateMomentSet& moments,
-    scalarSquareMatrix& z,
     const scalar minKnownAbscissa,
     const scalar maxKnownAbscissa
 )
@@ -154,15 +152,6 @@ void Foam::univariateMomentInversion::JacobiMatrix
         minKnownAbscissa,
         maxKnownAbscissa
     );
-
-    for (label i = 0; i < nNodes_ - 1; i++)
-    {
-        z[i][i] = alpha_[i];
-        z[i][i+1] = Foam::sqrt(beta_[i + 1]);
-        z[i+1][i] = z[i][i + 1];
-    }
-
-    z[nNodes_ - 1][nNodes_ - 1] = alpha_[nNodes_ - 1];
 }
 
 void Foam::univariateMomentInversion::invert
@@ -208,31 +197,24 @@ void Foam::univariateMomentInversion::invert
         return;
     }
 
-    // Resize Jacobi matrix only if necessary
-    if (jacobiMatrix_.n() != nNodes_)
-    {
-        jacobiMatrix_.setSize(nNodes_);
-    }
-
-    JacobiMatrix(moments, jacobiMatrix_, minKnownAbscissa, maxKnownAbscissa);
-    calcQuadrature(moments, jacobiMatrix_);
+    correctedRecurrence(moments, minKnownAbscissa, maxKnownAbscissa);
+    calcQuadrature(moments);
 }
 
 void Foam::univariateMomentInversion::calcQuadrature
 (
-    const univariateMomentSet& moments,
-    const scalarSquareMatrix& z
+    const univariateMomentSet& moments
 )
 {
-    // Computing weights and abscissae
-    EigenMatrix<scalar> zEig(z, true);
-
-    // Computing weights and abscissae
-    for (label i = 0; i < nNodes_; i++)
-    {
-        weights_[i] = moments.moment(0)*sqr(zEig.EVecs()[0][i]);
-        abscissae_[i] = zEig.EValsRe()[i];
-    }
+    golubWelsch_.quadrature
+    (
+        alpha_,
+        beta_,
+        nNodes_,
+        moments.moment(0),
+        abscissae_,
+        weights_
+    );
 }
 
 // ************************************************************************* //

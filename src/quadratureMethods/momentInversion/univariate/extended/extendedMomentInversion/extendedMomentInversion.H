@@ -73,6 +73,7 @@ SourceFiles
 #include "runTimeSelectionTables.H"
 #include "univariateMomentSet.H"
 #include "univariateMomentInversion.H"
+#include "GolubWelsch.H"
 
 namespace Foam
 {
@@ -158,6 +159,26 @@ protected:
 
         //- Secondary quadrature abscissae
         scalarRectangularMatrix secondaryAbscissae_;
+
+        //- Gaussian quadrature of the recurrence relationship of the kernel
+        //  density function. It holds the work arrays of the eigenvalue
+        //  problem, so that the secondary quadrature of each primary node
+        //  does not allocate.
+        GolubWelsch golubWelsch_;
+
+        //- Alpha coefficients of the recurrence relationship of the kernel
+        //  density function of one primary node
+        scalarList secondaryAlpha_;
+
+        //- Beta coefficients of the recurrence relationship of the kernel
+        //  density function of one primary node
+        scalarList secondaryBeta_;
+
+        //- Abscissae of the secondary quadrature of one primary node
+        scalarList secondaryNodeAbscissae_;
+
+        //- Weights of the secondary quadrature of one primary node
+        scalarList secondaryNodeWeights_;
 
         //- Minimum mean to perform EQMOM reconstruction
         scalar minMean_;

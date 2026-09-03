@@ -5,6 +5,7 @@ cd "${0%/*}" || exit                            # Run from this directory
 # Use build from FOAM_MODULE_* (defaults to user locations)
 
 wmake Vandermonde
+wmake GolubWelsch
 wmake mappedList
 wmake mappedPtrList
 wmake -all momentSets/univariate

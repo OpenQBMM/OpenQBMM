@@ -46,6 +46,7 @@ SourceFiles
 #include "scalarMatrices.H"
 #include "runTimeSelectionTables.H"
 #include "univariateMomentSet.H"
+#include "GolubWelsch.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -82,8 +83,10 @@ protected:
         //- Quadrature weights
         scalarList weights_;
 
-        //- Jacobi matrix
-        scalarSquareMatrix jacobiMatrix_;
+        //- Gaussian quadrature of the recurrence relationship. It holds the
+        //  work arrays of the eigenvalue problem, so that repeated
+        //  inversions of the same size do not allocate.
+        GolubWelsch golubWelsch_;
 
         //- Work copy of the alpha coefficients of the recurrence relation.
         //  correctRecurrence builds the coefficients of the quadrature, which
@@ -102,22 +105,18 @@ protected:
 
     // Protected member functions
 
-        //- Create Jacobi matrix
-        void JacobiMatrix
+        //- Build the coefficients of the recurrence relationship of the
+        //  quadrature, in the alpha_ and beta_ work lists
+        void correctedRecurrence
         (
             univariateMomentSet& moments,
-            scalarSquareMatrix& z,
             const scalar minKnownAbscissa = 0,
             const scalar maxKnownAbscissa = 0
         );
 
 
         //- Calculate weights and abscissae
-        void calcQuadrature
-        (
-            const univariateMomentSet& moments,
-            const scalarSquareMatrix& z
-        );
+        void calcQuadrature(const univariateMomentSet& moments);
 
         //- Evaluate the monic orthogonal polynomials of the recurrence
         //  relationship at x, up to degree nNodes_ - 1, and return the value

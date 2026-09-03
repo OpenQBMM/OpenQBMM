@@ -5,7 +5,9 @@ ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
     FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
 endif
 
-EXE_INC = \
-    -I../momentInversion/lnInclude
+QBMM_SRC := ../../src
 
-LIB_LIBS =
+EXE_INC = \
+    -I$(QBMM_SRC)/quadratureMethods/momentInversion/lnInclude
+
+EXE_LIBS =
