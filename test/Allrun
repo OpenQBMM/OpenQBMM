@@ -1,21 +1,55 @@
 #!/bin/sh
 
 cd "${0%/*}" || exit                            # Run from this directory
+#------------------------------------------------------------------------------
+# A failing test does not stop the ones after it, so that a single run reports
+# everything that is broken, but the suite exits non-zero so that a caller sees
+# it. A test that was never built exits 127 and is reported the same way.
+
+nFail=0
+failed=""
+
+runTest()
+{
+    _dir="$1"
+    _test="$2"
+
+    echo "Running $_test"
+
+    if ( cd "$_dir" && "$_test" )
+    then
+        echo "$_test: passed"
+    else
+        echo "$_test: FAILED"
+        nFail=$((nFail + 1))
+        failed="$failed $_test"
+    fi
+
+    echo
+}
 
 # Basic functionality
-Test-Vandermonde
-Test-GolubWelsch
-Test-MappedList
-Test-MappedPtrList
+runTest . Test-Vandermonde
+runTest . Test-GolubWelsch
+runTest . Test-MappedList
+runTest . Test-MappedPtrList
 
 # Moment sets
-Test-UnivariateMomentSet
+runTest . Test-UnivariateMomentSet
 
 # Quadrature algorithms
-(cd ./momentInversions/univariate/univariateMomentInversion && Test-UnivariateMomentInversion)
-(cd ./momentInversions/univariate/extendedMomentInversion && Test-ExtendedMomentInversion)
+runTest ./momentInversions/univariate/univariateMomentInversion \
+    Test-UnivariateMomentInversion
 
-# Move back to the main OpenQBMM directory
-cd ..
+runTest ./momentInversions/univariate/extendedMomentInversion \
+    Test-ExtendedMomentInversion
+
+if [ "$nFail" -gt 0 ]
+then
+    echo "$nFail test(s) failed:$failed"
+    exit 1
+fi
+
+echo "All tests passed"
 
 #------------------------------------------------------------------------------
