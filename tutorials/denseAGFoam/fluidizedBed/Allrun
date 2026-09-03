@@ -26,6 +26,10 @@ do
     fi
 done
 
+# The initial volume fraction is the field setFields works on, so it has to
+# be in place before it runs
+cp 0/alpha.particles.orig 0/alpha.particles
+
 blockMesh
 setFields
 decomposePar
