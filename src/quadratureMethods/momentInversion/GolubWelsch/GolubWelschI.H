@@ -27,6 +27,8 @@ License
 
 #include "error.H"
 
+#include <cmath>
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 inline Foam::GolubWelsch::GolubWelsch()
@@ -247,23 +249,34 @@ inline void Foam::GolubWelsch::quadrature
             << exit(FatalError);
     }
 
-    // The coefficients whose square roots form the sub-diagonal have to be
-    // positive. This is a condition on memory, and not only on the answer: a
-    // NaN, which the square root of a negative coefficient produces, poisons
-    // the norm the sweep measures its sub-diagonal against, so no entry of
-    // the chain is ever found small, the search for a splitting point walks
-    // past its end, and the sweep then reads and writes outside the work
-    // arrays. The test is written as a negation so that a coefficient that
-    // is already a NaN, which compares false against everything, is refused
-    // here rather than carried into the sweep.
-    for (label i = 1; i < nNodes; i++)
+    // The coefficients of the recurrence relationship have to be finite, and
+    // the ones the sub-diagonal is built from positive as well. This is a
+    // condition on memory, and not only on the answer: the sweep measures its
+    // sub-diagonal against a norm accumulated from both the diagonal and the
+    // sub-diagonal, a NaN in either poisons that norm, no entry of the chain
+    // is then ever found small, and the search for a splitting point walks
+    // past the end of the chain and reads and writes outside the work arrays.
+    // A negative coefficient reaches the same place through its square root.
+    for (label i = 0; i < nNodes; i++)
     {
-        if (!(beta[i] >= 0))
+        if (!std::isfinite(alpha[i]))
         {
             FatalErrorInFunction
                 << "The coefficients of the recurrence relationship of a "
-                << "measure are positive, and the ones of a realizable "
-                << "moment set are strictly positive." << nl
+                << "measure are finite." << nl
+                << "    Coefficient: alpha[" << i << "]" << nl
+                << "    Value: " << alpha[i] << nl
+                << "    Number of quadrature nodes: " << nNodes << nl
+                << "    Coefficients: " << alpha << nl
+                << exit(FatalError);
+        }
+
+        if (i > 0 && !(beta[i] >= 0 && std::isfinite(beta[i])))
+        {
+            FatalErrorInFunction
+                << "The coefficients of the recurrence relationship of a "
+                << "measure are finite and positive, and the ones of a "
+                << "realizable moment set strictly positive." << nl
                 << "    Coefficient: beta[" << i << "]" << nl
                 << "    Value: " << beta[i] << nl
                 << "    Number of quadrature nodes: " << nNodes << nl

@@ -536,6 +536,43 @@ int main(int argc, char *argv[])
         beta[3] = std::numeric_limits<scalar>::quiet_NaN();
 
         testRefused(alpha, beta, nNodes, "a NaN coefficient");
+
+        // An infinite coefficient does not walk off the end, because it makes
+        // the whole chain look small rather than none of it, but it is no
+        // more a recurrence relationship than a NaN is
+        beta[3] = std::numeric_limits<scalar>::infinity();
+
+        testRefused(alpha, beta, nNodes, "an infinite coefficient");
+    }
+
+    // The diagonal reaches the same norm as the sub-diagonal, so a coefficient
+    // that is not a number there walks off the end of the chain in the same
+    // way, with the sub-diagonal perfectly well formed.
+    // gaussLobattoMomentInversion::correctRecurrence writes the last
+    // coefficient of both from expressions over one divisor, so a null divisor
+    // produces this and the case above together.
+    {
+        const label nNodes = 4;
+
+        scalarList alpha(nNodes, Zero);
+        scalarList beta(nNodes, Zero);
+
+        for (label i = 0; i < nNodes; i++)
+        {
+            alpha[i] = 1.0 + 0.1*scalar(i);
+        }
+
+        beta[1] = 0.5;
+        beta[2] = 0.25;
+        beta[3] = 0.5;
+
+        alpha[2] = std::numeric_limits<scalar>::quiet_NaN();
+
+        testRefused(alpha, beta, nNodes, "a NaN on the diagonal");
+
+        alpha[2] = std::numeric_limits<scalar>::infinity();
+
+        testRefused(alpha, beta, nNodes, "an infinite diagonal");
     }
 
     // A null coefficient is not an error. It splits the chain, which is what
