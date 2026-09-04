@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2025 Alberto Passalacqua
+    Copyright (C) 2014-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -40,6 +40,7 @@ Description
 #include "supportType.H"
 #include "TensorProductMomentInversion.H"
 #include "Random.H"
+#include "multivariateMomentTest.H"
 
 using namespace Foam;
 
@@ -58,13 +59,17 @@ int main(int argc, char *argv[])
 
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 
+    // A fixed seed, so that the moments the inversion is asked for are the
+    // same on every run and on every machine
+    Random rndGen(20260904);
+
     forAll(x, nodei)
     {
-        w[nodei] = scalar(rand())/scalar(RAND_MAX);
+        w[nodei] = rndGen.sample01<scalar>();
 
         forAll(x[nodei], dimi)
         {
-            x[nodei][dimi] = scalar(rand())/scalar(RAND_MAX);
+            x[nodei][dimi] = rndGen.sample01<scalar>();
         }
     }
 
@@ -141,7 +146,7 @@ int main(int argc, char *argv[])
 
             for(label dimi = 0; dimi < momentOrder.size(); dimi++)
             {
-                if (velocityIndexes[vi] == dimi)
+                if (vi < velocityIndexes.size() && velocityIndexes[vi] == dimi)
                 {
                      cmpt *=
                         pow
@@ -161,18 +166,20 @@ int main(int argc, char *argv[])
             newMoments(momentOrder) += cmpt;
         }
 
-        Info<< "moment.";
-
-        forAll(momentOrder, dimi)
-        {
-            Info<< momentOrder[dimi];
-        }
-
-        Info<< ": " << newMoments(momentOrder)
-            << ",\trel error: "
-            << (mag(moments(momentOrder)
-                - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
+
+    // The tensor product quadrature has a node for every combination of the
+    // univariate abscissae, and solves for its weights from the mixed
+    // moments, so every moment of the set is reproduced
+    checkMomentConservation
+    (
+        newMoments,
+        moments,
+        momentOrders,
+        1e-10,
+        "TensorProduct"
+    );
+
 
     Info << "\nEnd\n" << endl;
 

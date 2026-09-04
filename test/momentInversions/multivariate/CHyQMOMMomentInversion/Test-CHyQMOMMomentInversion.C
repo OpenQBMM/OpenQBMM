@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2014-2025 Alberto Passalacqua
+    Copyright (C) 2014-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -24,10 +24,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    Test-CHyQMOM.C
+    Test-CHyQMOMMomentInversion
 
 Description
-    Test the conditional hyperbolic moment inverion class.
+    Test the conditional hyperbolic moment inversion classes.
+
+    A quadrature of twenty-seven nodes is drawn, its moments are computed,
+    and both CHyQMOM and CHyQMOM+ are asked to invert them. Each has to
+    reproduce the moments of its own moment set.
+
+    The quadrature carries more moments than either method controls, and
+    the value an inversion returns for one of the others is the closure it
+    applies rather than an error, so those are reported and not asserted.
 
 \*---------------------------------------------------------------------------*/
 
@@ -40,45 +48,129 @@ Description
 #include "CHyQMOMMomentInversion.H"
 #include "CHyQMOMPlusMomentInversion.H"
 #include "Random.H"
+#include "multivariateMomentTest.H"
 
 using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-int main(int argc, char *argv[])
+//- Invert the moments with the given method and assert that it conserves
+//  every moment of its own moment set
+template<class inversionType>
+void testInversion
+(
+    const word& what,
+    const dictionary& dict,
+    const multivariateMomentSet& moments,
+    const labelListList& momentOrders,
+    const labelListList& nodeIndexes,
+    const labelList& velocityIndexes,
+    const label nDims,
+    const scalar tolerance,
+    const labelListList& knownFailures = labelListList()
+)
+{
+    Info<< "\n\nInverting moments with " << what << endl;
+
+    inversionType inverter(dict, momentOrders, nodeIndexes, velocityIndexes);
+
+    if (!inverter.invert(moments))
+    {
+        FatalErrorInFunction
+            << "The inversion with " << what << " failed." << nl
+            << exit(FatalError);
+    }
+
+    const mappedScalarList& weights = inverter.weights();
+    const mappedVectorList& abscissae = inverter.velocityAbscissae();
+
+    mappedList<scalar> reconstructed(momentOrders.size(), momentOrders, Zero);
+
+    forAll(momentOrders, mi)
+    {
+        const labelList& momentOrder = momentOrders[mi];
+
+        scalar m = 0.0;
+
+        forAll(nodeIndexes, nodei)
+        {
+            const labelList& nodeIndex = nodeIndexes[nodei];
+
+            scalar cmpt = weights(nodeIndex);
+
+            for (label dimi = 0; dimi < nDims; dimi++)
+            {
+                cmpt *= pow(abscissae(nodeIndex)[dimi], momentOrder[dimi]);
+            }
+
+            m += cmpt;
+        }
+
+        reconstructed(momentOrder) = m;
+    }
+
+    // The moments of the method, which it has to conserve
+    const labelListList controlled(inversionType::getMomentOrders(nDims));
+
+    checkMomentConservation
+    (
+        reconstructed,
+        moments,
+        controlled,
+        tolerance,
+        what,
+        knownFailures
+    );
+
+    // The remaining moments of the quadrature are closed by the method
+    Info<< "\nMoments outside the set of " << what
+        << ", closed rather than conserved:" << endl;
+
+    forAll(momentOrders, mi)
+    {
+        const labelList& momentOrder = momentOrders[mi];
+
+        bool isControlled = false;
+
+        forAll(controlled, ci)
+        {
+            if (controlled[ci] == momentOrder)
+            {
+                isControlled = true;
+                break;
+            }
+        }
+
+        if (!isControlled)
+        {
+            Info<< "  " << momentName(momentOrder) << " = "
+                << reconstructed(momentOrder)
+                << ", of a quadrature with " << moments(momentOrder) << endl;
+        }
+    }
+}
+
+
+int main()
 {
     #include "createFields.H"
 
-    mappedList<scalarList> x
-    (
-        nNodes,
-        nodeIndexes,
-        scalarField(nDims, Zero)
-    );
-
+    mappedList<scalarList> x(nNodes, nodeIndexes, scalarField(nDims, Zero));
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
+
+    // A fixed seed, so that the moments the inversions are asked for are the
+    // same on every run and on every machine
+    Random rndGen(20260904);
 
     forAll(x, nodei)
     {
-        w[nodei] = scalar(rand())/scalar(RAND_MAX);
+        w[nodei] = rndGen.sample01<scalar>();
+
         forAll(x[nodei], dimi)
         {
-            x[nodei][dimi] = 2.0*scalar(rand())/scalar(RAND_MAX) - 1.0;
+            x[nodei][dimi] = 2.0*rndGen.sample01<scalar>() - 1.0;
         }
     }
-
-//     scalar T = Foam::sqrt(2.0/3.0);
-//     vector U(1.0, 2.0, 2.0);
-//     x[0][0] = T + U.x();
-//     x[0][1] = T + U.y();
-//     x[0][2] = T + U.y();
-//     x[1][0] = -T + U.x();
-//     x[1][1] = -T + U.y();
-//     x[1][2] = -T + U.z();
-//     w[0] = 0.025;
-//     w[1] = 0.025;
-
-    Info<< "Original moments:" << endl;
 
     multivariateMomentSet moments
     (
@@ -89,10 +181,13 @@ int main(int argc, char *argv[])
         SMALL
     );
 
+    Info<< "Moments of the quadrature:" << endl;
+
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
-        moments(momentOrder) = 0.0;
+
+        scalar m = 0.0;
 
         forAll(nodeIndexes, nodei)
         {
@@ -105,127 +200,46 @@ int main(int argc, char *argv[])
                 cmpt *= pow(x(nodeIndex)[dimi], momentOrder[dimi]);
             }
 
-            moments(momentOrder) += cmpt;
+            m += cmpt;
         }
 
-        Info<< "moment.";
+        moments(momentOrder) = m;
 
-        forAll(momentOrder, dimi)
-        {
-            Info<< momentOrder[dimi];
-        }
-
-        Info<< ": " << moments(momentOrder) << endl;
+        Info<< "  " << momentName(momentOrder) << ": " << m << endl;
     }
 
-    multivariateMomentInversions::CHyQMOM momentInverter
+    const scalar tolerance = 1e-10;
+
+    testInversion<multivariateMomentInversions::CHyQMOM>
     (
-        quadratureProperties, momentOrders, nodeIndexes, velocityIndexes
+        "CHyQMOM",
+        quadratureProperties,
+        moments,
+        momentOrders,
+        nodeIndexes,
+        velocityIndexes,
+        nDims,
+        tolerance
     );
 
-    Info<< "\nInverting moments with CHyQMOM" << endl;
-
-    momentInverter.invert(moments);
-
-    Info<< "\nReconstructed moments:" << endl;
-
-    const mappedScalarList& weights = momentInverter.weights();
-
-    const mappedVectorList& velocityAbscissae =
-        momentInverter.velocityAbscissae();
-
-    mappedList<scalar> newMoments(nMoments, momentOrders);
-
-    forAll(momentOrders, mi)
-    {
-        const labelList& momentOrder = momentOrders[mi];
-        newMoments(momentOrder) = 0.0;
-
-        forAll(nodeIndexes, nodei)
-        {
-            const labelList& nodeIndex = nodeIndexes[nodei];
-
-            scalar cmpt = weights(nodeIndex);
-
-            for(label dimi = 0; dimi < momentOrder.size(); dimi++)
-            {
-                cmpt *=
-                    pow
-                    (
-                        velocityAbscissae(nodeIndex)[dimi],
-                        momentOrder[dimi]
-                    );
-            }
-
-            newMoments(momentOrder) += cmpt;
-        }
-
-        Info<< "moment.";
-        forAll(momentOrder, dimi)
-        {
-            Info<< momentOrder[dimi];
-        }
-        Info<< ": " << newMoments(momentOrder)
-            << ",\trel error: "
-            << (mag(moments(momentOrder)
-                - newMoments(momentOrder))/moments(momentOrder))<< endl;
-    }
-
-    multivariateMomentInversions::CHyQMOMPlus momentInverterp
+    // CHyQMOM+ does not conserve the moment of order (0 1 2), which belongs
+    // to its own moment set. It is pinned until the cause is found; see the
+    // same pin in Test-CHyQMOMDegenerate, where the moment is zero by
+    // symmetry and the inversion returns minus the moment of order (1 1 0).
+    testInversion<multivariateMomentInversions::CHyQMOMPlus>
     (
-        quadratureProperties, momentOrders, nodeIndexes, velocityIndexes
+        "CHyQMOMPlus",
+        quadratureProperties,
+        moments,
+        momentOrders,
+        nodeIndexes,
+        velocityIndexes,
+        nDims,
+        tolerance,
+        {{0, 1, 2}}
     );
 
-    Info<< "\nInverting moments with CHyQMOMPlus" << endl;
-
-    momentInverterp.invert(moments);
-
-    Info<< "\nReconstructed moments:" << endl;
-
-    const mappedScalarList& weightsp = momentInverterp.weights();
-
-    const mappedVectorList& velocityAbscissaep =
-        momentInverterp.velocityAbscissae();
-
-    mappedList<scalar> newMomentsp(nMoments, momentOrders);
-
-    forAll(momentOrders, mi)
-    {
-        const labelList& momentOrder = momentOrders[mi];
-        newMomentsp(momentOrder) = 0.0;
-
-        forAll(nodeIndexes, nodei)
-        {
-            const labelList& nodeIndex = nodeIndexes[nodei];
-
-            scalar cmpt = weightsp(nodeIndex);
-
-            for(label dimi = 0; dimi < momentOrder.size(); dimi++)
-            {
-                cmpt *=
-                    pow
-                    (
-                        velocityAbscissaep(nodeIndex)[dimi],
-                        momentOrder[dimi]
-                    );
-            }
-
-            newMomentsp(momentOrder) += cmpt;
-        }
-
-        Info<< "moment.";
-        forAll(momentOrder, dimi)
-        {
-            Info<< momentOrder[dimi];
-        }
-        Info<< ": " << newMomentsp(momentOrder)
-            << ",\trel error: "
-            << (mag(moments(momentOrder)
-                - newMomentsp(momentOrder))/moments(momentOrder))<< endl;
-    }
-
-
-    Info << "\nEnd\n" << endl;
+    Info<< "\n\nEnd\n" << endl;
 
     return 0;
 }

@@ -13,6 +13,7 @@ wmake -all momentInversions/univariate
 
 # conditional moment inversion needs to be updated for new structure
 # wmake conditionalMomentInversion
+wmake momentInversions/multivariate/CHyQMOMDegenerate
 wmake momentInversions/multivariate/monoKineticMomentInversion
 wmake momentInversions/multivariate/CHyQMOMMomentInversion
 wmake momentInversions/multivariate/sizeCHyQMOMMomentInversion

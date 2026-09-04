@@ -44,6 +44,22 @@ runTest ./momentInversions/univariate/univariateMomentInversion \
 runTest ./momentInversions/univariate/extendedMomentInversion \
     Test-ExtendedMomentInversion
 
+runTest ./momentInversions/multivariate/CHyQMOMMomentInversion \
+    Test-CHyQMOMMomentInversion
+
+runTest ./momentInversions/multivariate/monoKineticMomentInversion \
+    Test-monoKineticMomentInversion
+
+runTest ./momentInversions/multivariate/sizeCHyQMOMMomentInversion \
+    Test-sizeCHyQMOMMomentInversion
+
+runTest ./momentInversions/multivariate/TensorProductMomentInversion \
+    Test-TensorProductMomentInversion
+
+# Self-contained: it builds its own moment sets rather than reading a
+# quadratureProperties from its directory
+runTest . Test-CHyQMOMDegenerate
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

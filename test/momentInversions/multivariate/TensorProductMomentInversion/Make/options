@@ -8,6 +8,7 @@ endif
 QBMM_SRC := ../../../../src
 
 EXE_INC = \
+    -I.. \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
