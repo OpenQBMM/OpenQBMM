@@ -46,6 +46,72 @@ using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+//- Invert a moment set whose zero-order moment is below the smallest one
+//  the inversion accepts.
+//
+//  Such a set carries no information, and the realizability check settles
+//  it before any quadrature is built, so the inversion reports the failure
+//  and leaves the quadrature at the zero it starts from. The caller is what
+//  decides what to do with a cell like that, so it has to be told.
+void testNegligibleMass
+(
+    const dictionary& dict,
+    const labelListList& momentOrders,
+    const labelListList& nodeIndexes,
+    const labelList& velocityIndexes
+)
+{
+    Info<< "\n\nInverting a moment set of negligible mass" << endl;
+
+    multivariateMomentSet moments
+    (
+        momentOrders.size(),
+        momentOrders,
+        List<supportType>(momentOrders[0].size(), supportType::R),
+        SMALL,
+        SMALL
+    );
+
+    forAll(momentOrders, mi)
+    {
+        moments(momentOrders[mi]) = 0.1*SMALL;
+    }
+
+    multivariateMomentInversions::TensorProduct inverter
+    (
+        dict, momentOrders, nodeIndexes, velocityIndexes
+    );
+
+    if (inverter.invert(moments))
+    {
+        FatalErrorInFunction
+            << "The inversion of a moment set of negligible mass was"
+            << " reported as a success." << nl
+            << "    Zero-order moment: " << moments(momentOrders[0]) << nl
+            << "    Smallest accepted: " << inverter.smallM0() << nl
+            << exit(FatalError);
+    }
+
+    Info<< "  the inversion reported the failure" << endl;
+
+    forAll(inverter.weights(), nodei)
+    {
+        if (mag(inverter.weights()[nodei]) > SMALL)
+        {
+            FatalErrorInFunction
+                << "A failed inversion left a weight behind." << nl
+                << "    Node: " << nodei << nl
+                << "    Weight: " << inverter.weights()[nodei] << nl
+                << exit(FatalError);
+        }
+    }
+
+    Info<< "  the quadrature it leaves behind is null" << endl;
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 int main(int argc, char *argv[])
 {
     #include "createFields.H"
@@ -180,6 +246,14 @@ int main(int argc, char *argv[])
         "TensorProduct"
     );
 
+
+    testNegligibleMass
+    (
+        quadratureProperties,
+        momentOrders,
+        nodeIndexes,
+        velocityIndexes
+    );
 
     Info << "\nEnd\n" << endl;
 

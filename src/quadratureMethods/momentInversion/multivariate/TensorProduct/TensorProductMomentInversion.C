@@ -208,27 +208,35 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
         }
     }
 
-    if (max(nNonZeroNodes) == 0)
+    // The quadrature has a node for every combination of the univariate
+    // abscissae, so a direction that carries no node leaves it with none at
+    // all, whatever the other directions carry. The weights are left at the
+    // zero reset() wrote.
+    //
+    // The test is on the smallest of the counts rather than the largest:
+    // taking the product over the directions that do carry nodes, and
+    // building the indexes over all of them, would ask buildIndexes for
+    // more nodes than it writes and leave the rest of the list at zero,
+    // which is a set of identical indexes and a singular system to solve
+    // for the weights.
+    if (min(nNonZeroNodes) == 0)
     {
         return true;
     }
 
     label totNonZeroNodes = 1;
-    label nDims = 0;
 
     forAll(nNonZeroNodes, dimi)
     {
-        if (nNonZeroNodes[dimi] > 0)
-        {
-            totNonZeroNodes *= nNonZeroNodes[dimi];
-            nDims++;
-        }
+        totNonZeroNodes *= nNonZeroNodes[dimi];
     }
+
+    const label nDims = nNonZeroNodes.size();
 
     labelListList nonZeroNodeIndexes(totNonZeroNodes, labelList(nDims, 0));
     {
         label nodei = 0;
-        labelList index(nDims);
+        labelList index(nDims, 0);
         buildIndexes(nonZeroNodeIndexes, nNonZeroNodes, 0, nodei, index);
     }
 
@@ -273,7 +281,8 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
         }
     }
 
-    scalarList weights(nNonZeroNodes.size());
+    // One weight per node, not per direction
+    scalarList weights(totNonZeroNodes, Zero);
     solve(weights, R, mixedMoments);
 
     forAll(nonZeroNodeIndexes, nodei)
