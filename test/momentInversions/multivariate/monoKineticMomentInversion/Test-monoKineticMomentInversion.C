@@ -45,6 +45,120 @@ using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+//- Invert a monokinetic distribution whose dimensions are ordered velocity
+//  first and size last.
+//
+//  A monokinetic distribution carries one velocity per size node, so it is
+//  its own quadrature and the inversion has to reproduce every moment of
+//  it. The point of the permuted order is the size: an inversion that
+//  reads velocityIndexes to find out which dimension is which handles it,
+//  while one that assumes the size is the first dimension reads the moments
+//  of the wrong orders.
+void testPermutedDimensions(const dictionary& dict)
+{
+    Info<< "\n\nInverting a distribution with the size as the last"
+        << " dimension" << endl;
+
+    const label nSizeNodes = 3;
+    const label nSizeMoments = 2*nSizeNodes;
+
+    // One velocity per size node
+    const scalarList ws({0.5, 0.75, 1.0});
+    const scalarList xs({0.4, 1.1, 1.8});
+    const scalarList us({-0.6, 0.3, 1.2});
+    const scalarList vs({0.9, -0.4, 0.2});
+
+    // The dimensions are (u, v, size)
+    labelListList momentOrders;
+
+    for (label k = 0; k < nSizeMoments; k++)
+    {
+        momentOrders.append(labelList({0, 0, k}));
+    }
+
+    for (label k = 0; k < nSizeNodes; k++)
+    {
+        momentOrders.append(labelList({1, 0, k}));
+        momentOrders.append(labelList({0, 1, k}));
+    }
+
+    const labelListList nodeIndexes({{0}, {1}, {2}});
+    const labelList velocityIndexes({0, 1});
+
+    multivariateMomentSet moments
+    (
+        momentOrders.size(),
+        momentOrders,
+        List<supportType>(3, supportType::R),
+        SMALL,
+        SMALL
+    );
+
+    forAll(momentOrders, mi)
+    {
+        const labelList& momentOrder = momentOrders[mi];
+
+        scalar m = 0.0;
+
+        forAll(ws, nodei)
+        {
+            m += ws[nodei]
+                *pow(us[nodei], momentOrder[0])
+                *pow(vs[nodei], momentOrder[1])
+                *pow(xs[nodei], momentOrder[2]);
+        }
+
+        moments(momentOrder) = m;
+    }
+
+    multivariateMomentInversions::monoKinetic inverter
+    (
+        dict, momentOrders, nodeIndexes, velocityIndexes
+    );
+
+    if (!inverter.invert(moments))
+    {
+        FatalErrorInFunction
+            << "The inversion of the permuted distribution failed." << nl
+            << exit(FatalError);
+    }
+
+    const mappedScalarList& weights = inverter.weights();
+    const mappedList<scalarList>& sizeAbscissae = inverter.abscissae();
+    const mappedVectorList& velocityAbscissae = inverter.velocityAbscissae();
+
+    mappedList<scalar> reconstructed(momentOrders.size(), momentOrders, Zero);
+
+    forAll(momentOrders, mi)
+    {
+        const labelList& momentOrder = momentOrders[mi];
+
+        scalar m = 0.0;
+
+        forAll(nodeIndexes, nodei)
+        {
+            m += weights[nodei]
+                *pow(velocityAbscissae[nodei][0], momentOrder[0])
+                *pow(velocityAbscissae[nodei][1], momentOrder[1])
+                *pow(sizeAbscissae[nodei][0], momentOrder[2]);
+        }
+
+        reconstructed(momentOrder) = m;
+    }
+
+    checkMomentConservation
+    (
+        reconstructed,
+        moments,
+        momentOrders,
+        1e-10,
+        "monoKinetic, size as the last dimension"
+    );
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 int main(int argc, char *argv[])
 {
     #include "createFields.H"
@@ -187,6 +301,8 @@ int main(int argc, char *argv[])
         1e-10,
         "monoKinetic"
     );
+
+    testPermutedDimensions(quadratureProperties);
 
     Info << "\nEnd\n" << endl;
 

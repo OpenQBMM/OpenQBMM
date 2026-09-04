@@ -63,7 +63,8 @@ Foam::multivariateMomentInversions::monoKinetic::monoKinetic
         nodeIndexes,
         velocityIndexes
     ),
-    nSizeMoments_(calcNSizeMoments(momentOrders)),
+    sizeIndex_(calcSizeIndex(momentOrders[0].size(), velocityIndexes_)),
+    nSizeMoments_(calcNSizeMoments(momentOrders, sizeIndex_)),
     sizeInverter_
     (
         univariateMomentInversion::New(dict.subDict("basicQuadrature"))
@@ -79,9 +80,66 @@ Foam::multivariateMomentInversions::monoKinetic::~monoKinetic()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+Foam::label Foam::multivariateMomentInversions::monoKinetic::calcSizeIndex
+(
+    const label nDistributionDims,
+    const labelList& velocityIndexes
+)
+{
+    boolList isVelocity(nDistributionDims, false);
+
+    forAll(velocityIndexes, vi)
+    {
+        const label dimi = velocityIndexes[vi];
+
+        // The callers pass {-1} for a distribution with no velocity
+        if (dimi < 0)
+        {
+            continue;
+        }
+
+        if (dimi >= nDistributionDims)
+        {
+            FatalErrorInFunction
+                << "The velocity index " << dimi << " is not a dimension of "
+                << "the distribution." << nl
+                << "    Number of dimensions: " << nDistributionDims << nl
+                << exit(FatalError);
+        }
+
+        isVelocity[dimi] = true;
+    }
+
+    labelList sizeIndexes;
+
+    forAll(isVelocity, dimi)
+    {
+        if (!isVelocity[dimi])
+        {
+            sizeIndexes.append(dimi);
+        }
+    }
+
+    if (sizeIndexes.size() != 1)
+    {
+        FatalErrorInFunction
+            << "The monokinetic inversion conditions one velocity on one "
+            << "size, so the distribution must have exactly one dimension "
+            << "that is not a velocity." << nl
+            << "    Number of dimensions: " << nDistributionDims << nl
+            << "    Velocity indexes: " << velocityIndexes << nl
+            << "    Dimensions that are not a velocity: " << sizeIndexes << nl
+            << exit(FatalError);
+    }
+
+    return sizeIndexes[0];
+}
+
+
 Foam::label Foam::multivariateMomentInversions::monoKinetic::calcNSizeMoments
 (
-    const labelListList& momentOrders
+    const labelListList& momentOrders,
+    const label sizeIndex
 )
 {
     label maxOrder = 0;
@@ -89,7 +147,7 @@ Foam::label Foam::multivariateMomentInversions::monoKinetic::calcNSizeMoments
     forAll(momentOrders, mi)
     {
         const labelList& momentOrder = momentOrders[mi];
-        maxOrder = max(maxOrder, momentOrder[0]);
+        maxOrder = max(maxOrder, momentOrder[sizeIndex]);
     }
 
     return maxOrder + 1;
@@ -114,7 +172,10 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
 
     forAll(sizeMoments, mi)
     {
-        sizeMoments[mi] = moments(mi);
+        labelList sizeMomentOrder(nDistributionDims_, 0);
+        sizeMomentOrder[sizeIndex_] = mi;
+
+        sizeMoments[mi] = moments(sizeMomentOrder);
     }
 
     if (!sizeMoments.isRealizable(false))
@@ -162,17 +223,22 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
         Vandermonde V(x);
         scalarSquareMatrix invVR = invR*V.invert();
 
-        // Compute conditional velocity moments and invert
+        // Compute conditional velocity moments and invert.
+        //
+        // dimi counts the velocity components, which is how they are stored
+        // in velocityAbscissae_, while velocityIndexes_[dimi] is the
+        // dimension of the distribution that component belongs to, which is
+        // how the moment orders are written.
         for (label dimi = 0; dimi < nVelocityDimensions_; dimi++)
         {
             labelList pureMomentOrder(nDistributionDims_, 0);
-            pureMomentOrder[dimi + 1] = 1;
+            pureMomentOrder[velocityIndexes_[dimi]] = 1;
 
             scalarRectangularMatrix M(nSizeNodes, 1, 0);
 
             for (label nodei = 0; nodei < nSizeNodes; nodei++)
             {
-                pureMomentOrder[0] = nodei;
+                pureMomentOrder[sizeIndex_] = nodei;
                 M(nodei, 0) = moments(pureMomentOrder);
             }
 

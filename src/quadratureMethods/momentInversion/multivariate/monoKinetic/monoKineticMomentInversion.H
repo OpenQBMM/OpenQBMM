@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -65,6 +65,12 @@ class monoKinetic
 {
     // Private member data
 
+        //- Index of the size dimension in the moment orders. It is the one
+        //  dimension of the distribution that is not a velocity, and it is
+        //  not required to be the first: the order of the dimensions is
+        //  the order the moments are listed in the case dictionary.
+        const label sizeIndex_;
+
         //- Number of size moments
         const label nSizeMoments_;
 
@@ -77,8 +83,20 @@ class monoKinetic
 
     // Private member functions
 
+        //- Return the index of the size dimension, and stop if the
+        //  distribution does not have exactly one
+        static label calcSizeIndex
+        (
+            const label nDistributionDims,
+            const labelList& velocityIndexes
+        );
+
         //- Calculate the number of pure size moments
-        label calcNSizeMoments(const labelListList& momentOrders);
+        static label calcNSizeMoments
+        (
+            const labelListList& momentOrders,
+            const label sizeIndex
+        );
 
 
 public:
