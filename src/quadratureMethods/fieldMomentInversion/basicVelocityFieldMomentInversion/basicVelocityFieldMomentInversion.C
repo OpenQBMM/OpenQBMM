@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2025 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -65,6 +65,7 @@ Foam::basicVelocityFieldMomentInversion::basicVelocityFieldMomentInversion
         nodeIndexes,
         velocityIndexes
     ),
+    momentsToInvert_(nullptr),
     momentInverter_
     (
         multivariateMomentInversion::New
@@ -85,6 +86,40 @@ Foam::basicVelocityFieldMomentInversion::~basicVelocityFieldMomentInversion()
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+Foam::multivariateMomentSet&
+Foam::basicVelocityFieldMomentInversion::localMomentSet
+(
+    const volVelocityMomentFieldSet& moments
+)
+{
+    if (!momentsToInvert_)
+    {
+        momentsToInvert_.reset
+        (
+            new multivariateMomentSet
+            (
+                moments.size(),
+                momentOrders_,
+                moments.supports(),
+                momentInverter_().smallM0(),
+                momentInverter_().smallZeta()
+            )
+        );
+    }
+    else if (momentsToInvert_().nMoments() != moments.size())
+    {
+        FatalErrorInFunction
+            << "The moment field set is inconsistent with the moment set "
+            << "used to invert it." << nl
+            << "    Number of moments: " << moments.size()
+            << ", expected " << momentsToInvert_().nMoments() << nl
+            << exit(FatalError);
+    }
+
+    return momentsToInvert_();
+}
+
 
 void Foam::basicVelocityFieldMomentInversion::invert
 (
@@ -142,21 +177,14 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
     // Recover reference to boundaryField of zero-order moment.
     const volScalarField::Boundary& bf = moments[0].boundaryField();
 
+    multivariateMomentSet& momentsToInvert(localMomentSet(moments));
+
     forAll(bf, patchi)
     {
         const fvPatchScalarField& m0Patch = bf[patchi];
 
         forAll(m0Patch, facei)
         {
-            multivariateMomentSet momentsToInvert
-            (
-                moments.size(),
-                momentOrders_,
-                moments.supports(),
-                momentInverter_().smallM0(),
-                momentInverter_().smallZeta()
-            );
-
             // Copying moments from a face
             forAll(momentsToInvert, momenti)
             {
@@ -167,7 +195,16 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
             }
 
             // Find quadrature
-            momentInverter_().invert(momentsToInvert);
+            if (!momentInverter_().invert(momentsToInvert))
+            {
+                FatalErrorInFunction
+                    << "The inversion of the moments of a boundary face "
+                    << "failed." << nl
+                    << "    Patch: " << bf[patchi].patch().name() << nl
+                    << "    Face: " << facei << nl
+                    << "    Moments: " << momentsToInvert << nl
+                    << exit(FatalError);
+            }
 
             const mappedList<scalar>& weights(momentInverter_->weights());
 
@@ -218,14 +255,7 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
     const bool fatalErrorOnFailedRealizabilityTest
 )
 {
-    multivariateMomentSet momentsToInvert
-    (
-        moments.size(),
-        momentOrders_,
-        moments.supports(),
-        momentInverter_().smallM0(),
-        momentInverter_().smallZeta()
-    );
+    multivariateMomentSet& momentsToInvert(localMomentSet(moments));
 
     // Copying moments from cell
     forAll(momentsToInvert, momenti)
@@ -236,6 +266,20 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
 
     if (!momentInverter_().invert(momentsToInvert))
     {
+        // The caller decides what a cell that cannot be inverted means. The
+        // adaptive ODE solver asks for the failure to be reported so that it
+        // can retry the step, while a plain sweep over the mesh has nothing
+        // to fall back on and the quadrature of the cell would be left at
+        // the value of the previous update.
+        if (fatalErrorOnFailedRealizabilityTest)
+        {
+            FatalErrorInFunction
+                << "The inversion of the moments of a cell failed." << nl
+                << "    Cell: " << celli << nl
+                << "    Moments: " << momentsToInvert << nl
+                << exit(FatalError);
+        }
+
         return false;
     }
 
