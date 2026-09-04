@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -186,7 +186,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
 
                 if (nodeIndex < abscissae.size())
                 {
-                    if (dimi == velocityIndexes_[vi])
+                    if (isVelocityDimension(dimi, vi))
                     {
                         velocityAbscissae_[nodei][vi] = abscissae[nodeIndex];
                     }
@@ -198,7 +198,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
             }
         }
 
-        if (dimi == velocityIndexes_[vi])
+        if (isVelocityDimension(dimi, vi))
         {
             vi++;
         }
@@ -249,7 +249,7 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
 
             forAll(nonZeroNodeIndexes[nodei], dimi)
             {
-                if (dimi == velocityIndexes_[vi])
+                if (isVelocityDimension(dimi, vi))
                 {
                     R(mi, nodei) *=
                         pow

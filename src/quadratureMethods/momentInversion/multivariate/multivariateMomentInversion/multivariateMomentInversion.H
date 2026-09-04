@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2025 Alberto Passalacqua
+    Copyright (C) 2015-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -105,6 +105,15 @@ protected:
             const labelList& index2,
             const label size
         );
+
+        //- Return true if the abscissae are distinct enough to build a
+        //  Vandermonde system from them. A conditional quadrature recovers
+        //  the conditional moments by inverting the Vandermonde matrix of
+        //  the abscissae of the conditioning variable, which is singular if
+        //  two of them coincide. The tolerance matches the one
+        //  Vandermonde::solve rejects a singular system with, so that a set
+        //  accepted here is one the solver can invert.
+        static bool distinctAbscissae(const UList<scalar>& abscissae);
 
 
 public:

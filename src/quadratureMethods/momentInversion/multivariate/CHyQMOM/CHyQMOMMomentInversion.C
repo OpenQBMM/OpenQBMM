@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2025 Alberto Passalacqua
+    Copyright (C) 2015-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -910,10 +910,18 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
                 for (label j = 0; j < 3; j++)
                 {
                     weights_(i, j, 1) = m000*wDir12(i, j);
-                    velocityAbscissae_(i, j, 1).x() =
-                        abscissaeDir12(i, j).x() + meanU;
-                    velocityAbscissae_(i, j, 1).y() =
-                        abscissaeDir12(i, j).y() + meanV;
+
+                    // The z direction carries no variance, so every node
+                    // sits at the mean w velocity. Assigning the whole
+                    // vector keeps that component from being left at the
+                    // value reset() wrote.
+                    velocityAbscissae_(i, j, 1) =
+                        vector
+                        (
+                            abscissaeDir12(i, j).x() + meanU,
+                            abscissaeDir12(i, j).y() + meanV,
+                            meanW
+                        );
                 }
             }
 

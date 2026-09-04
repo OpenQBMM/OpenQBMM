@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2025 Alberto Passalacqua
+    Copyright (C) 2015-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -141,8 +141,22 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
 
         forAll(sizeWeights, nodei)
         {
-            x[nodei] = max(sizeAbscissae[nodei], SMALL);
+            x[nodei] = sizeAbscissae[nodei];
             invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], 1e-10);
+        }
+
+        // The Vandermonde system has to be built from the abscissae the
+        // quadrature actually carries, which are the ones stored above.
+        // Moving them away from zero would both bias the conditional
+        // velocities recovered from it and, when two of them are small,
+        // make the system singular by mapping them onto the same value.
+        //
+        // The abscissae a successful univariate inversion returns are
+        // distinct, so this only refuses a size quadrature that has
+        // collapsed without the realizability check having reduced it.
+        if (!distinctAbscissae(x))
+        {
+            return false;
         }
 
         Vandermonde V(x);

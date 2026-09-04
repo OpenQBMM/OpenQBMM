@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2025 Alberto Passalacqua
+    Copyright (C) 2015-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -78,6 +78,29 @@ bool Foam::multivariateMomentInversion::compare
 }
 
 
+bool Foam::multivariateMomentInversion::distinctAbscissae
+(
+    const UList<scalar>& abscissae
+)
+{
+    forAll(abscissae, i)
+    {
+        for (label j = i + 1; j < abscissae.size(); j++)
+        {
+            const scalar diff = mag(abscissae[i] - abscissae[j]);
+            const scalar scale = max(mag(abscissae[i]), mag(abscissae[j]));
+
+            if (diff < ROOTSMALL*max(scale, 1.0))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::multivariateMomentInversion::multivariateMomentInversion
@@ -91,7 +114,12 @@ Foam::multivariateMomentInversion::multivariateMomentInversion
     nDistributionDims_(momentOrders[0].size()),
     nVelocityDimensions_
     (
-        velocityIndexes[0] == -1 ? 0 : velocityIndexes.size()
+        // An empty list and the {-1} the callers build to stand for it both
+        // mean that the distribution has no velocity dimension. The empty
+        // case has to be caught before velocityIndexes[0] is read.
+        (velocityIndexes.empty() || velocityIndexes[0] == -1)
+      ? 0
+      : velocityIndexes.size()
     ),
     momentOrders_(momentOrders),
     nodeIndexes_(nodeIndexes),

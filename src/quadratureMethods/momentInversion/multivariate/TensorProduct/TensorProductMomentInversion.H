@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2023 Alberto Passalacqua
+    Copyright (C) 2015-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -92,6 +92,21 @@ class TensorProduct
             label& nodei,
             labelList& index
         );
+
+        //- Return true if dimension dimi is the velocity dimension the
+        //  running index vi points at. The loops below walk vi along
+        //  velocityIndexes_ as dimi walks the dimensions, so vi runs past
+        //  the end of the list once the last velocity dimension has been
+        //  passed, which happens whenever the velocity dimensions are not
+        //  the trailing ones.
+        inline bool isVelocityDimension
+        (
+            const label dimi,
+            const label vi
+        ) const
+        {
+            return vi < velocityIndexes_.size() && dimi == velocityIndexes_[vi];
+        }
 
 
 public:
