@@ -56,6 +56,9 @@ runTest ./momentInversions/multivariate/sizeCHyQMOMMomentInversion \
 runTest ./momentInversions/multivariate/TensorProductMomentInversion \
     Test-TensorProductMomentInversion
 
+runTest ./momentInversions/multivariate/conditionalMomentInversion \
+    Test-ConditionalMomentInversion
+
 # Self-contained: it builds its own moment sets rather than reading a
 # quadratureProperties from its directory
 runTest . Test-CHyQMOMDegenerate

@@ -8,12 +8,14 @@ endif
 QBMM_SRC := ../../../../src
 
 EXE_INC = \
+    -I.. \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
     -I$(QBMM_SRC)/Vandermonde/lnInclude \
     -I$(QBMM_SRC)/mappedList \
+    -I$(QBMM_SRC)/quadratureMethods/supportType \
     -I$(QBMM_SRC)/quadratureMethods/momentSets/lnInclude \
     -I$(QBMM_SRC)/quadratureMethods/momentInversion/lnInclude
 
