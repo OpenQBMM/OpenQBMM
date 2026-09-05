@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2016-2024 Alberto Passalacqua
+    Copyright (C) 2016-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -63,7 +63,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
     (
         IOobject
         (
-            IOobject::groupName("alpha", IOobject::group(dict.name())),
+            IOobject::groupName("alpha", phaseName),
             mesh.time().timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,
@@ -81,7 +81,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
     (
         IOobject
         (
-            IOobject::groupName("U", IOobject::group(dict.name())),
+            IOobject::groupName("U", phaseName),
             mesh.time().timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,
@@ -100,7 +100,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
     (
         IOobject
         (
-            IOobject::groupName("Theta", IOobject::group(dict.name())),
+            IOobject::groupName("Theta", phaseName),
             mesh.time().timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,
@@ -119,7 +119,7 @@ Foam::momentGenerationSubModels::gaussian::gaussian
     (
         IOobject
         (
-            IOobject::groupName("Sigma", IOobject::group(dict.name())),
+            IOobject::groupName("Sigma", phaseName),
             mesh.time().timeName(),
             mesh,
             IOobject::READ_IF_PRESENT,
