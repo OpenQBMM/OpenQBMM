@@ -8,8 +8,7 @@ ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
     FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
 endif
 
-/* Compile from the OF user-application folder */
-QBMM_SRC := ../../../../../OpenQBMM/src
+QBMM_SRC := ../../../../src
 
 #if (OPENFOAM >= 2206)
 LIB_THERMO_TOOLS := -lthermoTools
