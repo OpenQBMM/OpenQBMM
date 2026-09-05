@@ -9,6 +9,7 @@ wmake GolubWelsch
 wmake mappedList
 wmake mappedPtrList
 wmake -all momentSets/univariate
+wmake -all momentSets/multivariate
 wmake -all momentInversions/univariate
 
 wmake momentInversions/multivariate/CHyQMOMDegenerate

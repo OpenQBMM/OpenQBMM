@@ -36,6 +36,7 @@ runTest . Test-MappedPtrList
 
 # Moment sets
 runTest . Test-UnivariateMomentSet
+runTest . Test-MultivariateMomentSet
 
 # Quadrature algorithms
 runTest ./momentInversions/univariate/univariateMomentInversion \

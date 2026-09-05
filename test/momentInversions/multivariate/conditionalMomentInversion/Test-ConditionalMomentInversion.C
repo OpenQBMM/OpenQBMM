@@ -43,9 +43,59 @@ Description
 #include "supportType.H"
 #include "conditionalMomentInversion.H"
 #include "Random.H"
+#include <cmath>
 #include "multivariateMomentTest.H"
 
 using namespace Foam;
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//- A conditional quadrature, which is what the method represents exactly.
+//
+//  The weights and abscissae of a direction depend on the node the
+//  preceding directions are at, and on nothing else. A distribution built
+//  that way is its own conditional quadrature, so the inversion recovers it
+//  and every moment of it has to come back.
+//
+//  A quadrature drawn at random is not of that form: its abscissae in a
+//  direction depend on the whole node index rather than on the preceding
+//  part of it, so the method closes it rather than reproducing it, and
+//  moments come back with tens of percent of error while it behaves as
+//  designed.
+
+//- A number that depends on the node the directions before dimi are at
+scalar prefixKey(const labelList& nodeIndex, const label dimi)
+{
+    scalar key = 0.0;
+
+    for (label i = 0; i < dimi; i++)
+    {
+        key = 3.0*key + nodeIndex[i];
+    }
+
+    return key;
+}
+
+
+//- Weight of the node of direction dimi, conditioned on the ones before it.
+//  The weights of a direction sum to one.
+scalar conditionalWeight(const labelList& nodeIndex, const label dimi)
+{
+    const scalar p = 0.35 + 0.05*std::fmod(prefixKey(nodeIndex, dimi), 3.0);
+
+    return nodeIndex[dimi] == 0 ? p : 1.0 - p;
+}
+
+
+//- Abscissa of the node of direction dimi, conditioned on the ones before
+scalar conditionalAbscissa(const labelList& nodeIndex, const label dimi)
+{
+    const scalar centre = 0.2*dimi + 0.1*prefixKey(nodeIndex, dimi);
+    const scalar spread = 1.0 + 0.1*dimi;
+
+    return nodeIndex[dimi] == 0 ? centre - spread : centre + spread;
+}
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -181,14 +231,21 @@ int main(int argc, char *argv[])
     );
     mappedList<scalar> w(nNodes, nodeIndexes, 0.0);
 
-    forAll(x, nodei)
+    // A conditional quadrature of the shape the method builds, so that the
+    // moments it is given are the moments of a distribution it represents
+    forAll(nodeIndexes, nodei)
     {
-        w[nodei] = 10.0*scalar(rand())/scalar(RAND_MAX);
+        const labelList& nodeIndex = nodeIndexes[nodei];
 
-        forAll(x[nodei], dimi)
+        scalar weight = 1.0;
+
+        forAll(nodeIndex, dimi)
         {
-            x[nodei][dimi] = 10.0*scalar(rand())/scalar(RAND_MAX);
+            weight *= conditionalWeight(nodeIndex, dimi);
+            x(nodeIndex)[dimi] = conditionalAbscissa(nodeIndex, dimi);
         }
+
+        w(nodeIndex) = weight;
     }
 
     Info<< "Original moments:" << endl;
@@ -285,18 +342,19 @@ int main(int argc, char *argv[])
             newMoments(momentOrder) += cmpt;
         }
 
-        Info<< "moment.";
-        
-        forAll(momentOrder, dimi)
-        {
-            Info<< momentOrder[dimi];
-        }
-
-        Info<< ": " << newMoments(momentOrder)
-            << ",\trel error: "
-            << (mag(moments(momentOrder) 
-                - newMoments(momentOrder))/moments(momentOrder))<< endl;
     }
+
+    // The distribution is a conditional quadrature of the shape the method
+    // builds, so every moment of the set has to be reproduced
+    checkMomentConservation
+    (
+        newMoments,
+        moments,
+        momentOrders,
+        1e-10,
+        "conditional, five dimensions"
+    );
+
 
     testZeroAbscissa();
 
