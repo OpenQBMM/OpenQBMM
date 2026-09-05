@@ -8,7 +8,7 @@
     Code created 2015-2018 by Alberto Passalacqua
     Contributed 2018-07-31 to the OpenFOAM Foundation
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2019-2023 Alberto Passalacqua
+    Copyright (C) 2019-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -304,7 +304,8 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                 if (sizei == sizej)
                 {
                     // Total granular temperature
-                    scalar Thetai = max(tr(Sigmas[sizei]), scalar(0));
+                    scalar Thetai =
+                        max(tr(Sigmas[sizei]), scalar(0))/nDimensions_;
                     symmTensor Si = Sigmas[sizei] + symmTensor::I*Thetai;
 
                     // Covariance tensor
@@ -359,7 +360,7 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                        *(
                             Sigmas[sizei]
                           + Sigmas[sizej]
-                          + symmTensor::one*Thetaij
+                          + symmTensor::I*Thetaij
                         );
 
                     scalar XiPow3 = pow3(dij/dj);
