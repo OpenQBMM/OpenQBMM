@@ -67,13 +67,16 @@ functions
 
         codeOptions
         #{
-            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedList \
-            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/mappedPtrList \
-            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/moments \
-            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/fieldMomentInversion/lnInclude \
-            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/momentSets/lnInclude \
-            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureNode/lnInclude \
-            -I$(FOAM_INST_DIR)/OpenQBMM-dev/src/quadratureMethods/quadratureApproximations/lnInclude
+            -I$(OPENQBMM_SRC)/mappedList \
+            -I$(OPENQBMM_SRC)/quadratureMethods/supportType \
+            -I$(OPENQBMM_SRC)/Vandermonde/lnInclude \
+            -I$(OPENQBMM_SRC)/quadratureMethods/momentInversion/lnInclude \
+            -I$(OPENQBMM_SRC)/mappedPtrList \
+            -I$(OPENQBMM_SRC)/quadratureMethods/moments \
+            -I$(OPENQBMM_SRC)/quadratureMethods/fieldMomentInversion/lnInclude \
+            -I$(OPENQBMM_SRC)/quadratureMethods/momentSets/lnInclude \
+            -I$(OPENQBMM_SRC)/quadratureMethods/quadratureNode/lnInclude \
+            -I$(OPENQBMM_SRC)/quadratureMethods/quadratureApproximations/lnInclude
         #};
 
         codeExecute
@@ -95,7 +98,7 @@ functions
                         IOobject::AUTO_WRITE
                     ),
                     mesh(),
-                    0.0
+                    dimensionedScalar("0", dimless, 0.0)
                 );
             volScalarField* alpha2 =
                 new volScalarField
@@ -109,7 +112,7 @@ functions
                         IOobject::AUTO_WRITE
                     ),
                     mesh(),
-                    0.0
+                    dimensionedScalar("0", dimless, 0.0)
                 );
             volVectorField* U1 =
                 new volVectorField
@@ -216,18 +219,18 @@ functions
 
             if (sizei == 0)
             {
-                alpha1 += node.primaryWeight();
-                U1 += node.primaryWeight()*node.velocityAbscissae();
+                alpha1 += node.weight();
+                U1 += node.weight()*node.velocityAbscissae();
                 Theta1 +=
-                    node.primaryWeight()
+                    node.weight()
                    *(node.velocityAbscissae() & node.velocityAbscissae());
             }
             else
             {
-                alpha2 += node.primaryWeight();
-                U2 += node.primaryWeight()*node.velocityAbscissae();
+                alpha2 += node.weight();
+                U2 += node.weight()*node.velocityAbscissae();
                 Theta2 +=
-                    node.primaryWeight()
+                    node.weight()
                    *(node.velocityAbscissae() & node.velocityAbscissae());
             }
         }

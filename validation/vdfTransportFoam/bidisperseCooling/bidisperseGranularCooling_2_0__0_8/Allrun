@@ -4,6 +4,27 @@ cd ${0%/*} || exit 1    # Run from this directory
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
+# The coded function object below is compiled against the OpenQBMM headers.
+# They are looked for from this script, which finds them whenever the case
+# is run inside the repository, whatever it is checked out as and wherever
+# it lives. A case copied out of the repository is not inside it any more,
+# so OPENQBMM_SRC is taken from the environment when it is set.
+if [ -z "$OPENQBMM_SRC" ]
+then
+    OPENQBMM_SRC="$(while [ ! -d src/quadratureMethods ] && [ "$PWD" != / ]
+        do cd ..; done; pwd)/src"
+fi
+
+if [ ! -d "$OPENQBMM_SRC/quadratureMethods" ]
+then
+    echo "The OpenQBMM sources were not found from this case." 1>&2
+    echo "Set OPENQBMM_SRC to the src directory of OpenQBMM, as in" 1>&2
+    echo "    export OPENQBMM_SRC=/path/to/OpenQBMM/src" 1>&2
+    exit 1
+fi
+
+export OPENQBMM_SRC
+
 runApplication blockMesh
 runApplication generateMoments
 runApplication vdfTransportFoam
