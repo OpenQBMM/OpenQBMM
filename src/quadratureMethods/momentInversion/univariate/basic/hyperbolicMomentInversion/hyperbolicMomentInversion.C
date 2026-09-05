@@ -143,11 +143,26 @@ void Foam::hyperbolicMomentInversion::invert
       - 6.0*sqr(meanVelocity)*normalizedMoments[2]
       + 3.0*pow4(meanVelocity);
 
-    // Compute realizability condition
-    scalar realizability =
-        centralMoments[2]*centralMoments[4]
-      - pow3(centralMoments[2])
-      - sqr(centralMoments[3]);
+    // Compute realizability condition, on the standardised moments.
+    //
+    // It is eta - 1 - q^2 rather than c2 c4 - c2^3 - c3^2. The two have the
+    // same sign for a positive c2, and the same form the skewness is bound
+    // with further down, but the products of the unstandardised moments
+    // overflow: a conditional moment set of second order 1e102 and fourth
+    // order 1e206, which CHyQMOM hands over unchanged, has no finite
+    // product c2 c4, and the run ends on the floating point exception.
+    scalar realizability = 0.0;
+
+    if (centralMoments[2] > 0.0)
+    {
+        const scalar q =
+            (centralMoments[3]/centralMoments[2])/sqrt(centralMoments[2]);
+
+        const scalar eta =
+            (centralMoments[4]/centralMoments[2])/centralMoments[2];
+
+        realizability = eta - 1.0 - sqr(q);
+    }
 
     // Manage unrealizable cases
     if (centralMoments[2] < 0.0)

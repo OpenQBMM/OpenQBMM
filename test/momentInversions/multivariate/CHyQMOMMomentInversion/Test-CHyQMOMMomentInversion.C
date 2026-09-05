@@ -48,9 +48,91 @@ Description
 #include "CHyQMOMMomentInversion.H"
 #include "CHyQMOMPlusMomentInversion.H"
 #include "Random.H"
+#include <cfenv>
 #include "multivariateMomentTest.H"
 
 using namespace Foam;
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//- Invert a moment set of very large moments and check that it raises no
+//  floating point exception.
+//
+//  The set is the one the size conditioned inversion of the bidisperse
+//  granular cooling case hands over, of zero-order moment one and second
+//  and fourth order moments of 1e102 and 1e206. Testing realizability as
+//  c2 c4 < c2^3 + c3^2 forms a product that is not a finite double, and the
+//  run of that case ended on the exception. The condition is the same one
+//  written on the standardised moments, eta < 1 + q^2, and nothing there
+//  leaves the range of a double.
+//
+//  The check is on the exception flags rather than on the moments that come
+//  back: an inversion that overflows still returns numbers, and it is the
+//  overflow itself that stops a solver, since OpenFOAM traps it.
+void testExtremeMomentSet(const dictionary& dict)
+{
+    Info<< "\n\nInverting a moment set of very large moments" << endl;
+
+    const labelListList momentOrders
+    (
+        multivariateMomentInversions::CHyQMOM::getMomentOrders(3)
+    );
+
+    const labelListList nodeIndexes
+    (
+        multivariateMomentInversions::CHyQMOM::getNodeIndexes(3)
+    );
+
+    const scalarList values
+    ({
+        1.0,
+       -1.3784e+35,   1.08747e+35, -1.52797e+36,
+        3.63077e+102, 4.00183e+100, 4.00183e+100,
+        3.63077e+102, 4.00183e+100, 3.63077e+102,
+       -1.15483e+139, 1.87662e+139, -1.67508e+139,
+        5.04075e+205, 5.04075e+205, 5.04075e+205
+    });
+
+    multivariateMomentSet moments
+    (
+        momentOrders.size(),
+        momentOrders,
+        List<supportType>(3, supportType::R),
+        SMALL,
+        SMALL
+    );
+
+    forAll(momentOrders, mi)
+    {
+        moments(momentOrders[mi]) = values[mi];
+    }
+
+    multivariateMomentInversions::CHyQMOM inverter
+    (
+        dict, momentOrders, nodeIndexes, {0, 1, 2}
+    );
+
+    std::feclearexcept(FE_ALL_EXCEPT);
+
+    inverter.invert(moments);
+
+    const int raised =
+        std::fetestexcept(FE_OVERFLOW | FE_DIVBYZERO | FE_INVALID);
+
+    if (raised)
+    {
+        FatalErrorInFunction
+            << "The inversion of a moment set of very large moments raised "
+            << "a floating point exception." << nl
+            << "    Overflow: " << bool(raised & FE_OVERFLOW) << nl
+            << "    Division by zero: " << bool(raised & FE_DIVBYZERO) << nl
+            << "    Invalid: " << bool(raised & FE_INVALID) << nl
+            << exit(FatalError);
+    }
+
+    Info<< "  no floating point exception was raised" << endl;
+}
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -238,6 +320,8 @@ int main()
         tolerance,
         {{0, 1, 2}}
     );
+
+    testExtremeMomentSet(quadratureProperties);
 
     Info<< "\n\nEnd\n" << endl;
 

@@ -306,14 +306,17 @@ Foam::multivariateMomentInversions::CHyQMOM::realizabilityUnivariateMoments
         return;
     }
 
-    if (c2*c4 < pow3(c2) + sqr(c3))
+    // Tested on the standardised moments, so that the products of the
+    // unstandardised ones cannot overflow. See invert3D.
+    scalar q = (c3/c2)/sqrt(c2);
+    scalar eta = (c4/c2)/c2;
+
+    if (eta < 1.0 + sqr(q))
     {
-        scalar q = c3/pow(c2, 3.0/2.0);
-        scalar eta = c4/sqr(c2);
         q = calcQ(q, eta);
         eta = 1.0 + sqr(q);
-        c3 = q*pow(c2, 3.0/2.0);
-        c4 = eta*sqr(c2);
+        c3 = q*c2*sqrt(c2);
+        c4 = (eta*c2)*c2;
     }
 }
 
@@ -657,19 +660,29 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
         c400 = 0.0;
     }
 
-    if (c200*c400 < pow3(c200) + sqr(c300))
+    // The realizability condition c2 c4 >= c2^3 + c3^2 is tested on the
+    // standardised moments, where it reads eta >= 1 + q^2. The two are the
+    // same condition for a positive c2, but forming the products of the
+    // unstandardised moments overflows: the conditional moment sets the
+    // size conditioning hands over reach a second order moment of 1e102 and
+    // a fourth order one of 1e206, and their product is not a finite
+    // double, which stops the run on the floating point exception.
+    if (c200 > 0.0)
     {
-        scalar q = c300/sqrt(pow3(c200));
-        scalar eta = c400/sqr(c200);
+        scalar q = (c300/c200)/sqrt(c200);
+        scalar eta = (c400/c200)/c200;
 
-        if (mag(q) > SMALL)
+        if (eta < 1.0 + sqr(q))
         {
-            q = calcQ(q, eta);
-            eta  = 1.0 + sqr(q);
-        }
+            if (mag(q) > SMALL)
+            {
+                q = calcQ(q, eta);
+                eta  = 1.0 + sqr(q);
+            }
 
-        c300 = q*sqrt(pow3(c200));
-        c400 = eta*sqr(c200);
+            c300 = q*c200*sqrt(c200);
+            c400 = (eta*c200)*c200;
+        }
     }
 
     if (c020 <= 0.0)
@@ -679,19 +692,22 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
         c040 = 0.0;
     }
 
-    if (c020*c040 < pow3(c020) + sqr(c030))
+    if (c020 > 0.0)
     {
-        scalar q = c030/sqrt(pow3(c020));
-        scalar eta = c040/sqr(c020);
+        scalar q = (c030/c020)/sqrt(c020);
+        scalar eta = (c040/c020)/c020;
 
-        if (mag(q) > SMALL)
+        if (eta < 1.0 + sqr(q))
         {
-            q = calcQ(q, eta);
-            eta  = 1.0 + sqr(q);
-        }
+            if (mag(q) > SMALL)
+            {
+                q = calcQ(q, eta);
+                eta  = 1.0 + sqr(q);
+            }
 
-        c030 = q*sqrt(pow3(c020));
-        c040 = eta*sqr(c020);
+            c030 = q*c020*sqrt(c020);
+            c040 = (eta*c020)*c020;
+        }
     }
 
     if (c002 <= 0.0)
@@ -701,19 +717,22 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
         c004 = 0.0;
     }
 
-    if (c002*c004 < pow3(c002) + sqr(c003))
+    if (c002 > 0.0)
     {
-        scalar q = c003/sqrt(pow3(c002));
-        scalar eta = c004/sqr(c002);
+        scalar q = (c003/c002)/sqrt(c002);
+        scalar eta = (c004/c002)/c002;
 
-        if (mag(q) > SMALL)
+        if (eta < 1.0 + sqr(q))
         {
-            q = calcQ(q, eta);
-            eta  = 1.0 + sqr(q);
-        }
+            if (mag(q) > SMALL)
+            {
+                q = calcQ(q, eta);
+                eta  = 1.0 + sqr(q);
+            }
 
-        c003 = q*sqrt(pow3(c002));
-        c004 = eta*sqr(c002);
+            c003 = q*c002*sqrt(c002);
+            c004 = (eta*c002)*c002;
+        }
     }
 
     // Invert first direction

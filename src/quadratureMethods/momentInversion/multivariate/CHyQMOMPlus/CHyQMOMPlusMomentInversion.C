@@ -5,7 +5,7 @@
     \\  /    A nd           | OpenQBMM - www.openqbmm.org
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2015-2025 Alberto Passalacqua
+    Copyright (C) 2015-2026 Alberto Passalacqua
 -------------------------------------------------------------------------------
 License
     This file is derivative work of OpenFOAM.
@@ -317,14 +317,17 @@ Foam::multivariateMomentInversions::CHyQMOMPlus::realizabilityUnivariateMoments
         return;
     }
 
-    if (c2*c4 < pow3(c2) + sqr(c3))
+    // Tested on the standardised moments, so that the products of the
+    // unstandardised ones cannot overflow. See CHyQMOM::invert3D.
+    scalar q = (c3/c2)/sqrt(c2);
+    scalar eta = (c4/c2)/c2;
+
+    if (eta < 1.0 + sqr(q))
     {
-        scalar q = c3/pow(c2, 3.0/2.0);
-        scalar eta = c4/sqr(c2);
         q = calcQ(q, eta);
         eta = 1.0 + sqr(q);
-        c3 = q*pow(c2, 3.0/2.0);
-        c4 = eta*sqr(c2);
+        c3 = q*c2*sqrt(c2);
+        c4 = (eta*c2)*c2;
     }
 }
 
