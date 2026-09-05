@@ -160,9 +160,31 @@ void Foam::basicVelocityFieldMomentInversion::invert
 {
     const volScalarField& m0(moments(0));
 
+    label nFailedCells = 0;
+    label firstFailedCell = -1;
+
     forAll(m0, celli)
     {
-        invertLocalMoments(moments, nodes, celli);
+        if (!invertLocalMoments(moments, nodes, celli))
+        {
+            if (nFailedCells == 0)
+            {
+                firstFailedCell = celli;
+            }
+
+            nFailedCells++;
+        }
+    }
+
+    if (nFailedCells > 0)
+    {
+        WarningInFunction
+            << "The moments of " << nFailedCells << " of the " << m0.size()
+            << " cells of the mesh could not be inverted, and the "
+            << "quadrature of those cells was set to zero." << nl
+            << "    First of them: cell " << firstFailedCell
+            << ", of zero-order moment " << m0[firstFailedCell] << nl
+            << endl;
     }
 
     invertBoundaryMoments(moments, nodes);
@@ -179,6 +201,10 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
 
     multivariateMomentSet& momentsToInvert(localMomentSet(moments));
 
+    label nFailedFaces = 0;
+    label firstFailedPatch = -1;
+    label firstFailedFace = -1;
+
     forAll(bf, patchi)
     {
         const fvPatchScalarField& m0Patch = bf[patchi];
@@ -194,16 +220,19 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
                         = moments(momentOrder).boundaryField()[patchi][facei];
             }
 
-            // Find quadrature
-            if (!momentInverter_().invert(momentsToInvert))
+            // Find quadrature. A face whose moments have collapsed is
+            // emptied and counted, as a cell of the mesh is.
+            const bool inverted = momentInverter_().invert(momentsToInvert);
+
+            if (!inverted)
             {
-                FatalErrorInFunction
-                    << "The inversion of the moments of a boundary face "
-                    << "failed." << nl
-                    << "    Patch: " << bf[patchi].patch().name() << nl
-                    << "    Face: " << facei << nl
-                    << "    Moments: " << momentsToInvert << nl
-                    << exit(FatalError);
+                if (nFailedFaces == 0)
+                {
+                    firstFailedPatch = patchi;
+                    firstFailedFace = facei;
+                }
+
+                nFailedFaces++;
             }
 
             const mappedList<scalar>& weights(momentInverter_->weights());
@@ -230,20 +259,33 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
                 volVectorField::Boundary& velocityAbscissaBf =
                     node.velocityAbscissae().boundaryFieldRef();
 
-                weightBf[patchi][facei] = weights(nodeIndex);
+                weightBf[patchi][facei] =
+                    inverted ? weights(nodeIndex) : Zero;
 
                 velocityAbscissaBf[patchi][facei] =
-                    velocityAbscissae(nodeIndex);
+                    inverted ? velocityAbscissae(nodeIndex) : vector::zero;
 
                 forAll(node.scalarIndexes(), cmpt)
                 {
                     volScalarField::Boundary& abscissaBf =
                         node.abscissae()[cmpt].boundaryFieldRef();
 
-                    abscissaBf[patchi][facei] = abscissae(nodeIndex)[cmpt];
+                    abscissaBf[patchi][facei] =
+                        inverted ? abscissae(nodeIndex)[cmpt] : Zero;
                 }
             }
         }
+    }
+
+    if (nFailedFaces > 0)
+    {
+        WarningInFunction
+            << "The moments of " << nFailedFaces << " faces of the boundary "
+            << "could not be inverted, and the quadrature of those faces "
+            << "was set to zero." << nl
+            << "    First of them: face " << firstFailedFace << " of patch "
+            << bf[firstFailedPatch].patch().name() << nl
+            << endl;
     }
 }
 
@@ -266,18 +308,33 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
 
     if (!momentInverter_().invert(momentsToInvert))
     {
-        // The caller decides what a cell that cannot be inverted means. The
-        // adaptive ODE solver asks for the failure to be reported so that it
-        // can retry the step, while a plain sweep over the mesh has nothing
-        // to fall back on and the quadrature of the cell would be left at
-        // the value of the previous update.
-        if (fatalErrorOnFailedRealizabilityTest)
+        // The caller decides what a cell that cannot be inverted means.
+        //
+        // The adaptive ODE solver asks for the failure to be reported so
+        // that it can retry the step, and it retries from what the cell
+        // still holds, so its quadrature is left alone.
+        if (!fatalErrorOnFailedRealizabilityTest)
         {
-            FatalErrorInFunction
-                << "The inversion of the moments of a cell failed." << nl
-                << "    Cell: " << celli << nl
-                << "    Moments: " << momentsToInvert << nl
-                << exit(FatalError);
+            return false;
+        }
+
+        // A sweep over the mesh has nothing to retry with. A moment set
+        // that no quadrature represents is one that has collapsed, which
+        // for the vanishing moment sets this happens on means the cell has
+        // been emptied, so the quadrature is set to zero rather than left
+        // carrying the one the previous update wrote. The sweep counts the
+        // cells and reports them.
+        forAll(nodes, nodei)
+        {
+            volVelocityNode& node(nodes[nodei]);
+
+            node.weight()[celli] = Zero;
+            node.velocityAbscissae()[celli] = Zero;
+
+            forAll(node.scalarIndexes(), cmpt)
+            {
+                node.abscissae()[cmpt][celli] = Zero;
+            }
         }
 
         return false;
