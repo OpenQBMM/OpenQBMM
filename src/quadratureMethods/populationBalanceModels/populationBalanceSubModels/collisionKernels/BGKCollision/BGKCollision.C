@@ -173,6 +173,17 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         Meq_[mi][celli] = Zero;
     }
 
+    // A cell that carries no particles has no collisions. The test is on
+    // the volume fraction, which is dimensionless and so does not have to
+    // be chosen against the size of the particles of the case, and not on
+    // a diameter, which does. Without it the size abscissae of an empty
+    // cell collapse on the minimum diameter, and the ratio of diameters of
+    // the collision time scale, which is cubed, is then unbounded.
+    if (m0 < minM0_)
+    {
+        return;
+    }
+
     // Construct conditional moments
     forAll(velocityMoments_, sizei)
     {
@@ -253,8 +264,13 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
                 }
             }
 
+            // The covariance of the size, and not the relaxation tensor
+            // of the model: the pair equilibrium below is built from it
+            // with its own restitution factors, so a covariance that
+            // already carries them, as the one of esBGK does, would apply
+            // the inelasticity of the collision twice.
             Sigmas[sizei] =
-                covariance
+                BGKCollision::covariance
                 (
                     velocityMoments_[sizei],
                     Us[sizei].x(),
@@ -282,8 +298,11 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         {
             scalar m0ij = weights[sizei] + weights[sizej];
 
-            //- Do not compute null moment sets
-            if (m0ij > minM0_)
+            //- Do not compute null moment sets. Both sizes are required,
+            //  and not only their sum: a size that carries no particles
+            //  has no collisions, and its mean velocity and its covariance
+            //  are left null above rather than computed.
+            if (weights[sizei] > minM0_ && weights[sizej] > minM0_)
             {
                 scalar dj = ds[sizej];
                 scalar Vj = Foam::constant::mathematical::pi/6.0*pow3(dj);
@@ -355,13 +374,23 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
 
                     Thetaij /= nDimensions_;
 
+                    // Granular temperatures of the two sizes
+                    scalar Thetai =
+                        max(tr(Sigmas[sizei]), scalar(0))/nDimensions_;
+
+                    scalar Thetaj =
+                        max(tr(Sigmas[sizej]), scalar(0))/nDimensions_;
+
+                    // Second moment tensor of the pair. Its trace is the
+                    // sum of the traces of the two covariances and the
+                    // energy of the relative motion of their means, which
+                    // is what leaves the energy of the pair unchanged when
+                    // e is one. It is the tensor of the branch above when
+                    // the two sizes are the same.
                     symmTensor Sij =
-                        0.5
-                       *(
-                            Sigmas[sizei]
-                          + Sigmas[sizej]
-                          + symmTensor::I*Thetaij
-                        );
+                        0.5*(Sigmas[sizei] + Sigmas[sizej])
+                      + symmTensor::I*0.5*(Thetai + Thetaj)
+                      + 0.5*sqr(Us[sizej] - Us[sizei]);
 
                     scalar XiPow3 = pow3(dij/dj);
                     scalar massi = Vi*rhos_[sizei];
@@ -463,7 +492,7 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
     ),
     Meq_(momentOrders_.size(), momentOrders_),
     Ks_(nSizes_, scalarList(nSizes_, Zero)),
-    minM0_(dict.lookupOrDefault("minM0", SMALL))
+    minM0_(dict.lookupOrDefault("minM0", 1.0e-10))
 {
     if (nSizes_ > 0)
     {
