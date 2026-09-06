@@ -487,6 +487,29 @@ Foam::populationBalanceSubModels::collisionKernels::BGKCollision::BGKCollision
     Ks_(nSizes_, scalarList(nSizes_, Zero)),
     minM0_(dict.lookupOrDefault("minM0", 1.0e-10))
 {
+    // This kernel relaxes to a Maxwellian at the temperature of the cell
+    // and so is elastic by construction: e() returns one and the entry of
+    // the dictionary is never read. Say so in the log rather than let a
+    // case set it and be quietly ignored.
+    //
+    // esBGK derives from this and does read it, so the test is on the
+    // kernel that was selected. typeName is the one of this class whatever
+    // is being constructed, which is what makes that test work here.
+    if (word(dict.lookup("collisionKernel")) == typeName && dict.found("e"))
+    {
+        const scalar eDict = readScalar(dict.lookup("e"));
+
+        if (mag(eDict - 1.0) > SMALL)
+        {
+            WarningInFunction
+                << "The " << typeName << " collision kernel is elastic, "
+                << "and the restitution coefficient e = " << eDict
+                << " of the dictionary is not used." << nl
+                << "    Select the esBGK kernel for an inelastic "
+                << "collision, or remove the entry." << endl;
+        }
+    }
+
     if (nSizes_ > 0)
     {
         implicit_ = false;
