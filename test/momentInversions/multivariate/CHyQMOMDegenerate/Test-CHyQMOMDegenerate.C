@@ -243,6 +243,99 @@ void testCase
 }
 
 
+//- Invert a two-dimensional velocity distribution whose first direction
+//  carries no variance.
+//
+//  invert3D never hands invert2D a degenerate first direction: it settles
+//  each degenerate combination in a branch of its own. The branch of
+//  invert2D that takes one, the one that writes wDir1 directly, is
+//  therefore reached only when the distribution itself has two velocity
+//  dimensions, as the rotating cylinder and jet crossing cases have. It
+//  had no coverage before this.
+//
+//  That branch writes wDir1[1] into a list it sized from what the
+//  univariate inversion returned, and CHyQMOM reads three nodes from that
+//  inversion everywhere without checking. It is safe only because CHyQMOM
+//  always uses hyperbolicMomentInversion, which fixes nNodes to three; the
+//  base class contract allows one node for a degenerate set and none for a
+//  vanishing one. This case drives the degenerate input through it, so that
+//  the day the univariate inversion is made selectable the assumption is
+//  not silently broken.
+template<class inversionType>
+void testTwoDimensionalDegenerate(const word& what)
+{
+    Info<< "\n\nTesting " << what
+        << ", two dimensions with a degenerate first direction" << endl;
+
+    const labelListList momentOrders(inversionType::getMomentOrders(2));
+    const labelListList nodeIndexes(inversionType::getNodeIndexes(2));
+
+    multivariateMomentSet moments
+    (
+        momentOrders.size(),
+        momentOrders,
+        List<supportType>(2, supportType::R),
+        SMALL,
+        SMALL
+    );
+
+    // A delta at the origin in the first direction, and three nodes of
+    // unit variance in the second. Every moment of the first direction is
+    // exactly zero, so its central variance is exactly zero rather than the
+    // round-off of a difference.
+    moments(0, 0) = 1.0;
+    moments(1, 0) = 0.0;
+    moments(2, 0) = 0.0;
+    moments(3, 0) = 0.0;
+    moments(4, 0) = 0.0;
+    moments(1, 1) = 0.0;
+    moments(0, 1) = 0.0;
+    moments(0, 2) = 1.0;
+    moments(0, 3) = 0.0;
+    moments(0, 4) = 3.0;
+
+    dictionary dict;
+    inversionType inverter(dict, momentOrders, nodeIndexes, {0, 1});
+
+    inverter.invert(moments);
+
+    const mappedScalarList& weights = inverter.weights();
+    const mappedVectorList& abscissae = inverter.velocityAbscissae();
+
+    mappedList<scalar> reconstructed(momentOrders.size(), momentOrders, Zero);
+
+    forAll(momentOrders, mi)
+    {
+        const labelList& momentOrder = momentOrders[mi];
+        scalar m = 0.0;
+
+        forAll(nodeIndexes, nodei)
+        {
+            const labelList& nodeIndex = nodeIndexes[nodei];
+            scalar cmpt = weights(nodeIndex);
+
+            for (label dimi = 0; dimi < 2; dimi++)
+            {
+                cmpt *= pow(abscissae(nodeIndex)[dimi], momentOrder[dimi]);
+            }
+
+            m += cmpt;
+        }
+
+        reconstructed(momentOrder) = m;
+    }
+
+    checkMomentConservation
+    (
+        reconstructed,
+        moments,
+        momentOrders,
+        1e-10,
+        what + ", two dimensions with a degenerate first direction"
+    );
+}
+
+
 int main()
 {
     // Three nodes of unit variance and no skewness, so that a direction
@@ -327,6 +420,26 @@ int main()
         tolerance
     );
 
+    // Two degenerate directions whose single node sits *at the origin*.
+    //
+    // The cases above put the frozen node away from zero, which leaves the
+    // central variance of that direction at the round-off of mu*mu - mu*mu,
+    // and so on either side of zero. Here every moment of the frozen
+    // directions is exactly zero, so the central variance is exactly zero
+    // and the realizability correction zeroes the third and fourth central
+    // moments with it. That is the input that reports the univariate set
+    // degenerate, which is the one worth pinning.
+    testCase
+    (
+        "degenerate x and y directions at the origin",
+        velocityQuadrature
+        (
+            {wFrozen, wFrozen, wActive},
+            {{0.0}, {0.0}, xActive}
+        ),
+        tolerance
+    );
+
     testCase
     (
         "degenerate x and z directions",
@@ -348,6 +461,16 @@ int main()
             {{-1.75}, {3.25}, {2.5}}
         ),
         tolerance
+    );
+
+    testTwoDimensionalDegenerate<multivariateMomentInversions::CHyQMOM>
+    (
+        "CHyQMOM"
+    );
+
+    testTwoDimensionalDegenerate<multivariateMomentInversions::CHyQMOMPlus>
+    (
+        "CHyQMOMPlus"
     );
 
     Info<< "\n\nEnd\n" << endl;
