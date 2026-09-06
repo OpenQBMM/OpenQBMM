@@ -353,7 +353,20 @@ void Foam::multivariateMomentInversions::conditional::setNodeMap
     }
     else
     {
-        map.insert(mappedList<scalar>::listToLabel(pos), mi);
+        // The orders are packed one decimal digit to a dimension, so a
+        // direction of ten nodes or more lands on the key of another. The
+        // moment set refuses that in insertKey, and so does this.
+        if (!map.insert(mappedList<scalar>::listToLabel(pos), mi))
+        {
+            FatalErrorInFunction
+                << "Duplicate mapped key "
+                << mappedList<scalar>::listToLabel(pos)
+                << " for node " << pos << " (element " << mi << ")." << nl
+                << "Another node already maps to this key: a direction of "
+                << "ten nodes or more collides with the packing." << nl
+                << exit(FatalError);
+        }
+
         mi++;
     }
 }

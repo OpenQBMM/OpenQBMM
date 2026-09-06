@@ -47,6 +47,8 @@ Description
 #include "scalarList.H"
 #include "supportType.H"
 #include "multivariateMomentSet.H"
+#include "CHyQMOMMomentInversion.H"
+#include "CHyQMOMPlusMomentInversion.H"
 
 #include <limits>
 
@@ -469,6 +471,66 @@ void testSetSize()
 }
 
 
+//- The inversions describe their own moment sets for one, two and three
+//  dimensions. sizeCHyQMOM hands whatever the case declares straight to
+//  them, so a distribution of four velocity dimensions - a dictionary that
+//  gives four abscissae the dimensions of a velocity, which is a mistake
+//  easily made with a size direction - used to be answered with an empty
+//  set of orders rather than refused.
+void testUnsupportedDimensions()
+{
+    Info<< "\nWhat the inversions refuse to describe" << endl;
+
+    checkRefused
+    (
+        []() { multivariateMomentInversions::CHyQMOM::getNMoments(4); },
+        "CHyQMOM asked for the number of moments of four dimensions"
+    );
+
+    checkRefused
+    (
+        []() { multivariateMomentInversions::CHyQMOM::getMomentOrders(4); },
+        "CHyQMOM asked for the moment orders of four dimensions"
+    );
+
+    checkRefused
+    (
+        []() { multivariateMomentInversions::CHyQMOM::getNNodes(0); },
+        "CHyQMOM asked for the number of nodes of no dimension"
+    );
+
+    checkRefused
+    (
+        []() { multivariateMomentInversions::CHyQMOM::getNodeIndexes(4); },
+        "CHyQMOM asked for the node indexes of four dimensions"
+    );
+
+    checkRefused
+    (
+        []() { multivariateMomentInversions::CHyQMOMPlus::getNMoments(4); },
+        "CHyQMOMPlus asked for the number of moments of four dimensions"
+    );
+
+    checkRefused
+    (
+        []() { multivariateMomentInversions::CHyQMOMPlus::getMomentOrders(4); },
+        "CHyQMOMPlus asked for the moment orders of four dimensions"
+    );
+
+    checkRefused
+    (
+        []() { multivariateMomentInversions::CHyQMOMPlus::getNNodes(4); },
+        "CHyQMOMPlus asked for the number of nodes of four dimensions"
+    );
+
+    checkRefused
+    (
+        []() { multivariateMomentInversions::CHyQMOMPlus::getNodeIndexes(4); },
+        "CHyQMOMPlus asked for the node indexes of four dimensions"
+    );
+}
+
+
 int main()
 {
     testConstructionFromSize();
@@ -478,6 +540,7 @@ int main()
     testMomentMap();
     testRefusals();
     testSetSize();
+    testUnsupportedDimensions();
 
     Info<< "\n" << nTested << " checks passed.\n" << nl << "End\n" << endl;
 

@@ -159,6 +159,12 @@ Foam::label Foam::multivariateMomentInversions::CHyQMOMPlus::getNMoments
     {
         return 23;
     }
+
+    FatalErrorInFunction
+        << "CHyQMOMPlus is defined for one, two and three "
+        << "dimensions, and " << nDims << " were asked for." << nl
+        << exit(FatalError);
+
     return 0;
 }
 
@@ -182,6 +188,11 @@ Foam::multivariateMomentInversions::CHyQMOMPlus::getMomentOrders
         return threeDimMomentOrders;
     }
 
+    FatalErrorInFunction
+        << "CHyQMOMPlus is defined for one, two and three "
+        << "dimensions, and " << nDims << " were asked for." << nl
+        << exit(FatalError);
+
     return {{}};
 }
 
@@ -203,6 +214,11 @@ Foam::label Foam::multivariateMomentInversions::CHyQMOMPlus::getNNodes
     {
         return 27;
     }
+
+    FatalErrorInFunction
+        << "CHyQMOMPlus is defined for one, two and three "
+        << "dimensions, and " << nDims << " were asked for." << nl
+        << exit(FatalError);
 
     return 0;
 }
@@ -226,6 +242,11 @@ Foam::multivariateMomentInversions::CHyQMOMPlus::getNodeIndexes
     {
         return threeDimNodeIndexes;
     }
+
+    FatalErrorInFunction
+        << "CHyQMOMPlus is defined for one, two and three "
+        << "dimensions, and " << nDims << " were asked for." << nl
+        << exit(FatalError);
 
     return {{}};
 }
