@@ -290,9 +290,9 @@ bool Foam::multivariateMomentInversions::conditional::invert
     {
         //- Set invVR matrices
         {
-            labelList pos(dimi, 0);
+            labelList posVR(dimi, 0);
 
-            if (!setVR(dimi - 1, pos, 0))
+            if (!setVR(dimi - 1, posVR, 0))
             {
                 return false;
             }
@@ -542,9 +542,9 @@ bool Foam::multivariateMomentInversions::conditional::setVR
 
         if (dimj > 0)
         {
-            for (label ai = 0; ai < posVR.size(); ai++)
+            for (label posi = 0; posi < posVR.size(); posi++)
             {
-                posVR[ai] = pos[ai];
+                posVR[posi] = pos[posi];
             }
         }
 
@@ -657,6 +657,11 @@ bool Foam::multivariateMomentInversions::conditional::cycleAlphaWheeler
             }
             else if (sameNode && nodei != 0)
             {
+                // The direction carries fewer quadrature nodes than the
+                // case declares, so this one has nothing to be weighted
+                // by. Node zero is left alone: when the direction carries
+                // none at all it is the only one that keeps a weight, and
+                // zeroing it too would lose what the node set holds.
                 weights_[nodei] = 0;
             }
         }

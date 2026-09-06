@@ -40,11 +40,12 @@ namespace Foam
 {
 namespace multivariateMomentInversions
 {
+    // The type names are defined in the .C: defineTemplateTypeNameWithName
+    // is a definition, so a second file of the library including this
+    // header would give it two of each
     typedef multivariateMomentInversions::sizeCHyQMOMBase<CHyQMOM> sizeCHyQMOM;
-    defineTemplateTypeNameWithName(sizeCHyQMOM, "sizeCHyQMOM");
 
     typedef sizeCHyQMOMBase<CHyQMOMPlus> sizeCHyQMOMPlus;
-    defineTemplateTypeNameWithName(sizeCHyQMOMPlus, "sizeCHyQMOMPlus");
 }
 }
 

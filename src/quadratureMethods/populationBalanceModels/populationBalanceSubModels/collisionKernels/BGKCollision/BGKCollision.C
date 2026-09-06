@@ -280,13 +280,6 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         }
     }
 
-    scalar alphard(0);
-
-    forAll(velocityMoments_, sizei)
-    {
-        alphard += weights[sizei]/ds[sizei];
-    }
-
     // Compute source term coefficients and pair equilibrium distributions
     forAll(velocityMoments_, sizei)
     {

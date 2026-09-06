@@ -34,6 +34,9 @@ namespace Foam
 {
 namespace multivariateMomentInversions
 {
+    defineTemplateTypeNameWithName(sizeCHyQMOM, "sizeCHyQMOM");
+    defineTemplateTypeNameWithName(sizeCHyQMOMPlus, "sizeCHyQMOMPlus");
+
     addNamedToRunTimeSelectionTable
     (
         multivariateMomentInversion,

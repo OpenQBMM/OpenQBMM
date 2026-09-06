@@ -74,9 +74,6 @@ class monoKinetic
         //- Number of size moments
         const label nSizeMoments_;
 
-        //- Moment orders of conditional velocity distribution
-        const labelListList velocityMomentOrders_;
-
         //- Univariate moment inversion method
         autoPtr<univariateMomentInversion> sizeInverter_;
 
