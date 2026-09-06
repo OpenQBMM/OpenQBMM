@@ -73,7 +73,13 @@ class CHyQMOMPlus
         //- Univariate moment inversion method
         autoPtr<hyperbolicMomentInversion> univariateInverter_;
 
-        //- Minimum value of the variance to compute eta
+        //- Minimum value of the variance to compute eta.
+        //  This and varMin_ below guard the same quantity, the variance
+        //  a standardised third and fourth moment are formed from, on
+        //  different paths: varMin_ on the two dimensional inversion and
+        //  etaMin_ on the three dimensional one. They carry the same
+        //  default, so a case that sets only one of them leaves the two
+        //  paths with different thresholds.
         scalar etaMin_;
 
         //- Maximum normalized skewness
@@ -82,7 +88,8 @@ class CHyQMOMPlus
         //- Small negative value for realizability
         scalar smallNegRealizability_;
 
-        //- Minimum value of variance
+        //- Minimum value of variance. See etaMin_ above, which guards
+        //  the same quantity on the three dimensional path.
         scalar varMin_;
 
         //- Minimum value of correlation

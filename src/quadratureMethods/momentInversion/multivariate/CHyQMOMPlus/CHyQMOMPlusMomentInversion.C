@@ -1214,7 +1214,12 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         {
             scalarSquareMatrix X(d[1]*UABs + d[2]*Vps);
             scalar x = min(X);
-            scalar y = -d[0]/(x - 1e-10);
+
+            // Offset that keeps the divisor away from zero: x is the
+            // smallest element of X and is not positive on this branch
+            const scalar smallDivisor = 1.0e-10;
+
+            scalar y = -d[0]/(x - smallDivisor);
             mu2 =
                 d[0]*scalarSquareMatrix(3, 1.0)
               + y*(d[1]*UABs + d[2]*Vps);

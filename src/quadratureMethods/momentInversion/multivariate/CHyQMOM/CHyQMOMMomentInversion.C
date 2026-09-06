@@ -517,7 +517,12 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
         scalar sqrtC20 = sqrt(c20);
         scalar c11s = c11/sqrtC20;
 
-        if (sqr(c11s) > c02*(1.0 - 1e-10))
+        // Slack on the bound the correlation has to satisfy, so that a
+        // value sitting on it is clamped rather than left to make the
+        // conditional variance below negative
+        const scalar correlationSlack = 1.0e-10;
+
+        if (sqr(c11s) > c02*(1.0 - correlationSlack))
         {
             c11s = sign(c11s)*sqrt(c02);
         }
