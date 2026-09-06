@@ -395,11 +395,11 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert2D
     scalar m00 = moments(0, 0);
     label nWeights2D = weights2D.size();
 
-    if (m00 < SMALL)
+    if (m00 < smallM0())
     {
         forAll(weights2D, wi)
         {
-            weights2D[wi] = m00/scalar(nWeights2D);
+            weights2D[wi] = max(m00, scalar(0))/scalar(nWeights2D);
             abscissae2D[wi] = vector2D::zero;
         }
 
@@ -719,9 +719,9 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
 {
     scalar m000 = moments(0, 0, 0);
 
-    if (m000 < SMALL)
+    if (m000 < smallM0())
     {
-        weights_(1,1,1) = m000;
+        weights_(1,1,1) = max(m000, scalar(0));
         return;
     };
 

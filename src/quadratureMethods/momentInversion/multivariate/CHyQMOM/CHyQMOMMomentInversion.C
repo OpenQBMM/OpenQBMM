@@ -351,11 +351,11 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert1D
     scalar m0 = moments[0];
     label nWeights1D = weights1D.size();
 
-    if (m0 < SMALL)
+    if (m0 < smallM0())
     {
         forAll(weights1D, wi)
         {
-            weights1D[wi] = m0/scalar(nWeights1D);
+            weights1D[wi] = max(m0, scalar(0))/scalar(nWeights1D);
             abscissae1D[wi] = 0.0;
         }
 
@@ -421,11 +421,11 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert2D
     scalar m00 = moments(0, 0);
     label nWeights2D = weights2D.size();
 
-    if (m00 < SMALL)
+    if (m00 < smallM0())
     {
         forAll(weights2D, wi)
         {
-            weights2D[wi] = m00/scalar(nWeights2D);
+            weights2D[wi] = max(m00, scalar(0))/scalar(nWeights2D);
             abscissae2D[wi] = vector2D::zero;
         }
 
@@ -614,9 +614,9 @@ void Foam::multivariateMomentInversions::CHyQMOM::invert3D
 {
     scalar m000 = moments(0, 0, 0);
 
-    if (m000 < SMALL)
+    if (m000 < smallM0())
     {
-        weights_(2,2,2) = m000;
+        weights_(2,2,2) = max(m000, scalar(0));
         return;
     };
 
@@ -1165,6 +1165,14 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
 {
     reset();
 
+    if (nVelocityDimensions_ == 0)
+    {
+        FatalErrorInFunction
+            << "CHyQMOM inverts a velocity distribution, and the moment "
+            << "set it was given has no velocity dimension." << nl
+            << exit(FatalError);
+    }
+
     if (nVelocityDimensions_ == 3)
     {
         invert3D(moments);
@@ -1185,6 +1193,16 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
 
         invert2D(moments, w, u);
 
+        // The copy is by position and not by the order of the node: w and
+        // u are keyed by the node indexes of the method, weights_ by the
+        // ones the case declares, and the two need not be written in the
+        // same sequence. It is safe because the weight and the abscissa of
+        // a node are read from the same position, so they stay paired, and
+        // every moment is a sum over all of the nodes. Copying by order
+        // instead was measured to leave the result of the Taylor Green
+        // case unchanged at the first write and then to diverge from it by
+        // round-off, because it reorders the sum, so it buys nothing and
+        // makes the answer depend on the sequence the case is written in.
         forAll(u, nodei)
         {
             weights_[nodei] = w[nodei];
@@ -1204,6 +1222,7 @@ bool Foam::multivariateMomentInversions::CHyQMOM::invert
 
         invert1D(moments, w, u);
 
+        // By position, as above
         forAll(w, nodei)
         {
             weights_[nodei] = w[nodei];
