@@ -289,6 +289,44 @@ void testMapAndStaticHelpers()
 }
 
 
+// The map constructor has to be told how many dimensions the keys were
+// packed with. Recovering it from the keys themselves undercounts whenever
+// no key carries a non-zero leading component: the orders below are three
+// dimensional and pack to 0, 10, 11 and 20, so the widest key is two digits
+// and a count read from the keys alone says two.
+void testMapConstructorDimensions()
+{
+    Info<< "Testing the dimension count of the map constructor" << endl;
+
+    labelListList orders(4);
+    orders[0] = labelList({0, 0, 0});
+    orders[1] = labelList({0, 1, 0});
+    orders[2] = labelList({0, 1, 1});
+    orders[3] = labelList({0, 2, 0});
+
+    Map<label> map(4);
+
+    forAll(orders, oi)
+    {
+        map.insert(mappedList<scalar>::listToLabel(orders[oi], 3), oi);
+    }
+
+    mappedList<scalar> ml(4, map, 3, 0.0);
+
+    forAll(orders, oi)
+    {
+        ml(orders[oi]) = scalar(oi + 1);
+    }
+
+    checkScalar("ml(0,0,0)", ml(0, 0, 0), 1.0);
+    checkScalar("ml(0,1,0)", ml(0, 1, 0), 2.0);
+    checkScalar("ml(0,1,1)", ml(0, 1, 1), 3.0);
+    checkScalar("ml(0,2,0)", ml(0, 2, 0), 4.0);
+
+    Info<< "OK" << endl;
+}
+
+
 int main(int argc, char *argv[])
 {
     Info<< "Testing mappedList\n" << endl;
@@ -298,6 +336,7 @@ int main(int argc, char *argv[])
     testFound();
     testSetSizeResize();
     testMapAndStaticHelpers();
+    testMapConstructorDimensions();
 
     Info<< "\nEnd\n" << endl;
 

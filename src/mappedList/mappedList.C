@@ -147,29 +147,20 @@ template <class mappedType> Foam::mappedList<mappedType>::mappedList
 (
     const label size,
     const Map<label>& map,
+    const label nDimensions,
     const mappedType& initValue
 )
 :
     List<mappedType>(size, initValue),
     map_(map),
-    nDimensions_(0)
+    nDimensions_(nDimensions)
 {
-    // Note: the number of dimensions is recovered from the decimal digit
-    // count of the keys already in map, which undercounts leading-zero
-    // components (e.g. key 1 for order {0, 1} looks one-dimensional).
-    // Prefer constructing from a labelListList of indexes when available.
-    forAllConstIter(Map<label>, map_, iter)
+    if (nDimensions_ < 0)
     {
-        label key = iter.key();
-        label nD = 0;
-
-        do
-        {
-            key /= 10;
-            nD++;
-        } while (key);
-
-        nDimensions_ = max(nDimensions_, nD);
+        FatalErrorInFunction
+            << "A mapped list of " << nDimensions_ << " dimensions was "
+            << "asked for." << nl
+            << exit(FatalError);
     }
 }
 

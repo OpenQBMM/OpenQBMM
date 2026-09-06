@@ -108,11 +108,18 @@ public:
             const mappedType& initValue
         );
 
-        //- Construct from size and map with initial value for all elements
+        //- Construct from size, map and the number of dimensions the keys
+        //  of the map were packed with, with initial value for all
+        //  elements. The count is given rather than recovered from the
+        //  keys: a key carries no leading zero, so a set of orders none of
+        //  which has a non-zero leading component reads as fewer
+        //  dimensions than it has, and every later lookup is computed with
+        //  the wrong factors.
         mappedList
         (
             const label size,
             const Map<label>& map,
+            const label nDimensions,
             const mappedType& initValue
         );
 

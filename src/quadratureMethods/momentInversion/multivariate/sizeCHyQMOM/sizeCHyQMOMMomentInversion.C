@@ -119,6 +119,19 @@ calcNSizeMoments
         }
     }
 
+    // A univariate quadrature of n nodes is built from 2n moments, so an
+    // odd count leaves a moment out of the closure. It is refused rather
+    // than dropped by the integer division that sets nSizeNodes_.
+    if ((maxOrder + 1) % 2 != 0)
+    {
+        FatalErrorInFunction
+            << "The size direction carries " << maxOrder + 1
+            << " moments, of orders zero to " << maxOrder << "." << nl
+            << "    An even number is needed: a quadrature of n nodes is "
+            << "built from 2n moments." << nl
+            << exit(FatalError);
+    }
+
     return maxOrder + 1;
 }
 

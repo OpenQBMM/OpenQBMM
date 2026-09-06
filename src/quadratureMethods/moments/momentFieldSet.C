@@ -58,23 +58,17 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     nMoments_((*this).size()),
     supports_(supports)
 {
-    Map<label> momentMap(nMoments_);
+    // Set the map from the orders themselves, so that the number of
+    // dimensions is the one they carry and not one recovered from the
+    // keys, which drops the leading zeros of an order
+    labelListList momentOrders(nMoments_);
 
-    // Populate the moment set
     forAll(*this, mI)
     {
-        momentMap.insert
-        (
-            moment<momentType, nodeType>::listToLabel
-            (
-                this->operator[](mI).cmptOrders()
-            ),
-            mI
-        );
+        momentOrders[mI] = this->operator[](mI).cmptOrders();
     }
 
-    // Set the map
-    this->setMap(momentMap);
+    this->setMap(momentOrders);
 }
 
 

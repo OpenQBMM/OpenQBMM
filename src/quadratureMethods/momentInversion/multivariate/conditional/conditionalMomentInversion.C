@@ -128,7 +128,7 @@ Foam::multivariateMomentInversions::conditional::conditional
         conditionalWeights_.set
         (
             dimi,
-            new mappedScalarList(nCmpts, nodeMap, Zero)
+            new mappedScalarList(nCmpts, nodeMap, nDimensions, Zero)
         );
     }
 
@@ -156,7 +156,13 @@ Foam::multivariateMomentInversions::conditional::conditional
             conditionalMoments_[dimi].set
             (
                 dimj,
-                new mappedList<scalar>(nCmpts, conditionalMap, Zero)
+                new mappedList<scalar>
+                (
+                    nCmpts,
+                    conditionalMap,
+                    nDimensions,
+                    Zero
+                )
             );
         }
     }
@@ -177,6 +183,7 @@ Foam::multivariateMomentInversions::conditional::conditional
             (
                 nCmpts,
                 VRMap,
+                nDimensions,
                 scalarSquareMatrix(nNodes_[dimi], scalar(0))
             )
         );

@@ -174,7 +174,7 @@ public:
         // Edit functions
 
             //- Set map after PtrList has been constructed
-            void setMap(const Map<label>& map);
+            void setMap(const Map<label>& map, const label nDimensions);
 
             //- Set map from the labelListList of indexes after PtrList has
             //  been constructed
