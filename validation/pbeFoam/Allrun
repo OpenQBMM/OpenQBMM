@@ -1,0 +1,25 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+validationCases="\
+GQMOM/condensationLage \
+GQMOM/diffusionControlledGrowthMcGraw \
+madadiPassalacquaGQMOMGamma \
+madadiPassalacquaGQMOMLognormal \
+madadiPassalacquaQMOM \
+madadiPassalacquaRadau \
+momentConvergence/GQMOM \
+momentConvergence/QMOM \
+"
+
+for caseName in $validationCases
+do
+    echo Running $caseName
+
+    ( cd $caseName && ./Allrun )
+done
+
+# ----------------------------------------------------------------- end-of-file
