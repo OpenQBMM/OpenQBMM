@@ -24,16 +24,17 @@ univariateCoeffs
         diffusionModel  none;
     }
 
-    aggregation off;
+    aggregation on;
     aggregationKernel
     {
-        aggregationKernel none;
+        aggregationKernel constant;
     }
 
     breakup on;
     breakupKernel
     {
-        breakupKernel exponential;
+        breakupKernel constant;
+        Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.02;
 
         daughterDistribution
         {
