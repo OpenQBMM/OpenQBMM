@@ -1197,9 +1197,16 @@ void Foam::multivariateMomentInversions::CHyQMOMPlus::invert3D
         if (NB > 3)
         {
             d[1] = c102s - sum102;
+            // The conditional variance of the third direction is linear
+            // in the conditional second abscissa Vps, while this moment is
+            // taken against the full one, VABs = Vps + the shear along the
+            // first direction. Of the three terms that leaves, the mean of
+            // VABs is zero and its product with Vps is b0, so the only
+            // coupling is through d[1], whose abscissa UABs meets VABs in
+            // the correlation c110s.
             if (mag(b0) > minCorrelation_)
             {
-                d[2] = (c012s - sum012 - d[0]*c110s)/b0;
+                d[2] = (c012s - sum012 - d[1]*c110s)/b0;
             }
         }
 

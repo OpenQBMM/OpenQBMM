@@ -350,14 +350,7 @@ int main()
 
     const scalar tolerance = 1e-10;
 
-    // Every direction active, which is the branch the other tests cover.
-    //
-    // CHyQMOM+ does not conserve the moment of order (0 1 2) here. The
-    // distribution is symmetric in every direction, so that moment is zero,
-    // and the inversion returns minus the moment of order (1 1 0). It is
-    // pinned rather than asserted until the cause is found: it is a defect
-    // of CHyQMOM+ in its own right and not a property of the degenerate
-    // directions this test covers. CHyQMOM conserves it.
+    // Every direction active, which is the branch the other tests cover
     testCase
     (
         "no degenerate direction",
@@ -367,8 +360,7 @@ int main()
             {xActive, xActive, xActive},
             0.3, -0.2, 0.4
         ),
-        tolerance,
-        {{0, 1, 2}}
+        tolerance
     );
 
     // One degenerate direction at a time

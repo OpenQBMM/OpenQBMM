@@ -390,17 +390,6 @@ int main()
         tolerance
     );
 
-    // CHyQMOM+ does not conserve the moment of order (0 1 2) of the
-    // velocity distribution it is given, so sizeCHyQMOM+ does not conserve
-    // it at any size node. Pinned until the cause is found; see the same
-    // pin in Test-CHyQMOMDegenerate.
-    labelListList plusKnownFailures;
-
-    for (label k = 0; k < nSizeNodes; k++)
-    {
-        plusKnownFailures.append(labelList({k, 0, 1, 2}));
-    }
-
     testInversion
     <
         multivariateMomentInversions::sizeCHyQMOMPlus,
@@ -416,8 +405,7 @@ int main()
         nDims,
         nSizeMoments,
         nSizeNodes,
-        tolerance,
-        plusKnownFailures
+        tolerance
     );
 
     Info<< "\n\nEnd\n" << endl;

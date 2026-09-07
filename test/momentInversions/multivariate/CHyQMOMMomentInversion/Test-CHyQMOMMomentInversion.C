@@ -304,10 +304,6 @@ int main()
         tolerance
     );
 
-    // CHyQMOM+ does not conserve the moment of order (0 1 2), which belongs
-    // to its own moment set. It is pinned until the cause is found; see the
-    // same pin in Test-CHyQMOMDegenerate, where the moment is zero by
-    // symmetry and the inversion returns minus the moment of order (1 1 0).
     testInversion<multivariateMomentInversions::CHyQMOMPlus>
     (
         "CHyQMOMPlus",
@@ -317,8 +313,7 @@ int main()
         nodeIndexes,
         velocityIndexes,
         nDims,
-        tolerance,
-        {{0, 1, 2}}
+        tolerance
     );
 
     testExtremeMomentSet(quadratureProperties);
