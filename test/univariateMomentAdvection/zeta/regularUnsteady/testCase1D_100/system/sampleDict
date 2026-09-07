@@ -44,7 +44,7 @@ sets
 (
     Centerline
     {
-        type        lineCell;
+        type        midPoint;
         axis        x;
 
         start       (0 0.005 0);
