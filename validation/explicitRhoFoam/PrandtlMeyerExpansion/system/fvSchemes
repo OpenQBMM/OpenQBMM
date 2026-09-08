@@ -48,12 +48,12 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default             cubic;
-    reconstruct(U)      MinmodV;
-    reconstruct(H)      Minmod;
-    reconstruct(p)      Minmod;
-    reconstruct(rho)    Minmod;
-    reconstruct(c)      Minmod;
+    default                     cubic;
+    reconstruct(U)              MinmodV;
+    reconstruct(H)              Minmod;
+    reconstruct(p)              Minmod;
+    reconstruct(rho)            Minmod;
+    reconstruct(speedOfSound)   Minmod;
 }
 
 snGradSchemes

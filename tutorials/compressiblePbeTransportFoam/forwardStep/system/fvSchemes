@@ -48,12 +48,12 @@ laplacianSchemes
 
 interpolationSchemes
 {
-    default             linear;
-    reconstruct(U)      vanLeerV;
-    reconstruct(H)      vanLeer;
-    reconstruct(p)      vanLeer;
-    reconstruct(rho)    vanLeer;
-    reconstruct(c)      vanLeer;
+    default                     linear;
+    reconstruct(U)              vanLeerV;
+    reconstruct(H)              vanLeer;
+    reconstruct(p)              vanLeer;
+    reconstruct(rho)            vanLeer;
+    reconstruct(speedOfSound)   vanLeer;
 }
 
 snGradSchemes
