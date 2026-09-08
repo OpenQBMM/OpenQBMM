@@ -50,4 +50,3 @@ and find the DOI of the desired version in the version list.
 
 * Website: http://www.OpenQBMM.org
 * GitHub: https://github.com/OpenQBMM
-* Twitter: https://twitter.com/OpenQBMM
