@@ -101,8 +101,12 @@ void Foam::outflowFvQuadraturePatch::update()
         bfwNei = bfwOwn;
 
         vectorField bfU(U.boundaryField()[patchi_].patchInternalField());
-        vectorField Un(bfU/max(mag(bfU), SMALL));
-        bfUOwn = Foam::max((bfU & bfSf), scalar(0))*Un;
+
+        // Keep the abscissa of a node leaving the domain, and remove the one
+        // of a node that would enter through it. The scaling previously used
+        // here was (bfU & bfSf), a volumetric flux, so the abscissa carried
+        // the dimensions of a flux and scaled with the area of the face.
+        bfUOwn = pos0(bfU & bfNorm)*bfU;
         bfUNei = bfUOwn;
     }
 }
