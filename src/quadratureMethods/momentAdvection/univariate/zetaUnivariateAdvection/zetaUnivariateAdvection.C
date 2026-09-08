@@ -376,28 +376,35 @@ void Foam::univariateAdvection::zeta::zetaToMoments
     scalar m0
 )
 {
-    const label nAuxiliaryFields = nMoments - 1;
-
+    // A set of nMoments moments is described by its zero-order moment and
+    // the nMoments - 1 values of the zeta chain, so all of them are needed
+    // to recover it. Both recursions below therefore run to nMoments: the
+    // index of zeta they reach is j - i and i - 1 respectively, which stays
+    // within the chain. Stopping them one short, as was done previously,
+    // leaves the last value of zeta unread and the moment of highest order
+    // wrong - two nodes of equal weight at 1 and 2 returned a third moment
+    // of 25/6 rather than 9/2.
     scalarSquareMatrix S(nMoments, 0.0);
 
-    for (label i = 0; i < nAuxiliaryFields; i++)
+    for (label i = 0; i < nMoments; i++)
     {
         S[0][i] = 1.0;
     }
 
-    for (label i = 1; i < nAuxiliaryFields; i++)
+    for (label i = 1; i < nMoments; i++)
     {
-        for (label j = i; j < nAuxiliaryFields; j++)
+        for (label j = i; j < nMoments; j++)
         {
             S[i][j] = S[i][j - 1] + zetaf[j - i]*S[i - 1][j];
         }
     }
 
+    // prod[i] is the product of the first i values of the zeta chain
     scalarList prod(nMoments, 1.0);
 
     prod[1] = zetaf[0];
 
-    for (label i = 2; i < nAuxiliaryFields; i++)
+    for (label i = 2; i < nMoments; i++)
     {
         prod[i] = prod[i - 1]*zetaf[i - 1];
     }

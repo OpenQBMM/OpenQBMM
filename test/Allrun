@@ -64,6 +64,9 @@ runTest ./momentInversions/multivariate/conditionalMomentInversion \
 # quadratureProperties from its directory
 runTest . Test-CHyQMOMDegenerate
 
+# Moment advection
+runTest . Test-MomentAdvection
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

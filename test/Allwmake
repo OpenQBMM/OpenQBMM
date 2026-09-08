@@ -20,6 +20,8 @@ wmakeStatus momentInversions/multivariate/CHyQMOMMomentInversion
 wmakeStatus momentInversions/multivariate/sizeCHyQMOMMomentInversion
 wmakeStatus momentInversions/multivariate/TensorProductMomentInversion
 
+wmakeStatus momentAdvection
+
 wmakeStatus populationBalanceModel
 wmakeStatus univariateQuadratureApproximation
 wmakeStatus univariateMomentAdvection/setMoments1D
