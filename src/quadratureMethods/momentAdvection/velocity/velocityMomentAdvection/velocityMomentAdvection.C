@@ -178,6 +178,8 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
         );
     }
 
+    const fvBoundaryMesh& bMesh = moments_[0].mesh().boundary();
+
     forAll(boundaries_, patchi)
     {
         boundaries_.set
@@ -185,16 +187,52 @@ Foam::velocityMomentAdvection::velocityMomentAdvection
             patchi,
             fvQuadraturePatch::New
             (
-                moments_[0].mesh().boundary()[patchi],
-                dict.optionalSubDict
-                (
-                    moments_[0].mesh().boundary()[patchi].name()
-                ),
+                bMesh[patchi],
+                dict.optionalSubDict(bMesh[patchi].name()),
                 quadrature,
                 nodesOwn_(),
                 nodesNei_()
             ).ptr()
         );
+    }
+
+    // A sub-dictionary is matched to a patch by name, and a patch without
+    // one is given a calculated condition, which does nothing. A name that
+    // belongs to no patch is therefore silently ignored, and a boundary
+    // condition asked for under a misspelled name leaves every patch of
+    // the mesh with no treatment at all. Say so.
+    wordList patchNames(bMesh.size());
+
+    forAll(bMesh, patchi)
+    {
+        patchNames[patchi] = bMesh[patchi].name();
+    }
+
+    wordList unusedSubDicts;
+
+    forAllConstIters(dict, iter)
+    {
+        if (!iter().isDict())
+        {
+            continue;
+        }
+
+        const word& entryName = iter().keyword();
+
+        if (!patchNames.found(entryName))
+        {
+            unusedSubDicts.append(entryName);
+        }
+    }
+
+    if (!unusedSubDicts.empty())
+    {
+        WarningInFunction
+            << "The moment advection dictionary of " << name_
+            << " carries sub-dictionaries that name no patch of the mesh:"
+            << nl << "    " << unusedSubDicts << nl
+            << "They are ignored. The patches of the mesh are:" << nl
+            << "    " << patchNames << endl;
     }
 }
 
