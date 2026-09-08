@@ -2,6 +2,7 @@
 cd "${0%/*}" || exit                            # Run from this directory
 targetType=libso
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
+. ./AllwmakeFunctions
 
 #------------------------------------------------------------------------------
 # Build into FOAM_USER_{APPBIN,LIBBIN} unless otherwise specified with
@@ -27,12 +28,12 @@ echo
 echo "========================================"
 echo "Compile $moduleName libraries"
 echo
-src/Allwmake $targetType $*
+runScriptStatus src/Allwmake $targetType $*
 
 echo "========================================"
 echo "Compile $moduleName applications"
 echo
-applications/Allwmake $targetType $*
+runScriptStatus applications/Allwmake $targetType $*
 
 # Enable or disable test compilation
 unset buildTests
@@ -43,7 +44,7 @@ then
     echo "========================================"
     echo "Compile $moduleName tests"
     echo
-    "test/Allwmake" $targetType $*
+    runScriptStatus test/Allwmake $targetType $*
 fi
 
 # Some summary information
@@ -54,4 +55,7 @@ echo "  Finished compile of $moduleName with ${WM_PROJECT_DIR##*/}"
 echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
 echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
 echo
+
+reportStatus
+
 #------------------------------------------------------------------------------

@@ -1,27 +1,30 @@
 #!/bin/sh
 cd "${0%/*}" || exit                            # Run from this directory
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
+. ../AllwmakeFunctions
 #------------------------------------------------------------------------------
 # Use build from FOAM_MODULE_* (defaults to user locations)
 
-wmake Vandermonde
-wmake GolubWelsch
-wmake mappedList
-wmake mappedPtrList
-wmake -all momentSets/univariate
-wmake -all momentSets/multivariate
-wmake -all momentInversions/univariate
+wmakeStatus Vandermonde
+wmakeStatus GolubWelsch
+wmakeStatus mappedList
+wmakeStatus mappedPtrList
+wmakeStatus -all momentSets/univariate
+wmakeStatus -all momentSets/multivariate
+wmakeStatus -all momentInversions/univariate
 
-wmake momentInversions/multivariate/CHyQMOMDegenerate
-wmake momentInversions/multivariate/conditionalMomentInversion
-wmake momentInversions/multivariate/monoKineticMomentInversion
-wmake momentInversions/multivariate/CHyQMOMMomentInversion
-wmake momentInversions/multivariate/sizeCHyQMOMMomentInversion
-wmake momentInversions/multivariate/TensorProductMomentInversion
+wmakeStatus momentInversions/multivariate/CHyQMOMDegenerate
+wmakeStatus momentInversions/multivariate/conditionalMomentInversion
+wmakeStatus momentInversions/multivariate/monoKineticMomentInversion
+wmakeStatus momentInversions/multivariate/CHyQMOMMomentInversion
+wmakeStatus momentInversions/multivariate/sizeCHyQMOMMomentInversion
+wmakeStatus momentInversions/multivariate/TensorProductMomentInversion
 
-wmake populationBalanceModel
-wmake univariateQuadratureApproximation
-wmake univariateMomentAdvection/setMoments1D
-wmake univariateMomentAdvection/setMoments2D
+wmakeStatus populationBalanceModel
+wmakeStatus univariateQuadratureApproximation
+wmakeStatus univariateMomentAdvection/setMoments1D
+wmakeStatus univariateMomentAdvection/setMoments2D
+
+reportStatus
 
 #------------------------------------------------------------------------------

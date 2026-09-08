@@ -1,13 +1,16 @@
 #!/bin/sh
 cd "${0%/*}" || exit                            # Run from this directory
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
+. ../../../AllwmakeFunctions
 #------------------------------------------------------------------------------
 
-wmake $targetType phaseModel
-wmake $targetType interfacialModels
-wmake $targetType phaseCompressibleTurbulenceModels
-wmake $targetType vdfTransportFoam
-wmake $targetType oneWayCoupledVdfTransportFoam
-wmake $targetType diluteVdfTransportFoam
+wmakeStatus $targetType phaseModel
+wmakeStatus $targetType interfacialModels
+wmakeStatus $targetType phaseCompressibleTurbulenceModels
+wmakeStatus $targetType vdfTransportFoam
+wmakeStatus $targetType oneWayCoupledVdfTransportFoam
+wmakeStatus $targetType diluteVdfTransportFoam
+
+reportStatus
 
 #------------------------------------------------------------------------------

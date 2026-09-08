@@ -1,11 +1,14 @@
 #!/bin/sh
 cd "${0%/*}" || exit                            # Run from this directory
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
+. ../../../../AllwmakeFunctions
 #------------------------------------------------------------------------------
 
-wmake $targetType compressibleSystem
+wmakeStatus $targetType compressibleSystem
 
-wmake
-wmake $targetType compressiblePbeTransportFoam
+wmakeStatus
+wmakeStatus $targetType compressiblePbeTransportFoam
+
+reportStatus
 
 #------------------------------------------------------------------------------

@@ -1,0 +1,89 @@
+#---------------------------------*- sh -*------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           | www.openfoam.com
+#    \\/     M anipulation  |
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     AllwmakeFunctions
+#
+# Description
+#     Failure reporting for the OpenQBMM Allwmake scripts.
+#
+#     Plain wmake calls leave a script exiting zero whether or not anything
+#     was built, so a library or an application that does not compile is
+#     invisible to a caller, and to continuous integration. Source this file
+#     after AllwmakeParseArguments, build with wmakeStatus, run a nested
+#     Allwmake with runScriptStatus, and end the script with reportStatus.
+#
+#     A failing target does not stop the ones after it, so that a single run
+#     reports everything that is broken, but the script exits non-zero so that
+#     a caller sees it. This mirrors what test/Allrun does for the unit tests.
+#
+#------------------------------------------------------------------------------
+
+nFail=0
+failed=""
+
+#- Record the failure of a target
+addFailure()
+{
+    nFail=$((nFail + 1))
+    failed="$failed
+    $1"
+}
+
+#- wmake, recording a failure rather than ignoring it
+wmakeStatus()
+{
+    wmake "$@" || addFailure "wmake $*"
+}
+
+#- wmakeLnInclude, recording a failure rather than ignoring it
+wmakeLnIncludeStatus()
+{
+    wmakeLnInclude "$@" || addFailure "wmakeLnInclude $*"
+}
+
+#- Run a nested Allwmake, recording a failure rather than ignoring it
+runScriptStatus()
+{
+    _script="$1"
+    shift
+    "$_script" "$@" || addFailure "$_script"
+}
+
+#- Report the targets that failed, and exit non-zero if there were any
+reportStatus()
+{
+    if [ "$nFail" -gt 0 ]
+    then
+        echo
+        echo "$nFail target(s) failed to build:$failed"
+        echo
+        exit 1
+    fi
+
+    return 0
+}
+
+#------------------------------------------------------------------------------

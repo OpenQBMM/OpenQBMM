@@ -2,9 +2,12 @@
 cd "${0%/*}" || exit                            # Run from this directory
 targetType=libso
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
+. ../../../AllwmakeFunctions
 #------------------------------------------------------------------------------
 
-wmake $targetType momentGenerationModels
-wmake
+wmakeStatus $targetType momentGenerationModels
+wmakeStatus
+
+reportStatus
 
 #------------------------------------------------------------------------------

@@ -1,11 +1,13 @@
 #!/bin/sh
 cd "${0%/*}" || exit                            # Run from this directory
 . "${WM_PROJECT_DIR:?}"/wmake/scripts/AllwmakeParseArguments
+. ../AllwmakeFunctions
 
 #------------------------------------------------------------------------------
 
-wmake -all $targetType utilities
-solvers/Allwmake
+wmakeStatus -all $targetType utilities
+runScriptStatus solvers/Allwmake $targetType $*
 
+reportStatus
 
 #------------------------------------------------------------------------------
