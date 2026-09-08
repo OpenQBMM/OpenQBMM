@@ -929,7 +929,13 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
         }
     }
 
-    for (label i = 1; i < nAuxiliaryFields_; i++)
+    // The first auxiliary quantity is m1/m0, on which the first moment
+    // depends linearly, so it is limited like all the others. The search
+    // above writes a trial value of 0.5 into auxiliaryFieldsOwn_ as it goes;
+    // reconstructing from index 0 is what replaces that trial value by the
+    // limiter the search settled on, and is the only thing that limits
+    // auxiliaryFieldsNei_ at all.
+    for (label i = 0; i < nAuxiliaryFields_; i++)
     {
         auxiliaryFieldsOwn_[i] =
             auxiliaryFieldsUpwindOwn_[i]
