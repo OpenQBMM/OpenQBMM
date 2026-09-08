@@ -65,6 +65,17 @@ Foam::reflectiveFvQuadraturePatch::reflectiveFvQuadraturePatch
             << patch_.type() << " specified."
             << abort(FatalError);
     }
+
+    // A restitution coefficient outside [0, 1] is not a reflection: below
+    // zero the wall drives the node into itself, above one it returns more
+    // energy than it received
+    if (ew_ < 0 || ew_ > 1)
+    {
+        FatalErrorInFunction
+            << "Restitution coefficient of patch " << patch_.name()
+            << " is " << ew_ << ", which is outside [0, 1]."
+            << abort(FatalError);
+    }
 }
 
 
@@ -134,10 +145,20 @@ void Foam::reflectiveFvQuadraturePatch::update()
         Gout -= min(scalar(0), bfUNei & bfSf)*bfwNei;
     }
 
-    //- Scale to ensure zero flux
+    //- Scale to ensure zero flux. Where nothing leaves the wall there is
+    //  nothing to balance, and the weights are left alone; dividing by the
+    //  floor instead gave such a face a scale factor of order 1/SMALL.
     if (this->ew_ < 1)
     {
-        scalarField weightScale(Gin/(Gout + SMALL));
+        scalarField weightScale(Gin.size(), scalar(1));
+
+        forAll(weightScale, facei)
+        {
+            if (Gout[facei] > SMALL)
+            {
+                weightScale[facei] = Gin[facei]/Gout[facei];
+            }
+        }
 
         forAll(quadrature_.nodes(), nodei)
         {

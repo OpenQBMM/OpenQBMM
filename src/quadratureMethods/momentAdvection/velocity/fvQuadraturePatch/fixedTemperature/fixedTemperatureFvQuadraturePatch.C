@@ -74,6 +74,17 @@ Foam::fixedTemperatureFvQuadraturePatch::fixedTemperatureFvQuadraturePatch
             << abort(FatalError);
     }
 
+    // The scaling of the abscissae is the square root of the ratio of the
+    // wall temperature to the one of the cell, so a negative entry gives
+    // every abscissa of the patch a nan without saying anything
+    if (min(wallTemperature_) < 0)
+    {
+        FatalErrorInFunction
+            << "Negative wall temperature on patch " << patch_.name()
+            << ": " << min(wallTemperature_)
+            << abort(FatalError);
+    }
+
     labelList velocityIndexes = quadrature.nodes()[0].velocityIndexes();
 
     order100_[velocityIndexes[0]] = 1;
@@ -196,7 +207,20 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
         Gout -= min(scalar(0), bfUNei & bfSf)*bfwNei;
     }
 
-    scalarField weightScale(Gin/(Gout + SMALL));
+    // Rescale the weights of the reflected nodes so that the flux leaving
+    // the wall balances the one reaching it. Where nothing leaves, there is
+    // nothing to balance and the weights are left alone: dividing by the
+    // floor instead turned a face with no outgoing flux into one carrying a
+    // scale factor of order 1/SMALL.
+    scalarField weightScale(Gin.size(), scalar(1));
+
+    forAll(weightScale, facei)
+    {
+        if (Gout[facei] > SMALL)
+        {
+            weightScale[facei] = Gin[facei]/Gout[facei];
+        }
+    }
 
     forAll(nodes, nodei)
     {
