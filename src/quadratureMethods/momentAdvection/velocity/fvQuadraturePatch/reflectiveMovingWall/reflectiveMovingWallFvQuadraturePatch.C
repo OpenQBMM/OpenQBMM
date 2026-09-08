@@ -75,7 +75,12 @@ Foam::reflectiveMovingWallFvQuadraturePatch::wallTangentVelocity
     const vectorField& n
 ) const
 {
-    return wallVelocity_;
+    // Remove the component of the specified wall velocity normal to the
+    // wall. Nothing constrains what the user writes in the wallVelocity
+    // entry to be tangential, and a normal component in it drives a flux
+    // straight through the wall. The rotating wall does the same to the
+    // velocity it builds from the motion it is given.
+    return (wallVelocity_ - n*(n & wallVelocity_));
 }
 
 // ************************************************************************* //
