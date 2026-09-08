@@ -159,22 +159,6 @@ class zeta
             PtrList<surfaceScalarField>& mf
         );
 
-        //- Compute n + 1 moments from n values of zeta_k
-        void zetaToMoments
-        (
-            const scalarList& zetaf,
-            scalarList& mf,
-            scalar m0 = 1.0
-        );
-
-        //- Compute n + 1 moments from n canonical moments
-        void canonicalMomentsToMoments
-        (
-            const scalarList& canononicalMomentsf,
-            scalarList& mf,
-            scalar m0
-        );
-
         //- Compute n + 1 moments from n values of the auxiliary quantity
         void auxiliaryQuantitiesToMoments
         (
@@ -201,6 +185,29 @@ public:
 
     //- Runtime type information
     TypeName("zeta");
+
+
+    // Static member functions
+
+        //- Compute nMoments moments from the nMoments - 1 values of zeta_k.
+        //  Static, and public, because it carries no state beyond the number
+        //  of moments, and so that it can be tested without a mesh.
+        static void zetaToMoments
+        (
+            const scalarList& zetaf,
+            scalarList& mf,
+            const label nMoments,
+            scalar m0 = 1.0
+        );
+
+        //- Compute nMoments moments from the nMoments - 1 canonical moments
+        static void canonicalMomentsToMoments
+        (
+            const scalarList& canonicalMomentsf,
+            scalarList& mf,
+            const label nMoments,
+            scalar m0 = 1.0
+        );
 
 
     // Constructors

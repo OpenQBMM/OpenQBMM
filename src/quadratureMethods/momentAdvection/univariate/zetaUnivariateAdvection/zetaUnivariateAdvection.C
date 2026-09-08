@@ -372,29 +372,32 @@ void Foam::univariateAdvection::zeta::zetaToMoments
 (
     const scalarList& zetaf,
     scalarList& mf,
+    const label nMoments,
     scalar m0
 )
 {
-    scalarSquareMatrix S(nMoments_, 0.0);
+    const label nAuxiliaryFields = nMoments - 1;
 
-    for (label i = 0; i < nAuxiliaryFields_; i++)
+    scalarSquareMatrix S(nMoments, 0.0);
+
+    for (label i = 0; i < nAuxiliaryFields; i++)
     {
         S[0][i] = 1.0;
     }
 
-    for (label i = 1; i < nAuxiliaryFields_; i++)
+    for (label i = 1; i < nAuxiliaryFields; i++)
     {
-        for (label j = i; j < nAuxiliaryFields_; j++)
+        for (label j = i; j < nAuxiliaryFields; j++)
         {
             S[i][j] = S[i][j - 1] + zetaf[j - i]*S[i - 1][j];
         }
     }
 
-    scalarList prod(nMoments_, 1.0);
+    scalarList prod(nMoments, 1.0);
 
     prod[1] = zetaf[0];
 
-    for (label i = 2; i < nAuxiliaryFields_; i++)
+    for (label i = 2; i < nAuxiliaryFields; i++)
     {
         prod[i] = prod[i - 1]*zetaf[i - 1];
     }
@@ -406,7 +409,7 @@ void Foam::univariateAdvection::zeta::zetaToMoments
     mf[0] = 1.0;
     mf[1] = zetaf[0];
 
-    for (label i = 2; i < nMoments_; i++)
+    for (label i = 2; i < nMoments; i++)
     {
         for (label j = 0; j <= i/2; j++)
         {
@@ -416,7 +419,7 @@ void Foam::univariateAdvection::zeta::zetaToMoments
 
     if (m0 != 1.0)
     {
-        for (label mi = 0; mi < nMoments_; mi++)
+        for (label mi = 0; mi < nMoments; mi++)
         {
             mf[mi] *= m0;
         }
@@ -427,18 +430,21 @@ void Foam::univariateAdvection::zeta::canonicalMomentsToMoments
 (
     const scalarList& canonicalMomentsf,
     scalarList& mf,
+    const label nMoments,
     scalar m0
 )
 {
-    scalarList zetas(nAuxiliaryFields_);
+    const label nAuxiliaryFields = nMoments - 1;
+
+    scalarList zetas(nAuxiliaryFields);
     zetas[0] = canonicalMomentsf[0];
 
-    for (label i = 1; i < nAuxiliaryFields_; i++)
+    for (label i = 1; i < nAuxiliaryFields; i++)
     {
         zetas[i] = canonicalMomentsf[i]*(1.0 - canonicalMomentsf[i - 1]);
     }
 
-    zetaToMoments(zetas, mf, m0);
+    zetaToMoments(zetas, mf, nMoments, m0);
 }
 
 void Foam::univariateAdvection::zeta::auxiliaryQuantitiesToMoments
@@ -450,11 +456,11 @@ void Foam::univariateAdvection::zeta::auxiliaryQuantitiesToMoments
 {
     if (support_ == supportType::RPlus)
     {
-        zetaToMoments(auxiliaryQuantityf, mf, m0);
+        zetaToMoments(auxiliaryQuantityf, mf, nMoments_, m0);
     }
     else // Support is [0, 1]
     {
-        canonicalMomentsToMoments(auxiliaryQuantityf, mf, m0);
+        canonicalMomentsToMoments(auxiliaryQuantityf, mf, nMoments_, m0);
     }
 }
 
