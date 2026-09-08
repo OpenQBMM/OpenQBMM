@@ -221,6 +221,8 @@ void Foam::univariateAdvection::firstOrderKinetic::interpolateNodes()
     PtrList<surfaceScalarNode>& nodesNei = nodesNei_();
     PtrList<surfaceScalarNode>& nodesOwn = nodesOwn_();
 
+    // Upwinding the weights and the abscissae is what makes the scheme
+    // first order and realizable, so it is not read from the dictionary
     IStringStream weightOwnLimiter("upwind");
     IStringStream abscissaOwnLimiter("upwind");
 

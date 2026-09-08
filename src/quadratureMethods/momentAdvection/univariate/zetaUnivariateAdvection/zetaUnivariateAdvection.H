@@ -141,8 +141,17 @@ class zeta
         //- List of cell limiters
         PtrList<volScalarField> cellLimiters_;
 
-        //- Face velocity
-        const surfaceScalarField& phi_;
+        //- Zero-order moment below which a cell is treated as empty. It
+        //  has to agree with the one the inversion that produced the
+        //  moments was given, so that the two do not disagree over which
+        //  cells carry a distribution.
+        scalar smallM0_;
+
+        //- Value of zeta below which the chain is taken to have ended
+        scalar smallZeta_;
+
+        //- Value below which an auxiliary quantity is clipped to zero
+        scalar smallAuxiliaryQuantity_;
 
 
     // Private member functions

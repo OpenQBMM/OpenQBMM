@@ -86,7 +86,12 @@ Foam::univariateAdvection::zeta::zeta
     nRealizableMomentsStar_(m0_.size(), 0),
     limiters_(nAuxiliaryFields_),
     cellLimiters_(nAuxiliaryFields_),
-    phi_(phi)
+    smallM0_(dict.lookupOrDefault<scalar>("smallM0", SMALL)),
+    smallZeta_(dict.lookupOrDefault<scalar>("smallZeta", SMALL)),
+    smallAuxiliaryQuantity_
+    (
+        dict.lookupOrDefault<scalar>("smallAuxiliaryQuantity", 1.0e-7)
+    )
 {
     if
     (
@@ -311,6 +316,9 @@ Foam::univariateAdvection::zeta::~zeta()
 
 void Foam::univariateAdvection::zeta::interpolateFields()
 {
+    // The limiter is part of the scheme rather than a choice left to the
+    // case: the second-order reconstruction is realizable because it is
+    // limited this way, so it is not read from the dictionary
     IStringStream m0OwnLimiter("Minmod");
     IStringStream auxiliaryFieldsOwnLimiter("Minmod");
 
@@ -526,7 +534,7 @@ void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
 {
     // The moment set is allocated once and reused over cells and faces, so
     // that its lists and index map are not rebuilt for every cell
-    univariateMomentSet m(nMoments_, support_, SMALL, SMALL);
+    univariateMomentSet m(nMoments_, support_, smallM0_, smallZeta_);
 
     // Cell-center values
     forAll(m0_, celli)
@@ -550,16 +558,12 @@ void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
 
             for (label i = 0; i < nAuxiliaryFields_; i++)
             {
-                auxiliaryFields_[i][celli] = auxiliaryQuantities[i];
-
-                if (auxiliaryFields_[i][celli] > 1.0e-7)
-                {
-                    auxiliaryFields_[i][celli] = auxiliaryQuantities[i];
-                }
-                else
-                {
-                    auxiliaryFields_[i][celli] = 0.0;
-                }
+                // Both arms of the test this replaces assigned the same
+                // thing, so what it does is clip to zero from below
+                auxiliaryFields_[i][celli] =
+                    auxiliaryQuantities[i] > smallAuxiliaryQuantity_
+                  ? auxiliaryQuantities[i]
+                  : 0.0;
             }
         }
     }
@@ -712,7 +716,7 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
     }
 
     // Compute m* and find how many moments are realizable
-    univariateMomentSet mStar(nMoments_, support_, SMALL, SMALL);
+    univariateMomentSet mStar(nMoments_, support_, smallM0_, smallZeta_);
 
     forAll(m0_, celli)
     {
