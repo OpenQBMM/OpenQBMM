@@ -471,6 +471,57 @@ void Foam::univariateAdvection::zeta::auxiliaryQuantitiesToMoments
     }
 }
 
+void Foam::univariateAdvection::zeta::addFaceMomentsToMPlus
+(
+    const label p,
+    const label patchi,
+    const label facei,
+    scalarList& mPlus
+)
+{
+    scalarList auxiliaryQuantityOwn(nAuxiliaryFields_, Zero);
+    scalarList mOwn(nMoments_, Zero);
+    scalar m0f = 0.0;
+
+    if (patchi < 0)
+    {
+        for (label i = 0; i <= p; i++)
+        {
+            auxiliaryQuantityOwn[i] = auxiliaryFieldsOwn_[i][facei];
+        }
+
+        for (label i = p + 1; i < nAuxiliaryFields_; i++)
+        {
+            auxiliaryQuantityOwn[i] = auxiliaryFieldsUpwindOwn_[i][facei];
+        }
+
+        m0f = m0Own_[facei];
+    }
+    else
+    {
+        for (label i = 0; i <= p; i++)
+        {
+            auxiliaryQuantityOwn[i] =
+                auxiliaryFieldsOwn_[i].boundaryField()[patchi][facei];
+        }
+
+        for (label i = p + 1; i < nAuxiliaryFields_; i++)
+        {
+            auxiliaryQuantityOwn[i] =
+                auxiliaryFieldsUpwindOwn_[i].boundaryField()[patchi][facei];
+        }
+
+        m0f = m0Own_.boundaryField()[patchi][facei];
+    }
+
+    auxiliaryQuantitiesToMoments(auxiliaryQuantityOwn, mOwn, m0f);
+
+    for (label mi = 0; mi < nMoments_; mi++)
+    {
+        mPlus[mi] += mOwn[mi];
+    }
+}
+
 void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
 {
     // The moment set is allocated once and reused over cells and faces, so
@@ -556,7 +607,7 @@ void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
     }
 }
 
-void Foam::univariateAdvection::zeta::countFacesWithOutgoingFlux()
+void Foam::univariateAdvection::zeta::countFacesWithOutgoingFlux() const
 {
     const fvMesh& mesh(phi_.mesh());
     const labelList& own = mesh.faceOwner();
@@ -597,11 +648,12 @@ void Foam::univariateAdvection::zeta::countFacesWithOutgoingFlux()
 
 void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
 {
-    const labelUList& owner = phi_.mesh().owner();
-    const labelUList& neighbour = phi_.mesh().neighbour();
+    const fvMesh& mesh = phi_.mesh();
+    const labelUList& owner = mesh.owner();
+    const labelUList& neighbour = mesh.neighbour();
     const scalarField& phiIf = phi_;
     const surfaceScalarField::Boundary& phiBf = phi_.boundaryField();
-    const label nInternalFaces = phi_.mesh().nInternalFaces();
+    const label nInternalFaces = mesh.nInternalFaces();
 
     countFacesWithOutgoingFlux();
 
@@ -652,7 +704,8 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
             {
                 for (label mi = 0; mi < nMoments_; mi++)
                 {
-                    mPluses[mi][pFaceCells[pFacei]] += momentsOwn_[mi][pFacei];
+                    mPluses[mi][pFaceCells[pFacei]] +=
+                        momentsOwn_[mi].boundaryField()[patchi][pFacei];
                 }
             }
         }
@@ -699,42 +752,44 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
                 // by evaluating m* with auxiliaryQuantity_k, k > p from
                 // constant reconstruction
 
-                // Update mPlus for a face to update m*
+                // Update mPlus for a face to update m*. Boundary faces
+                // count here because countFacesWithOutgoingFlux includes
+                // them in nFacesOutgoingFlux_; leaving them out biases m*
+                // towards unrealizable in every boundary cell.
                 forAll(mCell, fi)
                 {
                     const label facei = mCell[fi];
 
-                    if (phi_.mesh().isInternalFace(facei))
+                    if (mesh.isInternalFace(facei))
                     {
                         if (phi_[facei] > 0)
                         {
-                            scalarList auxiliaryQuantityOwn
-                            (
-                                nAuxiliaryFields_,
-                                Zero
-                            );
+                            addFaceMomentsToMPlus(p, -1, facei, mPlus);
+                        }
+                    }
+                    else
+                    {
+                        const label patchi =
+                            mesh.boundaryMesh().whichPatch(facei);
 
-                            scalarList mOwn(nMoments_, Zero);
+                        if (patchi < 0)
+                        {
+                            continue;
+                        }
 
-                            for (label i = 0; i <= p; i++)
-                            {
-                                auxiliaryQuantityOwn[i] =
-                                    auxiliaryFieldsOwn_[i][facei];
-                            }
+                        const label pFacei =
+                            facei - mesh.boundaryMesh()[patchi].start();
 
-                            for (label i = p + 1; i < nAuxiliaryFields_; i++)
-                            {
-                                auxiliaryQuantityOwn[i] =
-                                    auxiliaryFieldsUpwindOwn_[i][facei];
-                            }
+                        // Skip patches without a finite volume representation,
+                        // such as empty and wedge patches
+                        if (pFacei >= phiBf[patchi].size())
+                        {
+                            continue;
+                        }
 
-                            auxiliaryQuantitiesToMoments(
-                                auxiliaryQuantityOwn, mOwn, m0Own_[facei]);
-
-                            for (label mi = 0; mi < nMoments_; mi++)
-                            {
-                                mPlus[mi] += mOwn[mi];
-                            }
+                        if (phiBf[patchi][pFacei] > 0)
+                        {
+                            addFaceMomentsToMPlus(p, patchi, pFacei, mPlus);
                         }
                     }
                 }
@@ -760,7 +815,7 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
                     {
                         const label facei = mCell[fi];
 
-                        if (phi_.mesh().isInternalFace(facei))
+                        if (mesh.isInternalFace(facei))
                         {
                             if (phi_[facei] > 0)
                             {
@@ -770,41 +825,39 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
 
                                 cellLimiters_[p][celli] = 0.5;
 
-                                scalarList auxiliaryQuantityOwn
-                                (
-                                    nAuxiliaryFields_
-                                );
+                                addFaceMomentsToMPlus(p, -1, facei, mPlus);
+                            }
+                        }
+                        else
+                        {
+                            const label patchi =
+                                mesh.boundaryMesh().whichPatch(facei);
 
-                                scalarList mOwn(nMoments_, Zero);
+                            if (patchi < 0)
+                            {
+                                continue;
+                            }
 
-                                for (label i = 0; i < p; i++)
-                                {
-                                    auxiliaryQuantityOwn[i] =
-                                        auxiliaryFieldsOwn_[i][facei];
-                                }
+                            const label pFacei =
+                                facei - mesh.boundaryMesh()[patchi].start();
 
-                                auxiliaryQuantityOwn[p] =
-                                    auxiliaryFieldsOwn_[p][facei];
+                            if (pFacei >= phiBf[patchi].size())
+                            {
+                                continue;
+                            }
 
-                                for
-                                (
-                                    label i = p + 1;
-                                    i < nAuxiliaryFields_;
-                                    i++)
-                                {
-                                    auxiliaryQuantityOwn[i] =
-                                        auxiliaryFieldsUpwindOwn_[i][facei];
-                                }
+                            if (phiBf[patchi][pFacei] > 0)
+                            {
+                                auxiliaryFieldsOwn_[p].boundaryFieldRef()
+                                    [patchi][pFacei] =
+                                    auxiliaryFieldsUpwindOwn_[p]
+                                        .boundaryField()[patchi][pFacei]
+                                  + 0.5*auxiliaryFieldsCorrOwn_[p]
+                                        .boundaryField()[patchi][pFacei];
 
-                                auxiliaryQuantitiesToMoments
-                                (
-                                    auxiliaryQuantityOwn, mOwn, m0Own_[facei]
-                                );
+                                cellLimiters_[p][celli] = 0.5;
 
-                                for (label mi = 0; mi < nMoments_; mi++)
-                                {
-                                    mPlus[mi] += mOwn[mi];
-                                }
+                                addFaceMomentsToMPlus(p, patchi, pFacei, mPlus);
                             }
                         }
                     }
@@ -869,7 +922,8 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
             {
                 for (label i = 0; i < nAuxiliaryFields_; i++)
                 {
-                    limiters_[i][pFacei] = cellLimiters_[i][pFaceCells[pFacei]];
+                    limiters_[i].boundaryFieldRef()[patchi][pFacei] =
+                        cellLimiters_[i][pFaceCells[pFacei]];
                 }
             }
         }
@@ -889,27 +943,21 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
 
 Foam::scalar Foam::univariateAdvection::zeta::realizableCo() const
 {
-    const fvMesh& mesh(phi_.mesh());
-    const labelList& own = mesh.faceOwner();
-    const labelList& nei = mesh.faceNeighbour();
+    // The realizability condition of the scheme is written in terms of the
+    // number of faces of a cell carrying an outgoing flux, so the same count
+    // the limiter works with is used here. Counting only internal faces, as
+    // was done previously, returns a Courant limit a boundary cell does not
+    // actually satisfy.
+    countFacesWithOutgoingFlux();
 
-    scalarField internalCo(m0_.size(), Zero);
+    scalarField co(m0_.size(), Zero);
 
-    for (label facei = 0; facei < mesh.nInternalFaces(); facei++)
+    forAll(co, celli)
     {
-        if (phi_[facei] > 0)
-        {
-            internalCo[own[facei]] += 1;
-        }
-        else if (phi_[facei] < 0)
-        {
-            internalCo[nei[facei]] += 1;
-        }
+        co[celli] = 1.0/scalar(nFacesOutgoingFlux_[celli] + 1);
     }
 
-    internalCo = 1.0/(internalCo + 1.0);
-
-    return gMin(internalCo);
+    return gMin(co);
 }
 
 void Foam::univariateAdvection::zeta::update()

@@ -167,12 +167,25 @@ class zeta
             scalar m0 = 1.0
         );
 
+        //- Add to mPlus the moments reconstructed on one face with outgoing
+        //  flux, taking the auxiliary quantities up to and including index p
+        //  from the current reconstruction, and those above it from the
+        //  upwind one. A patch index of -1 denotes an internal face, in
+        //  which case facei is the mesh face, otherwise the patch face.
+        void addFaceMomentsToMPlus
+        (
+            const label p,
+            const label patchi,
+            const label facei,
+            scalarList& mPlus
+        );
+
 protected:
 
     // Protected member functions
 
         //- Calculates the number of cells with outgoing flux
-        void countFacesWithOutgoingFlux();
+        void countFacesWithOutgoingFlux() const;
 
         //- Reconstructs auxiliary fields
         void interpolateFields();
