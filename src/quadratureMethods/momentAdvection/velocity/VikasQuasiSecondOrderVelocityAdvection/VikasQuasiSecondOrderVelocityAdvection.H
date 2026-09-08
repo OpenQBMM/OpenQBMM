@@ -59,16 +59,8 @@ class VikasQuasiSecondOrder
 {
     // Private data
 
-        //- Flux moment inversion method
-//         autoPtr<hyperbolicFieldMomentInversion> momentFieldInverter_;
-
-
-protected:
-
-    // Protected member functions
-
-        // Interpolate weights and abscissae
-        void interpolateNodes();
+        //- Weight below which a node is left out of the Courant limit
+        scalar minWeight_;
 
 
 public:

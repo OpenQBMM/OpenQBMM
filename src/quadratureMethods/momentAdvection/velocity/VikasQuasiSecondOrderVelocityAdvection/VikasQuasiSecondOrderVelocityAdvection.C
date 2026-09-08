@@ -54,7 +54,8 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::VikasQuasiSecondOrder
     const List<supportType>& supports
 )
 :
-    firstOrderKinetic(dict, quadrature, supports)
+    firstOrderKinetic(dict, quadrature, supports),
+    minWeight_(dict.lookupOrDefault<scalar>("minWeight", 1.0e-6))
 {
     weightScheme_ = "Minmod";
 }
@@ -74,13 +75,11 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
     const fvMesh& mesh = this->own_.mesh();
     const labelList& own = mesh.owner();
     const labelList& nei = mesh.neighbour();
-    surfaceVectorField Sf(mesh.Sf());
 
     scalarField maxCoNum(mesh.nCells(), scalar(1));
 
     forAll(this->nodes_, nodei)
     {
-
         surfaceScalarField phiOwn
         (
             this->nodesOwn_()[nodei].velocityAbscissae() & mesh.Sf()
@@ -114,20 +113,28 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
                            *min(phiNei[cell[facei]], scalar(0));
                     }
                 }
-                if (num > 1e-6)
-                {
-                    den = max(den, SMALL);
-                    maxCoNum[celli] =
-                        min
-                        (
-                            maxCoNum[celli],
-                            num*mesh.V()[celli]
-                           /(den*mesh.time().deltaTValue())
-                        );
-                }
+            }
+
+            // As in the scheme this derives from, the limit is taken
+            // once the sum of the fluxes leaving the cell is complete.
+            // Taken inside the loop above it was still right, the sum only
+            // growing, but the clamp beside it is an assignment: a cell
+            // whose first faces contributed nothing carried the floor in
+            // its denominator from there on.
+            if (num > minWeight_)
+            {
+                den = max(den, SMALL);
+
+                maxCoNum[celli] =
+                    min
+                    (
+                        maxCoNum[celli],
+                        num*mesh.V()[celli]/(den*mesh.time().deltaTValue())
+                    );
             }
         }
     }
+
     return gMin(maxCoNum);
 }
 

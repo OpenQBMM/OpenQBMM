@@ -171,13 +171,11 @@ Foam::scalar
 Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
 {
     const fvMesh& mesh = this->own_.mesh();
-    surfaceVectorField Sf(mesh.Sf());
 
     scalarField maxCoNum(mesh.nCells(), scalar(1));
 
     forAll(this->nodes_, nodei)
     {
-
         surfaceScalarField phiOwn
         (
             mag(this->nodesOwn_()[nodei].velocityAbscissae() & mesh.Sf())
@@ -205,17 +203,21 @@ Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
                             phiNei[cell[facei]]
                         );
                 }
-
-                den = max(den, SMALL);
-
-                maxCoNum[celli] =
-                    min
-                    (
-                        maxCoNum[celli],
-                        mesh.V()[celli]
-                       /(den*mesh.time().deltaTValue())
-                    );
             }
+
+            // The limit is taken once the sum of the fluxes leaving the
+            // cell is complete. Taken inside the loop above it was still
+            // right, the sum only growing, but the clamp beside it is an
+            // assignment: a cell whose first faces contributed nothing
+            // carried the floor in its denominator from there on.
+            den = max(den, SMALL);
+
+            maxCoNum[celli] =
+                min
+                (
+                    maxCoNum[celli],
+                    mesh.V()[celli]/(den*mesh.time().deltaTValue())
+                );
         }
     }
 
