@@ -539,7 +539,20 @@ void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
     // Cell-center values
     forAll(m0_, celli)
     {
-        if (m0_[celli] >= SMALL)
+        if (m0_[celli] < smallM0_)
+        {
+            // A cell holding no distribution has no auxiliary quantities.
+            // They used to be left at the values of the previous timestep,
+            // along with the count of realizable moments, and the limiter
+            // then worked against both.
+            for (label i = 0; i < nAuxiliaryFields_; i++)
+            {
+                auxiliaryFields_[i][celli] = 0.0;
+            }
+
+            nRealizableMoments_[celli] = 0;
+        }
+        else
         {
             for (label mi = 0; mi < nMoments_; mi++)
             {
@@ -720,7 +733,7 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
 
     forAll(m0_, celli)
     {
-        if (m0_[celli] > 0)
+        if (m0_[celli] >= smallM0_)
         {
             for (label mi = 0; mi < nMoments_; mi++)
             {
@@ -974,9 +987,9 @@ void Foam::univariateAdvection::zeta::update()
 {
     if (m0_.size() != nFacesOutgoingFlux_.size())
     {
-        nFacesOutgoingFlux_.resize(m0_.size());
-        nRealizableMoments_.resize(m0_.size());
-        nRealizableMomentsStar_.resize(m0_.size());
+        nFacesOutgoingFlux_.resize(m0_.size(), 0);
+        nRealizableMoments_.resize(m0_.size(), 0);
+        nRealizableMomentsStar_.resize(m0_.size(), 0);
     }
 
     // Compute zeta fields
