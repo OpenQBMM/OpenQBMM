@@ -510,6 +510,9 @@ void Foam::compressibleSystem::calcPrimitiveVariables()
     rho_.boundaryFieldRef() ==
         thermoPtr_->psi().boundaryField()*p_.boundaryField();
 
+    E_.boundaryFieldRef() ==
+        thermoPtr_->he().boundaryField() + 0.5*magSqr(U_.boundaryField());
+
     H_ = E_ + p_/rho_;
 }
 
