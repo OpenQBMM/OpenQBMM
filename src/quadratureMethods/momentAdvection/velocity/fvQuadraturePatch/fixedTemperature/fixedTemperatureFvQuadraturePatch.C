@@ -124,7 +124,7 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
     const volVelocityMomentFieldSet& moments = quadrature_.moments();
 
     const vectorField& bfSf(mesh.Sf().boundaryField()[patchi_]);
-    vectorField bfNorm(bfSf/mag(bfSf));
+    const vectorField bfNorm(patch_.nf());
 
     scalarField m0(max(moments(0).boundaryField()[patchi_], scalar(1e-8)));
     vectorField T(bfSf.size(), Zero);

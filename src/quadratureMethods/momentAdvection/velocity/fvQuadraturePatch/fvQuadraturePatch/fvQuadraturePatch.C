@@ -60,4 +60,24 @@ Foam::fvQuadraturePatch::fvQuadraturePatch
 Foam::fvQuadraturePatch::~fvQuadraturePatch()
 {}
 
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void Foam::fvQuadraturePatch::copyWeightsFromCells()
+{
+    const PtrList<volVelocityNode>& nodes = quadrature_.nodes();
+
+    forAll(nodes, nodei)
+    {
+        const scalarField w
+        (
+            nodes[nodei].weight().boundaryField()[patchi_].patchInternalField()
+        );
+
+        nodesOwn_[nodei].weight().boundaryFieldRef()[patchi_] = w;
+        nodesNei_[nodei].weight().boundaryFieldRef()[patchi_] = w;
+    }
+}
+
+
 // ************************************************************************* //

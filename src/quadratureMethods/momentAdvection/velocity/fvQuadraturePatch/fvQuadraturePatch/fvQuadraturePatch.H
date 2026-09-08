@@ -87,6 +87,20 @@ protected:
         PtrList<surfaceVelocityNode>& nodesNei_;
 
 
+    // Protected member functions
+
+        //- Copy the weight of the cell next to each face of the patch onto
+        //  both sides of that face. Every condition that reflects or
+        //  filters the abscissae leaves the weights alone to begin with,
+        //  and the two that rebalance the flux do so afterwards.
+        //
+        //  The scalar abscissae are deliberately not touched here or in
+        //  any condition. They are interpolated onto the faces by the
+        //  advection scheme, and reflecting a node off a wall does not
+        //  change the size of what it carries.
+        void copyWeightsFromCells();
+
+
 public:
 
     //- Runtime type information

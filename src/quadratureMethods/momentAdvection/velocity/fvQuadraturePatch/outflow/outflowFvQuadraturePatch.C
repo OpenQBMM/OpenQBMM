@@ -73,37 +73,29 @@ void Foam::outflowFvQuadraturePatch::update()
         return;
     }
 
-    const PtrList<volVelocityNode>& nodes = quadrature_.nodes();
-    const fvMesh& mesh = nodes[0].weight().mesh();
+    copyWeightsFromCells();
 
-    const vectorField& bfSf(mesh.Sf().boundaryField()[patchi_]);
-    vectorField bfNorm(bfSf/mag(bfSf));
+    const vectorField bfNorm(patch_.nf());
+
+    const PtrList<volVelocityNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
     {
-        const volVelocityNode& node = nodes[nodei];
-        surfaceVelocityNode& nodeNei(nodesNei_[nodei]);
-        surfaceVelocityNode& nodeOwn(nodesOwn_[nodei]);
+        const volVectorField& U = nodes[nodei].velocityAbscissae();
 
-        const volScalarField& weight = node.weight();
-        surfaceScalarField& weightOwn = nodeOwn.weight();
-        surfaceScalarField& weightNei = nodeNei.weight();
-        const volVectorField& U = node.velocityAbscissae();
-        surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
-        surfaceVectorField& UNei = nodeNei.velocityAbscissae();
+        vectorField& bfUOwn =
+            nodesOwn_[nodei].velocityAbscissae().boundaryFieldRef()[patchi_];
 
-        scalarField& bfwOwn = weightOwn.boundaryFieldRef()[patchi_];
-        scalarField& bfwNei = weightNei.boundaryFieldRef()[patchi_];
-        vectorField& bfUOwn = UOwn.boundaryFieldRef()[patchi_];
-        vectorField& bfUNei = UNei.boundaryFieldRef()[patchi_];
+        vectorField& bfUNei =
+            nodesNei_[nodei].velocityAbscissae().boundaryFieldRef()[patchi_];
 
-        bfwOwn = weight.boundaryField()[patchi_].patchInternalField();
-        bfwNei = bfwOwn;
+        const vectorField bfU
+        (
+            U.boundaryField()[patchi_].patchInternalField()
+        );
 
-        vectorField bfU(U.boundaryField()[patchi_].patchInternalField());
-
-        // Keep the abscissa of a node leaving the domain, and remove the one
-        // of a node that would enter through it. The scaling previously used
+        // Keep the abscissa of a node leaving the domain, and remove the
+        // one of a node that would enter through it. The scaling once used
         // here was (bfU & bfSf), a volumetric flux, so the abscissa carried
         // the dimensions of a flux and scaled with the area of the face.
         bfUOwn = pos0(bfU & bfNorm)*bfU;

@@ -82,35 +82,26 @@ void Foam::symmetryFvQuadraturePatch::update()
         return;
     }
 
-    const PtrList<volVelocityNode>& nodes = quadrature_.nodes();
-    const fvMesh& mesh = nodes[0].weight().mesh();
+    copyWeightsFromCells();
 
-    const vectorField& bfSf(mesh.Sf().boundaryField()[patchi_]);
-    vectorField bfNorm(bfSf/mag(bfSf));
+    const vectorField bfNorm(patch_.nf());
+
+    const PtrList<volVelocityNode>& nodes = quadrature_.nodes();
 
     forAll(nodes, nodei)
     {
-        const volVelocityNode& node = nodes[nodei];
-        surfaceVelocityNode& nodeNei(nodesNei_[nodei]);
-        surfaceVelocityNode& nodeOwn(nodesOwn_[nodei]);
+        const volVectorField& U = nodes[nodei].velocityAbscissae();
 
-        const volScalarField& weight = node.weight();
-        surfaceScalarField& weightOwn = nodeOwn.weight();
-        surfaceScalarField& weightNei = nodeNei.weight();
-        const volVectorField& U = node.velocityAbscissae();
-        surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
-        surfaceVectorField& UNei = nodeNei.velocityAbscissae();
+        vectorField& bfUOwn =
+            nodesOwn_[nodei].velocityAbscissae().boundaryFieldRef()[patchi_];
 
-        scalarField& bfwOwn = weightOwn.boundaryFieldRef()[patchi_];
-        scalarField& bfwNei = weightNei.boundaryFieldRef()[patchi_];
-        vectorField& bfUOwn = UOwn.boundaryFieldRef()[patchi_];
-        vectorField& bfUNei = UNei.boundaryFieldRef()[patchi_];
+        vectorField& bfUNei =
+            nodesNei_[nodei].velocityAbscissae().boundaryFieldRef()[patchi_];
 
-        bfwOwn = weight.boundaryField()[patchi_].patchInternalField();
-        bfwNei = bfwOwn;
-
+        // The node leaving the domain keeps its abscissa, and the one
+        // entering carries it mirrored about the plane of the patch
         bfUOwn = U.boundaryField()[patchi_].patchInternalField();
-        bfUNei = (bfUOwn - 2.0*(bfUOwn & bfNorm)*bfNorm);
+        bfUNei = bfUOwn - 2.0*(bfUOwn & bfNorm)*bfNorm;
     }
 }
 
