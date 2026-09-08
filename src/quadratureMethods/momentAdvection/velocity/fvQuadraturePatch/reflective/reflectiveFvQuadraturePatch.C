@@ -66,9 +66,7 @@ Foam::reflectiveFvQuadraturePatch::reflectiveFvQuadraturePatch
             << abort(FatalError);
     }
 
-    // A restitution coefficient outside [0, 1] is not a reflection: below
-    // zero the wall drives the node into itself, above one it returns more
-    // energy than it received
+    // A restitution coefficient outside [0, 1] is not accepted.
     if (ew_ < 0 || ew_ > 1)
     {
         FatalErrorInFunction
