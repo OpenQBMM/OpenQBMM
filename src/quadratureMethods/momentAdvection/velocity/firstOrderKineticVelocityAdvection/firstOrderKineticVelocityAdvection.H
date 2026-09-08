@@ -73,6 +73,21 @@ protected:
         // Interpolate weights and abscissae
         void interpolateNodes();
 
+        //- Set the moment fluxes back to zero
+        void resetMomentFluxes();
+
+        //- Add to the moment fluxes the contribution of one quadrature
+        //  node, given the volumetric flux its abscissae carry on the two
+        //  sides of each face. The three update functions differ only in
+        //  where that flux comes from, so the assembly of the moments is
+        //  written once, here.
+        void addNodeToMomentFluxes
+        (
+            const label nodei,
+            const surfaceScalarField& phiOwn,
+            const surfaceScalarField& phiNei
+        );
+
 
 
 public:

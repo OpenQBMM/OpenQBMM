@@ -247,18 +247,8 @@ Foam::scalar Foam::velocityAdvection::firstOrderKinetic::CoNum() const
     return CoNum;
 }
 
-void Foam::velocityAdvection::firstOrderKinetic::update()
+void Foam::velocityAdvection::firstOrderKinetic::resetMomentFluxes()
 {
-    const fvMesh& mesh = own_.mesh();
-    dimensionedScalar zeroPhi("zero", dimVolume/dimTime, Zero);
-
-    // Interpolate weights and abscissae
-    interpolateNodes();
-
-    // Set velocities at boundaries for rebounding
-    updateBoundaryConditions();
-
-    // Zero moment flux
     forAll(divMoments_, divi)
     {
         divMoments_[divi] =
@@ -269,120 +259,140 @@ void Foam::velocityAdvection::firstOrderKinetic::update()
                 Zero
             );
     }
+}
+
+
+void Foam::velocityAdvection::firstOrderKinetic::addNodeToMomentFluxes
+(
+    const label nodei,
+    const surfaceScalarField& phiOwn,
+    const surfaceScalarField& phiNei
+)
+{
+    const dimensionedScalar zeroPhi("zero", dimVolume/dimTime, Zero);
 
     const labelList& scalarIndexes = nodes_[0].scalarIndexes();
     const labelList& velocityIndexes = nodes_[0].velocityIndexes();
 
-    forAll(nodes_, nodei)
+    const surfaceVelocityNode& nodeNei(nodesNei_()[nodei]);
+    const surfaceVelocityNode& nodeOwn(nodesOwn_()[nodei]);
+
+    const surfaceScalarField& weightOwn = nodeOwn.weight();
+    const surfaceScalarField& weightNei = nodeNei.weight();
+
+    const PtrList<surfaceScalarField>& scalarAbscissaeOwn =
+        nodeOwn.abscissae();
+
+    const PtrList<surfaceScalarField>& scalarAbscissaeNei =
+        nodeNei.abscissae();
+
+    const surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
+    const surfaceVectorField& UNei = nodeNei.velocityAbscissae();
+
+    forAll(divMoments_, divi)
     {
-        const surfaceVelocityNode& nodeNei(nodesNei_()[nodei]);
-        const surfaceVelocityNode& nodeOwn(nodesOwn_()[nodei]);
+        const labelList& momentOrder = momentOrders_[divi];
 
-        const surfaceScalarField& weightOwn = nodeOwn.weight();
-        const surfaceScalarField& weightNei = nodeNei.weight();
+        surfaceScalarField momentCmptOwn(weightOwn);
+        surfaceScalarField momentCmptNei(weightNei);
 
-        const PtrList<surfaceScalarField>& scalarAbscissaeOwn =
-            nodeOwn.abscissae();
-
-        const PtrList<surfaceScalarField>& scalarAbscissaeNei =
-            nodeNei.abscissae();
-
-        const surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
-        const surfaceVectorField& UNei = nodeNei.velocityAbscissae();
-
-        surfaceScalarField phiOwn(UOwn & mesh.Sf());
-        surfaceScalarField phiNei(UNei & mesh.Sf());
-
-        forAll(divMoments_, divi)
+        // The moment is the weight times the abscissa of each coordinate
+        // raised to its own order. The dimensions of the accumulator are
+        // reset on the way because that order varies from one moment to
+        // the next, which the dimension check of a field cannot express.
+        forAll(scalarIndexes, cmpti)
         {
-            const labelList& momentOrder = momentOrders_[divi];
+            const label cmpt = scalarIndexes[cmpti];
+            const label cmptMomentOrder = momentOrder[cmpt];
 
-            surfaceScalarField momentCmptOwn(weightOwn);
-            surfaceScalarField momentCmptNei(weightNei);
-
-            forAll(scalarIndexes, cmpti)
+            if (cmptMomentOrder > 0)
             {
-                const label cmpt = scalarIndexes[cmpti];
-                const label cmptMomentOrder = momentOrder[cmpt];
-
-                if (cmptMomentOrder > 0)
-                {
-                    const surfaceScalarField& abscissaOwnCmpt =
+                const surfaceScalarField& abscissaOwnCmpt =
                     scalarAbscissaeOwn[cmpti];
 
-                    const surfaceScalarField& abscissaNeiCmpt =
-                        scalarAbscissaeNei[cmpti];
+                const surfaceScalarField& abscissaNeiCmpt =
+                    scalarAbscissaeNei[cmpti];
 
-                    tmp<surfaceScalarField> mOwnPow =
-                        momentCmptOwn
-                       *pow
-                        (
-                            abscissaOwnCmpt,
-                            cmptMomentOrder
-                        );
+                tmp<surfaceScalarField> mOwnPow =
+                    momentCmptOwn*pow(abscissaOwnCmpt, cmptMomentOrder);
 
-                    tmp<surfaceScalarField> mNeiPow =
-                        momentCmptNei
-                       *pow
-                        (
-                            abscissaNeiCmpt,
-                            cmptMomentOrder
-                        );
+                tmp<surfaceScalarField> mNeiPow =
+                    momentCmptNei*pow(abscissaNeiCmpt, cmptMomentOrder);
 
-                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                    momentCmptOwn == mOwnPow;
+                momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
+                momentCmptOwn == mOwnPow;
 
-                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                    momentCmptNei == mNeiPow;
-                }
+                momentCmptNei.dimensions().reset(mNeiPow().dimensions());
+                momentCmptNei == mNeiPow;
             }
+        }
 
-            forAll(velocityIndexes, cmpti)
+        forAll(velocityIndexes, cmpti)
+        {
+            const label cmpt = velocityIndexes[cmpti];
+            const label cmptMomentOrder = momentOrder[cmpt];
+
+            if (cmptMomentOrder > 0)
             {
-                const label cmpt = velocityIndexes[cmpti];
-                const label cmptMomentOrder = momentOrder[cmpt];
-
-                if (cmptMomentOrder > 0)
-                {
-                    tmp<surfaceScalarField> abscissaOwnCmpt =
+                tmp<surfaceScalarField> abscissaOwnCmpt =
                     UOwn.component(cmpti);
 
-                    tmp<surfaceScalarField> abscissaNeiCmpt =
-                        UNei.component(cmpti);
+                tmp<surfaceScalarField> abscissaNeiCmpt =
+                    UNei.component(cmpti);
 
-                    tmp<surfaceScalarField> mOwnPow =
-                        momentCmptOwn
-                       *pow
-                        (
-                            abscissaOwnCmpt,
-                            cmptMomentOrder
-                        );
+                tmp<surfaceScalarField> mOwnPow =
+                    momentCmptOwn*pow(abscissaOwnCmpt, cmptMomentOrder);
 
-                    tmp<surfaceScalarField> mNeiPow =
-                        momentCmptNei
-                       *pow
-                        (
-                            abscissaNeiCmpt,
-                            cmptMomentOrder
-                        );
+                tmp<surfaceScalarField> mNeiPow =
+                    momentCmptNei*pow(abscissaNeiCmpt, cmptMomentOrder);
 
-                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                    momentCmptOwn == mOwnPow;
+                momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
+                momentCmptOwn == mOwnPow;
 
-                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                    momentCmptNei == mNeiPow;
-                }
+                momentCmptNei.dimensions().reset(mNeiPow().dimensions());
+                momentCmptNei == mNeiPow;
             }
-
-            divMoments_[divi] +=
-                fvc::surfaceIntegrate
-                (
-                    momentCmptOwn*max(phiOwn, zeroPhi)
-                  + momentCmptNei*min(phiNei, zeroPhi)
-                );
         }
+
+        divMoments_[divi] +=
+            fvc::surfaceIntegrate
+            (
+                momentCmptOwn*max(phiOwn, zeroPhi)
+              + momentCmptNei*min(phiNei, zeroPhi)
+            );
     }
 }
+
+
+void Foam::velocityAdvection::firstOrderKinetic::update()
+{
+    const fvMesh& mesh = own_.mesh();
+
+    // Interpolate weights and abscissae
+    interpolateNodes();
+
+    // Set velocities at boundaries for rebounding
+    updateBoundaryConditions();
+
+    resetMomentFluxes();
+
+    forAll(nodes_, nodei)
+    {
+        // The flux is carried by the velocity abscissa of the node itself
+        surfaceScalarField phiOwn
+        (
+            nodesOwn_()[nodei].velocityAbscissae() & mesh.Sf()
+        );
+
+        surfaceScalarField phiNei
+        (
+            nodesNei_()[nodei].velocityAbscissae() & mesh.Sf()
+        );
+
+        addNodeToMomentFluxes(nodei, phiOwn, phiNei);
+    }
+}
+
 
 void Foam::velocityAdvection::firstOrderKinetic::update
 (
@@ -390,8 +400,6 @@ void Foam::velocityAdvection::firstOrderKinetic::update
     const bool wallCollisions
 )
 {
-    dimensionedScalar zeroPhi("zero", dimVolume/dimTime, Zero);
-
     // Interpolate weights and abscissae
     interpolateNodes();
 
@@ -401,128 +409,16 @@ void Foam::velocityAdvection::firstOrderKinetic::update
         updateBoundaryConditions();
     }
 
-    // Zero moment fluxes
-    forAll(divMoments_, divi)
-    {
-        divMoments_[divi] =
-            dimensionedScalar
-            (
-                "0",
-                moments_[divi].dimensions()/dimTime,
-                Zero
-            );
-    }
-
-    const labelList& scalarIndexes = nodes_[0].scalarIndexes();
-    const labelList& velocityIndexes = nodes_[0].velocityIndexes();
+    resetMomentFluxes();
 
     forAll(nodes_, nodei)
     {
-        const surfaceVelocityNode& nodeNei(nodesNei_()[nodei]);
-        const surfaceVelocityNode& nodeOwn(nodesOwn_()[nodei]);
-
-        const surfaceScalarField& weightOwn = nodeOwn.weight();
-        const surfaceScalarField& weightNei = nodeNei.weight();
-
-        const PtrList<surfaceScalarField>& scalarAbscissaeOwn =
-            nodeOwn.abscissae();
-
-        const PtrList<surfaceScalarField>& scalarAbscissaeNei =
-            nodeNei.abscissae();
-
-        const surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
-        const surfaceVectorField& UNei = nodeNei.velocityAbscissae();
-
-        forAll(divMoments_, divi)
-        {
-            const labelList& momentOrder = momentOrders_[divi];
-
-            surfaceScalarField momentCmptOwn(weightOwn);
-            surfaceScalarField momentCmptNei(weightNei);
-
-            forAll(scalarIndexes, cmpti)
-            {
-                const label cmpt = scalarIndexes[cmpti];
-                const label cmptMomentOrder = momentOrder[cmpt];
-
-                if (cmptMomentOrder > 0)
-                {
-                    const surfaceScalarField& abscissaOwnCmpt =
-                    scalarAbscissaeOwn[cmpti];
-
-                    const surfaceScalarField& abscissaNeiCmpt =
-                        scalarAbscissaeNei[cmpti];
-
-                    tmp<surfaceScalarField> mOwnPow =
-                        momentCmptOwn
-                       *pow
-                        (
-                            abscissaOwnCmpt,
-                            cmptMomentOrder
-                        );
-
-                    tmp<surfaceScalarField> mNeiPow =
-                        momentCmptNei
-                       *pow
-                        (
-                            abscissaNeiCmpt,
-                            cmptMomentOrder
-                        );
-
-                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                    momentCmptOwn == mOwnPow;
-
-                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                    momentCmptNei == mNeiPow;
-                }
-            }
-
-            forAll(velocityIndexes, cmpti)
-            {
-                const label cmpt = velocityIndexes[cmpti];
-                const label cmptMomentOrder = momentOrder[cmpt];
-
-                if (cmptMomentOrder > 0)
-                {
-                    tmp<surfaceScalarField> abscissaOwnCmpt =
-                        UOwn.component(cmpti);
-
-                    tmp<surfaceScalarField> abscissaNeiCmpt =
-                        UNei.component(cmpti);
-
-                    tmp<surfaceScalarField> mOwnPow =
-                        momentCmptOwn
-                       *pow
-                        (
-                            abscissaOwnCmpt,
-                            cmptMomentOrder
-                        );
-
-                    tmp<surfaceScalarField> mNeiPow =
-                        momentCmptNei
-                       *pow
-                        (
-                            abscissaNeiCmpt,
-                            cmptMomentOrder
-                        );
-
-                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                    momentCmptOwn == mOwnPow;
-
-                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                    momentCmptNei == mNeiPow;
-                }
-            }
-
-            divMoments_[divi] +=
-                fvc::surfaceIntegrate
-                (
-                    momentCmptOwn*max(phi, zeroPhi)
-                  + momentCmptNei*min(phi, zeroPhi)
-                );
-        }
+        // Every node is carried by the flux that was given, so the two
+        // sides of a face see the same one
+        addNodeToMomentFluxes(nodei, phi, phi);
     }
 }
+
 
 void Foam::velocityAdvection::firstOrderKinetic::update
 (
@@ -531,9 +427,8 @@ void Foam::velocityAdvection::firstOrderKinetic::update
 )
 {
     const fvMesh& mesh = own_.mesh();
-    dimensionedScalar zeroPhi("zero", dimVolume/dimTime, Zero);
 
-    // Interplate weights and abscissae
+    // Interpolate weights and abscissae
     interpolateNodes();
 
     IStringStream velocityAbscissaeOwnLimiter(velocityAbscissaeScheme_);
@@ -564,38 +459,12 @@ void Foam::velocityAdvection::firstOrderKinetic::update
         updateBoundaryConditions();
     }
 
-    // Zero moment fluxes
-    forAll(divMoments_, divi)
-    {
-        divMoments_[divi] =
-            dimensionedScalar
-            (
-                "0",
-                moments_[divi].dimensions()/dimTime,
-                Zero
-            );
-    }
-
-    const labelList& scalarIndexes = nodes_[0].scalarIndexes();
-    const labelList& velocityIndexes = nodes_[0].velocityIndexes();
+    resetMomentFluxes();
 
     forAll(nodes_, nodei)
     {
-        const surfaceVelocityNode& nodeNei(nodesNei_()[nodei]);
-        const surfaceVelocityNode& nodeOwn(nodesOwn_()[nodei]);
-
-        const surfaceScalarField& weightOwn = nodeOwn.weight();
-        const surfaceScalarField& weightNei = nodeNei.weight();
-
-        const PtrList<surfaceScalarField>& scalarAbscissaeOwn =
-            nodeOwn.abscissae();
-
-        const PtrList<surfaceScalarField>& scalarAbscissaeNei =
-            nodeNei.abscissae();
-
-        const surfaceVectorField& UOwn = nodeOwn.velocityAbscissae();
-        const surfaceVectorField& UNei = nodeNei.velocityAbscissae();
-
+        // The flux is carried by the velocity field given for the node
+        // rather than by its own abscissa
         surfaceVectorField VOwn
         (
             velocityAbscissaeOwnScheme().interpolate(Us[nodei])
@@ -609,95 +478,9 @@ void Foam::velocityAdvection::firstOrderKinetic::update
         surfaceScalarField phiOwn(VOwn & mesh.Sf());
         surfaceScalarField phiNei(VNei & mesh.Sf());
 
-        forAll(divMoments_, divi)
-        {
-            const labelList& momentOrder = momentOrders_[divi];
-
-            surfaceScalarField momentCmptOwn(weightOwn);
-            surfaceScalarField momentCmptNei(weightNei);
-
-            forAll(scalarIndexes, cmpti)
-            {
-                const label cmpt = scalarIndexes[cmpti];
-                const label cmptMomentOrder = momentOrder[cmpt];
-
-                if (cmptMomentOrder > 0)
-                {
-                    const surfaceScalarField& abscissaOwnCmpt =
-                        scalarAbscissaeOwn[cmpti];
-
-                    const surfaceScalarField& abscissaNeiCmpt =
-                        scalarAbscissaeNei[cmpti];
-
-                    tmp<surfaceScalarField> mOwnPow =
-                        momentCmptOwn
-                       *pow
-                        (
-                            abscissaOwnCmpt,
-                            cmptMomentOrder
-                        );
-
-                    tmp<surfaceScalarField> mNeiPow =
-                        momentCmptNei
-                       *pow
-                        (
-                            abscissaNeiCmpt,
-                            cmptMomentOrder
-                        );
-
-                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                    momentCmptOwn == mOwnPow;
-
-                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                    momentCmptNei == mNeiPow;
-                }
-            }
-
-            forAll(velocityIndexes, cmpti)
-            {
-                const label cmpt = velocityIndexes[cmpti];
-                const label cmptMomentOrder = momentOrder[cmpt];
-
-                if (cmptMomentOrder > 0)
-                {
-                    tmp<surfaceScalarField> abscissaOwnCmpt =
-                        UOwn.component(cmpti);
-
-                    tmp<surfaceScalarField> abscissaNeiCmpt =
-                        UNei.component(cmpti);
-
-                    tmp<surfaceScalarField> mOwnPow =
-                        momentCmptOwn
-                       *pow
-                        (
-                            abscissaOwnCmpt,
-                            cmptMomentOrder
-                        );
-
-                    tmp<surfaceScalarField> mNeiPow =
-                        momentCmptNei
-                       *pow
-                        (
-                            abscissaNeiCmpt,
-                            cmptMomentOrder
-                        );
-
-                    momentCmptOwn.dimensions().reset(mOwnPow().dimensions());
-                    momentCmptOwn == mOwnPow;
-
-                    momentCmptNei.dimensions().reset(mNeiPow().dimensions());
-                    momentCmptNei == mNeiPow;
-                }
-            }
-
-            divMoments_[divi] +=
-                fvc::surfaceIntegrate
-                (
-                    momentCmptOwn*max(phiOwn, zeroPhi)
-                  + momentCmptNei*min(phiNei, zeroPhi)
-                );
-        }
+        addNodeToMomentFluxes(nodei, phiOwn, phiNei);
     }
 }
+
 
 // ************************************************************************* //
