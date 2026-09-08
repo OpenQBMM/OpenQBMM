@@ -9,10 +9,33 @@ wclean momentAdvection
 wclean univariateQuadratureApproximation
 wclean Vandermonde
 wclean GolubWelsch
+wclean mappedList
+wclean mappedPtrList
 wclean univariateMomentAdvection/setMoments1D
 wclean univariateMomentAdvection/setMoments2D
 
 # Cleaning logs in case tests were executed
 rm -f log.*
+
+# Cleaning what the tests that run on a case leave behind, so that a run of
+# the suite does not show up as a change to the repository
+cleanTestCase()
+{
+    [ -d "$1" ] || return 0
+
+    (
+        cd "$1" || exit 0
+
+        foamListTimes -rm > /dev/null 2>&1
+
+        # Quadrature fields written next to the moments of the initial time
+        rm -f 0/weight.* 0/abscissa*.* 0/sigma.*
+
+        rm -f log.*
+    )
+}
+
+cleanTestCase univariateQuadratureApproximation/testCase
+cleanTestCase populationBalanceModel/testCase
 
 #------------------------------------------------------------------------------

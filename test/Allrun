@@ -67,6 +67,11 @@ runTest . Test-CHyQMOMDegenerate
 # Moment advection
 runTest . Test-MomentAdvection
 
+# Field level. These were built by test/Allwmake but never run, so nothing
+# above the moment inversions was exercised at all.
+runTest ./univariateQuadratureApproximation/testCase \
+    Test-UnivariateQuadratureApproximation
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"
