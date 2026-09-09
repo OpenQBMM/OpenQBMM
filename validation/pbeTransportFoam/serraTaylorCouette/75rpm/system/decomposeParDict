@@ -17,11 +17,11 @@ FoamFile
 
 numberOfSubdomains 15;
 
-method          scotch;
+method          simple;
 
 simpleCoeffs
 {
-    n               (1 12 1);
+    n               (1 15 1);
     delta           0.001;
 }
 
