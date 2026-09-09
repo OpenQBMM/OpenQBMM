@@ -66,6 +66,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     sizeIndex_(-1),
     lengthBased_(false),
     massBased_(false),
+    rhoPtr_(nullptr),
     useVolumeFraction_(false)
 {
     if (weightDimensions == dimless)
@@ -106,11 +107,31 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                 else if (abscissaeDimensions[dimi] == dimMass)
                 {
                     massBased_ = true;
-                    word rhoName = IOobject::groupName("thermo:rho", name_);
+
+                    // The density belongs to the distribution, not to the
+                    // node, so it is the group of the name that selects it.
+                    // This constructor used the whole name, which carries
+                    // the node as well, and so looked for a field that
+                    // cannot exist.
+                    word rhoName =
+                        IOobject::groupName
+                        (
+                            "thermo:rho",
+                            IOobject::group(name_)
+                        );
 
                     if (mesh.foundObject<volScalarField>(rhoName))
                     {
                         rhoPtr_ = &mesh.lookupObject<volScalarField>(rhoName);
+                    }
+                    else
+                    {
+                        WarningInFunction
+                            << "Abscissa " << dimi << " of node " << name_
+                            << " is a mass, but " << rhoName
+                            << " was not found." << nl
+                            << "    Its diameter and number density will be"
+                            << " computed as if it were a volume." << endl;
                     }
                 }
             }
@@ -186,6 +207,7 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
     sizeIndex_(-1),
     lengthBased_(false),
     massBased_(false),
+    rhoPtr_(nullptr),
     useVolumeFraction_(false)
 {
     if (weightDimensions == dimless)
@@ -237,6 +259,15 @@ Foam::quadratureNode<scalarType, vectorType>::quadratureNode
                     if (mesh.foundObject<volScalarField>(rhoName))
                     {
                         rhoPtr_ = &mesh.lookupObject<volScalarField>(rhoName);
+                    }
+                    else
+                    {
+                        WarningInFunction
+                            << "Abscissa " << dimi << " of node " << name_
+                            << " is a mass, but " << rhoName
+                            << " was not found." << nl
+                            << "    Its diameter and number density will be"
+                            << " computed as if it were a volume." << endl;
                     }
                 }
             }
