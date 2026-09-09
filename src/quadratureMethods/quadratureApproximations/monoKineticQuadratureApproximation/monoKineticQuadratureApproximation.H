@@ -167,7 +167,7 @@ public:
             bool updateAllLocalQuadrature
             (
                 const label celli,
-                const bool failOnRealizability = true
+                const bool keepMomentsIfNotRealizable = true
             );
 
             //- Recalculate the moments from the quadrature nodes

@@ -334,14 +334,26 @@ void Foam::quadratureApproximation<momentType, nodeType>
 
 template<class momentType, class nodeType>
 bool Foam::quadratureApproximation<momentType, nodeType>
-::updateLocalQuadrature(label celli, bool fatalErrorOnFailedRealizabilityTest)
+::updateLocalQuadrature(label celli, bool keepMomentsIfNotRealizable)
 {
+    // The inversion is always asked to report an unrealizable cell rather
+    // than to stop on it. Its own argument is what chooses between the two,
+    // and false is what is wanted here: every caller of this function
+    // recovers from a cell it cannot invert, the realizable ODE solver by
+    // halving its local step, so stopping would take that away from them.
+    //
+    // The argument of this function was never forwarded to it, so it has
+    // never been able to raise the fatal error the name it used to carry
+    // promised. What it does choose is whether the moments of the cell are
+    // rebuilt from a quadrature that failed: the inversion returns before
+    // it touches the nodes, so rebuilding them there writes the cell from
+    // the quadrature of the previous step.
     bool realizable = momentFieldInverter_().invertLocalMoments
     (
         moments_, nodes_(), celli, false
     );
 
-    if (!realizable && fatalErrorOnFailedRealizabilityTest)
+    if (!realizable && keepMomentsIfNotRealizable)
     {
         return realizable;
     }

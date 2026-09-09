@@ -531,7 +531,7 @@ void Foam::monoKineticQuadratureApproximation::updateAllQuadrature()
 bool Foam::monoKineticQuadratureApproximation::updateAllLocalQuadrature
 (
     const label celli,
-    const bool failOnRealizability
+    const bool keepMomentsIfNotRealizable
 )
 {
     const volScalarField& m0 = moments_[0];
@@ -554,7 +554,7 @@ bool Foam::monoKineticQuadratureApproximation::updateAllLocalQuadrature
         }
     }
 
-    bool realizable = updateLocalQuadrature(celli, failOnRealizability);
+    bool realizable = updateLocalQuadrature(celli, keepMomentsIfNotRealizable);
 
     updateLocalVelocities(celli);
     updateAllLocalMoments(celli);

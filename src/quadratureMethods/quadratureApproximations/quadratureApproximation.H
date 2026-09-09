@@ -198,11 +198,16 @@ public:
             void updateLocalMoments(label celli);
 
             //- Recalculate the quadrature nodes from the moments in the
-            //  specified cell
+            //  specified cell. Returns whether the cell could be inverted.
+            //
+            //  A cell that cannot be inverted leaves the nodes as they
+            //  were. keepMomentsIfNotRealizable then says whether its
+            //  moments are left alone as well, or rebuilt from those
+            //  nodes, which are the ones of the previous step.
             bool updateLocalQuadrature
             (
                 label celli,
-                bool fatalErrorOnFailedRealizabilityTest = true
+                bool keepMomentsIfNotRealizable = true
             );
 };
 
