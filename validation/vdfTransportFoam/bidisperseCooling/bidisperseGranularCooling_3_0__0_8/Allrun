@@ -3,6 +3,7 @@ cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../../../AllrunFunctions
 
 # The coded function object below is compiled against the OpenQBMM headers.
 # They are looked for from this script, which finds them whenever the case
@@ -25,6 +26,6 @@ fi
 
 export OPENQBMM_SRC
 
-runApplication blockMesh
-runApplication generateMoments
-runApplication vdfTransportFoam
+runStep blockMesh
+runStep generateMoments
+runStep vdfTransportFoam

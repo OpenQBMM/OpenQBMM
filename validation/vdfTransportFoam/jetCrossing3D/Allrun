@@ -3,9 +3,10 @@ cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../../AllrunFunctions
 
-runApplication blockMesh
-runApplication generateMoments
-runApplication decomposePar
-runParallel vdfTransportFoam
-runApplication reconstructPar
+runStep blockMesh
+runStep generateMoments
+runStep decomposePar
+runStepParallel vdfTransportFoam
+runStep reconstructPar

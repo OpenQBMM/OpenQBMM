@@ -3,6 +3,7 @@ cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../AllrunFunctions
 
 validationCases="\
 GQMOM/condensationLage \
@@ -17,9 +18,9 @@ momentConvergence/QMOM \
 
 for caseName in $validationCases
 do
-    echo Running $caseName
-
-    ( cd $caseName && ./Allrun )
+    runCase $caseName
 done
+
+reportCases
 
 # ----------------------------------------------------------------- end-of-file

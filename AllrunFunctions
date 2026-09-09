@@ -1,0 +1,115 @@
+#---------------------------------*- sh -*------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           | www.openfoam.com
+#    \\/     M anipulation  |
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     AllrunFunctions
+#
+# Description
+#     Failure reporting for the Allrun scripts that run a set of cases.
+#
+#     A script that runs its cases in a subshell and looks at nothing exits
+#     zero whether they ran or not, so a case that fails is invisible to the
+#     caller. Source this file after RunFunctions, run each case with
+#     runCase, and end the script with reportCases.
+#
+#     A failing case does not stop the ones after it, so that a single run
+#     reports everything that is broken, but the script exits non-zero so
+#     that a caller sees it. This is what test/Allrun does for the unit
+#     tests and what the Allwmake scripts do for the build.
+#
+#------------------------------------------------------------------------------
+
+nFail=0
+failed=""
+
+#- Run the Allrun of one case, recording a failure rather than passing over it
+runCase()
+{
+    echo "Running $1"
+
+    if [ ! -x "$1/Allrun" ]
+    then
+        echo "$1: no Allrun to run"
+        nFail=$((nFail + 1))
+        failed="$failed
+    $1 (no Allrun)"
+        return 1
+    fi
+
+    if ( cd "$1" && ./Allrun )
+    then
+        return 0
+    fi
+
+    nFail=$((nFail + 1))
+    failed="$failed
+    $1"
+
+    return 1
+}
+
+#- Run one step of a case, stopping the case if the step fails. The run
+#  functions of OpenFOAM return the status of the application, but a script
+#  that does not look at it carries on to the next step and then exits with
+#  the status of whatever it happened to run last, which is often a script
+#  that draws a graph.
+runStep()
+{
+    if runApplication "$@"
+    then
+        return 0
+    fi
+
+    echo "FAILED: $* in $PWD" 1>&2
+    exit 1
+}
+
+#- Run one step of a case in parallel, stopping the case if it fails
+runStepParallel()
+{
+    if runParallel "$@"
+    then
+        return 0
+    fi
+
+    echo "FAILED (parallel): $* in $PWD" 1>&2
+    exit 1
+}
+
+#- Report the cases that failed, and exit non-zero if there were any
+reportCases()
+{
+    if [ "$nFail" -gt 0 ]
+    then
+        echo
+        echo "$nFail case(s) failed:$failed"
+        echo
+        exit 1
+    fi
+
+    return 0
+}
+
+#------------------------------------------------------------------------------

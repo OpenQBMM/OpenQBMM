@@ -3,14 +3,15 @@ cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../../../AllrunFunctions
 
 cp -rf 0.orig 0
 
 # Set application name
 application=`getApplication`
 
-runApplication blockMesh
-runApplication setMoments1D
-runApplication $application
+runStep blockMesh
+runStep setMoments1D
+runStep $application
 
 # ----------------------------------------------------------------- end-of-file

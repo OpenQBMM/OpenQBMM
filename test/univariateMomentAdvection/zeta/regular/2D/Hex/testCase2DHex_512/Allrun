@@ -3,16 +3,17 @@ cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../../../../../../AllrunFunctions
 
 cp -rf 0.orig 0
 
 # Set application name
 application=`getApplication`
 
-runApplication blockMesh
-runApplication setMoments2D
-runApplication decomposePar
-runParallel $application
-runApplication reconstructPar
+runStep blockMesh
+runStep setMoments2D
+runStep decomposePar
+runStepParallel $application
+runStep reconstructPar
 
 # ----------------------------------------------------------------- end-of-file

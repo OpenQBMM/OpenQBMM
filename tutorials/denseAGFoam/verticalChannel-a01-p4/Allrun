@@ -26,7 +26,7 @@ do
     fi
 done
 
-blockMesh
-denseAGFoam
+blockMesh || exit 1
+denseAGFoam || exit 1
 # decomposePar
 # mpirun -np 4 denseAGFoam -parallel

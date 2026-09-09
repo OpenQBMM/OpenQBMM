@@ -30,7 +30,7 @@ done
 # be in place before it runs
 cp 0/alpha.particles.orig 0/alpha.particles
 
-blockMesh
-setFields
-decomposePar
-mpirun -np 3 denseAGFoam -parallel
+blockMesh || exit 1
+setFields || exit 1
+decomposePar || exit 1
+mpirun -np 3 denseAGFoam -parallel || exit 1

@@ -3,13 +3,14 @@ cd ${0%/*} || exit 1    # Run from this directory
 
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../../../AllrunFunctions
 
 # Set application name
 application=`getApplication`
 
-runApplication blockMesh
-runApplication generateMoments
-runApplication $application
+runStep blockMesh
+runStep generateMoments
+runStep $application
 
 ( cd validation && ./createGraphs )
 
