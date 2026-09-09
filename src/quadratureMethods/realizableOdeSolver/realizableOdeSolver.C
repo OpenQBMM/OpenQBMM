@@ -165,14 +165,11 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         bool realizableUpdate3 = false;
 
         scalarList diff23(nMoments, Zero);
-        label nItt = 0;
 
         while (!timeComplete)
         {
             do
             {
-                nItt++;
-
                 // First intermediate update
                 bool nullSource =  true;
 
@@ -322,9 +319,21 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 // Update the error
                 error += sqr(diff23[mi]/scalei);
 
-                // Update the maximum change in moments
-                maxChange 
-                    = max(maxChange, mag(moments[mi][celli] - oldMoments[mi]));
+                // Update the largest change in the moments, measured
+                // against the same scale as the error. Taken as it comes,
+                // the change is a moment difference, so what counts as
+                // small depends on how large the moments of the case are:
+                // a cell whose moments are of order 1e-12 was leaving the
+                // integration on a change that is a part in a thousand of
+                // them, while one of order 1e6 could never reach the
+                // threshold at all. The scale is what ATol and RTol are
+                // for, and the error beside it already uses it.
+                maxChange =
+                    max
+                    (
+                        maxChange,
+                        mag(moments[mi][celli] - oldMoments[mi])/scalei
+                    );
             }
 
             error = sqrt(error/nMoments);
@@ -332,7 +341,6 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             if (error < SMALL || maxChange < SMALL)
             {
                 timeComplete = true;
-                localT = Zero;
 
                 // Exiting if the change is small but the error is not to
                 // avoid a possible infinite loop, but informing the user.
@@ -343,7 +351,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                         << "but error is not.\n"
                         << nl
                         << "Error: " << error << nl
-                        << "Max. change: " << maxChange << nl
+                        << "Max. scaled change: " << maxChange << nl
                         << nl
                         << "\nThis may indicate a problem with the "
                         << "realizable ODE solver." << endl;
@@ -366,7 +374,6 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 if (localDt == 0.0)
                 {
                     timeComplete = true;
-                    localT = Zero;
                     break;
                 }
 
