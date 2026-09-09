@@ -25,6 +25,9 @@ createEpsTotalMass()
                 with line lt 2 linewidth 5 linecolor rgb '#9db668'
 EOF
 }
+# Where the spray has evaporated the sampled liquid velocity is zero, so
+# the difference of the two velocities there is the gas velocity rather
+# than a relative velocity. The curve is drawn only where liquid remains.
 createEpsUr()
 {
 
@@ -45,7 +48,7 @@ createEpsUr()
                 with points pointtype 7 ps 3 linecolor rgb 'black',\
             "$2" using 1:2 title 'DQMOM with flux (Fox 2008)'\
                 with points pointtype 5 ps 3 linecolor rgb 'blue',\
-            "$3" using 1:(((\$2 - \$5)**2 + (\$3 - \$6)**2)**0.5) title 'OpenQBMM' \
+            "$3" using 1:(\$2 > 1.0e-12 ? ((\$7 - \$10)**2 + (\$8 - \$11)**2)**0.5 : 1/0) title 'OpenQBMM' \
                 with line lt 2 linewidth 5 linecolor rgb '#9db668'
 EOF
 }
@@ -69,17 +72,34 @@ VALIDATIONDATAROOT=./validationData
 time=$(cd ../ && foamListTimes -latestTime)
 
 echo "    processing profiles" > log.createGraphs 2>&1
-OPENQBMMM_mass="../postProcessing/sampleDict/$time/Centerline_alpha*"
-OPENQBMMM_U="../postProcessing/sampleDict/$time/Centerline_U*"
+# The sampled fields of a set are all written to a single file, named after
+# the set and the fields it holds, so both graphs read the same file. Its
+# columns follow the order of the fields in system/sampleDict, with the
+# scalars before the vectors:
+#     1: x
+#     2: alpha.liquid  3: moment.000  4: moment.100  5: moment.200
+#     6: moment.300    7-9: U.gas     10-12: U.liquid
+OPENQBMM_data=$(ls ../postProcessing/sampleDict/"$time"/Centerline_* 2>/dev/null \
+    | head -1)
+
+if [ ! -f "$OPENQBMM_data" ]
+then
+    echo "No sampled data found in ../postProcessing/sampleDict/$time" >&2
+    exit 1
+fi
+
 VALIDATION_mass="$VALIDATIONDATAROOT/Fox_totalMass.csv"
 VALIDATION_massFlux="$VALIDATIONDATAROOT/Fox_totalMass_flux.csv"
 VALIDATION_Ur="$VALIDATIONDATAROOT/Fox_Ur.csv"
 VALIDATION_UrFlux="$VALIDATIONDATAROOT/Fox_Ur_flux.csv"
 
-createEpsTotalMass $VALIDATION_mass $VALIDATION_massFlux $OPENQBMMM_mass
-createEpsUr $VALIDATION_Ur $VALIDATION_UrFlux $OPENQBMMM_U
+createEpsTotalMass $VALIDATION_mass $VALIDATION_massFlux "$OPENQBMM_data"
+createEpsUr $VALIDATION_Ur $VALIDATION_UrFlux "$OPENQBMM_data"
 
-epstopdf *totalMass.eps
-epstopdf *Ur.eps
+if command -v epstopdf > /dev/null 2>&1
+then
+    epstopdf *totalMass.eps
+    epstopdf *Ur.eps
+fi
 
 echo Done
