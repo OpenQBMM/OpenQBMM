@@ -149,7 +149,7 @@ void Foam::Vandermonde::solve
             const scalar diff = mag((*this)[i] - (*this)[j]);
             const scalar scale = max(mag((*this)[i]), mag((*this)[j]));
 
-            if (diff < ROOTSMALL*max(scale, 1.0))
+            if (diff <= ROOTSMALL*scale)
             {
                 FatalErrorInFunction
                     << "Near-singular Vandermonde matrix: abscissae " << i

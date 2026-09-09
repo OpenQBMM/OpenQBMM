@@ -146,12 +146,13 @@ invert
     reset();
     scalar m0 = moments(0);
 
-    if (mag(m0) < SMALL)
+    // A negligible zero-order moment is dropped rather than carried by
+    // nodes of null size and velocity: in a volume-fraction formulation the
+    // number density of such a node is its weight over the cube of a null
+    // diameter, so the mass parked there is not negligible for the
+    // collision and aggregation sources of the cell it is advected into.
+    if (mag(m0) < smallM0())
     {
-        forAll(weights_, nodei)
-        {
-            weights_[nodei] = max(m0, 0)/weights_.size();
-        }
         return true;
     }
 
@@ -265,7 +266,7 @@ invert
 
         forAll(conditionalMoments, sNodei)
         {
-            if (sizeWeights[sNodei] > SMALL)
+            if (sizeWeights[sNodei] > smallM0())
             {
                 multivariateMomentSet momentsToInvert
                 (
@@ -310,6 +311,10 @@ invert
             }
             else
             {
+                // A size node of negligible weight is dropped for the same
+                // reason: its velocity moments cannot be inverted, and
+                // keeping its weight on nodes of null velocity would park
+                // mass at rest.
                 forAll(velocityNodeIndexes_, nodei)
                 {
                     const labelList& velocityNodeIndex =
@@ -323,7 +328,7 @@ invert
                         nodeIndex[dimi] = velocityNodeIndex[dimi - 1];
                     }
 
-                    weights_(nodeIndex) /= (weights_.size()/nSizeNodes_);
+                    weights_(nodeIndex) = Zero;
                 }
             }
         }

@@ -90,7 +90,7 @@ bool Foam::multivariateMomentInversion::distinctAbscissae
             const scalar diff = mag(abscissae[i] - abscissae[j]);
             const scalar scale = max(mag(abscissae[i]), mag(abscissae[j]));
 
-            if (diff < ROOTSMALL*max(scale, 1.0))
+            if (diff <= ROOTSMALL*scale)
             {
                 return false;
             }

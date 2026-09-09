@@ -140,13 +140,20 @@ const Foam::scalarList& Foam::univariateMomentSet::canonicalMoments() const
 
 bool Foam::univariateMomentSet::isDegenerate() const
 {
-    // Checking if moments of order higher than zero are null.
+    // Checking if moments of order higher than zero are null. A moment is
+    // null when it vanishes relative to the zero-order moment within the
+    // tolerance used for the zeta_k, which for the first moment is the
+    // condition zeta_0 <= smallZeta of the realizability check: the moments
+    // scale with the mass of the measure, so a fixed threshold would declare
+    // a small enough amount of any distribution degenerate.
     // The case when m0 = 0 is already managed.
     // Note: the elements are read through the const access operator of the
     // base class, so that the realizability check is not invalidated.
+    const scalar m0 = mag(scalarList::operator[](0));
+
     for (label momenti = 1; momenti < size(); momenti++)
     {
-        if (mag(scalarList::operator[](momenti)) > SMALL)
+        if (mag(scalarList::operator[](momenti)) > smallZeta_*m0)
         {
             return false;
         }
