@@ -75,7 +75,7 @@ sizeVelocityCoeffs
 
     odeCoeffs
     {
-        solveOde off;
+        solveOde on;
         ATol    1.0e-8;
         RTol    1.0e-6;
         fac     0.9;
