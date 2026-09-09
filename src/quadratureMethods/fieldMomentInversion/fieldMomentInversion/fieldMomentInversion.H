@@ -34,7 +34,6 @@ Description
 
 SourceFiles
     fieldMomentInversion.C
-    fieldMomentInversionI.H
 
 \*---------------------------------------------------------------------------*/
 
@@ -63,9 +62,6 @@ protected:
 
         //- Const refrence to the mesh
         const fvMesh& mesh_;
-
-        //- Boolean flag to indicate extended type of inversion
-        bool extended_;
 
         //- Moment orders used to map moments
         const labelListList& momentOrders_;
