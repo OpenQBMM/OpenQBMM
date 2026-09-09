@@ -52,10 +52,22 @@ Foam::hermiteQuadrature::hermiteQuadrature
     resAbs_(nTolNodes_, Zero)
 {
 
-    if((nOrder_ <= 0))
+    if (nOrder_ <= 0)
     {
-        FatalErrorIn("Foam::hermiteQuadrature\n" )
-            << "parameter(s) out of range ! "
+        FatalErrorInFunction
+            << "The order of the quadrature is " << nOrder_
+            << ", which is not positive."
+            << abort(FatalError);
+    }
+
+    // The tensor product below is written out for one, two and three
+    // dimensions. Any other number left the weights and the abscissae at
+    // zero and returned a quadrature carrying nothing, without saying so.
+    if (nDim_ < 1 || nDim_ > 3)
+    {
+        FatalErrorInFunction
+            << "The quadrature is built in " << nDim_
+            << " dimensions, but only one, two and three are supported."
             << abort(FatalError);
     }
 
@@ -213,7 +225,11 @@ void Foam::hermiteQuadrature::calcHermiteQuadrature
             }
             else
             {
-                spM.xx() = sqrt(Pp.xx());
+                // Clamped as in the two branches above: the guard on the
+                // trace does not keep a single component positive when the
+                // others carry the rest of it, and a negative one here
+                // would reach every abscissa as a nan
+                spM.xx() = Pp.xx() > 0 ? sqrt(Pp.xx()) : 0.0;
             }
         }
 
