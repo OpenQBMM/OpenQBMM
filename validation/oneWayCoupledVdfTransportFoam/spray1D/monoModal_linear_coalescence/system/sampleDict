@@ -43,11 +43,8 @@ sets
 (
     Centerline
     {
-        type        midPoint;
+        type        cellCentre;
         axis        x;
-
-        start       (0.1 0.05 0);
-        end         (0.3 0.05 0);
     }
 );
 
