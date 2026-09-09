@@ -17,6 +17,11 @@ FoamFile
 
 fieldMomentInversion basicFieldMomentInversion;
 
+// Abscissa below which a node is given no weight. It was the
+// smallM0 of the inversion below until the two were separated,
+// so it is written here to keep this case as it was.
+smallAbscissa               1.0e-4;
+
 basicMomentInversion
 {
     univariateMomentInversion     Gauss;

@@ -66,6 +66,7 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     ),
     minKnownAbscissa_(dict.lookupOrDefault<scalar>("minKnownAbscissa", 0)),
     maxKnownAbscissa_(dict.lookupOrDefault<scalar>("maxKnownAbscissa", 1)),
+    smallAbscissa_(dict.lookupOrDefault<scalar>("smallAbscissa", SMALL)),
     nAdditionalQuadraturePoints_(0),
     momentsToInvert_(nullptr),
     momentInverter_
@@ -205,12 +206,12 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
 
                 if (nodei < actualNodes)
                 {
-                    // If the abscissa is smaller than the minimum value set, 
-                    // set the weight to zero. This is to keep m0 consistent in 
-                    // cases with negative growth rates.
+                    // A node driven down to nothing is given no weight, so
+                    // that the zero-order moment stays consistent where a
+                    // growth rate is negative
                     scalar abscissaNodei = momentInverter_().abscissae()[nodei];
 
-                    if (abscissaNodei > smallM0())
+                    if (abscissaNodei > smallAbscissa_)
                     {
                         weightBf[patchi][facei]
                                 = momentInverter_().weights()[nodei];
@@ -278,10 +279,10 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
 
         if (nodei < actualNodes)
         {
-            // If the abscissa is smaller than the minimum value set, set the
-            // weight to zero. This is to keep m0 consistent in cases with 
-            // negative growth rates.
-            if (abscissae[nodei] > smallM0())
+            // A node driven down to nothing is given no weight, so that
+            // the zero-order moment stays consistent where a growth rate
+            // is negative
+            if (abscissae[nodei] > smallAbscissa_)
             {
                 node.weight()[celli] = weights[nodei];
                 node.abscissae()[0][celli] = abscissae[nodei];

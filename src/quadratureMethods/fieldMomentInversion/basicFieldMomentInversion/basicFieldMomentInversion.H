@@ -66,6 +66,17 @@ class basicFieldMomentInversion
         //- Maximum value of the abscissa for fixed-point quadrature
         scalar maxKnownAbscissa_;
 
+        //- Abscissa below which a node is given no weight. It keeps the
+        //  zero-order moment consistent where a growth rate is negative,
+        //  by dropping a node that has been driven down to nothing.
+        //
+        //  This used to be smallM0, which is the threshold the inversion
+        //  applies to the zero-order moment: a number density, whereas an
+        //  abscissa is a length, a volume or a mass depending on the
+        //  internal coordinate. The two answer different questions and are
+        //  now read separately.
+        scalar smallAbscissa_;
+
         //- Number of fixed quadrature points
         label nAdditionalQuadraturePoints_;
 
