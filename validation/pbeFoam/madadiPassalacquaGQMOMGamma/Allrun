@@ -5,7 +5,7 @@ cd ${0%/*} || exit 1    # Run from this directory
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 . ../../../AllrunFunctions
 
-validationCases="case5 case6 case7 case8 case9"
+validationCases="case5 case5Convergence case6 case7 case8 case8Convergence case9"
 
 for caseName in $validationCases
 do
