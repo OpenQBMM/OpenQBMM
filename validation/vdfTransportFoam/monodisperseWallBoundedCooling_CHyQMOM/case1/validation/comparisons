@@ -1,0 +1,13 @@
+// How far the case is accepted to sit from the data it is compared
+// with. The tolerance applies to the root mean square difference, as
+// a fraction of the scale of the reference, and was set from the
+// agreement the case was seen to have, with room for a change of the
+// discretisation to move it.
+//
+// name          tolerance  reference                     value  data  value
+alphaMD         0.02       validationData/case1_alpha_MD.csv     c2     ../postProcessing/sampleDict/*/Centerline*  c3
+alphaTP         0.03       validationData/case1_alpha_TP.csv     c2     ../postProcessing/sampleDict/*/Centerline*  c3
+TMD             0.04       validationData/case1_T_MD.csv         c2     ../postProcessing/sampleDict/*/Centerline*  c2
+TTP             0.03       validationData/case1_T_TP.csv         c2     ../postProcessing/sampleDict/*/Centerline*  c2
+QMD             report     validationData/case1_Q_MD.csv         c2     ../postProcessing/sampleDict/*/Centerline*  0.5*(c8+c6+c5+c3*(c4/c3)**3)-(c4/c3)*(c7+c3*c2)
+QTP             report     validationData/case1_Q_TP.csv         c2     ../postProcessing/sampleDict/*/Centerline*  0.5*(c8+c6+c5+c3*(c4/c3)**3)-(c4/c3)*(c7+c3*c2)

@@ -1,0 +1,11 @@
+// How far the case is accepted to sit from the data it is compared with.
+// The tolerance applies to the root mean square difference, as a fraction
+// of the scale of the reference, and was set from the agreement the case
+// was seen to have, with room for a change of the discretisation to move
+// it.
+//
+// Each line names a comparison, the tolerance it is held to, the file
+// of the reference and the value to read from it, and the file the case
+// wrote and the value to read from that.
+d43Verification 0.02       verificationData/MadadiPassalacqua2015_d43.dat  c6/c5  ../postProcessing/probes/0/moment.4.populationBalance,../postProcessing/probes/0/moment.3.populationBalance  c2/c4
+d43Validation   0.02       validationData/Vanni2000_d43.dat                c2     ../postProcessing/probes/0/moment.4.populationBalance,../postProcessing/probes/0/moment.3.populationBalance  c2/c4

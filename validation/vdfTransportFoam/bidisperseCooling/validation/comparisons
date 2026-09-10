@@ -1,0 +1,13 @@
+// How far the case is accepted to sit from the data it is compared with.
+// The tolerance applies to the root mean square difference, as a fraction
+// of the scale of the reference, and was set from the agreement the case
+// was seen to have, with room for a change of the discretisation to move
+// it.
+//
+// Each line names a comparison, the tolerance it is held to, the file
+// of the reference and the value to read from it, and the file the case
+// wrote and the value to read from that.
+EnskogE095      0.02       validationData/Enskog_0_95.csv  c2     temperatureRatios_0_95.dat  c2
+mdE095          0.03       validationData/MD_0_95.csv      c2     temperatureRatios_0_95.dat  c2
+EnskogE08       0.02       validationData/Enskog_0_8.csv   c2     temperatureRatios_0_8.dat   c2
+mdE08           0.09       validationData/MD_0_8.csv       c2     temperatureRatios_0_8.dat   c2

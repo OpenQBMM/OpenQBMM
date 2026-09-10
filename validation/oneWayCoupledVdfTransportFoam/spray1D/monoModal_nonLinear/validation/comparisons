@@ -1,0 +1,13 @@
+// How far the case is accepted to sit from the data it is compared
+// with. The tolerance applies to the root mean square difference, as
+// a fraction of the scale of the reference, and was set from the
+// agreement the case was seen to have, with room for a change of the
+// discretisation to move it.
+//
+// Each line names a comparison, the tolerance it is held to, the file
+// of the reference and the value to read from it, and the file the case
+// wrote and the value to read from that.
+totalMass       0.04       validationData/Fox_totalMass.csv      c2     ../postProcessing/sampleDict/*/Centerline_*  c2*633/1000
+totalMassFlux   0.03       validationData/Fox_totalMass_flux.csv c2     ../postProcessing/sampleDict/*/Centerline_*  c2*633/1000
+Ur              0.2        validationData/Fox_Ur.csv             c2     ../postProcessing/sampleDict/*/Centerline_*  (((c7-c10)**2+(c8-c11)**2)**0.5)if(c2>1.0e-12)else(None)
+UrFlux          0.2        validationData/Fox_Ur_flux.csv        c2     ../postProcessing/sampleDict/*/Centerline_*  (((c7-c10)**2+(c8-c11)**2)**0.5)if(c2>1.0e-12)else(None)
