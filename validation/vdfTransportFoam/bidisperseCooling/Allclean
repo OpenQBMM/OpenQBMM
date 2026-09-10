@@ -14,3 +14,5 @@ do
 done
 
 # ----------------------------------------------------------------- end-of-file
+
+rm -f validation/temperatureRatios_*.dat
