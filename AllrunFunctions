@@ -60,7 +60,15 @@ runCase()
 
     if ( cd "$1" && ./Allrun )
     then
-        return 0
+        #  Both checks are made, so that one failing does not hide the
+        #  other, and the case fails if either of them does
+        checkRegression "$1"
+        _regression=$?
+
+        checkReference "$1"
+        _reference=$?
+
+        return $((_regression + _reference))
     fi
 
     nFail=$((nFail + 1))
@@ -130,6 +138,76 @@ runStepParallel()
 
     echo "FAILED (parallel): $* in $PWD" 1>&2
     exit 1
+}
+
+#- The directory of the OpenQBMM sources, found by walking up from the
+#  case, so that a case at any depth can reach the scripts in bin
+qbmmRoot()
+{
+    _dir="$PWD"
+
+    while [ "$_dir" != "/" ]
+    do
+        if [ -x "$_dir/bin/qbmmRegression" ]
+        then
+            echo "$_dir"
+            return 0
+        fi
+
+        _dir=$(dirname "$_dir")
+    done
+
+    return 1
+}
+
+#- Compare a case with the baseline it recorded, and record the failure
+#
+#  A case without a baseline is not a failure: recording one is a decision
+#  to take case by case, with qbmmRegression record, once the result of the
+#  case is trusted. What the check answers is whether a change moved a case
+#  that was not meant to move, which is a question about the software; the
+#  graphs a case draws against the data of an experiment or of another
+#  method answer whether it is right.
+checkRegression()
+{
+    [ -f "$1/regression/baseline" ] || return 0
+
+    _root=$(qbmmRoot) || return 0
+
+    if "$_root"/bin/qbmmRegression check "$1"
+    then
+        return 0
+    fi
+
+    nFail=$((nFail + 1))
+    failed="$failed
+    $1 (regression)"
+
+    return 1
+}
+
+#- Compare a case with the data it is validated against, when it declares
+#  the comparisons to make
+#
+#  A case that declares none is not a failure: most cases ship no reference
+#  data at all, and the tolerance of a case that does is a judgement about
+#  physics, to be written once by whoever knows what agreement to expect.
+checkReference()
+{
+    [ -f "$1/validation/comparisons" ] || return 0
+
+    _root=$(qbmmRoot) || return 0
+
+    if "$_root"/bin/qbmmCompareReference "$1"
+    then
+        return 0
+    fi
+
+    nFail=$((nFail + 1))
+    failed="$failed
+    $1 (reference)"
+
+    return 1
 }
 
 #- Report the cases that failed, and exit non-zero if there were any
