@@ -1,0 +1,37 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../AllrunFunctions
+
+# The cases below this directory are found rather than listed, so that a
+# case added later is swept with the others rather than forgotten. Of a
+# case that holds cases, only the outermost is run: it runs the ones it
+# holds itself, and is where what they are compared with together is
+# declared.
+for caseName in $(find . -mindepth 2 -name Allrun | sed 's|/Allrun$||; s|^\./||' | sort)
+do
+    runIt=yes
+    parent=$(dirname $caseName)
+
+    while [ "$parent" != "." ]
+    do
+        if [ -f "$parent/Allrun" ]
+        then
+            runIt=no
+            break
+        fi
+
+        parent=$(dirname $parent)
+    done
+
+    if [ "$runIt" = yes ]
+    then
+        runCase $caseName
+    fi
+done
+
+reportCases
+
+# ----------------------------------------------------------------- end-of-file

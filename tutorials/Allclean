@@ -1,0 +1,31 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial clean functions
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+# As in Allrun, the cases are found rather than listed, and of a case that
+# holds cases only the outermost is cleaned
+for caseName in $(find . -mindepth 2 -name Allclean | sed 's|/Allclean$||; s|^\./||' | sort)
+do
+    cleanIt=yes
+    parent=$(dirname $caseName)
+
+    while [ "$parent" != "." ]
+    do
+        if [ -f "$parent/Allclean" ]
+        then
+            cleanIt=no
+            break
+        fi
+
+        parent=$(dirname $parent)
+    done
+
+    if [ "$cleanIt" = yes ]
+    then
+        (cd $caseName && ./Allclean)
+    fi
+done
+
+# ----------------------------------------------------------------- end-of-file
