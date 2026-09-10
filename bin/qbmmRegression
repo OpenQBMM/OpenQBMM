@@ -1,0 +1,233 @@
+#!/usr/bin/env python3
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     qbmmRegression
+#
+# Description
+#     Record what a case produces, and check later that it still produces it.
+#
+#         qbmmRegression record <case>    write the baseline of a case
+#         qbmmRegression check  <case>    compare a case against its baseline
+#
+#     The baseline is the summary of the fields of the last time the case
+#     writes, a few numbers per field, kept in <case>/regression/baseline.
+#     It is small enough to keep under version control and to read in a
+#     diff, and it moves when a field moves.
+#
+#     This answers "did what I changed move this case", which is a question
+#     about the case against itself. It says nothing about whether the case
+#     is right: the graphs a case draws against the data of an experiment
+#     or of another method answer that, and a tolerance on them is a
+#     judgement about physics rather than about software.
+#
+#     The tolerance is relative to the span of the field, so that it means
+#     the same thing for a moment of order 1e-12 and one of order 1e6. It
+#     is read from <case>/regression/tolerance if that file exists, and is
+#     otherwise the default below.
+#
+#------------------------------------------------------------------------------
+
+import os
+import subprocess
+import sys
+
+# Loose enough to sit above the spread of a parallel run, tight enough to
+# catch what a change to the numerics does. A case that decomposes with
+# simple rather than scotch is reproducible and can afford far less.
+DEFAULT_TOLERANCE = 1.0e-8
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+SUMMARY = os.path.join(HERE, 'qbmmFieldSummary')
+
+
+def latestTime(case):
+    """The last time directory the case wrote, ignoring 0 and 0.orig"""
+    times = []
+
+    for name in os.listdir(case):
+        if not os.path.isdir(os.path.join(case, name)):
+            continue
+
+        try:
+            t = float(name)
+        except ValueError:
+            continue
+
+        if t > 0:
+            times.append((t, name))
+
+    if not times:
+        return None
+
+    return max(times)[1]
+
+
+def summaryOf(case):
+    t = latestTime(case)
+
+    if t is None:
+        return (None, None)
+
+    out = subprocess.run(
+        [sys.executable, SUMMARY, os.path.join(case, t)],
+        capture_output=True, text=True
+    )
+
+    if out.returncode != 0:
+        sys.stderr.write(out.stderr)
+        return (t, None)
+
+    return (t, out.stdout)
+
+
+def parse(text):
+    fields = {}
+
+    for line in text.splitlines():
+        if not line or line.startswith('#'):
+            continue
+
+        parts = line.split()
+
+        if len(parts) != 6:
+            continue
+
+        fields[parts[0]] = [int(parts[1])] + [float(x) for x in parts[2:]]
+
+    return fields
+
+
+def tolerance(case):
+    path = os.path.join(case, 'regression', 'tolerance')
+
+    if os.path.isfile(path):
+        for line in open(path):
+            line = line.split('//')[0].strip()
+
+            if line:
+                return float(line)
+
+    return DEFAULT_TOLERANCE
+
+
+def record(case):
+    t, text = summaryOf(case)
+
+    if text is None:
+        sys.stderr.write(
+            "qbmmRegression: %s has nothing to record: %s\n"
+            % (case, "it wrote no time directory" if t is None
+               else "the summary of time %s failed" % t)
+        )
+        return 1
+
+    d = os.path.join(case, 'regression')
+    os.makedirs(d, exist_ok=True)
+
+    with open(os.path.join(d, 'baseline'), 'w') as f:
+        f.write("# Summary of the fields of time %s.\n" % t)
+        f.write("# Written by qbmmRegression record; compared by check.\n")
+        f.write(text)
+
+    print("qbmmRegression: recorded %s at time %s" % (case, t))
+    return 0
+
+
+def check(case):
+    path = os.path.join(case, 'regression', 'baseline')
+
+    if not os.path.isfile(path):
+        sys.stderr.write("qbmmRegression: %s has no baseline\n" % case)
+        return 2
+
+    t, text = summaryOf(case)
+
+    if text is None:
+        sys.stderr.write("qbmmRegression: %s produced nothing to check\n" % case)
+        return 1
+
+    want = parse(open(path).read())
+    got = parse(text)
+    tol = tolerance(case)
+
+    problems = []
+
+    for name in sorted(want):
+        if name not in got:
+            problems.append("  %s: missing" % name)
+            continue
+
+        a, b = want[name], got[name]
+
+        if a[0] != b[0]:
+            problems.append(
+                "  %s: %d values, expected %d" % (name, b[0], a[0])
+            )
+            continue
+
+        # Scale every quantity by the span the baseline recorded, so that
+        # the tolerance means the same thing whatever the field is made of
+        span = max(abs(a[2] - a[1]), abs(a[1]), abs(a[2]), 1.0e-300)
+
+        for i, what in ((1, 'min'), (2, 'max'), (3, 'mean'), (4, 'rms')):
+            d = abs(b[i] - a[i])/span
+
+            if d > tol:
+                problems.append(
+                    "  %s %s: %.8g, expected %.8g (%.2e of span)"
+                    % (name, what, b[i], a[i], d)
+                )
+
+    for name in sorted(got):
+        if name not in want:
+            problems.append("  %s: not in the baseline" % name)
+
+    if problems:
+        print("qbmmRegression: %s differs from its baseline "
+              "(time %s, tolerance %g)" % (case, t, tol))
+
+        for p in problems:
+            print(p)
+
+        return 1
+
+    print("qbmmRegression: %s matches its baseline (time %s)" % (case, t))
+    return 0
+
+
+def main(argv):
+    if len(argv) != 3 or argv[1] not in ('record', 'check'):
+        sys.stderr.write(
+            "usage: qbmmRegression record|check <caseDirectory>\n"
+        )
+        return 2
+
+    case = argv[2]
+
+    if not os.path.isdir(case):
+        sys.stderr.write("qbmmRegression: no such case: %s\n" % case)
+        return 2
+
+    return record(case) if argv[1] == 'record' else check(case)
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

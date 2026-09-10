@@ -1,0 +1,288 @@
+#!/usr/bin/env python3
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     qbmmCompareReference
+#
+#     qbmmCompareReference <caseDirectory>
+#
+# Description
+#     Compare what a case computes with the data it is validated against,
+#     and say by how much they differ.
+#
+#     The graphs a case draws put its result next to the data of an
+#     experiment or of another method, and are read by eye. This reads the
+#     same two curves and puts a number on the distance between them, so
+#     that a case which stops agreeing says so.
+#
+#     The comparisons to make are declared in <case>/validation/comparisons,
+#     a line per curve, of six fields separated by spaces:
+#
+#         name  tolerance  referenceFile  referenceValue  dataFile  dataValue
+#
+#     The two files hold columns of numbers, in which the first column is
+#     the abscissa of the curve and the value is an expression over the
+#     columns, written c1, c2, ... as in
+#
+#         Ur  0.15  validationData/Fox_Ur.csv  c2  ../postProcessing/*/Line_*  ((c7-c10)**2+(c8-c11)**2)**0.5
+#
+#     which is the expression the graph plots, in the notation of Python
+#     rather than of gnuplot. An expression carries no spaces, a file is
+#     named relative to the directory of the comparisons file, and may be a
+#     pattern, or several files separated by commas to read them side by
+#     side as paste does, in which case the columns are numbered across all
+#     of them.
+#
+#     The reference is interpolated onto the abscissae of the case over the
+#     interval the two share, and the difference is reported as a fraction
+#     of the scale of the reference, so that a tolerance means the same
+#     thing for a temperature and for a moment of order five. That scale is
+#     the larger of the span of the reference and its largest value: the
+#     span alone would make a small difference look large wherever a
+#     quantity stays near one value, as a ratio near one does.
+#
+#     What the tolerance applies to is the root mean square of those
+#     fractions, over the points of the reference. The largest of them is
+#     reported next to it but not compared, because where a curve rises
+#     steeply a small shift along the abscissa is a large difference at a
+#     point while the two curves still lie on each other.
+#
+#     The tolerance is a judgement about physics, and belongs to whoever
+#     writes it: it says how far from the reference the case is accepted to
+#     be, and is not a claim that a closer answer is wrong. Set it from the
+#     agreement a case is known to have, with room for the discretisation
+#     and the model to differ from the data.
+#
+#     A tolerance written as report measures the curves and prints the
+#     result without judging it, for a case whose disagreement is known and
+#     has still to be understood. It keeps the numbers in front of whoever
+#     runs the case rather than leaving the case unchecked.
+#
+#------------------------------------------------------------------------------
+
+import bisect
+import glob
+import math
+import os
+import sys
+
+
+def readColumns(spec, base):
+    """The rows of the files named by spec, side by side as paste does"""
+    tables = []
+
+    for pattern in spec.split(','):
+        paths = sorted(glob.glob(os.path.join(base, pattern)))
+
+        if not paths:
+            raise FileNotFoundError(pattern)
+
+        rows = []
+
+        for line in open(paths[0], errors='replace'):
+            line = line.split('#')[0].strip()
+
+            if not line:
+                continue
+
+            # A comma separates the columns of the csv files, a space or a
+            # tab those of everything else
+            parts = line.replace(',', ' ').split()
+
+            try:
+                rows.append([float(p) for p in parts])
+            except ValueError:
+                continue                    # a header, or a line of text
+
+        tables.append(rows)
+
+    if len(tables) == 1:
+        return tables[0]
+
+    return [sum(parts, []) for parts in zip(*tables)]
+
+
+def curve(rows, expression):
+    """The (x, value) pairs of an expression over the columns of rows"""
+    points = []
+
+    for row in rows:
+        names = {'c%d' % (i + 1): v for i, v in enumerate(row)}
+        names['__builtins__'] = {}
+
+        try:
+            value = eval(expression, names)     # noqa: S307 - a case file
+        except (ZeroDivisionError, IndexError, KeyError, NameError):
+            continue
+
+        if isinstance(value, (int, float)) and math.isfinite(value):
+            points.append((row[0], float(value)))
+
+    points.sort()
+
+    return points
+
+
+def interpolate(points, abscissae, x):
+    """The value of a curve at x, or None outside the curve"""
+    if not points or x < abscissae[0] or x > abscissae[-1]:
+        return None
+
+    i = bisect.bisect_left(abscissae, x)
+
+    if i == 0:
+        return points[0][1]
+
+    x0, y0 = points[i - 1]
+    x1, y1 = points[i]
+
+    if x1 == x0:
+        return y0
+
+    return y0 + (y1 - y0)*(x - x0)/(x1 - x0)
+
+
+def compare(name, tolerance, reference, computed):
+    """How far a computed curve sits from a reference, over their overlap"""
+    values = [y for _, y in reference]
+    scale = max(max(values) - min(values), max(abs(y) for y in values))
+
+    if scale <= 0.0:
+        scale = 1.0
+
+    errors = []
+    abscissae = [x for x, _ in computed]
+
+    for x, y in reference:
+        value = interpolate(computed, abscissae, x)
+
+        if value is not None:
+            errors.append(abs(value - y)/scale)
+
+    if not errors:
+        print("  %-16s no overlap between the case and the reference" % name)
+        return False
+
+    worst = max(errors)
+    rms = math.sqrt(sum(e*e for e in errors)/len(errors))
+
+    if tolerance is None:
+        verdict = ', not judged'
+    elif rms <= tolerance:
+        verdict = ''
+    else:
+        verdict = ', outside the tolerance of %g' % tolerance
+
+    print(
+        "  %-16s rms %8.3g, largest %8.3g of the scale of the reference, "
+        "over %d of its %d points%s"
+        % (name, rms, worst, len(errors), len(reference), verdict)
+    )
+
+    return tolerance is None or rms <= tolerance
+
+
+def main(argv):
+    if len(argv) != 2:
+        sys.stderr.write("usage: qbmmCompareReference <caseDirectory>\n")
+        return 2
+
+    case = argv[1]
+    base = os.path.join(case, 'validation')
+    path = os.path.join(base, 'comparisons')
+
+    if not os.path.isfile(path):
+        sys.stderr.write(
+            "qbmmCompareReference: %s declares no comparisons\n" % case
+        )
+        return 2
+
+    print("qbmmCompareReference: %s" % case)
+
+    failed = 0
+    reported = 0
+    made = 0
+
+    for number, line in enumerate(open(path), 1):
+        line = line.split('//')[0].strip()
+
+        if not line:
+            continue
+
+        fields = line.split()
+
+        if len(fields) != 6:
+            sys.stderr.write(
+                "qbmmCompareReference: %s line %d: expected six fields\n"
+                % (path, number)
+            )
+            return 2
+
+        name, tolerance, refFile, refValue, dataFile, dataValue = fields
+
+        #  A tolerance of report measures the curves without judging them
+        tolerance = None if tolerance == 'report' else float(tolerance)
+
+        if tolerance is None:
+            reported += 1
+
+        try:
+            reference = curve(readColumns(refFile, base), refValue)
+            computed = curve(readColumns(dataFile, base), dataValue)
+        except FileNotFoundError as e:
+            print("  %-16s no such file: %s" % (name, e))
+            failed += 1
+            made += 1
+            continue
+
+        if not reference:
+            print("  %-16s the reference holds no points" % name)
+            failed += 1
+        elif not computed:
+            print("  %-16s the case holds no points to compare" % name)
+            failed += 1
+        elif not compare(name, tolerance, reference, computed):
+            failed += 1
+
+        made += 1
+
+    if failed:
+        print(
+            "qbmmCompareReference: %d of %d comparisons of %s are outside "
+            "their tolerance" % (failed, made, case)
+        )
+        return 1
+
+    if reported:
+        print("qbmmCompareReference: %d of the %d comparisons of %s are "
+              "within their tolerance, %d %s only reported"
+              % (made - reported, made, case, reported,
+                 'is' if reported == 1 else 'are'))
+    else:
+        print("qbmmCompareReference: %d comparisons of %s are within their "
+              "tolerance" % (made, case))
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
+
+#------------------------------------------------------------------------------

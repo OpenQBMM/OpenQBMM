@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     qbmmFieldSummary
+#
+# Description
+#     Summarise the internal field of OpenFOAM field files, in ascii or in
+#     binary, as a few numbers per field: how many values it holds, the
+#     smallest and largest of them, their mean, and their root mean square.
+#
+#     A summary of a few numbers is what a regression check compares. The
+#     fields themselves are too large to keep under version control, and
+#     comparing them value by value asks for a reproducibility the cases do
+#     not have; the numbers here move when a field moves and sit still when
+#     it does not.
+#
+#     Reads binary as well as ascii because most of the cases write binary,
+#     and a text parser handed a binary field returns nonsense rather than
+#     an error.
+#
+#------------------------------------------------------------------------------
+
+import math
+import os
+import re
+import struct
+import sys
+
+# How many significant digits of each number to record. The comparison
+# qbmmRegression makes is only as fine as what is written here, so this
+# has to stay well below the tolerance that comparison applies: recording
+# six digits and comparing at 1e-8 would compare nothing.
+DIGITS = 12
+
+
+def readInternalField(path):
+    """Return (kind, values) for the internal field of an OpenFOAM field
+    file, where values is a flat list of scalars. Returns (None, None) if
+    the file carries no internal field."""
+
+    with open(path, 'rb') as f:
+        raw = f.read()
+
+    m = re.search(rb'internalField\s+(uniform|nonuniform)', raw)
+
+    if not m:
+        return (None, None)
+
+    if m.group(1) == b'uniform':
+        #  The value of a uniform field ends at its semicolon. Reading on
+        #  past it would take in the values of the boundary conditions as
+        #  well, and the exponents of whatever follows.
+        tail = raw[m.end():m.end() + 512]
+        end = tail.find(b';')
+
+        if end >= 0:
+            tail = tail[:end]
+
+        numbers = re.findall(rb'-?\d+\.?\d*(?:[eE][-+]?\d+)?', tail)
+        return ('uniform', [float(x) for x in numbers])
+
+    # nonuniform: List<scalar> or List<vector>, then a count, then the data
+    m2 = re.compile(rb'List<(\w+)>\s*\n?\s*(\d+)\s*\n?\s*\(').search(raw, m.end())
+
+    if not m2:
+        return (None, None)
+
+    kind = m2.group(1).decode()
+    count = int(m2.group(2))
+    start = m2.end()
+
+    width = {'scalar': 1, 'vector': 3, 'symmTensor': 6, 'tensor': 9}.get(kind)
+
+    if width is None or count == 0:
+        return (kind, [])
+
+    # Binary is the raw doubles straight after the bracket; ascii is text
+    # up to the matching bracket. Which one it is, is what the header of
+    # the file says: guessing from the bytes themselves reads a double
+    # whose first byte happens to be a digit as though it were text.
+    nBytes = count*width*8
+    chunk = raw[start:start + nBytes]
+
+    declared = re.search(rb'format\s+(ascii|binary)\s*;', raw[:m.start()])
+    isBinary = declared is not None and declared.group(1) == b'binary'
+
+    if isBinary and len(chunk) == nBytes:
+        return (kind, list(struct.unpack('<%dd' % (count*width), chunk)))
+
+    end = raw.find(b')\n;', start)
+
+    if end < 0:
+        end = start + nBytes*4
+
+    text = raw[start:end].replace(b'(', b' ').replace(b')', b' ')
+    return (kind, [float(x) for x in text.split()])
+
+
+def summarise(values):
+    n = len(values)
+
+    if n == 0:
+        return None
+
+    total = math.fsum(values)
+    mean = total/n
+    l2 = math.sqrt(math.fsum(v*v for v in values)/n)
+
+    return (n, min(values), max(values), mean, l2)
+
+
+def fieldFiles(timeDir):
+    out = []
+
+    for name in sorted(os.listdir(timeDir)):
+        path = os.path.join(timeDir, name)
+
+        if not os.path.isfile(path):
+            continue
+
+        # The banner comment alone is some six hundred bytes, so the
+        # window has to be well clear of it
+        with open(path, 'rb') as f:
+            head = f.read(2048)
+
+        if b'FoamFile' in head:
+            out.append((name, path))
+
+    return out
+
+
+def main(argv):
+    if len(argv) != 2:
+        sys.stderr.write("usage: qbmmFieldSummary <timeDirectory>\n")
+        return 2
+
+    timeDir = argv[1]
+
+    if not os.path.isdir(timeDir):
+        sys.stderr.write("qbmmFieldSummary: no such directory: %s\n" % timeDir)
+        return 2
+
+    fmt = "%%s %%d %%.%dg %%.%dg %%.%dg %%.%dg" % (DIGITS, DIGITS, DIGITS, DIGITS)
+
+    print("# field nValues min max mean rms")
+
+    for name, path in fieldFiles(timeDir):
+        kind, values = readInternalField(path)
+
+        if values is None:
+            continue
+
+        s = summarise(values)
+
+        if s is None:
+            continue
+
+        print(fmt % (name, s[0], s[1], s[2], s[3], s[4]))
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
