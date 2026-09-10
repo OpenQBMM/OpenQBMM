@@ -77,7 +77,27 @@ runCase()
 #  that draws a graph.
 runStep()
 {
-    if runApplication "$@"
+    #  runApplication writes the output of the application to its log file
+    #  and only a line of its own to the terminal, so holding that line to
+    #  read it costs nothing.
+    _out=$(runApplication "$@" 2>&1)
+    _status=$?
+
+    echo "$_out"
+
+    #  A step whose log file is already there is not run, and runApplication
+    #  reports that as a success. The case then carries the results of
+    #  whatever ran before, which is what a comparison would be made
+    #  against, so it is a failure here.
+    case "$_out" in
+    (*"already run on"*|*"already exists"*)
+        echo "FAILED: $* was skipped in $PWD" 1>&2
+        echo "        Run Allclean first: the case still holds an old run." 1>&2
+        exit 1
+        ;;
+    esac
+
+    if [ "$_status" -eq 0 ]
     then
         return 0
     fi
@@ -89,7 +109,21 @@ runStep()
 #- Run one step of a case in parallel, stopping the case if it fails
 runStepParallel()
 {
-    if runParallel "$@"
+    _out=$(runParallel "$@" 2>&1)
+    _status=$?
+
+    echo "$_out"
+
+    #  As in runStep, a step that was not run is not a step that passed
+    case "$_out" in
+    (*"already run on"*|*"already exists"*)
+        echo "FAILED (parallel): $* was skipped in $PWD" 1>&2
+        echo "        Run Allclean first: the case still holds an old run." 1>&2
+        exit 1
+        ;;
+    esac
+
+    if [ "$_status" -eq 0 ]
     then
         return 0
     fi
