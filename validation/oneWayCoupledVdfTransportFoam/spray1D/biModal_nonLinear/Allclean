@@ -9,5 +9,6 @@ rm -f 0/moment.* > /dev/null 2>&1
 cleanCase
 rm -rf postProcessing
 rm -f validation/*.eps
+rm -f validation/log.createGraphs
 
 # ----------------------------------------------------------------- end-of-file
