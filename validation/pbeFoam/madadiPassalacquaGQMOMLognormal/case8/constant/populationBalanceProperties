@@ -36,6 +36,7 @@ univariateCoeffs
     breakupKernel
     {
         breakupKernel powerLaw;
+        minAbscissa     1.0;
         Cb        Cb        [ 0 0 -1 0 0 0 0 ] 0.01;
         abscissaExponent 6.0;
 

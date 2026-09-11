@@ -62,7 +62,7 @@ Foam::populationBalanceSubModels::breakupKernels::constantBreakup
 )
 :
     breakupKernel(dict, mesh),
-    minAbscissa_(dict.lookupOrDefault<scalar>("minAbscissa", 1.0))
+    minAbscissa_(dict.lookupOrDefault<scalar>("minAbscissa", scalar(0)))
 {}
 
 
@@ -83,7 +83,7 @@ Foam::populationBalanceSubModels::breakupKernels::constantBreakup::Kb
     const label environment
 ) const
 {
-    return Cb_.value()*pos0(abscissa - minAbscissa_.value());
+    return Cb_.value()*pos0(abscissa - minAbscissa_);
 }
 
 // ************************************************************************* //

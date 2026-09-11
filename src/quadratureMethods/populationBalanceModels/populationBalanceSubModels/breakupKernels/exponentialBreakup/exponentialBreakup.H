@@ -66,7 +66,7 @@ private:
     // Private data
 
         //- Minimum value of the abscissa to apply the model
-        dimensionedScalar minAbscissa_;
+        scalar minAbscissa_;
 
         //- Exponent of the kernel
         dimensionedScalar expCoeff_;

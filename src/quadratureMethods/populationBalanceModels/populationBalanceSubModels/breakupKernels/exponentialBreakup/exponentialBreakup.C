@@ -62,7 +62,7 @@ Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup
 )
 :
     breakupKernel(dict, mesh),
-    minAbscissa_(dict.lookupOrDefault<scalar>("minAbscissa", 1.0)),
+    minAbscissa_(dict.lookupOrDefault<scalar>("minAbscissa", scalar(0))),
     expCoeff_
     (
         dict.lookupOrDefault
@@ -91,7 +91,7 @@ Foam::populationBalanceSubModels::breakupKernels::exponentialBreakup::Kb
     const label environment
 ) const
 {
-    return Cb_.value()*pos0(abscissa - minAbscissa_.value())
+    return Cb_.value()*pos0(abscissa - minAbscissa_)
             *exp(expCoeff_.value()*pow3(abscissa));
 }
 
