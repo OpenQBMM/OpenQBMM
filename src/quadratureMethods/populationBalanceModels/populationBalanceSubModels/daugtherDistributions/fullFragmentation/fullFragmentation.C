@@ -60,7 +60,8 @@ Foam::populationBalanceSubModels::daughterDistributions::fullFragmentation
     const dictionary& dict
 )
 :
-    daughterDistribution(dict)
+    daughterDistribution(dict),
+    primarySize_("primarySize", dimLength, dict)
 {}
 
 
