@@ -72,6 +72,10 @@ runTest . Test-MomentAdvection
 runTest ./univariateQuadratureApproximation/testCase \
     Test-UnivariateQuadratureApproximation
 
+# Source terms of the aggregation, breakup and growth models
+runTest ./populationBalanceSubModels/testCase \
+    Test-PopulationBalanceSubModels
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

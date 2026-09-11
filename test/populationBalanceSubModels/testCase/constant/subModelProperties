@@ -1,0 +1,163 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      subModelProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The models Test-PopulationBalanceSubModels evaluates on the quadrature of
+// the case: three sizes, 10, 20 and 40 um
+
+constantAggregation
+{
+    aggregationKernel   constant;
+    Ca                  Ca [0 3 -1 0 0 0 0] 2.0e-12;
+}
+
+sumAggregation
+{
+    aggregationKernel   sum;
+    Ca                  Ca [0 0 -1 0 0 0 0] 2.0e3;
+}
+
+// Every daughter distribution, with a constant kernel and no smallest size
+breakup
+{
+    symmetricFragmentation
+    {
+        breakupKernel   constant;
+        Cb              Cb [0 0 -1 0 0 0 0] 3.0;
+
+        daughterDistribution
+        {
+            daughterDistribution symmetricFragmentation;
+        }
+    }
+
+    uniform
+    {
+        breakupKernel   constant;
+        Cb              Cb [0 0 -1 0 0 0 0] 3.0;
+
+        daughterDistribution
+        {
+            daughterDistribution uniform;
+        }
+    }
+
+    oneQuarterMassRatio
+    {
+        breakupKernel   constant;
+        Cb              Cb [0 0 -1 0 0 0 0] 3.0;
+
+        daughterDistribution
+        {
+            daughterDistribution oneQuarterMassRatio;
+        }
+    }
+
+    fullFragmentation
+    {
+        breakupKernel   constant;
+        Cb              Cb [0 0 -1 0 0 0 0] 3.0;
+
+        daughterDistribution
+        {
+            daughterDistribution fullFragmentation;
+            primarySize     primarySize [0 1 0 0 0 0 0] 5.0e-6;
+        }
+    }
+
+    erosion
+    {
+        breakupKernel   constant;
+        Cb              Cb [0 0 -1 0 0 0 0] 3.0;
+
+        daughterDistribution
+        {
+            daughterDistribution erosion;
+            primarySize     primarySize [0 1 0 0 0 0 0] 5.0e-6;
+        }
+    }
+}
+
+// Only the sizes of 20 and 40 um break
+gatedBreakup
+{
+    breakupKernel   constant;
+    Cb              Cb [0 0 -1 0 0 0 0] 3.0;
+    minAbscissa     1.5e-5;
+
+    daughterDistribution
+    {
+        daughterDistribution symmetricFragmentation;
+    }
+}
+
+powerLawBreakup
+{
+    breakupKernel   powerLaw;
+    Cb              Cb [0 0 -1 0 0 0 0] 3.0e15;
+    abscissaExponent 3;
+
+    daughterDistribution
+    {
+        daughterDistribution symmetricFragmentation;
+    }
+}
+
+exponentialBreakup
+{
+    breakupKernel   exponential;
+    Cb              Cb [0 0 -1 0 0 0 0] 3.0;
+    expCoeff        expCoeff [0 -3 0 0 0 0 0] 1.0e13;
+
+    daughterDistribution
+    {
+        daughterDistribution symmetricFragmentation;
+    }
+}
+
+constantGrowth
+{
+    growthModel     constant;
+    Cg              0.7;
+}
+
+// Only the sizes of 20 and 40 um grow
+gatedGrowth
+{
+    growthModel     constant;
+    Cg              0.7;
+    minAbscissa     1.5e-5;
+}
+
+// Only the sizes of 10 and 20 um evaporate: a model that used to ignore
+// its bounds
+boundedEvaporation
+{
+    growthModel     linearEvaporation;
+    Cg              0.3;
+    maxAbscissa     3.0e-5;
+}
+
+// Written as thirty of the cases write it, with names and dimensions
+legacyGrowth
+{
+    growthModel     constant;
+    minAbscissa     minAbscissa [0 -2 0 0 0 0 0] 0.0;
+    maxAbscissa     maxAbscissa [0 -2 0 0 0 0 0] 1.0;
+    Cg              Cg [0 3 -1 0 0 0 0] 1.0;
+}
+
+// ************************************************************************* //

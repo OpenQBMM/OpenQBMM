@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      moment.3.populationBalance;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Moment of order 3 of three sizes, 10, 20 and 40 um, of number
+// densities 2e11, 5e11 and 3e11 1/m^3
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.023400000000000008;
+
+boundaryField
+{
+    walls
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //

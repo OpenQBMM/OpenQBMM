@@ -1,0 +1,45 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties.populationBalance;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Six moments of a length-based number density, which a three-node Gauss
+// quadrature reproduces exactly
+
+fieldMomentInversion    basicFieldMomentInversion;
+
+basicMomentInversion
+{
+    univariateMomentInversion   Gauss;
+}
+
+moments
+(
+    (0)
+    (1)
+    (2)
+    (3)
+    (4)
+    (5)
+);
+
+nodes
+(
+    (0)
+    (1)
+    (2)
+);
+
+// ************************************************************************* //

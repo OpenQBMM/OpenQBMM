@@ -23,6 +23,7 @@ wmakeStatus momentInversions/multivariate/TensorProductMomentInversion
 wmakeStatus momentAdvection
 
 wmakeStatus populationBalanceModel
+wmakeStatus populationBalanceSubModels
 wmakeStatus univariateQuadratureApproximation
 wmakeStatus univariateMomentAdvection/setMoments1D
 wmakeStatus univariateMomentAdvection/setMoments2D

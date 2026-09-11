@@ -3,6 +3,7 @@ cd "${0%/*}" || exit                            # Run from this directory
 #------------------------------------------------------------------------------
 
 wclean populationBalanceModel
+wclean populationBalanceSubModels
 wclean all momentSets
 wclean all momentInversions
 wclean momentAdvection
