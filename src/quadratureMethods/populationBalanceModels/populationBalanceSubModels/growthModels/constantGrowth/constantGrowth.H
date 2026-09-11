@@ -65,16 +65,6 @@ class constantGrowth
 :
     public growthModel
 {
-private:
-
-    // Private data
-
-        //- Minimum value of the abscissa to apply the model
-        scalar minAbscissa_;
-
-        //- Maximum value of the abscissa to apply the model
-        scalar maxAbscissa_;
-
 public:
 
         //- Runtime type information

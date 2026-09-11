@@ -67,8 +67,14 @@ protected:
 
         const fvMesh& mesh_;
 
-        //- Coefficient of aggregation kernel
+        //- Coefficient of the growth rate.
         const dimensionedScalar Cg_;
+
+        //- Smallest size the model applies to
+        scalar minAbscissa_;
+
+        //- Largest size the model applies to
+        scalar maxAbscissa_;
 
 
 public:

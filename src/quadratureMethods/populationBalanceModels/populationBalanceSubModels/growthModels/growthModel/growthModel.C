@@ -55,15 +55,28 @@ Foam::populationBalanceSubModels::growthModel::growthModel
     mesh_(mesh),
     Cg_
     (
-        dimensionedScalar::lookupOrDefault
-        (
-            "Cg",
-            dict,
-            inv(dimTime),
-            1.0
-        )
+        dict.found("Cg")
+      ? dimensionedScalar("Cg", dict)
+      : dimensionedScalar("Cg", inv(dimTime), 1.0)
+    ),
+    minAbscissa_
+    (
+        dict.found("minAbscissa")
+      ? dimensionedScalar("minAbscissa", dict).value()
+      : scalar(0)
+    ),
+    maxAbscissa_
+    (
+        dict.found("maxAbscissa")
+      ? dimensionedScalar("maxAbscissa", dict).value()
+      : GREAT
     )
-{}
+{
+    // The coefficient and the bounds are read whether a dictionary gives
+    // them as a plain number or, as older ones do, with a name and
+    // dimensions: the bounds used to be read only as plain numbers, so a
+    // case written the older way stopped the moment growth was switched on.
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -125,9 +138,12 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
         scalar numberDensity =
             node.numberDensity(celli, node.weight()[celli], bAbscissa);
 
+        // The bounds apply to every model, on the diameter the rate is
+        // evaluated at
         scalar gSourcei =
             numberDensity*Kg(d, lengthBased)*sizeOrder
-           *pow(bAbscissa, sizeOrder - 1);
+           *pow(bAbscissa, sizeOrder - 1)
+           *pos0(d - minAbscissa_)*neg0(d - maxAbscissa_);
 
         forAll(scalarIndexes, nodei)
         {
@@ -199,9 +215,12 @@ Foam::populationBalanceSubModels::growthModel::phaseSpaceConvection
         scalar numberDensity =
             node.numberDensity(celli, node.weight()[celli], bAbscissa);
 
+        // The bounds apply to every model, on the diameter the rate is
+        // evaluated at
         scalar gSourcei =
             numberDensity*Kg(d, lengthBased)*sizeOrder
-           *pow(bAbscissa, sizeOrder - 1);
+           *pow(bAbscissa, sizeOrder - 1)
+           *pos0(d - minAbscissa_)*neg0(d - maxAbscissa_);
 
         forAll(scalarIndexes, nodei)
         {
