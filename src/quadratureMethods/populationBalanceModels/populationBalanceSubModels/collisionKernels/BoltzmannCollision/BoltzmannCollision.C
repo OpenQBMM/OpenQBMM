@@ -355,7 +355,12 @@ void Foam::populationBalanceSubModels::collisionKernels::BoltzmannCollision
     }
 
     scalar alpha = quadrature_.moments()(0)[celli];
-    scalar alphac = 1.0 - alpha;
+
+    // The radial distribution of the polydisperse case diverges as the
+    // particles fill the cell, so the volume fraction it is evaluated at is
+    // held below random close packing, as the monodisperse case holds its
+    // own
+    scalar alphac = 1.0 - min(alpha, 0.999*0.63);
 
     // Monodisperse case
     if (sizeIndex_ == -1)

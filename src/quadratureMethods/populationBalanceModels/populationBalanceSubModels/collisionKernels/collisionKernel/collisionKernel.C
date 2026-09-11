@@ -97,7 +97,14 @@ Foam::populationBalanceSubModels::collisionKernel::d
     }
     else
     {
-        return cbrt(abscissa/rhos_[nodei]/Foam::constant::mathematical::pi*6.0);
+        // The diameter of a mass coordinate is floored as that of a length
+        // one is: the collision kernels divide by the volume and by the
+        // diameter of every size, including one whose abscissa is zero.
+        return max
+        (
+            cbrt(abscissa/rhos_[nodei]/Foam::constant::mathematical::pi*6.0),
+            minD_
+        );
     }
 }
 

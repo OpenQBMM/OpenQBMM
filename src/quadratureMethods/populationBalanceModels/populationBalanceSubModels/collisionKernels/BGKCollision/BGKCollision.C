@@ -198,8 +198,10 @@ void Foam::populationBalanceSubModels::collisionKernels::BGKCollision
         }
     }
 
-    // Continuous phase volume fraction used for radial distribution
-    scalar alphac = 1.0 - m0;
+    // Continuous phase volume fraction used for radial distribution. The
+    // distribution diverges as the particles fill the cell, so the volume
+    // fraction it is evaluated at is held below random close packing
+    scalar alphac = 1.0 - min(m0, 0.999*0.63);
 
     // Particle diameters
     scalarList ds(nSizes_);
