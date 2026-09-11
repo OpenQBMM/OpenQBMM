@@ -81,6 +81,14 @@ Foam::populationBalanceSubModels::daughterDistributions::erosion::mD
     const scalar& abscissa
 ) const
 {
+    // A particle no larger than a primary particle has nothing to erode, so
+    // its daughters are the particle itself and breakup leaves it as it is,
+    // rather than taking the root of a negative volume
+    if (abscissa <= primarySize_.value())
+    {
+        return pow(abscissa, order);
+    }
+
     return pow(primarySize_.value(), order)
         + pow(pow3(abscissa) - pow3(primarySize_.value()), order/3.0);
 }
@@ -93,6 +101,12 @@ Foam::populationBalanceSubModels::daughterDistributions::erosion::mDMass
     const scalar& abscissa
 ) const
 {
+    // As in mD, a particle no larger than a primary particle does not erode
+    if (abscissa <= primarySize_.value())
+    {
+        return pow(abscissa, order);
+    }
+
     return
         pow(primarySize_.value(), order)
       + pow(abscissa - primarySize_.value(), order);
