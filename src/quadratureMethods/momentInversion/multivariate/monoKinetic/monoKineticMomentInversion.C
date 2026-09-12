@@ -195,11 +195,6 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
 
     label nSizeNodes = sizeWeights.size();
 
-    // Smallest weight a size node is inverted and read back at: below it
-    // the node carries no particles, so the conditional velocity the
-    // Vandermonde system returns for it is not used
-    const scalar minSizeWeight = 1.0e-10;
-
     if (nSizeNodes > 0)
     {
         scalarDiagonalMatrix x(nSizeNodes, Zero);
@@ -208,7 +203,19 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
         forAll(sizeWeights, nodei)
         {
             x[nodei] = sizeAbscissae[nodei];
-            invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], minSizeWeight);
+
+            // The row of a size node that carries no particles is not read
+            // back below, so it only has to be finite. Everywhere else the
+            // weight is divided by as it is: flooring it scaled the
+            // conditional velocity of a node that does carry particles by
+            // whatever the ratio of the two happened to be, which a weight
+            // is free to be below wherever the measure is small in its own
+            // units. The threshold a node counts as empty at is the one of
+            // the inversion, rather than a number of its own.
+            invR[nodei][nodei] =
+                sizeWeights[nodei] > smallM0()
+              ? 1.0/sizeWeights[nodei]
+              : 0.0;
         }
 
         // The Vandermonde system has to be built from the abscissae the
@@ -251,7 +258,7 @@ bool Foam::multivariateMomentInversions::monoKinetic::invert
 
             forAll(sizeWeights, nodei)
             {
-                if (sizeWeights[nodei] > minSizeWeight)
+                if (sizeWeights[nodei] > smallM0())
                 {
                     velocityAbscissae_[nodei][dimi] = nu(nodei, 0);
                 }

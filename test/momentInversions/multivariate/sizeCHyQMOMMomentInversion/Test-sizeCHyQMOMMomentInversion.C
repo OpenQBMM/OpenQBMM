@@ -42,6 +42,18 @@ Description
     comes back with a few percent of error and the method is behaving as
     designed. Such a test can only check that nothing crashed.
 
+    The same distribution is then written at another scale, and the
+    quadrature has to follow it. Scaling the size coordinate by s
+    multiplies the moment of size order k by s^k, and has to leave the
+    weights and the velocities where they are and multiply the size
+    abscissae by s; scaling the measure by c multiplies every moment by c,
+    and has to multiply the weights by c and leave everything else. Neither
+    holds when a threshold inside the inversion is a fixed number compared
+    with a quantity that carries the units of the abscissa or of the
+    weight, which is what these two checks are for: the same population of
+    droplets is the same population whether its size is written in metres,
+    in cubic metres or in kilograms.
+
 \*---------------------------------------------------------------------------*/
 
 #include "IOmanip.H"
@@ -324,6 +336,186 @@ void testInversion
 }
 
 
+//- What an inversion returns, copied out of the inverter so that two of
+//  them can be compared
+struct quadratureOf
+{
+    bool inverted;
+    scalarList w;
+    scalarList x;
+    List<vector> U;
+};
+
+
+//- Invert a moment set and copy the quadrature out
+template<class inversionType>
+quadratureOf invertOnce
+(
+    const dictionary& dict,
+    const multivariateMomentSet& moments,
+    const labelListList& momentOrders,
+    const labelListList& nodeIndexes,
+    const labelList& velocityIndexes
+)
+{
+    inversionType inverter(dict, momentOrders, nodeIndexes, velocityIndexes);
+
+    quadratureOf q;
+
+    q.inverted = inverter.invert(moments);
+    q.w.setSize(nodeIndexes.size(), Zero);
+    q.x.setSize(nodeIndexes.size(), Zero);
+    q.U.setSize(nodeIndexes.size(), Zero);
+
+    if (!q.inverted)
+    {
+        return q;
+    }
+
+    forAll(nodeIndexes, nodei)
+    {
+        const labelList& nodeIndex = nodeIndexes[nodei];
+
+        q.w[nodei] = inverter.weights()(nodeIndex);
+        q.x[nodei] = inverter.abscissae()(nodeIndex)[0];
+        q.U[nodei] = inverter.velocityAbscissae()(nodeIndex);
+    }
+
+    return q;
+}
+
+
+//- Compare two quadratures, each list against the largest of its own
+//  entries, so that a component that is zero is not asked to be reproduced
+//  to no error at all.
+//
+//  knownFailure reports the outcome without asserting it, for an invariance
+//  that is known not to hold yet. One that starts holding is reported too,
+//  because the pin has to be removed once it is fixed: left in place it
+//  would hide the defect coming back.
+bool compareQuadratures
+(
+    const quadratureOf& computed,
+    const quadratureOf& expected,
+    const scalar tolerance,
+    const word& what,
+    const bool knownFailure = false
+)
+{
+    Info<< "\nVerifying that " << what << endl;
+
+    bool holds = computed.inverted && expected.inverted;
+
+    if (!holds)
+    {
+        Info<< "  the inversion failed" << endl;
+    }
+    else
+    {
+        scalar wScale = 0.0;
+        scalar xScale = 0.0;
+        scalar UScale = 0.0;
+
+        forAll(expected.w, nodei)
+        {
+            wScale = max(wScale, mag(expected.w[nodei]));
+            xScale = max(xScale, mag(expected.x[nodei]));
+            UScale = max(UScale, cmptMax(cmptMag(expected.U[nodei])));
+        }
+
+        const scalar wBound = tolerance*max(wScale, SMALL);
+        const scalar xBound = tolerance*max(xScale, SMALL);
+        const scalar UBound = tolerance*max(UScale, SMALL);
+
+        scalar wWorst = 0.0;
+        scalar xWorst = 0.0;
+        scalar UWorst = 0.0;
+
+        forAll(expected.w, nodei)
+        {
+            wWorst = max(wWorst, mag(computed.w[nodei] - expected.w[nodei]));
+            xWorst = max(xWorst, mag(computed.x[nodei] - expected.x[nodei]));
+
+            UWorst =
+                max
+                (
+                    UWorst,
+                    cmptMax(cmptMag(computed.U[nodei] - expected.U[nodei]))
+                );
+        }
+
+        Info<< "  weights differ by at most " << wWorst
+            << ", of " << wScale << nl
+            << "  sizes differ by at most " << xWorst
+            << ", of " << xScale << nl
+            << "  velocities differ by at most " << UWorst
+            << ", of " << UScale << endl;
+
+        holds = (wWorst <= wBound && xWorst <= xBound && UWorst <= UBound);
+    }
+
+    if (knownFailure)
+    {
+        Info<< (holds ? "  (pinned)" : "  (known failure)") << endl;
+
+        if (holds)
+        {
+            WarningInFunction
+                << what << " is pinned as a known failure, and now holds."
+                << nl
+                << "    Remove the pin from the test, so that the defect is"
+                << " caught if it returns." << nl << endl;
+        }
+
+        return true;
+    }
+
+    if (!holds)
+    {
+        FatalErrorInFunction
+            << "It is not the case that " << what << "." << nl
+            << exit(FatalError);
+    }
+
+    Info<< "  it does" << endl;
+
+    return true;
+}
+
+
+//- The same moment set with the size coordinate scaled by s and the whole
+//  measure by c
+multivariateMomentSet scaledMoments
+(
+    const multivariateMomentSet& moments,
+    const labelListList& momentOrders,
+    const label nDims,
+    const scalar s,
+    const scalar c,
+    const scalar smallM0
+)
+{
+    multivariateMomentSet scaled
+    (
+        momentOrders.size(),
+        momentOrders,
+        List<supportType>(nDims, supportType::R),
+        smallM0,
+        SMALL
+    );
+
+    forAll(momentOrders, mi)
+    {
+        const labelList& momentOrder = momentOrders[mi];
+
+        scaled(momentOrder) =
+            c*pow(s, momentOrder[0])*moments(momentOrder);
+    }
+
+    return scaled;
+}
+
+
 int main()
 {
     #include "createFields.H"
@@ -407,6 +599,108 @@ int main()
         nSizeNodes,
         tolerance
     );
+
+
+    // * * * * * * * * * * * * * * The two scales * * * * * * * * * * * * //
+
+    // The measure written small. A weight is then a small number in its own
+    // units, as a volume fraction of particles of a few nanometres is, and
+    // the threshold the moment of order zero is cut at has to be lowered
+    // with it: that entry is written here, where the inversion reads it.
+    {
+        const scalar c = 1.0e-20;
+        const scalar smallM0 = 1.0e-40;
+
+        dictionary smallMeasure(quadratureProperties);
+        smallMeasure.set("smallM0", smallM0);
+
+        const quadratureOf reference
+        (
+            invertOnce<multivariateMomentInversions::sizeCHyQMOM>
+            (
+                smallMeasure, moments, momentOrders, nodeIndexes,
+                velocityIndexes
+            )
+        );
+
+        quadratureOf expected(reference);
+
+        forAll(expected.w, nodei)
+        {
+            expected.w[nodei] *= c;
+        }
+
+        const quadratureOf computed
+        (
+            invertOnce<multivariateMomentInversions::sizeCHyQMOM>
+            (
+                smallMeasure,
+                scaledMoments
+                (
+                    moments, momentOrders, nDims, 1.0, c, smallM0
+                ),
+                momentOrders, nodeIndexes, velocityIndexes
+            )
+        );
+
+        compareQuadratures
+        (
+            computed,
+            expected,
+            tolerance,
+            "scaling the measure by " + Foam::name(c)
+          + " scales the weights by it and moves nothing else"
+        );
+    }
+
+    // The size coordinate written in smaller units, as a volume in cubic
+    // metres is against a diameter in metres. Pinned: the zeta_k the
+    // realizability check compares with smallZeta carry the units of the
+    // abscissa, so a size small enough in them is declared degenerate.
+    // Normalising the size moments before they are inverted is what makes
+    // this hold, and the pin comes out with it.
+    {
+        const scalar sizeScale = 1.0e-18;
+
+        const quadratureOf reference
+        (
+            invertOnce<multivariateMomentInversions::sizeCHyQMOM>
+            (
+                quadratureProperties, moments, momentOrders, nodeIndexes,
+                velocityIndexes
+            )
+        );
+
+        quadratureOf expected(reference);
+
+        forAll(expected.x, nodei)
+        {
+            expected.x[nodei] *= sizeScale;
+        }
+
+        const quadratureOf computed
+        (
+            invertOnce<multivariateMomentInversions::sizeCHyQMOM>
+            (
+                quadratureProperties,
+                scaledMoments
+                (
+                    moments, momentOrders, nDims, sizeScale, 1.0, SMALL
+                ),
+                momentOrders, nodeIndexes, velocityIndexes
+            )
+        );
+
+        compareQuadratures
+        (
+            computed,
+            expected,
+            tolerance,
+            "scaling the size coordinate by " + Foam::name(sizeScale)
+          + " scales the size abscissae by it and moves nothing else",
+            true                            // known failure, see above
+        );
+    }
 
     Info<< "\n\nEnd\n" << endl;
 

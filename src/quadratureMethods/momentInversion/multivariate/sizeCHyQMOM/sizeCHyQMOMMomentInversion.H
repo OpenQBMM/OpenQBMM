@@ -96,6 +96,9 @@ class sizeCHyQMOMBase
         //- Calculate the number of pure size moments
         label calcNSizeMoments(const labelListList& momentOrders);
 
+        //- The dictionary the size direction is inverted with
+        static dictionary sizeQuadratureDict(const dictionary& dict);
+
 
 public:
 

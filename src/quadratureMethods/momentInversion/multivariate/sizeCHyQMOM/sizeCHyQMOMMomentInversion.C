@@ -65,7 +65,7 @@ sizeCHyQMOMBase
     ),
     sizeInverter_
     (
-        univariateMomentInversion::New(dict.subDict("basicQuadrature"))
+        univariateMomentInversion::New(sizeQuadratureDict(dict))
     ),
     velocityInverter_
     (
@@ -83,12 +83,22 @@ sizeCHyQMOMBase
             )
         )
     ),
-    smallM0_(SMALL),
-    smallZeta_(SMALL)
-{
-    smallM0_ = max(velocityInverter_().smallM0(), sizeInverter_().smallM0());
-    smallZeta_ = max(SMALL, sizeInverter_().smallZeta());
-}
+    // Both thresholds are those of the quadrature of the size direction,
+    // which is the one the zero-order moment and the zeta_k of the whole
+    // distribution belong to, and sizeQuadratureDict has already given it
+    // the value written where the two quadratures meet.
+    //
+    // They used to be the larger of the values of the two sub-inverters,
+    // which meant a value written in either place could only ever raise
+    // the threshold: the default of the other one silently overrode it.
+    smallM0_(sizeInverter_().smallM0()),
+    // The zeta_k carry the dimensions of the abscissa, so this floor is a
+    // threshold on a size, and a coordinate small enough in its own units
+    // is declared degenerate by it. It is kept until the size moments are
+    // normalised before they are inverted, which is what makes the
+    // threshold mean the same thing at every scale.
+    smallZeta_(max(SMALL, sizeInverter_().smallZeta()))
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -133,6 +143,34 @@ calcNSizeMoments
     }
 
     return maxOrder + 1;
+}
+
+
+template<class velocityInversion>
+Foam::dictionary
+Foam::multivariateMomentInversions::sizeCHyQMOMBase<velocityInversion>::
+sizeQuadratureDict
+(
+    const dictionary& dict
+)
+{
+    dictionary sizeDict(dict.subDict("basicQuadrature"));
+
+    // A threshold written where the size and the velocity quadratures meet
+    // governs the inversion of the size direction as well, so that one
+    // entry sets it for the whole of the inversion: the quadrature of the
+    // size direction keeps a value of its own, and cuts the zero-order
+    // moment at it before anything above it is reached. Written in neither
+    // place, each keeps the default it was given.
+    for (const word& key : {word("smallM0"), word("smallZeta")})
+    {
+        if (dict.found(key))
+        {
+            sizeDict.set(key, dict.get<scalar>(key));
+        }
+    }
+
+    return sizeDict;
 }
 
 
@@ -200,7 +238,18 @@ invert
         forAll(sizeWeights, nodei)
         {
             x[nodei] = sizeAbscissae[nodei];
-            invR[nodei][nodei] = 1.0/max(sizeWeights[nodei], SMALL);
+
+            // The row of a size node that carries no particles is not read
+            // back below, so it only has to be finite. Everywhere else the
+            // weight is divided by as it is: flooring it scaled the
+            // conditional velocity moments of a node that does carry
+            // particles by whatever the ratio of the two happened to be,
+            // which a weight is free to be below wherever the measure is
+            // small in its own units.
+            invR[nodei][nodei] =
+                sizeWeights[nodei] > smallM0()
+              ? 1.0/sizeWeights[nodei]
+              : 0.0;
         }
 
         // The Vandermonde system has to be built from the abscissae the
