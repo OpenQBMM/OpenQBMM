@@ -418,6 +418,177 @@ void testDegenerateVarianceGQMOM
 }
 
 
+// Invert one distribution written at several scales of its abscissa, and
+// require the quadrature to follow it. A population of droplets is the same
+// population whether its size is written in metres, in microns or as a
+// volume in cubic metres, so the weights have to come back unchanged and the
+// abscissae scaled by the same factor.
+//
+// It holds because smallZeta, the threshold the zeta_k of the realizability
+// check are compared with, defaults to zero. The zeta_k carry the units of
+// the abscissa, so any positive value of it is a threshold on a size, and a
+// coordinate small enough in its own units would be called degenerate
+// however well spread it is. sizeCHyQMOM forced smallZeta to SMALL and had
+// to normalise its size moments for exactly that reason; this test is what
+// says the univariate inversion needs no such treatment.
+//  The abscissae a quadrature is told to place a node at scale with the
+//  coordinate as every other abscissa does, so they are given here in the
+//  units of the unscaled one. Gauss-Lobatto needs both of them.
+void testScaleInvariance
+(
+    dictionary& dict,
+    const word& quadratureName,
+    const label nMaxNodes = 0,
+    const scalar minKnownAbscissa = 0,
+    const scalar maxKnownAbscissa = 0
+)
+{
+    // Six moments of a quadrature of three nodes, which the inversion
+    // reproduces exactly
+    const scalarList w({0.2, 0.5, 0.3});
+    const scalarList x({0.5, 1.5, 3.0});
+    const label nMoments = 6;
+
+    Info<< "\nTesting the scale invariance of " << quadratureName.c_str()
+        << "\n" << endl;
+
+    autoPtr<univariateMomentInversion> inversion
+    (
+        univariateMomentInversion::New(dict, nMaxNodes)
+    );
+
+    const label nAdditionalPoints =
+        inversion().nAdditionalQuadraturePoints(nMoments);
+
+    // The quadrature of the distribution written at one scale of its
+    // abscissa, copied out of the inverter so that two can be compared
+    auto quadratureAt = [&](const scalar scale)
+    {
+        scalarList moments(nMoments, Zero);
+
+        forAll(moments, k)
+        {
+            forAll(w, i)
+            {
+                moments[k] += w[i]*pow(scale*x[i], k);
+            }
+        }
+
+        univariateMomentSet m
+        (
+            moments,
+            supportType::RPlus,
+            inversion().smallM0(),
+            inversion().smallZeta(),
+            nAdditionalPoints
+        );
+
+        inversion().invert
+        (
+            m,
+            scale*minKnownAbscissa,
+            scale*maxKnownAbscissa
+        );
+
+        return Tuple2<scalarList, scalarList>
+        (
+            inversion().weights(),
+            inversion().abscissae()
+        );
+    };
+
+    const Tuple2<scalarList, scalarList> reference(quadratureAt(1.0));
+
+    Info<< "  at a scale of 1: weights " << reference.first()
+        << ", abscissae " << reference.second() << endl;
+
+    const scalar tolerance = 1.0e-12;
+
+    // A micron written in metres, the volume of a micron-sized particle
+    // written in cubic metres, and a scale as far the other way
+    for (const scalar scale : {1.0e-6, 1.0e-18, 1.0e6})
+    {
+        const Tuple2<scalarList, scalarList> q(quadratureAt(scale));
+
+        const scalarList& weights = q.first();
+        const scalarList& abscissae = q.second();
+
+        if
+        (
+            weights.size() != reference.first().size()
+         || abscissae.size() != reference.second().size()
+        )
+        {
+            FatalErrorInFunction
+                << quadratureName << " builds a different number of nodes "
+                << "when the abscissa is scaled by " << scale << "." << nl
+                << "    Number of nodes: " << weights.size()
+                << ", expected " << reference.first().size() << nl
+                << exit(FatalError);
+        }
+
+        // Each list is measured against the largest of its own entries
+        // rather than against each entry on its own: a quadrature is free
+        // to place a node at zero, as Gauss-Lobatto does at the abscissa it
+        // is told to, and such a node would otherwise be asked to come back
+        // to no error at all.
+        scalar weightScale = 0;
+        scalar abscissaScale = 0;
+
+        forAll(weights, nodei)
+        {
+            weightScale = max(weightScale, mag(reference.first()[nodei]));
+            abscissaScale = max(abscissaScale, mag(reference.second()[nodei]));
+        }
+
+        scalar worstWeight = 0;
+        scalar worstAbscissa = 0;
+
+        forAll(weights, nodei)
+        {
+            worstWeight =
+                max
+                (
+                    worstWeight,
+                    mag(weights[nodei] - reference.first()[nodei])
+                   /max(weightScale, SMALL)
+                );
+
+            worstAbscissa =
+                max
+                (
+                    worstAbscissa,
+                    mag(abscissae[nodei]/scale - reference.second()[nodei])
+                   /max(abscissaScale, SMALL)
+                );
+        }
+
+        Info<< "  at a scale of " << scale << ": the weights differ by "
+            << worstWeight << " and the abscissae by " << worstAbscissa
+            << endl;
+
+        if (worstWeight > tolerance || worstAbscissa > tolerance)
+        {
+            FatalErrorInFunction
+                << quadratureName << " does not invert the same distribution "
+                << "to the same quadrature when the units of its abscissa "
+                << "change." << nl
+                << "    Scale: " << scale << nl
+                << "    Weights: " << weights << nl
+                << "    Weights at a scale of one: " << reference.first() << nl
+                << "    Abscissae over the scale: " << abscissae/scale << nl
+                << "    Abscissae at a scale of one: " << reference.second()
+                << nl
+                << "    Tolerance: " << tolerance << nl
+                << exit(FatalError);
+        }
+    }
+
+    Info<< "\n" << quadratureName.c_str()
+        << " inverts the same quadrature at every scale.\n" << endl;
+}
+
+
 int main(int argc, char *argv[])
 {
     Info<< setprecision(16);
@@ -806,6 +977,11 @@ int main(int argc, char *argv[])
 
     testDegenerateVarianceGQMOM(quadraturePropertiesGQMOM, "gamma");
     testDegenerateVarianceGQMOM(quadraturePropertiesGQMOM, "lognormal");
+
+    testScaleInvariance(quadraturePropertiesGauss, "Gauss");
+    testScaleInvariance(quadraturePropertiesRadau, "Gauss-Radau");
+    testScaleInvariance(quadraturePropertiesLobatto, "Gauss-Lobatto", 0, 0, 3.5);
+    testScaleInvariance(quadraturePropertiesGQMOM, "GQMOM", 5);
 
     Info<< "\nEnd\n" << endl;
 
