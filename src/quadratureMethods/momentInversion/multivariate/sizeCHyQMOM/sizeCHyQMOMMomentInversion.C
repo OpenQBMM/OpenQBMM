@@ -92,11 +92,11 @@ sizeCHyQMOMBase
     // which meant a value written in either place could only ever raise
     // the threshold: the default of the other one silently overrode it.
     smallM0_(sizeInverter_().smallM0()),
-    // The zeta_k carry the dimensions of the abscissa, so this floor is a
-    // threshold on a size, and a coordinate small enough in its own units
-    // is declared degenerate by it. It is kept until the size moments are
-    // normalised before they are inverted, which is what makes the
-    // threshold mean the same thing at every scale.
+    // The zeta_k carry the dimensions of the abscissa, so a floor on them
+    // is a threshold on a size. It is a threshold on a size written in
+    // units of its own mean, which invert normalises the size moments to,
+    // and so means the same thing whatever the size of a particle is
+    // written in.
     smallZeta_(max(SMALL, sizeInverter_().smallZeta()))
 {}
 
@@ -194,6 +194,23 @@ invert
         return true;
     }
 
+    // The size direction is inverted in units of its own mean, and the
+    // abscissae are written back in the units of the case below.
+    //
+    // Whether a moment set is realizable is a property of the distribution
+    // and not of the units its abscissa is measured in, but the zeta_k the
+    // check compares with smallZeta carry those units: a coordinate small
+    // enough in them, as a volume of a micron-sized particle is in cubic
+    // metres, is declared degenerate however well spread it is. Dividing
+    // the moment of order k by the mean size to the power k leaves zeta_0
+    // at one and the rest of order one, so that the threshold means the
+    // same thing whether the size is a length, a volume or a mass.
+    //
+    // A mean size that is not positive is left alone: the moment set is
+    // then unrealizable over R+, which the check below is what says.
+    const scalar meanSize = moments(1)/m0;
+    const scalar sizeScale = meanSize > 0 ? meanSize : 1.0;
+
     univariateMomentSet sizeMoments
     (
         nSizeMoments_,
@@ -202,9 +219,12 @@ invert
         smallZeta(),
         Zero);
 
+    scalar scaleToPower = 1.0;
+
     forAll(sizeMoments, mi)
     {
-        sizeMoments[mi] = moments(mi);
+        sizeMoments[mi] = moments(mi)/scaleToPower;
+        scaleToPower *= sizeScale;
     }
 
     if (!sizeMoments.isRealizable(false))
@@ -224,7 +244,7 @@ invert
         if (sizeNode < sizeInverter_->nNodes())
         {
             weights_(nodeIndex) = sizeWeights[sizeNode];
-            abscissae_(nodeIndex)[0] = sizeAbscissae[sizeNode];
+            abscissae_(nodeIndex)[0] = sizeAbscissae[sizeNode]*sizeScale;
         }
     }
 
@@ -235,6 +255,11 @@ invert
         scalarDiagonalMatrix x(nSizeNodes, Zero);
         scalarSquareMatrix invR(nSizeNodes, Zero);
 
+        // The system is built and solved in the units the size direction
+        // was inverted in, where the abscissae are of order one whatever
+        // the size of a particle is written in. The conditional velocity
+        // moments it returns are the same either way, since the moments it
+        // is given are divided by the same powers of the scale.
         forAll(sizeWeights, nodei)
         {
             x[nodei] = sizeAbscissae[nodei];
@@ -299,10 +324,13 @@ invert
 
             scalarRectangularMatrix M(nSizeNodes, 1, 0);
 
+            scalar scaleToPowerOfNode = 1.0;
+
             for (label sNodei = 0; sNodei < nSizeNodes; sNodei++)
             {
                 pureMomentOrder[0] = sNodei;
-                M(sNodei, 0) = moments(pureMomentOrder);
+                M(sNodei, 0) = moments(pureMomentOrder)/scaleToPowerOfNode;
+                scaleToPowerOfNode *= sizeScale;
             }
 
             scalarRectangularMatrix nu = invVR*M;

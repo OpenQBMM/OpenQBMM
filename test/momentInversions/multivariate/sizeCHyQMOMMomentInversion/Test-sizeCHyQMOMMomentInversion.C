@@ -654,11 +654,11 @@ int main()
     }
 
     // The size coordinate written in smaller units, as a volume in cubic
-    // metres is against a diameter in metres. Pinned: the zeta_k the
-    // realizability check compares with smallZeta carry the units of the
-    // abscissa, so a size small enough in them is declared degenerate.
-    // Normalising the size moments before they are inverted is what makes
-    // this hold, and the pin comes out with it.
+    // metres is against a diameter in metres. What makes this hold is that
+    // the size moments are normalised by their own mean before they are
+    // inverted: the zeta_k the realizability check compares with smallZeta
+    // carry the units of the abscissa, so without that a size small enough
+    // in them is declared degenerate however well spread it is.
     {
         const scalar sizeScale = 1.0e-18;
 
@@ -697,8 +697,7 @@ int main()
             expected,
             tolerance,
             "scaling the size coordinate by " + Foam::name(sizeScale)
-          + " scales the size abscissae by it and moves nothing else",
-            true                            // known failure, see above
+          + " scales the size abscissae by it and moves nothing else"
         );
     }
 
