@@ -76,6 +76,11 @@ runTest ./univariateQuadratureApproximation/testCase \
 runTest ./populationBalanceSubModels/testCase \
     Test-PopulationBalanceSubModels
 
+# Source of the nucleation of particles in a size-velocity population
+# balance, whose nuclei are born with the velocity of the continuous phase
+runTest ./sizeVelocityNucleation/testCase \
+    Test-SizeVelocityNucleation
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

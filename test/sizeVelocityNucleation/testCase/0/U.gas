@@ -1,0 +1,35 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U.gas;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//  The velocity of the gas the nuclei form out of, which they are born
+//  with. Its two components in the plane of the velocity coordinates are
+//  different from each other, and from the velocity of the particles, so
+//  that a moment which took the wrong one does not agree by accident.
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0.7 -0.3 0);
+
+boundaryField
+{
+    walls
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //

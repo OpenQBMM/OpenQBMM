@@ -197,7 +197,20 @@ Foam::PDFTransportModels::populationBalanceModels::univariatePopulationBalance
 
     if (nucleation_)
     {
-        source += nucleationModel_->nucleationSource(momentOrder[0], celli);
+        const volScalarNode& node0 = quadrature.nodes()[0];
+
+        label sizeOrder = momentOrder[0];
+
+        // A dimensionless weight is a volume fraction, so the moments carry
+        // volume and the nuclei have to be added to it in volume as well,
+        // as aggregation, breakup and growth already do
+        if (node0.useVolumeFraction() && node0.sizeIndex() != -1)
+        {
+            sizeOrder += node0.lengthBased() ? 3 : 1;
+        }
+
+        source +=
+            nucleationModel_->nucleationSource(sizeOrder, celli, environment);
     }
 
     return source;

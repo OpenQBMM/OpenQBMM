@@ -1,0 +1,68 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      populationBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+populationBalanceModel sizeVelocity;
+
+sizeVelocityCoeffs
+{
+    aggregation off;
+    breakup     off;
+    growth      off;
+    collision   off;
+
+    collisionKernel
+    {
+        collisionKernel noCollision;
+
+        //  No collision is computed, but the kernel is built in any case
+        //  and asks for the density of the particles, which no thermo
+        //  registers here
+        rho             rho          [1 -3 0 0 0 0 0] 1800;
+    }
+
+    //  Nucleation alone, so that what the moments gain is its source
+    nucleation on;
+
+    nucleationModel
+    {
+        nucleationModel constant;
+
+        //  The phase the nuclei form out of, whose velocity they are born
+        //  with
+        continuousPhase gas;
+
+        //  The size is written in the units of the abscissae of the case,
+        //  a diameter here
+        nucleationRate  nucleationRate [0 -3 0 0 0 0 -1] 1.0e11;
+        nucleationSize  nucleationSize [0 1 0 0 0 0 0]   5.0e-6;
+    }
+
+    odeCoeffs
+    {
+        //  Explicit Euler, so that what a moment gains over the step is
+        //  its source times the length of the step
+        solveOde   off;
+        ATol       1.0e-8;
+        RTol       1.0e-6;
+        fac        0.9;
+        facMin     0.2;
+        facMax     5.0;
+        minLocalDt 1.0e-8;
+    }
+}
+
+// ************************************************************************* //

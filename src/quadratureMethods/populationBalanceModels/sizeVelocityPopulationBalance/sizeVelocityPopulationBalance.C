@@ -65,7 +65,8 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
     aggregationKernel_(),
     breakupKernel_(),
     growthModel_(),
-    nucleationModel_()
+    nucleationModel_(),
+    Uc_()
 {
     if (aggregation_)
     {
@@ -106,14 +107,58 @@ Foam::PDFTransportModels::populationBalanceModels::sizeVelocityPopulationBalance
             );
     }
 
+    // The switch used to be read and the source left out, so a case that
+    // asked for nucleation ran without it and did not say so
     if (nucleation_)
     {
+        const dictionary& nucleationDict = dict.subDict("nucleationModel");
+
         nucleationModel_ =
             Foam::populationBalanceSubModels::nucleationModel::New
             (
-                dict.subDict("nucleationModel"),
+                nucleationDict,
                 phi_.mesh()
             );
+
+        // The nuclei form out of the continuous phase and, at the size they
+        // appear with, follow it without slip, so they are born with its
+        // velocity: in velocity space the source is a delta at Uc. Only the
+        // mean velocity is inherited, so nucleation adds no granular
+        // temperature; giving the nuclei the fluctuating velocity of the
+        // carrier as well would be a refinement of this closure, not
+        // something it already contains.
+        const word continuousPhase
+        (
+            nucleationDict.lookupOrDefault("continuousPhase", word::null)
+        );
+
+        const word UcName(IOobject::groupName("U", continuousPhase));
+        const fvMesh& mesh = phi_.mesh();
+
+        if (!mesh.foundObject<volVectorField>(UcName))
+        {
+            FatalIOErrorInFunction(nucleationDict)
+                << "The nuclei are born with the velocity of the phase they "
+                << "form out of, and the field " << UcName << " does not "
+                << "exist." << nl
+                << "    Set continuousPhase to the name of that phase." << nl
+                << exit(FatalIOError);
+        }
+
+        Uc_.cref(mesh.lookupObject<volVectorField>(UcName));
+
+        // The size the nuclei are born with comes from the nucleation model,
+        // the value of any other internal coordinate is not modelled
+        const volVelocityNode& node0 = quadrature_.nodes()[0];
+
+        if (node0.sizeIndex() == -1 || node0.scalarIndexes().size() > 1)
+        {
+            FatalIOErrorInFunction(nucleationDict)
+                << "Nucleation needs a quadrature in which the size of the "
+                << "particles is the only internal coordinate other than "
+                << "their velocity." << nl
+                << exit(FatalIOError);
+        }
     }
 }
 
@@ -177,11 +222,6 @@ Foam::PDFTransportModels::populationBalanceModels
 {
     scalar source(0);
 
-//     if (nucleation_)
-//     {
-//         source += nucleationModel_->nucleationSource(momentOrder[0], celli);
-//     }
-
     // Collision source term
     if (collision_)
     {
@@ -223,6 +263,38 @@ Foam::PDFTransportModels::populationBalanceModels
                 celli,
                 quadrature
             );
+    }
+
+    // Nucleation source term
+    if (nucleation_)
+    {
+        const volVelocityNode& node0 = quadrature.nodes()[0];
+
+        label sizeOrder = momentOrder[node0.sizeIndex()];
+
+        // A dimensionless weight is a volume fraction, so the moments carry
+        // volume and the nuclei have to be added to it in volume as well,
+        // as aggregation, breakup and growth already do
+        if (node0.useVolumeFraction())
+        {
+            sizeOrder += node0.lengthBased() ? 3 : 1;
+        }
+
+        scalar nSource =
+            nucleationModel_->nucleationSource(sizeOrder, celli, environment);
+
+        // The delta in velocity space multiplies the source of the size
+        // moment by the velocity of the nuclei, raised to the order of
+        // the moment in each of its components
+        const vector& Uc = Uc_()[celli];
+        const labelList& velocityIndexes = node0.velocityIndexes();
+
+        forAll(velocityIndexes, cmpt)
+        {
+            nSource *= pow(Uc[cmpt], momentOrder[velocityIndexes[cmpt]]);
+        }
+
+        source += nSource;
     }
 
     return source;

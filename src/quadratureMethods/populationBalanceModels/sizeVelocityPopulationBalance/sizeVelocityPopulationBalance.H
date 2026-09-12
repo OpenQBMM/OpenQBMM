@@ -107,6 +107,11 @@ class sizeVelocityPopulationBalance
             Foam::populationBalanceSubModels::nucleationModel
         > nucleationModel_;
 
+        //- Velocity of the phase the nuclei form out of, held as a
+        //  reference to the field of that phase and empty unless
+        //  nucleation is used
+        tmp<volVectorField> Uc_;
+
     // Private member functions
 
 //         //- Update explicit collison source terms
