@@ -589,6 +589,118 @@ void testScaleInvariance
 }
 
 
+// Gauss-Lobatto fixes a node at each of two abscissae. Given an interval
+// that is empty, the system that corrects the last coefficients of the
+// recurrence is singular, and the inversion has to say so rather than return
+// the 0/0 it used to, which surfaced later as a coefficient the Golub-Welsch
+// algorithm found not to be finite.
+//
+// With exceptions on, any fatal error is caught, the Golub-Welsch one
+// included, so the refusal is required to come from the Gauss-Lobatto
+// inversion itself: otherwise the check would pass on the defect it is
+// meant to catch.
+void testLobattoRefusesAnEmptyInterval(dictionary& dict)
+{
+    Info<< "\nTesting that Gauss-Lobatto refuses an empty interval\n" << endl;
+
+    // Six moments of a quadrature of three nodes
+    const scalarList w({0.2, 0.5, 0.3});
+    const scalarList x({0.5, 1.5, 3.0});
+    const label nMoments = 6;
+
+    scalarList moments(nMoments, Zero);
+
+    forAll(moments, k)
+    {
+        forAll(w, i)
+        {
+            moments[k] += w[i]*pow(x[i], k);
+        }
+    }
+
+    // Both at zero, which is what invert defaults to and what the
+    // inversions that call it without abscissae pass; equal and away from
+    // zero; and the wrong way round
+    const List<Pair<scalar>> intervals
+    ({
+        Pair<scalar>(0.0, 0.0),
+        Pair<scalar>(1.5, 1.5),
+        Pair<scalar>(3.5, 0.0)
+    });
+
+    for (const Pair<scalar>& interval : intervals)
+    {
+        autoPtr<univariateMomentInversion> inversion
+        (
+            univariateMomentInversion::New(dict)
+        );
+
+        univariateMomentSet m
+        (
+            moments,
+            supportType::RPlus,
+            inversion().smallM0(),
+            inversion().smallZeta(),
+            inversion().nAdditionalQuadraturePoints(nMoments)
+        );
+
+        const bool throwing = FatalError.throwing(true);
+
+        bool refusedHere = false;
+        string refusedElsewhere;
+
+        try
+        {
+            inversion().invert(m, interval.first(), interval.second());
+        }
+        catch (const Foam::error& err)
+        {
+            if (err.sourceFileName().find("gaussLobatto") != string::npos)
+            {
+                refusedHere = true;
+            }
+            else
+            {
+                refusedElsewhere = err.sourceFileName();
+            }
+        }
+
+        FatalError.throwing(throwing);
+
+        Info<< "  minKnownAbscissa " << interval.first()
+            << ", maxKnownAbscissa " << interval.second() << ": ";
+
+        if (refusedHere)
+        {
+            Info<< "refused" << endl;
+            continue;
+        }
+
+        if (!refusedElsewhere.empty())
+        {
+            FatalErrorInFunction
+                << "Gauss-Lobatto did not refuse an empty interval itself: "
+                << "the inversion failed further on, in "
+                << refusedElsewhere.c_str() << "." << nl
+                << "    minKnownAbscissa: " << interval.first() << nl
+                << "    maxKnownAbscissa: " << interval.second() << nl
+                << exit(FatalError);
+        }
+
+        FatalErrorInFunction
+            << "Gauss-Lobatto inverted a moment set on an empty interval "
+            << "instead of refusing it." << nl
+            << "    minKnownAbscissa: " << interval.first() << nl
+            << "    maxKnownAbscissa: " << interval.second() << nl
+            << "    Weights: " << inversion().weights() << nl
+            << "    Abscissae: " << inversion().abscissae() << nl
+            << exit(FatalError);
+    }
+
+    Info<< "\nGauss-Lobatto refuses an empty interval.\n" << endl;
+}
+
+
 int main(int argc, char *argv[])
 {
     Info<< setprecision(16);
@@ -981,6 +1093,8 @@ int main(int argc, char *argv[])
     testScaleInvariance(quadraturePropertiesGauss, "Gauss");
     testScaleInvariance(quadraturePropertiesRadau, "Gauss-Radau");
     testScaleInvariance(quadraturePropertiesLobatto, "Gauss-Lobatto", 0, 0, 3.5);
+
+    testLobattoRefusesAnEmptyInterval(quadraturePropertiesLobatto);
     testScaleInvariance(quadraturePropertiesGQMOM, "GQMOM", 5);
 
     Info<< "\nEnd\n" << endl;

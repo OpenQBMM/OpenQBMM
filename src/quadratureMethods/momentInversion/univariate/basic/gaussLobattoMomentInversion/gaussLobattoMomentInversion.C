@@ -83,7 +83,30 @@ void Foam::gaussLobattoMomentInversion::correctRecurrence
     else
     {
         // Both abscissae are fixed, which requires correcting the last alpha
-        // and beta coefficients by solving a 2x2 system
+        // and beta coefficients by solving a 2x2 system.
+        //
+        // The system is singular when the two abscissae coincide: the
+        // orthogonal polynomials take the same values at both, so its
+        // determinant is zero and both coefficients come out as 0/0. That
+        // used to surface only later, as a coefficient of the recurrence the
+        // Golub-Welsch algorithm found not to be finite, which says nothing
+        // of the cause. The inversions that select their univariate
+        // quadrature at run time and call invert with its default
+        // abscissae, which are both zero, reach it as soon as Gauss-Lobatto
+        // is selected.
+        if (maxKnownAbscissa <= minKnownAbscissa)
+        {
+            FatalErrorInFunction
+                << "Gauss-Lobatto places a node at each of two abscissae, "
+                << "which have to be distinct." << nl
+                << "    minKnownAbscissa: " << minKnownAbscissa << nl
+                << "    maxKnownAbscissa: " << maxKnownAbscissa << nl
+                << "    Give maxKnownAbscissa above minKnownAbscissa, or "
+                << "select a quadrature that does not fix both ends of the "
+                << "support." << nl
+                << exit(FatalError);
+        }
+
         scalar pMinus1Left = 1.0;
         scalar pMinus1Right = 1.0;
 
