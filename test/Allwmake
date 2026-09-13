@@ -25,6 +25,7 @@ wmakeStatus momentAdvection
 wmakeStatus populationBalanceModel
 wmakeStatus populationBalanceSubModels
 wmakeStatus sizeVelocityNucleation
+wmakeStatus realizableOdeSolver
 wmakeStatus univariateQuadratureApproximation
 wmakeStatus univariateMomentAdvection/setMoments1D
 wmakeStatus univariateMomentAdvection/setMoments2D

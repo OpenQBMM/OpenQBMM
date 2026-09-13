@@ -81,6 +81,11 @@ runTest ./populationBalanceSubModels/testCase \
 runTest ./sizeVelocityNucleation/testCase \
     Test-SizeVelocityNucleation
 
+# The realizable ODE solver integrates a source over every step, whatever
+# the lengths of the steps and however small the moments are in their units
+runTest ./realizableOdeSolver/testCase \
+    Test-RealizableOdeSolver
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

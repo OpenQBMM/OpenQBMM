@@ -1,0 +1,52 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      populationBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+populationBalanceModel univariate;
+
+univariateCoeffs
+{
+    aggregation off;
+    breakup     off;
+    nucleation  off;
+
+    diffusionModel
+    {
+        diffusionModel  none;
+    }
+
+    //  Growth at a constant rate, whose effect on the moments is known in
+    //  closed form: every size grows by Cg per unit time
+    growth on;
+    growthModel
+    {
+        growthModel     constant;
+        Cg              5.0e-8;
+    }
+
+    odeCoeffs
+    {
+        solveOde   on;
+        ATol       1.0e-8;
+        RTol       1.0e-4;
+        fac        0.9;
+        facMin     0.5;
+        facMax     2.0;
+        minLocalDt 1.0e-6;
+    }
+}
+
+// ************************************************************************* //

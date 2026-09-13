@@ -148,8 +148,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         //- Local time
         scalar localT(0);
 
-        // Initialize the local step
-        scalar localDt = localDt_[celli];
+        scalar localDt = min(localDt_[celli], globalDt);
 
         // Initialize RK parameters
         scalarList k1(nMoments, Zero);
@@ -190,21 +189,42 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                     moments[mi][celli] = oldMoments[mi] + k1[mi];
 
-                    if (mag(k1[mi]) > SMALL)
+                    // A source is null when it moves no moment by more than
+                    // a vanishing part of the tolerance of that moment. It
+                    // used to be null below SMALL, an absolute number: a
+                    // cell whose local step had shrunk to round-off then had
+                    // every source declared null, and stayed frozen.
+                    if
+                    (
+                        mag(k1[mi])
+                      > SMALL*(ATol_ + RTol_*mag(oldMoments[mi]))
+                    )
                     {
                         nullSource = false;
                     }
+                }
+
+                // Nothing acts on the cell, so it stays where it is for the
+                // whole of the step. The moments are put back rather than
+                // left with the negligible k1, and the quadrature with them.
+                if (nullSource)
+                {
+                    forAll(oldMoments, mi)
+                    {
+                        moments[mi][celli] = oldMoments[mi];
+                    }
+
+                    quadrature.updateLocalQuadrature(celli);
+
+                    localT = globalDt;
+                    timeComplete = true;
+                    break;
                 }
 
                 realizableUpdate1 =
                         quadrature.updateLocalQuadrature(celli, false);
 
                 quadrature.updateLocalMoments(celli);
-
-                if (nullSource)
-                {
-                    break;
-                }
 
                 // Second moment update
                 updateCellMomentSource(celli);
@@ -267,7 +287,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                     // Avoid spamming the terminal when not realizable
                     if (localDtAdjustments_ == 0)
                     {
-                        Info << "Not realizable, adjusting local timestep." 
+                        Info << "Not realizable, adjusting local timestep."
                              << nl
                              << "This may take a while." << endl;
                     }
@@ -301,6 +321,11 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
              || !realizableUpdate2
              || !realizableUpdate3
             );
+
+            if (timeComplete)
+            {
+                break;
+            }
 
             // Initialize error and change
             scalar error(0);
@@ -338,15 +363,21 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
             error = sqrt(error/nMoments);
 
-            if (error < SMALL || maxChange < SMALL)
+            // A substep over which no moment changed, to a vanishing part of
+            // its tolerance, leaves a cell that is stationary: it is done
+            // for the whole of the step. This used to be taken as complete
+            // as soon as either the change or the error estimate was
+            // vanishing, without the time integrated being advanced, so the
+            // rest of the step was dropped; and a substep the controller
+            // had already shrunk to round-off met it at once, every step.
+            if (maxChange < SMALL)
             {
+                localT = globalDt;
                 timeComplete = true;
 
-                // Exiting if the change is small but the error is not to
-                // avoid a possible infinite loop, but informing the user.
-                if (error > SMALL)
+                if (error >= 1)
                 {
-                    WarningInFunction 
+                    WarningInFunction
                         << "The maximum change in moments is small, "
                         << "but error is not.\n"
                         << nl
@@ -362,21 +393,27 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             else if (error < 1)
             {
                 localT += localDt;
+
                 localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
-                scalar maxLocalDt = max(globalDt - localT, scalar(0));
-                localDt = min(maxLocalDt, localDt);
 
                 forAll(oldMoments, mi)
                 {
                     oldMoments[mi] = moments[mi][celli];
                 }
 
-                if (localDt == 0.0)
+                // What is left of the global step. A remainder that is a
+                // vanishing part of it is round-off accumulated over the
+                // substeps, and is taken as the end of the step.
+                const scalar remaining = globalDt - localT;
+
+                if (remaining <= ROOTSMALL*globalDt)
                 {
+                    localT = globalDt;
                     timeComplete = true;
                     break;
                 }
 
+                localDt = min(remaining, localDt);
                 localDt_[celli] = localDt;
             }
             else
