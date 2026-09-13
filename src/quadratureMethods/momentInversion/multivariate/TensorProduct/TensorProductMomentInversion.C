@@ -150,6 +150,10 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
     labelList nNonZeroNodes(nNodes_.size(), 0);
     labelList zeroOrder(momentOrders_[0].size(), 0);
 
+    // The largest abscissa of each direction, which the system for the
+    // weights is solved in units of below
+    scalarList directionScale(nNodes_.size(), 1.0);
+
     label vi = 0;
     label si = 0;
 
@@ -182,6 +186,17 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
             univariateInverters_[dimi].abscissae();
 
         nNonZeroNodes[dimi] = abscissae.size();
+
+        scalar largestAbscissa = 0;
+
+        forAll(abscissae, nodei)
+        {
+            largestAbscissa = max(largestAbscissa, mag(abscissae[nodei]));
+        }
+
+        // A direction whose nodes all sit at zero is left in its own units,
+        // in which the system is not affected by it
+        directionScale[dimi] = largestAbscissa > 0 ? largestAbscissa : 1.0;
 
         if
         (
@@ -257,9 +272,27 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
     scalarList mixedMoments(nonZeroNodeIndexes.size(), Zero);
     scalarSquareMatrix R(nonZeroNodeIndexes.size(), 1.0);
 
+    // The system is a tensor-product Vandermonde matrix, whose row of
+    // orders (k, l, m) holds the abscissae of each node raised to those
+    // orders. In the units of the case its entries span one to the scale of
+    // a direction to the power of the largest order, and a direction small
+    // enough in its own units, as a volume in cubic metres is, leaves it
+    // singular to the elimination. Each abscissa is therefore divided by the
+    // scale of its direction, and each mixed moment by the scales raised to
+    // its orders, which divides both sides of the system by the same factor
+    // row by row and leaves the weights unchanged.
     forAll(nonZeroNodeIndexes, nodei)
     {
-        mixedMoments[nodei] = moments(nonZeroNodeIndexes[nodei]);
+        const labelList& order = nonZeroNodeIndexes[nodei];
+
+        scalar scaleOfOrder = 1.0;
+
+        forAll(order, dimi)
+        {
+            scaleOfOrder *= pow(directionScale[dimi], order[dimi]);
+        }
+
+        mixedMoments[nodei] = moments(order)/scaleOfOrder;
     }
 
     forAll(nonZeroNodeIndexes, mi)
@@ -276,7 +309,8 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
                     R(mi, nodei) *=
                         pow
                         (
-                            velocityAbscissae_(nonZeroNodeIndexes[nodei])[vi],
+                            velocityAbscissae_(nonZeroNodeIndexes[nodei])[vi]
+                           /directionScale[dimi],
                             nonZeroNodeIndexes[mi][dimi]
                         );
                     vi++;
@@ -286,7 +320,8 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
                     R(mi, nodei) *=
                         pow
                         (
-                            abscissae_(nonZeroNodeIndexes[nodei])[si],
+                            abscissae_(nonZeroNodeIndexes[nodei])[si]
+                           /directionScale[dimi],
                             nonZeroNodeIndexes[mi][dimi]
                         );
                     si++;

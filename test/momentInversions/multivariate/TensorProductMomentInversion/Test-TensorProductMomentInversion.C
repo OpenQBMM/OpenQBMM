@@ -446,19 +446,18 @@ int main(int argc, char *argv[])
         velocityIndexes
     );
 
-    // Pinned: the weights are solved for from a tensor-product Vandermonde
-    // matrix built from the abscissae in the units of the case, whose
-    // entries span 1 to scale^2 for the scaled direction, and which the
-    // elimination then finds singular. Solving it in the units of each
-    // direction is what makes this hold, and the pin comes out with it.
+    // What makes this hold is that each direction is inverted with its own
+    // thresholds, and that the tensor-product Vandermonde matrix the weights
+    // are solved for from is built in the units of each direction: in the
+    // units of the case its entries span 1 to scale^2 for the scaled
+    // direction, which the elimination finds singular.
     testScaleInvariance
     (
         quadratureProperties,
         momentOrders,
         nodeIndexes,
         velocityIndexes,
-        moments,
-        true                                // known failure, see above
+        moments
     );
 
     Info << "\nEnd\n" << endl;
