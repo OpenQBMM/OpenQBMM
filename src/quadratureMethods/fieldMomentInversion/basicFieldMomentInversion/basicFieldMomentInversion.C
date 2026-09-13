@@ -150,6 +150,8 @@ void Foam::basicFieldMomentInversion::invert
 {
     const volScalarField& m0(moments(0));
 
+    checkSmallM0(m0);
+
     forAll(m0, celli)
     {
         invertLocalMoments(moments, nodes, celli);

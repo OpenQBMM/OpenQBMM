@@ -69,6 +69,18 @@ protected:
         //- Node indexes used to map nodes
         const labelListList& nodeIndexes_;
 
+        //- Whether the population of the domain has been reported as close
+        //  to the threshold a cell is taken as empty at
+        mutable bool warnedSmallM0_;
+
+
+    // Protected member functions
+
+        //- Warn, once, when the largest zero-order moment the field reaches
+        //  is close enough to smallM0 that cells holding a real part of the
+        //  population would be taken as empty
+        void checkSmallM0(const volScalarField& m0) const;
+
 
 public:
 

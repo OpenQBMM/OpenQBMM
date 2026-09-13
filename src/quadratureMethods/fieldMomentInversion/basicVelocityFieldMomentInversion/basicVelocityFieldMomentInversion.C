@@ -160,6 +160,8 @@ void Foam::basicVelocityFieldMomentInversion::invert
 {
     const volScalarField& m0(moments(0));
 
+    checkSmallM0(m0);
+
     label nFailedCells = 0;
     label firstFailedCell = -1;
 

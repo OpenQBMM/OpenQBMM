@@ -52,7 +52,8 @@ Foam::fieldMomentInversion::fieldMomentInversion
 :
     mesh_(mesh),
     momentOrders_(momentOrders),
-    nodeIndexes_(nodeIndexes)
+    nodeIndexes_(nodeIndexes),
+    warnedSmallM0_(false)
 {}
 
 
@@ -60,6 +61,51 @@ Foam::fieldMomentInversion::fieldMomentInversion
 
 Foam::fieldMomentInversion::~fieldMomentInversion()
 {}
+
+
+// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
+
+void Foam::fieldMomentInversion::checkSmallM0(const volScalarField& m0) const
+{
+    if (warnedSmallM0_)
+    {
+        return;
+    }
+
+    // The zero-order moment carries the units of the weights, so smallM0 is
+    // an absolute number that means different things in different cases.
+    // With number densities it cuts nothing a real case holds; with the
+    // volume fractions of small particles it can empty cells full of them,
+    // and does so without saying. What can be told is how close the cut is
+    // to the population: within a factor of this of the largest zero-order
+    // moment in the domain, cells holding a millionth of that are taken as
+    // empty, which is worth a warning.
+    const scalar closeness = 1.0e6;
+
+    // The boundaries are included: a case that injects through one starts
+    // from an empty domain, with its population on the boundary until the
+    // first steps carry it in.
+    const scalar largestM0 = max(mag(m0)).value();
+
+    if (largestM0 <= 0 || largestM0 >= closeness*smallM0())
+    {
+        return;
+    }
+
+    warnedSmallM0_ = true;
+
+    WarningInFunction
+        << "The largest zero-order moment of " << m0.name() << " is "
+        << largestM0 << ", within a factor of " << closeness
+        << " of smallM0, " << smallM0() << "." << nl
+        << "    A cell whose zero-order moment is below smallM0 is taken as "
+        << "empty, so part of this population may be discarded." << nl
+        << "    If the weights are the volume fractions of small particles, "
+        << "set smallM0 in the dictionary of the moment inversion below the "
+        << "zero-order moment of the least populated cell that should be "
+        << "kept." << nl
+        << endl;
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
