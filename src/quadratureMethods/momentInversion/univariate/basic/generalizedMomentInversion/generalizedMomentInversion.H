@@ -126,9 +126,7 @@ public:
         (
             univariateMomentSet& moments,
             scalarList& alpha,
-            scalarList& beta,
-            const scalar minKnownAbscissa = 0,
-            const scalar maxKnownAbscissa = 0
+            scalarList& beta
         );
 
         //- Calculates the number of quadrature nodes
@@ -145,9 +143,7 @@ public:
         //- Invert the set of moments to compute weights and abscissae
         void invert
         (
-            univariateMomentSet& moments,
-            const scalar minKnownAbscissa = 0,
-            const scalar maxKnownAbscissa = 0
+            univariateMomentSet& moments
         );
 };
 

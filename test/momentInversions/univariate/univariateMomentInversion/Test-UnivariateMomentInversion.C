@@ -178,7 +178,7 @@ void testQuadrature
         univariateMomentInversion::New(dict, nMaxNodes)
     );
 
-    inversion().invert(m, 0, 1);
+    inversion().invert(m);
 
     scalarList weights(inversion().weights());
     scalarList abscissae(inversion().abscissae());
@@ -368,7 +368,7 @@ void testDegenerateVarianceGQMOM
         univariateMomentInversion::New(dict, 4)
     );
 
-    inversion().invert(m, 0, 1);
+    inversion().invert(m);
 
     // Four realizable moments give two regular nodes. GQMOM must not have
     // added any.
@@ -431,16 +431,18 @@ void testDegenerateVarianceGQMOM
 // however well spread it is. sizeCHyQMOM forced smallZeta to SMALL and had
 // to normalise its size moments for exactly that reason; this test is what
 // says the univariate inversion needs no such treatment.
-//  The abscissae a quadrature is told to place a node at scale with the
-//  coordinate as every other abscissa does, so they are given here in the
-//  units of the unscaled one. Gauss-Lobatto needs both of them.
+//  The abscissae a quadrature fixes a node at scale with the coordinate as
+//  every other abscissa does, so they are given here in the units of the
+//  unscaled one, and written into the dictionary the quadrature is built
+//  from at each scale. Gauss-Radau reads the lower one and Gauss-Lobatto
+//  both; Gauss and GQMOM read neither.
 void testScaleInvariance
 (
     dictionary& dict,
     const word& quadratureName,
     const label nMaxNodes = 0,
     const scalar minKnownAbscissa = 0,
-    const scalar maxKnownAbscissa = 0
+    const scalar maxKnownAbscissa = 1
 )
 {
     // Six moments of a quadrature of three nodes, which the inversion
@@ -452,18 +454,22 @@ void testScaleInvariance
     Info<< "\nTesting the scale invariance of " << quadratureName.c_str()
         << "\n" << endl;
 
-    autoPtr<univariateMomentInversion> inversion
-    (
-        univariateMomentInversion::New(dict, nMaxNodes)
-    );
-
-    const label nAdditionalPoints =
-        inversion().nAdditionalQuadraturePoints(nMoments);
-
     // The quadrature of the distribution written at one scale of its
     // abscissa, copied out of the inverter so that two can be compared
     auto quadratureAt = [&](const scalar scale)
     {
+        dictionary scaledDict(dict);
+        scaledDict.set("minKnownAbscissa", scale*minKnownAbscissa);
+        scaledDict.set("maxKnownAbscissa", scale*maxKnownAbscissa);
+
+        autoPtr<univariateMomentInversion> inversion
+        (
+            univariateMomentInversion::New(scaledDict, nMaxNodes)
+        );
+
+        const label nAdditionalPoints =
+            inversion().nAdditionalQuadraturePoints(nMoments);
+
         scalarList moments(nMoments, Zero);
 
         forAll(moments, k)
@@ -483,12 +489,7 @@ void testScaleInvariance
             nAdditionalPoints
         );
 
-        inversion().invert
-        (
-            m,
-            scale*minKnownAbscissa,
-            scale*maxKnownAbscissa
-        );
+        inversion().invert(m);
 
         return Tuple2<scalarList, scalarList>
         (
@@ -589,38 +590,20 @@ void testScaleInvariance
 }
 
 
-// Gauss-Lobatto fixes a node at each of two abscissae. Given an interval
-// that is empty, the system that corrects the last coefficients of the
-// recurrence is singular, and the inversion has to say so rather than return
-// the 0/0 it used to, which surfaced later as a coefficient the Golub-Welsch
-// algorithm found not to be finite.
+// Gauss-Lobatto fixes a node at each of two abscissae, read from its
+// dictionary. Given an interval that is empty, the system that corrects the
+// last coefficients of the recurrence is singular, and the quadrature has to
+// refuse the dictionary when it is built rather than return the 0/0 it used
+// to, which surfaced later as a coefficient the Golub-Welsch algorithm found
+// not to be finite.
 //
-// With exceptions on, any fatal error is caught, the Golub-Welsch one
-// included, so the refusal is required to come from the Gauss-Lobatto
-// inversion itself: otherwise the check would pass on the defect it is
-// meant to catch.
+// With exceptions on, any fatal error is caught, so the refusal is required
+// to come from the Gauss-Lobatto quadrature itself.
 void testLobattoRefusesAnEmptyInterval(dictionary& dict)
 {
     Info<< "\nTesting that Gauss-Lobatto refuses an empty interval\n" << endl;
 
-    // Six moments of a quadrature of three nodes
-    const scalarList w({0.2, 0.5, 0.3});
-    const scalarList x({0.5, 1.5, 3.0});
-    const label nMoments = 6;
-
-    scalarList moments(nMoments, Zero);
-
-    forAll(moments, k)
-    {
-        forAll(w, i)
-        {
-            moments[k] += w[i]*pow(x[i], k);
-        }
-    }
-
-    // Both at zero, which is what invert defaults to and what the
-    // inversions that call it without abscissae pass; equal and away from
-    // zero; and the wrong way round
+    // Both at zero; equal and away from zero; and the wrong way round
     const List<Pair<scalar>> intervals
     ({
         Pair<scalar>(0.0, 0.0),
@@ -630,28 +613,20 @@ void testLobattoRefusesAnEmptyInterval(dictionary& dict)
 
     for (const Pair<scalar>& interval : intervals)
     {
-        autoPtr<univariateMomentInversion> inversion
-        (
-            univariateMomentInversion::New(dict)
-        );
+        dictionary lobattoDict(dict);
+        lobattoDict.set("minKnownAbscissa", interval.first());
+        lobattoDict.set("maxKnownAbscissa", interval.second());
 
-        univariateMomentSet m
-        (
-            moments,
-            supportType::RPlus,
-            inversion().smallM0(),
-            inversion().smallZeta(),
-            inversion().nAdditionalQuadraturePoints(nMoments)
-        );
-
+        // The refusal is of a dictionary, which is an IO error
         const bool throwing = FatalError.throwing(true);
+        const bool throwingIO = FatalIOError.throwing(true);
 
         bool refusedHere = false;
         string refusedElsewhere;
 
         try
         {
-            inversion().invert(m, interval.first(), interval.second());
+            univariateMomentInversion::New(lobattoDict);
         }
         catch (const Foam::error& err)
         {
@@ -666,6 +641,7 @@ void testLobattoRefusesAnEmptyInterval(dictionary& dict)
         }
 
         FatalError.throwing(throwing);
+        FatalIOError.throwing(throwingIO);
 
         Info<< "  minKnownAbscissa " << interval.first()
             << ", maxKnownAbscissa " << interval.second() << ": ";
@@ -680,20 +656,18 @@ void testLobattoRefusesAnEmptyInterval(dictionary& dict)
         {
             FatalErrorInFunction
                 << "Gauss-Lobatto did not refuse an empty interval itself: "
-                << "the inversion failed further on, in "
-                << refusedElsewhere.c_str() << "." << nl
+                << "building it failed in " << refusedElsewhere.c_str()
+                << "." << nl
                 << "    minKnownAbscissa: " << interval.first() << nl
                 << "    maxKnownAbscissa: " << interval.second() << nl
                 << exit(FatalError);
         }
 
         FatalErrorInFunction
-            << "Gauss-Lobatto inverted a moment set on an empty interval "
-            << "instead of refusing it." << nl
+            << "Gauss-Lobatto was built from a dictionary whose interval is "
+            << "empty instead of refusing it." << nl
             << "    minKnownAbscissa: " << interval.first() << nl
             << "    maxKnownAbscissa: " << interval.second() << nl
-            << "    Weights: " << inversion().weights() << nl
-            << "    Abscissae: " << inversion().abscissae() << nl
             << exit(FatalError);
     }
 
@@ -1092,7 +1066,10 @@ int main(int argc, char *argv[])
 
     testScaleInvariance(quadraturePropertiesGauss, "Gauss");
     testScaleInvariance(quadraturePropertiesRadau, "Gauss-Radau");
-    testScaleInvariance(quadraturePropertiesLobatto, "Gauss-Lobatto", 0, 0, 3.5);
+    testScaleInvariance
+    (
+        quadraturePropertiesLobatto, "Gauss-Lobatto", 0, 0, 3.5
+    );
 
     testLobattoRefusesAnEmptyInterval(quadraturePropertiesLobatto);
     testScaleInvariance(quadraturePropertiesGQMOM, "GQMOM", 5);

@@ -30,8 +30,21 @@ Class
     Foam::gaussLobattoMomentInversion
 
 Description
-    Performs Gauss-Lobatto quadrature on a moment set with an even number of
-    moments.
+    Performs Gauss-Lobatto quadrature on a moment set, which fixes a node at
+    each end of an interval. With an odd number of realizable moments only the
+    lower one is fixed, as in Gauss-Radau.
+
+    The two abscissae are read from the dictionary of the quadrature:
+
+    \verbatim
+        univariateMomentInversion   GaussLobatto;
+        minKnownAbscissa            0;
+        maxKnownAbscissa            1;
+    \endverbatim
+
+    and default to zero and one, the ends of [0, 1]. They are written in the
+    units of the abscissa, so on R+ the upper one has to be given: its default
+    is an abscissa of one in whatever units the internal coordinate is in.
 
 SourceFiles
     gaussLobattoMomentInversion.C
@@ -59,6 +72,12 @@ class gaussLobattoMomentInversion
     public univariateMomentInversion
 {
     // Private data
+
+        //- Abscissa the quadrature fixes its lower node at
+        scalar minKnownAbscissa_;
+
+        //- Abscissa the quadrature fixes its upper node at
+        scalar maxKnownAbscissa_;
 
         // Bool to check if Radau quadrature must be performed
         bool forceRadau_;
@@ -88,9 +107,7 @@ public:
         (
             univariateMomentSet& moments,
             scalarList& alpha,
-            scalarList& beta,
-            const scalar minKnownAbscissa = 0,
-            const scalar maxKnownAbscissa = 0
+            scalarList& beta
         );
 
         //- Calculates the number of quadrature nodes

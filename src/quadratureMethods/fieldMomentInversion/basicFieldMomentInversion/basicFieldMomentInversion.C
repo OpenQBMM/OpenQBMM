@@ -64,8 +64,6 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
         nodeIndexes,
         velocityIndexes
     ),
-    minKnownAbscissa_(dict.lookupOrDefault<scalar>("minKnownAbscissa", 0)),
-    maxKnownAbscissa_(dict.lookupOrDefault<scalar>("maxKnownAbscissa", 1)),
     smallAbscissa_(dict.lookupOrDefault<scalar>("smallAbscissa", SMALL)),
     nAdditionalQuadraturePoints_(0),
     momentsToInvert_(nullptr),
@@ -90,6 +88,23 @@ Foam::basicFieldMomentInversion::basicFieldMomentInversion
     // select a different quadrature.
     nAdditionalQuadraturePoints_ =
         momentInverter_().nAdditionalQuadraturePoints(momentOrders.size());
+
+    // The abscissae a quadrature fixes a node at belong to that quadrature,
+    // and are read from its own dictionary. They used to be read here and
+    // passed to every inversion, so an entry left here would now be ignored
+    // without a word, and the quadrature would fix its nodes at its defaults.
+    for (const word& key : {word("minKnownAbscissa"), word("maxKnownAbscissa")})
+    {
+        if (dict.found(key))
+        {
+            FatalIOErrorInFunction(dict)
+                << key << " is read by the quadrature that uses it, not by "
+                << "the field moment inversion." << nl
+                << "    Move it into basicMomentInversion, beside "
+                << "univariateMomentInversion." << nl
+                << exit(FatalIOError);
+        }
+    }
 }
 
 
@@ -185,12 +200,7 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
             }
 
             // Find quadrature
-            momentInverter_().invert
-            (
-                momentsToInvert,
-                minKnownAbscissa_,
-                maxKnownAbscissa_
-            );
+            momentInverter_().invert(momentsToInvert);
 
             label maxNodes = nodes.size();
             label actualNodes = momentInverter_().nNodes();
@@ -261,12 +271,7 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
     }
 
     // Find quadrature
-    momentInverter_().invert
-    (
-        momentsToInvert,
-        minKnownAbscissa_,
-        maxKnownAbscissa_
-    );
+    momentInverter_().invert(momentsToInvert);
 
     label maxNodes = nodes.size();
     label actualNodes = momentInverter_().nNodes();

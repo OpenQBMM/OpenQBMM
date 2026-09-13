@@ -60,12 +60,6 @@ class basicFieldMomentInversion
 {
     // Private data
 
-        //- Minimum value of the abscissa for fixed-point quadrature
-        scalar minKnownAbscissa_;
-
-        //- Maximum value of the abscissa for fixed-point quadrature
-        scalar maxKnownAbscissa_;
-
         //- Abscissa below which a node is given no weight. It keeps the
         //  zero-order moment consistent where a growth rate is negative,
         //  by dropping a node that has been driven down to nothing.

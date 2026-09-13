@@ -54,8 +54,32 @@ Foam::gaussLobattoMomentInversion::gaussLobattoMomentInversion
 )
 :
     univariateMomentInversion(dict, nMaxNodes),
+    minKnownAbscissa_(dict.getOrDefault<scalar>("minKnownAbscissa", 0)),
+    maxKnownAbscissa_(dict.getOrDefault<scalar>("maxKnownAbscissa", 1)),
     forceRadau_(false)
-{}
+{
+    Info<< typeName << ": minKnownAbscissa " << minKnownAbscissa_
+        << ", maxKnownAbscissa " << maxKnownAbscissa_ << endl;
+
+    // The system that fixes a node at each end is singular when the two
+    // abscissae coincide: the orthogonal polynomials take the same values at
+    // both, so its determinant is zero and the last coefficients of the
+    // recurrence come out as 0/0, which Golub-Welsch would report only as a
+    // coefficient that is not finite. The dictionary is refused here, where
+    // it is read, rather than at the first moment set it is given.
+    if (maxKnownAbscissa_ <= minKnownAbscissa_)
+    {
+        FatalIOErrorInFunction(dict)
+            << "Gauss-Lobatto places a node at each of two abscissae, "
+            << "which have to be distinct." << nl
+            << "    minKnownAbscissa: " << minKnownAbscissa_ << nl
+            << "    maxKnownAbscissa: " << maxKnownAbscissa_ << nl
+            << "    Give maxKnownAbscissa above minKnownAbscissa, or "
+            << "select a quadrature that does not fix both ends of the "
+            << "support." << nl
+            << exit(FatalIOError);
+    }
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -64,9 +88,7 @@ void Foam::gaussLobattoMomentInversion::correctRecurrence
 (
     univariateMomentSet& moments,
     scalarList& alpha,
-    scalarList& beta,
-    const scalar minKnownAbscissa,
-    const scalar maxKnownAbscissa
+    scalarList& beta
 )
 {
     if (forceRadau_)
@@ -75,55 +97,32 @@ void Foam::gaussLobattoMomentInversion::correctRecurrence
         scalar pMinus1 = 1.0;
 
         const scalar p =
-            orthogonalPolynomial(alpha, beta, minKnownAbscissa, pMinus1);
+            orthogonalPolynomial(alpha, beta, minKnownAbscissa_, pMinus1);
 
         alpha[nNodes_ - 1] =
-                minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;
+                minKnownAbscissa_ - beta[nNodes_ - 1]*pMinus1/p;
     }
     else
     {
         // Both abscissae are fixed, which requires correcting the last alpha
-        // and beta coefficients by solving a 2x2 system.
-        //
-        // The system is singular when the two abscissae coincide: the
-        // orthogonal polynomials take the same values at both, so its
-        // determinant is zero and both coefficients come out as 0/0. That
-        // used to surface only later, as a coefficient of the recurrence the
-        // Golub-Welsch algorithm found not to be finite, which says nothing
-        // of the cause. The inversions that select their univariate
-        // quadrature at run time and call invert with its default
-        // abscissae, which are both zero, reach it as soon as Gauss-Lobatto
-        // is selected.
-        if (maxKnownAbscissa <= minKnownAbscissa)
-        {
-            FatalErrorInFunction
-                << "Gauss-Lobatto places a node at each of two abscissae, "
-                << "which have to be distinct." << nl
-                << "    minKnownAbscissa: " << minKnownAbscissa << nl
-                << "    maxKnownAbscissa: " << maxKnownAbscissa << nl
-                << "    Give maxKnownAbscissa above minKnownAbscissa, or "
-                << "select a quadrature that does not fix both ends of the "
-                << "support." << nl
-                << exit(FatalError);
-        }
-
+        // and beta coefficients by solving a 2x2 system
         scalar pMinus1Left = 1.0;
         scalar pMinus1Right = 1.0;
 
         const scalar pLeft =
-            orthogonalPolynomial(alpha, beta, minKnownAbscissa, pMinus1Left);
+            orthogonalPolynomial(alpha, beta, minKnownAbscissa_, pMinus1Left);
 
         const scalar pRight =
-            orthogonalPolynomial(alpha, beta, maxKnownAbscissa, pMinus1Right);
+            orthogonalPolynomial(alpha, beta, maxKnownAbscissa_, pMinus1Right);
 
         const scalar d = pLeft*pMinus1Right - pRight*pMinus1Left;
 
         alpha[nNodes_ - 1] =
-                (minKnownAbscissa*pLeft*pMinus1Right
-                - maxKnownAbscissa*pRight*pMinus1Left)/d;
+                (minKnownAbscissa_*pLeft*pMinus1Right
+                - maxKnownAbscissa_*pRight*pMinus1Left)/d;
 
         beta[nNodes_ - 1] =
-                (maxKnownAbscissa - minKnownAbscissa)*pLeft*pRight/d;
+                (maxKnownAbscissa_ - minKnownAbscissa_)*pLeft*pRight/d;
     }
 }
 

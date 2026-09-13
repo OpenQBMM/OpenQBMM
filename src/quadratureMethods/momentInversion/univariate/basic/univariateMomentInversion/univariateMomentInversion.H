@@ -109,9 +109,7 @@ protected:
         //  quadrature, in the alpha_ and beta_ work lists
         void correctedRecurrence
         (
-            univariateMomentSet& moments,
-            const scalar minKnownAbscissa = 0,
-            const scalar maxKnownAbscissa = 0
+            univariateMomentSet& moments
         );
 
 
@@ -191,17 +189,13 @@ public:
         (
             univariateMomentSet& moments,
             scalarList& alpha,
-            scalarList& beta,
-            const scalar minKnownAbscissa = 0,
-            const scalar maxKnownAbscissa = 0
+            scalarList& beta
         ) = 0;
 
         //- Invert the set of moments to compute weights and abscissae
         virtual void invert
         (
-            univariateMomentSet& moments,
-            const scalar minKnownAbscissa = 0,
-            const scalar maxKnownAbscissa = 0
+            univariateMomentSet& moments
         );
 
         //- Return the number of quadrature nodes, in excess of the ones a

@@ -79,9 +79,7 @@ void Foam::generalizedMomentInversion::correctRecurrence
 (
     univariateMomentSet& moments,
     scalarList& alpha,
-    scalarList& beta,
-    const scalar minKnownAbscissa,
-    const scalar maxKnownAbscissa
+    scalarList& beta
 )
 {
     const supportType& support = moments.support();
@@ -242,16 +240,12 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
 
 void Foam::generalizedMomentInversion::invert
 (
-    univariateMomentSet& moments,
-    const scalar minKnownAbscissa,
-    const scalar maxKnownAbscissa
+    univariateMomentSet& moments
 )
 {
     (*this).univariateMomentInversion::invert
         (
-            moments,
-            minKnownAbscissa,
-            maxKnownAbscissa
+            moments
         );
 }
 

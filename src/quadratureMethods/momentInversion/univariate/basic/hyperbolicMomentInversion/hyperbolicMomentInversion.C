@@ -80,9 +80,7 @@ void Foam::hyperbolicMomentInversion::correctRecurrence
 (
     univariateMomentSet& moments,
     scalarList& alpha,
-    scalarList& beta,
-    const scalar minKnownAbscissa,
-    const scalar maxKnownAbscissa
+    scalarList& beta
 )
 {
     NotImplemented;
@@ -100,9 +98,7 @@ void Foam::hyperbolicMomentInversion::calcNQuadratureNodes
 
 void Foam::hyperbolicMomentInversion::invert
 (
-    univariateMomentSet& moments,
-    const scalar minKnownAbscissa,
-    const scalar maxKnownAbscissa
+    univariateMomentSet& moments
 )
 {
     if (moments[0] < SMALL)

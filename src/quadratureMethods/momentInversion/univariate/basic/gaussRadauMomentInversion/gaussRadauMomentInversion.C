@@ -54,8 +54,11 @@ Foam::gaussRadauMomentInversion::gaussRadauMomentInversion
 )
 :
     univariateMomentInversion(dict, nMaxNodes),
+    minKnownAbscissa_(dict.getOrDefault<scalar>("minKnownAbscissa", 0)),
     forceGauss_(false)
-{}
+{
+    Info<< typeName << ": minKnownAbscissa " << minKnownAbscissa_ << endl;
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -64,9 +67,7 @@ void Foam::gaussRadauMomentInversion::correctRecurrence
 (
     univariateMomentSet& moments,
     scalarList& alpha,
-    scalarList& beta,
-    const scalar minKnownAbscissa,
-    const scalar maxKnownAbscissa
+    scalarList& beta
 )
 {
     if (!forceGauss_)
@@ -75,10 +76,10 @@ void Foam::gaussRadauMomentInversion::correctRecurrence
         scalar pMinus1 = 1.0;
 
         const scalar p =
-            orthogonalPolynomial(alpha, beta, minKnownAbscissa, pMinus1);
+            orthogonalPolynomial(alpha, beta, minKnownAbscissa_, pMinus1);
 
         alpha[nNodes_ - 1] =
-            minKnownAbscissa - beta[nNodes_ - 1]*pMinus1/p;
+            minKnownAbscissa_ - beta[nNodes_ - 1]*pMinus1/p;
     }
 }
 

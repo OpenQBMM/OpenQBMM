@@ -117,9 +117,7 @@ Foam::scalar Foam::univariateMomentInversion::orthogonalPolynomial
 
 void Foam::univariateMomentInversion::correctedRecurrence
 (
-    univariateMomentSet& moments,
-    const scalar minKnownAbscissa,
-    const scalar maxKnownAbscissa
+    univariateMomentSet& moments
 )
 {
     const scalarList& momentAlpha = moments.alphaRecurrence();
@@ -148,17 +146,13 @@ void Foam::univariateMomentInversion::correctedRecurrence
     (
         moments,
         alpha_,
-        beta_,
-        minKnownAbscissa,
-        maxKnownAbscissa
+        beta_
     );
 }
 
 void Foam::univariateMomentInversion::invert
 (
-    univariateMomentSet& moments,
-    const scalar minKnownAbscissa,
-    const scalar maxKnownAbscissa
+    univariateMomentSet& moments
 )
 {
     // The moments are read through the const accessor, so that the
@@ -197,7 +191,7 @@ void Foam::univariateMomentInversion::invert
         return;
     }
 
-    correctedRecurrence(moments, minKnownAbscissa, maxKnownAbscissa);
+    correctedRecurrence(moments);
     calcQuadrature(moments);
 }
 

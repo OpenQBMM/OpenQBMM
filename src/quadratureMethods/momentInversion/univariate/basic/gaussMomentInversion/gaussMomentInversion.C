@@ -63,9 +63,7 @@ void Foam::gaussMomentInversion::correctRecurrence
 (
     univariateMomentSet& moments,
     scalarList& alpha,
-    scalarList& beta,
-    const scalar minKnownAbscissa,
-    const scalar maxKnownAbscissa
+    scalarList& beta
 )
 {
     return; // No correction needed for Gauss quadrature
