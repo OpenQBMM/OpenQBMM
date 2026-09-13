@@ -110,6 +110,197 @@ void testNegligibleMass
 }
 
 
+//- Invert the moment set with the abscissae of one direction scaled, and
+//  require the quadrature to follow: the weights and the abscissae of the
+//  other directions unchanged, and those of the scaled direction scaled.
+//
+//  Each direction is inverted on its own, by its own quadrature, and its
+//  zeta_k carry the units of its own abscissa. The inversion used to impose
+//  on every direction the largest of their thresholds, floored at SMALL, so
+//  a direction small enough in its own units, as a volume in cubic metres
+//  is, was called degenerate however well spread it was.
+//
+//  knownFailure reports the outcome without asserting it, and warns when the
+//  invariance starts holding, so that the pin is removed once it is fixed.
+//  A failure may be a fatal error inside the inversion rather than a wrong
+//  quadrature, so the inversion is run with exceptions on.
+void testScaleInvariance
+(
+    const dictionary& dict,
+    const labelListList& momentOrders,
+    const labelListList& nodeIndexes,
+    const labelList& velocityIndexes,
+    const multivariateMomentSet& moments,
+    const bool knownFailure = false
+)
+{
+    const label scaledDim = 0;
+    const scalar scale = 1.0e-18;
+
+    Info<< "\n\nInverting the moment set with direction " << scaledDim
+        << " scaled by " << scale << endl;
+
+    multivariateMomentSet scaled
+    (
+        momentOrders.size(),
+        momentOrders,
+        List<supportType>(momentOrders[0].size(), supportType::R),
+        SMALL,
+        SMALL
+    );
+
+    forAll(momentOrders, mi)
+    {
+        const labelList& momentOrder = momentOrders[mi];
+
+        scaled(momentOrder) =
+            pow(scale, momentOrder[scaledDim])*moments(momentOrder);
+    }
+
+    const label nDims = momentOrders[0].size();
+    const scalar tolerance = 1.0e-10;
+
+    scalar worstWeight = VGREAT;
+    vector worstAbscissa(VGREAT, VGREAT, VGREAT);
+    string failure;
+
+    const bool throwing = FatalError.throwing(true);
+
+    try
+    {
+        multivariateMomentInversions::TensorProduct reference
+        (
+            dict, momentOrders, nodeIndexes, velocityIndexes
+        );
+
+        multivariateMomentInversions::TensorProduct inverter
+        (
+            dict, momentOrders, nodeIndexes, velocityIndexes
+        );
+
+        if (!reference.invert(moments) || !inverter.invert(scaled))
+        {
+            failure = "the inversion reported a failure";
+        }
+        else
+        {
+            // Each list is measured against the largest of its own entries,
+            // so that a component that is zero is not asked to be reproduced
+            // to no error
+            scalar weightScale = 0;
+            vector abscissaScale(Zero);
+
+            forAll(nodeIndexes, nodei)
+            {
+                const labelList& nodeIndex = nodeIndexes[nodei];
+
+                weightScale =
+                    max(weightScale, mag(reference.weights()(nodeIndex)));
+
+                for (label dimi = 0; dimi < nDims; dimi++)
+                {
+                    abscissaScale[dimi] =
+                        max
+                        (
+                            abscissaScale[dimi],
+                            mag(reference.velocityAbscissae()(nodeIndex)[dimi])
+                        );
+                }
+            }
+
+            worstWeight = 0;
+            worstAbscissa = Zero;
+
+            forAll(nodeIndexes, nodei)
+            {
+                const labelList& nodeIndex = nodeIndexes[nodei];
+
+                worstWeight =
+                    max
+                    (
+                        worstWeight,
+                        mag
+                        (
+                            inverter.weights()(nodeIndex)
+                          - reference.weights()(nodeIndex)
+                        )/max(weightScale, SMALL)
+                    );
+
+                for (label dimi = 0; dimi < nDims; dimi++)
+                {
+                    const scalar factor = (dimi == scaledDim ? scale : 1.0);
+
+                    worstAbscissa[dimi] =
+                        max
+                        (
+                            worstAbscissa[dimi],
+                            mag
+                            (
+                                inverter.velocityAbscissae()(nodeIndex)[dimi]
+                               /factor
+                              - reference.velocityAbscissae()(nodeIndex)[dimi]
+                            )/max(abscissaScale[dimi], SMALL)
+                        );
+                }
+            }
+        }
+    }
+    catch (const Foam::error& err)
+    {
+        failure = err.message();
+    }
+
+    FatalError.throwing(throwing);
+
+    const bool holds =
+        failure.empty()
+     && worstWeight <= tolerance
+     && cmptMax(worstAbscissa) <= tolerance;
+
+    if (failure.empty())
+    {
+        Info<< "  the weights differ by " << worstWeight
+            << ", the abscissae of each direction by " << worstAbscissa
+            << endl;
+    }
+    else
+    {
+        Info<< "  the inversion failed: " << failure.c_str() << endl;
+    }
+
+    if (knownFailure)
+    {
+        Info<< (holds ? "  (pinned)" : "  (known failure)") << endl;
+
+        if (holds)
+        {
+            WarningInFunction
+                << "Scaling one direction of the tensor product is pinned as a "
+                << "known failure, and now holds." << nl
+                << "    Remove the pin from the test, so that the defect is "
+                << "caught if it returns." << nl << endl;
+        }
+
+        return;
+    }
+
+    if (!holds)
+    {
+        FatalErrorInFunction
+            << "Scaling the abscissae of one direction did not scale the "
+            << "quadrature with them." << nl
+            << "    Direction scaled: " << scaledDim << ", by " << scale << nl
+            << "    Largest difference in the weights: " << worstWeight << nl
+            << "    Largest difference in the abscissae of each direction: "
+            << worstAbscissa << nl
+            << "    Tolerance: " << tolerance << nl
+            << exit(FatalError);
+    }
+
+    Info<< "  the quadrature follows the scale" << endl;
+}
+
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
@@ -253,6 +444,21 @@ int main(int argc, char *argv[])
         momentOrders,
         nodeIndexes,
         velocityIndexes
+    );
+
+    // Pinned: the weights are solved for from a tensor-product Vandermonde
+    // matrix built from the abscissae in the units of the case, whose
+    // entries span 1 to scale^2 for the scaled direction, and which the
+    // elimination then finds singular. Solving it in the units of each
+    // direction is what makes this hold, and the pin comes out with it.
+    testScaleInvariance
+    (
+        quadratureProperties,
+        momentOrders,
+        nodeIndexes,
+        velocityIndexes,
+        moments,
+        true                                // known failure, see above
     );
 
     Info << "\nEnd\n" << endl;

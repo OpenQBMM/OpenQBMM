@@ -90,8 +90,8 @@ Foam::multivariateMomentInversions::TensorProduct::TensorProduct
     nPureMoments_(nNodes_.size(), 0),
     supports_(wordListToSupportTypeList(dict.lookup("supports"))),
     univariateInverters_(nNodes_.size()),
-    smallM0_(SMALL),
-    smallZeta_(SMALL)
+    smallM0_(VGREAT),
+    smallZeta_(VGREAT)
 {
     forAll(univariateInverters_, dimi)
     {
@@ -104,8 +104,18 @@ Foam::multivariateMomentInversions::TensorProduct::TensorProduct
             ).ptr()
         );
 
-        smallM0_ = max(smallM0_, univariateInverters_[dimi].smallM0());
-        smallZeta_ = max(smallZeta_, univariateInverters_[dimi].smallZeta());
+        // Each direction is inverted on its own, by its own quadrature, and
+        // with its own thresholds. What the inversion reports as its
+        // thresholds is the smallest of them: the directions share m0, so
+        // a check made before any of them is inverted should be no stricter
+        // than the most permissive, and each still applies its own.
+        //
+        // They used to be the largest, floored at SMALL, and imposed on every
+        // direction. A threshold could then only ever be raised, and the
+        // zeta_k, which carry the units of the abscissa of their direction,
+        // were cut at 1e-15 whatever those units were.
+        smallM0_ = min(smallM0_, univariateInverters_[dimi].smallM0());
+        smallZeta_ = min(smallZeta_, univariateInverters_[dimi].smallZeta());
     }
 
     forAll(momentOrders_, mi)
@@ -149,8 +159,8 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
         (
             nPureMoments_[dimi],
             supports_[dimi],
-            smallM0(),
-            smallZeta(),
+            univariateInverters_[dimi].smallM0(),
+            univariateInverters_[dimi].smallZeta(),
             Zero
         );
 
@@ -173,7 +183,11 @@ bool Foam::multivariateMomentInversions::TensorProduct::invert
 
         nNonZeroNodes[dimi] = abscissae.size();
 
-        if (max(univariateInverters_[dimi].weights()) < SMALL)
+        if
+        (
+            max(univariateInverters_[dimi].weights())
+          < univariateInverters_[dimi].smallM0()
+        )
         {
             nNonZeroNodes[dimi] = 0;
         }

@@ -74,10 +74,12 @@ class TensorProduct
         //- Univariate moment inversion method
         PtrList<univariateMomentInversion> univariateInverters_;
 
-        //- Minimum value of m0 to be considered
+        //- Smallest of the thresholds on m0 of the quadratures of the
+        //  directions, which is what the inversion reports as its own
         scalar smallM0_;
 
-        //- Minimum accepted value for zeta_k
+        //- Smallest of the thresholds on the zeta_k of the quadratures of the
+        //  directions, which is what the inversion reports as its own
         scalar smallZeta_;
 
 
