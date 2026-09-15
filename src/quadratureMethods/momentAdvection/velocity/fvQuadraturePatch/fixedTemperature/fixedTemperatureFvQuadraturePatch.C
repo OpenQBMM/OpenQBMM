@@ -74,9 +74,9 @@ Foam::fixedTemperatureFvQuadraturePatch::fixedTemperatureFvQuadraturePatch
             << abort(FatalError);
     }
 
-    // The scaling of the abscissae is the square root of the ratio of the
-    // wall temperature to the one of the cell, so a negative entry gives
-    // every abscissa of the patch a nan without saying anything
+    // The scaling of the velocity fluctuations is the square root of the
+    // ratio of the wall temperature to the one of the cell, so a negative
+    // entry gives every abscissa of the patch a nan without saying anything
     if (min(wallTemperature_) < 0)
     {
         FatalErrorInFunction
@@ -127,7 +127,13 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
     const vectorField bfNorm(patch_.nf());
 
     scalarField m0(max(moments(0).boundaryField()[patchi_], scalar(1e-8)));
+
+    // The mean velocity of the population reaching the wall, and its
+    // temperature about that mean, one component at a time
+    vectorField Umean(bfSf.size(), Zero);
     vectorField T(bfSf.size(), Zero);
+
+    Umean.replace(0, moments(order100_).boundaryField()[patchi_]/m0);
 
     T.replace
     (
@@ -135,20 +141,22 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
         max
         (
             moments(order200_).boundaryField()[patchi_]/m0
-          - sqr(moments(order100_).boundaryField()[patchi_]/m0),
+          - sqr(Umean.component(0)),
             scalar(1e-8)
         )
     );
 
     if (nVelocityCmpts_ > 1)
     {
+        Umean.replace(1, moments(order010_).boundaryField()[patchi_]/m0);
+
         T.replace
         (
             1,
             max
             (
                 moments(order020_).boundaryField()[patchi_]/m0
-              - sqr(moments(order010_).boundaryField()[patchi_]/m0),
+              - sqr(Umean.component(1)),
                 scalar(1e-8)
             )
         );
@@ -156,13 +164,15 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
 
     if (nVelocityCmpts_ > 2)
     {
+        Umean.replace(2, moments(order001_).boundaryField()[patchi_]/m0);
+
         T.replace
         (
             2,
             max
             (
                 moments(order002_).boundaryField()[patchi_]/m0
-              - sqr(moments(order001_).boundaryField()[patchi_]/m0),
+              - sqr(Umean.component(2)),
                 scalar(1e-8)
             )
         );
@@ -201,7 +211,18 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
         bfwNei = bfwOwn;
 
         bfUOwn = U.boundaryField()[patchi_].patchInternalField();
-        bfUNei = (bfUOwn - 2.0*(bfUOwn & bfNorm)*bfNorm)*scale;
+
+        // The wall reflects the velocity and sets the temperature of the
+        // population it returns: only the fluctuation about the mean is
+        // rescaled. Rescaling the whole abscissa multiplied the mean
+        // tangential velocity by the scale at every reflection, so a wall
+        // hotter than the population amplified any bulk velocity along it
+        // without bound.
+        const vectorField Uprime(bfUOwn - Umean);
+
+        bfUNei =
+            Umean - 2.0*(Umean & bfNorm)*bfNorm
+          + (Uprime - 2.0*(Uprime & bfNorm)*bfNorm)*scale;
 
         Gin += max(scalar(0), bfUOwn & bfSf)*bfwOwn;
         Gout -= min(scalar(0), bfUNei & bfSf)*bfwNei;

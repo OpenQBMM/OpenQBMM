@@ -23,7 +23,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         200;
+endTime         20;
 
 deltaT          1e-3;
 
@@ -31,7 +31,7 @@ writeControl    adjustableRunTime;
 
 writeInterval   1;
 
-purgeWrite      0;
+purgeWrite      100;
 
 writeFormat     binary;
 
