@@ -99,8 +99,20 @@ runTest ./momentInversions/multivariate/conditionalMomentInversion \
 # quadratureProperties from its directory
 runTest . Test-CHyQMOMDegenerate
 
-# Moment advection
+# Moment advection: the reconstruction maps of the zeta scheme without a
+# mesh, then each univariate scheme on a periodic line, where transport by
+# a uniform velocity conserves every moment, keeps every cell realizable,
+# and does not know left from right
 runTest . Test-MomentAdvection
+
+runTest ./momentAdvection/univariate/cases/firstOrderKinetic \
+    Test-UnivariateAdvection
+
+runTest ./momentAdvection/univariate/cases/zeta \
+    Test-UnivariateAdvection
+
+runTest ./momentAdvection/univariate/cases/zetaZeroOne \
+    Test-UnivariateAdvection
 
 # Field level. These were built by test/Allwmake but never run, so nothing
 # above the moment inversions was exercised at all.

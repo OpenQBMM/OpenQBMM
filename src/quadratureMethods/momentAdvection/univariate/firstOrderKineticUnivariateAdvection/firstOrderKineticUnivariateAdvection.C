@@ -193,11 +193,14 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         );
     }
 
+    // The inverter reads the dictionary the scheme was selected from, not
+    // the momentAdvection entry of the quadrature: they are the same in a
+    // case, but a scheme built from another dictionary read the wrong one
     momentFieldInverter_.reset
     (
         new basicFieldMomentInversion
         (
-            quadrature.subDict("momentAdvection"),
+            dict,
             moments_[0].mesh(),
             quadrature.momentOrders(),
             quadrature.nodeIndexes(),

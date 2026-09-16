@@ -1,0 +1,39 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      advectionTestDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The zeta scheme over [0, 1], with canonical moments as auxiliary
+// quantities, on the beta-distribution profile
+profile         regular;
+
+support         ZeroOne;
+
+Co              0.5;
+
+// As for the bimodal case: measured 1e-6 with the limiter right
+mirrorTolerance 1e-4;
+
+checks          (conservation realizability mirror accuracy);
+
+// The Euler step of the transport model hides the order of the scheme at
+// its Courant limit, so the comparison with the first-order scheme runs at
+// a smaller one
+accuracyCo      0.1;
+
+accuracyRatio   0.5;
+
+
+// ************************************************************************* //

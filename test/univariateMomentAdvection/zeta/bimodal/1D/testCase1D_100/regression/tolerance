@@ -1,0 +1,6 @@
+// The limiter of the zeta scheme decides on a realizability test, which
+// round-off can settle either way in a cell on the boundary of the moment
+// space: a perturbation of one part in 1e13 of the initial data moves the
+// higher moments of this case by up to 4e-4 of their span. The fixes of
+// 2026-09-16 moved them by 3e-3 to 4e-2, so this still catches a change.
+1.0e-3

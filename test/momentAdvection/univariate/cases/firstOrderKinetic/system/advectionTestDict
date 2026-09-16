@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      advectionTestDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The first-order kinetic scheme at a Courant number of one moves the
+// profile by one cell per step, which a period brings back exactly
+profile         regular;
+
+support         RPlus;
+
+Co              1;
+
+// The first-order scheme takes no decision, so the two runs agree to
+// round-off
+mirrorTolerance 1e-12;
+
+checks          (conservation realizability mirror shift);
+
+
+// ************************************************************************* //

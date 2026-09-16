@@ -9,6 +9,7 @@ wclean realizableOdeSolver
 wclean all momentSets
 wclean all momentInversions
 wclean momentAdvection
+wclean momentAdvection/univariate
 wclean univariateQuadratureApproximation
 wclean Vandermonde
 wclean GolubWelsch
@@ -40,5 +41,8 @@ cleanTestCase()
 
 cleanTestCase univariateQuadratureApproximation/testCase
 cleanTestCase populationBalanceModel/testCase
+cleanTestCase momentAdvection/univariate/cases/firstOrderKinetic
+cleanTestCase momentAdvection/univariate/cases/zeta
+cleanTestCase momentAdvection/univariate/cases/zetaZeroOne
 
 #------------------------------------------------------------------------------

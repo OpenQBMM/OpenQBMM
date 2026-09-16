@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties.populationBalance;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fieldMomentInversion basicFieldMomentInversion;
+
+basicMomentInversion
+{
+    univariateMomentInversion Gauss;
+}
+
+momentAdvection
+{
+    univariateMomentAdvection zeta;
+}
+
+// The scheme the accuracy check measures the one above against
+momentAdvectionFirstOrder
+{
+    univariateMomentAdvection firstOrderKinetic;
+
+    basicMomentInversion
+    {
+        univariateMomentInversion Gauss;
+    }
+}
+
+moments
+(
+    (0)
+    (1)
+    (2)
+    (3)
+    (4)
+    (5)
+    (6)
+    (7)
+);
+
+nodes
+(
+    (0)
+    (1)
+    (2)
+    (3)
+);
+
+// ************************************************************************* //

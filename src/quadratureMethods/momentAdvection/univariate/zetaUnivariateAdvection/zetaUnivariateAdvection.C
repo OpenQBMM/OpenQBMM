@@ -356,17 +356,24 @@ void Foam::univariateAdvection::zeta::interpolateFields()
         auxiliaryFieldsOwn_[fieldi] =
             auxiliaryFieldsOwnScheme().interpolate(auxiliaryFields_[fieldi]);
 
+        // The upwind value of each side is the value of the cell on that
+        // side. This used to be the flux of the upwind scheme, which is
+        // the interpolated value times the flux the scheme is built with:
+        // one on the owner side, but minus one on the neighbour side, so
+        // the neighbour side carried the opposite of its cell value, and
+        // any limiter below one reconstructed a negative auxiliary
+        // quantity there.
         auxiliaryFieldsUpwindNei_[fieldi] =
             upwind<scalar>
             (
                 auxiliaryFields_[fieldi].mesh(), nei_
-            ).flux(auxiliaryFields_[fieldi]);
+            ).interpolate(auxiliaryFields_[fieldi]);
 
         auxiliaryFieldsUpwindOwn_[fieldi] =
             upwind<scalar>
             (
                 auxiliaryFields_[fieldi].mesh(), own_
-            ).flux(auxiliaryFields_[fieldi]);
+            ).interpolate(auxiliaryFields_[fieldi]);
 
         auxiliaryFieldsCorrNei_[fieldi] =
             auxiliaryFieldsNei_[fieldi] - auxiliaryFieldsUpwindNei_[fieldi];
@@ -479,56 +486,121 @@ void Foam::univariateAdvection::zeta::auxiliaryQuantitiesToMoments
     }
 }
 
+bool Foam::univariateAdvection::zeta::outgoingFace
+(
+    const label celli,
+    const label facei,
+    label& patchi,
+    label& pFacei,
+    bool& ownSide
+) const
+{
+    const fvMesh& mesh = phi_.mesh();
+
+    if (mesh.isInternalFace(facei))
+    {
+        patchi = -1;
+        pFacei = facei;
+
+        // The flux leaves through the owner side of a face the cell owns
+        // and through the neighbour side of a face it is the neighbour of
+        if (phi_[facei] > 0)
+        {
+            ownSide = true;
+
+            return mesh.owner()[facei] == celli;
+        }
+        else if (phi_[facei] < 0)
+        {
+            ownSide = false;
+
+            return mesh.neighbour()[facei] == celli;
+        }
+
+        return false;
+    }
+
+    patchi = mesh.boundaryMesh().whichPatch(facei);
+
+    if (patchi < 0)
+    {
+        return false;
+    }
+
+    pFacei = facei - mesh.boundaryMesh()[patchi].start();
+    ownSide = true;
+
+    const surfaceScalarField::Boundary& phiBf = phi_.boundaryField();
+
+    // Patches without a finite volume representation, such as empty and
+    // wedge patches, carry no flux
+    if (pFacei >= phiBf[patchi].size())
+    {
+        return false;
+    }
+
+    return phiBf[patchi][pFacei] > 0;
+}
+
+
 void Foam::univariateAdvection::zeta::addFaceMomentsToMPlus
 (
     const label p,
     const label patchi,
     const label facei,
+    const bool ownSide,
     scalarList& mPlus
 )
 {
-    scalarList auxiliaryQuantityOwn(nAuxiliaryFields_, Zero);
-    scalarList mOwn(nMoments_, Zero);
-    scalar m0f = 0.0;
+    const PtrList<surfaceScalarField>& limited =
+        ownSide ? auxiliaryFieldsOwn_ : auxiliaryFieldsNei_;
+
+    const PtrList<surfaceScalarField>& upwind =
+        ownSide ? auxiliaryFieldsUpwindOwn_ : auxiliaryFieldsUpwindNei_;
+
+    const surfaceScalarField& m0f = ownSide ? m0Own_ : m0Nei_;
+
+    scalarList auxiliaryQuantity(nAuxiliaryFields_, Zero);
+    scalarList mFace(nMoments_, Zero);
+    scalar m0Face = 0.0;
 
     if (patchi < 0)
     {
         for (label i = 0; i <= p; i++)
         {
-            auxiliaryQuantityOwn[i] = auxiliaryFieldsOwn_[i][facei];
+            auxiliaryQuantity[i] = limited[i][facei];
         }
 
         for (label i = p + 1; i < nAuxiliaryFields_; i++)
         {
-            auxiliaryQuantityOwn[i] = auxiliaryFieldsUpwindOwn_[i][facei];
+            auxiliaryQuantity[i] = upwind[i][facei];
         }
 
-        m0f = m0Own_[facei];
+        m0Face = m0f[facei];
     }
     else
     {
         for (label i = 0; i <= p; i++)
         {
-            auxiliaryQuantityOwn[i] =
-                auxiliaryFieldsOwn_[i].boundaryField()[patchi][facei];
+            auxiliaryQuantity[i] = limited[i].boundaryField()[patchi][facei];
         }
 
         for (label i = p + 1; i < nAuxiliaryFields_; i++)
         {
-            auxiliaryQuantityOwn[i] =
-                auxiliaryFieldsUpwindOwn_[i].boundaryField()[patchi][facei];
+            auxiliaryQuantity[i] = upwind[i].boundaryField()[patchi][facei];
         }
 
-        m0f = m0Own_.boundaryField()[patchi][facei];
+        m0Face = m0f.boundaryField()[patchi][facei];
     }
 
-    auxiliaryQuantitiesToMoments(auxiliaryQuantityOwn, mOwn, m0f);
+    auxiliaryQuantitiesToMoments(auxiliaryQuantity, mFace, m0Face);
 
     for (label mi = 0; mi < nMoments_; mi++)
     {
-        mPlus[mi] += mOwn[mi];
+        mPlus[mi] += mFace[mi];
     }
 }
+
 
 void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
 {
@@ -590,7 +662,17 @@ void Foam::univariateAdvection::zeta::computeAuxiliaryFields()
 
         forAll(m0Patch, facei)
         {
-            if (m0_.boundaryField()[patchi][facei] >= SMALL)
+            if (m0_.boundaryField()[patchi][facei] < smallM0_)
+            {
+                // A face holding no distribution has no auxiliary
+                // quantities, like a cell; this tested a bare SMALL where
+                // the cells test smallM0, and left the face as it was
+                for (label i = 0; i < nAuxiliaryFields_; i++)
+                {
+                    auxiliaryFields_[i].boundaryFieldRef()[patchi][facei] = 0.0;
+                }
+            }
+            else
             {
                 for (label mi = 0; mi < nMoments_; mi++)
                 {
@@ -680,6 +762,11 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
         {
             cellLimiters_[li][celli] = 1.0;
         }
+
+        // The face limiters are reset too: a boundary face the flux does
+        // not leave through is not set below, and kept the limiter of a
+        // step at which the flux did
+        limiters_[li] = dimensionedScalar(dimless, 1.0);
     }
 
     // First check on m* to identify cells in need of additional limitation
@@ -698,8 +785,12 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
                 mPluses[mi][own] += momentsOwn_[mi][facei];
             }
         }
-        else
+        else if (phi_[facei] < 0.0)
         {
+            // A face without flux is not counted by
+            // countFacesWithOutgoingFlux, so it does not add to m+ either;
+            // it used to, biasing m* of the neighbour towards unrealizable
+            // on every face the flow is tangent to
             for (label mi = 0; mi < nMoments_; mi++)
             {
                 mPluses[mi][nei] += momentsNei_[mi][facei];
@@ -767,47 +858,23 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
 
                 // Check if the auxiliary quantity with index p needs limiting
                 // by evaluating m* with auxiliaryQuantity_k, k > p from
-                // constant reconstruction
-
-                // Update mPlus for a face to update m*. Boundary faces
-                // count here because countFacesWithOutgoingFlux includes
-                // them in nFacesOutgoingFlux_; leaving them out biases m*
-                // towards unrealizable in every boundary cell.
+                // constant reconstruction. m+ is the sum over the faces the
+                // flux leaves the cell through, each reconstructed on the
+                // side of it the cell is on: the search used to take every
+                // face of the cell with a positive flux, which is outgoing
+                // only for the cell that owns it, and to leave out the
+                // faces the cell is the neighbour of, so m* was wrong in
+                // any cell with a face of either kind. Boundary faces count
+                // because countFacesWithOutgoingFlux includes them.
                 forAll(mCell, fi)
                 {
-                    const label facei = mCell[fi];
+                    label patchi = -1;
+                    label pFacei = -1;
+                    bool ownSide = true;
 
-                    if (mesh.isInternalFace(facei))
+                    if (outgoingFace(celli, mCell[fi], patchi, pFacei, ownSide))
                     {
-                        if (phi_[facei] > 0)
-                        {
-                            addFaceMomentsToMPlus(p, -1, facei, mPlus);
-                        }
-                    }
-                    else
-                    {
-                        const label patchi =
-                            mesh.boundaryMesh().whichPatch(facei);
-
-                        if (patchi < 0)
-                        {
-                            continue;
-                        }
-
-                        const label pFacei =
-                            facei - mesh.boundaryMesh()[patchi].start();
-
-                        // Skip patches without a finite volume representation,
-                        // such as empty and wedge patches
-                        if (pFacei >= phiBf[patchi].size())
-                        {
-                            continue;
-                        }
-
-                        if (phiBf[patchi][pFacei] > 0)
-                        {
-                            addFaceMomentsToMPlus(p, patchi, pFacei, mPlus);
-                        }
+                        addFaceMomentsToMPlus(p, patchi, pFacei, ownSide, mPlus);
                     }
                 }
 
@@ -827,56 +894,56 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
                 {
                     mPlus = 0;
 
-                    // Limit auxiliary quantities
+                    // Limit the auxiliary quantity of index p to half of
+                    // its correction on every face the flux leaves through,
+                    // on the side the cell reconstructs
                     forAll(mCell, fi)
                     {
-                        const label facei = mCell[fi];
+                        label patchi = -1;
+                        label pFacei = -1;
+                        bool ownSide = true;
 
-                        if (mesh.isInternalFace(facei))
+                        if
+                        (
+                            !outgoingFace
+                            (
+                                celli, mCell[fi], patchi, pFacei, ownSide
+                            )
+                        )
                         {
-                            if (phi_[facei] > 0)
-                            {
-                                auxiliaryFieldsOwn_[p][facei] =
-                                    auxiliaryFieldsUpwindOwn_[p][facei]
-                                  + 0.5*(auxiliaryFieldsCorrOwn_[p][facei]);
+                            continue;
+                        }
 
-                                cellLimiters_[p][celli] = 0.5;
+                        surfaceScalarField& limited =
+                            ownSide
+                          ? auxiliaryFieldsOwn_[p]
+                          : auxiliaryFieldsNei_[p];
 
-                                addFaceMomentsToMPlus(p, -1, facei, mPlus);
-                            }
+                        const surfaceScalarField& upwind =
+                            ownSide
+                          ? auxiliaryFieldsUpwindOwn_[p]
+                          : auxiliaryFieldsUpwindNei_[p];
+
+                        const surfaceScalarField& correction =
+                            ownSide
+                          ? auxiliaryFieldsCorrOwn_[p]
+                          : auxiliaryFieldsCorrNei_[p];
+
+                        if (patchi < 0)
+                        {
+                            limited[pFacei] =
+                                upwind[pFacei] + 0.5*correction[pFacei];
                         }
                         else
                         {
-                            const label patchi =
-                                mesh.boundaryMesh().whichPatch(facei);
-
-                            if (patchi < 0)
-                            {
-                                continue;
-                            }
-
-                            const label pFacei =
-                                facei - mesh.boundaryMesh()[patchi].start();
-
-                            if (pFacei >= phiBf[patchi].size())
-                            {
-                                continue;
-                            }
-
-                            if (phiBf[patchi][pFacei] > 0)
-                            {
-                                auxiliaryFieldsOwn_[p].boundaryFieldRef()
-                                    [patchi][pFacei] =
-                                    auxiliaryFieldsUpwindOwn_[p]
-                                        .boundaryField()[patchi][pFacei]
-                                  + 0.5*auxiliaryFieldsCorrOwn_[p]
-                                        .boundaryField()[patchi][pFacei];
-
-                                cellLimiters_[p][celli] = 0.5;
-
-                                addFaceMomentsToMPlus(p, patchi, pFacei, mPlus);
-                            }
+                            limited.boundaryFieldRef()[patchi][pFacei] =
+                                upwind.boundaryField()[patchi][pFacei]
+                              + 0.5*correction.boundaryField()[patchi][pFacei];
                         }
+
+                        cellLimiters_[p][celli] = 0.5;
+
+                        addFaceMomentsToMPlus(p, patchi, pFacei, ownSide, mPlus);
                     }
 
                     // Compute m*
@@ -925,22 +992,46 @@ void Foam::univariateAdvection::zeta::limitAuxiliaryFields()
         }
     }
 
-    // Setting limiters on boundary faces
+    // Setting limiters on boundary faces. A face the flux leaves through
+    // takes the limiter of its cell. A face of a coupled patch the flux
+    // enters through takes the limiter of the cell across it, so that the
+    // two sides of one face reconstruct the same moments: left at one on
+    // the entering side while the leaving side was limited, the flux out
+    // of a cell through a cyclic or processor boundary was not the flux
+    // into the cell across it, and the moments were not conserved.
+    forAll(cellLimiters_, i)
+    {
+        cellLimiters_[i].correctBoundaryConditions();
+    }
+
     forAll(phiBf, patchi)
     {
         const fvsPatchScalarField& phiPf = phiBf[patchi];
+        const fvPatch& patch = mesh.boundary()[patchi];
+        const labelList& pFaceCells = patch.faceCells();
 
-        const labelList& pFaceCells
-            = phi_.mesh().boundary()[patchi].faceCells();
-
-        forAll(phiPf, pFacei)
+        for (label i = 0; i < nAuxiliaryFields_; i++)
         {
-            if (phiPf[pFacei] > 0)
+            scalarField& limiterPf = limiters_[i].boundaryFieldRef()[patchi];
+
+            tmp<scalarField> tacross;
+
+            if (patch.coupled())
             {
-                for (label i = 0; i < nAuxiliaryFields_; i++)
+                tacross =
+                    cellLimiters_[i].boundaryField()[patchi]
+                   .patchNeighbourField();
+            }
+
+            forAll(phiPf, pFacei)
+            {
+                if (phiPf[pFacei] > 0)
                 {
-                    limiters_[i].boundaryFieldRef()[patchi][pFacei] =
-                        cellLimiters_[i][pFaceCells[pFacei]];
+                    limiterPf[pFacei] = cellLimiters_[i][pFaceCells[pFacei]];
+                }
+                else if (patch.coupled() && phiPf[pFacei] < 0)
+                {
+                    limiterPf[pFacei] = tacross()[pFacei];
                 }
             }
         }
