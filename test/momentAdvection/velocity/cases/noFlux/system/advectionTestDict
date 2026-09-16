@@ -1,0 +1,28 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      advectionTestDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Walls that let nothing through: the volume fraction is conserved
+beams
+(
+    { centre 0.5; width 0.6; alpha 1e-3; U (0.5 0 0); Theta (0.2 0.2 0.2); }
+);
+
+Co              0.5;
+
+checks          (mass realizability);
+
+// ************************************************************************* //

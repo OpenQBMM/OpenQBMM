@@ -10,6 +10,7 @@ wclean all momentSets
 wclean all momentInversions
 wclean momentAdvection
 wclean momentAdvection/univariate
+wclean momentAdvection/velocity
 wclean univariateQuadratureApproximation
 wclean Vandermonde
 wclean GolubWelsch
@@ -44,5 +45,14 @@ cleanTestCase populationBalanceModel/testCase
 cleanTestCase momentAdvection/univariate/cases/firstOrderKinetic
 cleanTestCase momentAdvection/univariate/cases/zeta
 cleanTestCase momentAdvection/univariate/cases/zetaZeroOne
+cleanTestCase momentAdvection/velocity/cases/crossing
+cleanTestCase momentAdvection/velocity/cases/crossingVikas
+cleanTestCase momentAdvection/velocity/cases/thermalVikas
+cleanTestCase momentAdvection/velocity/cases/reflectiveElastic
+cleanTestCase momentAdvection/velocity/cases/reflectiveInelastic
+cleanTestCase momentAdvection/velocity/cases/fixedTemperature
+cleanTestCase momentAdvection/velocity/cases/noFlux
+cleanTestCase momentAdvection/velocity/cases/symmetry
+cleanTestCase momentAdvection/velocity/cases/outflow
 
 #------------------------------------------------------------------------------

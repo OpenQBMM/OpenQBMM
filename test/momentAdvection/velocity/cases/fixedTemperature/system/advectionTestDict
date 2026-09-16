@@ -1,0 +1,31 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      advectionTestDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// A population with a uniform velocity along walls hotter than it: the
+// walls heat it, and the velocity along them, which the wall condition
+// used to multiply by the square root of the temperature ratio at every
+// reflection, does not change
+beams
+(
+    { centre 0.5; width 4; alpha 1e-3; U (0 0.3 0); Theta (0.2 0.2 0.2); }
+);
+
+Co              0.5;
+
+checks          (mass bulkVelocity heating realizability);
+
+// ************************************************************************* //

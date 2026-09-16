@@ -1,0 +1,39 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      advectionTestDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// A thermal beam with the Vikas scheme on a periodic line, at the Courant
+// limit the scheme reports: conservation, realizability and symmetry
+beams
+(
+    { centre 0.5; width 0.6; alpha 1e-3; U (0.5 0 0); Theta (0.2 0.2 0.2); }
+);
+
+Co              0.5;
+
+// The limited weights cost more arithmetic per face than upwinding, and
+// the two runs agree to round-off of that arithmetic
+conservationTolerance 1e-10;
+
+// The limiter of the weights decides on the sign of a vanishing slope in
+// the tail of the beam, which the mirrored runs settle differently within
+// round-off: they agree to 1e-15 after four steps, 1e-13 after twenty and
+// 1e-7 after a period, while the first-order scheme agrees to 1e-13
+mirrorTolerance 1e-6;
+
+checks          (conservation realizability mirror);
+
+// ************************************************************************* //

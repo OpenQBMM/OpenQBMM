@@ -1,0 +1,35 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      advectionTestDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// A beam moving towards an outflow leaves through it within a period,
+// and nothing enters
+beams
+(
+    { centre 0.5; width 0.3; alpha 1e-3; U (1 0 0); Theta (0.01 0.01 0.01); }
+);
+
+Co              0.5;
+
+// Long enough for the slowest node of the beam to leave
+periods         2;
+
+// The tail the upwind scheme leaves behind, which no length of run clears
+emptiedTolerance 1e-9;
+
+checks          (emptied realizability);
+
+// ************************************************************************* //

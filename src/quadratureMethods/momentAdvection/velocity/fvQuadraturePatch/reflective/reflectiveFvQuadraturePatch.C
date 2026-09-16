@@ -146,13 +146,16 @@ void Foam::reflectiveFvQuadraturePatch::update()
     //- Scale to ensure zero flux. Where nothing leaves the wall there is
     //  nothing to balance, and the weights are left alone; dividing by the
     //  floor instead gave such a face a scale factor of order 1/SMALL.
+    //  Leaving is any outgoing flux at all, not one above SMALL: a face
+    //  below that floor was skipped and its flux lost, a part in 1e-10 of
+    //  the population in a few hundred steps, growing as e falls.
     if (this->ew_ < 1)
     {
         scalarField weightScale(Gin.size(), scalar(1));
 
         forAll(weightScale, facei)
         {
-            if (Gout[facei] > SMALL)
+            if (Gout[facei] > 0)
             {
                 weightScale[facei] = Gin[facei]/Gout[facei];
             }

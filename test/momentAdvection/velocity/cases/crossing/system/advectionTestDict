@@ -1,0 +1,31 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      advectionTestDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Two monokinetic beams of equal speed crossing on a periodic line: at a
+// Courant number of one the kinetic scheme moves each by one cell per
+// step, so after a period they are back where they started, exactly
+beams
+(
+    { centre 0.3; width 0.3; alpha 1e-3; U ( 1 0 0); Theta (0 0 0); }
+    { centre 0.7; width 0.3; alpha 2e-3; U (-1 0 0); Theta (0 0 0); }
+);
+
+Co              1;
+
+checks          (conservation realizability shift mirror);
+
+// ************************************************************************* //

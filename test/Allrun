@@ -114,6 +114,37 @@ runTest ./momentAdvection/univariate/cases/zeta \
 runTest ./momentAdvection/univariate/cases/zetaZeroOne \
     Test-UnivariateAdvection
 
+# The kinetic velocity schemes and every boundary condition of theirs, on
+# beams whose transport is known exactly: crossing beams shift by a cell
+# per step, walls conserve what they should, and the outflow empties
+runTest ./momentAdvection/velocity/cases/crossing \
+    Test-VelocityAdvection
+
+runTest ./momentAdvection/velocity/cases/crossingVikas \
+    Test-VelocityAdvection
+
+runTest ./momentAdvection/velocity/cases/thermalVikas \
+    Test-VelocityAdvection
+
+runTest ./momentAdvection/velocity/cases/reflectiveElastic \
+    Test-VelocityAdvection
+
+runTest ./momentAdvection/velocity/cases/reflectiveInelastic \
+    Test-VelocityAdvection
+
+runTest ./momentAdvection/velocity/cases/fixedTemperature \
+    Test-VelocityAdvection
+
+runTest ./momentAdvection/velocity/cases/noFlux \
+    Test-VelocityAdvection
+
+runTest ./momentAdvection/velocity/cases/symmetry \
+    Test-VelocityAdvection
+
+runTest ./momentAdvection/velocity/cases/outflow \
+    Test-VelocityAdvection
+
+
 # Field level. These were built by test/Allwmake but never run, so nothing
 # above the moment inversions was exercised at all.
 runTest ./univariateQuadratureApproximation/testCase \

@@ -232,12 +232,14 @@ void Foam::fixedTemperatureFvQuadraturePatch::update()
     // the wall balances the one reaching it. Where nothing leaves, there is
     // nothing to balance and the weights are left alone: dividing by the
     // floor instead turned a face with no outgoing flux into one carrying a
-    // scale factor of order 1/SMALL.
+    // scale factor of order 1/SMALL. Leaving is any outgoing flux at all,
+    // not one above SMALL: a face below that floor was skipped and its
+    // flux lost.
     scalarField weightScale(Gin.size(), scalar(1));
 
     forAll(weightScale, facei)
     {
-        if (Gout[facei] > SMALL)
+        if (Gout[facei] > 0)
         {
             weightScale[facei] = Gin[facei]/Gout[facei];
         }
