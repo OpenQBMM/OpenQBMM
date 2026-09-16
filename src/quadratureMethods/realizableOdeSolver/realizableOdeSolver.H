@@ -41,7 +41,10 @@ Description
     absolute tolerance is far above the small moments, whose error it then
     ignores entirely, and far below the large ones. Scaled by the state of
     the cell, ATol is the same fraction of every moment, and both
-    tolerances are dimensionless.
+    tolerances are dimensionless, as is minLocalDt, the floor of the local
+    step as a fraction of the global one: below it, a cell that has found no
+    realizable moment set or cannot meet the tolerances ends the run rather
+    than shrinking its step without end.
 
     Reference:
     \verbatim
@@ -97,7 +100,9 @@ class realizableOdeSolver
         //- Maximum time-step change factor
         scalar facMax_;
 
-        //- Minimum local step in realizable ODE solver
+        //- Floor of the local step, as a fraction of the global step: a
+        //  cell whose step has to fall below it, to find a realizable
+        //  moment set or to meet the tolerances, stops the run
         scalar minLocalDt_;
 
         //- Stored time step values
@@ -133,6 +138,16 @@ protected:
             const scalarList& cellMoments,
             scalarList& coordinateScales,
             scalarList& momentScales
+        ) const;
+
+        //- Stop the run: the local step of a cell fell below its floor
+        void minimumStepReached
+        (
+            const label celli,
+            const scalar localDt,
+            const scalar globalDt,
+            const scalarList& cellMoments,
+            const string& why
         ) const;
 
         //- Calculate source term for moment equation in the specified cell

@@ -28,6 +28,41 @@ runTest()
     echo
 }
 
+# A test that has to end in a given error: it passes when it exits non-zero
+# with the message, within the time given, and fails when it hangs, exits
+# cleanly, or stops for any other reason
+runFailingTest()
+{
+    _dir="$1"
+    _test="$2"
+    _message="$3"
+    _seconds="$4"
+
+    echo "Running $_test, which has to stop with: $_message"
+
+    _log=$(cd "$_dir" && timeout "$_seconds" "$_test" 2>&1)
+    _status=$?
+
+    if [ "$_status" -ne 0 ] && [ "$_status" -ne 124 ] \
+        && echo "$_log" | grep -q -- "$_message"
+    then
+        echo "$_test: passed (stopped as it should)"
+    else
+        if [ "$_status" -eq 124 ]
+        then
+            echo "$_test: FAILED (still running after $_seconds s)"
+        else
+            echo "$_test: FAILED (exit $_status, message not found)"
+            echo "$_log" | tail -20
+        fi
+
+        nFail=$((nFail + 1))
+        failed="$failed $_test"
+    fi
+
+    echo
+}
+
 # Basic functionality
 runTest . Test-Vandermonde
 runTest . Test-GolubWelsch
@@ -90,6 +125,11 @@ runTest ./realizableOdeSolver/testCase \
 
 runTest ./realizableOdeSolver/stiffCase \
     Test-RealizableOdeSolver
+
+# A tolerance the controller can never meet has to end the run at the floor
+# of the local step, not shrink the step without end
+runFailingTest ./realizableOdeSolver/floorCase \
+    Test-RealizableOdeSolver "fell below its floor" 120
 
 if [ "$nFail" -gt 0 ]
 then

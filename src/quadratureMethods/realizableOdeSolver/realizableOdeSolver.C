@@ -129,6 +129,26 @@ void Foam::realizableOdeSolver<momentType, nodeType>::updateMomentScales
 
 
 template<class momentType, class nodeType>
+void Foam::realizableOdeSolver<momentType, nodeType>::minimumStepReached
+(
+    const label celli,
+    const scalar localDt,
+    const scalar globalDt,
+    const scalarList& cellMoments,
+    const string& why
+) const
+{
+    FatalErrorInFunction
+        << "The local step of cell " << celli << " fell below its floor of "
+        << minLocalDt_ << " of the global step: " << why.c_str() << "."
+        << nl
+        << "    local step " << localDt << ", global step " << globalDt << nl
+        << "    moments at the start of the substep: " << cellMoments << nl
+        << abort(FatalError);
+}
+
+
+template<class momentType, class nodeType>
 void Foam::realizableOdeSolver<momentType, nodeType>::solve
 (
     quadratureType& quadrature,
@@ -144,6 +164,10 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
     label nMoments = quadrature.nMoments();
     scalar globalDt = mesh_.time().deltaT().value();
     const labelListList& momentOrders = quadrature.momentOrders();
+
+    // The floor of the local step is a fraction of the global one, so that
+    // it means the same number of halvings whatever the step of the case
+    const scalar minLocalDt = minLocalDt_*globalDt;
 
     //- Use Euler explicit to update moments due to sources
     if (!solveOde_)
@@ -417,14 +441,16 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
                     localDt /= 2.0;
 
-                    if (localDt < minLocalDt_)
+                    if (localDt < minLocalDt)
                     {
-                        FatalErrorInFunction
-                            << "Reached minimum local step in realizable ODE"
-                            << nl
-                            << "    solver. Cannot ensure realizability."
-                            << nl
-                            << abort(FatalError);
+                        minimumStepReached
+                        (
+                            celli,
+                            localDt,
+                            globalDt,
+                            oldMoments,
+                            "no realizable moment set was found"
+                        );
                     }
                 }
             }
@@ -536,8 +562,29 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             }
             else
             {
+                // An error estimate that is not a number would pass no
+                // comparison and leave this branch by none, so it shrinks
+                // the step by the most the controller allows and reaches
+                // the floor. The floor used to be checked only when a
+                // moment set was not realizable: a tolerance the controller
+                // could never meet shrank the step without end.
                 localDt *=
-                    min(scalar(1), max(facMin_, fac_/pow(error, 1.0/3.0)));
+                    std::isfinite(error)
+                  ? min(scalar(1), max(facMin_, fac_/pow(error, 1.0/3.0)))
+                  : facMin_;
+
+                if (localDt < minLocalDt)
+                {
+                    minimumStepReached
+                    (
+                        celli,
+                        localDt,
+                        globalDt,
+                        oldMoments,
+                        "the error estimate, " + Foam::name(error)
+                      + ", does not fall below the tolerance"
+                    );
+                }
 
                 forAll(oldMoments, mi)
                 {
