@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties.populationBalance;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fieldMomentInversion    basicFieldMomentInversion;
+
+basicMomentInversion
+{
+    univariateMomentInversion   Gauss;
+}
+
+momentAdvection
+{
+    //  The source term is what is checked, on a single cell
+    univariateMomentAdvection   noAdvection;
+}
+
+moments
+(
+    (0)
+    (1)
+    (2)
+    (3)
+    (4)
+    (5)
+);
+
+nodes
+(
+    (0)
+    (1)
+    (2)
+);
+
+// ************************************************************************* //

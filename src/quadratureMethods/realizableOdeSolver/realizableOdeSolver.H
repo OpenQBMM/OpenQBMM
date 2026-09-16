@@ -30,9 +30,18 @@ Description
     Integrates a moment vector in a computational cell using a realizable ODE
     solver.
 
-    The procedure is adapted from the Nguyen et al. (2016) to fit into the 
+    The procedure is adapted from the Nguyen et al. (2016) to fit into the
     OpenFOAM structure. Specifically, the time step is calculated to ensure
     realizability and fit within the global time step of the calling solver.
+
+    The local error of a moment is measured against ATol times the natural
+    scale of that moment, plus RTol times its value. A moment carries the
+    units of its coordinates raised to its order, so the moments of a set
+    span as many orders of magnitude as the coordinates do: a single
+    absolute tolerance is far above the small moments, whose error it then
+    ignores entirely, and far below the large ones. Scaled by the state of
+    the cell, ATol is the same fraction of every moment, and both
+    tolerances are dimensionless.
 
     Reference:
     \verbatim
@@ -109,6 +118,22 @@ protected:
         Switch solveOde_;
 
     // Protected member functions
+
+        //- The natural scale of every moment of a cell, from its own
+        //  moments: the weight of the population, times the scale of each
+        //  of its coordinates raised to the order of the moment in that
+        //  coordinate. Where the moments give no scale for a coordinate,
+        //  or the cell holds no population, the moments that need it are
+        //  scaled by one, leaving ATol the absolute tolerance it was.
+        void updateMomentScales
+        (
+            const labelListList& momentOrders,
+            const labelList& scaleMoments,
+            const label zerothMoment,
+            const scalarList& cellMoments,
+            scalarList& coordinateScales,
+            scalarList& momentScales
+        ) const;
 
         //- Calculate source term for moment equation in the specified cell
         virtual void updateCellMomentSource(const label celli) = 0;

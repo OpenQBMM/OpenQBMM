@@ -82,8 +82,13 @@ runTest ./sizeVelocityNucleation/testCase \
     Test-SizeVelocityNucleation
 
 # The realizable ODE solver integrates a source over every step, whatever
-# the lengths of the steps and however small the moments are in their units
+# the lengths of the steps and however small the moments are in their units,
+# and subdivides a step its tolerances ask it to, on a source stiff enough
+# to need it
 runTest ./realizableOdeSolver/testCase \
+    Test-RealizableOdeSolver
+
+runTest ./realizableOdeSolver/stiffCase \
     Test-RealizableOdeSolver
 
 if [ "$nFail" -gt 0 ]

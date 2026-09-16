@@ -74,6 +74,61 @@ Foam::realizableOdeSolver<momentType, nodeType>::~realizableOdeSolver()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template<class momentType, class nodeType>
+void Foam::realizableOdeSolver<momentType, nodeType>::updateMomentScales
+(
+    const labelListList& momentOrders,
+    const labelList& scaleMoments,
+    const label zerothMoment,
+    const scalarList& cellMoments,
+    scalarList& coordinateScales,
+    scalarList& momentScales
+) const
+{
+    const scalar m0 = zerothMoment >= 0 ? cellMoments[zerothMoment] : 0;
+
+    // The scale of a coordinate is the root mean square of it over the
+    // population where the moment set carries the second order of that
+    // coordinate alone, which measures the population whatever its mean,
+    // and the magnitude of its mean where the set stops at the first.
+    // Zero marks a coordinate the moments say nothing about, and one the
+    // population has no extent in.
+    forAll(coordinateScales, dimi)
+    {
+        const label mi = scaleMoments[dimi];
+
+        coordinateScales[dimi] = 0;
+
+        if (mi >= 0 && m0 > 0)
+        {
+            const scalar mean = cellMoments[mi]/m0;
+
+            coordinateScales[dimi] =
+                momentOrders[mi][dimi] == 2
+              ? sqrt(max(mean, scalar(0)))
+              : mag(mean);
+        }
+    }
+
+    forAll(momentScales, mi)
+    {
+        const labelList& order = momentOrders[mi];
+
+        scalar scale = m0;
+
+        forAll(order, dimi)
+        {
+            for (label i = 0; i < order[dimi]; i++)
+            {
+                scale *= coordinateScales[dimi];
+            }
+        }
+
+        momentScales[mi] = scale > 0 ? scale : 1.0;
+    }
+}
+
+
+template<class momentType, class nodeType>
 void Foam::realizableOdeSolver<momentType, nodeType>::solve
 (
     quadratureType& quadrature,
@@ -128,6 +183,48 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
     Info << "Solving source terms in realizable ODE solver." << endl;
 
+    // The moment that gives the scale of each coordinate, and the moment
+    // that is the weight of the population, looked up once for the set
+    const label nDimensions = momentOrders[0].size();
+
+    labelList scaleMoments(nDimensions, -1);
+    label zerothMoment = -1;
+
+    forAll(momentOrders, mi)
+    {
+        const labelList& order = momentOrders[mi];
+
+        label total = 0;
+        label lastDim = 0;
+
+        forAll(order, dimi)
+        {
+            total += order[dimi];
+
+            if (order[dimi] > 0)
+            {
+                lastDim = dimi;
+            }
+        }
+
+        if (total == 0)
+        {
+            zerothMoment = mi;
+        }
+        else if (order[lastDim] == total && total <= 2)
+        {
+            // The second order of a coordinate alone is preferred to the
+            // first, and taken whenever the set carries it
+            if (total == 2 || scaleMoments[lastDim] < 0)
+            {
+                scaleMoments[lastDim] = mi;
+            }
+        }
+    }
+
+    scalarList coordinateScales(nDimensions, scalar(1));
+    scalarList momentScales(nMoments, scalar(1));
+
     forAll(moments[0], celli)
     {
         //Info << "OLD MOMENTS" << moments << endl;
@@ -144,6 +241,18 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         }
 
         //Info << "Old moments: " << oldMoments << endl;
+
+        // The scale the tolerances of the cell are measured against, from
+        // the state it enters the step with
+        updateMomentScales
+        (
+            momentOrders,
+            scaleMoments,
+            zerothMoment,
+            oldMoments,
+            coordinateScales,
+            momentScales
+        );
 
         //- Local time
         scalar localT(0);
@@ -197,7 +306,11 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                     if
                     (
                         mag(k1[mi])
-                      > SMALL*(ATol_ + RTol_*mag(oldMoments[mi]))
+                      > SMALL
+                       *(
+                            ATol_*momentScales[mi]
+                          + RTol_*mag(oldMoments[mi])
+                        )
                     )
                     {
                         nullSource = false;
@@ -333,9 +446,14 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
 
             for (label mi = 0; mi < nMoments; mi++)
             {
-                // Calculate the scaling factor
+                // Calculate the scaling factor. The absolute tolerance is
+                // measured against the scale of the moment, so that it
+                // means the same for every moment of a set whose members
+                // differ by many orders of magnitude: taken as one number
+                // for all of them, it left the error of every moment far
+                // below it out of the estimate altogether.
                 scalar scalei =
-                    ATol_
+                    ATol_*momentScales[mi]
                   + max
                     (
                         mag(moments[mi][celli]), mag(oldMoments[mi])

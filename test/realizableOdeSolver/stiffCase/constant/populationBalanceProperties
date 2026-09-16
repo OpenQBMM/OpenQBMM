@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      populationBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+populationBalanceModel univariate;
+
+univariateCoeffs
+{
+    aggregation off;
+    breakup     off;
+    nucleation  off;
+
+    diffusionModel
+    {
+        diffusionModel  none;
+    }
+
+    //  Evaporation at a rate that diverges as a droplet vanishes, whose
+    //  effect on the moments is known in closed form: the d-square law
+    //  takes the square of every size down by Cg t / pi
+    growth on;
+    growthModel
+    {
+        growthModel     nonLinearEvaporation;
+        Cg              6.7e-10;
+    }
+
+    //  Tolerances that are far above every moment of this case as plain
+    //  numbers, and are met only by a solver that measures them against
+    //  the scale of each moment
+    odeCoeffs
+    {
+        solveOde   on;
+        ATol       1.0e-8;
+        RTol       1.0e-8;
+        fac        0.9;
+        facMin     0.5;
+        facMax     2.0;
+        minLocalDt 1.0e-9;
+    }
+}
+
+// ************************************************************************* //

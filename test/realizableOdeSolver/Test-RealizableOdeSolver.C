@@ -29,13 +29,31 @@ Application
 Description
     Checks that the realizable ODE solver integrates a source over every
     global time step, whatever the length of the steps and however small the
-    moments are in their own units.
+    moments are in their own units, and that it subdivides a step its
+    tolerances ask it to.
 
-    A population of three sizes grows at a constant rate, which moves every
-    size by Cg per unit time and leaves the moments known in closed form:
-    with volume fractions w for weights and a length for abscissa, the
-    number density of a size is n = w/x^3 and the moment of order k at time
-    t is the sum of n (x + Cg t)^(k + 3) over the sizes.
+    A population of three sizes moves at the rate the case selects, which
+    leaves the moments known in closed form: with volume fractions w for
+    weights and a length for abscissa, the number density of a size is
+    n = w/x^3 and the moment of order k at time t is the sum of
+    n x(t)^(k + 3) over the sizes, with x(t) the size the model gives.
+
+    Two cases are run from their own directories:
+
+    - testCase, a constant growth rate, which moves every size by Cg per
+      unit time. The moments are polynomials in time, integrated exactly by
+      the third-order scheme, so the answer is right to round-off unless
+      the solver drops part of a step.
+
+    - stiffCase, the non-linear evaporation of the same population over
+      steps ten times longer, which takes the smallest size down to a
+      quarter of what it started as. The rate diverges as a droplet
+      vanishes, so a step that is a fair one at the start is far too long
+      by the end, and the solver has to see that and subdivide. Its
+      tolerances are far above every moment of the case as absolute
+      numbers: measured against the scale of each moment they are met at
+      4e-8, and taken as plain numbers, as they were, the controller sees
+      no error at all, integrates every step whole and ends 1e-4 away.
 
     The case is driven through forty steps of four different lengths, so
     that the last substep of a step is as often as not a clipped one, and
@@ -67,6 +85,7 @@ int main(int argc, char *argv[])
     // The global scope carries a second set of these, which makes a call
     // with plain scalars ambiguous
     using Foam::pow;
+    using Foam::sqrt;
 
     #include "setRootCase.H"
     #include "createTime.H"
@@ -115,9 +134,31 @@ int main(int argc, char *argv[])
     const scalarList w({2.0e-11, 5.0e-11, 3.0e-11});
     const scalarList x({1.0e-5, 2.0e-5, 4.0e-5});
 
-    const scalar Cg =
+    const dictionary& growthDict =
         populationBalanceProperties.subDict("univariateCoeffs")
-       .subDict("growthModel").get<scalar>("Cg");
+       .subDict("growthModel");
+
+    const word growthModel(growthDict.get<word>("growthModel"));
+    const scalar Cg = growthDict.get<scalar>("Cg");
+
+    const bool constantRate = growthModel == "constant";
+
+    // The size of a droplet at a time. A constant rate moves it by Cg t.
+    // The non-linear evaporation of a length coordinate is the d-square
+    // law, dx/dt = -Cg/(2 pi x), which takes x^2 down by Cg t / pi and
+    // whose rate diverges as a droplet vanishes: a step that is a fair
+    // one at the size a droplet starts at is far too long by the time it
+    // has evaporated, which is what the controller is there to see.
+    auto size = [&](const scalar x0, const scalar t)
+    {
+        return
+            constantRate
+          ? x0 + Cg*t
+          : sqrt
+            (
+                max(sqr(x0) - Cg*t/constant::mathematical::pi, scalar(0))
+            );
+    };
 
     auto momentName = [](const label k)
     {
@@ -133,7 +174,7 @@ int main(int argc, char *argv[])
 
         forAll(w, i)
         {
-            m += w[i]/pow3(x[i])*pow(x[i] + Cg*t, k + 3);
+            m += w[i]/pow3(x[i])*pow(size(x[i], t), k + 3);
         }
 
         return m;
@@ -142,12 +183,21 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * The steps * * * * * * * * * * * * * //
 
-    // Four lengths of step, none a multiple of another, cycled through
-    const scalarList deltaTs({1.0e-3, 1.7e-3, 0.6e-3, 1.3e-3});
+    // Four lengths of step, none a multiple of another, cycled through, in
+    // units of the step the case gives: a case whose source is stiff asks
+    // for a longer one, which the solver is then to subdivide itself
+    const scalar deltaT0 = runTime.deltaTValue();
+
+    const scalarList deltaTs
+    ({
+        1.0*deltaT0, 1.7*deltaT0, 0.6*deltaT0, 1.3*deltaT0
+    });
+
     const label nSteps = 40;
 
-    Info<< "\nGrowing the population over " << nSteps
-        << " steps of four lengths" << endl;
+    Info<< "\nMoving the population over " << nSteps
+        << " steps of four lengths, the longest " << deltaTs[1] << " s"
+        << endl;
 
     for (label stepi = 0; stepi < nSteps; stepi++)
     {
@@ -163,9 +213,10 @@ int main(int argc, char *argv[])
 
     Info<< "\nThe moments after " << t << " s" << endl;
 
-    // The moments are polynomials in time of degree up to eight, which the
-    // third-order scheme integrates to a truncation error that a step of
-    // a thousandth of the size of a particle leaves far below this
+    // Constant growth leaves the moments polynomials in time of degree up
+    // to eight, which the third-order scheme integrates to a truncation
+    // error far below this; evaporation is met at this accuracy only by a
+    // solver that subdivides the step it is given
     const scalar tolerance = 1.0e-7;
 
     label nFailed = 0;
