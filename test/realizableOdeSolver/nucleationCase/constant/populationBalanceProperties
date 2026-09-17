@@ -1,0 +1,54 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      populationBalanceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+populationBalanceModel univariate;
+
+univariateCoeffs
+{
+    aggregation off;
+    breakup     off;
+    growth      off;
+
+    diffusionModel
+    {
+        diffusionModel  none;
+    }
+
+    //  Particles of one size formed at a constant rate: the source of every
+    //  moment does not depend on the moments, so the stages of a step agree
+    //  exactly and the error the solver estimates for it is zero
+    nucleation on;
+    nucleationModel
+    {
+        nucleationModel constant;
+        nucleationRate  nucleationRate [0 -3 -1 0 0 0 0] 2.0e6;
+        nucleationSize  nucleationSize [0 1 0 0 0 0 0]   1.5e-5;
+    }
+
+    odeCoeffs
+    {
+        solveOde   on;
+        ATol       1.0e-8;
+        RTol       1.0e-4;
+        fac        0.9;
+        facMin     0.5;
+        facMax     2.0;
+        minLocalDt 1.0e-6;
+    }
+}
+
+// ************************************************************************* //

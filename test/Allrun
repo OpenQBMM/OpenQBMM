@@ -169,6 +169,11 @@ runTest ./realizableOdeSolver/testCase \
 runTest ./realizableOdeSolver/stiffCase \
     Test-RealizableOdeSolver
 
+# A source that does not depend on the moments leaves no error to scale the
+# next step by, which has to grow the step rather than divide by zero
+runTest ./realizableOdeSolver/nucleationCase \
+    Test-RealizableOdeSolver
+
 # A tolerance the controller can never meet has to end the run at the floor
 # of the local step, not shrink the step without end
 runFailingTest ./realizableOdeSolver/floorCase \

@@ -38,12 +38,17 @@ Description
     n = w/x^3 and the moment of order k at time t is the sum of
     n x(t)^(k + 3) over the sizes, with x(t) the size the model gives.
 
-    Two cases are run from their own directories:
+    The cases are run from their own directories:
 
     - testCase, a constant growth rate, which moves every size by Cg per
       unit time. The moments are polynomials in time, integrated exactly by
       the third-order scheme, so the answer is right to round-off unless
       the solver drops part of a step.
+
+    - nucleationCase, particles of one size formed at a constant rate, and
+      no growth. The source of every moment is the same at every stage of a
+      step, so the error the solver estimates is exactly zero, on which the
+      factor it grows the next step by used to be a division by zero.
 
     - stiffCase, the non-linear evaporation of the same population over
       steps ten times longer, which takes the smallest size down to a
@@ -130,18 +135,42 @@ int main(int argc, char *argv[])
     const label celli = 0;
     const label nMoments = 6;
 
-    // The population the case was built of, and the rate it grows at
+    // The population the case was built of
     const scalarList w({2.0e-11, 5.0e-11, 3.0e-11});
     const scalarList x({1.0e-5, 2.0e-5, 4.0e-5});
 
-    const dictionary& growthDict =
-        populationBalanceProperties.subDict("univariateCoeffs")
-       .subDict("growthModel");
+    const dictionary& coeffsDict =
+        populationBalanceProperties.subDict("univariateCoeffs");
 
-    const word growthModel(growthDict.get<word>("growthModel"));
-    const scalar Cg = growthDict.get<scalar>("Cg");
+    // The rate the sizes grow at, where the case grows them
+    const bool growth = coeffsDict.get<Switch>("growth");
 
-    const bool constantRate = growthModel == "constant";
+    word growthModel;
+    scalar Cg = 0;
+
+    if (growth)
+    {
+        const dictionary& growthDict = coeffsDict.subDict("growthModel");
+
+        growthModel = growthDict.get<word>("growthModel");
+        Cg = growthDict.get<scalar>("Cg");
+    }
+
+    // The rate particles form at, and the size they form with, where the
+    // case forms them
+    const bool nucleation = coeffsDict.get<Switch>("nucleation");
+
+    scalar J = 0;
+    scalar xNuclei = 0;
+
+    if (nucleation)
+    {
+        const dictionary& nucleationDict =
+            coeffsDict.subDict("nucleationModel");
+
+        J = dimensionedScalar("nucleationRate", nucleationDict).value();
+        xNuclei = dimensionedScalar("nucleationSize", nucleationDict).value();
+    }
 
     // The size of a droplet at a time. A constant rate moves it by Cg t.
     // The non-linear evaporation of a length coordinate is the d-square
@@ -151,8 +180,13 @@ int main(int argc, char *argv[])
     // has evaporated, which is what the controller is there to see.
     auto size = [&](const scalar x0, const scalar t)
     {
+        if (!growth)
+        {
+            return x0;
+        }
+
         return
-            constantRate
+            growthModel == "constant"
           ? x0 + Cg*t
           : sqrt
             (
@@ -176,6 +210,10 @@ int main(int argc, char *argv[])
         {
             m += w[i]/pow3(x[i])*pow(size(x[i], t), k + 3);
         }
+
+        // The weights are volume fractions, so the particles that formed
+        // add their number times their size to the power k + 3
+        m += J*t*pow(xNuclei, k + 3);
 
         return m;
     };
@@ -229,7 +267,7 @@ int main(int argc, char *argv[])
         const scalar reference = expected(k, t);
         const scalar start = expected(k, 0);
 
-        // The growth the population has undergone, as the fraction of the
+        // The change the population has undergone, as the fraction of the
         // moment it changed by: what a frozen cell would miss entirely
         const scalar growth = mag(reference - start)/mag(reference);
         const scalar error = mag(computed - reference)/mag(reference);

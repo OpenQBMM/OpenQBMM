@@ -538,7 +538,14 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             {
                 localT += localDt;
 
-                localDt *= min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)));
+                // A step whose stages agree exactly, as they do where the
+                // source does not depend on the moments, has no error to
+                // scale the next step by: it grows by the most allowed.
+                // Dividing by the error there was a division by zero.
+                localDt *=
+                    error > 0
+                  ? min(facMax_, max(facMin_, fac_/pow(error, 1.0/3.0)))
+                  : facMax_;
 
                 forAll(oldMoments, mi)
                 {
