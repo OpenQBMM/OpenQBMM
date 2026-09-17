@@ -62,6 +62,14 @@ class firstOrderKinetic
 protected:
     // Protected data
 
+        //- The flux a node carries out of a cell through the boundary, from
+        //  the flux on the inner side of the faces
+        scalar boundaryOutflow
+        (
+            const surfaceScalarField& phi,
+            const label celli
+        ) const;
+
         //- Interpolation schemes
         word weightScheme_;
         word scalarAbscissaeScheme_;

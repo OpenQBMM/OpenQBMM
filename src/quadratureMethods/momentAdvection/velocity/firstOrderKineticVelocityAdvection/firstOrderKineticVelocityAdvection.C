@@ -168,6 +168,45 @@ void Foam::velocityAdvection::firstOrderKinetic::interpolateNodes()
 
 
 Foam::scalar
+Foam::velocityAdvection::firstOrderKinetic::boundaryOutflow
+(
+    const surfaceScalarField& phi,
+    const label celli
+) const
+{
+    const fvMesh& mesh = this->own_.mesh();
+    const labelList& cell = mesh.cells()[celli];
+    const surfaceScalarField::Boundary& phiBf = phi.boundaryField();
+
+    scalar out = 0;
+
+    forAll(cell, facei)
+    {
+        if (cell[facei] >= mesh.nInternalFaces())
+        {
+            const label patchi = mesh.boundaryMesh().whichPatch(cell[facei]);
+
+            if (patchi < 0)
+            {
+                continue;
+            }
+
+            const label pFacei = cell[facei] - mesh.boundaryMesh()[patchi].start();
+
+            // Patches without a finite volume representation, such as
+            // empty and wedge patches, carry no flux
+            if (pFacei < phiBf[patchi].size())
+            {
+                out += max(phiBf[patchi][pFacei], scalar(0));
+            }
+        }
+    }
+
+    return out;
+}
+
+
+Foam::scalar
 Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
 {
     const fvMesh& mesh = this->own_.mesh();
@@ -184,6 +223,15 @@ Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
         surfaceScalarField phiNei
         (
             mag(this->nodesNei_()[nodei].velocityAbscissae() & mesh.Sf())
+        );
+
+        // The flux a node carries out through the boundary, from the side
+        // of the face inside the domain. Boundary faces used to be left
+        // out of the sum, so a cell whose node leaves through a wall or an
+        // outflow was given a Courant limit it does not satisfy.
+        const surfaceScalarField phiOut
+        (
+            this->nodesOwn_()[nodei].velocityAbscissae() & mesh.Sf()
         );
 
         forAll(moments_[0], celli)
@@ -204,6 +252,8 @@ Foam::velocityAdvection::firstOrderKinetic::realizableCo() const
                         );
                 }
             }
+
+            den += boundaryOutflow(phiOut, celli);
 
             // The limit is taken once the sum of the fluxes leaving the
             // cell is complete. Taken inside the loop above it was still

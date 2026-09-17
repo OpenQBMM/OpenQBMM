@@ -55,7 +55,10 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::VikasQuasiSecondOrder
 )
 :
     firstOrderKinetic(dict, quadrature, supports),
-    minWeight_(dict.lookupOrDefault<scalar>("minWeight", 1.0e-6))
+    minWeight_(dict.lookupOrDefault<scalar>("minWeight", 1.0e-6)),
+    nDroppedNodes_(0),
+    lowestDroppedLimit_(GREAT),
+    warnedDroppedNodes_(false)
 {
     weightScheme_ = "Minmod";
 }
@@ -115,24 +118,85 @@ Foam::velocityAdvection::VikasQuasiSecondOrder::realizableCo() const
                 }
             }
 
+            // The flux leaving through the boundary, with the weight of
+            // the node on the inner side of those faces
+            {
+                const surfaceScalarField::Boundary& phiBf =
+                    phiOwn.boundaryField();
+
+                const surfaceScalarField::Boundary& wBf =
+                    this->nodesOwn_()[nodei].weight().boundaryField();
+
+                forAll(cell, facei)
+                {
+                    if (cell[facei] >= mesh.nInternalFaces())
+                    {
+                        const label patchi =
+                            mesh.boundaryMesh().whichPatch(cell[facei]);
+
+                        if (patchi < 0)
+                        {
+                            continue;
+                        }
+
+                        const label pFacei =
+                            cell[facei] - mesh.boundaryMesh()[patchi].start();
+
+                        if (pFacei < phiBf[patchi].size())
+                        {
+                            den +=
+                                wBf[patchi][pFacei]
+                               *max(phiBf[patchi][pFacei], scalar(0));
+                        }
+                    }
+                }
+            }
+
             // As in the scheme this derives from, the limit is taken
             // once the sum of the fluxes leaving the cell is complete.
             // Taken inside the loop above it was still right, the sum only
             // growing, but the clamp beside it is an assignment: a cell
             // whose first faces contributed nothing carried the floor in
             // its denominator from there on.
+            den = max(den, SMALL);
+
+            const scalar limit =
+                num*mesh.V()[celli]/(den*mesh.time().deltaTValue());
+
             if (num > minWeight_)
             {
-                den = max(den, SMALL);
-
-                maxCoNum[celli] =
-                    min
-                    (
-                        maxCoNum[celli],
-                        num*mesh.V()[celli]/(den*mesh.time().deltaTValue())
-                    );
+                maxCoNum[celli] = min(maxCoNum[celli], limit);
+            }
+            else if
+            (
+                limit < maxCoNum[celli]
+             && den*mesh.time().deltaTValue() > minWeight_*mesh.V()[celli]
+            )
+            {
+                // A node too light to be counted would have lowered the
+                // limit, and what it carries out over the step is more
+                // than the weight it was dropped for: it loses more than
+                // it has. There is nothing to do for it in this scheme, so
+                // it is counted and reported once. A node whose outflow is
+                // itself below that weight is empty and left alone.
+                nDroppedNodes_++;
+                lowestDroppedLimit_ = min(lowestDroppedLimit_, limit);
             }
         }
+    }
+
+    if (nDroppedNodes_ > 0 && !warnedDroppedNodes_)
+    {
+        WarningInFunction
+            << "Nodes with a weight below minWeight " << minWeight_
+            << " were left out of the Courant limit while they would have"
+            << " lowered it, in " << nDroppedNodes_
+            << " instances so far, to as little as " << lowestDroppedLimit_
+            << " of the step." << nl
+            << "    This scheme has no treatment for them; the limit it"
+            << " reports does not cover what they carry." << endl;
+
+        warnedDroppedNodes_ = true;
     }
 
     return gMin(maxCoNum);

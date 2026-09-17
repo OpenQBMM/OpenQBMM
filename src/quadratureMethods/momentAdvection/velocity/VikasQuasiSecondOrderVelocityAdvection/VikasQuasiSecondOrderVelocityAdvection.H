@@ -62,6 +62,13 @@ class VikasQuasiSecondOrder
         //- Weight below which a node is left out of the Courant limit
         scalar minWeight_;
 
+        //- How many times a node left out would have lowered the limit,
+        //  the lowest limit it would have set, and whether that was
+        //  reported; counted by a const member, hence mutable
+        mutable label nDroppedNodes_;
+        mutable scalar lowestDroppedLimit_;
+        mutable bool warnedDroppedNodes_;
+
 
 public:
 
