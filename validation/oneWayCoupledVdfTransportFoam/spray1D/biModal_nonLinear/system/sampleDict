@@ -32,10 +32,10 @@ fields
     alpha.liquid        //1
     U.liquid            //2
     U.gas               //3
-    moment.000.liquid   //4
-    moment.100.liquid   //5
-    moment.200.liquid   //6
-    moment.300.liquid   //7
+    moment.0_0_0.liquid   //4
+    moment.1_0_0.liquid   //5
+    moment.2_0_0.liquid   //6
+    moment.3_0_0.liquid   //7
 );
 
 

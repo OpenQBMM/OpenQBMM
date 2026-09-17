@@ -7,5 +7,5 @@
 // Each line names a comparison, the tolerance it is held to, the file
 // of the reference and the value to read from it, and the file the case
 // wrote and the value to read from that.
-d10Verification 0.06       verificationData/MadadiPassalacqua2015_d43.dat c6/c5  ../postProcessing/probes/0/moment.1000.particles,../postProcessing/probes/0/moment.0000.particles  c2/c4
-d10Validation   0.05       validationData/Vanni2000_d43.dat              c2     ../postProcessing/probes/0/moment.1000.particles,../postProcessing/probes/0/moment.0000.particles  c2/c4
+d10Verification 0.06       verificationData/MadadiPassalacqua2015_d43.dat c6/c5  ../postProcessing/probes/0/moment.1_0_0_0.particles,../postProcessing/probes/0/moment.0_0_0_0.particles  c2/c4
+d10Validation   0.05       validationData/Vanni2000_d43.dat              c2     ../postProcessing/probes/0/moment.1_0_0_0.particles,../postProcessing/probes/0/moment.0_0_0_0.particles  c2/c4

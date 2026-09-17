@@ -62,10 +62,10 @@ functions
         codeExecute
         #{
         const volScalarField& m0 =
-            mesh().lookupObject<volScalarField>("moment.0000.populationBalance");
+            mesh().lookupObject<volScalarField>("moment.0_0_0_0.populationBalance");
 
         const volScalarField& m1 =
-            mesh().lookupObject<volScalarField>("moment.1000.populationBalance");
+            mesh().lookupObject<volScalarField>("moment.1_0_0_0.populationBalance");
         const volScalarField& Theta =
             mesh().lookupObject<volScalarField>("Theta.populationBalance");
 

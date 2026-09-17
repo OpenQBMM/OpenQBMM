@@ -77,8 +77,8 @@ echo "    processing profiles" > log.createGraphs 2>&1
 # columns follow the order of the fields in system/sampleDict, with the
 # scalars before the vectors:
 #     1: x
-#     2: alpha.liquid  3: moment.000  4: moment.100  5: moment.200
-#     6: moment.300    7-9: U.gas     10-12: U.liquid
+#     2: alpha.liquid  3: moment.0_0_0  4: moment.1_0_0  5: moment.2_0_0
+#     6: moment.3_0_0    7-9: U.gas     10-12: U.liquid
 OPENQBMM_data=$(ls ../postProcessing/sampleDict/"$time"/Centerline_* 2>/dev/null \
     | head -1)
 

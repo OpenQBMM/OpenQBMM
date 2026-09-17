@@ -30,12 +30,12 @@ interpolationScheme cell;
 fields
 (
     Theta.particles     //2
-    moment.000.particles//3
-    moment.100.particles//4
-    moment.200.particles//5
-    moment.300.particles//6
-    moment.120.particles//7
-    moment.102.particles//8
+    moment.0_0_0.particles//3
+    moment.1_0_0.particles//4
+    moment.2_0_0.particles//5
+    moment.3_0_0.particles//6
+    moment.1_2_0.particles//7
+    moment.1_0_2.particles//8
 );
 
 

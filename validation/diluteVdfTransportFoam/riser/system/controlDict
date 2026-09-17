@@ -261,19 +261,19 @@ functions
                  prime2Mean  off;
                  base        time;
             }
-            moment.1000.particles
+            moment.1_0_0_0.particles
             {
                  mean        on;
                  prime2Mean  off;
                  base        time;
             }
-            moment.2000.particles
+            moment.2_0_0_0.particles
             {
                  mean        on;
                  prime2Mean  off;
                  base        time;
             }
-            moment.3000.particles
+            moment.3_0_0_0.particles
             {
                  mean        on;
                  prime2Mean  off;

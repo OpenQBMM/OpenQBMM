@@ -86,8 +86,8 @@ VERIFICATIONDATAROOT=./verificationData
 VALIDATIONDATAROOT=./validationData
 
 echo "    processing d43 profile" > log.createGraphs 2>&1
-OPENQBMMM0="$OPENQBMMDATAROOT/moment.0000.particles"
-OPENQBMMM1="$OPENQBMMDATAROOT/moment.1000.particles"
+OPENQBMMM0="$OPENQBMMDATAROOT/moment.0_0_0_0.particles"
+OPENQBMMM1="$OPENQBMMDATAROOT/moment.1_0_0_0.particles"
 VERIFICATION="$VERIFICATIONDATAROOT/MadadiPassalacqua2015_d43.dat"
 VALIDATION="$VALIDATIONDATAROOT/Vanni2000_d43.dat"
 
