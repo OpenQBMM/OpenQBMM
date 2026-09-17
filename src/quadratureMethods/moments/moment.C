@@ -48,14 +48,52 @@ template <class fieldType, class nodeType>
 Foam::word
 Foam::moment<fieldType, nodeType>::listToWord(const labelList &lst)
 {
-    word w;
+    return mappedListKey::ordersToWord(lst);
+}
 
-    forAll(lst, dimi)
+
+template <class fieldType, class nodeType>
+Foam::IOobject Foam::moment<fieldType, nodeType>::readIO
+(
+    const word& distributionName,
+    const labelList& cmptOrders,
+    const fvMesh& mesh
+)
+{
+    IOobject io
+    (
+        momentName("moment", listToWord(cmptOrders), distributionName),
+        mesh.time().timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    );
+
+    // A case written before the orders of a moment of several dimensions
+    // were joined by underscores names the moment by the orders written one
+    // after another. Its field is read under that name, and renamed and
+    // written under the new one.
+    const word legacyName
+    (
+        momentName
+        (
+            "moment",
+            mappedListKey::legacyOrdersToWord(cmptOrders),
+            distributionName
+        )
+    );
+
+    if (legacyName != io.name() && !io.typeHeaderOk<fieldType>(true))
     {
-        w += Foam::name(lst[dimi]);
+        IOobject legacyIo(io, legacyName);
+
+        if (legacyIo.typeHeaderOk<fieldType>(true))
+        {
+            return legacyIo;
+        }
     }
 
-    return w;
+    return io;
 }
 
 
@@ -67,14 +105,7 @@ Foam::moment<fieldType, nodeType>::moment(
     const labelList &cmptOrders,
     const fvMesh &mesh,
     const autoPtr<mappedPtrList<nodeType>> &nodes)
-    : fieldType(
-          IOobject(
-              momentName("moment", listToWord(cmptOrders), distributionName),
-              mesh.time().timeName(),
-              mesh,
-              IOobject::MUST_READ,
-              IOobject::AUTO_WRITE),
-          mesh),
+    : fieldType(readIO(distributionName, cmptOrders, mesh), mesh),
       distributionName_(distributionName),
       nodes_(nodes),
       cmptOrders_(cmptOrders),
@@ -82,6 +113,28 @@ Foam::moment<fieldType, nodeType>::moment(
       nDimensions_(cmptOrders_.size()),
       order_(sum(cmptOrders_))
 {
+    // The moment's own name() is name_, so the name the field was read
+    // under is asked of the field
+    if (fieldType::name() != name_)
+    {
+        // Once for the moments of a distribution, rather than for each
+        static wordHashSet warned;
+
+        if (warned.insert(distributionName_))
+        {
+            WarningInFunction
+                << "The moments of " << distributionName_ << " were read "
+                << "under the names they had before their orders were "
+                << "joined by underscores, as " << fieldType::name()
+                << " for " << name_ << "." << nl
+                << "    They are renamed, and will be written under the new "
+                << "names. Convert the case with "
+                << "bin/qbmmConvertMomentNames." << nl
+                << endl;
+        }
+
+        this->rename(name_);
+    }
 }
 
 template <class fieldType, class nodeType>

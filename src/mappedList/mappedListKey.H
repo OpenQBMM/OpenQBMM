@@ -65,6 +65,7 @@ SourceFiles
 #define mappedListKey_H
 
 #include "labelList.H"
+#include "word.H"
 #include "error.H"
 #include <initializer_list>
 
@@ -401,6 +402,43 @@ public:
         label find(std::initializer_list<label> orders) const
         {
             return find(orders.begin(), label(orders.size()));
+        }
+
+        //- The word a list of orders is named by in the name of a field:
+        //  the orders joined by underscores, so moment.2_1_0 for (2 1 0),
+        //  and the single order alone, so moment.3 for (3). The orders used
+        //  to be written one after another, which two lists could share:
+        //  (1 10) and (11 0) were both 110.
+        static word ordersToWord(const UList<label>& orders)
+        {
+            word w;
+
+            forAll(orders, dimi)
+            {
+                if (dimi > 0)
+                {
+                    w += '_';
+                }
+
+                w += Foam::name(orders[dimi]);
+            }
+
+            return w;
+        }
+
+        //- The word a list of orders was named by before, the orders written
+        //  one after another. Kept to read the fields of a case written with
+        //  it, which bin/qbmmConvertMomentNames renames.
+        static word legacyOrdersToWord(const UList<label>& orders)
+        {
+            word w;
+
+            forAll(orders, dimi)
+            {
+                w += Foam::name(orders[dimi]);
+            }
+
+            return w;
         }
 
         //- The orders of every element, padded with zeros to the number of

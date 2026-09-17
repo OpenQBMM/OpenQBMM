@@ -190,6 +190,11 @@ int main(int argc, char *argv[])
 
         forAll(order, dimi)
         {
+            if (dimi > 0)
+            {
+                w += '_';
+            }
+
             w += Foam::name(order[dimi]);
         }
 

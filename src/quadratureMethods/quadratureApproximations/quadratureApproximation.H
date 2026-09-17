@@ -110,16 +110,6 @@ protected:
         autoPtr<fieldMomentInversion> momentFieldInverter_;
 
 
-    // Protected Member Functions
-
-        //- Stop if two lists of orders give their fields the same name
-        static void checkUniqueNames
-        (
-            const labelListList& orders,
-            const word& what
-        );
-
-
 public:
 
     //- Default name of the phase properties dictionary

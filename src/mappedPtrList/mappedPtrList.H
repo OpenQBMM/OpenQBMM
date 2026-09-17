@@ -118,7 +118,7 @@ public:
 
         // Static member functions
 
-            //- Convert a list of labels to a word. {1, 2, 3} -> 123
+            //- Convert a list of labels to a word. {1, 2, 3} -> 1_2_3, {3} -> 3
             static word listToWord(const labelList& list);
 
 

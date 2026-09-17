@@ -1,0 +1,349 @@
+#!/usr/bin/env python3
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     qbmmConvertMomentNames
+#
+# Description
+#     Convert a case to the names moments and nodes of several dimensions
+#     have since their orders are joined by underscores.
+#
+#         qbmmConvertMomentNames [-n] <case> [<case> ...]
+#
+#         -n    only print what would be changed
+#
+#     A moment of orders (2 1 0) was named moment.210.<distribution>, and is
+#     named moment.2_1_0.<distribution>; a node of indexes (0 1 2) was
+#     node012 and is node0_1_2. The orders used to be written one after
+#     another, which two lists of orders could share. A univariate moment
+#     keeps its name, moment.3.<distribution>.
+#
+#     The orders of every moment and node are read from the moments and
+#     nodes lists of constant/quadratureProperties.<distribution>, so each
+#     old name is converted to the one of the orders it stood for. Then:
+#
+#     - the fields of every time directory of the case, 0.orig and the
+#       processor directories included, are renamed, and the object entry
+#       of their header changed with them;
+#     - the names are changed wherever the case refers to them in text:
+#       system, constant, validation, regression, and the scripts at the
+#       top of the case. A name followed by its distribution is always
+#       converted; one written without it, as a comment of a script may
+#       write moment.100, only when the case has a single quadrature of
+#       several dimensions.
+#
+#     The solvers still read a field under its old name, with a warning,
+#     for one release. Converting the case removes the warning and writes
+#     the case the way the solvers now write it. The script is temporary.
+#
+#------------------------------------------------------------------------------
+
+import os
+import re
+import sys
+
+
+def stripComments(text):
+    text = re.sub(r'/\*.*?\*/', '', text, flags=re.S)
+    return re.sub(r'//[^\n]*', '', text)
+
+
+def readOrderLists(path):
+    """The moments and nodes lists of a quadratureProperties dictionary"""
+    text = stripComments(open(path, errors='replace').read())
+    lists = {}
+
+    for key in ('moments', 'nodes'):
+        m = re.search(r'(?<![\w.])' + key + r'\s*\(', text)
+
+        if not m:
+            continue
+
+        # The list runs to the parenthesis that closes the one it opens
+        depth = 1
+        i = m.end()
+
+        while i < len(text) and depth > 0:
+            if text[i] == '(':
+                depth += 1
+            elif text[i] == ')':
+                depth -= 1
+            i += 1
+
+        body = text[m.end():i - 1]
+
+        lists[key] = [
+            [int(x) for x in entry.split()]
+            for entry in re.findall(r'\(([^()]*)\)', body)
+        ]
+
+    return lists
+
+
+def quadratures(case):
+    """The distributions of a case, each with the maps from the old words of
+    its moments and nodes to the new ones, for those of several dimensions"""
+    constant = os.path.join(case, 'constant')
+    result = {}
+
+    if not os.path.isdir(constant):
+        return result
+
+    for name in sorted(os.listdir(constant)):
+        if not name.startswith('quadratureProperties'):
+            continue
+
+        distribution = name[len('quadratureProperties'):].lstrip('.')
+        lists = readOrderLists(os.path.join(constant, name))
+
+        maps = {}
+
+        for key in ('moments', 'nodes'):
+            orders = lists.get(key, [])
+
+            if not orders or max(len(o) for o in orders) < 2:
+                continue
+
+            maps[key] = {
+                ''.join(str(x) for x in o): '_'.join(str(x) for x in o)
+                for o in orders
+            }
+
+        if maps:
+            result[distribution] = maps
+
+    return result
+
+
+def fieldRenames(fileName, quads):
+    """The new name of a field file, or None"""
+    for distribution, maps in quads.items():
+        suffix = '.' + distribution if distribution else ''
+
+        moments = maps.get('moments', {})
+        m = re.fullmatch(
+            r'moment\.(\d+)' + re.escape(suffix) + r'(\.gz)?', fileName
+        )
+
+        if m and m.group(1) in moments:
+            return (
+                'moment.' + moments[m.group(1)] + suffix + (m.group(2) or '')
+            )
+
+        nodes = maps.get('nodes', {})
+        m = re.fullmatch(
+            r'(\w+)\.node(\d+)' + re.escape(suffix) + r'(\.gz)?', fileName
+        )
+
+        if m and m.group(2) in nodes:
+            return (
+                m.group(1) + '.node' + nodes[m.group(2)] + suffix
+              + (m.group(3) or '')
+            )
+
+    return None
+
+
+def convertText(text, quads):
+    """The text with the old names replaced"""
+    single = len(quads) == 1
+
+    for distribution, maps in quads.items():
+        moments = maps.get('moments', {})
+        nodes = maps.get('nodes', {})
+        nDigits = max((len(k) for k in moments), default=0)
+
+        if distribution:
+            suffix = re.escape('.' + distribution) + r'(?![\w])'
+
+            text = re.sub(
+                r'(?<![\w.])moment\.(\d+)(?=' + suffix + ')',
+                lambda m: 'moment.' + moments.get(m.group(1), m.group(1)),
+                text
+            )
+
+            text = re.sub(
+                r'(?<=\.)node(\d+)(?=' + suffix + ')',
+                lambda m: 'node' + nodes.get(m.group(1), m.group(1)),
+                text
+            )
+
+        # generateMoments names the boundary dictionary of a moment by its
+        # orders, as moment210Boundary
+        text = re.sub(
+            r'(?<![\w.])moment(\d+)Boundary(?![\w])',
+            lambda m:
+                'moment' + moments.get(m.group(1), m.group(1)) + 'Boundary',
+            text
+        )
+
+        if single or not distribution:
+            text = re.sub(
+                r'(?<![\w.])moment\.(\d+)(?![\d_])(?!\.[A-Za-z])',
+                lambda m:
+                    'moment.' + moments[m.group(1)]
+                    if len(m.group(1)) == nDigits and m.group(1) in moments
+                    else m.group(0),
+                text
+            )
+
+    return text
+
+
+def textFiles(case):
+    """The files of a case its names can be referred to in"""
+    for sub in ('system', 'constant', 'validation', 'regression'):
+        top = os.path.join(case, sub)
+
+        for root, dirs, files in os.walk(top):
+            dirs[:] = [d for d in dirs if d != 'polyMesh']
+
+            for f in files:
+                yield os.path.join(root, f)
+
+    for f in os.listdir(case):
+        path = os.path.join(case, f)
+
+        if os.path.isfile(path):
+            yield path
+
+
+def timeDirectories(case):
+    """The directories fields of the case are written in"""
+    def times(top):
+        for name in os.listdir(top):
+            path = os.path.join(top, name)
+
+            if not os.path.isdir(path):
+                continue
+
+            if name == '0.orig':
+                yield path
+                continue
+
+            try:
+                float(name)
+            except ValueError:
+                continue
+
+            yield path
+
+    yield from times(case)
+
+    for name in os.listdir(case):
+        if name.startswith('processor'):
+            yield from times(os.path.join(case, name))
+
+
+def isText(path):
+    try:
+        with open(path, 'rb') as f:
+            chunk = f.read(4096)
+    except OSError:
+        return False
+
+    return b'\0' not in chunk
+
+
+def convertCase(case, dryRun):
+    quads = quadratures(case)
+
+    if not quads:
+        print(case + ': no quadrature of several dimensions, nothing to do')
+        return 0
+
+    changes = 0
+
+    for directory in timeDirectories(case):
+        for name in sorted(os.listdir(directory)):
+            new = fieldRenames(name, quads)
+
+            if new is None:
+                continue
+
+            old = os.path.join(directory, name)
+            target = os.path.join(directory, new)
+
+            print('  rename ' + old + ' -> ' + new)
+            changes += 1
+
+            if dryRun:
+                continue
+
+            if os.path.exists(target):
+                sys.exit(
+                    'qbmmConvertMomentNames: ' + target + ' exists already'
+                )
+
+            os.rename(old, target)
+
+            if isText(target) and not new.endswith('.gz'):
+                text = open(target, errors='surrogateescape').read()
+                objectName = new[:-3] if new.endswith('.gz') else new
+                text = re.sub(
+                    r'(\bobject\s+)' + re.escape(name) + r'(\s*;)',
+                    r'\g<1>' + objectName + r'\g<2>',
+                    text,
+                    count=1
+                )
+                open(target, 'w', errors='surrogateescape').write(text)
+
+    for path in textFiles(case):
+        if not isText(path) or os.path.basename(path).startswith(
+            'quadratureProperties'
+        ):
+            continue
+
+        text = open(path, errors='surrogateescape').read()
+        converted = convertText(text, quads)
+
+        if converted != text:
+            print('  edit   ' + path)
+            changes += 1
+
+            if not dryRun:
+                open(path, 'w', errors='surrogateescape').write(converted)
+
+    print(case + ': ' + str(changes) + ' change(s)')
+    return changes
+
+
+def main(argv):
+    dryRun = False
+    cases = []
+
+    for arg in argv:
+        if arg == '-n':
+            dryRun = True
+        else:
+            cases.append(arg)
+
+    if not cases:
+        sys.exit('usage: qbmmConvertMomentNames [-n] <case> [<case> ...]')
+
+    for case in cases:
+        if not os.path.isdir(case):
+            sys.exit('qbmmConvertMomentNames: ' + case + ' is not a directory')
+
+        convertCase(case, dryRun)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

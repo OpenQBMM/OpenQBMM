@@ -37,14 +37,7 @@ template <class mappedType>
 Foam::word
 Foam::mappedList<mappedType>::listToWord(const labelList& list)
 {
-    word listWord;
-
-    forAll(list, dimi)
-    {
-        listWord += Foam::name(list[dimi]);
-    }
-
-    return listWord;
+    return mappedListKey::ordersToWord(list);
 }
 
 

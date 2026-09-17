@@ -37,45 +37,6 @@ const Foam::word Foam::quadratureApproximation<momentType, nodeType>::
 propertiesName("quadratureProperties");
 
 
-template<class momentType, class nodeType>
-void Foam::quadratureApproximation<momentType, nodeType>::checkUniqueNames
-(
-    const labelListList& orders,
-    const word& what
-)
-{
-    // The fields are named after the orders written one after another, so
-    // two lists of orders can share a name: (1 10) and (11 0) are both 110.
-    // The lists themselves could not share a key, which used to be packed
-    // the same way and stopped the run on it; they are told apart exactly
-    // now, and the names are what still cannot.
-    HashTable<label, word> names(2*orders.size());
-
-    forAll(orders, i)
-    {
-        word name;
-
-        forAll(orders[i], dimi)
-        {
-            name += Foam::name(orders[i][dimi]);
-        }
-
-        const auto iter = names.cfind(name);
-
-        if (iter.good())
-        {
-            FatalErrorInFunction
-                << "The " << what << "s of orders " << orders[iter.val()]
-                << " and " << orders[i] << " would both be named "
-                << what << "." << name << "." << nl
-                << exit(FatalError);
-        }
-
-        names.insert(name, i);
-    }
-}
-
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class momentType, class nodeType>
@@ -123,9 +84,6 @@ quadratureApproximation
     supports_(supports),
     momentFieldInverter_()
 {
-    checkUniqueNames(momentOrders_, "moment");
-    checkUniqueNames(nodeIndexes_, "node");
-
     forAll(nodeIndexes_, nodei)
     {
         forAll(nNodes_, dimi)
@@ -251,9 +209,6 @@ quadratureApproximation
     supports_(mFieldSet.supports()),
     momentFieldInverter_()
 {
-    checkUniqueNames(momentOrders_, "moment");
-    checkUniqueNames(nodeIndexes_, "node");
-
     forAll(nodeIndexes_, nodei)
     {
         forAll(nNodes_, dimi)

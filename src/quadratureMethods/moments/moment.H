@@ -93,8 +93,18 @@ class moment
 
 public:
 
-    //- Convert a list of labels to a word. {1, 2, 3} -> 123
+    //- Convert a list of labels to a word. {1, 2, 3} -> 1_2_3, {3} -> 3
     static word listToWord(const labelList& lst);
+
+    //- The IOobject the moment of the given orders is read from: its name,
+    //  or the name it had before its orders were joined by underscores
+    //  where only that one is found
+    static IOobject readIO
+    (
+        const word& distributionName,
+        const labelList& cmptOrders,
+        const fvMesh& mesh
+    );
 
 
     // Constructors
@@ -170,7 +180,7 @@ public:
     // Member Functions
 
             //- Creates the name of the moment
-            word momentName
+            static word momentName
             (
                 const word& momentSetName,
                 const word& order,

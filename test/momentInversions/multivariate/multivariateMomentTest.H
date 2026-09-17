@@ -52,13 +52,18 @@ Description
 namespace Foam
 {
 
-//- Name of a moment of the given order, as moment.012
+//- Name of a moment of the given order, as moment.0_1_2
 inline word momentName(const labelList& momentOrder)
 {
     word name("moment.");
 
     forAll(momentOrder, dimi)
     {
+        if (dimi > 0)
+        {
+            name += '_';
+        }
+
         name += Foam::name(momentOrder[dimi]);
     }
 

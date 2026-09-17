@@ -262,11 +262,32 @@ void testIndexesAndStaticHelpers()
     checkLabel("nDimensions()", ml.nDimensions(), 2);
     checkBool("indexes()[2] == (0 1)", ml.indexes()[2] == orders[2], true);
 
-    if (mappedList<scalar>::listToWord(labelList({1, 2, 3})) != "123")
+    // The orders of several dimensions are joined by underscores, so that
+    // (1 10) and (11 0) are named apart; a single order is written alone
+    if (mappedList<scalar>::listToWord(labelList({1, 2, 3})) != "1_2_3")
     {
         FatalErrorInFunction
             << "listToWord({1, 2, 3}) does not match the expected word "
-            << "\"123\"" << endl
+            << "\"1_2_3\"" << endl
+            << exit(FatalError);
+    }
+
+    if
+    (
+        mappedList<scalar>::listToWord(labelList({1, 10}))
+     == mappedList<scalar>::listToWord(labelList({11, 0}))
+    )
+    {
+        FatalErrorInFunction
+            << "listToWord gives (1 10) and (11 0) the same word" << endl
+            << exit(FatalError);
+    }
+
+    if (mappedList<scalar>::listToWord(labelList({12})) != "12")
+    {
+        FatalErrorInFunction
+            << "listToWord({12}) does not match the expected word \"12\""
+            << endl
             << exit(FatalError);
     }
 

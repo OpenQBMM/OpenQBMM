@@ -126,8 +126,11 @@ dictionary.
 - `constant/populationBalanceProperties` selects `populationBalanceModel` plus its `<model>Coeffs`
   dictionary with the on/off switches and kernel sub-dictionaries. Similarly
   `constant/mixingProperties` for mixing.
-- Moment fields are named `moment.<order>.<quadratureName>`, e.g. `moment.3.populationBalance`,
-  and live in `0.orig/`; `Allrun` scripts copy `0.orig` → `0` before running.
+- Moment fields are named `moment.<order>.<quadratureName>`, e.g. `moment.3.populationBalance`;
+  a moment of several dimensions joins its orders with underscores, `moment.2_1_0.particles`, and
+  so do node names (`weight.node0_1_2.particles`). Cases written with the old concatenated names
+  (`moment.210.particles`) are still read with a warning; `bin/qbmmConvertMomentNames <case>`
+  converts them. Moment fields live in `0.orig/`; `Allrun` scripts copy `0.orig` → `0` before running.
 - Multi-stage tutorials swap `system/controlDict.flow` / `controlDict.pbe` into `system/controlDict`
   between stages (solve the flow field first, then freeze it and solve the population balance).
 
