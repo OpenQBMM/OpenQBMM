@@ -94,7 +94,7 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::mixingSource
     // variance, so the variance decays at Cphi epsilon/k whatever Cmixing
     // is, as with IEM. The half was missing from the drift, which made the
     // decay (2 + Cmixing) Cphi epsilon/k.
-    const scalar omega = Cphi_.value()*epsilon_[celli]/k_[celli];
+    const scalar omega = Cphi_.value()*epsilon()[celli]/k()[celli];
 
     return
         omega*momentOrder

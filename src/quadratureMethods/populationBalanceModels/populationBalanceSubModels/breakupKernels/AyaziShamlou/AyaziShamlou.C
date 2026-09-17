@@ -78,7 +78,8 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
             )
         )
     ),
-    epsilon_(flTurb_.epsilon()),
+    epsilon_(),
+    turbulenceTimeIndex_(-1),
     mu_
     (
         dict.found("mu")
@@ -104,6 +105,28 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou
 
 Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::~AyaziShamlou()
 {}
+
+
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+const Foam::volScalarField&
+Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::epsilon() const
+{
+    // This used to bind a reference to what the turbulence model returned
+    // on construction. A model that solves for the field returns its own,
+    // which the reference followed; one that does not, such as the k-omega
+    // family for epsilon, returns a field built for the call, which the
+    // reference outlived.
+    const label timeIndex = mesh_.time().timeIndex();
+
+    if (timeIndex != turbulenceTimeIndex_)
+    {
+        epsilon_ = flTurb_.epsilon();
+        turbulenceTimeIndex_ = timeIndex;
+    }
+
+    return epsilon_();
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -132,7 +155,7 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     scalar sigma = 9.0*kc*phiL*F/(8.0*sqr(primarySize_.value())
             *Foam::constant::mathematical::pi);
 
-    scalar epsilonByNu = epsilon_[celli]*rho_[celli]/mu_[celli];
+    scalar epsilonByNu = epsilon()[celli]*rho_[celli]/mu_[celli];
 
     scalar tau = mu_[celli]*sqrt(epsilonByNu);
 

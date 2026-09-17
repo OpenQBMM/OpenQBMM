@@ -92,7 +92,7 @@ Foam::mixingSubModels::mixingKernels::IEM::mixingSource
     // variance decays at Cphi epsilon/k. The half was missing, which with
     // the usual Cphi = 2 mixed twice as fast as the model does.
     scalar source =
-        momentOrder*0.5*Cphi_.value()*epsilon_[celli]/k_[celli]
+        momentOrder*0.5*Cphi_.value()*epsilon()[celli]/k()[celli]
        *(
             (moments_(momentOrder - 1)[celli]*moments_(1)[celli])
           - moments_(momentOrder)[celli]

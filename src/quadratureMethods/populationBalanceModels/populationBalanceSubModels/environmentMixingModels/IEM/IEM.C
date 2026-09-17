@@ -70,8 +70,9 @@ Foam::populationBalanceSubModels::environmentMixingModels::IEM::IEM
             turbulenceModel::propertiesName
         )
     ),
-    k_(flTurb_.k()),
-    epsilon_(flTurb_.epsilon())
+    k_(),
+    epsilon_(),
+    turbulenceTimeIndex_(-1)
 {}
 
 
@@ -79,6 +80,44 @@ Foam::populationBalanceSubModels::environmentMixingModels::IEM::IEM
 
 Foam::populationBalanceSubModels::environmentMixingModels::IEM::~IEM()
 {}
+
+
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+void
+Foam::populationBalanceSubModels::environmentMixingModels::IEM
+::updateTurbulence() const
+{
+    // This used to bind a reference to what the turbulence model returned
+    // on construction. A model that solves for the field returns its own,
+    // which the reference followed; one that does not, such as the k-omega
+    // family for epsilon, returns a field built for the call, which the
+    // reference outlived.
+    const label timeIndex = mesh_.time().timeIndex();
+
+    if (timeIndex != turbulenceTimeIndex_)
+    {
+        k_ = flTurb_.k();
+        epsilon_ = flTurb_.epsilon();
+        turbulenceTimeIndex_ = timeIndex;
+    }
+}
+
+
+const Foam::volScalarField&
+Foam::populationBalanceSubModels::environmentMixingModels::IEM::k() const
+{
+    updateTurbulence();
+    return k_();
+}
+
+
+const Foam::volScalarField&
+Foam::populationBalanceSubModels::environmentMixingModels::IEM::epsilon() const
+{
+    updateTurbulence();
+    return epsilon_();
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -98,8 +137,8 @@ Foam::populationBalanceSubModels::environmentMixingModels::IEM::K
     // this model carries a reason of its own for the rest is to be checked
     // against its derivation before the two-environment model is used.
     return
-        2.0*Cphi_*epsilon_*meanMoment*meanMixtureFraction/k_
-      - fvm::SuSp(2.0*Cphi_*epsilon_/k_, meanMomentVariance);
+        2.0*Cphi_*epsilon()*meanMoment*meanMixtureFraction/k()
+      - fvm::SuSp(2.0*Cphi_*epsilon()/k(), meanMomentVariance);
 }
 
 // ************************************************************************* //

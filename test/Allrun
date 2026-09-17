@@ -191,6 +191,11 @@ runTest ./mixingKernels/FokkerPlanck \
 runTest ./mixingKernels/FokkerPlanckC3 \
     Test-MixingKernels
 
+# k-omega does not solve for epsilon and builds it anew when asked for it,
+# which a kernel that only kept a reference to it read after it was gone
+runTest ./mixingKernels/IEMkOmega \
+    Test-MixingKernels
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

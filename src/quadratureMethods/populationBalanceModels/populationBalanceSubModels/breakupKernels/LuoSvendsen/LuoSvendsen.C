@@ -78,7 +78,8 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen
             )
         )
     ),
-    epsilon_(flTurb_.epsilon()),
+    epsilon_(),
+    turbulenceTimeIndex_(-1),
         mu_
     (
         dict.found("mu")
@@ -106,6 +107,28 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::~LuoSvendsen()
 {}
 
 
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+const Foam::volScalarField&
+Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::epsilon() const
+{
+    // This used to bind a reference to what the turbulence model returned
+    // on construction. A model that solves for the field returns its own,
+    // which the reference followed; one that does not, such as the k-omega
+    // family for epsilon, returns a field built for the call, which the
+    // reference outlived.
+    const label timeIndex = mesh_.time().timeIndex();
+
+    if (timeIndex != turbulenceTimeIndex_)
+    {
+        epsilon_ = flTurb_.epsilon();
+        turbulenceTimeIndex_ = timeIndex;
+    }
+
+    return epsilon_();
+}
+
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 Foam::scalar
@@ -116,7 +139,7 @@ Foam::populationBalanceSubModels::breakupKernels::LuoSvendsen::Kb
     const label environment
 ) const
 {
-    return Cb_.value()*pow(epsilon_[celli], epsilonExp_)
+    return Cb_.value()*pow(epsilon()[celli], epsilonExp_)
         *pow(mu_[celli]/rho_[celli], nuExp_)*pow(abscissa, sizeExp_);
 }
 

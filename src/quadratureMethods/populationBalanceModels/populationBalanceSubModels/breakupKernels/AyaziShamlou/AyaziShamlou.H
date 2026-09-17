@@ -91,14 +91,27 @@ private:
         //- Turbulence model
         const turbulenceModel& flTurb_;
 
-        //- Turbulent dissipation rate
-        const volScalarField& epsilon_;
+        //- Turbulent dissipation rate, as the turbulence model returned it
+        //  at the time step it was last asked for. A model that does not
+        //  solve for it builds it anew each time, so it is held, not
+        //  referred to.
+        mutable tmp<volScalarField> epsilon_;
+
+        //- Time step epsilon_ was taken at
+        mutable label turbulenceTimeIndex_;
 
         //- Dynamic viscosity
         const volScalarField& mu_;
 
         //- Density
         const volScalarField& rho_;
+
+
+    // Private Member Functions
+
+        //- Turbulent dissipation rate, taken from the turbulence model once
+        //  per time step
+        const volScalarField& epsilon() const;
 
 
 public:

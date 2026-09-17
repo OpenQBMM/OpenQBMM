@@ -82,15 +82,31 @@ protected:
         //- Turbulence model
         const turbulenceModel& flTurb_;
 
-        //- Turbulent kinetic energy field
-        const volScalarField& k_;
+        //- Turbulent kinetic energy and its dissipation rate, as the
+        //  turbulence model returned them at the time step they were last
+        //  asked for. A model that does not solve for one of them builds it
+        //  anew each time, so they are held, not referred to.
+        mutable tmp<volScalarField> k_;
+        mutable tmp<volScalarField> epsilon_;
 
-        //- Turbulent dissipation rate field
-        const volScalarField& epsilon_;
+        //- Time step k_ and epsilon_ were taken at
+        mutable label turbulenceTimeIndex_;
 
         //- Reference to moments
         const volScalarMomentFieldSet& moments_;
-        
+
+
+    // Protected Member Functions
+
+        //- Turbulent kinetic energy
+        const volScalarField& k() const;
+
+        //- Turbulent dissipation rate
+        const volScalarField& epsilon() const;
+
+        //- Take k and epsilon from the turbulence model, once per time step
+        void updateTurbulence() const;
+
 public:
 
     //- Runtime type information

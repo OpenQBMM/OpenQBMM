@@ -102,7 +102,8 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
             IOobject::groupName("thermo:mu", continuousPhase_)
         )
     ),
-    epsilon_(flTurb_.epsilon())
+    epsilon_(),
+    turbulenceTimeIndex_(-1)
 {}
 
 
@@ -111,6 +112,29 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
 Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
 ::~turbulentBrownian()
 {}
+
+
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+const Foam::volScalarField&
+Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian
+::epsilon() const
+{
+    // This used to bind a reference to what the turbulence model returned
+    // on construction. A model that solves for the field returns its own,
+    // which the reference followed; one that does not, such as the k-omega
+    // family for epsilon, returns a field built for the call, which the
+    // reference outlived.
+    const label timeIndex = mesh_.time().timeIndex();
+
+    if (timeIndex != turbulenceTimeIndex_)
+    {
+        epsilon_ = flTurb_.epsilon();
+        turbulenceTimeIndex_ = timeIndex;
+    }
+
+    return epsilon_();
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -128,7 +152,7 @@ Foam::populationBalanceSubModels::aggregationKernels::turbulentBrownian::Ka
     return 2.0*Foam::constant::physicoChemical::k.value()*T_[celli]
         *sqr(d1 + d2)/(3.0*mu_[celli]
         *max(d1*d2, SMALL)) + 4.0/3.0*pow3(d1 + d2)
-        *sqrt(3.0*Foam::constant::mathematical::pi*epsilon_[celli]
+        *sqrt(3.0*Foam::constant::mathematical::pi*epsilon()[celli]
         /(10.0*mu_[celli]/rho_[celli]));
 }
 

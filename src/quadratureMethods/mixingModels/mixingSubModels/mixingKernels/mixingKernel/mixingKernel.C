@@ -80,14 +80,9 @@ Foam::mixingSubModels::mixingKernel::mixingKernel
             )
         )
     ),
-    k_
-    (
-        flTurb_.k()
-    ),
-    epsilon_
-    (
-        flTurb_.epsilon()
-    ),
+    k_(),
+    epsilon_(),
+    turbulenceTimeIndex_(-1),
     moments_(moments)
 {}
 
@@ -96,6 +91,41 @@ Foam::mixingSubModels::mixingKernel::mixingKernel
 
 Foam::mixingSubModels::mixingKernel::~mixingKernel()
 {}
+
+
+// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
+
+void Foam::mixingSubModels::mixingKernel::updateTurbulence() const
+{
+    // The kernels used to bind a reference to what the turbulence model
+    // returned when they were built. A model that solves for k and epsilon
+    // returns its own fields, which the reference followed; one that does
+    // not, such as the k-omega family for epsilon, returns a field built for
+    // the call, which the reference outlived.
+    const label timeIndex = mesh_.time().timeIndex();
+
+    if (timeIndex != turbulenceTimeIndex_)
+    {
+        k_ = flTurb_.k();
+        epsilon_ = flTurb_.epsilon();
+        turbulenceTimeIndex_ = timeIndex;
+    }
+}
+
+
+const Foam::volScalarField& Foam::mixingSubModels::mixingKernel::k() const
+{
+    updateTurbulence();
+    return k_();
+}
+
+
+const Foam::volScalarField&
+Foam::mixingSubModels::mixingKernel::epsilon() const
+{
+    updateTurbulence();
+    return epsilon_();
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
