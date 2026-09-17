@@ -6,6 +6,7 @@ wclean populationBalanceModel
 wclean populationBalanceSubModels
 wclean sizeVelocityNucleation
 wclean realizableOdeSolver
+wclean mixingKernels
 wclean all momentSets
 wclean all momentInversions
 wclean momentAdvection

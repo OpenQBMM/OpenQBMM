@@ -179,6 +179,18 @@ runTest ./realizableOdeSolver/nucleationCase \
 runFailingTest ./realizableOdeSolver/floorCase \
     Test-RealizableOdeSolver "fell below its floor" 120
 
+# The mixing kernels on a mixture fraction in one cell of homogeneous
+# turbulence: the zero-order moment stays one, the mean is conserved and the
+# variance decays at Cphi epsilon/k, for Fokker-Planck whatever Cmixing is
+runTest ./mixingKernels/IEM \
+    Test-MixingKernels
+
+runTest ./mixingKernels/FokkerPlanck \
+    Test-MixingKernels
+
+runTest ./mixingKernels/FokkerPlanckC3 \
+    Test-MixingKernels
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

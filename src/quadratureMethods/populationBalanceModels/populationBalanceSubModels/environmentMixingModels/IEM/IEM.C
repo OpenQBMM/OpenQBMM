@@ -91,6 +91,12 @@ Foam::populationBalanceSubModels::environmentMixingModels::IEM::K
     const volScalarField& meanMixtureFraction
 ) const
 {
+    // Unverified, left as it was: the interaction by exchange with the mean
+    // acting on the mixture fraction relaxes <xi m> to <xi><m> at
+    // Cphi/2 epsilon/k, which is a quarter of the rate written here. The
+    // mixing kernels had lost a factor of one half, now restored; whether
+    // this model carries a reason of its own for the rest is to be checked
+    // against its derivation before the two-environment model is used.
     return
         2.0*Cphi_*epsilon_*meanMoment*meanMixtureFraction/k_
       - fvm::SuSp(2.0*Cphi_*epsilon_/k_, meanMomentVariance);

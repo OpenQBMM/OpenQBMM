@@ -89,12 +89,19 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::mixingSource
         return 0.0;
     }
     
-    return 
-        Cphi_.value()*epsilon_[celli]/k_[celli]*momentOrder
+    // The drift relaxes each value to the mean at (1 + Cmixing) Cphi/2
+    // epsilon/k and the diffusion puts back Cmixing Cphi epsilon/k of the
+    // variance, so the variance decays at Cphi epsilon/k whatever Cmixing
+    // is, as with IEM. The half was missing from the drift, which made the
+    // decay (2 + Cmixing) Cphi epsilon/k.
+    const scalar omega = Cphi_.value()*epsilon_[celli]/k_[celli];
+
+    return
+        omega*momentOrder
        *(
-            (Cmixing_.value() + 1.0)
+            0.5*(Cmixing_.value() + 1.0)
            *(
-                moments_(momentOrder - 1)[celli]*moments_(1)[celli] 
+                moments_(momentOrder - 1)[celli]*moments_(1)[celli]
               - moments_(momentOrder)[celli]
             )
           + (momentOrder - 1)*Cmixing_.value()
