@@ -32,17 +32,22 @@ Class
 Description
     A list of pointers with additional mapping for named access to elements.
 
-    Example
+    Every element is identified by a list of orders, or indexes, and can be
+    reached by them as well as by its position:
 
-        Lookup  |  Label Key | Index
-         0 0 0         0         0
-         1 0 0       100         1
-         0 1 0        10         2
-         0 0 1         1         3
-         2 0 0       200         4
-         2 1 0       210         5
+        Orders  |  Position
+         0 0 0         0
+         1 0 0         1
+         0 1 0         2
+         0 0 1         3
+         2 0 0         4
+         2 1 0         5
 
-    Provides O(1) by index and O(log n) by key access to the elements.
+    An element is found by its orders exactly, whatever their values and
+    however many dimensions they have (see mappedListKey). Orders followed by
+    zeros are the same element as the orders without them.
+
+    Provides O(1) access by position and by orders.
 
 SourceFiles
     mappedPtrListI.H
@@ -56,7 +61,7 @@ SourceFiles
 #include "scalar.H"
 #include "PtrList.H"
 #include "labelList.H"
-#include "Map.H"
+#include "mappedListKey.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -64,7 +69,7 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                     Class mappedList Declaration
+                     Class mappedPtrList Declaration
 \*---------------------------------------------------------------------------*/
 
 template <class mappedType>
@@ -74,48 +79,37 @@ class mappedPtrList
 {
     // Private data
 
-        //- Map from the label to its index within the List
-        Map<label> map_;
+        //- The orders of every element and the table that finds them
+        mappedListKey index_;
 
-        //- Number of dimensions
-        label nDimensions_;
 
     // Private Member Functions
 
-        //- Returns an element provided the indeces of the order
-        label calcMapIndex(std::initializer_list<label> indexes) const;
-
-        //- Insert the key for the given indexes at position elemi in the
-        //  map, checking for colliding keys
-        void insertKey(const labelList& indexes, const label elemi);
+        //- Position of the element of the given orders, stopping if there
+        //  is none
+        label existingPosition(const labelList& list) const;
 
 
 public:
 
     // Constructors
 
-        //- Construct from size and labelListList
+        //- Construct from size and the orders of each element
         mappedPtrList
         (
             const label size,
             const labelListList& indexes
         );
 
-        //- Construct from size and map with initial value for all elements
-        mappedPtrList
-        (
-            const label size,
-            const Map<label>& map
-        );
-
-        //- Construct from List<mappedType> and labelListList
+        //- Construct from PtrList<mappedType> and the orders of each element
         mappedPtrList
         (
             const PtrList<mappedType>& initList,
             const labelListList& indexes
         );
 
-        //- Construct from Istream using given Istream constructor class
+        //- Construct from Istream using given Istream constructor class. The
+        //  orders of the elements are set afterwards, with setMap.
         template<class INew>
         mappedPtrList(Istream&, const INew&);
 
@@ -127,15 +121,8 @@ public:
             //- Convert a list of labels to a word. {1, 2, 3} -> 123
             static word listToWord(const labelList& list);
 
-            //- Convert a list of labels to a single label. {0, 2, 3} -> 23
-            static label listToLabel
-            (
-                const labelList& list,
-                const label nDimensions = 0
-            );
 
-
-        // Access functions
+        // Access
 
             //- Non-const access to a moment given the list of orders
             template <typename ...ArgsT>
@@ -151,11 +138,15 @@ public:
             //- Non-constant access given a label list
             inline mappedType& operator()(const labelList& list);
 
-            //- Returns const access to the moment map
-            inline const Map<label>& map() const noexcept;
+            //- The orders of each element, by position, padded with zeros
+            //  to the number of dimensions
+            inline labelListList indexes() const;
+
+            //- Number of dimensions of the orders
+            inline label nDimensions() const noexcept;
 
 
-        // Return functions
+        // Inquiry
 
             //- Is index i set
             bool set(const label i) const;
@@ -173,11 +164,8 @@ public:
 
         // Edit functions
 
-            //- Set map after PtrList has been constructed
-            void setMap(const Map<label>& map, const label nDimensions);
-
-            //- Set map from the labelListList of indexes after PtrList has
-            //  been constructed
+            //- Set the orders of each element after the PtrList has been
+            //  constructed
             void setMap(const labelListList& indexes);
 
             //- Set mapped location using pointer

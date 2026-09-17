@@ -245,12 +245,11 @@ void testSetSizeResize()
 }
 
 
-// Tests the map() accessor and the static listToLabel()/listToWord()
-// helpers used to pack an order list into a single key or field-name
-// suffix.
-void testMapAndStaticHelpers()
+// Tests the indexes() accessor and the static listToWord() helper used to
+// build the field-name suffix of an order list.
+void testIndexesAndStaticHelpers()
 {
-    Info<< "Testing map() and static helpers" << endl;
+    Info<< "Testing indexes() and static helpers" << endl;
 
     labelListList orders(3);
     orders[0] = labelList({0, 0});
@@ -259,23 +258,9 @@ void testMapAndStaticHelpers()
 
     mappedList<scalar> ml(3, orders, 0.0);
 
-    checkLabel("map().size()", ml.map().size(), 3);
-    checkBool("map().found(10)", ml.map().found(10), true);
-    checkBool("map().found(1)", ml.map().found(1), true);
-    checkBool("map().found(99)", ml.map().found(99), false);
-
-    checkLabel
-    (
-        "listToLabel({1, 0}, 2)",
-        mappedList<scalar>::listToLabel(labelList({1, 0}), 2),
-        10
-    );
-    checkLabel
-    (
-        "listToLabel({0, 1}, 2)",
-        mappedList<scalar>::listToLabel(labelList({0, 1}), 2),
-        1
-    );
+    checkLabel("indexes().size()", ml.indexes().size(), 3);
+    checkLabel("nDimensions()", ml.nDimensions(), 2);
+    checkBool("indexes()[2] == (0 1)", ml.indexes()[2] == orders[2], true);
 
     if (mappedList<scalar>::listToWord(labelList({1, 2, 3})) != "123")
     {
@@ -289,14 +274,12 @@ void testMapAndStaticHelpers()
 }
 
 
-// The map constructor has to be told how many dimensions the keys were
-// packed with. Recovering it from the keys themselves undercounts whenever
-// no key carries a non-zero leading component: the orders below are three
-// dimensional and pack to 0, 10, 11 and 20, so the widest key is two digits
-// and a count read from the keys alone says two.
-void testMapConstructorDimensions()
+// Orders none of which has a non-zero leading component. The keys used to
+// be packed a decimal digit to a dimension, and a count of dimensions read
+// back from them came out short; the orders are now the keys.
+void testLeadingZeroOrders()
 {
-    Info<< "Testing the dimension count of the map constructor" << endl;
+    Info<< "Testing orders with leading zeros" << endl;
 
     labelListList orders(4);
     orders[0] = labelList({0, 0, 0});
@@ -304,14 +287,7 @@ void testMapConstructorDimensions()
     orders[2] = labelList({0, 1, 1});
     orders[3] = labelList({0, 2, 0});
 
-    Map<label> map(4);
-
-    forAll(orders, oi)
-    {
-        map.insert(mappedList<scalar>::listToLabel(orders[oi], 3), oi);
-    }
-
-    mappedList<scalar> ml(4, map, 3, 0.0);
+    mappedList<scalar> ml(4, orders, 0.0);
 
     forAll(orders, oi)
     {
@@ -327,6 +303,100 @@ void testMapConstructorDimensions()
 }
 
 
+// Orders of ten or more, which the decimal packing of the keys could not
+// tell apart: (1 10) and (11 0) were both key 110, and (0 10) was the key of
+// (1 0). They are distinct elements now, found by their orders exactly.
+void testOrdersOfTenOrMore()
+{
+    Info<< "Testing orders of ten or more" << endl;
+
+    labelListList orders(5);
+    orders[0] = labelList({1, 10});
+    orders[1] = labelList({11, 0});
+    orders[2] = labelList({1, 0});
+    orders[3] = labelList({0, 10});
+    orders[4] = labelList({255, 300});
+
+    mappedList<scalar> ml(5, orders, 0.0);
+
+    forAll(orders, oi)
+    {
+        ml(orders[oi]) = scalar(oi + 1);
+    }
+
+    checkScalar("ml(1,10)", ml(1, 10), 1.0);
+    checkScalar("ml(11,0)", ml(11, 0), 2.0);
+    checkScalar("ml(1,0)", ml(1, 0), 3.0);
+    checkScalar("ml(0,10)", ml(0, 10), 4.0);
+    checkScalar("ml(255,300)", ml(255, 300), 5.0);
+    checkBool("found(11)", ml.found(11), true);
+    checkBool("found(10,1)", ml.found(10, 1), false);
+    checkBool("found(0,1)", ml.found(0, 1), false);
+    checkBool
+    (
+        "found(1024,0), an order past what the key holds",
+        ml.found(1024, 0),
+        false
+    );
+    checkBool("found(-1,0)", ml.found(-1, 0), false);
+
+    Info<< "OK" << endl;
+}
+
+
+// A list of more dimensions than a label has decimal digits, as the
+// moments of a mixture fraction and a dozen reacting scalars are: the
+// decimal keys overflowed there. With the mixture fraction up to order 40
+// the orders no longer fit into a key of 64 bits either, and the list finds
+// its elements by a hash of the orders and the orders themselves.
+void testManyDimensions()
+{
+    Info<< "Testing a list of thirteen dimensions" << endl;
+
+    const label nDims = 13;
+
+    labelListList orders(nDims + 2);
+    orders[0] = labelList(nDims, Zero);
+
+    for (label dimi = 0; dimi < nDims; dimi++)
+    {
+        orders[dimi + 1] = labelList(nDims, Zero);
+        orders[dimi + 1][dimi] = 1;
+    }
+
+    orders[nDims + 1] = labelList(nDims, Zero);
+    orders[nDims + 1][0] = 40;
+
+    mappedList<scalar> ml(nDims + 2, orders, 0.0);
+
+    forAll(orders, oi)
+    {
+        ml(orders[oi]) = scalar(oi);
+    }
+
+    labelList last(nDims, Zero);
+    last[nDims - 1] = 1;
+
+    checkScalar("the last first-order moment", ml(last), scalar(nDims));
+    checkScalar("the first one, by its leading order", ml(0, 1), 2.0);
+    checkScalar("the zero-order moment, as ml(0)", ml(0), 0.0);
+
+    labelList two(nDims, Zero);
+    two[nDims - 1] = 2;
+
+    checkBool("a second order that is not there", ml.found(two), false);
+    checkScalar
+    (
+        "the order 40 of the first dimension",
+        ml(40),
+        scalar(nDims + 1)
+    );
+    checkBool("an order 41 that is not there", ml.found(41), false);
+
+    Info<< "OK" << endl;
+}
+
+
 int main(int argc, char *argv[])
 {
     Info<< "Testing mappedList\n" << endl;
@@ -335,8 +405,10 @@ int main(int argc, char *argv[])
     testMultivariateAccess();
     testFound();
     testSetSizeResize();
-    testMapAndStaticHelpers();
-    testMapConstructorDimensions();
+    testIndexesAndStaticHelpers();
+    testLeadingZeroOrders();
+    testOrdersOfTenOrMore();
+    testManyDimensions();
 
     Info<< "\nEnd\n" << endl;
 

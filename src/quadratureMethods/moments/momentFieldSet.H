@@ -37,18 +37,18 @@ Class
     Foam::momentFieldSet
 
 Description
-    Stores a list of moments, with a Map<label> that takes a label key and
-    returns the index into the list of moments.
+    Stores a list of moments, each reached by its orders as well as by its
+    position in the list (see mappedPtrList).
 
     Example
 
-        Moment  |  Label Key | Index
-         0 0 0         0         0
-         1 0 0       100         1
-         0 1 0        10         2
-         0 0 1         1         3
-         2 0 0       200         4
-         2 1 0       210         5
+        Moment  |  Position
+         0 0 0         0
+         1 0 0         1
+         0 1 0         2
+         0 0 1         3
+         2 0 0         4
+         2 1 0         5
 
     operator() is overloaded in order to hide the above mapping.
 
@@ -63,7 +63,6 @@ SourceFiles
 
 #include "mappedPtrList.H"
 #include "volFields.H"
-#include "Map.H"
 #include "supportType.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -122,7 +121,8 @@ public:
             const List<supportType>& supports
         );
 
-        //- Construct from size, quadrature nodes, dimensions and moment map
+        //- Construct from size, quadrature nodes, dimensions and the orders
+        //  of each moment
         //  The list of moments is initialized but moment fields are not
         //  automatically allocated.
         momentFieldSet
@@ -131,7 +131,7 @@ public:
             const label nMoments,
             const autoPtr<mappedPtrList<nodeType>>& nodes,
             const label nDimensions,
-            const Map<label>& momentMap,
+            const labelListList& momentOrders,
             const List<supportType>& supports
         );
 

@@ -68,7 +68,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         nMoments_,
         nodesNei_,
         nDimensions_,
-        moments_.map(),
+        moments_.indexes(),
         List<supportType>(1, support)
     ),
     momentsOwn_
@@ -77,7 +77,7 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         nMoments_,
         nodesOwn_,
         nDimensions_,
-        moments_.map(),
+        moments_.indexes(),
         List<supportType>(1, support)
     ),
     momentFieldInverter_()
@@ -91,21 +91,35 @@ Foam::univariateAdvection::firstOrderKinetic::firstOrderKinetic
         nNodes_ = (nMoments_ - 1)/2 + 1;
     }
 
-    const Map<label> map = quadrature.nodes().map();
+    // The nodes of the face quadratures are the first nNodes_ of the
+    // quadrature, with its node indexes
+    if (nNodes_ > quadrature.nodeIndexes().size())
+    {
+        FatalErrorInFunction
+            << "The face reconstruction needs " << nNodes_ << " nodes and "
+            << "the quadrature " << quadrature.name() << " has "
+            << quadrature.nodeIndexes().size() << "." << nl
+            << exit(FatalError);
+    }
+
+    const labelListList nodeIndexes
+    (
+        SubList<labelList>(quadrature.nodeIndexes(), nNodes_)
+    );
 
     nodes_ = autoPtr<mappedPtrList<volScalarNode>>
     (
-        new mappedPtrList<volScalarNode>(nNodes_, map)
+        new mappedPtrList<volScalarNode>(nNodes_, nodeIndexes)
     );
 
     nodesNei_ = autoPtr<mappedPtrList<surfaceScalarNode>>
     (
-        new mappedPtrList<surfaceScalarNode>(nNodes_, map)
+        new mappedPtrList<surfaceScalarNode>(nNodes_, nodeIndexes)
     );
 
     nodesOwn_ = autoPtr<mappedPtrList<surfaceScalarNode>>
     (
-        new mappedPtrList<surfaceScalarNode>(nNodes_, map)
+        new mappedPtrList<surfaceScalarNode>(nNodes_, nodeIndexes)
     );
 
     mappedPtrList<volScalarNode>& nodes = nodes_();

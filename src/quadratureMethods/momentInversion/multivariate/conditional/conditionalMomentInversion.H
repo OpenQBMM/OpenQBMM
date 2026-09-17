@@ -111,14 +111,14 @@ class conditional
 
     // Private member functions
 
-        //- Create map for nodes
-        void setNodeMap
+        //- Append the indexes of every node of the first nDimensions
+        //  directions, the last direction varying fastest
+        void setNodeIndexes
         (
-            Map<label>& map,
+            DynamicList<labelList>& indexes,
             const label nDimensions,
             const labelList& nNodes,
             label dimi,
-            label& mi,
             labelList& pos
         );
 

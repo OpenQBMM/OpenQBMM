@@ -32,17 +32,23 @@ Class
 Description
     A list with additional mapping for named access to elements.
 
-    Example
+    Every element is identified by a list of orders, or indexes, given when
+    the list is built, and can be reached by them as well as by its position:
 
-        Lookup  |  Label Key | Index
-         0 0 0         0         0
-         1 0 0       100         1
-         0 1 0        10         2
-         0 0 1         1         3
-         2 0 0       200         4
-         2 1 0       210         5
+        Orders  |  Position
+         0 0 0         0
+         1 0 0         1
+         0 1 0         2
+         0 0 1         3
+         2 0 0         4
+         2 1 0         5
 
-    Provides O(1) by index and O(log n) by key access to the elements.
+    An element is found by its orders exactly, whatever their values and
+    however many dimensions they have (see mappedListKey). Orders followed by
+    zeros are the same element as the orders without them, so moments(1)
+    reaches the element of orders (1 0 0) of a list of three dimensions.
+
+    Provides O(1) access by position and by orders.
 
 SourceFiles
     mappedListI.H
@@ -56,7 +62,7 @@ SourceFiles
 #include "scalar.H"
 #include "vector.H"
 #include "labelList.H"
-#include "Map.H"
+#include "mappedListKey.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -72,35 +78,32 @@ class mappedList : public List<mappedType>
 {
     // Private data
 
-        //- Map from the label to its index within the List
-        Map<label> map_;
+        //- The orders of every element and the table that finds them
+        mappedListKey index_;
 
-        //- Number of dimensions
-        label nDimensions_;
 
     // Private Member Functions
 
-        //- Returns an element provided the indeces of the order
-        label calcMapIndex(std::initializer_list<label> indexes) const;
+        //- Set the orders of every element, checking the size of the list
+        void setIndexes(const labelListList& indexes);
 
-        //- Insert the key for the given indexes at position elemi in the
-        //  map, checking for colliding keys
-        void insertKey(const labelList& indexes, const label elemi);
+        //- Stop on orders that belong to no element
+        void notFound(const labelList& list) const;
 
 
 public:
 
     // Constructors
 
-        //- Construct from size and labelListList
+        //- Construct from size and the orders of each element
         mappedList
         (
             const label size,
             const labelListList& indexes
         );
 
-        //- Construct from size and labelListList with initial value for
-        //  all elements
+        //- Construct from size and the orders of each element, with an
+        //  initial value for all elements
         mappedList
         (
             const label size,
@@ -108,22 +111,7 @@ public:
             const mappedType& initValue
         );
 
-        //- Construct from size, map and the number of dimensions the keys
-        //  of the map were packed with, with initial value for all
-        //  elements. The count is given rather than recovered from the
-        //  keys: a key carries no leading zero, so a set of orders none of
-        //  which has a non-zero leading component reads as fewer
-        //  dimensions than it has, and every later lookup is computed with
-        //  the wrong factors.
-        mappedList
-        (
-            const label size,
-            const Map<label>& map,
-            const label nDimensions,
-            const mappedType& initValue
-        );
-
-        //- Construct from List<mappedType> and labelListList
+        //- Construct from List<mappedType> and the orders of each element
         mappedList
         (
             const List<mappedType>& initList,
@@ -137,13 +125,6 @@ public:
 
             //- Convert a list of labels to a word. {1, 2, 3} -> 123
             static word listToWord(const labelList& list);
-
-            //- Convert a list of labels to a single label. {0, 2, 3} -> 23
-            static label listToLabel
-            (
-                const labelList& list,
-                const label nDimensions = 0
-            );
 
 
         // Modifiers
@@ -186,8 +167,12 @@ public:
             //- Non-constant access given a label list
             inline mappedType& operator()(const labelList& list);
 
-            //- Returns const access to the moment map
-            inline const Map<label>& map() const noexcept;
+            //- The orders of each element, by position, padded with zeros
+            //  to the number of dimensions
+            inline labelListList indexes() const;
+
+            //- Number of dimensions of the orders
+            inline label nDimensions() const noexcept;
 };
 
 

@@ -195,17 +195,14 @@ void testSetMapFromIndexes()
 }
 
 
-// Tests setMap(const Map<label>&, const label), the path used when a new
-// mappedPtrList reuses the key map already computed for another one (e.g.
-// moment advection reusing a quadrature's node map). The number of
-// dimensions is given rather than recovered from the keys, which drops the
-// leading zeros of an order. Also confirms that a second call with a
-// lower-dimensional map does not retain the dimensionality of the first:
-// a query for order {2} would otherwise be packed with the stale count and
-// miss the map.
-void testSetMapFromMap()
+// Tests keying a list with the orders of another, the path used when a new
+// mappedPtrList shares the elements of one already built (e.g. moment
+// advection keying its node lists with the node indexes of the quadrature).
+// Also confirms that keying it again with orders of fewer dimensions does
+// not retain the dimensionality of the first.
+void testSetMapFromAnotherList()
 {
-    Info<< "Testing setMap(const Map<label>&)" << endl;
+    Info<< "Testing setMap with the orders of another list" << endl;
 
     labelListList orders2D(3);
     orders2D[0] = labelList({0, 0});
@@ -215,10 +212,10 @@ void testSetMapFromMap()
     mappedPtrList<scalar> source2D(3, orders2D);
 
     mappedPtrList<scalar> mp(3, orders2D);
-    mp.setMap(source2D.map(), 2);
+    mp.setMap(source2D.indexes());
 
-    checkBool("found(1,0) after setMap(2-D map)", mp.found(1, 0), true);
-    checkBool("found(0,1) after setMap(2-D map)", mp.found(0, 1), true);
+    checkBool("found(1,0) after setMap(2-D orders)", mp.found(1, 0), true);
+    checkBool("found(0,1) after setMap(2-D orders)", mp.found(0, 1), true);
 
     labelListList orders1D(3);
     orders1D[0] = labelList({0});
@@ -226,13 +223,20 @@ void testSetMapFromMap()
     orders1D[2] = labelList({2});
 
     mappedPtrList<scalar> source1D(3, orders1D);
-    mp.setMap(source1D.map(), 1);
+    mp.setMap(source1D.indexes());
 
     checkBool
     (
-        "found({2}) after re-setMap to a 1-D map",
+        "found({2}) after re-setMap to 1-D orders",
         mp.found(labelList({2})),
         true
+    );
+
+    checkBool
+    (
+        "found(0,1) after re-setMap to 1-D orders",
+        mp.found(0, 1),
+        false
     );
 
     Info<< "OK" << endl;
@@ -276,7 +280,7 @@ int main(int argc, char *argv[])
     testSetAutoPtr();
     testFound();
     testSetMapFromIndexes();
-    testSetMapFromMap();
+    testSetMapFromAnotherList();
     testSetSizeResize();
 
     Info<< "\nEnd\n" << endl;

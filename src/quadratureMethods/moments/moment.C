@@ -58,19 +58,6 @@ Foam::moment<fieldType, nodeType>::listToWord(const labelList &lst)
     return w;
 }
 
-template <class fieldType, class nodeType>
-Foam::label
-Foam::moment<fieldType, nodeType>::listToLabel(const labelList &lst)
-{
-    label l = 0;
-
-    forAll(lst, dimi)
-    {
-        l += lst[dimi] * pow(scalar(10), lst.size() - dimi - 1);
-    }
-
-    return l;
-}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

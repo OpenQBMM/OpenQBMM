@@ -8,4 +8,5 @@ endif
 QBMM_SRC := ../../src
 
 EXE_INC = \
+    -I$(QBMM_SRC)/mappedList \
     -I$(QBMM_SRC)/mappedPtrList

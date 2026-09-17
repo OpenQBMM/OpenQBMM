@@ -79,11 +79,11 @@ Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
     const label nMoments,
     const autoPtr<mappedPtrList<nodeType>>& nodes,
     const label nDimensions,
-    const Map<label>& momentMap,
+    const labelListList& momentOrders,
     const List<supportType>& supports
 )
 :
-    mappedPtrList<momentType>(nMoments, momentMap),
+    mappedPtrList<momentType>(nMoments, momentOrders),
     name_(IOobject::groupName("moments", distributionName)),
     nodes_(nodes),
     nDimensions_(nDimensions),

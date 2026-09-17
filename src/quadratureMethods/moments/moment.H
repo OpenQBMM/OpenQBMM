@@ -96,9 +96,6 @@ public:
     //- Convert a list of labels to a word. {1, 2, 3} -> 123
     static word listToWord(const labelList& lst);
 
-    //- Convert a list of labels to a single label. {0, 2, 3} -> 23
-    static label listToLabel(const labelList& lst);
-
 
     // Constructors
 

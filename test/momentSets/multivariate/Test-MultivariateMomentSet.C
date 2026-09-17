@@ -307,8 +307,8 @@ void testMomentMap()
 
     check
     (
-        moments.momentMap().size() == orders.size(),
-        "the map holds one key for every moment"
+        moments.indexes().size() == orders.size(),
+        "the set holds the orders of every moment"
     );
 
     bool found = true;
@@ -393,31 +393,44 @@ void testRefusals()
         },
         "the same order declared twice"
     );
+}
 
-    // The orders are packed into one label, a digit to a dimension, so an
-    // order of ten or more in a dimension lands on the key of another. The
-    // set refuses that rather than carrying two moments that address the
-    // same value.
-    checkRefused
+
+// Orders of ten or more, which used to be packed into one label a decimal
+// digit to a dimension, so that (0 10) landed on the key of (1 0) and the
+// set had to refuse them. The orders are the keys now: the set takes them
+// and holds one value for each.
+void testOrdersOfTenOrMore()
+{
+    Info<< "\nOrders of ten or more" << endl;
+
+    labelListList orders
+    ({
+        {0, 0}, {1, 0}, {0, 10}, {11, 0}, {1, 10}
+    });
+
+    multivariateMomentSet moments
     (
-        []()
-        {
-            labelListList colliding
-            ({
-                {0, 0}, {1, 0}, {0, 10}
-            });
-
-            multivariateMomentSet moments
-            (
-                colliding.size(),
-                colliding,
-                List<supportType>(2, supportType::R),
-                SMALL,
-                SMALL
-            );
-        },
-        "two orders that pack to the same key"
+        orders.size(),
+        orders,
+        List<supportType>(2, supportType::R),
+        SMALL,
+        SMALL
     );
+
+    forAll(orders, mi)
+    {
+        moments(orders[mi]) = scalar(mi + 1);
+    }
+
+    bool distinct = true;
+
+    forAll(orders, mi)
+    {
+        distinct = distinct && moments(orders[mi]) == scalar(mi + 1);
+    }
+
+    check(distinct, "every order holds its own value");
 }
 
 
@@ -539,6 +552,7 @@ int main()
     testVariadicAccess();
     testMomentMap();
     testRefusals();
+    testOrdersOfTenOrMore();
     testSetSize();
     testUnsupportedDimensions();
 

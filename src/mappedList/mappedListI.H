@@ -34,19 +34,14 @@ template <class mappedType>
 template <typename ...ArgsT>
 mappedType& Foam::mappedList<mappedType>::operator()(ArgsT ...args)
 {
-    label mapIndex = calcMapIndex({args...});
+    const label elemi = index_.find({args...});
 
-    #ifdef FULLDEBUG
-    if (!found(args...))
+    if (elemi < 0)
     {
-        FatalErrorInFunction
-            << "mappedList access with missing key " << mapIndex
-            << " (nDimensions=" << nDimensions_ << ")"
-            << exit(FatalError);
+        notFound(labelList({args...}));
     }
-    #endif
 
-    return this->operator[](map_[mapIndex]);
+    return this->operator[](elemi);
 }
 
 template <class mappedType>
@@ -54,19 +49,14 @@ template <typename ...ArgsT>
 const mappedType&
 Foam::mappedList<mappedType>::operator()(ArgsT ...args) const
 {
-    const Foam::label mapIndex = calcMapIndex({args...});
+    const label elemi = index_.find({args...});
 
-    #ifdef FULLDEBUG
-    if (!found(args...))
+    if (elemi < 0)
     {
-        FatalErrorInFunction
-            << "mappedList const access with missing key " << mapIndex
-            << " (nDimensions=" << nDimensions_ << ")"
-            << exit(FatalError);
+        notFound(labelList({args...}));
     }
-    #endif
 
-    return this->operator[](map_[mapIndex]);
+    return this->operator[](elemi);
 }
 
 template <class mappedType>
@@ -75,19 +65,14 @@ const mappedType& Foam::mappedList<mappedType>::operator()
     const Foam::labelList& list
 ) const
 {
-    const Foam::label key = listToLabel(list, nDimensions_);
+    const label elemi = index_.find(list);
 
-    #ifdef FULLDEBUG
-    if (!found(list))
+    if (elemi < 0)
     {
-        FatalErrorInFunction
-            << "mappedList const access with missing key " << key
-            << " (nDimensions=" << nDimensions_ << ")"
-            << exit(FatalError);
+        notFound(list);
     }
-    #endif
 
-    return this->operator[](map_[key]);
+    return this->operator[](elemi);
 }
 
 template <class mappedType>
@@ -96,25 +81,26 @@ mappedType& Foam::mappedList<mappedType>::operator()
     const Foam::labelList& list
 )
 {
-    const Foam::label key = listToLabel(list, nDimensions_);
+    const label elemi = index_.find(list);
 
-    #ifdef FULLDEBUG
-    if (!found(list))
+    if (elemi < 0)
     {
-        FatalErrorInFunction
-            << "mappedList access with missing key " << key
-            << " (nDimensions=" << nDimensions_ << ")"
-            << exit(FatalError);
+        notFound(list);
     }
-    #endif
 
-    return this->operator[](map_[key]);
+    return this->operator[](elemi);
 }
 
-template <class mappedType> const Foam::Map<Foam::label>&
-Foam::mappedList<mappedType>::map() const noexcept
+template <class mappedType>
+Foam::labelListList Foam::mappedList<mappedType>::indexes() const
 {
-    return map_;
+    return index_.indexes();
+}
+
+template <class mappedType>
+Foam::label Foam::mappedList<mappedType>::nDimensions() const noexcept
+{
+    return index_.nDimensions();
 }
 
 // ************************************************************************* //

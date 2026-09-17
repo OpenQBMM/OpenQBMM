@@ -30,7 +30,6 @@ License
 
 #include "mappedPtrList.H"
 
-
 // * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * * //
 
 template <class mappedType>
@@ -48,32 +47,25 @@ Foam::mappedPtrList<mappedType>::listToWord(const labelList& list)
 }
 
 
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
 template <class mappedType>
-Foam::label
-Foam::mappedPtrList<mappedType>::listToLabel
+Foam::label Foam::mappedPtrList<mappedType>::existingPosition
 (
-    const labelList& list,
-    const label nDimensions
-)
+    const labelList& list
+) const
 {
-    label listLabel = 0;
-    label size = max(nDimensions, list.size());
+    const label elemi = index_.find(list);
 
-    forAll(list, dimi)
+    if (elemi < 0)
     {
-        const label exponent = size - dimi - 1;
-
-        // Compute 10^exponent using integer arithmetic
-        label factor = 1;
-        for (label i = 0; i < exponent; ++i)
-        {
-            factor *= 10;
-        }
-
-        listLabel += list[dimi]*factor;
+        FatalErrorInFunction
+            << "No element of orders " << list << " in a mapped list of "
+            << index_.nDimensions() << " dimensions." << nl
+            << exit(FatalError);
     }
 
-    return listLabel;
+    return elemi;
 }
 
 
@@ -86,59 +78,9 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 )
 :
     PtrList<mappedType>(size),
-    map_(size),
-    nDimensions_(0)
+    index_()
 {
-    if (indexes.size() != size)
-    {
-        FatalErrorInFunction
-            << "Size mismatch: "
-            << endl
-            << "  List size = " << size
-            << endl
-            << "  Indexes list size = " << indexes.size()
-            << exit(FatalError);
-    }
-
-    forAll(indexes, indexi)
-    {
-        nDimensions_ = max(nDimensions_, indexes[indexi].size());
-    }
-
-    forAll(*this, elemi)
-    {
-        insertKey(indexes[elemi], elemi);
-    }
-}
-
-
-template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
-(
-    const label size,
-    const Map<label>& map
-)
-:
-    PtrList<mappedType>(size),
-    map_(map),
-    nDimensions_(0)
-{
-    // Note: the number of dimensions is recovered from the decimal digit
-    // count of the keys already in map, which undercounts leading-zero
-    // components (e.g. key 1 for order {0, 1} looks one-dimensional).
-    // Prefer setMap(const labelListList&) when the indexes are available.
-    forAllConstIter(Map<label>, map_, iter)
-    {
-        label key = iter.key();
-        label nD = 0;
-
-        do
-        {
-            key /= 10;
-            nD++;
-        } while (key);
-
-        nDimensions_ = max(nDimensions_, nD);
-    }
+    setMap(indexes);
 }
 
 
@@ -149,119 +91,22 @@ template <class mappedType> Foam::mappedPtrList<mappedType>::mappedPtrList
 )
 :
     PtrList<mappedType>(initList),
-    map_(initList.size()),
-    nDimensions_(0)
+    index_()
 {
-    if (indexes.size() != initList.size())
-    {
-        FatalErrorInFunction
-            << "Size mismatch: "
-            << endl
-            << "  List size = " << initList.size()
-            << endl
-            << "  Indexes list size = " << indexes.size()
-            << exit(FatalError);
-    }
-
-    forAll(indexes, indexi)
-    {
-        nDimensions_ = max(nDimensions_, indexes[indexi].size());
-    }
-
-    forAll(*this, elemi)
-    {
-        insertKey(indexes[elemi], elemi);
-    }
+    setMap(indexes);
 }
+
 
 template <class mappedType>
 template<class INew>
 Foam::mappedPtrList<mappedType>::mappedPtrList(Istream& is, const INew& iNewt)
 :
     PtrList<mappedType>(is, iNewt),
-    nDimensions_(0)
-{
-    map_.resize(this->size());
-}
+    index_()
+{}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-template <class mappedType>
-Foam::label Foam::mappedPtrList<mappedType>::calcMapIndex
-(
-    std::initializer_list<Foam::label> indexes
-) const
-{
-    label mapIndex = 0;
-
-    if (indexes.size() > 0)
-    {
-        for
-        (
-            std::initializer_list<label>::iterator iter = indexes.begin();
-            iter < indexes.end();
-            iter++
-        )
-        {
-            const label argIndex = std::distance(indexes.begin(), iter);
-            const label exponent = nDimensions_ - argIndex - 1;
-
-            // Compute 10^exponent using integer arithmetic
-            label factor = 1;
-            for (label i = 0; i < exponent; ++i)
-            {
-                factor *= 10;
-            }
-
-            mapIndex += (*iter) * factor;
-        }
-    }
-
-    return mapIndex;
-}
-
-
-template <class mappedType>
-void Foam::mappedPtrList<mappedType>::insertKey
-(
-    const labelList& indexes,
-    const label elemi
-)
-{
-    const label key = listToLabel(indexes, nDimensions_);
-
-    if (!map_.insert(key, elemi))
-    {
-        FatalErrorInFunction
-            << "Duplicate mapped key " << key << " for indexes " << indexes
-            << " (element " << elemi << ")." << nl
-            << "Another entry already maps to this key - check for "
-            << "colliding orders." << nl
-            << exit(FatalError);
-    }
-}
-
-
-template <class mappedType>
-void Foam::mappedPtrList<mappedType>::setMap
-(
-    const Map<label>& map,
-    const label nDimensions
-)
-{
-    map_ = map;
-    nDimensions_ = nDimensions;
-
-    if (nDimensions_ < 0)
-    {
-        FatalErrorInFunction
-            << "A mapped list of " << nDimensions_ << " dimensions was "
-            << "asked for." << nl
-            << exit(FatalError);
-    }
-}
-
 
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::setMap(const labelListList& indexes)
@@ -277,20 +122,8 @@ void Foam::mappedPtrList<mappedType>::setMap(const labelListList& indexes)
             << exit(FatalError);
     }
 
-    map_.clear();
-    nDimensions_ = 0;
-
-    forAll(indexes, indexi)
-    {
-        nDimensions_ = max(nDimensions_, indexes[indexi].size());
-    }
-
-    forAll(indexes, elemi)
-    {
-        insertKey(indexes[elemi], elemi);
-    }
+    index_ = mappedListKey(indexes);
 }
-
 
 template <class mappedType>
 bool Foam::mappedPtrList<mappedType>::set(const label i) const
@@ -298,34 +131,28 @@ bool Foam::mappedPtrList<mappedType>::set(const label i) const
     return PtrList<mappedType>::set(i);
 }
 
-
 template <class mappedType>
 bool Foam::mappedPtrList<mappedType>::set(const labelList& list) const
 {
-    return PtrList<mappedType>::set(map_[listToLabel(list, nDimensions_)]);
+    return PtrList<mappedType>::set(existingPosition(list));
 }
 
 template <class mappedType>
 bool Foam::mappedPtrList<mappedType>::found(const labelList& list) const
 {
-    if (list.size() > nDimensions_)
-    {
-        return false;
-    }
-
-    return map_.found(listToLabel(list, nDimensions_));
+    // Access takes zeros past the dimensions of the list as the element
+    // without them; found is asked whether the orders, as given, belong
+    // to the list
+    return list.size() <= index_.nDimensions() && index_.find(list) >= 0;
 }
 
 template <class mappedType>
 template <typename ...ArgsT>
 bool Foam::mappedPtrList<mappedType>::found(ArgsT...args) const
 {
-    if (label(sizeof...(args)) > nDimensions_)
-    {
-        return false;
-    }
-
-    return map_.found(calcMapIndex({args...}));
+    return
+        label(sizeof...(args)) <= index_.nDimensions()
+     && index_.find({args...}) >= 0;
 }
 
 template <class mappedType>
@@ -338,7 +165,6 @@ void Foam::mappedPtrList<mappedType>::set
     PtrList<mappedType>::set(i, entry);
 }
 
-
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
 (
@@ -346,9 +172,8 @@ void Foam::mappedPtrList<mappedType>::set
     mappedType* entry
 )
 {
-    PtrList<mappedType>::set(map_[listToLabel(list, nDimensions_)], entry);
+    PtrList<mappedType>::set(existingPosition(list), entry);
 }
-
 
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
@@ -357,13 +182,8 @@ void Foam::mappedPtrList<mappedType>::set
     autoPtr<mappedType> entry
 )
 {
-    PtrList<mappedType>::set
-    (
-        map_[listToLabel(list, nDimensions_)],
-        std::move(entry)
-    );
+    PtrList<mappedType>::set(existingPosition(list), std::move(entry));
 }
-
 
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::set
@@ -372,9 +192,8 @@ void Foam::mappedPtrList<mappedType>::set
     tmp<mappedType> entry
 )
 {
-    PtrList<mappedType>::set(map_[listToLabel(list, nDimensions_)], entry);
+    PtrList<mappedType>::set(existingPosition(list), entry);
 }
-
 
 template <class mappedType>
 void Foam::mappedPtrList<mappedType>::setSize
@@ -383,33 +202,8 @@ void Foam::mappedPtrList<mappedType>::setSize
     const labelListList& newIndexes
 )
 {
-    if (newIndexes.size() != newSize)
-    {
-        FatalErrorInFunction
-            << "Size mismatch: "
-            << endl
-            << "  New list size =" << newSize
-            << endl
-            << "  New indexes list size = " << newIndexes.size()
-            << exit(FatalError);
-    }
-
-    // Resize the underlying list
     Foam::PtrList<mappedType>::setSize(newSize);
-
-    // Rebuild the map with new indexes
-    map_.clear();
-    nDimensions_ = 0;
-
-    forAll(newIndexes, indexi)
-    {
-        nDimensions_ = max(nDimensions_, newIndexes[indexi].size());
-    }
-
-    forAll(*this, elemi)
-    {
-        insertKey(newIndexes[elemi], elemi);
-    }
+    setMap(newIndexes);
 }
 
 template <class mappedType>

@@ -84,8 +84,6 @@ public:
 
     // Member Functions
 
-        //- Returns const access to the moment map
-        inline const Map<label>& momentMap() const;
 
         //- Recalculate the moments from the quadrature nodes
         //void update();

@@ -52,7 +52,7 @@ Foam::univariateMomentAdvection::univariateMomentAdvection
     name_(quadrature.name()),
     moments_(quadrature.moments()),
     nMoments_(moments_.size()),
-    divMoments_(nMoments_, quadrature.moments().map()),
+    divMoments_(nMoments_, quadrature.moments().indexes()),
     own_
     (
         IOobject

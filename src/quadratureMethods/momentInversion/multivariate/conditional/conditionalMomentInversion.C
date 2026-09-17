@@ -120,15 +120,14 @@ Foam::multivariateMomentInversions::conditional::conditional
     {
         label nDimensions = dimi + 1;
         labelList pos(nDimensions);
-        label mi = 0;
-        Map<label> nodeMap(0);
-        setNodeMap(nodeMap, nDimensions, nNodes_, 0, mi, pos);
-        label nCmpts = nodeMap.size();
+        DynamicList<labelList> nodeIndexes;
+        setNodeIndexes(nodeIndexes, nDimensions, nNodes_, 0, pos);
+        label nCmpts = nodeIndexes.size();
 
         conditionalWeights_.set
         (
             dimi,
-            new mappedScalarList(nCmpts, nodeMap, nDimensions, Zero)
+            new mappedScalarList(nCmpts, nodeIndexes, Zero)
         );
     }
 
@@ -139,11 +138,10 @@ Foam::multivariateMomentInversions::conditional::conditional
 
         label nDimensions = dimi + 1;
         labelList pos(nDimensions);
-        label mi = 0;
-        Map<label> conditionalMap(0);
-        setNodeMap(conditionalMap, nDimensions, nNodesCM, 0, mi, pos);
+        DynamicList<labelList> conditionalIndexes;
+        setNodeIndexes(conditionalIndexes, nDimensions, nNodesCM, 0, pos);
 
-        label nCmpts = conditionalMap.size();
+        label nCmpts = conditionalIndexes.size();
 
         conditionalMoments_.set
         (
@@ -159,8 +157,7 @@ Foam::multivariateMomentInversions::conditional::conditional
                 new mappedList<scalar>
                 (
                     nCmpts,
-                    conditionalMap,
-                    nDimensions,
+                    conditionalIndexes,
                     Zero
                 )
             );
@@ -171,10 +168,9 @@ Foam::multivariateMomentInversions::conditional::conditional
     {
         label nDimensions = dimi;
         labelList pos(nDimensions);
-        label mi = 0;
-        Map<label> VRMap(0);
-        setNodeMap(VRMap, nDimensions, nNodes_, 0, mi, pos);
-        label nCmpts = VRMap.size();
+        DynamicList<labelList> VRIndexes;
+        setNodeIndexes(VRIndexes, nDimensions, nNodes_, 0, pos);
+        label nCmpts = VRIndexes.size();
 
         invVR_.set
         (
@@ -182,8 +178,7 @@ Foam::multivariateMomentInversions::conditional::conditional
             new mappedList<scalarSquareMatrix>
             (
                 nCmpts,
-                VRMap,
-                nDimensions,
+                VRIndexes,
                 scalarSquareMatrix(nNodes_[dimi], scalar(0))
             )
         );
@@ -329,52 +324,29 @@ bool Foam::multivariateMomentInversions::conditional::invert
     return true;
 }
 
-void Foam::multivariateMomentInversions::conditional::setNodeMap
+void Foam::multivariateMomentInversions::conditional::setNodeIndexes
 (
-    Map<label>& map,
+    DynamicList<labelList>& indexes,
     const label nDimensions,
     const labelList& nNodes,
     label dimi,
-    label& mi,
     labelList& pos
 )
 {
-    if (dimi == 0)
-    {
-        label size = 1;
-        for (label nodei = 0; nodei < nDimensions; nodei++)
-        {
-            size *= nNodes[nodei];
-        }
-
-        map = Map<label>(size);
-    }
-
     if (dimi < nDimensions)
     {
         for (label i = 0; i < nNodes[dimi]; i++)
         {
             pos[dimi] = i;
-            setNodeMap(map, nDimensions, nNodes, dimi + 1, mi, pos);
+            setNodeIndexes(indexes, nDimensions, nNodes, dimi + 1, pos);
         }
     }
     else
     {
-        // The orders are packed one decimal digit to a dimension, so a
-        // direction of ten nodes or more lands on the key of another. The
-        // moment set refuses that in insertKey, and so does this.
-        if (!map.insert(mappedList<scalar>::listToLabel(pos), mi))
-        {
-            FatalErrorInFunction
-                << "Duplicate mapped key "
-                << mappedList<scalar>::listToLabel(pos)
-                << " for node " << pos << " (element " << mi << ")." << nl
-                << "Another node already maps to this key: a direction of "
-                << "ten nodes or more collides with the packing." << nl
-                << exit(FatalError);
-        }
-
-        mi++;
+        // The node indexes used to be packed into one label, a decimal
+        // digit to a direction, which a direction of ten nodes or more
+        // could not be. The mapped lists take the indexes as they are.
+        indexes.append(pos);
     }
 }
 
