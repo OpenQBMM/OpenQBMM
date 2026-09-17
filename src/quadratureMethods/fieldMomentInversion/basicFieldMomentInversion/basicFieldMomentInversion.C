@@ -157,6 +157,22 @@ Foam::univariateMomentSet& Foam::basicFieldMomentInversion::localMomentSet
 }
 
 
+bool Foam::basicFieldMomentInversion::keepsWeight
+(
+    const scalar abscissa,
+    const supportType support
+) const
+{
+    // A node driven down to nothing is given no weight, so that the
+    // zero-order moment stays consistent where a growth rate is negative.
+    // That is a property of a size. On [0, 1] a node at zero is a population
+    // like any other, the pure second stream of a mixture fraction, and
+    // dropping it took the zero-order moment of a mixing case below one,
+    // on which the mixing kernels then destroyed the mean.
+    return support != supportType::RPlus || abscissa > smallAbscissa_;
+}
+
+
 void Foam::basicFieldMomentInversion::invert
 (
     const volScalarMomentFieldSet& moments,
@@ -218,12 +234,9 @@ void Foam::basicFieldMomentInversion::invertBoundaryMoments
 
                 if (nodei < actualNodes)
                 {
-                    // A node driven down to nothing is given no weight, so
-                    // that the zero-order moment stays consistent where a
-                    // growth rate is negative
                     scalar abscissaNodei = momentInverter_().abscissae()[nodei];
 
-                    if (abscissaNodei > smallAbscissa_)
+                    if (keepsWeight(abscissaNodei, moments.supports()[0]))
                     {
                         weightBf[patchi][facei]
                                 = momentInverter_().weights()[nodei];
@@ -286,10 +299,7 @@ bool Foam::basicFieldMomentInversion::invertLocalMoments
 
         if (nodei < actualNodes)
         {
-            // A node driven down to nothing is given no weight, so that
-            // the zero-order moment stays consistent where a growth rate
-            // is negative
-            if (abscissae[nodei] > smallAbscissa_)
+            if (keepsWeight(abscissae[nodei], moments.supports()[0]))
             {
                 node.weight()[celli] = weights[nodei];
                 node.abscissae()[0][celli] = abscissae[nodei];

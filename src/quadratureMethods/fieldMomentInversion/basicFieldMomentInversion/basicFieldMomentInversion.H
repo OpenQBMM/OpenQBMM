@@ -69,6 +69,10 @@ class basicFieldMomentInversion
         //  abscissa is a length, a volume or a mass depending on the
         //  internal coordinate. The two answer different questions and are
         //  now read separately.
+        //
+        //  It applies to a positive coordinate only. On [0, 1] a node at
+        //  zero is a population like any other: a mixture fraction of zero
+        //  is the pure second stream.
         scalar smallAbscissa_;
 
         //- Number of fixed quadrature points
@@ -92,6 +96,14 @@ class basicFieldMomentInversion
         (
             const volScalarMomentFieldSet& moments
         );
+
+        //- Whether a node at the given abscissa keeps its weight, on the
+        //  support of the moment set
+        bool keepsWeight
+        (
+            const scalar abscissa,
+            const supportType support
+        ) const;
 
 
 public:

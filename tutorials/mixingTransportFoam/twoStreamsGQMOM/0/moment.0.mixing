@@ -26,10 +26,13 @@ boundaryField
         type            fixedValue;
         value           uniform 1;
     }
+    //  Each stream carries the whole of its PDF, a mixture fraction of
+    //  one or of zero with probability one: the zero-order moment is one
+    //  at both inlets, and only the higher moments tell them apart
     inlet2
     {
         type            fixedValue;
-        value           uniform 0;
+        value           uniform 1;
     }
     outlet
     {
