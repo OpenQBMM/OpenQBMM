@@ -78,27 +78,6 @@ bool Foam::multivariateMomentInversion::compare
 }
 
 
-bool Foam::multivariateMomentInversion::distinctAbscissae
-(
-    const UList<scalar>& abscissae
-)
-{
-    forAll(abscissae, i)
-    {
-        for (label j = i + 1; j < abscissae.size(); j++)
-        {
-            const scalar diff = mag(abscissae[i] - abscissae[j]);
-            const scalar scale = max(mag(abscissae[i]), mag(abscissae[j]));
-
-            if (diff <= ROOTSMALL*scale)
-            {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

@@ -29,6 +29,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Vandermonde.H"
+#include "DynamicList.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -228,6 +229,76 @@ Foam::scalarSquareMatrix Foam::Vandermonde::invert() const
     }
 
     return inverse;
+}
+
+
+bool Foam::Vandermonde::conditionalInverse
+(
+    const UList<scalar>& abscissae,
+    const UList<scalar>& weights,
+    const scalar systemWeight,
+    const scalar solvedWeight,
+    labelList& nodes,
+    scalarSquareMatrix& invVR
+)
+{
+    DynamicList<label> kept(weights.size());
+
+    forAll(weights, nodei)
+    {
+        if (weights[nodei] > systemWeight)
+        {
+            kept.append(nodei);
+        }
+    }
+
+    nodes = kept;
+
+    const label m = nodes.size();
+
+    // Two abscissae the system cannot tell apart, relative to their size
+    for (label i = 0; i < m; i++)
+    {
+        for (label j = i + 1; j < m; j++)
+        {
+            const scalar xi = abscissae[nodes[i]];
+            const scalar xj = abscissae[nodes[j]];
+
+            if (mag(xi - xj) <= ROOTSMALL*max(mag(xi), mag(xj)))
+            {
+                return false;
+            }
+        }
+    }
+
+    invVR.setSize(m);
+
+    if (m == 0)
+    {
+        return true;
+    }
+
+    scalarDiagonalMatrix x(m);
+
+    forAll(nodes, i)
+    {
+        x[i] = abscissae[nodes[i]];
+    }
+
+    const scalarSquareMatrix invV(Vandermonde(x).invert());
+
+    for (label i = 0; i < m; i++)
+    {
+        const scalar w = weights[nodes[i]];
+        const scalar invW = w > solvedWeight ? 1.0/w : 0.0;
+
+        for (label k = 0; k < m; k++)
+        {
+            invVR(i, k) = invW*invV(i, k);
+        }
+    }
+
+    return true;
 }
 
 

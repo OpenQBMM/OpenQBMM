@@ -252,48 +252,39 @@ invert
 
     if (nSizeNodes > 0)
     {
-        scalarDiagonalMatrix x(nSizeNodes, Zero);
-        scalarSquareMatrix invR(nSizeNodes, Zero);
+        scalarSquareMatrix invVR(nSizeNodes, Zero);
 
-        // The system is built and solved in the units the size direction
-        // was inverted in, where the abscissae are of order one whatever
-        // the size of a particle is written in. The conditional velocity
-        // moments it returns are the same either way, since the moments it
-        // is given are divided by the same powers of the scale.
-        forAll(sizeWeights, nodei)
-        {
-            x[nodei] = sizeAbscissae[nodei];
+        // The conditional solve all the quadratures share. Every node that
+        // carries particles stays in the system, so that the moments are
+        // shared out exactly, and a node that carries fewer than smallM0 is
+        // solved for but not read back: its row is zero. Only a node that
+        // carries none is left out.
+        labelList solvedNodes;
+        scalarSquareMatrix invVRSolved;
 
-            // The row of a size node that carries no particles is not read
-            // back below, so it only has to be finite. Everywhere else the
-            // weight is divided by as it is: flooring it scaled the
-            // conditional velocity moments of a node that does carry
-            // particles by whatever the ratio of the two happened to be,
-            // which a weight is free to be below wherever the measure is
-            // small in its own units.
-            invR[nodei][nodei] =
-                sizeWeights[nodei] > smallM0()
-              ? 1.0/sizeWeights[nodei]
-              : 0.0;
-        }
-
-        // The Vandermonde system has to be built from the abscissae the
-        // quadrature actually carries, which are the ones stored above.
-        // Moving them away from zero would both bias the conditional
-        // velocity moments recovered from it and, when two of them are
-        // small, make the system singular by mapping them onto the same
-        // value.
-        //
-        // The abscissae a successful univariate inversion returns are
-        // distinct, so this only refuses a size quadrature that has
-        // collapsed without the realizability check having reduced it.
-        if (!distinctAbscissae(x))
+        if
+        (
+            !Vandermonde::conditionalInverse
+            (
+                sizeAbscissae,
+                sizeWeights,
+                0,
+                smallM0(),
+                solvedNodes,
+                invVRSolved
+            )
+        )
         {
             return false;
         }
 
-        Vandermonde V(x);
-        scalarSquareMatrix invVR = invR*V.invert();
+        forAll(solvedNodes, i)
+        {
+            forAll(solvedNodes, k)
+            {
+                invVR(solvedNodes[i], k) = invVRSolved(i, k);
+            }
+        }
 
         // Compute conditional velocity moments and invert
         PtrList<mappedScalarList> conditionalMoments(nSizeNodes);

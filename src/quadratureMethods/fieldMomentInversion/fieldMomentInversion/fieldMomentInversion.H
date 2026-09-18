@@ -146,6 +146,18 @@ public:
             labelListList& nodeIndexes
         );
 
+        //- The support of each dimension of the moments of a quadrature of
+        //  nDimensions dimensions: for a velocity quadrature, the size, if
+        //  it has one, on the positive reals and the velocity on the reals;
+        //  for a univariate one, the support the model gives, which its
+        //  physics fixes
+        static List<supportType> momentSupports
+        (
+            const dictionary& dict,
+            const label nDimensions,
+            const List<supportType>& modelSupports
+        );
+
         //- The moments and the nodes the inversion the dictionary selects
         //  builds, and whether it builds them at all
         static bool buildMomentSet

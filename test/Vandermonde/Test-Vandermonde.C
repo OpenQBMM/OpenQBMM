@@ -304,6 +304,157 @@ int main(int argc, char *argv[])
 
     Info<< "OK" << endl;
 
+    // The conditional solve the quadratures share: from the moments of a
+    // quantity weighted by the nodes of a quadrature, its value at each
+    // node. Two of the four nodes carry no weight, and sit at the same
+    // abscissa, which made the full system singular: they are left out,
+    // and the other two are recovered from two moments.
+    Info<< "\nTesting the conditional solve: " << endl;
+
+    {
+        const scalarList x({0.0, 0.5, 2.0, 0.0});
+        const scalarList w({0.0, 3.0, 1.5, 0.0});
+        const scalarList value({9.0, -1.25, 4.0, 9.0});
+
+        // The moments of orders 0 and 1 of the quantity
+        scalarList m(4, Zero);
+
+        forAll(x, i)
+        {
+            m[0] += w[i]*value[i];
+            m[1] += w[i]*x[i]*value[i];
+        }
+
+        labelList nodes;
+        scalarSquareMatrix invVR;
+
+        const bool solved =
+            Vandermonde::conditionalInverse(x, w, 0, SMALL, nodes, invVR);
+
+        if (!solved || nodes != labelList({1, 2}))
+        {
+            FatalErrorInFunction
+                << "The conditional solve did not keep the two nodes that "
+                << "carry weight: solved " << solved << ", nodes " << nodes
+                << endl
+                << exit(FatalError);
+        }
+
+        forAll(nodes, i)
+        {
+            scalar recovered = 0;
+
+            forAll(nodes, k)
+            {
+                recovered += invVR(i, k)*m[k];
+            }
+
+            const scalar expected = value[nodes[i]];
+
+            if (mag(recovered - expected) > 1.0e-12*mag(expected))
+            {
+                FatalErrorInFunction
+                    << "The conditional solve recovered " << recovered
+                    << " at node " << nodes[i] << ", where it is "
+                    << expected << endl
+                    << exit(FatalError);
+            }
+        }
+
+        // A node that carries a little, below the weight its value is read
+        // back at, still contributes to the moments. It stays in the system,
+        // so the others are recovered exactly; left out, it would give them
+        // its share, which its large abscissa makes a large one.
+        {
+            const scalarList xSmall({0.5, 2.0, 40.0});
+            const scalarList wSmall({3.0, 1.5, 1.0e-10});
+            const scalarList valueSmall({-1.25, 4.0, 7.0});
+
+            scalarList mSmall(3, Zero);
+
+            forAll(xSmall, i)
+            {
+                scalar xk = 1;
+
+                for (label k = 0; k < 3; k++)
+                {
+                    mSmall[k] += wSmall[i]*xk*valueSmall[i];
+                    xk *= xSmall[i];
+                }
+            }
+
+            const bool solvedSmall =
+                Vandermonde::conditionalInverse
+                (
+                    xSmall, wSmall, 0, 1.0e-6, nodes, invVR
+                );
+
+            if (!solvedSmall || nodes.size() != 3)
+            {
+                FatalErrorInFunction
+                    << "The conditional solve left a node that carries a "
+                    << "little out of the system: nodes " << nodes << endl
+                    << exit(FatalError);
+            }
+
+            for (label i = 0; i < 2; i++)
+            {
+                scalar recovered = 0;
+
+                for (label k = 0; k < 3; k++)
+                {
+                    recovered += invVR(i, k)*mSmall[k];
+                }
+
+                if (mag(recovered - valueSmall[i]) > 1.0e-10)
+                {
+                    FatalErrorInFunction
+                        << "The conditional solve recovered " << recovered
+                        << " at node " << i << ", where it is "
+                        << valueSmall[i] << endl
+                        << exit(FatalError);
+                }
+            }
+
+            scalar lastRow = 0;
+
+            for (label k = 0; k < 3; k++)
+            {
+                lastRow += mag(invVR(2, k));
+            }
+
+            if (lastRow != 0)
+            {
+                FatalErrorInFunction
+                    << "The row of a node below the weight its value is "
+                    << "read back at is not zero" << endl
+                    << exit(FatalError);
+            }
+        }
+
+        // Two nodes that carry weight at the same abscissa cannot be told
+        // apart, and the solve says so rather than inverting a singular
+        // system
+        const scalarList xSame({0.5, 0.5, 2.0});
+        const scalarList wSame({1.0, 2.0, 1.0});
+
+        if
+        (
+            Vandermonde::conditionalInverse
+            (
+                xSame, wSame, 0, SMALL, nodes, invVR
+            )
+        )
+        {
+            FatalErrorInFunction
+                << "The conditional solve accepted two nodes of weight at "
+                << "the same abscissa" << endl
+                << exit(FatalError);
+        }
+    }
+
+    Info<< "OK" << endl;
+
     Info<< "\nEnd\n" << endl;
 
     return 0;

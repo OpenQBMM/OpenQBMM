@@ -48,7 +48,7 @@ Foam::PDFTransportModels::velocityPDFTransportModel::velocityPDFTransportModel
         (
             quadrature_.subDict("momentAdvection"),
             quadrature_,
-            supports
+            quadrature_.moments().supports()
         )
     )
 {}

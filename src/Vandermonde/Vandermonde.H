@@ -102,6 +102,42 @@ public:
         scalarSquareMatrix invert() const;
 
 
+    // Static Member Functions
+
+        //- The conditional solve of the quadratures that carry a quantity
+        //  on the nodes of a univariate one: the matrix that takes the
+        //  moments of orders 0 to m - 1 of the quantity, weighted by the
+        //  nodes, to its value at each node,
+        //
+        //      diag(1/w) V^-1,
+        //
+        //  over the m nodes whose weight is above systemWeight, whose
+        //  positions among the abscissae are returned in nodes.
+        //
+        //  A node below systemWeight is left out of the system, which is
+        //  exact only for a node that carries nothing: one that carries a
+        //  little still contributes to the moments, and leaving it out
+        //  would give its share to the others. So systemWeight is zero
+        //  where the moments are those of the whole quadrature. A node kept
+        //  whose weight is not above solvedWeight is solved for, and so
+        //  kept apart from the others, but its value is not trusted and its
+        //  row is zero.
+        //
+        //  Nodes that carry nothing are left out because two of them at the
+        //  same abscissa made the system singular. Returns false when two
+        //  of the nodes kept share one, which a quadrature that has
+        //  collapsed can leave.
+        static bool conditionalInverse
+        (
+            const UList<scalar>& abscissae,
+            const UList<scalar>& weights,
+            const scalar systemWeight,
+            const scalar solvedWeight,
+            labelList& nodes,
+            scalarSquareMatrix& invVR
+        );
+
+
     // Member Operators
 
         //- Return the Vandermonde matrix

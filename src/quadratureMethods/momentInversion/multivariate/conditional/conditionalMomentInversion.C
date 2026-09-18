@@ -460,8 +460,8 @@ bool Foam::multivariateMomentInversions::conditional::setVR
     }
     else
     {
-        scalarDiagonalMatrix weights;
-        scalarDiagonalMatrix x;
+        scalarList weights(nNodes_[dimj], Zero);
+        scalarList x(nNodes_[dimj], Zero);
 
         for (label nodei = 0; nodei < nNodes_[dimj]; nodei++)
         {
@@ -477,39 +477,36 @@ bool Foam::multivariateMomentInversions::conditional::setVR
                 abscissa = abscissae_(pos)[si_];
             }
 
-            // A node carrying no weight contributes nothing, and its
-            // reciprocal weight is not finite, so it is left out.
-            //
-            // The abscissa is not a criterion for leaving one out. Zero is
-            // an ordinary node of a quadrature, and it is the central node
-            // of every symmetric distribution, so dropping it shrinks the
-            // Vandermonde system and corrupts the conditional moments that
-            // are recovered by inverting it.
-            if (weight > SMALL)
-            {
-                x.append(abscissa);
-                weights.append(weight);
-            }
+            x[nodei] = abscissa;
+            weights[nodei] = weight;
         }
 
-        // Two nodes at the same abscissa leave the Vandermonde matrix
-        // singular. The abscissae of a quadrature are distinct, so this is
-        // a conditional quadrature that has collapsed, and the inversion
-        // reports the failure rather than solving a singular system.
-        if (!distinctAbscissae(x))
+        // The conditional solve all the quadratures share. A node carrying
+        // no weight contributes nothing, and its reciprocal weight is not
+        // finite, so it is left out: the weight is the only criterion, since
+        // zero is an ordinary abscissa, the central node of every symmetric
+        // distribution. Two nodes kept at the same abscissa are a
+        // conditional quadrature that has collapsed, which the inversion
+        // reports rather than solving a singular system.
+        labelList solvedNodes;
+        scalarSquareMatrix invVRSolved;
+
+        if
+        (
+            !Vandermonde::conditionalInverse
+            (
+                x,
+                weights,
+                SMALL,
+                SMALL,
+                solvedNodes,
+                invVRSolved
+            )
+        )
         {
             return false;
         }
 
-        scalarSquareMatrix invR(weights.size(), Zero);
-
-        forAll(weights, nodei)
-        {
-            invR[nodei][nodei] = 1.0/weights[nodei];
-        }
-
-        Vandermonde V(x);
-        scalarSquareMatrix invV(V.invert());
         labelList posVR(max(1, dimj), 0);
 
         if (dimj > 0)
@@ -520,7 +517,7 @@ bool Foam::multivariateMomentInversions::conditional::setVR
             }
         }
 
-        invVR_[dimj](posVR) = invR*invV;
+        invVR_[dimj](posVR) = invVRSolved;
     }
 
     return true;

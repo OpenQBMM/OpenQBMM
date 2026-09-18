@@ -106,14 +106,6 @@ protected:
             const label size
         );
 
-        //- Return true if the abscissae are distinct enough to build a
-        //  Vandermonde system from them. A conditional quadrature recovers
-        //  the conditional moments by inverting the Vandermonde matrix of
-        //  the abscissae of the conditioning variable, which is singular if
-        //  two of them coincide. The tolerance matches the one
-        //  Vandermonde::solve rejects a singular system with, so that a set
-        //  accepted here is one the solver can invert.
-        static bool distinctAbscissae(const UList<scalar>& abscissae);
 
 
 public:

@@ -100,10 +100,22 @@ quadratureApproximation
     nodeIndexes_(readNodeIndexes(*this)),
     nNodes_(momentOrders_[0].size(), 1),
     nodes_(),
-    moments_(name_, momentOrders_, mesh_, nodes_, supports),
+    moments_
+    (
+        name_,
+        momentOrders_,
+        mesh_,
+        nodes_,
+        fieldMomentInversion::momentSupports
+        (
+            *this,
+            momentOrders_[0].size(),
+            supports
+        )
+    ),
     nDimensions_(moments_[0].cmptOrders().size()),
     nMoments_(moments_.size()),
-    supports_(supports),
+    supports_(moments_.supports()),
     momentFieldInverter_()
 {
     forAll(nodeIndexes_, nodei)

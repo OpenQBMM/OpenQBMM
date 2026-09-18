@@ -264,6 +264,39 @@ bool Foam::fieldMomentInversion::buildMomentSet
 }
 
 
+Foam::List<Foam::supportType> Foam::fieldMomentInversion::momentSupports
+(
+    const dictionary& dict,
+    const label nDimensions,
+    const List<supportType>& modelSupports
+)
+{
+    const word fieldInversion(dict.lookup("fieldMomentInversion"));
+
+    if (fieldInversion != "basicVelocityFieldMomentInversion")
+    {
+        return modelSupports;
+    }
+
+    // The velocity models used to give every quadrature three dimensions
+    // on the reals, whatever the number of its dimensions and whether one
+    // of them is a size
+    List<supportType> supports(nDimensions, supportType::R);
+
+    const word type
+    (
+        dict.subDict("basicVelocityMomentInversion").lookup("type")
+    );
+
+    if (type == "sizeCHyQMOM" || type == "monoKinetic")
+    {
+        supports[0] = supportType::RPlus;
+    }
+
+    return supports;
+}
+
+
 void Foam::fieldMomentInversion::momentSet
 (
     const dictionary& dict,
