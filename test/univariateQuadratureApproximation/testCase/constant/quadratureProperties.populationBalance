@@ -20,21 +20,6 @@ fieldMomentInversion    basicFieldMomentInversion;
 basicMomentInversion
 {
     univariateMomentInversion Gauss;
+    nMoments                    5;
 }
-
-moments
-(
-    (0)
-    (1)
-    (2)
-    (3)
-    (4)
-);
-
-nodes
-(
-    (0)
-    (1)
-);
-
 // ************************************************************************* //

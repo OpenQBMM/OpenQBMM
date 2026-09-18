@@ -25,6 +25,7 @@ smallAbscissa               1.0e-5;
 basicMomentInversion
 {
     univariateMomentInversion     Gauss;
+    nMoments                    4;
     smallM0                       1.0e-5;
 }
 
@@ -37,19 +38,5 @@ momentAdvection
         univariateMomentInversion Gauss;
     }
 }
-
-moments
-(
-    (0)
-    (1)
-    (2)
-    (3)
-);
-
-nodes
-(
-   (0)
-   (1)
-);
  
 // ************************************************************************* //

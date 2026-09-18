@@ -20,27 +20,11 @@ fieldMomentInversion    basicFieldMomentInversion;
 basicMomentInversion
 {
     univariateMomentInversion GaussRadau;
+    nMoments                    5;
 }
 
 momentAdvection
 {
     univariateMomentAdvection   noAdvection;
 }
-
-moments
-(
-    (0)
-    (1)
-    (2)
-    (3)
-    (4)
-);
-
-nodes
-(
-    (0)
-    (1)
-    (2)
-);
-
 // ************************************************************************* //

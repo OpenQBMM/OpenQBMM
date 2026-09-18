@@ -20,6 +20,8 @@ fieldMomentInversion    basicFieldMomentInversion;
 basicMomentInversion
 {
     univariateMomentInversion GQMOM;
+    nMoments                    10;
+    nAdditionalQuadraturePoints 5;
 }
 
 momentAdvection
@@ -31,36 +33,4 @@ momentAdvection
         univariateMomentInversion QMOM;
     }
 }
-
-moments
-(
-    (0)
-    (1)
-    (2)
-    (3)
-    (4)
-    (5)
-    (6)
-    (7)
-    (8)
-    (9)
-    
-);
-
-nodes
-(
-    (0)
-    (1)
-    (2)
-    (3)
-    (4)
-    (5)
-    (6)
-    (7)
-    (8)
-    (9)
-    
-    
-);
-
 // ************************************************************************* //

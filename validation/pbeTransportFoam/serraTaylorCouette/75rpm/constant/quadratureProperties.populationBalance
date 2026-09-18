@@ -20,6 +20,8 @@ fieldMomentInversion    basicFieldMomentInversion;
 basicMomentInversion
 {
     univariateMomentInversion GQMOM;
+    nMoments                    6;
+    nAdditionalQuadraturePoints 1;
     ndfTypeRPlus lognormal; // Default: gamma
 }
 
@@ -33,23 +35,4 @@ momentAdvection
         ndfTypeRPlus lognormal; // Keep consistent with the setting above.
     }
 }
-
-moments
-(
-    (0)
-    (1)
-    (2)
-    (3)
-    (4)
-    (5)
-);
-
-nodes
-(
-    (0)
-    (1)
-    (2)
-    (3)
-);
-
 // ************************************************************************* //
