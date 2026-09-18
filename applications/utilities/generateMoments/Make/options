@@ -17,7 +17,13 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -ImomentGenerationModels/lnInclude \
     -I$(QBMM_SRC)/mappedList \
-    -I$(QBMM_SRC)/mappedPtrList
+    -I$(QBMM_SRC)/mappedPtrList \
+    -I$(QBMM_SRC)/quadratureMethods/supportType \
+    -I$(QBMM_SRC)/quadratureMethods/momentSets/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentInversion/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/quadratureNode/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/moments \
+    -I$(QBMM_SRC)/quadratureMethods/fieldMomentInversion/lnInclude
 
 EXE_LIBS = \
     -lfiniteVolume \
@@ -25,4 +31,5 @@ EXE_LIBS = \
     -lfvOptions \
     -lsampling \
     -L$(FOAM_MODULE_LIBBIN) \
-    -lmomentGenerationModels
+    -lmomentGenerationModels \
+    -lfieldMomentInversion

@@ -158,7 +158,13 @@ public:
             autoPtr<moment<fieldType, nodeType>> operator()(Istream& is) const
             {
                 labelList ent(is);
-                
+
+                return operator()(ent);
+            }
+
+            autoPtr<moment<fieldType, nodeType>>
+            operator()(const labelList& ent) const
+            {
                 return autoPtr<moment<fieldType, nodeType>>
                 (
                     new moment<fieldType, nodeType>

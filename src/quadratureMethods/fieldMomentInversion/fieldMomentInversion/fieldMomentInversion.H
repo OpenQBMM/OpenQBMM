@@ -134,6 +134,28 @@ public:
 
     // Selectors
 
+        //- The orders of the moments a case carries and the indexes of
+        //  its nodes, from the quadrature dictionary: the inversion it
+        //  selects owns them, and the case gives the counts its closure
+        //  leaves open. A case that lists its moments and nodes itself is
+        //  taken as it is.
+        static void momentSet
+        (
+            const dictionary& dict,
+            labelListList& momentOrders,
+            labelListList& nodeIndexes
+        );
+
+        //- The moments and the nodes the inversion the dictionary selects
+        //  builds, and whether it builds them at all
+        static bool buildMomentSet
+        (
+            const dictionary& dict,
+            const word& fieldInversion,
+            labelListList& momentOrders,
+            labelListList& nodeIndexes
+        );
+
         static autoPtr<fieldMomentInversion> New
         (
             const dictionary& dict,

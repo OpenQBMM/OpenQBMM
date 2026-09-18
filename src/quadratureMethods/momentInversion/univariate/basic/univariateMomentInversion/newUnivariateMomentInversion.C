@@ -32,6 +32,52 @@ License
 
 // * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
 
+Foam::label Foam::univariateMomentInversion::nQuadratureNodes
+(
+    const dictionary& dict,
+    const label nMoments
+)
+{
+    // The moments determine a quadrature of nMoments/2 nodes, and each
+    // inversion adds the nodes of its own: the abscissa a Gauss-Radau
+    // quadrature fixes, the two a Gauss-Lobatto one fixes, and the ones the
+    // generalized quadrature extends the recurrence relationship to, which
+    // the case chooses.
+    //
+    // This is asked before the inversion exists, since it is what sizes the
+    // list of nodes the inversion writes into, so it is the one place that
+    // reads the number of nodes of a type from its name rather than from
+    // the object.
+    const word type(dict.lookup("univariateMomentInversion"));
+
+    label nAdditionalNodes = 0;
+
+    if (type == "GaussRadau")
+    {
+        nAdditionalNodes = 1;
+    }
+    else if (type == "GaussLobatto")
+    {
+        nAdditionalNodes = 2;
+    }
+    else if (type == "GQMOM")
+    {
+        nAdditionalNodes =
+            dict.get<label>("nAdditionalQuadraturePoints");
+    }
+
+    if (nAdditionalNodes < 0)
+    {
+        FatalIOErrorInFunction(dict)
+            << "The number of additional quadrature points cannot be "
+            << "negative." << nl
+            << exit(FatalIOError);
+    }
+
+    return nMoments/2 + nAdditionalNodes;
+}
+
+
 Foam::autoPtr<Foam::univariateMomentInversion>
 Foam::univariateMomentInversion::New
 (

@@ -35,6 +35,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "fieldMomentInversion.H"
 #include "supportType.H"
 #include "univariateMomentSet.H"
 #include "extendedMomentInversion.H"
@@ -113,8 +114,16 @@ int main(int argc, char *argv[])
             )
         );
 
-        labelListList momentOrders(quadratureDict.lookup("moments"));
-        labelListList nodeIndexes(quadratureDict.lookup("nodes"));
+        // The inversion the case selects owns its moment set
+        labelListList momentOrders;
+        labelListList nodeIndexes;
+
+        fieldMomentInversion::momentSet
+        (
+            quadratureDict,
+            momentOrders,
+            nodeIndexes
+        );
         label nMoments = momentOrders.size();
         label nSamples = phaseDict.lookupOrDefault<label>("nSamples", 100);
 

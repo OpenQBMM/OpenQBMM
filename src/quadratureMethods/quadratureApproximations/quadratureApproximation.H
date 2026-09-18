@@ -110,6 +110,17 @@ protected:
         autoPtr<fieldMomentInversion> momentFieldInverter_;
 
 
+    // Protected Member Functions
+
+        //- The orders of the moments of the quadrature, from the dictionary
+        //  or from the inversion it selects
+        static labelListList readMomentOrders(const dictionary& dict);
+
+        //- The indexes of the nodes of the quadrature, from the dictionary
+        //  or from the inversion it selects
+        static labelListList readNodeIndexes(const dictionary& dict);
+
+
 public:
 
     //- Default name of the phase properties dictionary

@@ -29,8 +29,301 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "fieldMomentInversion.H"
+#include "univariateMomentInversion.H"
+#include "CHyQMOMMomentInversion.H"
+#include "CHyQMOMPlusMomentInversion.H"
+
+// * * * * * * * * * * * * * * * Static Functions  * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+//- The moments and the nodes of a velocity closure of nDimensions velocity
+//  directions
+static void velocityMomentSet
+(
+    const word& type,
+    const label nDimensions,
+    labelListList& momentOrders,
+    labelListList& nodeIndexes
+)
+{
+    if (type == "CHyQMOM")
+    {
+        momentOrders =
+            multivariateMomentInversions::CHyQMOM::getMomentOrders
+            (
+                nDimensions
+            );
+
+        nodeIndexes =
+            multivariateMomentInversions::CHyQMOM::getNodeIndexes
+            (
+                nDimensions
+            );
+
+        return;
+    }
+
+    if (type == "CHyQMOMPlus")
+    {
+        momentOrders =
+            multivariateMomentInversions::CHyQMOMPlus::getMomentOrders
+            (
+                nDimensions
+            );
+
+        nodeIndexes =
+            multivariateMomentInversions::CHyQMOMPlus::getNodeIndexes
+            (
+                nDimensions
+            );
+
+        return;
+    }
+
+    FatalErrorInFunction
+        << "The moment set of " << type << " is not built from the counts "
+        << "of the case." << nl
+        << "    List the moments and the nodes of the case in "
+        << "quadratureProperties." << nl
+        << exit(FatalError);
+}
+
+} // End namespace Foam
+
+
 
 // * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
+
+bool Foam::fieldMomentInversion::buildMomentSet
+(
+    const dictionary& dict,
+    const word& fieldInversion,
+    labelListList& momentOrders,
+    labelListList& nodeIndexes
+)
+{
+    if (fieldInversion == "basicFieldMomentInversion")
+    {
+        // A univariate quadrature carries the moments of order zero up, and
+        // as many nodes as its inversion builds from them
+        const dictionary& inversionDict = dict.subDict("basicMomentInversion");
+
+        const label nMoments =
+            inversionDict.lookupOrDefault<label>("nMoments", -1);
+
+        if (nMoments < 0)
+        {
+            return false;
+        }
+
+        const label nNodes =
+            univariateMomentInversion::nQuadratureNodes
+            (
+                inversionDict,
+                nMoments
+            );
+
+        momentOrders.setSize(nMoments);
+
+        forAll(momentOrders, mi)
+        {
+            momentOrders[mi] = labelList(1, mi);
+        }
+
+        nodeIndexes.setSize(nNodes);
+
+        forAll(nodeIndexes, nodei)
+        {
+            nodeIndexes[nodei] = labelList(1, nodei);
+        }
+
+        return true;
+    }
+
+    if (fieldInversion != "basicVelocityFieldMomentInversion")
+    {
+        return false;
+    }
+
+    const dictionary& inversionDict =
+        dict.subDict("basicVelocityMomentInversion");
+
+    const word type(inversionDict.lookup("type"));
+
+    const label nVelocityDimensions =
+        inversionDict.lookupOrDefault<label>("nVelocityDimensions", -1);
+
+    if (nVelocityDimensions < 0)
+    {
+        return false;
+    }
+
+    // The closure whose moments the case carries. It is the one that
+    // inverts them unless the case asks for another, as a case that
+    // transports the moments of CHyQMOMPlus and inverts them with CHyQMOM
+    // does.
+    const word transported
+    (
+        inversionDict.lookupOrDefault<word>
+        (
+            "transportedMoments",
+            type == "sizeCHyQMOM"
+          ? inversionDict.lookupOrDefault<word>("sizeVelocityClosure", "CHyQMOM")
+          : type
+        )
+    );
+
+    labelListList velocityOrders;
+    labelListList velocityNodes;
+
+    velocityMomentSet
+    (
+        transported,
+        nVelocityDimensions,
+        velocityOrders,
+        velocityNodes
+    );
+
+    if (type != "sizeCHyQMOM")
+    {
+        momentOrders = velocityOrders;
+        nodeIndexes = velocityNodes;
+
+        return true;
+    }
+
+    // A size-velocity quadrature carries the moments of the size alone, and
+    // the velocity moments of the closure conditioned on each of the size
+    // nodes the size moments build
+    const label nSizeMoments =
+        inversionDict.lookupOrDefault<label>("nSizeMoments", -1);
+
+    if (nSizeMoments < 0)
+    {
+        return false;
+    }
+    const label nSizeNodes = nSizeMoments/2;
+
+    momentOrders.clear();
+    nodeIndexes.clear();
+
+    for (label k = 0; k < nSizeMoments; k++)
+    {
+        labelList order(1 + nVelocityDimensions, Zero);
+        order[0] = k;
+        momentOrders.append(order);
+    }
+
+    for (label k = 0; k < nSizeNodes; k++)
+    {
+        forAll(velocityOrders, vi)
+        {
+            bool zero = true;
+
+            forAll(velocityOrders[vi], dimi)
+            {
+                zero = zero && velocityOrders[vi][dimi] == 0;
+            }
+
+            if (zero)
+            {
+                continue;
+            }
+
+            labelList order(1 + nVelocityDimensions, Zero);
+            order[0] = k;
+
+            forAll(velocityOrders[vi], dimi)
+            {
+                order[dimi + 1] = velocityOrders[vi][dimi];
+            }
+
+            momentOrders.append(order);
+        }
+    }
+
+    for (label k = 0; k < nSizeNodes; k++)
+    {
+        forAll(velocityNodes, vi)
+        {
+            labelList index(1 + nVelocityDimensions, Zero);
+            index[0] = k;
+
+            forAll(velocityNodes[vi], dimi)
+            {
+                index[dimi + 1] = velocityNodes[vi][dimi];
+            }
+
+            nodeIndexes.append(index);
+        }
+    }
+
+    return true;
+}
+
+
+void Foam::fieldMomentInversion::momentSet
+(
+    const dictionary& dict,
+    labelListList& momentOrders,
+    labelListList& nodeIndexes
+)
+{
+    const word fieldInversion(dict.lookup("fieldMomentInversion"));
+
+    // A case written before the inversions owned their moment sets lists
+    // them itself. It is taken as it is, so that nothing it carries is
+    // dropped, and it is told what its inversion would build for it.
+    if (dict.found("moments"))
+    {
+        momentOrders = labelListList(dict.lookup("moments"));
+        nodeIndexes = labelListList(dict.lookup("nodes"));
+
+        labelListList builtOrders;
+        labelListList builtNodes;
+
+        if (buildMomentSet(dict, fieldInversion, builtOrders, builtNodes))
+        {
+            if (builtOrders == momentOrders && builtNodes == nodeIndexes)
+            {
+                WarningInFunction
+                    << "The moments and the nodes of this quadrature are "
+                    << "the ones its inversion builds, so the lists of them "
+                    << "are no longer needed." << nl
+                    << "    Remove them from quadratureProperties." << nl
+                    << endl;
+            }
+            else
+            {
+                WarningInFunction
+                    << "This quadrature lists " << momentOrders.size()
+                    << " moments and " << nodeIndexes.size()
+                    << " nodes, where its inversion builds "
+                    << builtOrders.size() << " and " << builtNodes.size()
+                    << "." << nl
+                    << "    The lists are used. A case that carries the "
+                    << "moments of another closure says so with "
+                    << "transportedMoments." << nl
+                    << endl;
+            }
+        }
+
+        return;
+    }
+
+    if (!buildMomentSet(dict, fieldInversion, momentOrders, nodeIndexes))
+    {
+        FatalIOErrorInFunction(dict)
+            << "The moment set of " << fieldInversion << " is not built "
+            << "from the counts of the case." << nl
+            << "    List the moments and the nodes of the case in "
+            << "quadratureProperties." << nl
+            << exit(FatalIOError);
+    }
+}
+
 
 Foam::autoPtr<Foam::fieldMomentInversion> Foam::fieldMomentInversion::New
 (

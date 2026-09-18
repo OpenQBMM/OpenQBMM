@@ -161,13 +161,16 @@ public:
             {}
 
             autoPtr<quadratureNode<scalarType, vectorType>>
-            operator()
-            (
-                Istream& is
-            ) const
+            operator()(Istream& is) const
             {
                 labelList ent(is);
 
+                return operator()(ent);
+            }
+
+            autoPtr<quadratureNode<scalarType, vectorType>>
+            operator()(const labelList& ent) const
+            {
                 return autoPtr<quadratureNode<scalarType, vectorType>>
                 (
                     new quadratureNode<scalarType, vectorType>

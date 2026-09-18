@@ -37,6 +37,40 @@ const Foam::word Foam::quadratureApproximation<momentType, nodeType>::
 propertiesName("quadratureProperties");
 
 
+// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
+
+template<class momentType, class nodeType>
+Foam::labelListList
+Foam::quadratureApproximation<momentType, nodeType>::readMomentOrders
+(
+    const dictionary& dict
+)
+{
+    labelListList momentOrders;
+    labelListList nodeIndexes;
+
+    fieldMomentInversion::momentSet(dict, momentOrders, nodeIndexes);
+
+    return momentOrders;
+}
+
+
+template<class momentType, class nodeType>
+Foam::labelListList
+Foam::quadratureApproximation<momentType, nodeType>::readNodeIndexes
+(
+    const dictionary& dict
+)
+{
+    labelListList momentOrders;
+    labelListList nodeIndexes;
+
+    fieldMomentInversion::momentSet(dict, momentOrders, nodeIndexes);
+
+    return nodeIndexes;
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class momentType, class nodeType>
@@ -62,23 +96,11 @@ quadratureApproximation
     name_(name),
     mesh_(mesh),
     dict_(*this),
-    momentOrders_
-    (
-        const_cast
-        <
-            const quadratureApproximation<momentType, nodeType>&
-        >(*this).lookup("moments")
-    ),
-    nodeIndexes_
-    (
-        const_cast
-        <
-            const quadratureApproximation<momentType, nodeType>&
-        >(*this).lookup("nodes")
-    ),
+    momentOrders_(readMomentOrders(*this)),
+    nodeIndexes_(readNodeIndexes(*this)),
     nNodes_(momentOrders_[0].size(), 1),
     nodes_(),
-    moments_(name_, *this, mesh_, nodes_, supports),
+    moments_(name_, momentOrders_, mesh_, nodes_, supports),
     nDimensions_(moments_[0].cmptOrders().size()),
     nMoments_(moments_.size()),
     supports_(supports),
@@ -134,21 +156,26 @@ quadratureApproximation
     // Allocating nodes
     nodes_ = autoPtr<mappedPtrList<nodeType>>
     (
-        new mappedPtrList<nodeType>
-        (
-            lookup("nodes"),
-            typename nodeType::iNew
-            (
-                name_,
-                mesh_,
-                moments_[0].dimensions(),
-                abscissaeDimensions,
-                moments_[0].boundaryField().types()
-            )
-        )
+        new mappedPtrList<nodeType>(nodeIndexes_.size(), nodeIndexes_)
     );
 
-    nodes_().setMap(nodeIndexes_);
+    // The factory keeps a reference to the patch types, so they are held
+    // here rather than passed as a temporary
+    const wordList nodeBoundaryTypes(moments_[0].boundaryField().types());
+
+    typename nodeType::iNew node
+    (
+        name_,
+        mesh_,
+        moments_[0].dimensions(),
+        abscissaeDimensions,
+        nodeBoundaryTypes
+    );
+
+    forAll(nodeIndexes_, nodei)
+    {
+        nodes_().set(nodei, node(nodeIndexes_[nodei]).ptr());
+    }
 
     updateQuadrature();
 }
@@ -179,20 +206,8 @@ quadratureApproximation
     name_(name),
     mesh_(mFieldSet[0].mesh()),
     dict_(*this),
-    momentOrders_
-    (
-        const_cast
-        <
-            const quadratureApproximation<momentType, nodeType>&
-        >(*this).lookup("moments")
-    ),
-    nodeIndexes_
-    (
-        const_cast
-        <
-            const quadratureApproximation<momentType, nodeType>&
-        >(*this).lookup("nodes")
-    ),
+    momentOrders_(readMomentOrders(*this)),
+    nodeIndexes_(readNodeIndexes(*this)),
     nNodes_(momentOrders_[0].size(), 1),
     nodes_(),
     moments_
@@ -269,21 +284,26 @@ quadratureApproximation
     // Allocating nodes
     nodes_ = autoPtr<mappedPtrList<nodeType>>
     (
-        new mappedPtrList<nodeType>
-        (
-            lookup("nodes"),
-            typename nodeType::iNew
-            (
-                name_,
-                mesh_,
-                moments_[0].dimensions(),
-                abscissaeDimensions,
-                moments_[0].boundaryField().types()
-            )
-        )
+        new mappedPtrList<nodeType>(nodeIndexes_.size(), nodeIndexes_)
     );
 
-    nodes_().setMap(nodeIndexes_);
+    // The factory keeps a reference to the patch types, so they are held
+    // here rather than passed as a temporary
+    const wordList nodeBoundaryTypes(moments_[0].boundaryField().types());
+
+    typename nodeType::iNew node
+    (
+        name_,
+        mesh_,
+        moments_[0].dimensions(),
+        abscissaeDimensions,
+        nodeBoundaryTypes
+    );
+
+    forAll(nodeIndexes_, nodei)
+    {
+        nodes_().set(nodei, node(nodeIndexes_[nodei]).ptr());
+    }
 
     if (calcQuadratureOnCreation)
     {

@@ -41,34 +41,25 @@ template <class momentType, class nodeType>
 Foam::momentFieldSet<momentType, nodeType>::momentFieldSet
 (
     const word& distributionName,
-    const dictionary& dict,
+    const labelListList& momentOrders,
     const fvMesh& mesh,
     const autoPtr<mappedPtrList<nodeType>>& nodes,
     const List<supportType>& supports
 )
 :
-    mappedPtrList<momentType>
-    (
-        dict.lookup("moments"),
-        typename momentType::iNew(distributionName, mesh, nodes)
-    ),
+    mappedPtrList<momentType>(momentOrders.size(), momentOrders),
     name_(IOobject::groupName("moments", distributionName)),
     nodes_(nodes),
-    nDimensions_((*this)[0].nDimensions()),
-    nMoments_((*this).size()),
+    nDimensions_(momentOrders[0].size()),
+    nMoments_(momentOrders.size()),
     supports_(supports)
 {
-    // Set the map from the orders themselves, so that the number of
-    // dimensions is the one they carry and not one recovered from the
-    // keys, which drops the leading zeros of an order
-    labelListList momentOrders(nMoments_);
+    typename momentType::iNew moment(distributionName, mesh, nodes);
 
-    forAll(*this, mI)
+    forAll(momentOrders, mi)
     {
-        momentOrders[mI] = this->operator[](mI).cmptOrders();
+        this->set(mi, moment(momentOrders[mi]).ptr());
     }
-
-    this->setMap(momentOrders);
 }
 
 

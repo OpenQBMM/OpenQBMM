@@ -37,6 +37,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "fieldMomentInversion.H"
 #include "momentGenerationModel.H"
 #include "mappedPtrList.H"
 #include "topoSetSource.H"
@@ -95,8 +96,16 @@ int main(int argc, char *argv[])
             )
         );
 
-        labelListList momentOrders(quadratureDict.lookup("moments"));
-        labelListList nodeIndexes(quadratureDict.lookup("nodes"));
+        // The inversion the case selects owns its moment set
+        labelListList momentOrders;
+        labelListList nodeIndexes;
+
+        fieldMomentInversion::momentSet
+        (
+            quadratureDict,
+            momentOrders,
+            nodeIndexes
+        );
         label nMoments = momentOrders.size();
         label nNodes = nodeIndexes.size();
 

@@ -111,11 +111,12 @@ public:
 
     // Constructors
 
-        //- Construct from dictionary and the quadrature nodes
+        //- Construct from the orders of the moments and the quadrature
+        //  nodes
         momentFieldSet
         (
             const word& distributionName,
-            const dictionary& dict,
+            const labelListList& momentOrders,
             const fvMesh& mesh,
             const autoPtr<mappedPtrList<nodeType>>& nodes,
             const List<supportType>& supports

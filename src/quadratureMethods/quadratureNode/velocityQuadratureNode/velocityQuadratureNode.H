@@ -131,13 +131,16 @@ public:
             {}
 
             autoPtr<velocityQuadratureNode<scalarType, vectorType>>
-            operator()
-            (
-                Istream& is
-            ) const
+            operator()(Istream& is) const
             {
                 labelList ent(is);
 
+                return operator()(ent);
+            }
+
+            autoPtr<velocityQuadratureNode<scalarType, vectorType>>
+            operator()(const labelList& ent) const
+            {
                 return autoPtr<velocityQuadratureNode<scalarType, vectorType>>
                 (
                     new velocityQuadratureNode<scalarType, vectorType>

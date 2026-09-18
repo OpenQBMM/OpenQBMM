@@ -58,6 +58,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "fieldMomentInversion.H"
 #include "populationBalanceModel.H"
 #include "fundamentalConstants.H"
 
@@ -169,7 +170,10 @@ int main(int argc, char *argv[])
 
     // The orders of the moments the case carries, as its
     // quadratureProperties lists them
-    const labelListList momentOrders
+    labelListList momentOrders;
+    labelListList nodeIndexes;
+
+    fieldMomentInversion::momentSet
     (
         IOdictionary
         (
@@ -181,7 +185,9 @@ int main(int argc, char *argv[])
                 IOobject::MUST_READ,
                 IOobject::NO_WRITE
             )
-        ).lookup("moments")
+        ),
+        momentOrders,
+        nodeIndexes
     );
 
     auto momentName = [](const labelList& order)

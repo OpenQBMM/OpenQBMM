@@ -1,0 +1,428 @@
+#!/usr/bin/env python3
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     qbmmConvertQuadratureProperties
+#
+# Description
+#     Convert a case to a quadrature that builds its own moment set.
+#
+#         qbmmConvertQuadratureProperties [-n] <case> [<case> ...]
+#
+#         -n    only print what would be changed
+#
+#     The moments and the nodes of a quadrature follow from its inversion and
+#     from the few counts the closure leaves open, so a case gives the counts
+#     and the inversion builds the set:
+#
+#         basicMomentInversion
+#         {
+#             univariateMomentInversion GQMOM;
+#             nMoments                  6;
+#             nAdditionalQuadraturePoints 1;   // GQMOM only
+#         }
+#
+#         basicVelocityMomentInversion
+#         {
+#             type                sizeCHyQMOM;
+#             nVelocityDimensions 2;
+#             nSizeMoments        8;           // size closures only
+#             transportedMoments  CHyQMOMPlus; // when they are not the
+#                                              // moments the closure inverts
+#         }
+#
+#     This script reads the moments and nodes a case lists, works out the
+#     counts that build them, checks that they do, and then writes the counts
+#     and removes the lists. A case whose lists are not the ones its inversion
+#     builds is left alone and reported, so that it can be looked at.
+#
+#     The solvers still read a case that lists its moments, with a warning,
+#     for one release. The script is temporary.
+#
+#------------------------------------------------------------------------------
+
+import os
+import re
+import sys
+
+
+def stripComments(text):
+    text = re.sub(r'/\*.*?\*/', '', text, flags=re.S)
+    return re.sub(r'//[^\n]*', '', text)
+
+
+def blockSpan(text, key):
+    """The span of the body of a sub-dictionary, or None"""
+    m = re.search(r'(?<![\w.])' + key + r'\s*\{', text)
+
+    if not m:
+        return None
+
+    depth = 1
+    i = m.end()
+
+    while i < len(text) and depth > 0:
+        if text[i] == '{':
+            depth += 1
+        elif text[i] == '}':
+            depth -= 1
+        i += 1
+
+    return (m.start(), m.end(), i - 1, i)
+
+
+def listSpan(text, key):
+    """The span of a list entry, or None"""
+    m = re.search(r'(?<![\w.])' + key + r'\s*\(', text)
+
+    if not m:
+        return None
+
+    depth = 1
+    i = m.end()
+
+    while i < len(text) and depth > 0:
+        if text[i] == '(':
+            depth += 1
+        elif text[i] == ')':
+            depth -= 1
+        i += 1
+
+    while i < len(text) and text[i] in ' \t':
+        i += 1
+
+    if i < len(text) and text[i] == ';':
+        i += 1
+
+    return (m.start(), m.end(), i)
+
+
+def orders(text, key):
+    span = listSpan(text, key)
+
+    if not span:
+        return None
+
+    body = text[span[1]:span[2]]
+
+    return [
+        tuple(int(x) for x in e.split())
+        for e in re.findall(r'\(([^()]*)\)', body)
+    ]
+
+
+# The moment orders and node indexes of the velocity closures, as the
+# inversions hold them
+def chyqmomSet(nDims, plus):
+    if nDims not in (1, 2, 3):
+        return (None, None)
+
+    momentOrders = [tuple([0]*nDims)]
+
+    for d in range(nDims):
+        for k in range(1, 5):
+            o = [0]*nDims
+            o[d] = k
+            momentOrders.append(tuple(o))
+
+    # The cross moments: to order two, and to order three for CHyQMOMPlus
+    for d in range(nDims):
+        for e in range(d + 1, nDims):
+            o = [0]*nDims
+            o[d] = 1
+            o[e] = 1
+            momentOrders.append(tuple(o))
+
+    if plus:
+        for d in range(nDims):
+            for e in range(nDims):
+                if d == e:
+                    continue
+                o = [0]*nDims
+                o[d] = 2
+                o[e] = 1
+                momentOrders.append(tuple(o))
+
+        if nDims == 3:
+            momentOrders.append((1, 1, 1))
+
+    nodeIndexes = []
+
+    def walk(prefix):
+        if len(prefix) == nDims:
+            nodeIndexes.append(tuple(prefix))
+            return
+        for i in range(3):
+            walk(prefix + [i])
+
+    walk([])
+
+    return (momentOrders, nodeIndexes)
+
+
+def quadratureFiles(case):
+    constant = os.path.join(case, 'constant')
+
+    if not os.path.isdir(constant):
+        return []
+
+    return [
+        os.path.join(constant, f)
+        for f in sorted(os.listdir(constant))
+        if f.startswith('quadratureProperties')
+    ]
+
+
+def convertFile(path, dryRun):
+    raw = open(path, errors='surrogateescape').read()
+    text = stripComments(raw)
+
+    declaredMoments = orders(text, 'moments')
+    declaredNodes = orders(text, 'nodes')
+
+    if declaredMoments is None:
+        return (0, None)
+
+    # The moment advection sub-dictionary carries an inversion of its own
+    advection = blockSpan(text, 'momentAdvection')
+    top = (
+        text[:advection[0]] + text[advection[3]:] if advection else text
+    )
+
+    m = re.search(r'fieldMomentInversion\s+(\w+)\s*;', top)
+
+    if not m:
+        return (0, path + ': no fieldMomentInversion')
+
+    fieldInversion = m.group(1)
+    entries = []
+    key = None
+
+    if fieldInversion == 'basicFieldMomentInversion':
+        key = 'basicMomentInversion'
+        span = blockSpan(top, key)
+
+        if not span:
+            return (0, path + ': no ' + key)
+
+        inversion = top[span[1]:span[2]]
+        m = re.search(r'univariateMomentInversion\s+(\w+)\s*;', inversion)
+        typ = m.group(1) if m else '?'
+
+        nMoments = len(declaredMoments)
+        nNodes = len(declaredNodes)
+
+        extra = {'GaussRadau': 1, 'GaussLobatto': 2}.get(typ, 0)
+
+        if typ == 'GQMOM':
+            extra = nNodes - nMoments//2
+
+        built = (
+            [(k,) for k in range(nMoments)],
+            [(k,) for k in range(nMoments//2 + extra)]
+        )
+
+        entries = [('nMoments', nMoments)]
+
+        if typ == 'GQMOM':
+            entries.append(('nAdditionalQuadraturePoints', extra))
+
+    elif fieldInversion == 'basicVelocityFieldMomentInversion':
+        key = 'basicVelocityMomentInversion'
+        span = blockSpan(top, key)
+
+        if not span:
+            return (0, path + ': no ' + key)
+
+        inversion = top[span[1]:span[2]]
+        m = re.search(r'(?<![\w.])type\s+(\w+)\s*;', inversion)
+        typ = m.group(1) if m else '?'
+
+        nDims = max(len(o) for o in declaredMoments)
+
+        if typ in ('CHyQMOM', 'CHyQMOMPlus'):
+            nVelocityDims = nDims
+            nSizeMoments = 0
+        elif typ == 'sizeCHyQMOM':
+            nVelocityDims = nDims - 1
+            nSizeMoments = len(
+                [o for o in declaredMoments if not any(o[1:])]
+            )
+        else:
+            return (0, path + ': ' + typ + ' does not build its moment set')
+
+        # The closure whose moments the case carries: its own, or another
+        built = None
+        transported = None
+
+        for candidate in (typ, 'CHyQMOM', 'CHyQMOMPlus'):
+            if candidate == 'sizeCHyQMOM':
+                continue
+
+            velocity = chyqmomSet(nVelocityDims, candidate == 'CHyQMOMPlus')
+
+            if velocity[0] is None:
+                continue
+
+            if typ == 'sizeCHyQMOM':
+                nSizeNodes = nSizeMoments//2
+                momentOrders = [
+                    tuple([k] + [0]*nVelocityDims)
+                    for k in range(nSizeMoments)
+                ]
+                for k in range(nSizeNodes):
+                    for o in velocity[0]:
+                        if not any(o):
+                            continue
+                        momentOrders.append(tuple([k] + list(o)))
+                nodeIndexes = [
+                    tuple([k] + list(n))
+                    for k in range(nSizeNodes)
+                    for n in velocity[1]
+                ]
+            else:
+                momentOrders = velocity[0]
+                nodeIndexes = velocity[1]
+
+            if (
+                sorted(momentOrders) == sorted(declaredMoments)
+            and sorted(nodeIndexes) == sorted(declaredNodes)
+            ):
+                built = (momentOrders, nodeIndexes)
+                transported = candidate
+                break
+
+        if built is None:
+            return (
+                0,
+                path + ': the moments it lists are not the ones '
+              + typ + ' builds'
+            )
+
+        entries = [('nVelocityDimensions', nVelocityDims)]
+
+        if typ == 'sizeCHyQMOM':
+            entries.append(('nSizeMoments', nSizeMoments))
+
+        if transported != typ and not (
+            typ == 'sizeCHyQMOM' and transported == 'CHyQMOM'
+        ):
+            entries.append(('transportedMoments', transported))
+
+    else:
+        return (0, path + ': ' + fieldInversion + ' builds no moment set')
+
+    if sorted(built[0]) != sorted(declaredMoments):
+        return (0, path + ': the counts do not build the moments it carries')
+
+    if sorted(built[1]) != sorted(declaredNodes):
+        if len(built[1]) != len(declaredNodes):
+            return (0, path + ': the counts do not build the nodes it carries')
+
+        # The case lists as many nodes as the inversion builds, but not the
+        # indexes it gives them: nodes skipped or started at one, which the
+        # built set puts right
+        print(
+            '  ' + path + ': the node indexes it lists are not the '
+          + str(len(built[1])) + ' the inversion builds, and are replaced'
+        )
+
+    if dryRun:
+        print('  ' + path + ': ' + ', '.join(
+            k + ' ' + str(v) for k, v in entries
+        ))
+        return (1, None)
+
+    # Write the counts into the inversion sub-dictionary of the raw text,
+    # and take out the lists
+    rawText = raw
+    span = blockSpan(stripComments(rawText), key)
+    spanRaw = blockSpan(rawText, key)
+
+    lines = ''.join(
+        '    ' + k + ' '*max(1, 28 - len(k)) + str(v) + ';\n'
+        for k, v in entries
+    )
+
+    # After the entry that names the inversion, where one is given, so that
+    # the counts sit with it rather than after a sub-dictionary of its own
+    body = rawText[spanRaw[1]:spanRaw[2]]
+
+    m = re.search(
+        r'[^\n]*(?:type|univariateMomentInversion|extendedMomentInversion)'
+        r'\s+\w+\s*;[ \t]*\n',
+        body
+    )
+
+    at = spanRaw[1] + (m.end() if m else 0)
+
+    rawText = rawText[:at] + lines + rawText[at:]
+
+    for listKey in ('moments', 'nodes'):
+        span = listSpan(rawText, listKey)
+
+        if span:
+            head = rawText[:span[0]].rstrip(' \t')
+            tail = rawText[span[2]:]
+            # take the blank lines the entry left behind with it
+            rawText = head.rstrip('\n') + '\n' + tail.lstrip('\n')
+
+    open(path, 'w', errors='surrogateescape').write(rawText)
+    print('  ' + path + ': ' + ', '.join(
+        k + ' ' + str(v) for k, v in entries
+    ))
+
+    return (1, None)
+
+
+def main(argv):
+    dryRun = False
+    cases = []
+
+    for arg in argv:
+        if arg == '-n':
+            dryRun = True
+        else:
+            cases.append(arg)
+
+    if not cases:
+        sys.exit(
+            'usage: qbmmConvertQuadratureProperties [-n] <case> [<case> ...]'
+        )
+
+    converted = 0
+    left = []
+
+    for case in cases:
+        for path in quadratureFiles(case):
+            n, message = convertFile(path, dryRun)
+            converted += n
+
+            if message:
+                left.append(message)
+
+    print(str(converted) + ' quadrature(s) converted')
+
+    for message in left:
+        print('  left alone: ' + message)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

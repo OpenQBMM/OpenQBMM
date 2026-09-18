@@ -169,6 +169,15 @@ public:
 
     // Selectors
 
+        //- The number of quadrature nodes the inversion the dictionary
+        //  selects builds from nMoments moments, which is the number of
+        //  nodes a case of that many moments carries
+        static label nQuadratureNodes
+        (
+            const dictionary& dict,
+            const label nMoments
+        );
+
         static autoPtr<univariateMomentInversion> New
         (
             const dictionary& dict,
