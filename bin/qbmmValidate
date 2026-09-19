@@ -1,0 +1,437 @@
+#!/usr/bin/env python3
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     qbmmValidate
+#
+#     qbmmValidate -quick|-baselines|-complete [-list] [-dir <runDir>]
+#                  [-j <cores>] [-site <siteDir> | -output <dir> [-style <css>]]
+#                  [-noTests]
+#
+# Description
+#     Run a tier of the cases of OpenQBMM, with the unit tests, and report
+#     how they came out: whether each case ran, how far it sits from its
+#     reference data, and whether it still matches its baseline.
+#
+#     The tiers are described in validation/validationTiers: -quick runs the
+#     short cases in minutes, -baselines every case with a baseline in a few
+#     hours, -complete every case that is not run by hand, in a night.
+#     -list prints the cases of the tier and runs nothing.
+#
+#     The cases are copied into a directory of their own, <runDir>, by
+#     default qbmmValidate/<tier>-<date> under $FOAM_RUN, and run there with
+#     their Allrun, so that the sources stay clean and a run can be looked
+#     at afterwards. As many run at once as there are cores (-j), a case in
+#     parallel counting for its number of subdomains. The unit tests must be
+#     built (test/Allwmake).
+#
+#     The report is written into the validation directory of the site with
+#     -site, into <dir> with -output, and into <runDir>/report otherwise; it
+#     is the one bin/qbmmReport writes, and needs matplotlib, which is
+#     checked before anything is run. The cases draw their own figures with
+#     the same interpreter. The script exits non-zero when a case or a unit
+#     test failed.
+#
+#------------------------------------------------------------------------------
+
+import datetime
+import fnmatch
+import os
+import re
+import shutil
+import signal
+import subprocess
+import sys
+import time
+
+bin = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(bin, 'python'))
+
+from qbmm import foamDict, report                             # noqa: E402
+
+top = os.path.dirname(bin)
+
+usage = (
+    "usage: qbmmValidate -quick|-baselines|-complete [-list] [-dir <runDir>]\n"
+    "                    [-j <cores>] [-site <siteDir> | -output <dir> "
+    "[-style <css>]]\n"
+    "                    [-noTests]\n"
+)
+
+tiers = ('quick', 'baselines', 'complete')
+
+
+def say(message):
+    print("qbmmValidate: %s" % message, flush=True)
+
+
+# * * * * * * * * * * * * * * * * Selection * * * * * * * * * * * * * * * * #
+
+def readTiers():
+    entries = foamDict.read(os.path.join(top, 'validation', 'validationTiers'))
+
+    def patterns(key):
+        value = entries.get(key, [])
+        return [str(p) for p in value] if isinstance(value, list) \
+            else [str(value)]
+
+    return patterns('long'), patterns('manual')
+
+
+def matches(path, patterns):
+    return any(
+        fnmatch.fnmatch(path, p) or fnmatch.fnmatch(path, p + '/*')
+        for p in patterns
+    )
+
+
+def select(tier):
+    """The cases of a tier, by their paths from the top of the sources, the
+    ones inside another case left to the case that holds them"""
+    long, manual = readTiers()
+
+    roots = [
+        os.path.join(top, d) for d in ('validation', 'tutorials', 'test')
+    ]
+
+    cases = []
+
+    for case, caseTop in report.findCases(roots):
+        path = os.path.relpath(case, caseTop)
+
+        if matches(path, manual):
+            continue
+
+        baseline = os.path.isfile(
+            os.path.join(case, 'regression', 'baseline')
+        )
+
+        if tier == 'quick' and matches(path, long):
+            continue
+
+        if tier == 'baselines' and not baseline:
+            continue
+
+        cases.append(path)
+
+    return [
+        c for c in cases
+        if not any(c.startswith(o + '/') for o in cases if o != c)
+    ], long
+
+
+# * * * * * * * * * * * * * * * *  Running  * * * * * * * * * * * * * * * * * #
+
+def cost(case):
+    """The cores a case takes: its subdomains where its Allrun runs in
+    parallel, one otherwise"""
+    allrun = open(os.path.join(case, 'Allrun'), errors='replace').read()
+
+    if not re.search(r'\brun(Step)?Parallel\b', allrun):
+        return 1
+
+    path = os.path.join(case, 'system', 'decomposeParDict')
+
+    if os.path.isfile(path):
+        m = re.search(
+            r'^\s*numberOfSubdomains\s+(\d+)', open(path).read(), re.M
+        )
+
+        if m:
+            return int(m.group(1))
+
+    return 1
+
+
+ignored = shutil.ignore_patterns(
+    'processor*', 'postProcessing', 'log.*', 'dynamicCode', '*.eps'
+)
+
+
+def prepare(runDir, cases, tests):
+    """Copy the cases, and the unit tests, into runDir, with what their
+    Allrun scripts reach for at the top of the sources"""
+    os.makedirs(runDir)
+    shutil.copy(os.path.join(top, 'AllrunFunctions'), runDir)
+    os.symlink(bin, os.path.join(runDir, 'bin'))
+
+    if tests:
+        # The convergence studies of the advection are no part of the suite,
+        # and are most of the size of the directory
+        shutil.copytree(
+            os.path.join(top, 'test'), os.path.join(runDir, 'test'),
+            ignore=lambda d, names: (
+                ['univariateMomentAdvection']
+                if os.path.samefile(d, os.path.join(top, 'test')) else
+                ignored(d, names)
+            )
+        )
+
+    for case in cases:
+        shutil.copytree(
+            os.path.join(top, case), os.path.join(runDir, case),
+            ignore=ignored, dirs_exist_ok=True
+        )
+
+
+def run(jobs, cores):
+    """Run the jobs, each (name, directory, command, log, cores), as many at
+    once as the cores allow. Returns the exit status of each by name."""
+    pending = list(jobs)
+    running = {}
+    status = {}
+    free = cores
+
+    def stopAll(*_):
+        for proc, _, _ in running.values():
+            try:
+                os.killpg(proc.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGTERM, stopAll)
+
+    try:
+        while pending or running:
+            started = True
+
+            while pending and started:
+                started = False
+
+                for i, (name, cwd, command, log, need) in enumerate(pending):
+                    need = min(need, cores)
+
+                    if need <= free:
+                        out = open(log, 'w')
+                        proc = subprocess.Popen(
+                            command, cwd=cwd, stdout=out,
+                            stderr=subprocess.STDOUT, start_new_session=True
+                        )
+                        running[name] = (proc, need, time.time())
+                        free -= need
+                        say("started  %s" % name)
+                        del pending[i]
+                        started = True
+                        break
+
+            time.sleep(2)
+
+            for name, (proc, need, start) in list(running.items()):
+                code = proc.poll()
+
+                if code is None:
+                    continue
+
+                status[name] = code
+                free += need
+                del running[name]
+
+                say("%s %s (%s)" % (
+                    "finished" if code == 0 else "FAILED  ", name,
+                    duration(time.time() - start)
+                ))
+    except KeyboardInterrupt:
+        for proc, _, _ in running.values():
+            try:
+                os.killpg(proc.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        raise
+
+    return status
+
+
+def duration(seconds):
+    if seconds < 60:
+        return "%.0f s" % seconds
+    if seconds < 3600:
+        return "%.0f min" % (seconds/60)
+    return "%.1f h" % (seconds/3600)
+
+
+# * * * * * * * * * * * * * * * * * * Main * * * * * * * * * * * * * * * * * #
+
+def main(argv):
+    tier = None
+    runDir = None
+    cores = os.cpu_count() or 1
+    site = output = style = None
+    tests = True
+    listOnly = False
+
+    args = argv[1:]
+
+    while args:
+        arg = args.pop(0)
+
+        if arg.lstrip('-') in tiers and arg.startswith('-') and tier is None:
+            tier = arg.lstrip('-')
+        elif arg == '-list':
+            listOnly = True
+        elif arg == '-dir' and args:
+            runDir = os.path.abspath(args.pop(0))
+        elif arg == '-j' and args:
+            cores = max(1, int(args.pop(0)))
+        elif arg == '-site' and args:
+            site = args.pop(0)
+        elif arg == '-output' and args:
+            output = args.pop(0)
+        elif arg == '-style' and args:
+            style = args.pop(0)
+        elif arg == '-noTests':
+            tests = False
+        else:
+            sys.stderr.write(usage)
+            return 2
+
+    if tier is None:
+        sys.stderr.write(usage)
+        return 2
+
+    cases, long = select(tier)
+
+    if listOnly:
+        for case in cases:
+            print("%-5s %s" % ('long' if matches(case, long) else '', case))
+        say("%d cases in the %s tier" % (len(cases), tier))
+        return 0
+
+    if not os.environ.get('WM_PROJECT_DIR'):
+        sys.stderr.write("qbmmValidate: no OpenFOAM environment is sourced\n")
+        return 2
+
+    stamp = datetime.datetime.now().strftime('%Y%m%d-%H%M')
+    runDir = runDir or os.path.join(
+        os.environ.get('FOAM_RUN') or os.path.expanduser('~/run'),
+        'qbmmValidate', '%s-%s' % (tier, stamp)
+    )
+
+    if os.path.exists(runDir):
+        sys.stderr.write("qbmmValidate: %s exists already\n" % runDir)
+        return 2
+
+    try:
+        if not site and not output:
+            output = os.path.join(runDir, 'report')
+
+        output, chrome, styleHref = report.destination(site, output, style)
+    except report.ReportError as e:
+        sys.stderr.write("qbmmValidate: %s\n" % e)
+        return 2
+
+    # The report needs matplotlib, which is better known before a night of
+    # runs than after it
+    try:
+        from qbmm import plotting                             # noqa: F401
+    except ImportError as e:
+        sys.stderr.write(
+            "qbmmValidate: %s: the report needs matplotlib; run with an "
+            "interpreter that has it\n" % e
+        )
+        return 2
+
+    say("%d cases of the %s tier%s, in %s, on %d cores" % (
+        len(cases), tier, " and the unit tests" if tests else "", runDir,
+        cores
+    ))
+
+    prepare(runDir, cases, tests)
+
+    env = dict(os.environ, QBMM_PYTHON=sys.executable)
+
+    jobs = []
+
+    # The long cases first, so that the short ones fill the cores around them
+    for case in sorted(cases, key=lambda c: not matches(c, long)):
+        directory = os.path.join(runDir, case)
+        jobs.append((
+            case, directory, ['./Allrun'],
+            os.path.join(directory, 'Allrun.log'), cost(directory)
+        ))
+
+    testLog = os.path.join(runDir, 'unitTests.log')
+
+    if tests:
+        jobs.append((
+            'unit tests', os.path.join(runDir, 'test'), ['./Allrun'],
+            testLog, 1
+        ))
+
+    os.environ.update(env)
+
+    start = time.time()
+
+    try:
+        status = run(jobs, cores)
+    except KeyboardInterrupt:
+        say("stopped; the cases are left in %s" % runDir)
+        return 130
+
+    say("ran in %s" % duration(time.time() - start))
+
+    allrun = {
+        os.path.join(runDir, name): code for name, code in status.items()
+        if name != 'unit tests'
+    }
+
+    roots = [
+        os.path.join(runDir, d) for d in ('validation', 'tutorials', 'test')
+        if os.path.isdir(os.path.join(runDir, d))
+    ]
+
+    ranCases = [
+        (case, caseTop) for case, caseTop in report.findCases(roots)
+        if any(
+            os.path.relpath(case, caseTop) == c
+            or os.path.relpath(case, caseTop).startswith(c + '/')
+            for c in cases
+        )
+    ]
+
+    result = report.write(
+        ranCases, output, bin, testLog if tests else None, chrome,
+        styleHref, style, allrun, tier, log=say
+    )
+
+    s = result['summary']
+    failedTests = s['tests'] - s['testsPassed']
+
+    for record in result['cases']:
+        if record['status'] != 'passed':
+            say("%-8s %s" % (record['status'], record['path']))
+
+    if tests and status.get('unit tests', 0) != 0 and not failedTests:
+        failedTests = 1
+
+    say(
+        "%d of %d cases passed, %d failed, %d did not run; %s; report in %s"
+        % (s['passed'], s['cases'], s['failed'], s['notRun'],
+           ("%d of %d unit tests passed" % (s['testsPassed'], s['tests']))
+           if tests else "no unit tests", output)
+    )
+
+    return 1 if s['failed'] or s['notRun'] or failedTests else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
+
+#------------------------------------------------------------------------------

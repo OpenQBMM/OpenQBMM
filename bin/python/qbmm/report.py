@@ -33,8 +33,10 @@
 #------------------------------------------------------------------------------
 
 import datetime
+import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -233,6 +235,9 @@ def status(record):
     if run.get('ran') and not run.get('completed'):
         return 'failed'
 
+    if run.get('allrun', 0) != 0:
+        return 'failed'
+
     if regression in ('fail', 'error', 'notRun'):
         return 'failed'
 
@@ -242,7 +247,9 @@ def status(record):
     return 'passed'
 
 
-def collectCase(case, top, bin):
+def collectCase(case, top, bin, allrun=None):
+    """The record of a case, and its validationDict where it has one.
+    allrun is the exit status of the Allrun that ran it, where known."""
     app = application(case)
 
     record = {
@@ -253,6 +260,9 @@ def collectCase(case, top, bin):
         'regression': regression(case, bin),
         'figures': [],
     }
+
+    if allrun is not None:
+        record['run']['allrun'] = allrun
 
     if validation.exists(case):
         try:
@@ -304,7 +314,7 @@ def unitTests(log):
 
 # * * * * * * * * * * * * * * * * *  Build  * * * * * * * * * * * * * * * * * #
 
-def build(top):
+def build(top, tier=None):
     """The commit the sources are at, and whether they differ from it"""
     def git(*args):
         out = subprocess.run(
@@ -322,6 +332,7 @@ def build(top):
         'subject': git('log', '-1', '--format=%s'),
         'modified': bool(dirty),
         'openfoam': os.environ.get('WM_PROJECT_VERSION'),
+        'tier': tier,
         'date': datetime.datetime.now(datetime.timezone.utc)
                 .isoformat(timespec='seconds'),
     }
@@ -488,3 +499,118 @@ def page(template, data, chrome=None, style='industry.css'):
     return template.replace(
         '/*@DATA@*/null', data.replace('</', '<\\/')
     )
+
+
+# * * * * * * * * * * * * * * * * * Writing * * * * * * * * * * * * * * * * * #
+
+class ReportError(Exception):
+    """A report that cannot be written where it is asked for"""
+
+
+def destination(site=None, output=None, style=None):
+    """Where a report goes: its directory, the header and the footer of the
+    site where it goes into one, and the stylesheet the page links"""
+    if site:
+        if style:
+            raise ReportError('a report into a site uses its stylesheet')
+
+        chrome = siteChrome(site)
+
+        if chrome is None:
+            raise ReportError(
+                '%s has no index.html with a header linking validation/ and '
+                'a footer' % site
+            )
+
+        return output or os.path.join(site, 'validation'), chrome, \
+            '../industry.css'
+
+    if not output:
+        raise ReportError('no directory to write the report into')
+
+    return output, None, 'industry.css'
+
+
+def write(cases, output, bin, tests=None, chrome=None, styleHref=None,
+          style=None, allrun=None, tier=None, log=print):
+    """Collect the cases, given as (directory, top) pairs, and write the
+    dashboard of them into output: the page, results.json, history.json and
+    the figures. allrun maps the directory of a case to the exit status of
+    the Allrun that ran it. Returns the record written."""
+    from . import plotting
+
+    allrun = allrun or {}
+    records = []
+
+    for case, top in cases:
+        record, spec = collectCase(case, top, bin, allrun.get(case))
+
+        if spec is not None and record['status'] != 'notRun':
+            outDir = os.path.join(output, 'figures', record['path'])
+
+            for figure in spec.figures:
+                computed = {c.name for c in figure.curves if c.computed}
+
+                try:
+                    written, missing = plotting.draw(
+                        figure, spec.base, outDir, ['svg']
+                    )
+                except validation.ValidationError as e:
+                    log('%s: %s' % (record['path'], e))
+                    continue
+
+                # A figure without the curves the case computed shows
+                # nothing of the case
+                if computed & {name for name, _ in missing}:
+                    for path in written:
+                        os.remove(path)
+                    continue
+
+                record['figures'].append({
+                    'name': figure.name,
+                    'file': os.path.relpath(written[0], output),
+                })
+
+        records.append(record)
+
+    unitTestList = unitTests(tests) if tests else []
+
+    result = {
+        'build': build(os.path.dirname(bin), tier),
+        'summary': summary(records, unitTestList),
+        'cases': records,
+        'tests': unitTestList,
+    }
+
+    os.makedirs(output, exist_ok=True)
+
+    with open(os.path.join(output, 'results.json'), 'w') as f:
+        json.dump(result, f, indent=1)
+
+    historyPath = os.path.join(output, 'history.json')
+    history = []
+
+    if os.path.isfile(historyPath):
+        with open(historyPath) as f:
+            history = json.load(f)
+
+    history = mergeHistory(history, historyEntry(result))
+
+    with open(historyPath, 'w') as f:
+        json.dump(history, f, indent=1)
+
+    # The page carries its data as well, so that it opens from the disk,
+    # where a browser does not let it fetch the files next to it
+    with open(os.path.join(bin, 'python', 'qbmm', 'dashboard.html')) as f:
+        template = f.read()
+
+    with open(os.path.join(output, 'index.html'), 'w') as f:
+        f.write(page(
+            template, json.dumps({'results': result, 'history': history}),
+            chrome, styleHref or 'industry.css'
+        ))
+
+    if style:
+        shutil.copy(style, os.path.join(output, 'industry.css'))
+
+    return result

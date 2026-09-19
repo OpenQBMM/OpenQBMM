@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenQBMM - www.openqbmm.org                     |
+|  \\    /   O peration     |                                                 |
+|   \\  /    A nd           |                                                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      validationTiers;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Which cases bin/qbmmValidate runs in each of its tiers. A case is one
+// with a regression/baseline or a validation/validationDict, under
+// validation, tutorials or test, named by its path from the top of the
+// sources; a pattern may name several.
+//
+//     -quick      every case that is neither long nor manual, with the
+//                 unit tests: minutes, after any change to the sources
+//     -baselines  every case with a baseline that is not manual, with the
+//                 unit tests: hours, at the end of a step of work
+//     -complete   every case that is not manual, with the unit tests: a
+//                 night, at a milestone and before a release
+//
+// A case that is new and short joins the quick tier by itself; one that
+// takes long has to be listed here.
+
+// Cases of more than a few minutes, run by the baselines and complete tiers
+long
+(
+    // 25 min to 2.3 h each
+    "validation/vdfTransportFoam/monodisperseWallBoundedCooling_*/case*"
+
+    // 25 min to 2 h each
+    "validation/oneWayCoupledVdfTransportFoam/spray1D/*"
+
+    // A steady flow of 50 000 iterations, then the population balance on
+    // 15 processors
+    "validation/pbeTransportFoam/serraTaylorCouette/*"
+);
+
+// Cases no tier runs, which are run by hand
+manual
+(
+    // The cases are unstable and have to be restarted by hand
+    "validation/polydisperseBubbleFoam/*"
+
+    // Five million steps at 1e-3 s, and a time directory every second
+    "validation/oneWayCoupledVdfTransportFoam/SerraTaylorCouette"
+);
+
+// ************************************************************************* //

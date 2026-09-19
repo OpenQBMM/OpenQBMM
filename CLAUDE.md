@@ -78,6 +78,12 @@ dashboard page (header and footer taken from the site's `index.html`, stylesheet
 `../industry.css`), `results.json`, a per-commit `history.json` and SVG figures; it requires
 matplotlib. `-output <dir> -style <css>` writes a standalone copy instead. Figures use the
 palette of the OpenQBMM site (industry design system).
+
+`bin/qbmmValidate -quick|-baselines|-complete` runs a tier of cases (listed in
+`validation/validationTiers`: `long` cases skip the quick tier, `manual` ones are never run)
+plus the unit tests, in copies under `$FOAM_RUN/qbmmValidate/`, as many at once as there are
+cores, and writes the same report (`-site`/`-output`). Quick is ~2 min, baselines a few hours,
+complete a night. `-list` prints a tier. Run it with an interpreter that has matplotlib.
 Note that `test/Allwmake` deliberately skips `conditionalMomentInversion` (commented out, needs
 updating for the current structure).
 

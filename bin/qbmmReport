@@ -56,15 +56,13 @@
 #
 #------------------------------------------------------------------------------
 
-import json
 import os
-import shutil
 import sys
 
 bin = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(bin, 'python'))
 
-from qbmm import report, validation                           # noqa: E402
+from qbmm import report                                       # noqa: E402
 
 usage = (
     "usage: qbmmReport -site <siteDir> [-tests <log>] [<root> ...]\n"
@@ -99,26 +97,14 @@ def main(argv):
         else:
             roots.append(arg)
 
-    chrome = None
-
-    if site:
-        chrome = report.siteChrome(site)
-
-        if chrome is None:
-            sys.stderr.write(
-                "qbmmReport: %s has no index.html with a header linking "
-                "validation/ and a footer\n" % site
-            )
-            return 2
-
-        output = output or os.path.join(site, 'validation')
-
-    if not output or (site and style):
-        sys.stderr.write(usage)
+    try:
+        output, chrome, styleHref = report.destination(site, output, style)
+    except report.ReportError as e:
+        sys.stderr.write("qbmmReport: %s\n%s" % (e, usage))
         return 2
 
     try:
-        from qbmm import plotting
+        from qbmm import plotting                             # noqa: F401
     except ImportError as e:
         sys.stderr.write(
             "qbmmReport: %s: the dashboard needs matplotlib for its figures\n"
@@ -129,82 +115,13 @@ def main(argv):
     top = os.path.dirname(bin)
     roots = roots or [os.path.join(top, 'validation')]
 
-    records = []
-
-    for case, caseTop in report.findCases(roots):
-        record, spec = report.collectCase(case, caseTop, bin)
-
-        if spec is not None and record['status'] != 'notRun':
-            outDir = os.path.join(output, 'figures', record['path'])
-
-            for figure in spec.figures:
-                computed = {c.name for c in figure.curves if c.computed}
-
-                try:
-                    written, missing = plotting.draw(
-                        figure, spec.base, outDir, ['svg']
-                    )
-                except validation.ValidationError as e:
-                    sys.stderr.write("qbmmReport: %s\n" % e)
-                    continue
-
-                # A figure without the curves the case computed shows
-                # nothing of the case
-                if computed & {name for name, _ in missing}:
-                    for path in written:
-                        os.remove(path)
-                    continue
-
-                record['figures'].append({
-                    'name': figure.name,
-                    'file': os.path.relpath(written[0], output),
-                })
-
-        records.append(record)
-
-        print("qbmmReport: %-8s %s" % (record['status'], record['path']))
-
-    unitTests = report.unitTests(tests) if tests else []
-
-    result = {
-        'build': report.build(top),
-        'summary': report.summary(records, unitTests),
-        'cases': records,
-        'tests': unitTests,
-    }
-
-    os.makedirs(output, exist_ok=True)
-
-    with open(os.path.join(output, 'results.json'), 'w') as f:
-        json.dump(result, f, indent=1)
-
-    historyPath = os.path.join(output, 'history.json')
-    history = []
-
-    if os.path.isfile(historyPath):
-        with open(historyPath) as f:
-            history = json.load(f)
-
-    history = report.mergeHistory(history, report.historyEntry(result))
-
-    with open(historyPath, 'w') as f:
-        json.dump(history, f, indent=1)
-
-    # The page carries its data as well, so that it opens from the disk,
-    # where a browser does not let it fetch the files next to it
-    with open(os.path.join(bin, 'python', 'qbmm', 'dashboard.html')) as f:
-        template = f.read()
-
-    page = report.page(
-        template, json.dumps({'results': result, 'history': history}),
-        chrome, '../industry.css' if site else 'industry.css'
+    result = report.write(
+        report.findCases(roots), output, bin, tests, chrome, styleHref, style,
+        log=lambda m: sys.stderr.write("qbmmReport: %s\n" % m)
     )
 
-    with open(os.path.join(output, 'index.html'), 'w') as f:
-        f.write(page)
-
-    if style:
-        shutil.copy(style, os.path.join(output, 'industry.css'))
+    for record in result['cases']:
+        print("qbmmReport: %-8s %s" % (record['status'], record['path']))
 
     s = result['summary']
     print(
