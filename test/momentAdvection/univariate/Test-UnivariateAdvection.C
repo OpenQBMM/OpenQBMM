@@ -355,6 +355,14 @@ int main(int argc, char *argv[])
     };
 
 
+    // The time integration of the scheme: the explicit Euler step, or the
+    // second-order strong stability preserving Runge-Kutta scheme the
+    // transport model takes with timeIntegration SSPRK2, two Euler steps
+    // averaged with the start of the step
+    bool SSPRK2 =
+        testDict.lookupOrDefault<word>("timeIntegration", "Euler")
+     == "SSPRK2";
+
     // * * * * * * * * * * * * * * * A run * * * * * * * * * * * * * * * * //
 
     //- Advect the profile for a number of steps with the scheme of a
@@ -402,6 +410,20 @@ int main(int argc, char *argv[])
         {
             runTime++;
 
+            PtrList<scalarField> start(SSPRK2 ? moments.size() : 0);
+
+            if (SSPRK2)
+            {
+                forAll(moments, mi)
+                {
+                    start.set
+                    (
+                        mi,
+                        new scalarField(moments[mi].primitiveField())
+                    );
+                }
+            }
+
             advection().update();
 
             const mappedPtrList<volScalarField>& div = advection().divMoments();
@@ -412,6 +434,25 @@ int main(int argc, char *argv[])
                     deltaT*div[mi].primitiveField();
 
                 moments[mi].correctBoundaryConditions();
+            }
+
+            if (SSPRK2)
+            {
+                advection().update();
+
+                forAll(moments, mi)
+                {
+                    const scalarField secondStage
+                    (
+                        moments[mi].primitiveField()
+                      - deltaT*div[mi].primitiveField()
+                    );
+
+                    moments[mi].primitiveFieldRef() =
+                        0.5*(start[mi] + secondStage);
+
+                    moments[mi].correctBoundaryConditions();
+                }
             }
 
             if (!checkAsItGoes)
@@ -680,6 +721,11 @@ int main(int argc, char *argv[])
 
         setProfile(profile, false, mesh, mesh1D, moments);
 
+        // The reference is the first-order scheme as it runs without the
+        // switch, with the Euler step
+        const bool schemeSSPRK2 = SSPRK2;
+        SSPRK2 = false;
+
         run
         (
             quadrature.subDict("momentAdvectionFirstOrder"),
@@ -688,6 +734,8 @@ int main(int argc, char *argv[])
             false,
             "first order"
         );
+
+        SSPRK2 = schemeSSPRK2;
 
         forAll(moments, mi)
         {

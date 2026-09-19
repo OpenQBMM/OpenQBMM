@@ -70,6 +70,62 @@ protected:
         const fvMesh& mesh_;
 
 
+    // Protected Member Functions
+
+        //- Stop if the case discretises the transport of a moment in a way
+        //  that does not keep the moments realizable.
+        //
+        //  The advection schemes return a divergence whose explicit Euler
+        //  step keeps every cell realizable under their Courant limit, and
+        //  whose other steps do not: another time scheme mixes old moments
+        //  into the update, and under-relaxing the equation leaves the new
+        //  moments a blend of two sets that each were realizable but whose
+        //  combination need not be, cell by cell with different factors.
+        template<class MomentFieldSet>
+        void checkRealizableTransport(const MomentFieldSet& moments) const
+        {
+            forAll(moments, mi)
+            {
+                const word& name = moments[mi].name();
+
+                const word ddtName("ddt(" + name + ")");
+                const word scheme
+                (
+                    mesh_.ddtScheme(ddtName).peek().wordToken()
+                );
+
+                if (scheme != "Euler")
+                {
+                    FatalErrorInFunction
+                        << "The moments are transported realizably with the "
+                        << "Euler time scheme only, and " << ddtName
+                        << " is discretised with " << scheme << "." << nl
+                        << "    Set the ddtScheme of the moments to Euler; "
+                        << "the order in time of the transport is chosen "
+                        << "with timeIntegration in momentAdvection." << nl
+                        << exit(FatalError);
+                }
+
+                if
+                (
+                    mesh_.relaxEquation(name)
+                 && mesh_.equationRelaxationFactor(name) != 1
+                )
+                {
+                    FatalErrorInFunction
+                        << "The equation of " << name << " is under-relaxed "
+                        << "with a factor of "
+                        << mesh_.equationRelaxationFactor(name)
+                        << ", which does not keep the moments realizable."
+                        << nl
+                        << "    Remove its relaxation factor, or set it to 1."
+                        << nl
+                        << exit(FatalError);
+                }
+            }
+        }
+
+
 public:
 
     // Constructors

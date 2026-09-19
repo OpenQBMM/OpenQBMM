@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      advectionTestDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The zeta scheme over R+ on the bimodal profile, integrated in time with
+// the second-order strong stability preserving Runge-Kutta scheme, at the
+// Courant limit the scheme reports in one dimension
+profile         bimodal;
+
+support         RPlus;
+
+Co              0.5;
+
+timeIntegration SSPRK2;
+
+// The limiter decides on a realizability test of m*, which the mirrored
+// runs can settle differently where m* is on the boundary of the moment
+// space within round-off
+mirrorTolerance 1e-2;
+
+checks          (conservation realizability mirror accuracy);
+
+// At its own Courant limit, where with the Euler step the scheme is less
+// accurate than the first-order one on every moment above m0, it has to
+// beat it by half
+accuracyCo      0.5;
+
+accuracyRatio   0.5;
+
+
+// ************************************************************************* //

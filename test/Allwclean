@@ -46,6 +46,7 @@ cleanTestCase populationBalanceModel/testCase
 cleanTestCase momentAdvection/univariate/cases/firstOrderKinetic
 cleanTestCase momentAdvection/univariate/cases/zeta
 cleanTestCase momentAdvection/univariate/cases/zetaZeroOne
+cleanTestCase momentAdvection/univariate/cases/zetaSSPRK2
 cleanTestCase momentAdvection/velocity/cases/crossing
 cleanTestCase momentAdvection/velocity/cases/crossingVikas
 cleanTestCase momentAdvection/velocity/cases/thermalVikas

@@ -53,8 +53,39 @@ Foam::PDFTransportModels::univariatePDFTransportModel
             phi,
             support
         )
-    )
-{}
+    ),
+    SSPRK2_(false)
+{
+    checkRealizableTransport(quadrature_.moments());
+
+    // The explicit Euler step keeps the moments realizable under the Courant
+    // limit of the advection scheme but is of first order in time, which
+    // takes the accuracy of a second-order scheme such as zeta away at the
+    // Courant numbers it allows. The second-order strong stability
+    // preserving Runge-Kutta scheme is two such steps and their average
+    // with the moments of the start of the step: a convex combination of
+    // realizable moment sets, so it is realizable under the same limit.
+    const word timeIntegration
+    (
+        quadrature_.subDict("momentAdvection").lookupOrDefault<word>
+        (
+            "timeIntegration",
+            "Euler"
+        )
+    );
+
+    if (timeIntegration == "SSPRK2")
+    {
+        SSPRK2_ = true;
+    }
+    else if (timeIntegration != "Euler")
+    {
+        FatalIOErrorInFunction(quadrature_.subDict("momentAdvection"))
+            << "Unknown timeIntegration " << timeIntegration << nl
+            << "    Valid ones are Euler and SSPRK2." << nl
+            << exit(FatalIOError);
+    }
+}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
@@ -64,8 +95,115 @@ Foam::PDFTransportModels::univariatePDFTransportModel
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+void Foam::PDFTransportModels::univariatePDFTransportModel::solveSSPRK2()
+{
+    volScalarMomentFieldSet& moments = quadrature_.moments();
+    const scalar deltaT = mesh_.time().deltaTValue();
+
+    // The moments at the start of the step, which every stage, and every
+    // outer iteration of a step, starts from
+    PtrList<scalarField> startMoments(moments.size());
+
+    forAll(moments, mi)
+    {
+        startMoments.set
+        (
+            mi,
+            new scalarField(moments[mi].oldTime().primitiveField())
+        );
+    }
+
+    // First stage: an Euler step from the start of the step
+    momentAdvection_().update();
+
+    forAll(moments, mi)
+    {
+        volScalarMoment& m = moments[mi];
+
+        m.primitiveFieldRef() =
+            startMoments[mi]
+          - deltaT*momentAdvection_().divMoments()[mi].primitiveField();
+
+        m.correctBoundaryConditions();
+    }
+
+    // The advection schemes build the moments of the faces from the moments
+    // of the cells, so the quadrature is not inverted between the stages
+
+    // Second stage: an Euler step from the first, averaged with the start
+    momentAdvection_().update();
+
+    forAll(moments, mi)
+    {
+        volScalarMoment& m = moments[mi];
+
+        const scalarField secondStage
+        (
+            m.primitiveField()
+          - deltaT*momentAdvection_().divMoments()[mi].primitiveField()
+        );
+
+        m.primitiveFieldRef() = 0.5*(startMoments[mi] + secondStage);
+
+        m.correctBoundaryConditions();
+    }
+
+    // The implicit source, the diffusion of the moments, from the advected
+    // moments: the time derivative the matrix carries is taken from the
+    // start of the step, so the advection over the step is added to it as a
+    // source, and the equation says (m - m_advected)/deltaT = source(m)
+    forAll(moments, mi)
+    {
+        volScalarMoment& m = moments[mi];
+
+        volScalarField advection
+        (
+            IOobject
+            (
+                "advection",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh_,
+            dimensionedScalar(m.dimensions()/dimTime, Zero)
+        );
+
+        advection.primitiveFieldRef() =
+            (m.primitiveField() - startMoments[mi])/deltaT;
+
+        fvScalarMatrix momentEqn
+        (
+            fvm::ddt(m)
+          - advection
+         ==
+            implicitMomentSource(m)
+        );
+
+        momentEqn.relax();
+        momentEqn.solve();
+    }
+}
+
+
 void Foam::PDFTransportModels::univariatePDFTransportModel::solve()
 {
+    if (SSPRK2_)
+    {
+        solveSSPRK2();
+
+        quadrature_.updateQuadrature();
+
+        if (solveMomentSources())
+        {
+            this->explicitMomentSource();
+        }
+
+        return;
+    }
+
     momentAdvection_().update();
 
     // List of moment transport equations

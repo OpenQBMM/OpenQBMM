@@ -114,6 +114,12 @@ runTest ./momentAdvection/univariate/cases/zeta \
 runTest ./momentAdvection/univariate/cases/zetaZeroOne \
     Test-UnivariateAdvection
 
+# The same scheme integrated in time with the second-order strong stability
+# preserving Runge-Kutta scheme, at its Courant limit, where the Euler step
+# makes it less accurate than the first-order scheme
+runTest ./momentAdvection/univariate/cases/zetaSSPRK2 \
+    Test-UnivariateAdvection
+
 # The kinetic velocity schemes and every boundary condition of theirs, on
 # beams whose transport is known exactly: crossing beams shift by a cell
 # per step, walls conserve what they should, and the outflow empties

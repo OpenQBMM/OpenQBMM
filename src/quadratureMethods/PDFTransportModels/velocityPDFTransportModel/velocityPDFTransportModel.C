@@ -51,7 +51,9 @@ Foam::PDFTransportModels::velocityPDFTransportModel::velocityPDFTransportModel
             quadrature_.moments().supports()
         )
     )
-{}
+{
+    checkRealizableTransport(quadrature_.moments());
+}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 

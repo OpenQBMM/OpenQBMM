@@ -71,6 +71,11 @@ protected:
         //- Moment advection
         autoPtr<univariateMomentAdvection> momentAdvection_;
 
+        //- Whether the advection is integrated in time with the strong
+        //  stability preserving Runge-Kutta scheme of second order, rather
+        //  than with the explicit Euler step
+        bool SSPRK2_;
+
     // Protected member functions
 
 
@@ -88,6 +93,11 @@ protected:
 
         //- Is the realizable ode solver used to solve sources
         virtual bool solveMomentOde() const = 0;
+
+        //- Advance the moments by the advection over the step with the
+        //  second-order strong stability preserving Runge-Kutta scheme,
+        //  then by the implicit source from the advected moments
+        void solveSSPRK2();
 
 
 public:
