@@ -37,10 +37,6 @@ long
 
     // 25 min to 2 h each
     "validation/oneWayCoupledVdfTransportFoam/spray1D/*"
-
-    // A steady flow of 50 000 iterations, then the population balance on
-    // 15 processors
-    "validation/pbeTransportFoam/serraTaylorCouette/*"
 );
 
 // Cases no tier runs, which are run by hand
@@ -51,6 +47,10 @@ manual
 
     // Five million steps at 1e-3 s, and a time directory every second
     "validation/oneWayCoupledVdfTransportFoam/SerraTaylorCouette"
+
+    // The Courant number holds the population balance to steps of about
+    // 1.4e-3 s: 3.6 million steps to 5000 s, some 30 h on 15 processors
+    "validation/pbeTransportFoam/serraTaylorCouette/*"
 );
 
 // ************************************************************************* //
