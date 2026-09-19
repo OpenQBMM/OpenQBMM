@@ -32,6 +32,7 @@ License
 #include "univariateMomentInversion.H"
 #include "CHyQMOMMomentInversion.H"
 #include "CHyQMOMPlusMomentInversion.H"
+#include "conditionalMeansMomentInversion.H"
 
 // * * * * * * * * * * * * * * * Static Functions  * * * * * * * * * * * * * //
 
@@ -158,6 +159,31 @@ bool Foam::fieldMomentInversion::buildMomentSet
     if (nVelocityDimensions < 0)
     {
         return false;
+    }
+
+    // A monokinetic closure carries the moments of the size alone, and the
+    // first-order velocity moments times the powers of the size below the
+    // number of its nodes: one velocity at every size node
+    if (type == "monoKinetic")
+    {
+        const label nSizeMoments =
+            inversionDict.lookupOrDefault<label>("nSizeMoments", -1);
+
+        if (nSizeMoments < 0)
+        {
+            return false;
+        }
+
+        multivariateMomentInversions::conditionalMeans::momentOrdersAndNodes
+        (
+            nSizeMoments,
+            0,
+            nVelocityDimensions,
+            momentOrders,
+            nodeIndexes
+        );
+
+        return true;
     }
 
     // The closure whose moments the case carries. It is the one that

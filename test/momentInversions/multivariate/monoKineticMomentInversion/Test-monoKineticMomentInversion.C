@@ -37,7 +37,7 @@ Description
 #include "OFstream.H"
 #include "mappedLists.H"
 #include "supportType.H"
-#include "monoKineticMomentInversion.H"
+#include "conditionalMeansMomentInversion.H"
 #include "Random.H"
 #include "multivariateMomentTest.H"
 
@@ -85,11 +85,14 @@ void testPermutedDimensions(const dictionary& dict)
     const labelListList nodeIndexes({{0}, {1}, {2}});
     const labelList velocityIndexes({0, 1});
 
+    // The supports are the model's: velocities on the reals, a size on
+    // the positive reals, which is what the size moments are inverted on
     multivariateMomentSet moments
     (
         momentOrders.size(),
         momentOrders,
-        List<supportType>(3, supportType::R),
+        List<supportType>
+        ({supportType::R, supportType::R, supportType::RPlus}),
         SMALL,
         SMALL
     );
@@ -111,7 +114,7 @@ void testPermutedDimensions(const dictionary& dict)
         moments(momentOrder) = m;
     }
 
-    multivariateMomentInversions::monoKinetic inverter
+    multivariateMomentInversions::conditionalMeans inverter
     (
         dict, momentOrders, nodeIndexes, velocityIndexes
     );
@@ -198,11 +201,14 @@ int main(int argc, char *argv[])
 
     Info<< "\nOriginal moments:" << endl;
 
+    List<supportType> supports(momentOrders[0].size(), supportType::R);
+    supports[0] = supportType::RPlus;
+
     multivariateMomentSet moments
     (
         nMoments,
         momentOrders,
-        List<supportType>(momentOrders[0].size(), supportType::R),
+        supports,
         SMALL,
         SMALL
     );
@@ -243,7 +249,7 @@ int main(int argc, char *argv[])
         Info<< ": " << moments(momentOrder) << endl;
     }
 
-    multivariateMomentInversions::monoKinetic momentInverter
+    multivariateMomentInversions::conditionalMeans momentInverter
     (
         quadratureProperties, momentOrders, nodeIndexes, velocityIndexes
     );

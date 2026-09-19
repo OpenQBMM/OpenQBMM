@@ -86,6 +86,10 @@ runTest ./momentInversions/multivariate/CHyQMOMMomentInversion \
 runTest ./momentInversions/multivariate/monoKineticMomentInversion \
     Test-monoKineticMomentInversion
 
+# The same inversion conditioning scalars on a primary coordinate: a mixture
+# fraction and its compositions, recovered exactly, clipped to their support
+runTest . Test-ConditionalMeansMomentInversion
+
 runTest ./momentInversions/multivariate/sizeCHyQMOMMomentInversion \
     Test-sizeCHyQMOMMomentInversion
 

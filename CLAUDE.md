@@ -115,7 +115,10 @@ The core abstraction chain, roughly bottom-up:
 - **`momentInversion`** — the algorithms that turn moments into quadrature weights/abscissae.
   - `univariate/basic`: Gauss, Gauss-Radau, Gauss-Lobatto, generalized (GQMOM), hyperbolic (HyQMOM).
   - `univariate/extended`: EQMOM kernels — beta, gamma, lognormal.
-  - `multivariate`: CHyQMOM, CHyQMOM+, sizeCHyQMOM, TensorProduct, monoKinetic, conditional.
+  - `multivariate`: CHyQMOM, CHyQMOM+, sizeCHyQMOM, TensorProduct, conditionalMeans (also
+    selected as `monoKinetic`: a primary coordinate with the means of velocities or scalars
+    conditioned on it, supports taken from the moment set, scalars clipped to theirs),
+    conditional.
   These operate on plain `momentSet`s — no mesh, no fields. This is what the unit tests exercise.
 - **`fieldMomentInversion`** — applies a `momentInversion` cell-by-cell over an `fvMesh`
   (`basicFieldMomentInversion`, `basicVelocityFieldMomentInversion`). This is the bridge from
@@ -151,7 +154,7 @@ on the number of dimensions. `mappedListKey::ordersToWord` gives the word used i
 The moment set of a quadrature is built by its inversion, not listed in the case:
 `fieldMomentInversion::momentSet` (and `momentSupports`) give the orders, node indexes and
 supports from the few counts the inversion dictionary carries. Conditioned inversions
-(sizeCHyQMOM, monoKinetic, conditional) share `Vandermonde::conditionalInverse`.
+(sizeCHyQMOM, conditionalMeans, conditional) share `Vandermonde::conditionalInverse`.
 
 Nearly every model layer uses OpenFOAM's `declareRunTimeSelectionTable`/`addToRunTimeSelectionTable`
 pattern. Adding a model means: new class in the right sub-directory, `addToRunTimeSelectionTable`,

@@ -14,7 +14,7 @@ univariate/extended/beta/betaEQMOM.C
 
 multivariate/multivariateMomentInversion/multivariateMomentInversion.C
 multivariate/multivariateMomentInversion/newMultivariateMomentInversion.C
-multivariate/monoKinetic/monoKineticMomentInversion.C
+multivariate/conditionalMeans/conditionalMeansMomentInversion.C
 multivariate/conditional/conditionalMomentInversion.C
 multivariate/CHyQMOM/CHyQMOMMomentInversion.C
 multivariate/CHyQMOMPlus/CHyQMOMPlusMomentInversion.C
