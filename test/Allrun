@@ -14,7 +14,7 @@ runTest()
     _dir="$1"
     _test="$2"
 
-    echo "Running $_test"
+    echo "Running $_test in $_dir"
 
     if ( cd "$_dir" && "$_test" )
     then
@@ -38,7 +38,7 @@ runFailingTest()
     _message="$3"
     _seconds="$4"
 
-    echo "Running $_test, which has to stop with: $_message"
+    echo "Running $_test in $_dir, which has to stop with: $_message"
 
     _log=$(cd "$_dir" && timeout "$_seconds" "$_test" 2>&1)
     _status=$?

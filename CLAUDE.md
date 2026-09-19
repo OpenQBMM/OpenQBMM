@@ -72,7 +72,12 @@ in one OpenFOAM-style dictionary, `validation/validationDict` (format in
 `validation/figures/` (SVG + PDF), and is skipped with a message where matplotlib is missing
 (`QBMM_PYTHON` names another interpreter). Allrun calls `plotCase` from `AllrunFunctions`;
 anything computed from logs or probes before plotting is done in the Allrun or a case script,
-not in the dictionary.
+not in the dictionary. `bin/qbmmReport -site <GH Pages export> [-tests <test/Allrun log>]`
+collects the state the cases were left in (nothing is run) into `<site>/validation/`: the
+dashboard page (header and footer taken from the site's `index.html`, stylesheet
+`../industry.css`), `results.json`, a per-commit `history.json` and SVG figures; it requires
+matplotlib. `-output <dir> -style <css>` writes a standalone copy instead. Figures use the
+palette of the OpenQBMM site (industry design system).
 Note that `test/Allwmake` deliberately skips `conditionalMomentInversion` (commented out, needs
 updating for the current structure).
 

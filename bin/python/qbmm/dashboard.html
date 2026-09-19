@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<!--
+    OpenQBMM validation dashboard
+
+    Copyright (C) 2026 Alberto Passalacqua. Part of OpenQBMM, distributed
+    under the GNU General Public License, version 3 or later.
+
+    Written by bin/qbmmReport, which puts the results of the validation
+    cases into DATA below and next to the page as results.json and
+    history.json. The page is drawn in the tokens of the stylesheet of the
+    OpenQBMM site, industry.css. With qbmmReport -site the page is written
+    into the validation directory of the site, takes the header and the
+    footer of the home page of the site between the markers below, and
+    links the stylesheet of the site; otherwise -style copies a stylesheet
+    next to it.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation · OpenQBMM</title>
+<link rel="stylesheet" href="@STYLE@">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root { --mono: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  body { margin: 0; background: var(--color-bg, #f2f2f3); color: var(--color-text, #1d1f20); font-family: var(--font-body, sans-serif); }
+  a { color: var(--color-accent-700); text-decoration: none; }
+  a:hover { color: var(--color-accent-900); }
+  .page { max-width: 1180px; margin: 0 auto; padding: 0 24px 80px; }
+  .mono { font-family: var(--mono); }
+  .kicker { margin: 0 0 18px; font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--color-accent-700); }
+  .label { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--color-neutral-700); }
+  h1 { margin: 0; font-family: var(--font-heading); font-weight: 700; font-size: clamp(40px, 5.5vw, 72px); line-height: .94; letter-spacing: -.01em; }
+  h2 { margin: 0 0 6px; font-family: var(--font-heading); font-size: 32px; }
+  .lead { margin: 22px 0 0; max-width: 62ch; font-size: 17px; line-height: 1.5; color: var(--color-neutral-800); }
+
+  /* The spec-sheet plate of the totals */
+  .plate { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border: 1px solid var(--color-divider); margin-top: 40px; }
+  .plate > div { padding: 20px 22px; }
+  .plate > div + div { border-left: 1px solid var(--color-divider); }
+  .plate .value { font-family: var(--font-heading); font-weight: 700; font-size: 44px; line-height: 1; margin-top: 10px; }
+  .plate .value small { font-size: 22px; color: var(--color-neutral-600); font-weight: 600; }
+  .plate .note { margin-top: 8px; font-size: 13px; color: var(--color-neutral-700); }
+  .plate .note.bad { color: var(--color-accent-900); font-weight: 600; }
+
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 56px 0 8px; }
+  .controls .input { flex: 0 1 320px; min-width: 200px; width: auto; }
+
+  /* The cases, a table per solver */
+  .group { padding-top: 40px; }
+  .group h2 { font-size: 26px; }
+  .cases { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+  .cases col.status { width: 110px; } .cases col.cmp { width: 170px; } .cases col.base { width: 100px; } .cases col.time { width: 90px; } .cases col.date { width: 110px; }
+  .cases th { text-align: left; padding: 10px 12px 10px 0; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--color-neutral-700); border-bottom: 1px solid var(--color-divider); }
+  .cases td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--color-divider); vertical-align: middle; }
+  .cases tr.row { cursor: pointer; }
+  .cases tr.row:hover td { background: color-mix(in srgb, var(--color-accent) 7%, transparent); }
+  .cases tr.row:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+  .cases td.name { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+  .scroll { overflow-x: auto; }
+  .cases td.num { font-family: var(--mono); font-size: 12px; color: var(--color-neutral-800); white-space: nowrap; }
+  .chevron { display: inline-block; width: 12px; margin-right: 6px; text-align: center; color: var(--color-accent); transition: transform .15s; }
+  tr.open .chevron { transform: rotate(90deg); }
+
+  .tag-fail { background: var(--color-accent-900); color: var(--color-bg); font-weight: 600; }
+  .tag { font-family: var(--mono); letter-spacing: .06em; text-transform: uppercase; font-size: 10px; }
+
+  /* A comparison drawn against its tolerance: the bar is the rms, the tick
+     the tolerance, at a quarter of the width */
+  .meter { position: relative; display: inline-block; width: 120px; height: 8px; background: var(--color-neutral-200); vertical-align: middle; }
+  .meter i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--color-accent); }
+  .meter i.over { background: var(--color-accent-900); }
+  .meter b { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--color-text); left: 25%; }
+  .dots { display: inline-flex; gap: 3px; vertical-align: middle; }
+  .dots span { width: 9px; height: 9px; border: 1px solid var(--color-accent); }
+  .dots span.pass { background: var(--color-accent); }
+  .dots span.fail { background: var(--color-accent-900); border-color: var(--color-accent-900); }
+  .dots span.report { border-style: dashed; border-color: var(--color-neutral-600); }
+
+  .detail td { padding: 8px 0 36px; background: none !important; }
+  .figures { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 24px; margin: 8px 0 24px; }
+  .figure { position: relative; border: 1px solid var(--color-divider); padding: 14px; margin: 0; }
+  .figure img { display: block; width: 100%; height: auto; }
+  .figure figcaption { margin-top: 8px; }
+  .corner { position: absolute; width: 9px; height: 9px; }
+  .corner::before, .corner::after { content: ""; position: absolute; background: var(--color-accent); }
+  .corner::before { left: 4px; top: 0; width: 1px; height: 9px; }
+  .corner::after { top: 4px; left: 0; height: 1px; width: 9px; }
+  .corner.tl { left: -5px; top: -5px; } .corner.tr { right: -5px; top: -5px; }
+  .corner.bl { left: -5px; bottom: -5px; } .corner.br { right: -5px; bottom: -5px; }
+
+  .sub { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .sub th { text-align: left; padding: 6px 12px 6px 0; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--color-neutral-700); border-bottom: 1px solid var(--color-divider); }
+  .sub td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--color-divider); }
+  .sub td.num { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+  .facts { display: flex; gap: 28px; flex-wrap: wrap; margin: 6px 0 18px; font-size: 13px; color: var(--color-neutral-800); }
+  .facts span { min-width: 0; overflow-wrap: anywhere; }
+  .facts span b { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--color-text); }
+  .problems { font-family: var(--mono); font-size: 12px; color: var(--color-neutral-800); margin: 8px 0 0; padding-left: 18px; }
+
+  .tests { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); column-gap: 28px; border-top: 1px solid var(--color-divider); margin-top: 20px; }
+  .tests > div { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--color-divider); font-family: var(--mono); font-size: 12px; }
+  .tests .test { min-width: 0; overflow-wrap: anywhere; }
+  .tests small { display: block; margin-top: 3px; font-size: 11px; color: var(--color-neutral-700); }
+  .tag { white-space: nowrap; flex: none; }
+  .empty { color: var(--color-neutral-700); font-size: 14px; margin-top: 16px; }
+
+  body > .page > footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--color-divider); display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; font-size: 13px; color: var(--color-neutral-700); }
+  @media (max-width: 720px) {
+    .cases th.wide, .cases td.wide { display: none; }
+    .cases td, .cases th { padding-right: 8px; }
+    .cases th { letter-spacing: .04em; }
+    .dots { display: none; }
+    .cases col.cmp { width: 64px; } .cases col.status { width: 84px; }
+    .cases col.base, .cases col.time, .cases col.date { width: 0; }
+    .plate > div + div { border-left: 0; border-top: 1px solid var(--color-divider); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!--@HEADER@-->
+  <header style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 0;border-bottom:1px solid var(--color-divider);flex-wrap:wrap">
+    <a href="../index.html" style="display:flex;align-items:baseline;gap:8px;color:var(--color-text)">
+      <span style="font-family:var(--font-heading);font-weight:700;font-size:24px;letter-spacing:.02em">OpenQBMM</span>
+    </a>
+    <nav style="display:flex;gap:22px;align-items:center;font-size:14px;flex-wrap:wrap">
+      <a href="../installation.html">Installation</a>
+      <a href="./" style="color:var(--color-accent-900);border-bottom:2px solid var(--color-accent);padding-bottom:2px">Validation</a>
+      <a href="../funding.html">Funding</a>
+      <a href="../contributors.html">Contributors</a>
+      <a href="../references.html">References</a>
+      <a class="btn btn-primary" href="https://github.com/OpenQBMM/OpenQBMM" style="font-size:13px;padding:7px 14px">GitHub</a>
+    </nav>
+  </header>
+  <!--@/HEADER@-->
+
+  <section style="padding:64px 0 0">
+    <p class="kicker" id="kicker">Validation</p>
+    <h1>Validation and tests</h1>
+    <p class="lead">Every validation case is compared with the experiments, analytical
+    solutions or published results it reproduces, each within a tolerance set for that
+    comparison, and checked against the baseline of its own last accepted run. The unit
+    tests exercise the algorithms without a mesh.</p>
+    <div class="plate" id="plate">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    </div>
+  </section>
+
+  <div class="controls">
+    <div class="seg" role="radiogroup" aria-label="Show">
+      <label class="seg-opt"><input type="radio" name="show" value="all" checked> All</label>
+      <label class="seg-opt"><input type="radio" name="show" value="failed"> Failed</label>
+      <label class="seg-opt"><input type="radio" name="show" value="passed"> Passed</label>
+      <label class="seg-opt"><input type="radio" name="show" value="notRun"> Not run</label>
+    </div>
+    <input class="input" id="search" type="search" placeholder="Filter cases" aria-label="Filter cases">
+  </div>
+
+  <div id="groups"></div>
+
+  <section class="group" id="testsSection">
+    <h2>Unit tests</h2>
+    <p class="label" id="testsNote"></p>
+    <div class="tests" id="tests"></div>
+  </section>
+
+  <!--@FOOTER@-->
+  <footer>
+    <p style="margin:0;max-width:62ch">OPENFOAM® is a registered trademark of OpenCFD Limited. OpenQBMM is not approved or endorsed by OpenCFD Limited.</p>
+    <p style="margin:0">Copyright © 2014–2026 OpenQBMM developers</p>
+  </footer>
+  <!--@/FOOTER@-->
+</div>
+
+<script>
+"use strict";
+
+// Filled in by qbmmReport; when the page is served without it, it is read
+// from results.json and history.json next to the page
+const DATA = /*@DATA@*/null;
+
+const statusText = { passed: "Passed", failed: "Failed", notRun: "Not run" };
+const statusTag = { passed: "tag tag-accent", failed: "tag tag-fail", notRun: "tag tag-outline" };
+
+function el(tag, attrs, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === null || v === undefined) continue;
+    if (k === "class") node.className = v;
+    else if (k === "text") node.textContent = v;
+    else node.setAttribute(k, v);
+  }
+  for (const c of children) {
+    if (c === null || c === undefined) continue;
+    node.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return node;
+}
+
+function corners(node) {
+  for (const c of ["tl", "tr", "bl", "br"]) node.append(el("i", { class: "corner " + c }));
+  return node;
+}
+
+function fmt(x, digits = 3) {
+  if (x === null || x === undefined) return "–";
+  if (x === 0) return "0";
+  const a = Math.abs(x);
+  return a >= 1e-3 && a < 1e4 ? String(Number(x.toPrecision(digits))) : x.toExponential(digits - 1);
+}
+
+function duration(s) {
+  if (s === null || s === undefined) return "–";
+  if (s < 1) return "< 1 s";
+  if (s < 60) return Math.round(s) + " s";
+  if (s < 3600) return Math.round(s / 60) + " min";
+  return (s / 3600).toFixed(1) + " h";
+}
+
+// A label written in the mathematics of matplotlib, as plain text
+function plain(label) {
+  const symbols = { mu: "μ", Theta: "Θ", theta: "θ", alpha: "α", times: "×",
+                    langle: "⟨", rangle: "⟩", nu: "ν", sigma: "σ", rho: "ρ" };
+  return String(label).replace(/\$/g, "")
+    .replace(/\\([A-Za-z]+)/g, (m, w) => symbols[w] !== undefined ? symbols[w] : w)
+    .replace(/[{}]/g, "");
+}
+
+function day(iso) {
+  return iso ? iso.slice(0, 10) : "–";
+}
+
+// The solver or family a case belongs to: the directory under validation
+function groupOf(c) {
+  const parts = c.path.split("/");
+  return parts.length > 2 ? parts[1] : parts[0];
+}
+
+function caseName(c) {
+  const parts = c.path.split("/");
+  return parts.slice(parts.length > 2 ? 2 : 1).join("/");
+}
+
+// The rms of a comparison at the commit before the one shown
+function previousRms(history, c, x) {
+  if (history.length < 2) return undefined;
+  const prev = history[history.length - 2].cases[c.path];
+  return prev && prev.rms ? prev.rms[x.name] : undefined;
+}
+
+function plate(results) {
+  const s = results.summary;
+  const node = document.getElementById("plate");
+  const cell = (label, value, total, note, bad) => el("div", null,
+    el("div", { class: "label", text: label }),
+    el("div", { class: "value" }, value, el("small", { text: " / " + total })),
+    el("div", { class: bad ? "note bad" : "note", text: note }));
+
+  node.append(
+    cell("Cases passed", s.passed, s.cases,
+      s.failed ? s.failed + " failed" + (s.notRun ? ", " + s.notRun + " not run" : "")
+               : (s.notRun ? s.notRun + " not run" : "all ran and passed"), s.failed > 0),
+    cell("Comparisons within tolerance", s.comparisonsPassed, s.comparisonsJudged,
+      [s.comparisonsFailed ? s.comparisonsFailed + " outside" : null,
+       s.comparisonsNotRun ? s.comparisonsNotRun + " not run" : null,
+       s.comparisonsReported + " reported only"].filter(Boolean).join(" · "),
+      s.comparisonsFailed > 0),
+    cell("Baselines matched", s.baselinesPassed, s.baselines,
+      s.baselines - s.baselinesPassed - s.baselinesNotRun > 0
+        ? (s.baselines - s.baselinesPassed - s.baselinesNotRun) + " moved" + (s.baselinesNotRun ? " · " + s.baselinesNotRun + " not run" : "")
+        : (s.baselinesNotRun ? s.baselinesNotRun + " not run" : "all within their tolerance"),
+      s.baselines - s.baselinesPassed - s.baselinesNotRun > 0),
+    cell("Unit tests passed", s.testsPassed, s.tests,
+      s.tests ? (s.tests - s.testsPassed ? (s.tests - s.testsPassed) + " failed" : "all passed") : "not reported",
+      s.testsPassed < s.tests));
+}
+
+function kicker(results) {
+  const b = results.build;
+  const parts = ["Validation"];
+  if (b.shortCommit) parts.push("commit " + b.shortCommit + (b.modified ? " (modified)" : ""));
+  if (b.branch) parts.push(b.branch);
+  if (b.openfoam) parts.push("OpenFOAM " + b.openfoam);
+  parts.push(day(b.date));
+  document.getElementById("kicker").textContent = parts.join(" · ");
+}
+
+function comparisonCell(c) {
+  if (!c.comparisons.length) return el("span", { class: "label", text: "none" });
+  const dots = el("span", { class: "dots" });
+  if (c.status === "notRun") {
+    for (const x of c.comparisons) dots.append(el("span", { class: x.tolerance === null ? "report" : null, title: x.name + ": not run" }));
+    return el("span", null, dots, el("span", { class: "label", style: "margin-left:8px", text: "not run" }));
+  }
+  for (const x of c.comparisons) {
+    const cls = x.verdict === "pass" ? "pass" : x.verdict === "report" ? "report" : "fail";
+    dots.append(el("span", { class: cls, title: x.name + ": " + x.verdict }));
+  }
+  const judged = c.comparisons.filter(x => x.tolerance !== null);
+  const passed = judged.filter(x => x.verdict === "pass").length;
+  return el("span", null, dots, el("span", { class: "mono", style: "font-size:12px;margin-left:8px", text: passed + "/" + judged.length }));
+}
+
+function baselineCell(c) {
+  const r = c.regression;
+  if (r.status === "none") return el("span", { class: "label", text: "none" });
+  if (r.status === "pass") return el("span", { class: "mono", style: "font-size:12px", text: "matches" });
+  if (r.status === "notRun") return el("span", { class: "label", text: "not run" });
+  return el("span", { class: "tag tag-fail", text: r.status === "fail" ? "moved" : "error" });
+}
+
+function meter(x) {
+  const m = el("span", { class: "meter", title: "rms " + fmt(x.rms) + (x.tolerance !== null ? ", tolerance " + fmt(x.tolerance) : "") });
+  if (x.rms === undefined) return m;
+  // The tolerance sits at a quarter of the bar, which shows up to four times it
+  const scale = x.tolerance !== null ? x.tolerance * 4 : Math.max(x.rms * 1.25, 1e-300);
+  m.append(el("i", { class: x.verdict === "fail" ? "over" : null, style: "width:" + Math.min(100, 100 * x.rms / scale) + "%" }));
+  if (x.tolerance !== null) m.append(el("b"));
+  return m;
+}
+
+function detail(c, history) {
+  const box = el("div");
+
+  const facts = el("div", { class: "facts" });
+  const fact = (k, v) => facts.append(el("span", null, k + " ", el("b", { text: v })));
+  fact("Path", c.path);
+  if (c.application) fact("Solver", c.application);
+  if (c.run.ran) {
+    fact("Run time", duration(c.run.seconds));
+    fact("Last run", day(c.run.date));
+    if (!c.run.completed) fact("Run", "did not reach its end");
+  }
+  box.append(facts);
+
+  if (c.error) box.append(el("p", { class: "note bad", text: c.error }));
+
+  if (c.figures.length) {
+    const figs = el("div", { class: "figures" });
+    for (const f of c.figures) {
+      figs.append(corners(el("figure", { class: "figure" },
+        el("img", { src: f.file, alt: f.name + " of " + c.path, loading: "lazy" }),
+        el("figcaption", { class: "label", text: f.name }))));
+    }
+    box.append(figs);
+  }
+
+  if (c.comparisons.length) {
+    const table = el("table", { class: "sub" });
+    table.append(el("thead", null, el("tr", null,
+      ...["Comparison", "Reference", "Tolerance", "rms", "", "Largest", "Change", "Verdict"].map(h => el("th", { text: h })))));
+    const body = el("tbody");
+    for (const x of c.comparisons) {
+      const prev = previousRms(history, c, x);
+      const change = prev !== undefined && x.rms !== undefined ? (x.rms - prev) : undefined;
+      body.append(el("tr", null,
+        el("td", { class: "num", text: x.name }),
+        el("td", { text: plain(x.reference) }),
+        el("td", { class: "num", text: x.tolerance === null ? "report" : fmt(x.tolerance) }),
+        el("td", { class: "num", text: fmt(x.rms) }),
+        el("td", null, meter(x)),
+        el("td", { class: "num", text: fmt(x.largest) }),
+        el("td", { class: "num", text: change === undefined ? "–" : change === 0 ? "none" : (change > 0 ? "+" : "") + fmt(change, 2) }),
+        el("td", null, x.verdict === "missing"
+          ? el("span", { class: "tag tag-fail", title: x.reason || "", text: "missing" })
+          : el("span", { class: x.verdict === "fail" ? "tag tag-fail" : x.verdict === "pass" ? "tag tag-accent" : "tag tag-neutral",
+                         text: x.verdict === "report" ? "reported" : x.verdict }))));
+    }
+    table.append(body);
+    box.append(el("div", { class: "scroll" }, table));
+  }
+
+  if (c.regression.problems) {
+    box.append(el("p", { class: "label", style: "margin-top:18px", text: "Moved from its baseline (" + c.regression.nProblems + ")" }));
+    const list = el("ul", { class: "problems" });
+    for (const p of c.regression.problems) list.append(el("li", { text: p }));
+    box.append(list);
+  }
+
+  return box;
+}
+
+function render(results, history) {
+  const groupsNode = document.getElementById("groups");
+  const show = document.querySelector("input[name=show]:checked").value;
+  const query = document.getElementById("search").value.trim().toLowerCase();
+
+  groupsNode.replaceChildren();
+
+  const groups = new Map();
+  for (const c of results.cases) {
+    if (show !== "all" && c.status !== show) continue;
+    if (query && !(c.path.toLowerCase().includes(query) || (c.application || "").toLowerCase().includes(query))) continue;
+    const g = groupOf(c);
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(c);
+  }
+
+  if (!groups.size) {
+    groupsNode.append(el("p", { class: "empty", text: "No case to show." }));
+    return;
+  }
+
+  for (const [g, cases] of groups) {
+    const section = el("section", { class: "group" });
+    const failed = cases.filter(c => c.status === "failed").length;
+    section.append(el("h2", { text: g }),
+      el("p", { class: "label", text: cases.length + (cases.length === 1 ? " case" : " cases") + (failed ? " · " + failed + " failed" : "") }));
+
+    const table = el("table", { class: "cases" });
+    table.append(el("colgroup", null, el("col"), el("col", { class: "status" }), el("col", { class: "cmp" }),
+      el("col", { class: "base wide" }), el("col", { class: "time wide" }), el("col", { class: "date wide" })));
+    table.append(el("thead", null, el("tr", null,
+      el("th", { text: "Case" }), el("th", { text: "Status" }), el("th", { text: "Comparisons" }),
+      el("th", { class: "wide", text: "Baseline" }), el("th", { class: "wide", text: "Run time" }), el("th", { class: "wide", text: "Last run" }))));
+    const body = el("tbody");
+
+    for (const c of cases) {
+      const row = el("tr", { class: "row", tabindex: "0", "aria-expanded": "false" },
+        el("td", { class: "name" }, el("span", { class: "chevron", text: "›" }), caseName(c)),
+        el("td", null, el("span", { class: statusTag[c.status], text: statusText[c.status] })),
+        el("td", null, comparisonCell(c)),
+        el("td", { class: "wide" }, baselineCell(c)),
+        el("td", { class: "num wide", text: c.run.ran ? duration(c.run.seconds) : "–" }),
+        el("td", { class: "num wide", text: c.run.ran ? day(c.run.date) : "–" }));
+      const more = el("tr", { class: "detail", hidden: "" }, el("td", { colspan: "6" }));
+      let built = false;
+      const toggle = () => {
+        if (!built) { more.firstChild.append(detail(c, history)); built = true; }
+        const open = more.hidden;
+        more.hidden = !open;
+        row.classList.toggle("open", open);
+        row.setAttribute("aria-expanded", String(open));
+      };
+      row.addEventListener("click", toggle);
+      row.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+      body.append(row, more);
+    }
+
+    table.append(body);
+    section.append(table);
+    groupsNode.append(section);
+  }
+}
+
+function tests(results) {
+  const node = document.getElementById("tests");
+  const t = results.tests;
+  if (!t.length) {
+    document.getElementById("testsNote").textContent = "Not reported with these results";
+    return;
+  }
+  const failed = t.filter(x => !x.passed).length;
+  document.getElementById("testsNote").textContent =
+    t.length + " tests · " + (failed ? failed + " failed" : "all passed");
+  for (const x of t) {
+    node.append(el("div", { title: x.note || "" },
+      el("span", { class: "test" }, x.name, x.directory ? el("small", { text: x.directory.replace(/^\.\//, "") }) : null),
+      el("span", { class: x.passed ? "tag tag-accent" : "tag tag-fail", text: x.passed ? "passed" : "failed" })));
+  }
+}
+
+function start(results, history) {
+  kicker(results);
+  plate(results);
+  tests(results);
+  render(results, history);
+  for (const r of document.querySelectorAll("input[name=show]")) r.addEventListener("change", () => render(results, history));
+  document.getElementById("search").addEventListener("input", () => render(results, history));
+}
+
+if (DATA) {
+  start(DATA.results, DATA.history || []);
+} else {
+  Promise.all([
+    fetch("results.json").then(r => r.json()),
+    fetch("history.json").then(r => r.ok ? r.json() : []).catch(() => [])
+  ]).then(([results, history]) => start(results, history))
+    .catch(() => {
+      document.getElementById("groups").append(
+        el("p", { class: "empty", text: "The results could not be read." }));
+    });
+}
+</script>
+</body>
+</html>
