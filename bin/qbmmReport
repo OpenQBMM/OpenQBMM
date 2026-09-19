@@ -23,6 +23,7 @@
 #
 #     qbmmReport -site <siteDir> [-tests <log>] [<root> ...]
 #     qbmmReport -output <dir> [-tests <log>] [-style <css>] [<root> ...]
+#     qbmmReport -refresh -site <siteDir> | -output <dir>
 #
 # Description
 #     Write the validation dashboard of the cases under the roots (the
@@ -50,6 +51,11 @@
 #     industry.css, so that it follows the theme. Without a site, -style
 #     copies a stylesheet next to the page.
 #
+#     -refresh writes the page of a report again from the results it holds,
+#     after a change of the page or of the header of the site, without
+#     collecting the cases again: the results stay those of the run they
+#     came from.
+#
 #     The figures need matplotlib, and the dashboard is not written without
 #     it. Nothing is published: the directory is written, and putting it on
 #     the site is a separate step.
@@ -68,6 +74,7 @@ usage = (
     "usage: qbmmReport -site <siteDir> [-tests <log>] [<root> ...]\n"
     "       qbmmReport -output <dir> [-tests <log>] [-style <css>] "
     "[<root> ...]\n"
+    "       qbmmReport -refresh -site <siteDir> | -output <dir>\n"
 )
 
 
@@ -76,6 +83,7 @@ def main(argv):
     tests = None
     style = None
     site = None
+    refresh = False
     roots = []
 
     args = argv[1:]
@@ -91,6 +99,8 @@ def main(argv):
             style = args.pop(0)
         elif arg == '-site' and args:
             site = args.pop(0)
+        elif arg == '-refresh':
+            refresh = True
         elif arg.startswith('-'):
             sys.stderr.write(usage)
             return 2
@@ -102,6 +112,15 @@ def main(argv):
     except report.ReportError as e:
         sys.stderr.write("qbmmReport: %s\n%s" % (e, usage))
         return 2
+
+    if refresh:
+        if not os.path.isfile(os.path.join(output, 'results.json')):
+            sys.stderr.write("qbmmReport: %s holds no report\n" % output)
+            return 2
+
+        report.refresh(output, bin, chrome, styleHref)
+        print("qbmmReport: the page of %s is written again" % output)
+        return 0
 
     try:
         from qbmm import plotting                             # noqa: F401

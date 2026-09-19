@@ -614,3 +614,28 @@ def write(cases, output, bin, tests=None, chrome=None, styleHref=None,
         shutil.copy(style, os.path.join(output, 'industry.css'))
 
     return result
+
+
+def refresh(output, bin, chrome=None, styleHref=None):
+    """Write the page of a report again from the results.json and
+    history.json it holds, for a page whose template changed, without
+    collecting the cases again"""
+    with open(os.path.join(output, 'results.json')) as f:
+        result = json.load(f)
+
+    history = []
+
+    if os.path.isfile(os.path.join(output, 'history.json')):
+        with open(os.path.join(output, 'history.json')) as f:
+            history = json.load(f)
+
+    with open(os.path.join(bin, 'python', 'qbmm', 'dashboard.html')) as f:
+        template = f.read()
+
+    with open(os.path.join(output, 'index.html'), 'w') as f:
+        f.write(page(
+            template, json.dumps({'results': result, 'history': history}),
+            chrome, styleHref or 'industry.css'
+        ))
+
+    return result

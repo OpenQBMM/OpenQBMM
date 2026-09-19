@@ -18,7 +18,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Validation · OpenQBMM</title>
+<title>Verification and validation · OpenQBMM</title>
 <link rel="stylesheet" href="@STYLE@">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -140,11 +140,12 @@
 
   <section style="padding:64px 0 0">
     <p class="kicker" id="kicker">Validation</p>
-    <h1>Validation and tests</h1>
-    <p class="lead">Every validation case is compared with the experiments, analytical
-    solutions or published results it reproduces, each within a tolerance set for that
-    comparison, and checked against the baseline of its own last accepted run. The unit
-    tests exercise the algorithms without a mesh.</p>
+    <h1>Verification and validation</h1>
+    <p class="lead">Verification checks that OpenQBMM solves its equations correctly: the
+    unit tests of its algorithms, the comparisons with analytical and reference numerical
+    solutions, and the baseline each case recorded from its last accepted run. Validation
+    checks that the equations describe the physics, by comparison with experiments and
+    molecular dynamics. Each comparison is held to a tolerance set for it.</p>
     <div class="plate" id="plate">
       <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
     </div>
