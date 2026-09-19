@@ -95,6 +95,70 @@ static void velocityMomentSet
 
 
 
+// * * * * * * * * * * * * * * * * * Names * * * * * * * * * * * * * * * * * //
+
+Foam::word Foam::fieldMomentInversion::fieldInversionType
+(
+    const dictionary& dict
+)
+{
+    const word type(dict.lookup("fieldMomentInversion"));
+
+    if (type == "basicVelocityFieldMomentInversion")
+    {
+        static bool warned = false;
+
+        if (!warned)
+        {
+            WarningInFunction
+                << "basicVelocityFieldMomentInversion is now named "
+                << "basicMultivariateFieldMomentInversion, and its "
+                << "dictionary basicMultivariateMomentInversion." << nl
+                << "    Rename them in quadratureProperties, or run "
+                << "bin/qbmmConvertQuadratureProperties on the case." << nl
+                << endl;
+
+            warned = true;
+        }
+
+        return "basicMultivariateFieldMomentInversion";
+    }
+
+    return type;
+}
+
+
+const Foam::dictionary& Foam::fieldMomentInversion::multivariateInversionDict
+(
+    const dictionary& dict
+)
+{
+    if (!dict.found("basicMultivariateMomentInversion"))
+    {
+        if (dict.found("basicVelocityMomentInversion"))
+        {
+            static bool warned = false;
+
+            if (!warned)
+            {
+                WarningInFunction
+                    << "The dictionary basicVelocityMomentInversion is now "
+                    << "named basicMultivariateMomentInversion." << nl
+                    << "    Rename it in quadratureProperties, or run "
+                    << "bin/qbmmConvertQuadratureProperties on the case."
+                    << nl << endl;
+
+                warned = true;
+            }
+
+            return dict.subDict("basicVelocityMomentInversion");
+        }
+    }
+
+    return dict.subDict("basicMultivariateMomentInversion");
+}
+
+
 // * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
 
 bool Foam::fieldMomentInversion::buildMomentSet
@@ -143,13 +207,12 @@ bool Foam::fieldMomentInversion::buildMomentSet
         return true;
     }
 
-    if (fieldInversion != "basicVelocityFieldMomentInversion")
+    if (fieldInversion != "basicMultivariateFieldMomentInversion")
     {
         return false;
     }
 
-    const dictionary& inversionDict =
-        dict.subDict("basicVelocityMomentInversion");
+    const dictionary& inversionDict = multivariateInversionDict(dict);
 
     const word type(inversionDict.lookup("type"));
 
@@ -297,9 +360,9 @@ Foam::List<Foam::supportType> Foam::fieldMomentInversion::momentSupports
     const List<supportType>& modelSupports
 )
 {
-    const word fieldInversion(dict.lookup("fieldMomentInversion"));
+    const word fieldInversion(fieldInversionType(dict));
 
-    if (fieldInversion != "basicVelocityFieldMomentInversion")
+    if (fieldInversion != "basicMultivariateFieldMomentInversion")
     {
         return modelSupports;
     }
@@ -309,10 +372,14 @@ Foam::List<Foam::supportType> Foam::fieldMomentInversion::momentSupports
     // of them is a size
     List<supportType> supports(nDimensions, supportType::R);
 
-    const word type
-    (
-        dict.subDict("basicVelocityMomentInversion").lookup("type")
-    );
+    const word type(multivariateInversionDict(dict).lookup("type"));
+
+    // Conditional means are taken on the supports of the model, which is
+    // what the closure of a mixture fraction and its compositions needs
+    if (type == "conditionalMeans")
+    {
+        return modelSupports;
+    }
 
     if (type == "sizeCHyQMOM" || type == "monoKinetic")
     {
@@ -330,7 +397,7 @@ void Foam::fieldMomentInversion::momentSet
     labelListList& nodeIndexes
 )
 {
-    const word fieldInversion(dict.lookup("fieldMomentInversion"));
+    const word fieldInversion(fieldInversionType(dict));
 
     // A case written before the inversions owned their moment sets lists
     // them itself. It is taken as it is, so that nothing it carries is
@@ -393,10 +460,7 @@ Foam::autoPtr<Foam::fieldMomentInversion> Foam::fieldMomentInversion::New
     const labelList& velocityIndexes
 )
 {
-    word fieldMomentInversionType
-    (
-        dict.lookup("fieldMomentInversion")
-    );
+    const word fieldMomentInversionType(fieldInversionType(dict));
 
     Info<< "Selecting fieldMomentInversion: "
         << fieldMomentInversionType << endl;

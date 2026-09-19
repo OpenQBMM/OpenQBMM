@@ -15,10 +15,10 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-fieldMomentInversion basicVelocityFieldMomentInversion;
+fieldMomentInversion basicMultivariateFieldMomentInversion;
 
 
-basicVelocityMomentInversion
+basicMultivariateMomentInversion
 {
     type CHyQMOM;
     nVelocityDimensions         2;

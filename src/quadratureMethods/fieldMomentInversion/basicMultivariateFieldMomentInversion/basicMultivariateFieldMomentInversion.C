@@ -28,7 +28,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "basicVelocityFieldMomentInversion.H"
+#include "basicMultivariateFieldMomentInversion.H"
 
 #include "addToRunTimeSelectionTable.H"
 
@@ -36,19 +36,20 @@ License
 
 namespace Foam
 {
-    defineTypeNameAndDebug(basicVelocityFieldMomentInversion, 0);
+    defineTypeNameAndDebug(basicMultivariateFieldMomentInversion, 0);
 
     addToRunTimeSelectionTable
     (
         fieldMomentInversion,
-        basicVelocityFieldMomentInversion,
+        basicMultivariateFieldMomentInversion,
         dictionary
     );
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::basicVelocityFieldMomentInversion::basicVelocityFieldMomentInversion
+Foam::basicMultivariateFieldMomentInversion::
+basicMultivariateFieldMomentInversion
 (
     const dictionary& dict,
     const fvMesh& mesh,
@@ -70,7 +71,7 @@ Foam::basicVelocityFieldMomentInversion::basicVelocityFieldMomentInversion
     (
         multivariateMomentInversion::New
         (
-            dict.subDict("basicVelocityMomentInversion"),
+            multivariateInversionDict(dict),
             momentOrders,
             nodeIndexes,
             velocityIndexes
@@ -81,14 +82,15 @@ Foam::basicVelocityFieldMomentInversion::basicVelocityFieldMomentInversion
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::basicVelocityFieldMomentInversion::~basicVelocityFieldMomentInversion()
+Foam::basicMultivariateFieldMomentInversion::
+~basicMultivariateFieldMomentInversion()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 Foam::multivariateMomentSet&
-Foam::basicVelocityFieldMomentInversion::localMomentSet
+Foam::basicMultivariateFieldMomentInversion::localMomentSet
 (
     const volVelocityMomentFieldSet& moments
 )
@@ -121,7 +123,7 @@ Foam::basicVelocityFieldMomentInversion::localMomentSet
 }
 
 
-void Foam::basicVelocityFieldMomentInversion::invert
+void Foam::basicMultivariateFieldMomentInversion::invert
 (
     const volScalarMomentFieldSet& moments,
     mappedPtrList<volScalarNode>& nodes
@@ -130,7 +132,7 @@ void Foam::basicVelocityFieldMomentInversion::invert
     NotImplemented;
 }
 
-void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
+void Foam::basicMultivariateFieldMomentInversion::invertBoundaryMoments
 (
     const volScalarMomentFieldSet& moments,
     mappedPtrList<volScalarNode>& nodes
@@ -139,7 +141,7 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
     NotImplemented;
 }
 
-bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
+bool Foam::basicMultivariateFieldMomentInversion::invertLocalMoments
 (
     const volScalarMomentFieldSet& moments,
     mappedPtrList<volScalarNode>& nodes,
@@ -152,7 +154,7 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
     return true;
 }
 
-void Foam::basicVelocityFieldMomentInversion::invert
+void Foam::basicMultivariateFieldMomentInversion::invert
 (
     const volVelocityMomentFieldSet& moments,
     mappedPtrList<volVelocityNode>& nodes
@@ -164,6 +166,7 @@ void Foam::basicVelocityFieldMomentInversion::invert
 
     label nFailedCells = 0;
     label firstFailedCell = -1;
+    label nClippedCells = 0;
 
     forAll(m0, celli)
     {
@@ -176,6 +179,19 @@ void Foam::basicVelocityFieldMomentInversion::invert
 
             nFailedCells++;
         }
+        else if (momentInverter_().nClipped() > 0)
+        {
+            nClippedCells++;
+        }
+    }
+
+    if (nClippedCells > 0)
+    {
+        WarningInFunction
+            << "In " << nClippedCells << " of the " << m0.size() << " cells "
+            << "of the mesh a conditioned value fell outside its support "
+            << "and was clipped to it." << nl
+            << endl;
     }
 
     if (nFailedCells > 0)
@@ -192,7 +208,7 @@ void Foam::basicVelocityFieldMomentInversion::invert
     invertBoundaryMoments(moments, nodes);
 }
 
-void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
+void Foam::basicMultivariateFieldMomentInversion::invertBoundaryMoments
 (
     const volVelocityMomentFieldSet& moments,
     mappedPtrList<volVelocityNode>& nodes
@@ -291,7 +307,7 @@ void Foam::basicVelocityFieldMomentInversion::invertBoundaryMoments
     }
 }
 
-bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
+bool Foam::basicMultivariateFieldMomentInversion::invertLocalMoments
 (
     const volVelocityMomentFieldSet& moments,
     mappedPtrList<volVelocityNode>& nodes,
@@ -367,12 +383,12 @@ bool Foam::basicVelocityFieldMomentInversion::invertLocalMoments
     return true;
 }
 
-Foam::scalar Foam::basicVelocityFieldMomentInversion::smallM0() const
+Foam::scalar Foam::basicMultivariateFieldMomentInversion::smallM0() const
 {
     return momentInverter_().smallM0();
 }
 
-Foam::scalar Foam::basicVelocityFieldMomentInversion::smallZeta() const
+Foam::scalar Foam::basicMultivariateFieldMomentInversion::smallZeta() const
 {
     return momentInverter_().smallZeta();
 }

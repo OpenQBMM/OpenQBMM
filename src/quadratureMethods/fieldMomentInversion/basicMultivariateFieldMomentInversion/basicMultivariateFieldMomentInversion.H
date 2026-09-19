@@ -27,19 +27,31 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::basicVelocityFieldMomentInversion
+    Foam::basicMultivariateFieldMomentInversion
 
 Description
-    Invert volVectorMomentFieldSet using basic hyperbolic conditional
-    moment inversion.
+    Invert the moments of a distribution of several dimensions cell by cell
+    with a multivariate moment inversion, selected and set up by the
+    basicMultivariateMomentInversion dictionary of the quadrature: the
+    closures of velocities (CHyQMOM, CHyQMOMPlus), of a size and velocities
+    (sizeCHyQMOM) and of conditional means (conditionalMeans, monoKinetic).
+    The dimensions need not be velocities.
+
+    Selected as basicMultivariateFieldMomentInversion. The names it had,
+    basicVelocityFieldMomentInversion and basicVelocityMomentInversion for
+    its dictionary, are still read, with a warning.
+
+    The cells that could not be inverted, and those where a conditioned
+    value was clipped to its support, are counted and reported at each
+    inversion of the mesh.
 
 SourceFiles
-    basicVelocityFieldMomentInversion.C
+    basicMultivariateFieldMomentInversion.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef basicVelocityFieldMomentInversion_H
-#define basicVelocityFieldMomentInversion_H
+#ifndef basicMultivariateFieldMomentInversion_H
+#define basicMultivariateFieldMomentInversion_H
 
 #include "fieldMomentInversion.H"
 #include "multivariateMomentSet.H"
@@ -51,10 +63,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                Class basicVelocityFieldMomentInversion Declaration
+                Class basicMultivariateFieldMomentInversion Declaration
 \*---------------------------------------------------------------------------*/
 
-class basicVelocityFieldMomentInversion
+class basicMultivariateFieldMomentInversion
 :
     public fieldMomentInversion
 {
@@ -83,13 +95,13 @@ class basicVelocityFieldMomentInversion
 public:
 
     //- Runtime type information
-    TypeName("basicVelocityFieldMomentInversion");
+    TypeName("basicMultivariateFieldMomentInversion");
 
 
     // Constructors
 
         //- Construct from dictionary
-        basicVelocityFieldMomentInversion
+        basicMultivariateFieldMomentInversion
         (
             const dictionary& dict,
             const fvMesh& mesh,
@@ -100,14 +112,14 @@ public:
 
 
         //- Disallow default bitwise copy construct
-        basicVelocityFieldMomentInversion
+        basicMultivariateFieldMomentInversion
         (
-            const basicVelocityFieldMomentInversion&
+            const basicMultivariateFieldMomentInversion&
         ) = delete;
 
 
     //- Destructor
-        ~basicVelocityFieldMomentInversion();
+        ~basicMultivariateFieldMomentInversion();
 
 
     // Public member Functions
@@ -172,7 +184,7 @@ public:
     // Member Operators
 
         //- Disallow default bitwise assignment
-        void operator=(const basicVelocityFieldMomentInversion&) = delete;
+        void operator=(const basicMultivariateFieldMomentInversion&) = delete;
 };
 
 

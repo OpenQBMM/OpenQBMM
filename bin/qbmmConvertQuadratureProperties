@@ -22,7 +22,8 @@
 #     qbmmConvertQuadratureProperties
 #
 # Description
-#     Convert a case to a quadrature that builds its own moment set.
+#     Convert a case to a quadrature that builds its own moment set, and to
+#     the names the inversion of several dimensions has.
 #
 #         qbmmConvertQuadratureProperties [-n] <case> [<case> ...]
 #
@@ -39,7 +40,7 @@
 #             nAdditionalQuadraturePoints 1;   // GQMOM only
 #         }
 #
-#         basicVelocityMomentInversion
+#         basicMultivariateMomentInversion
 #         {
 #             type                sizeCHyQMOM;
 #             nVelocityDimensions 2;
@@ -53,8 +54,15 @@
 #     and removes the lists. A case whose lists are not the ones its inversion
 #     builds is left alone and reported, so that it can be looked at.
 #
-#     The solvers still read a case that lists its moments, with a warning,
-#     for one release. The script is temporary.
+#     The inversion of several dimensions was named after velocities, which
+#     its dimensions no longer need to be: basicVelocityFieldMomentInversion
+#     is now basicMultivariateFieldMomentInversion, and its dictionary
+#     basicVelocityMomentInversion is basicMultivariateMomentInversion. Every
+#     quadratureProperties of the case is renamed, whether it lists its
+#     moments or not.
+#
+#     The solvers still read a case that lists its moments, or uses the old
+#     names, with a warning, for one release. The script is temporary.
 #
 #------------------------------------------------------------------------------
 
@@ -190,6 +198,32 @@ def quadratureFiles(case):
     ]
 
 
+oldNames = (
+    ('basicVelocityFieldMomentInversion',
+     'basicMultivariateFieldMomentInversion'),
+    ('basicVelocityMomentInversion', 'basicMultivariateMomentInversion'),
+)
+
+
+def renameFile(path, dryRun):
+    """Rename the inversion of several dimensions and its dictionary"""
+    raw = open(path, errors='surrogateescape').read()
+    text = raw
+
+    for old, new in oldNames:
+        text = re.sub(r'(?<![\w.])' + old + r'(?![\w])', new, text)
+
+    if text == raw:
+        return 0
+
+    print('  ' + path + ': renamed the inversion of several dimensions')
+
+    if not dryRun:
+        open(path, 'w', errors='surrogateescape').write(text)
+
+    return 1
+
+
 def convertFile(path, dryRun):
     raw = open(path, errors='surrogateescape').read()
     text = stripComments(raw)
@@ -244,8 +278,15 @@ def convertFile(path, dryRun):
         if typ == 'GQMOM':
             entries.append(('nAdditionalQuadraturePoints', extra))
 
-    elif fieldInversion == 'basicVelocityFieldMomentInversion':
-        key = 'basicVelocityMomentInversion'
+    elif fieldInversion in (
+        'basicVelocityFieldMomentInversion',
+        'basicMultivariateFieldMomentInversion'
+    ):
+        key = (
+            'basicMultivariateMomentInversion'
+            if blockSpan(top, 'basicMultivariateMomentInversion')
+            else 'basicVelocityMomentInversion'
+        )
         span = blockSpan(top, key)
 
         if not span:
@@ -408,6 +449,7 @@ def main(argv):
         )
 
     converted = 0
+    renamed = 0
     left = []
 
     for case in cases:
@@ -418,7 +460,10 @@ def main(argv):
             if message:
                 left.append(message)
 
-    print(str(converted) + ' quadrature(s) converted')
+            renamed += renameFile(path, dryRun)
+
+    print(str(converted) + ' quadrature(s) converted, '
+          + str(renamed) + ' renamed')
 
     for message in left:
         print('  left alone: ' + message)

@@ -180,7 +180,7 @@ public:
 
         //- Number of conditioned values clipped to their support in the
         //  last inversion
-        label nClipped() const
+        virtual label nClipped() const
         {
             return nClipped_;
         }

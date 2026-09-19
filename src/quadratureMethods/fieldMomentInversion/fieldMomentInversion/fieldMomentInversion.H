@@ -134,6 +134,21 @@ public:
 
     // Selectors
 
+        //- The type of field inversion a quadrature dictionary selects. The
+        //  one of several dimensions was named
+        //  basicVelocityFieldMomentInversion when its dimensions could only
+        //  be a size and velocities; the old name is read as the new one,
+        //  with a warning.
+        static word fieldInversionType(const dictionary& dict);
+
+        //- The dictionary of the inversion of a quadrature of several
+        //  dimensions, basicMultivariateMomentInversion, found under the
+        //  name it had, basicVelocityMomentInversion, with a warning
+        static const dictionary& multivariateInversionDict
+        (
+            const dictionary& dict
+        );
+
         //- The orders of the moments a case carries and the indexes of
         //  its nodes, from the quadrature dictionary: the inversion it
         //  selects owns them, and the case gives the counts its closure

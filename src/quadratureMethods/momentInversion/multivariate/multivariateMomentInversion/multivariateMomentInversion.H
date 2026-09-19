@@ -170,6 +170,13 @@ public:
         //- Return mapped quadrature velocity abscissae for each dimension
         inline const mappedVectorList& velocityAbscissae() const;
 
+        //- Number of values clipped to their support in the last
+        //  inversion. Only an inversion that clips counts any.
+        virtual label nClipped() const
+        {
+            return 0;
+        }
+
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const = 0;
 

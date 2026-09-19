@@ -121,7 +121,8 @@ The core abstraction chain, roughly bottom-up:
     conditional.
   These operate on plain `momentSet`s — no mesh, no fields. This is what the unit tests exercise.
 - **`fieldMomentInversion`** — applies a `momentInversion` cell-by-cell over an `fvMesh`
-  (`basicFieldMomentInversion`, `basicVelocityFieldMomentInversion`). This is the bridge from
+  (`basicFieldMomentInversion`, `basicMultivariateFieldMomentInversion`, formerly
+  `basicVelocityFieldMomentInversion`, still read with a warning). This is the bridge from
   pointwise algorithm to CFD field.
 - **`quadratureNode`** / **`moments`** — the field-level containers: a node holds weight + abscissae
   (+ sigma for EQMOM) as `volScalarField`s / `surfaceScalarField`s; `momentFieldSet` holds the moment
@@ -167,11 +168,15 @@ dictionary.
   selects `fieldMomentInversion` and its inversion sub-dictionary, which carries the counts the
   moment set is built from: `basicMomentInversion { univariateMomentInversion ...; nMoments N; }`
   (plus `nAdditionalQuadraturePoints` for GQMOM; Radau and Lobatto add one and two nodes), or
-  `basicVelocityMomentInversion { type CHyQMOM|CHyQMOMPlus|sizeCHyQMOM; nVelocityDimensions D; }`
-  (plus `nSizeMoments` for sizeCHyQMOM, and `transportedMoments` when the case transports another
-  closure's moments). A `momentAdvection` sub-dictionary carries its *own* inversion used for face
-  reconstruction, and `timeIntegration Euler|SSPRK2` (default Euler; SSPRK2 needs `ddtSchemes
-  Euler` and no under-relaxation of the moment equations, which the transport models check).
+  `basicMultivariateMomentInversion { type CHyQMOM|CHyQMOMPlus|sizeCHyQMOM|monoKinetic;
+  nVelocityDimensions D; }` (plus `nSizeMoments` for sizeCHyQMOM and monoKinetic, and
+  `transportedMoments` when the case transports another closure's moments). The old names
+  `basicVelocityFieldMomentInversion` / `basicVelocityMomentInversion` are read with a warning;
+  `bin/qbmmConvertQuadratureProperties` renames them. The supports of a `conditionalMeans`
+  quadrature are the model's, not the dictionary's. A `momentAdvection` sub-dictionary carries
+  its *own* inversion used for face reconstruction, and `timeIntegration Euler|SSPRK2` (default
+  Euler; SSPRK2 needs `ddtSchemes Euler` and no under-relaxation of the moment equations, which
+  the transport models check).
   Cases that still list `moments (...)` / `nodes (...)` are read with a warning;
   `bin/qbmmConvertQuadratureProperties <case>` converts them.
 - `constant/populationBalanceProperties` selects `populationBalanceModel` plus its `<model>Coeffs`
