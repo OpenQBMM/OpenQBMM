@@ -67,20 +67,12 @@ functions
         const volScalarField& m4 =
             mesh().lookupObject<volScalarField>("moment.4.populationBalance");
 
-        volScalarField d43(m4/m3);
+        const scalarField d43(m4.primitiveField()/m3.primitiveField());
 
-        scalar volAverage = 0;
-        scalar totalVolume = 0;
-
-        forAll (d43, cellI)
-        {
-            totalVolume += mesh().V()[cellI];
-        }
-
-        forAll (d43, cellI)
-        {
-            volAverage += d43[cellI]*mesh().V()[cellI]/totalVolume;
-        }
+        // Summed over every processor, so that a parallel run averages over
+        // the whole domain rather than over the subdomain of the master
+        const scalar totalVolume = gSum(mesh().V());
+        const scalar volAverage = gSum(d43*mesh().V())/totalVolume;
 
         Info<<"Volume averaged normalized d43: " << volAverage/(2.0e-6) << endl;
 
