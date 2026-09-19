@@ -1,0 +1,93 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenQBMM - www.openqbmm.org                     |
+|  \\    /   O peration     |                                                 |
+|   \\  /    A nd           |                                                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The figures the case draws and the comparisons it makes, read by
+// qbmmPlot and qbmmCompareReference.
+//
+// A tolerance applies to the root mean square difference, as a fraction of
+// the scale of the reference, and was set from the agreement the case was
+// seen to have, with room for a change of the discretisation to move it. A
+// tolerance of report is a disagreement known and still to be understood.
+
+// The volume averages the case writes at every step into
+// postProcessing/averageD10Theta: time, d10 divided by the initial diameter
+// of 2 um, and the granular temperature. The case is not compared with the
+// data: no tolerance has been set for it.
+
+figures
+{
+    d10
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "$\langle d_{10} \rangle / d_0$";
+        legend      "lower right";
+
+        curves
+        {
+            Serra1997
+            {
+                file        "validationData/SerraEtAl1997_d43_165rpm.dat";
+                label       "Experiments (Serra et al., 1997)";
+                style       points;
+            }
+
+            Marchisio2003
+            {
+                file        "validationData/Marchisio_165_6.dat";
+                label       "Marchisio et al. (2003), $C_{Br} = 0.6 \times 10^{-3}$";
+                style       points;
+                marker      s;
+            }
+
+            univariate
+            {
+                file        "validationData/volumeAveragedD43_nonInertial.dat";
+                label       "Univariate, $C_{Br} = 0.6 \times 10^{-3}$";
+                style       dashed;
+                every       100;
+            }
+
+            OpenQBMM
+            {
+                computed    yes;
+                file        "../postProcessing/averageD10Theta";
+                label       "GPBE, $C_{Br} = 2.0 \times 10^{-3}$";
+                every       250;
+            }
+        }
+    }
+
+    Theta
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "$\langle \Theta \rangle^{1/2}$ [m/s]";
+        legend      none;
+
+        curves
+        {
+            OpenQBMM
+            {
+                computed    yes;
+                file        "../postProcessing/averageD10Theta";
+                y           "sqrt(c3)";
+                label       "GPBE, $C_{Br} = 2.0 \times 10^{-3}$";
+                every       250;
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

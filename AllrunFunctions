@@ -187,14 +187,14 @@ checkRegression()
 }
 
 #- Compare a case with the data it is validated against, when it declares
-#  the comparisons to make
+#  the comparisons to make, in validation/validationDict
 #
 #  A case that declares none is not a failure: most cases ship no reference
 #  data at all, and the tolerance of a case that does is a judgement about
 #  physics, to be written once by whoever knows what agreement to expect.
 checkReference()
 {
-    [ -f "$1/validation/comparisons" ] || return 0
+    [ -f "$1/validation/validationDict" ] || return 0
 
     _root=$(qbmmRoot) || return 0
 
@@ -208,6 +208,29 @@ checkReference()
     $1 (reference)"
 
     return 1
+}
+
+#- Draw the figures a case declares in validation/validationDict, run from
+#  the directory of the case
+#
+#  The figures need matplotlib, which running and checking a case do not:
+#  without it they are not drawn, which qbmmPlot says, and the case goes on.
+#  A figure that cannot be drawn is reported and does not fail the case,
+#  since a curve that matters is compared with its reference, and the
+#  comparison fails for it. The interpreter is python3, or the one named by
+#  QBMM_PYTHON, for a matplotlib installed in an environment of its own.
+plotCase()
+{
+    [ -f validation/validationDict ] || return 0
+
+    _root=$(qbmmRoot) || return 0
+
+    if ! "${QBMM_PYTHON:-python3}" "$_root"/bin/qbmmPlot .
+    then
+        echo "plotCase: not every figure of $PWD could be drawn" 1>&2
+    fi
+
+    return 0
 }
 
 #- Report the cases that failed, and exit non-zero if there were any

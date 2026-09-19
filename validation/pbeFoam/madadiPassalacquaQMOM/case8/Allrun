@@ -10,6 +10,6 @@ application=`getApplication`
 
 runStep $application
 
-( cd validation && ./createGraphs )
+plotCase
 
 # ----------------------------------------------------------------- end-of-file

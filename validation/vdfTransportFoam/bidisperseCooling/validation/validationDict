@@ -1,0 +1,106 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenQBMM - www.openqbmm.org                     |
+|  \\    /   O peration     |                                                 |
+|   \\  /    A nd           |                                                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The figures the case draws and the comparisons it makes, read by
+// qbmmPlot and qbmmCompareReference.
+//
+// A tolerance applies to the root mean square difference, as a fraction of
+// the scale of the reference, and was set from the agreement the case was
+// seen to have, with room for a change of the discretisation to move it. A
+// tolerance of report is a disagreement known and still to be understood.
+
+// The ratio of the granular temperatures of the two particle classes against
+// the ratio of their diameters, at two coefficients of restitution. Each
+// point of a curve is a case of its own: Allrun reads the last ratios each
+// case prints into validation/temperatureRatios_<e>.dat.
+
+figures
+{
+    temperatureRatio
+    {
+        xLabel      "Diameter ratio, $d_1/d_2$";
+        yLabel      "Granular temperature ratio, $\Theta_1/\Theta_2$";
+        xRange      (1 3.2);
+        yRange      (0.77 1.1);
+        legend      "upper right";
+
+        curves
+        {
+            Enskog_0_95
+            {
+                file        "validationData/Enskog_0_95.csv";
+                label       "Enskog solution ($e = 0.95$)";
+                color       "#1d1f20";
+            }
+
+            MD_0_95
+            {
+                file        "validationData/MD_0_95.csv";
+                label       "MD ($e = 0.95$)";
+                style       points;
+                marker      v;
+                color       "#7a7a7d";
+            }
+
+            OpenQBMM_0_95
+            {
+                file        "temperatureRatios_0_95.dat";
+                label       "OpenQBMM ($e = 0.95$)";
+                style       points;
+                marker      D;
+
+                compare
+                {
+                    Enskog_0_95     0.02;
+                    MD_0_95         0.03;
+                }
+            }
+
+            Enskog_0_8
+            {
+                file        "validationData/Enskog_0_8.csv";
+                label       "Enskog solution ($e = 0.8$)";
+                style       dashed;
+                color       "#1d1f20";
+            }
+
+            MD_0_8
+            {
+                file        "validationData/MD_0_8.csv";
+                label       "MD ($e = 0.8$)";
+                style       points;
+                marker      "^";
+                color       "#7a7a7d";
+            }
+
+            OpenQBMM_0_8
+            {
+                file        "temperatureRatios_0_8.dat";
+                label       "OpenQBMM ($e = 0.8$)";
+                style       points;
+                marker      s;
+
+                compare
+                {
+                    Enskog_0_8      0.02;
+                    MD_0_8          0.09;
+                }
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

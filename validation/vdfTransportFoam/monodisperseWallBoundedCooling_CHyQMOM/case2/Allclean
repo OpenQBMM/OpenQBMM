@@ -6,6 +6,6 @@ cd ${0%/*} || exit 1    # Run from this directory
 
 cleanCase
 rm -f 0/moment.*
-rm -r validation/*.eps
+rm -rf validation/figures
 
 # ----------------------------------------------------------------- end-of-file

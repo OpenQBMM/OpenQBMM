@@ -87,3 +87,6 @@ doc/Doxygen/DTAGS
 
 # end-of-file
 .vscode/settings.json
+
+# Python bytecode of the scripts in bin
+__pycache__/

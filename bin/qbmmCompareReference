@@ -27,28 +27,15 @@
 #     Compare what a case computes with the data it is validated against,
 #     and say by how much they differ.
 #
-#     The graphs a case draws put its result next to the data of an
+#     The figures a case draws put its result next to the data of an
 #     experiment or of another method, and are read by eye. This reads the
-#     same two curves and puts a number on the distance between them, so
-#     that a case which stops agreeing says so.
+#     same curves and puts a number on the distance between them, so that a
+#     case which stops agreeing says so.
 #
-#     The comparisons to make are declared in <case>/validation/comparisons,
-#     a line per curve, of six fields separated by spaces:
-#
-#         name  tolerance  referenceFile  referenceValue  dataFile  dataValue
-#
-#     The two files hold columns of numbers, in which the first column is
-#     the abscissa of the curve and the value is an expression over the
-#     columns, written c1, c2, ... as in
-#
-#         Ur  0.15  validationData/Fox_Ur.csv  c2  ../postProcessing/*/Line_*  ((c7-c10)**2+(c8-c11)**2)**0.5
-#
-#     which is the expression the graph plots, in the notation of Python
-#     rather than of gnuplot. An expression carries no spaces, a file is
-#     named relative to the directory of the comparisons file, and may be a
-#     pattern, or several files separated by commas to read them side by
-#     side as paste does, in which case the columns are numbered across all
-#     of them.
+#     The comparisons to make are declared in <case>/validation/validationDict,
+#     with the figures: a curve the case computes names the reference curves
+#     of its figure it is compared with, and the tolerance of each. The
+#     format is described in bin/python/qbmm/validation.py.
 #
 #     The reference is interpolated onto the abscissae of the case over the
 #     interval the two share, and the difference is reported as a fraction
@@ -77,111 +64,43 @@
 #
 #------------------------------------------------------------------------------
 
-import bisect
-import glob
-import math
 import os
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                'python'))
 
-def readColumns(spec, base):
-    """The rows of the files named by spec, side by side as paste does"""
-    tables = []
-
-    for pattern in spec.split(','):
-        paths = sorted(glob.glob(os.path.join(base, pattern)))
-
-        if not paths:
-            raise FileNotFoundError(pattern)
-
-        rows = []
-
-        for line in open(paths[0], errors='replace'):
-            line = line.split('#')[0].strip()
-
-            if not line:
-                continue
-
-            # A comma separates the columns of the csv files, a space or a
-            # tab those of everything else
-            parts = line.replace(',', ' ').split()
-
-            try:
-                rows.append([float(p) for p in parts])
-            except ValueError:
-                continue                    # a header, or a line of text
-
-        tables.append(rows)
-
-    if len(tables) == 1:
-        return tables[0]
-
-    return [sum(parts, []) for parts in zip(*tables)]
+from qbmm import validation                                   # noqa: E402
 
 
-def curve(rows, expression):
-    """The (x, value) pairs of an expression over the columns of rows"""
-    points = []
+def compare(comparison, base):
+    """Print how far a computed curve sits from its reference, and whether
+    that is within the tolerance"""
+    name = comparison.name
+    tolerance = comparison.tolerance
 
-    for row in rows:
-        names = {'c%d' % (i + 1): v for i, v in enumerate(row)}
-        names['__builtins__'] = {}
-
-        try:
-            value = eval(expression, names)     # noqa: S307 - a case file
-        except (ZeroDivisionError, IndexError, KeyError, NameError):
-            continue
-
-        if isinstance(value, (int, float)) and math.isfinite(value):
-            points.append((row[0], float(value)))
-
-    points.sort()
-
-    return points
-
-
-def interpolate(points, abscissae, x):
-    """The value of a curve at x, or None outside the curve"""
-    if not points or x < abscissae[0] or x > abscissae[-1]:
-        return None
-
-    i = bisect.bisect_left(abscissae, x)
-
-    if i == 0:
-        return points[0][1]
-
-    x0, y0 = points[i - 1]
-    x1, y1 = points[i]
-
-    if x1 == x0:
-        return y0
-
-    return y0 + (y1 - y0)*(x - x0)/(x1 - x0)
-
-
-def compare(name, tolerance, reference, computed):
-    """How far a computed curve sits from a reference, over their overlap"""
-    values = [y for _, y in reference]
-    scale = max(max(values) - min(values), max(abs(y) for y in values))
-
-    if scale <= 0.0:
-        scale = 1.0
-
-    errors = []
-    abscissae = [x for x, _ in computed]
-
-    for x, y in reference:
-        value = interpolate(computed, abscissae, x)
-
-        if value is not None:
-            errors.append(abs(value - y)/scale)
-
-    if not errors:
-        print("  %-16s no overlap between the case and the reference" % name)
+    try:
+        reference = comparison.reference.points(base)
+        computed = comparison.computed.points(base)
+    except FileNotFoundError as e:
+        print("  %-24s no such file: %s" % (name, e))
         return False
 
-    worst = max(errors)
-    rms = math.sqrt(sum(e*e for e in errors)/len(errors))
+    if not reference:
+        print("  %-24s the reference holds no points" % name)
+        return False
+
+    if not computed:
+        print("  %-24s the case holds no points to compare" % name)
+        return False
+
+    measured = validation.measure(reference, computed)
+
+    if measured is None:
+        print("  %-24s no overlap between the case and the reference" % name)
+        return False
+
+    rms, worst, n = measured
 
     if tolerance is None:
         verdict = ', not judged'
@@ -191,9 +110,9 @@ def compare(name, tolerance, reference, computed):
         verdict = ', outside the tolerance of %g' % tolerance
 
     print(
-        "  %-16s rms %8.3g, largest %8.3g of the scale of the reference, "
+        "  %-24s rms %8.3g, largest %8.3g of the scale of the reference, "
         "over %d of its %d points%s"
-        % (name, rms, worst, len(errors), len(reference), verdict)
+        % (name, rms, worst, n, len(reference), verdict)
     )
 
     return tolerance is None or rms <= tolerance
@@ -205,63 +124,37 @@ def main(argv):
         return 2
 
     case = argv[1]
-    base = os.path.join(case, 'validation')
-    path = os.path.join(base, 'comparisons')
 
-    if not os.path.isfile(path):
+    if not validation.exists(case):
         sys.stderr.write(
-            "qbmmCompareReference: %s declares no comparisons\n" % case
+            "qbmmCompareReference: %s has no validation/%s\n"
+            % (case, validation.dictName)
         )
         return 2
+
+    try:
+        spec = validation.ValidationDict(case)
+    except validation.ValidationError as e:
+        sys.stderr.write("qbmmCompareReference: %s\n" % e)
+        return 2
+
+    if not spec.comparisons:
+        print("qbmmCompareReference: %s declares no comparisons" % case)
+        return 0
 
     print("qbmmCompareReference: %s" % case)
 
     failed = 0
     reported = 0
-    made = 0
 
-    for number, line in enumerate(open(path), 1):
-        line = line.split('//')[0].strip()
-
-        if not line:
-            continue
-
-        fields = line.split()
-
-        if len(fields) != 6:
-            sys.stderr.write(
-                "qbmmCompareReference: %s line %d: expected six fields\n"
-                % (path, number)
-            )
-            return 2
-
-        name, tolerance, refFile, refValue, dataFile, dataValue = fields
-
-        #  A tolerance of report measures the curves without judging them
-        tolerance = None if tolerance == 'report' else float(tolerance)
-
-        if tolerance is None:
+    for comparison in spec.comparisons:
+        if comparison.tolerance is None:
             reported += 1
 
-        try:
-            reference = curve(readColumns(refFile, base), refValue)
-            computed = curve(readColumns(dataFile, base), dataValue)
-        except FileNotFoundError as e:
-            print("  %-16s no such file: %s" % (name, e))
-            failed += 1
-            made += 1
-            continue
-
-        if not reference:
-            print("  %-16s the reference holds no points" % name)
-            failed += 1
-        elif not computed:
-            print("  %-16s the case holds no points to compare" % name)
-            failed += 1
-        elif not compare(name, tolerance, reference, computed):
+        if not compare(comparison, spec.base):
             failed += 1
 
-        made += 1
+    made = len(spec.comparisons)
 
     if failed:
         print(

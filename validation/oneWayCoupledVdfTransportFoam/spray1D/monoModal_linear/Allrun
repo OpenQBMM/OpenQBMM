@@ -9,6 +9,6 @@ runStep blockMesh
 runStep generateMoments
 runStep oneWayCoupledVdfTransportFoam
 runStep postProcess -func sampleDict -latestTime
-( cd validation && ./createGraphs )
+plotCase
 
 # ----------------------------------------------------------------- end-of-file

@@ -1,0 +1,106 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenQBMM - www.openqbmm.org                     |
+|  \\    /   O peration     |                                                 |
+|   \\  /    A nd           |                                                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The figures the case draws and the comparisons it makes, read by
+// qbmmPlot and qbmmCompareReference.
+//
+// A tolerance applies to the root mean square difference, as a fraction of
+// the scale of the reference, and was set from the agreement the case was
+// seen to have, with room for a change of the discretisation to move it. A
+// tolerance of report is a disagreement known and still to be understood.
+
+figures
+{
+    alpha
+    {
+        xLabel      "Position, $x$ [m]";
+        yLabel      "Volume fraction, $\alpha$";
+        xRange      (0 1);
+        legend      "upper right";
+
+        curves
+        {
+            MD
+            {
+                file        "validationData/case4_alpha_MD.csv";
+                label       "MD (Galvin et al., 2007)";
+            }
+
+            TP
+            {
+                file        "validationData/case4_alpha_TP.csv";
+                label       "Passalacqua et al. (2011)";
+                style       dashed;
+            }
+
+            OpenQBMM
+            {
+                file        "../postProcessing/sampleDict/*/Centerline*";
+                y           "c3";
+                label       "OpenQBMM";
+                style       points;
+                every       5;
+
+                compare
+                {
+                    MD      0.03;
+                    TP      0.1;
+                }
+            }
+        }
+    }
+
+    Theta
+    {
+        xLabel      "Position, $x$ [m]";
+        yLabel      "Granular temperature, $\Theta$ [m$^2$/s$^2$]";
+        xRange      (0 1);
+        legend      "lower right";
+
+        curves
+        {
+            MD
+            {
+                file        "validationData/case4_T_MD.csv";
+                label       "MD (Galvin et al., 2007)";
+            }
+
+            TP
+            {
+                file        "validationData/case4_T_TP.csv";
+                label       "Passalacqua et al. (2011)";
+                style       dashed;
+            }
+
+            OpenQBMM
+            {
+                file        "../postProcessing/sampleDict/*/Centerline*";
+                y           "c2";
+                label       "OpenQBMM";
+                style       points;
+                every       5;
+
+                compare
+                {
+                    MD      report;
+                    TP      report;
+                }
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

@@ -13,6 +13,6 @@ runStepParallel oneWayCoupledVdfTransportFoam
 
 runStep reconstructPar -latestTime
 
-( cd validation && ./createGraphs )
+plotCase
 
 # ----------------------------------------------------------------- end-of-file

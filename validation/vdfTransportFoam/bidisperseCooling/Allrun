@@ -12,8 +12,24 @@ do
     runCase $caseName
 done
 
-reportCases
+# The last diameter and temperature ratios each case printed, a line per
+# case, into the curves of the figure and of the comparison
+extractRatios()
+{
+    for caseName in $2
+    do
+        _log=$caseName/log.vdfTransportFoam
+        _d=$(grep "Diameter ratio = " "$_log" | tail -1 | cut -d'=' -f2)
+        _T=$(grep "Temperature ratio = " "$_log" | tail -1 | cut -d'=' -f2)
+        echo "$_d    $_T"
+    done > validation/temperatureRatios_$1.dat
+}
 
-( cd validation && ./createGraph )
+extractRatios 0_8 "bidisperseGranularCooling_1_5__0_8 bidisperseGranularCooling_2_0__0_8 bidisperseGranularCooling_3_0__0_8"
+extractRatios 0_95 "bidisperseGranularCooling_1_5__0_95 bidisperseGranularCooling_2_0__0_95 bidisperseGranularCooling_3_0__0_95"
+
+plotCase
+
+reportCases
 
 # ----------------------------------------------------------------- end-of-file

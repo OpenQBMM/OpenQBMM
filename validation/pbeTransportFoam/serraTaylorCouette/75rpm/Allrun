@@ -23,6 +23,10 @@ runStepParallel pbeTransportFoam
 
 runStep reconstructPar -latestTime
 
-( cd validation && ./createGraphs )
+# The volume average of d43 the case prints at every step, against time
+awk '/^Time = /{t = $3} /Volume averaged normalized d43/{print t, $NF}' \
+    log.pbeTransportFoam > validation/volumeAveragedD43.dat
+
+plotCase
 
 # ----------------------------------------------------------------- end-of-file

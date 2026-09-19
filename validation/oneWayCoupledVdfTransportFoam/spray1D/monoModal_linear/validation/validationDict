@@ -1,0 +1,100 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenQBMM - www.openqbmm.org                     |
+|  \\    /   O peration     |                                                 |
+|   \\  /    A nd           |                                                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The figures the case draws and the comparisons it makes, read by
+// qbmmPlot and qbmmCompareReference.
+//
+// A tolerance applies to the root mean square difference, as a fraction of
+// the scale of the reference, and was set from the agreement the case was
+// seen to have, with room for a change of the discretisation to move it. A
+// tolerance of report is a disagreement known and still to be understood.
+
+// The sampled fields of the centreline are written to a single file, in
+// the order of system/sampleDict with the scalars before the vectors:
+//     1: x
+//     2: alpha.liquid  3: moment.0_0_0  4: moment.1_0_0  5: moment.2_0_0
+//     6: moment.3_0_0    7-9: U.gas     10-12: U.liquid
+
+figures
+{
+    totalMass
+    {
+        // The liquid volume fraction times the density of the liquid,
+        // 633 kg/m3, in g/cm3
+        xLabel      "Position, $x$ [m]";
+        yLabel      "Liquid mass density [g/cm$^3$]";
+        xRange      (0.1 0.3);
+        yRange      (0 0.004);
+        legend      "upper right";
+
+        curves
+        {
+            Fox2008
+            {
+                file        "validationData/Fox_totalMass.csv";
+                label       "DQMOM (Fox, 2008)";
+                style       points;
+            }
+
+            OpenQBMM
+            {
+                file        "../postProcessing/sampleDict/*/Centerline_*";
+                y           "c2*633/1000";
+                label       "OpenQBMM";
+
+                compare
+                {
+                    Fox2008         0.02;
+                }
+            }
+        }
+    }
+
+    Ur
+    {
+        // The magnitude of the velocity of the liquid relative to the gas,
+        // drawn only where liquid remains
+        xLabel      "Position, $x$ [m]";
+        yLabel      "Relative velocity magnitude [m/s]";
+        xRange      (0.1 0.3);
+        yRange      (0 0.6);
+        legend      "upper right";
+
+        curves
+        {
+            Fox2008
+            {
+                file        "validationData/Fox_Ur.csv";
+                label       "DQMOM (Fox, 2008)";
+                style       points;
+            }
+
+            OpenQBMM
+            {
+                file        "../postProcessing/sampleDict/*/Centerline_*";
+                y           "sqrt((c7 - c10)**2 + (c8 - c11)**2) if c2 > 1e-12 else None";
+                label       "OpenQBMM";
+
+                compare
+                {
+                    Fox2008         0.05;
+                }
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

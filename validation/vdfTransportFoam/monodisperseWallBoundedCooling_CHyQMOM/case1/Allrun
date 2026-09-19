@@ -10,4 +10,4 @@ runStep blockMesh
 runStep generateMoments
 runStep $application
 runStep postProcess -func sampleDict -latestTime
-( cd validation && ./createGraph )
+plotCase

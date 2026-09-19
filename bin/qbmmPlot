@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     qbmmPlot
+#
+#     qbmmPlot [-format svg,pdf,png] [-output <dir>] [-require] <caseDirectory>
+#
+# Description
+#     Draw the figures a validation case declares in
+#     <case>/validation/validationDict, into <case>/validation/figures, as
+#     SVG and PDF unless -format says otherwise.
+#
+#     The figures need matplotlib, which a case does not need to run or to
+#     be checked against its reference: without it, the figures are not
+#     drawn, which is said, and the script exits zero, so that a case runs
+#     where matplotlib is not installed. With -require its absence is a
+#     failure, as it is for whatever publishes the figures.
+#
+#     A curve whose file is missing is left out of its figure and reported,
+#     and the script then exits non-zero.
+#
+#------------------------------------------------------------------------------
+
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                'python'))
+
+from qbmm import validation                                   # noqa: E402
+
+usage = (
+    "usage: qbmmPlot [-format svg,pdf,png] [-output <dir>] [-require] "
+    "<caseDirectory>\n"
+)
+
+
+def main(argv):
+    formats = ['svg', 'pdf']
+    output = None
+    require = False
+    cases = []
+
+    args = argv[1:]
+
+    while args:
+        arg = args.pop(0)
+
+        if arg == '-format' and args:
+            formats = [f for f in args.pop(0).split(',') if f]
+        elif arg == '-output' and args:
+            output = args.pop(0)
+        elif arg == '-require':
+            require = True
+        elif arg.startswith('-'):
+            sys.stderr.write(usage)
+            return 2
+        else:
+            cases.append(arg)
+
+    if len(cases) != 1:
+        sys.stderr.write(usage)
+        return 2
+
+    case = cases[0]
+
+    try:
+        from qbmm import plotting
+    except ImportError as e:
+        sys.stderr.write(
+            "qbmmPlot: %s, the figures of %s are not drawn\n" % (e, case)
+        )
+        return 1 if require else 0
+
+    if not validation.exists(case):
+        sys.stderr.write(
+            "qbmmPlot: %s has no validation/%s\n" % (case, validation.dictName)
+        )
+        return 2
+
+    try:
+        spec = validation.ValidationDict(case)
+    except validation.ValidationError as e:
+        sys.stderr.write("qbmmPlot: %s\n" % e)
+        return 2
+
+    outputDir = output or os.path.join(spec.base, 'figures')
+
+    incomplete = 0
+
+    for figure in spec.figures:
+        try:
+            written, missing = plotting.draw(
+                figure, spec.base, outputDir, formats
+            )
+        except validation.ValidationError as e:
+            sys.stderr.write("qbmmPlot: %s\n" % e)
+            return 2
+
+        print("qbmmPlot: %s" % ', '.join(
+            os.path.relpath(p, case) for p in written
+        ))
+
+        for name, reason in missing:
+            print("    %s left out: %s" % (name, reason))
+
+        if missing:
+            incomplete += 1
+
+    return 1 if incomplete else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
+
+#------------------------------------------------------------------------------

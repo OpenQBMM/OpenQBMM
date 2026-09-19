@@ -8,6 +8,7 @@ cleanCase
 rm -rf 0/alpha.air
 rm -rf 0/moment.*
 rm -rf postProcessing
-rm -f validation/*.eps
+rm -rf validation/figures
+rm -f validation/pressureFluctuation.dat
 
 # ----------------------------------------------------------------- end-of-file

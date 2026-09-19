@@ -15,9 +15,13 @@ runStep setFields
 runStep decomposePar
 runStepParallel polydisperseBubbleFoam
 
+validation/extractPressure
+plotCase
+
 # NOTE: This case is very unstable and typically needs to be restarted several 
-# time. The createGraph program will read all of the pProbes folders and create 
-# the total list of pressures
+# time. validation/extractPressure reads all of the pProbes folders and
+# creates the total list of pressures: run it again after a restart, and
+# then qbmmPlot on the case.
 #
 # To restart run:
 # mpirun -np $numberOfProcessors polydisperseBubbleFoam -parallel

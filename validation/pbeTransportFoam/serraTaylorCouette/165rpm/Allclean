@@ -9,7 +9,7 @@ rm -rf 0 > /dev/null 2>&1
 cleanCase
 rm -rf system/controlDict
 rm -rf postProcessing
-rm -f validation/*.eps
+rm -rf validation/figures
 rm -f validation/volumeAveragedD43.dat
 
 # ----------------------------------------------------------------- end-of-file

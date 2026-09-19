@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenQBMM - www.openqbmm.org                     |
+|  \\    /   O peration     |                                                 |
+|   \\  /    A nd           |                                                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The figures the case draws and the comparisons it makes, read by
+// qbmmPlot and qbmmCompareReference.
+//
+// A tolerance applies to the root mean square difference, as a fraction of
+// the scale of the reference, and was set from the agreement the case was
+// seen to have, with room for a change of the discretisation to move it. A
+// tolerance of report is a disagreement known and still to be understood.
+
+figures
+{
+    d43
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "$d_{43}$ [$\mu$m]";
+        xRange      (0 10);
+        yRange      (0 8);
+        legend      "lower right";
+
+        curves
+        {
+            MadadiPassalacqua2015
+            {
+                file        "verificationData/MadadiPassalacqua2015_d43.dat";
+                y           "c6/c5";
+                label       "Madadi and Passalacqua (2015)";
+            }
+
+            Vanni2000
+            {
+                file        "validationData/Vanni2000_d43.dat";
+                label       "Rigorous solution (Vanni, 2000)";
+            }
+
+            OpenQBMM
+            {
+                file
+                (
+                    "../postProcessing/probes/0/moment.4.populationBalance"
+                    "../postProcessing/probes/0/moment.3.populationBalance"
+                );
+                y           "c2/c4";
+                label       "QMOM (OpenQBMM)";
+                style       points;
+
+                compare
+                {
+                    MadadiPassalacqua2015   0.03;
+                    Vanni2000               0.04;
+                }
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

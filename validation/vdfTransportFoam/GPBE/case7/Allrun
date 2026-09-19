@@ -12,6 +12,6 @@ runStep blockMesh
 runStep generateMoments
 runStep $application
 
-( cd validation && ./createGraphs )
+plotCase
 
 # ----------------------------------------------------------------- end-of-file

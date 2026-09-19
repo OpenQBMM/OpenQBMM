@@ -1,0 +1,68 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenQBMM - www.openqbmm.org                     |
+|  \\    /   O peration     |                                                 |
+|   \\  /    A nd           |                                                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The figures the case draws and the comparisons it makes, read by
+// qbmmPlot and qbmmCompareReference.
+//
+// A tolerance applies to the root mean square difference, as a fraction of
+// the scale of the reference, and was set from the agreement the case was
+// seen to have, with room for a change of the discretisation to move it. A
+// tolerance of report is a disagreement known and still to be understood.
+
+// The volume average of d43, divided by the initial diameter of 2 um, which
+// the case prints at every step and Allrun reads from the log into
+// validation/volumeAveragedD43.dat. The case is not compared with the data:
+// no tolerance has been set for it.
+
+figures
+{
+    d43
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "$\langle d_{43} \rangle / d_0$";
+        legend      "lower right";
+
+        curves
+        {
+            Serra1997
+            {
+                file        "validationData/SerraEtAl1997_d43_165rpm.dat";
+                label       "Experiments (Serra et al., 1997)";
+                style       points;
+            }
+
+            Marchisio2003
+            {
+                file        "validationData/Marchisio_165_6.dat";
+                label       "Marchisio et al. (2003), $C_{Br} = 0.6 \times 10^{-3}$";
+                style       points;
+                marker      s;
+                every       3;
+            }
+
+            OpenQBMM
+            {
+                computed    yes;
+                file        "volumeAveragedD43.dat";
+                label       "OpenQBMM, $C_{Br} = 0.6 \times 10^{-3}$";
+                style       points;
+                every       200;
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

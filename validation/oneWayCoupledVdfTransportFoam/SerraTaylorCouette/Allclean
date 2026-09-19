@@ -8,6 +8,6 @@ rm -f 0/moment.* > /dev/null 2>&1
 
 cleanCase
 rm -rf postProcessing
-rm -f validation/*.eps
+rm -rf validation/figures
 
 # ----------------------------------------------------------------- end-of-file

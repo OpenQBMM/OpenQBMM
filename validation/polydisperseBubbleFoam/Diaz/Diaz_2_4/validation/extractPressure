@@ -1,0 +1,49 @@
+#!/bin/sh
+#------------------------------------------------------------------------------
+#     Copyright (C) 2026 Alberto Passalacqua
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenQBMM.
+#
+#     OpenQBMM is free software: you can redistribute it and/or modify it
+#     under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     OpenQBMM is distributed in the hope that it will be useful, but WITHOUT
+#     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#     for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with OpenQBMM.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Script
+#     extractPressure [startTime]
+#
+# Description
+#     Write the fluctuation of the pressure at the third probe over the 50 s
+#     from startTime (50 s unless given) into pressureFluctuation.dat: the
+#     time from the start of the window, and the pressure less its mean over
+#     the window, which is what the figure of validationDict draws.
+#
+#     The case is often restarted, so the probe files of every start time
+#     are read, in the order of their times. Run it again after a restart,
+#     and then qbmmPlot on the case.
+#
+#------------------------------------------------------------------------------
+cd "${0%/*}" || exit 1    # Run from this directory
+
+field=p
+start=${1:-50}
+
+for time in $(ls ../postProcessing/pProbes | sort -g)
+do
+    cat "../postProcessing/pProbes/$time/$field"
+done | awk -v t0="$start" '
+    /^#/ { next }
+    $1 >= t0 && $1 <= t0 + 50 { t[n] = $1; p[n] = $4; sum += $4; n++ }
+    END { for (i = 0; i < n; i++) print t[i] - t0, p[i] - sum/n }
+' > pressureFluctuation.dat
+
+#------------------------------------------------------------------------------

@@ -65,7 +65,14 @@ are run from inside `testCase`. `test/univariateMomentAdvection` holds many mesh
 each with its own `Allrun`/`Allclean` — these are convergence studies, not part of `test/Allrun`.
 
 `tutorials/` and `validation/` are per-solver OpenFOAM cases, each with `Allrun`/`Allclean`;
-`validation/` cases additionally produce comparison graphs against analytical/reference data.
+`validation/` cases additionally declare their figures and their comparisons with reference data
+in one OpenFOAM-style dictionary, `validation/validationDict` (format in
+`bin/python/qbmm/validation.py`). `bin/qbmmCompareReference <case>` measures the comparisons
+(pure Python, no dependencies); `bin/qbmmPlot <case>` draws the figures with matplotlib into
+`validation/figures/` (SVG + PDF), and is skipped with a message where matplotlib is missing
+(`QBMM_PYTHON` names another interpreter). Allrun calls `plotCase` from `AllrunFunctions`;
+anything computed from logs or probes before plotting is done in the Allrun or a case script,
+not in the dictionary.
 Note that `test/Allwmake` deliberately skips `conditionalMomentInversion` (commented out, needs
 updating for the current structure).
 
