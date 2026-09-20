@@ -1,0 +1,52 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      generateMomentsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases
+(
+    mixing
+);
+
+boundaries
+{
+    boundary
+    {
+        type    empty;
+    }
+}
+
+mixing
+{
+    type                mixtureFractionStreams;
+    weightDimension     [0 0 0 0 0 0 0];
+    abscissaDimension   [0 0 0 0 0 0 0];
+
+    streams
+    {
+        #include "<constant>/streams"
+    }
+
+    // The two streams partly mixed: a beta distribution of the mixture
+    // fraction of mean 0.4 and variance 0.06, which is beta(1.2, 1.8)
+    internal
+    {
+        distribution    beta;
+        mean            0.4;
+        variance        0.06;
+    }
+}
+
+// ************************************************************************* //

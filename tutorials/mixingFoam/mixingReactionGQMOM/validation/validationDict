@@ -1,0 +1,118 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "validation";
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// A mixture fraction distributed as a beta distribution in one cell, mixed by
+// IEM far more slowly than the two streams react, which has an exact solution:
+// every fluid element relaxes to the mean mixture fraction and holds what the
+// complete reaction of the streams mixed at its mixture fraction gives. The
+// product is a function of the mixture fraction with a corner at the
+// stoichiometric one, 0.5, which a few environments can only approximate: the
+// case shows what the two additional nodes of the generalized quadrature add
+// to the three of the Gauss one, from the same six moments of the mixture
+// fraction.
+figures
+{
+    product
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "Mean mass fraction of the product, $\langle Y_P\rangle$";
+        xRange      (0 10);
+
+        curves
+        {
+            exact
+            {
+                file        "analyticalData/betaDistribution.dat";
+                y           "c2";
+                label       "Beta distribution, exact";
+            }
+            Gauss
+            {
+                file        "../postProcessing/probesGauss/0/P";
+                label       "Gauss, 3 environments";
+                style       points;
+                every       50;
+
+                compare
+                {
+                    exact       2e-2;
+                }
+            }
+            GQMOM
+            {
+                file        "../postProcessing/probes/0/P";
+                label       "Beta-GQMOM, 3 + 2 environments";
+                style       points;
+                every       50;
+
+                compare
+                {
+                    exact       1e-2;
+                }
+            }
+        }
+    }
+
+    reactants
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "Mean mass fraction of the reactants";
+        xRange      (0 10);
+
+        curves
+        {
+            exactA
+            {
+                file        "analyticalData/betaDistribution.dat";
+                y           "c3";
+                label       "$\langle Y_A\rangle$, exact";
+            }
+            exactB
+            {
+                file        "analyticalData/betaDistribution.dat";
+                y           "c4";
+                label       "$\langle Y_B\rangle$, exact";
+            }
+            A
+            {
+                file        "../postProcessing/probes/0/A";
+                label       "$\langle Y_A\rangle$, beta-GQMOM";
+                style       points;
+                every       50;
+
+                compare
+                {
+                    exactA      report;
+                }
+            }
+            B
+            {
+                file        "../postProcessing/probes/0/B";
+                label       "$\langle Y_B\rangle$, beta-GQMOM";
+                style       points;
+                every       50;
+
+                compare
+                {
+                    exactB      report;
+                }
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

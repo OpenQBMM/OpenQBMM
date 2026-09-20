@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties.mixing;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fieldMomentInversion    basicMultivariateFieldMomentInversion;
+
+// The generalized quadrature on the mixture fraction: three regular nodes from
+// its six moments and two additional ones from the beta closure of the
+// recurrence relationship, on [0, 1]. Every node is an environment carrying
+// the mass fractions of the four species of the thermo, so that each species
+// has five moments, <xi^k Y>, k < 5. With three regular nodes, up to two
+// additional ones keep a composition that is linear in the mixture fraction
+// exact.
+basicMultivariateMomentInversion
+{
+    type                conditionalMeans;
+    nMoments            6;
+    nScalars            4;
+    nVelocityDimensions 0;
+
+    basicQuadrature
+    {
+        univariateMomentInversion   GQMOM;
+        nAdditionalQuadraturePoints 2;
+    }
+}
+
+momentAdvection
+{
+    velocityMomentAdvection firstOrderFluidVelocity;
+}
+
+// ************************************************************************* //

@@ -1,0 +1,41 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties.mixing;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fieldMomentInversion    basicMultivariateFieldMomentInversion;
+
+// Three nodes of the mixture fraction from its six moments, each an
+// environment carrying the mass fractions of the four species of the thermo:
+// what the generalized quadrature of the case is compared with.
+basicMultivariateMomentInversion
+{
+    type                conditionalMeans;
+    nMoments            6;
+    nScalars            4;
+    nVelocityDimensions 0;
+
+    basicQuadrature
+    {
+        univariateMomentInversion   Gauss;
+    }
+}
+
+momentAdvection
+{
+    velocityMomentAdvection firstOrderFluidVelocity;
+}
+
+// ************************************************************************* //

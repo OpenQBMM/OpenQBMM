@@ -1,0 +1,34 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../../AllrunFunctions
+
+# The same cell twice: with the three nodes of a Gauss quadrature of the
+# mixture fraction first, for comparison, and then with the five of the
+# generalized quadrature, which is the state the case is left in. The moments
+# of the species are as many as the nodes, so they are generated for each.
+for quadrature in Gauss GQMOM
+do
+    cp constant/quadratureProperties.mixing.$quadrature \
+        constant/quadratureProperties.mixing
+
+    rm -f 0/moment.*
+
+    # The moments of the mixture fraction and of the species, and the mean
+    # mass fractions the thermo starts from, on the one cell of the solver
+    runStep -s $quadrature generateMoments -singleCell
+
+    runStep -s $quadrature mixingFoam
+
+    if [ $quadrature = Gauss ]
+    then
+        mv postProcessing/probes postProcessing/probesGauss
+        foamListTimes -rm
+    fi
+done
+
+plotCase
+
+# ----------------------------------------------------------------- end-of-file
