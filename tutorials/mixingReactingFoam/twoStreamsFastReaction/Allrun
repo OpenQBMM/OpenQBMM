@@ -1,0 +1,20 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../../AllrunFunctions
+
+runStep blockMesh
+
+# The moments of the mixture fraction and of the species, in the channel and at
+# its two inlets, and the mean mass fractions the thermo starts from
+runStep generateMoments
+
+runStep mixingReactingFoam
+
+runStep postProcess -func sampleDict -latestTime
+
+plotCase
+
+# ----------------------------------------------------------------- end-of-file

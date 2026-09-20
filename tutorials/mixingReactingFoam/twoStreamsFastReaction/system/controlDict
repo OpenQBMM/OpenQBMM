@@ -1,0 +1,85 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     mixingReactingFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         2;
+
+deltaT          1;
+
+writeControl    adjustableRunTime;
+
+writeInterval   2;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           0.4;
+
+maxDeltaT       1;
+
+functions
+{
+    // The weight, the mixture fraction and the mass fractions of A, B and P
+    // of every environment, which are fields of the registry that are not
+    // written with the time directories
+    writeEnvironments
+    {
+        type            writeObjects;
+        libs            (utilityFunctionObjects);
+        objects
+        (
+            weight.node0.mixing
+            abscissa0.node0.mixing
+            abscissa1.node0.mixing
+            abscissa2.node0.mixing
+            abscissa3.node0.mixing
+            weight.node1.mixing
+            abscissa0.node1.mixing
+            abscissa1.node1.mixing
+            abscissa2.node1.mixing
+            abscissa3.node1.mixing
+            weight.node2.mixing
+            abscissa0.node2.mixing
+            abscissa1.node2.mixing
+            abscissa2.node2.mixing
+            abscissa3.node2.mixing
+        );
+        writeControl    writeTime;
+    }
+}
+
+// ************************************************************************* //

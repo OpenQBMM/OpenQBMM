@@ -1,0 +1,87 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      generateMomentsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases
+(
+    mixing
+);
+
+boundaries
+{
+    inlet1
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+
+    inlet2
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+
+    outlet
+    {
+        type    zeroGradient;
+    }
+
+    walls
+    {
+        type    zeroGradient;
+    }
+
+    frontAndBack
+    {
+        type    empty;
+    }
+}
+
+// The moments of a mixture fraction and of the mass fractions of the species
+// conditioned on it, linear in it between the streams, and the mean mass
+// fractions the thermo starts from
+mixing
+{
+    type                mixtureFractionStreams;
+    weightDimension     [0 0 0 0 0 0 0];
+    abscissaDimension   [0 0 0 0 0 0 0];
+
+    streams
+    {
+        #include "<constant>/streams"
+    }
+
+    // The channel is full of the stream of inlet2
+    internal
+    {
+        distribution    delta;
+        value           0;
+    }
+
+    inlet1
+    {
+        distribution    delta;
+        value           1;
+    }
+
+    inlet2
+    {
+        distribution    delta;
+        value           0;
+    }
+}
+
+// ************************************************************************* //

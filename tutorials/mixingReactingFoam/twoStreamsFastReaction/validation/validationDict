@@ -1,0 +1,146 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \    /   O peration     |
+    \  /    A nd           | OpenQBMM - www.openqbmm.org
+     \/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "validation";
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// A + B = P is so fast that the two reactants cannot coexist, and the streams
+// carry them in the same solvent. Whatever the reaction does, it conserves
+// what A and B are made of: the mean of A and of the half of P that came
+// from it is the A the mixture fraction says has entered, 0.1 <xi>, and
+// likewise for B with 0.1 (1 - <xi>), while the solvent stays at 0.9. The
+// product cannot exceed what complete reaction of the mean mixture would
+// give, 0.2 min(<xi>, 1 - <xi>), which it reaches where the fluid of a cell
+// has mixed. The columns of the set are x, A, B, P, S and the moments of
+// orders zero and one of the mixture fraction.
+figures
+{
+    atomsOfA
+    {
+        xLabel      "Position across the channel, $x$ [mm]";
+        yLabel      "Mass fraction of A, free and in the product";
+
+        curves
+        {
+            entered
+            {
+                file        "../postProcessing/sampleDict/*/across_*.xy";
+                x           "1000*c1";
+                y           "0.1*c7/c6";
+                label       "Entered, $0.1\langle\xi\rangle$";
+            }
+            OpenQBMM
+            {
+                file        "../postProcessing/sampleDict/*/across_*.xy";
+                x           "1000*c1";
+                y           "(c2 + c4/2)";
+                label       "OpenQBMM, $\langle Y_A + Y_P/2\rangle$";
+                style       points;
+
+                compare
+                {
+                    entered     1e-5;
+                }
+            }
+        }
+    }
+
+    atomsOfB
+    {
+        xLabel      "Position across the channel, $x$ [mm]";
+        yLabel      "Mass fraction of B, free and in the product";
+
+        curves
+        {
+            entered
+            {
+                file        "../postProcessing/sampleDict/*/across_*.xy";
+                x           "1000*c1";
+                y           "0.1*(1 - c7/c6)";
+                label       "Entered, $0.1(1 - \langle\xi\rangle)$";
+            }
+            OpenQBMM
+            {
+                file        "../postProcessing/sampleDict/*/across_*.xy";
+                x           "1000*c1";
+                y           "(c3 + c4/2)";
+                label       "OpenQBMM, $\langle Y_B + Y_P/2\rangle$";
+                style       points;
+
+                compare
+                {
+                    entered     1e-5;
+                }
+            }
+        }
+    }
+
+    product
+    {
+        xLabel      "Position across the channel, $x$ [mm]";
+        yLabel      "Mean mass fraction of the product, $\langle Y_P\rangle$";
+
+        curves
+        {
+            complete
+            {
+                file        "../postProcessing/sampleDict/*/across_*.xy";
+                x           "1000*c1";
+                y           "0.2*min(c7/c6, 1 - c7/c6)";
+                label       "Complete reaction of the mean mixture";
+            }
+            OpenQBMM
+            {
+                file        "../postProcessing/sampleDict/*/across_*.xy";
+                x           "1000*c1";
+                y           "c4";
+                label       "OpenQBMM";
+                style       points;
+
+                compare
+                {
+                    complete    report;
+                }
+            }
+        }
+    }
+
+    reactants
+    {
+        xLabel      "Position across the channel, $x$ [mm]";
+        yLabel      "Mean mass fraction of the reactants";
+
+        curves
+        {
+            A
+            {
+                file        "../postProcessing/sampleDict/*/across_*.xy";
+                x           "1000*c1";
+                y           "c2";
+                label       "$\langle Y_A\rangle$";
+                computed    yes;
+            }
+            B
+            {
+                file        "../postProcessing/sampleDict/*/across_*.xy";
+                x           "1000*c1";
+                y           "c3";
+                label       "$\langle Y_B\rangle$";
+                computed    yes;
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

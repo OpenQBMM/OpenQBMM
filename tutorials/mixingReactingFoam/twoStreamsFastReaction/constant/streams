@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      streams;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The two streams: the reactant B in the solvent at a mixture fraction of
+// zero, which enters through inlet2, and the reactant A in the solvent at
+// one, which enters through inlet1. Their temperature is not used, since
+// the environments are isothermal.
+xi0
+{
+    T       293;
+
+    Y
+    {
+        B       0.1;
+        S       0.9;
+    }
+}
+
+xi1
+{
+    T       293;
+
+    Y
+    {
+        A       0.1;
+        S       0.9;
+    }
+}
+
+// ************************************************************************* //

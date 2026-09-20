@@ -1,0 +1,36 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      chemistryProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+chemistryType
+{
+    solver          ode;
+    method          standard;
+}
+
+chemistry               on;
+
+initialChemicalTimeStep 1e-9;
+
+// The reaction model integrates every environment with this solver
+odeCoeffs
+{
+    solver          Rosenbrock34;
+    absTol          1e-12;
+    relTol          1e-6;
+}
+
+// ************************************************************************* //

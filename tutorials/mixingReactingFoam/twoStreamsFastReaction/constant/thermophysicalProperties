@@ -1,0 +1,36 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// A liquid mixture of the two reactants, their product and the solvent
+thermoType
+{
+    type            heRhoThermo;
+    mixture         reactingMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState perfectFluid;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+inertSpecie             S;
+
+chemistryReader         foamChemistryReader;
+foamChemistryFile       "<constant>/reactions";
+foamChemistryThermoFile "<constant>/thermo.liquid";
+
+// ************************************************************************* //

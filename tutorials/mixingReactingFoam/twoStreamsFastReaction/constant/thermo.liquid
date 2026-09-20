@@ -1,0 +1,116 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      thermo.liquid;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The species have the properties of the liquid of twoStreamsQMOM, and the
+// product the mass of the two reactants. Its R is not theirs: OpenFOAM builds
+// for every reaction the difference between the thermo of its products and of
+// its reactants, which for a perfect fluid divides by the difference of their
+// 1/R, zero if all the species were the same liquid. The density changes by
+// 4e-6 of itself for it.
+A
+{
+    specie
+    {
+        molWeight       18;
+    }
+    equationOfState
+    {
+        R               3000;
+        rho0            1027;
+    }
+    thermodynamics
+    {
+        Cp              4195;
+        Hf              0;
+    }
+    transport
+    {
+        mu              3.645e-4;
+        Pr              2.289;
+    }
+}
+
+B
+{
+    specie
+    {
+        molWeight       18;
+    }
+    equationOfState
+    {
+        R               3000;
+        rho0            1027;
+    }
+    thermodynamics
+    {
+        Cp              4195;
+        Hf              0;
+    }
+    transport
+    {
+        mu              3.645e-4;
+        Pr              2.289;
+    }
+}
+
+P
+{
+    specie
+    {
+        molWeight       36;
+    }
+    equationOfState
+    {
+        R               2900;
+        rho0            1027;
+    }
+    thermodynamics
+    {
+        Cp              4195;
+        Hf              0;
+    }
+    transport
+    {
+        mu              3.645e-4;
+        Pr              2.289;
+    }
+}
+
+S
+{
+    specie
+    {
+        molWeight       18;
+    }
+    equationOfState
+    {
+        R               3000;
+        rho0            1027;
+    }
+    thermodynamics
+    {
+        Cp              4195;
+        Hf              0;
+    }
+    transport
+    {
+        mu              3.645e-4;
+        Pr              2.289;
+    }
+}
+
+// ************************************************************************* //

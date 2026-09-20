@@ -1,0 +1,41 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      reactions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+species
+(
+    A
+    B
+    P
+    S
+);
+
+// A + B = P, fast: with the concentrations of the streams, about 6 kmol/m3,
+// a reactant in excess consumes the other in 2e-8 s, against time steps of
+// 1e-2 s, so that A and B do not coexist in an environment
+reactions
+{
+    AplusB
+    {
+        type            irreversibleArrheniusReaction;
+        reaction        "A + B = P";
+        A               1e7;
+        beta            0;
+        Ta              0;
+    }
+}
+
+// ************************************************************************* //
