@@ -73,9 +73,15 @@ Description
       composition, and the temperature of an environment is the one at
       which its composition has that enthalpy. The absolute enthalpy is
       used, so that the heat of reaction is what raises the temperature.
-    A closure carrying the enthalpy of every environment as a coordinate
-    of the distribution, mixed with the compositions and untouched by
-    reaction, is not here yet.
+    - conditionalEnthalpy: the enthalpy of an environment is a coordinate
+      of the distribution, the last of its scalars, conditioned on the
+      mixture fraction as the compositions are, transported and mixed with
+      them, and read from the node; the temperature of an environment is
+      again the one at which its composition has that enthalpy. The
+      reaction does not change it. Where the enthalpy moments start and
+      enter linear in the mixture fraction between the streams, and
+      nothing else acts on them, this closure and linearEnthalpy give the
+      same environments, since mixing keeps a linear relation linear.
 
     The temperature of every environment is kept in a field named after
     the node, T.node0.mixing for the first node of the distribution
@@ -91,10 +97,11 @@ Description
     from the nodes, exactly, and the mean state of the cell is written to
     the thermo, so that the properties of the fluid follow the quadrature:
     the mass fraction fields of the species receive the mean composition,
-    the mean over the environments weighted by the nodes, and, with
-    linearEnthalpy, the energy field receives the enthalpy of the mean
-    temperature, the mean of the temperatures of the environments. The
-    solver updates the thermo after the mixing model has been solved.
+    the mean over the environments weighted by the nodes, and, unless the
+    environments are isothermal, the energy field receives the enthalpy of
+    the mean temperature, the mean of the temperatures of the
+    environments. The solver updates the thermo after the mixing model has
+    been solved.
     The mean density of a variable-density flow, the mean over the
     environments of their densities, is not written here.
 
@@ -112,6 +119,7 @@ Description
     {
         reactionModel   chemistry;
         temperature     linearEnthalpy;     // isothermal | linearEnthalpy
+                                            // | conditionalEnthalpy
         streams                             // with linearEnthalpy
         {
             xi0 { T 293; Y { O2 0.23; N2 0.77; } }
@@ -165,7 +173,8 @@ public:
     enum class temperatureClosure
     {
         isothermal,
-        linearEnthalpy
+        linearEnthalpy,
+        conditionalEnthalpy
     };
 
     //- Names of the temperature closures
@@ -329,11 +338,14 @@ private:
             const scalar T
         ) const;
 
-        //- Temperature of an environment by the closure
+        //- Temperature of an environment by the closure, from its
+        //  mixture fraction, its composition and the enthalpy its node
+        //  carries, which only conditionalEnthalpy reads
         scalar nodeTemperature
         (
             const scalar xi,
             const scalarField& Y,
+            const scalar hNode,
             const scalar Tcell,
             const scalar p
         ) const;

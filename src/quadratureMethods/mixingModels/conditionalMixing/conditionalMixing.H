@@ -38,6 +38,17 @@ Description
     otherwise the number of species of the thermo of the case, which is
     what the chemistry reaction model needs it to be.
 
+    With the temperature closure conditionalEnthalpy of the reaction, the
+    distribution carries one coordinate more, after the compositions: the
+    absolute enthalpy of the fluid, conditioned on the mixture fraction as
+    the compositions are, on the whole real line. It is transported and
+    mixed with them, and no reaction changes it, since the enthalpy of an
+    environment is what a reaction at constant pressure conserves; its
+    moments are therefore where the heat lost to a wall or to radiation
+    would enter, which an enthalpy linear in the mixture fraction cannot
+    carry. The quadrature must then be given one scalar more than the
+    compositions.
+
     The moments are carried by the velocity of the fluid, since a node of
     the mixture fraction is a state of the fluid and not of anything moving
     through it, and mixed by the kernel of the case. The mixing of every
@@ -186,8 +197,14 @@ public:
             const fvMesh& mesh
         );
 
+        //- Whether the distribution carries the enthalpy conditioned on
+        //  the mixture fraction: the temperature closure of the reaction
+        //  is conditionalEnthalpy
+        static bool carriesEnthalpy(const dictionary& dict);
+
         //- The supports of the dimensions of the distribution: the mixture
-        //  fraction and every composition on [0, 1]
+        //  fraction and every composition on [0, 1], and the enthalpy,
+        //  when it is carried, on the real line
         static List<supportType> supports
         (
             const dictionary& dict,

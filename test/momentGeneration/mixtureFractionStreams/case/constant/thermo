@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      thermo;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+A
+{
+    specie
+    {
+        molWeight       28;
+    }
+    thermodynamics
+    {
+        Cp              1000;
+        Hf              0;
+    }
+    transport
+    {
+        mu              1.8e-05;
+        Pr              0.7;
+    }
+}
+
+B
+{
+    specie
+    {
+        molWeight       28;
+    }
+    thermodynamics
+    {
+        Cp              1100;
+        Hf              100000;
+    }
+    transport
+    {
+        mu              1.8e-05;
+        Pr              0.7;
+    }
+}
+
+C
+{
+    specie
+    {
+        molWeight       28;
+    }
+    thermodynamics
+    {
+        Cp              1200;
+        Hf              -200000;
+    }
+    transport
+    {
+        mu              1.8e-05;
+        Pr              0.7;
+    }
+}
+
+// ************************************************************************* //

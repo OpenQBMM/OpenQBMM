@@ -1,0 +1,63 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      mixingProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+mixingModel conditionalMixing;
+
+conditionalMixingCoeffs
+{
+    // The compositions are the species of the thermo
+
+    diffusionModel
+    {
+        mixingDiffusionModel  none;
+    }
+
+    mixingKernel
+    {
+        mixingKernel  IEM;
+        Cphi          Cphi    [ 0 0 0 0 0 0 0 ] 2.0;
+    }
+
+    // The enthalpy of every environment is a coordinate of the distribution,
+    // which starts linear in the mixture fraction between pure B at xi = 0
+    // and pure A at xi = 1, both at 300 K. The model does not read the
+    // streams with this closure: the test does, for the line the enthalpy
+    // of the environments has to stay on while they mix.
+    reaction
+    {
+        reactionModel   chemistry;
+        temperature     conditionalEnthalpy;
+
+        streams
+        {
+            xi0 { T 300; Y { B 1; } }
+            xi1 { T 300; Y { A 1; } }
+        }
+    }
+
+    odeCoeffs
+    {
+        solveOde   on;
+        ATol       1.0e-12;
+        RTol       1.0e-9;
+        fac        0.9;
+        facMin     0.5;
+        facMax     2.0;
+        minLocalDt 1.0e-8;
+    }
+}
+
+// ************************************************************************* //

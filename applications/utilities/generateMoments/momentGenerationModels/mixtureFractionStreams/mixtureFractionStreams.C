@@ -28,6 +28,8 @@ License
 #include "mixtureFractionStreams.H"
 #include "IOdictionary.H"
 #include "IFstream.H"
+#include "psiReactionThermo.H"
+#include "rhoReactionThermo.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -138,6 +140,88 @@ Foam::momentGenerationSubModels::mixtureFractionStreams::readStream
     Y /= YSum;
 
     return Y;
+}
+
+
+void
+Foam::momentGenerationSubModels::mixtureFractionStreams::readStreamEnthalpies
+(
+    const dictionary& streams
+)
+{
+    // The thermo reads the mass fraction of every species, which must sum
+    // to one: where the case does not have them yet, they are written with
+    // the composition of the first stream, to be replaced by the means
+    forAll(species_, j)
+    {
+        IOobject header
+        (
+            species_[j],
+            mesh_.time().timeName(),
+            mesh_,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE,
+            IOobject::NO_REGISTER
+        );
+
+        if (!header.typeHeaderOk<volScalarField>(true))
+        {
+            volScalarField
+            (
+                header,
+                mesh_,
+                dimensionedScalar(species_[j], dimless, Y0_[j])
+            ).write();
+        }
+    }
+
+    thermoPtr_ = fluidThermo::New(mesh_);
+
+    const basicSpecieMixture* compositionPtr = nullptr;
+
+    if (isA<psiReactionThermo>(thermoPtr_()))
+    {
+        compositionPtr =
+            &refCast<psiReactionThermo>(thermoPtr_()).composition();
+    }
+    else if (isA<rhoReactionThermo>(thermoPtr_()))
+    {
+        compositionPtr =
+            &refCast<rhoReactionThermo>(thermoPtr_()).composition();
+    }
+    else
+    {
+        FatalErrorInFunction
+            << "The enthalpies of the streams need a thermo with species, "
+            << "and the thermo of the case is " << thermoPtr_->type() << nl
+            << exit(FatalError);
+    }
+
+    const basicSpecieMixture& composition = *compositionPtr;
+
+    if (composition.species() != species_)
+    {
+        FatalErrorInFunction
+            << "The species of the thermo, " << composition.species()
+            << ", are not the species of the moments, " << species_ << nl
+            << exit(FatalError);
+    }
+
+    const scalar p = gAverage(thermoPtr_->p().primitiveField());
+    const scalar T0 = streams.subDict("xi0").get<scalar>("T");
+    const scalar T1 = streams.subDict("xi1").get<scalar>("T");
+
+    h0_ = 0;
+    h1_ = 0;
+
+    forAll(species_, j)
+    {
+        h0_ += Y0_[j]*composition.Ha(j, p, T0);
+        h1_ += Y1_[j]*composition.Ha(j, p, T1);
+    }
+
+    Info<< "Absolute enthalpy of the streams: " << h0_ << " J/kg at xi = 0, "
+        << h1_ << " J/kg at xi = 1" << endl;
 }
 
 
@@ -255,10 +339,16 @@ void Foam::momentGenerationSubModels::mixtureFractionStreams::setMoments
         const label k = xiOrder_[mi];
         const label j = composition_[mi];
 
-        const scalar value =
-            j < 0
-          ? m[k]
-          : Y1_[j]*m[k + 1] + Y0_[j]*(m[k] - m[k + 1]);
+        scalar value = m[k];
+
+        if (j == species_.size())
+        {
+            value = h1_*m[k + 1] + h0_*(m[k] - m[k + 1]);
+        }
+        else if (j >= 0)
+        {
+            value = Y1_[j]*m[k + 1] + Y0_[j]*(m[k] - m[k + 1]);
+        }
 
         moments_[mi] = scalarField(size, value);
     }
@@ -282,16 +372,27 @@ Foam::momentGenerationSubModels::mixtureFractionStreams
     Y0_(readStream(dict.subDict("streams").subDict("xi0"))),
     Y1_(readStream(dict.subDict("streams").subDict("xi1"))),
     xiOrder_(nMoments_, 0),
-    composition_(nMoments_, -1)
+    composition_(nMoments_, -1),
+    carriesEnthalpy_(nDimensions_ == species_.size() + 2),
+    thermoPtr_(),
+    h0_(0),
+    h1_(0)
 {
-    if (species_.size() != nDimensions_ - 1)
+    if (species_.size() != nDimensions_ - 1 && !carriesEnthalpy_)
     {
         FatalIOErrorInFunction(dict)
             << "The distribution of " << phaseName << " has "
-            << nDimensions_ - 1 << " compositions conditioned on the "
+            << nDimensions_ - 1 << " coordinates conditioned on the "
             << "mixture fraction, and the case has " << species_.size()
             << " species: " << species_ << nl
+            << "    The coordinates are the species, or the species and "
+            << "the enthalpy after them." << nl
             << exit(FatalIOError);
+    }
+
+    if (carriesEnthalpy_)
+    {
+        readStreamEnthalpies(dict.subDict("streams"));
     }
 
     // The mixture fraction is the first dimension. A moment is of the
@@ -317,6 +418,16 @@ Foam::momentGenerationSubModels::mixtureFractionStreams
                     << "mixture fraction give no rule for it." << nl
                     << exit(FatalIOError);
             }
+        }
+
+        // A moment of the enthalpy is an energy per unit mass
+        if (composition_[mi] == species_.size())
+        {
+            momentDimensions_.set
+            (
+                order,
+                new dimensionSet(dimEnergy/dimMass)
+            );
         }
     }
 }
@@ -357,6 +468,8 @@ void Foam::momentGenerationSubModels::mixtureFractionStreams
     const mappedPtrList<volScalarField>& moments
 ) const
 {
+    // The thermo, where it was built, holds the fields of the species
+    // under their names: the means are written apart from them
     const volScalarField& m0 = moments(labelList(nDimensions_, 0));
 
     forAll(species_, j)

@@ -1,0 +1,43 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      streams;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The two streams the cell holds a mixture of: hot air at a mixture
+// fraction of zero and cold methane at one. The reaction model takes the
+// enthalpy of an environment from them, and generateMoments the moments of
+// the compositions, so both dictionaries include this file.
+xi0
+{
+    T       1200;
+
+    Y
+    {
+        O2      0.233;
+        N2      0.767;
+    }
+}
+
+xi1
+{
+    T       300;
+
+    Y
+    {
+        CH4     1;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,190 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "validation";
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The temperatures are held against those of mixingReactionIEM, where the
+// enthalpy of an environment is linear in its mixture fraction and not
+// transported: the two cases differ by what the solver of the moment
+// equations lets through, most at the ignition of the smallest environment.
+// The mean state of the cell over time, the temperature and the mass
+// fractions of the species, and the state of every environment, its
+// temperature and its mixture fraction, as the environments mix and react
+figures
+{
+    environmentTemperature
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "Temperature of the environment, $T_i$ [K]";
+        xRange      (0 10);
+
+        curves
+        {
+            linear0
+            {
+                file        "referenceData/linearEnthalpy_environment0.dat";
+                label       "Environment 0, linear enthalpy";
+            }
+            linear1
+            {
+                file        "referenceData/linearEnthalpy_environment1.dat";
+                label       "Environment 1, linear enthalpy";
+            }
+            linear2
+            {
+                file        "referenceData/linearEnthalpy_environment2.dat";
+                label       "Environment 2, linear enthalpy";
+            }
+            node0
+            {
+                file        "../postProcessing/probes/0/T.node0.mixing";
+                label       "Environment 0";
+                style       points;
+                every       40;
+
+                compare
+                {
+                    linear0     1e-4;
+                }
+            }
+            node1
+            {
+                file        "../postProcessing/probes/0/T.node1.mixing";
+                label       "Environment 1";
+                style       points;
+                every       40;
+
+                compare
+                {
+                    linear1     5e-4;
+                }
+            }
+            node2
+            {
+                file        "../postProcessing/probes/0/T.node2.mixing";
+                label       "Environment 2";
+                style       points;
+                every       40;
+
+                compare
+                {
+                    linear2     1e-3;
+                }
+            }
+            mean
+            {
+                file        "../postProcessing/probes/0/T";
+                label       "Mean";
+                computed    yes;
+                style       dashed;
+            }
+        }
+    }
+
+    environmentMixtureFraction
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "Mixture fraction of the environment, $\xi_i$";
+        xRange      (0 10);
+        yRange      (0 1);
+
+        curves
+        {
+            node0
+            {
+                file        "../postProcessing/probes/0/abscissa0.node0.mixing";
+                label       "Environment 0";
+                computed    yes;
+            }
+            node1
+            {
+                file        "../postProcessing/probes/0/abscissa0.node1.mixing";
+                label       "Environment 1";
+                computed    yes;
+            }
+            node2
+            {
+                file        "../postProcessing/probes/0/abscissa0.node2.mixing";
+                label       "Environment 2";
+                computed    yes;
+            }
+        }
+    }
+
+    temperature
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "Mean temperature, $T$ [K]";
+        xRange      (0 10);
+
+        curves
+        {
+            linear
+            {
+                file        "referenceData/linearEnthalpy_mean.dat";
+                label       "Linear enthalpy";
+            }
+            OpenQBMM
+            {
+                file        "../postProcessing/probes/0/T";
+                label       "Transported enthalpy (OpenQBMM)";
+                style       points;
+                every       40;
+
+                compare
+                {
+                    linear      1e-4;
+                }
+            }
+        }
+    }
+
+    composition
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "Mean mass fraction, $Y$";
+        xRange      (0 10);
+
+        curves
+        {
+            CH4
+            {
+                file        "../postProcessing/probes/0/CH4";
+                label       "CH$_4$";
+                computed    yes;
+            }
+            O2
+            {
+                file        "../postProcessing/probes/0/O2";
+                label       "O$_2$";
+                computed    yes;
+            }
+            CO2
+            {
+                file        "../postProcessing/probes/0/CO2";
+                label       "CO$_2$";
+                computed    yes;
+            }
+            H2O
+            {
+                file        "../postProcessing/probes/0/H2O";
+                label       "H$_2$O";
+                computed    yes;
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

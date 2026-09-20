@@ -222,7 +222,8 @@ runTest ./mixingModels/conditionalMixing/case \
 # fraction: A = B at a constant rate, so every moment <xi^k Y_A> decays at
 # that rate, the mass fractions sum to one, and, with the enthalpy linear in
 # the mixture fraction, the temperature of the cell is the mean of those of
-# the environments; with IEM on, the mean still decays at the rate
+# the environments; with IEM on, the mean still decays at the rate, and an
+# enthalpy carried as a coordinate stays linear in the mixture fraction
 runTest ./mixingModels/conditionalReaction/isothermal \
     Test-ConditionalReaction
 
@@ -230,6 +231,9 @@ runTest ./mixingModels/conditionalReaction/linearEnthalpy \
     Test-ConditionalReaction
 
 runTest ./mixingModels/conditionalReaction/mixing \
+    Test-ConditionalReaction
+
+runTest ./mixingModels/conditionalReaction/conditionalEnthalpy \
     Test-ConditionalReaction
 
 # The moments generateMoments gives a mixture fraction and the compositions

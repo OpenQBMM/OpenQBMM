@@ -49,14 +49,31 @@ Description
     one the set carries. The model generates those moments and refuses a
     set holding any other, which it has no rule for.
 
+    Where the distribution carries one coordinate more after the
+    compositions, it is the absolute enthalpy conditioned on the mixture
+    fraction, which mixing alone leaves linear in it as well, between the
+    enthalpies of the streams at their temperatures and compositions:
+
+        <xi^k h> = h_1 m_(k+1) + h_0 (m_k - m_(k+1)).
+
+    Those enthalpies need the thermodynamic data of the species, which
+    the model reaches by building the thermo of the case; they are taken
+    at the mean pressure of the case. The thermo reads the mass fraction
+    of every species where it is built, so where a case does not have
+    those fields yet the model first writes them with the composition of
+    the stream at xi = 0, and they are replaced by the means at the end.
+    The moments of the enthalpy are given the dimensions of an energy per
+    unit mass, whatever abscissaDimension says.
+
     The compositions are the species of the case, in the order of its
     species list, as the chemistry reaction model takes them: species of
     the dictionary when it is given, and otherwise the species entry of
     the foamChemistryFile named in thermophysicalProperties. The streams
     are given as that reaction model reads them, so a case can keep them
     in one file and include it in both dictionaries; their temperature is
-    not used here. The mass fractions of a stream are given by species
-    name, those not given are zero, and they must sum to one.
+    read only where the enthalpy is carried. The mass fractions of a stream
+    are given by species name, those not given are zero, and they must sum
+    to one.
 
     The distribution of the mixture fraction is given for the internal
     field, and for every patch that fixes its value and every region that
@@ -107,6 +124,7 @@ SourceFiles
 #define mixtureFractionStreams_H
 
 #include "momentGenerationModel.H"
+#include "fluidThermo.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -138,8 +156,21 @@ class mixtureFractionStreams
         labelList xiOrder_;
 
         //- For every moment, the composition it is first order in, -1 for
-        //  a moment of the mixture fraction alone
+        //  a moment of the mixture fraction alone, and the number of
+        //  species for a moment of the enthalpy
         labelList composition_;
+
+        //- Whether the distribution carries the enthalpy
+        const bool carriesEnthalpy_;
+
+        //- The thermo of the case, built for the data of its species
+        autoPtr<fluidThermo> thermoPtr_;
+
+        //- Absolute enthalpy of the stream at xi = 0
+        scalar h0_;
+
+        //- Absolute enthalpy of the stream at xi = 1
+        scalar h1_;
 
 
     // Private member functions
@@ -150,6 +181,11 @@ class mixtureFractionStreams
 
         //- The composition of a stream
         scalarField readStream(const dictionary& dict) const;
+
+        //- Build the thermo of the case, writing the mass fractions it
+        //  reads where the case does not have them yet, and take the
+        //  absolute enthalpies of the streams from it
+        void readStreamEnthalpies(const dictionary& streams);
 
         //- The moments of the mixture fraction up to an order, for the
         //  distribution of a dictionary

@@ -60,6 +60,7 @@ Foam::mixingSubModels::reactionModels::chemistry::temperatureClosureNames
 ({
     { temperatureClosure::isothermal, "isothermal" },
     { temperatureClosure::linearEnthalpy, "linearEnthalpy" },
+    { temperatureClosure::conditionalEnthalpy, "conditionalEnthalpy" },
 });
 
 
@@ -279,6 +280,7 @@ Foam::scalar Foam::mixingSubModels::reactionModels::chemistry::nodeTemperature
 (
     const scalar xi,
     const scalarField& Y,
+    const scalar hNode,
     const scalar Tcell,
     const scalar p
 ) const
@@ -288,11 +290,16 @@ Foam::scalar Foam::mixingSubModels::reactionModels::chemistry::nodeTemperature
         return Tcell;
     }
 
-    // The enthalpy of the environment, linear in the mixture fraction
-    // between the streams
-    const scalar h0 = enthalpy(Y0_, p, T0_);
-    const scalar h1 = enthalpy(Y1_, p, T1_);
-    const scalar h = h0 + xi*(h1 - h0);
+    // The enthalpy of the environment: the one its node carries, or the
+    // one linear in the mixture fraction between the streams
+    scalar h = hNode;
+
+    if (temperature_ == temperatureClosure::linearEnthalpy)
+    {
+        const scalar h0 = enthalpy(Y0_, p, T0_);
+        const scalar h1 = enthalpy(Y1_, p, T1_);
+        h = h0 + xi*(h1 - h0);
+    }
 
     // The temperature at which the composition has that enthalpy, by
     // Newton iteration from the temperature of the cell
@@ -458,15 +465,23 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
     mappedPtrList<volVelocityNode>& nodes = quadrature.nodes();
     const label nNodes = nodes.size();
 
-    // The abscissae of a node hold the mixture fraction first and then
-    // the compositions
-    if (nodes[0].scalarIndexes().size() != 1 + nSpecie)
+    // The abscissae of a node hold the mixture fraction first, then the
+    // compositions, and last the enthalpy when the distribution carries it
+    const bool enthalpyCarried =
+        temperature_ == temperatureClosure::conditionalEnthalpy;
+
+    if
+    (
+        nodes[0].scalarIndexes().size()
+     != 1 + nSpecie + (enthalpyCarried ? 1 : 0)
+    )
     {
         FatalErrorInFunction
             << "The nodes of the quadrature carry "
             << nodes[0].scalarIndexes().size()
             << " scalars, not the mixture fraction and " << nSpecie
-            << " compositions." << nl
+            << " compositions"
+            << (enthalpyCarried ? " and the enthalpy." : ".") << nl
             << exit(FatalError);
     }
 
@@ -521,7 +536,12 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
 
             Y_ /= YSum;
 
-            scalar Ti = nodeTemperature(xi, Y_, T[celli], pi);
+            const scalar hi =
+                enthalpyCarried
+              ? node.abscissae()[1 + nSpecie][celli]
+              : 0;
+
+            scalar Ti = nodeTemperature(xi, Y_, hi, T[celli], pi);
 
             if (Ti > Treact_)
             {
@@ -614,7 +634,7 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
         T_[nodei].correctBoundaryConditions();
     }
 
-    if (temperature_ == temperatureClosure::linearEnthalpy)
+    if (temperature_ != temperatureClosure::isothermal)
     {
         thermo_.he().primitiveFieldRef() =
             thermo_.he(p, meanT, identity(mesh_.nCells()));

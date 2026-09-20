@@ -124,6 +124,22 @@ Foam::PDFTransportModels::mixingModels::conditionalMixing::nCompositions
 }
 
 
+bool
+Foam::PDFTransportModels::mixingModels::conditionalMixing::carriesEnthalpy
+(
+    const dictionary& dict
+)
+{
+    return
+        dict.subOrEmptyDict("reaction").getOrDefault<word>
+        (
+            "temperature",
+            word::null
+        )
+     == "conditionalEnthalpy";
+}
+
+
 Foam::List<Foam::supportType>
 Foam::PDFTransportModels::mixingModels::conditionalMixing::supports
 (
@@ -132,12 +148,19 @@ Foam::PDFTransportModels::mixingModels::conditionalMixing::supports
 )
 {
     // The mixture fraction and every composition are mass fractions
-    return
-        List<supportType>
-        (
-            1 + nCompositions(dict, mesh),
-            supportType::ZeroOne
-        );
+    List<supportType> supports
+    (
+        1 + nCompositions(dict, mesh),
+        supportType::ZeroOne
+    );
+
+    // The enthalpy comes after them, and has no bounds
+    if (carriesEnthalpy(dict))
+    {
+        supports.append(supportType::R);
+    }
+
+    return supports;
 }
 
 
@@ -189,14 +212,18 @@ Foam::PDFTransportModels::mixingModels::conditionalMixing::conditionalMixing
     const label nDimensions = quadrature().momentOrders()[0].size();
     const label nCompositions = reactionModel_->nCompositions();
 
-    if (nDimensions != 1 + nCompositions)
+    const label nEnthalpies = carriesEnthalpy(dict) ? 1 : 0;
+
+    if (nDimensions != 1 + nCompositions + nEnthalpies)
     {
         FatalIOErrorInFunction(dict)
             << "The quadrature of " << name_ << " carries " << nDimensions
             << " dimensions, and the model mixes a mixture fraction with "
-            << nCompositions << " compositions." << nl
+            << nCompositions << " compositions"
+            << (nEnthalpies ? " and the enthalpy." : ".") << nl
             << "    Give nScalars of the inversion the number of "
-            << "compositions." << nl
+            << "compositions"
+            << (nEnthalpies ? ", and one more for the enthalpy." : ".") << nl
             << exit(FatalIOError);
     }
 }

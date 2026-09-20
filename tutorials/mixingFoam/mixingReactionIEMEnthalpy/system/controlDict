@@ -1,0 +1,115 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     mixingFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          0.01;
+
+writeControl    runTime;
+
+writeInterval   1;
+
+purgeWrite      0;
+
+writeFormat     binary;     // Use binary to avoid corruption of moments
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+suppressSolverInfo yes;
+
+functions
+{
+    probes
+    {
+        libs            (libsampling);
+        type            probes;
+        name            probes;
+        writeControl    timeStep;
+        writeInterval   1;
+
+        // The mean state of the cell, and every environment: its weight,
+        // its mixture fraction, its O2 and CH4, and its temperature
+        fields
+        (
+            T
+            O2
+            H2O
+            CH4
+            CO2
+            N2
+            weight.node0.mixing
+            abscissa0.node0.mixing
+            abscissa1.node0.mixing
+            abscissa3.node0.mixing
+            T.node0.mixing
+            weight.node1.mixing
+            abscissa0.node1.mixing
+            abscissa1.node1.mixing
+            abscissa3.node1.mixing
+            T.node1.mixing
+            weight.node2.mixing
+            abscissa0.node2.mixing
+            abscissa1.node2.mixing
+            abscissa3.node2.mixing
+            T.node2.mixing
+            moment.0_0_0_0_0_0.mixing
+            moment.1_0_0_0_0_0.mixing
+            moment.2_0_0_0_0_0.mixing
+            moment.3_0_0_0_0_0.mixing
+            moment.4_0_0_0_0_0.mixing
+            moment.5_0_0_0_0_0.mixing
+            moment.0_1_0_0_0_0.mixing
+            moment.1_1_0_0_0_0.mixing
+            moment.2_1_0_0_0_0.mixing
+            moment.0_0_1_0_0_0.mixing
+            moment.1_0_1_0_0_0.mixing
+            moment.2_0_1_0_0_0.mixing
+            moment.0_0_0_1_0_0.mixing
+            moment.1_0_0_1_0_0.mixing
+            moment.2_0_0_1_0_0.mixing
+            moment.0_0_0_0_1_0.mixing
+            moment.1_0_0_0_1_0.mixing
+            moment.2_0_0_0_1_0.mixing
+            moment.0_0_0_0_0_1.mixing
+            moment.1_0_0_0_0_1.mixing
+            moment.2_0_0_0_0_1.mixing
+        );
+
+        probeLocations
+        (
+            ( 0.5 0.5 0.5 )
+        );
+    }
+}
+
+// ************************************************************************* //

@@ -42,6 +42,11 @@ Description
     - nodes: every moment is the sum over the nodes of the weight, the
       power of the abscissa and the composition at that abscissa, which
       does not go through the moments of the mixture fraction.
+    With one coordinate more the distribution carries the enthalpy, and
+    its moments are those of an enthalpy linear in the mixture fraction
+    between the streams, whose enthalpies the model takes from the thermo
+    of the case: they are checked against the heats of formation and the
+    constant heat capacities of the species, written out here.
     The moments of a patch and of a set of cells have the size of what
     they are for. A moment of second order in a composition, and a variance
     a beta distribution cannot have, are refused.
@@ -341,6 +346,119 @@ int main(int argc, char *argv[])
             mag(generator->moments()(order(1)).size() - 1)
           + mag(moment(order(1)) - (0.4*0.2 + 0.6*0.9)),
             1e-15
+        );
+    }
+
+
+    // * * * * * * * * * * * * * * * * Enthalpy  * * * * * * * * * * * * * //
+
+    Info<< nl << "The enthalpy conditioned on the mixture fraction" << nl;
+    {
+        // The same set with one coordinate more, the enthalpy
+        DynamicList<labelList> hOrders;
+
+        for (label k = 0; k < 4; k++)
+        {
+            labelList o(5, 0);
+            o[0] = k;
+            hOrders.append(o);
+        }
+
+        for (label j = 0; j < 4; j++)
+        {
+            for (label k = 0; k < 2; k++)
+            {
+                labelList o(5, 0);
+                o[0] = k;
+                o[1 + j] = 1;
+                hOrders.append(o);
+            }
+        }
+
+        const string hModelText
+        (
+            "type mixtureFractionStreams;"
+            "weightDimension [0 0 0 0 0 0 0];"
+            "abscissaDimension [0 0 0 0 0 0 0];"
+            "species (A B C);"
+            "streams"
+            "{"
+            "    xi0 { T 400; Y { A 0.25; B 0.75; } }"
+            "    xi1 { T 300; Y { C 1; } }"
+            "}"
+        );
+
+        IStringStream hModelStream(hModelText);
+        const dictionary hModelDict(hModelStream);
+
+        autoPtr<momentGenerationModel> hGenerator
+        (
+            momentGenerationModel::New
+            (
+                mesh,
+                hModelDict,
+                "mixing",
+                labelListList(hOrders),
+                2
+            )
+        );
+
+        hGenerator->updateMoments
+        (
+            dictionary
+            (
+                IStringStream
+                (
+                    "distribution beta; mean 0.3; variance 0.05;"
+                )()
+            )
+        );
+
+        // The absolute enthalpy of a species of constant heat capacity is
+        // its heat of formation and Cp (T - Tstd)
+        const scalar Tstd = 298.15;
+        const scalar hA = 0 + 1000*(400 - Tstd);
+        const scalar hB = 100000 + 1100*(400 - Tstd);
+        const scalar hC = -200000 + 1200*(300 - Tstd);
+        const scalar h0 = 0.25*hA + 0.75*hB;
+        const scalar h1 = hC;
+
+        scalar worst = 0;
+
+        for (label k = 0; k < 2; k++)
+        {
+            labelList xiOrder(5, 0);
+            labelList hOrder(5, 0);
+            xiOrder[0] = k;
+            hOrder[0] = k;
+            hOrder[4] = 1;
+
+            const scalar mk = hGenerator->moments()(xiOrder)[0];
+            xiOrder[0] = k + 1;
+            const scalar mk1 = hGenerator->moments()(xiOrder)[0];
+
+            worst =
+                max
+                (
+                    worst,
+                    mag
+                    (
+                        hGenerator->moments()(hOrder)[0]
+                      - (h1*mk1 + h0*(mk - mk1))
+                    )/mag(h1 - h0)
+                );
+        }
+
+        check("<xi^k h> is linear between the streams", worst, 1e-14);
+
+        labelList hOrder(5, 0);
+        hOrder[4] = 1;
+
+        check
+        (
+            "a moment of the enthalpy is an energy per unit mass",
+            hGenerator->momentDims()(hOrder) == dimEnergy/dimMass ? 0 : 1,
+            0
         );
     }
 

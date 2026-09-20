@@ -46,7 +46,17 @@ Description
       the one at which its composition has the enthalpy of its mixture
       fraction, and it rises, since A carries a heat of formation;
     - with isothermal environments, the temperature of the cell does not
-      change.
+      change;
+    - with the enthalpy conditioned on the mixture fraction, a coordinate
+      of the distribution that starts linear in it between the streams,
+      the enthalpy stays on that line while the environments mix, since
+      IEM keeps a linear relation linear, and the temperatures are those
+      the linear closure gives. The moments of the enthalpy stay on it to
+      the tolerance of the solver of the moment equations. The enthalpy of
+      the nodes carries that error amplified by the solve for the
+      conditional means, more and more as mixing draws the nodes together:
+      a hundred times and more by the end of the test, which the tolerance
+      on the nodes allows for.
     In every case the mass fractions of every node stay within [0, 1] and
     sum to one, the species fields of the thermo hold the mean composition,
     and the temperature field of every environment holds the temperature
@@ -170,7 +180,12 @@ int main(int argc, char *argv[])
 
     const dictionary& reactionDict = coeffs.subDict("reaction");
     const word temperature(reactionDict.get<word>("temperature"));
-    const bool linearEnthalpy = temperature == "linearEnthalpy";
+    const bool conditionalEnthalpy = temperature == "conditionalEnthalpy";
+    const bool linearEnthalpy =
+        temperature == "linearEnthalpy" || conditionalEnthalpy;
+
+    // The moments have one index more where the enthalpy is carried
+    const word tail(conditionalEnthalpy ? "_0" : "");
 
     // The rate of A = B, from the reactions of the case
     IFstream reactionsFile(runTime.constant()/"reactions");
@@ -197,11 +212,13 @@ int main(int argc, char *argv[])
         Y1[B] = YDict1.getOrDefault<scalar>("B", 0);
     }
 
-    auto moment = [&mesh, celli](const word& orders)
+    auto moment = [&mesh, &tail, celli](const word& orders)
     {
         return
-            mesh.lookupObject<volScalarField>("moment." + orders + ".mixing")
-            [celli];
+            mesh.lookupObject<volScalarField>
+            (
+                "moment." + orders + tail + ".mixing"
+            )[celli];
     };
 
     const velocityQuadratureApproximation& quadrature =
@@ -302,6 +319,8 @@ int main(int argc, char *argv[])
     scalar worstMeanY = 0;
     scalar worstT = 0;
     scalar worstNodeT = 0;
+    scalar worstLine = 0;
+    scalar worstMomentLine = 0;
     scalar Tfinal = Tinitial;
 
     for (label stepi = 0; stepi < nSteps; stepi++)
@@ -355,6 +374,30 @@ int main(int argc, char *argv[])
             }
         }
 
+        // The moments of the enthalpy, linear in the mixture fraction
+        if (conditionalEnthalpy)
+        {
+            const scalar h0 = enthalpy(Y0, T0);
+            const scalar h1 = enthalpy(Y1, T1);
+            const wordList hOrders({"0_0_0_1", "1_0_0_1", "2_0_0_1"});
+
+            forAll(hOrders, i)
+            {
+                const scalar mh =
+                    mesh.lookupObject<volScalarField>
+                    (
+                        "moment." + hOrders[i] + ".mixing"
+                    )[celli];
+
+                const scalar exact =
+                    h0*moment(xiOrders[i])
+                  + (h1 - h0)*moment(xiOrders[i + 1]);
+
+                worstMomentLine =
+                    max(worstMomentLine, mag(mh - exact)/mag(h1 - h0));
+            }
+        }
+
         // The nodes: bounds, and the mean state the thermo received
         const auto& nodes = quadrature.nodes();
 
@@ -384,7 +427,21 @@ int main(int argc, char *argv[])
             {
                 const scalar h0 = enthalpy(Y0, T0);
                 const scalar h1 = enthalpy(Y1, T1);
-                T = temperatureOf(Y, h0 + xi*(h1 - h0), Tinitial);
+                scalar h = h0 + xi*(h1 - h0);
+
+                if (conditionalEnthalpy)
+                {
+                    // The enthalpy the node carries, which has to be the
+                    // one of the line
+                    const scalar hNode = nodes[nodei].abscissae()[3][celli];
+
+                    worstLine =
+                        max(worstLine, mag(hNode - h)/mag(h1 - h0));
+
+                    h = hNode;
+                }
+
+                T = temperatureOf(Y, h, Tinitial);
             }
 
             // The temperature field of the environment
@@ -420,7 +477,16 @@ int main(int argc, char *argv[])
 
         Info<< "t = " << t << ": <Y_A> " << moment("0_1_0")
             << " (exact " << decay*YA0[0] << "), <xi Y_A> "
-            << moment("1_1_0") << ", T " << thermo.T()[celli] << " K" << nl;
+            << moment("1_1_0") << ", T " << thermo.T()[celli] << " K";
+
+        if (conditionalEnthalpy)
+        {
+            Info<< ", enthalpy off the line by " << worstLine
+                << " in the nodes and " << worstMomentLine
+                << " in the moments";
+        }
+
+        Info<< nl;
     }
 
 
@@ -458,6 +524,23 @@ int main(int argc, char *argv[])
     check("every mass fraction stays within [0, 1]", worstBound, 0);
     check("the thermo holds the mean composition", worstMeanY, 1e-12);
     check("every environment's field holds its temperature", worstNodeT, 1e-10);
+
+    if (conditionalEnthalpy)
+    {
+        check
+        (
+            "the moments of the enthalpy stay linear in those of xi",
+            worstMomentLine,
+            1e-8
+        );
+
+        check
+        (
+            "the enthalpy of every environment stays linear in xi",
+            worstLine,
+            1e-5
+        );
+    }
 
     if (linearEnthalpy)
     {
