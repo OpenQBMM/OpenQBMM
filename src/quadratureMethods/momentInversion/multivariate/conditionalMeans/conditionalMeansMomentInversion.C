@@ -84,7 +84,8 @@ Foam::multivariateMomentInversions::conditionalMeans::conditionalMeans
     (
         univariateMomentInversion::New(dict.subDict("basicQuadrature"))
     ),
-    nClipped_(0)
+    nClipped_(0),
+    clipToSupports_(true)
 {
     // The abscissae hold the dimensions that are not velocities, in their
     // order: the primary one first, since it is the first of them, and the
@@ -365,7 +366,11 @@ bool Foam::multivariateMomentInversions::conditionalMeans::invert
 
             scalar value = phi(nodei, 0);
 
-            if (support != supportType::R && value < 0)
+            if (!clipToSupports_)
+            {
+                // The model the quadrature belongs to repairs the nodes
+            }
+            else if (support != supportType::R && value < 0)
             {
                 value = 0;
                 nClipped_++;

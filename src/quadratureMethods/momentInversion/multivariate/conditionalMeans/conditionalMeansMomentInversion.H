@@ -52,6 +52,17 @@ Description
     values were clipped in the last inversion is kept, so that a caller can
     report it. A velocity is on the reals and is never clipped.
 
+    Clipping a value is a repair of one node on its own, which changes the
+    moment it belongs to: harmless where the value is outside its support
+    by round-off, and not where it is by more. The conditional means are
+    what reproduces the moments, which is the value of the scalar at the
+    nodes only where the scalar is a polynomial of the primary coordinate
+    of a degree below the number of nodes; a profile with a corner, which a
+    fast reaction gives a composition, comes out below zero on one side of
+    it. A model that has a better repair, as a reaction has along its
+    stoichiometry, asks the inversion not to clip, and receives the
+    conditional means as the solve gives them.
+
     Selected as conditionalMeans, or as monoKinetic, the name the velocity
     closure has always had.
 
@@ -111,6 +122,9 @@ class conditionalMeans
         //- Number of conditioned values clipped to their support in the
         //  last inversion
         label nClipped_;
+
+        //- Whether a conditioned scalar is kept within its support
+        bool clipToSupports_;
 
 
     // Private member functions
@@ -177,6 +191,12 @@ public:
 
         //- Invert moments to find weights and abscissae
         virtual bool invert(const multivariateMomentSet& moments);
+
+        //- Whether a conditioned scalar is kept within its support
+        virtual void clipToSupports(const bool clip)
+        {
+            clipToSupports_ = clip;
+        }
 
         //- Number of conditioned values clipped to their support in the
         //  last inversion

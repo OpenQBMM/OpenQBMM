@@ -170,6 +170,14 @@ public:
         //- Return mapped quadrature velocity abscissae for each dimension
         inline const mappedVectorList& velocityAbscissae() const;
 
+        //- Whether the inversion keeps within its support a conditioned
+        //  value the solve gives outside it. A model that brings the nodes
+        //  back by means of its own, as a reaction does along its
+        //  stoichiometry, asks the inversion not to; an inversion that
+        //  clips nothing ignores it
+        virtual void clipToSupports(const bool clip)
+        {}
+
         //- Number of values clipped to their support in the last
         //  inversion. Only an inversion that clips counts any.
         virtual label nClipped() const

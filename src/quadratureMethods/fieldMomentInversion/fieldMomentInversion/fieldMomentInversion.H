@@ -246,6 +246,11 @@ public:
                 const bool fatalErrorOnFailedRealizabilityTest = true
             ) = 0;
 
+        //- Whether the inversion keeps a conditioned value within its
+        //  support, where it has such a thing to do
+        virtual void clipToSupports(const bool clip)
+        {}
+
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const = 0;
 

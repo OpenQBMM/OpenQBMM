@@ -59,6 +59,61 @@ Description
     mass they carry, so that their sum stays one whatever round-off the
     integration leaves.
 
+    The compositions of a node are the conditional means that reproduce the
+    moments, which are the compositions of the fluid at the mixture
+    fraction of the node only where they are smooth in it. A fast reaction
+    makes them piecewise linear, with a corner at stoichiometry, and
+    transport mixes the moments of neighbouring cells: the conditional
+    means of the result come out below zero on one side of the corner, by
+    far more than round-off. What is wrong in such a node is one thing
+    only. Whatever the reactions conserve is linear in the mixture
+    fraction, and the conditional means reproduce anything linear exactly,
+    so the node has the atoms and the enthalpy of its mixture fraction:
+    it is the unreacted mixture there plus some progress of the reactions,
+    and it is the progress that is off. This is the picture of a mixture
+    fraction and a progress variable, in which the states the fluid can
+    have lie, for one reaction, in a triangle whose sides are the species
+    that reach zero: the mixing line, where there is no product, and the
+    lean and the rich side, where a reactant is exhausted.
+
+    A node outside that region is projected onto its boundary along the
+    reactions, before it reacts: the model finds the smallest change of
+    composition, a combination of the changes the reactions of the
+    mechanism make, that leaves no species negative. The mixture fraction,
+    the weight, the atoms and the enthalpy of the node are untouched, and
+    its mass fractions still sum to one; what changes is how far the
+    reactions have gone, which the chemistry then decides anyway. There is
+    always such a composition, the unreacted mixture being one, and with
+    one reaction it is the clamp of the progress variable. The
+    stoichiometry is the one of the reactions the chemistry model of
+    OpenFOAM integrates, read from it, so it holds whatever file the
+    mechanism came from; the streams are not needed. The model asks the
+    inversion not to clip the compositions, a repair of one node on its
+    own that creates the species it clips and takes them, once the mass
+    fractions are normalised, from the most abundant one. How many
+    environments were projected in a time step is reported.
+
+    What the projection cannot bring back is not a progress of the
+    reactions: a species no reaction touches below zero, or mass fractions
+    that do not sum to one. The moments do not say such a thing, since
+    what no reaction changes is linear in the mixture fraction and is
+    reproduced exactly; the solve for the conditional means does, where
+    mixing has drawn the nodes of a cell together and it has become
+    ill-conditioned, so that it amplifies the tolerance the moments were
+    solved to into values of order one at the lightest nodes. Every node
+    of such a cell takes the mean composition of the cell, and its mean
+    enthalpy where the enthalpy is carried. The means are the moments,
+    which are kept, and the mass fractions sum to one; what is given up is
+    a conditional structure the nodes no longer resolve. A cell is taken
+    as such where, after the projection, a mass fraction is below
+    -unusableTolerance or their sum is further than that from one: 1e-3
+    unless the dictionary of the model says otherwise. It is not a
+    tolerance on round-off: the conditional means of a sound cell carry
+    the error the moment equations were solved to, amplified as its nodes
+    approach each other, 1e-6 to 1e-4 with the tolerances the cases use,
+    and what is unusable is of order one. The number of such cells in a
+    time step is reported.
+
     The temperature of an environment is a closure of the model,
     selected by temperature:
     - isothermal: every environment is at the temperature of the cell,
@@ -278,6 +333,11 @@ private:
         //- Composition of the stream at xi = 1
         scalarField Y1_;
 
+        //- How far below zero a mass fraction may be left by the
+        //  projection, and how far from one their sum, before the nodes of
+        //  the cell are taken as unusable
+        const scalar unusableTolerance_;
+
         //- Temperature below which an environment does not react
         const scalar Treact_;
 
@@ -301,6 +361,20 @@ private:
         //- The composition of an environment
         scalarField Y_;
 
+        //- What the clamp and the normalisation that follow the projection
+        //  removed in a time step, accumulated for the debug output
+        scalar debugNegative_;
+        scalar debugWorstNegative_;
+        scalar debugSum_;
+
+        //- An orthonormal basis of the changes of composition the
+        //  reactions of the mechanism make, in mass fractions
+        List<scalarField> reactionBasis_;
+
+        //- For every species, how much of that basis moves it: the squared
+        //  norm of its components, zero for a species no reaction touches
+        scalarField speciesMobility_;
+
 
     // Private member functions
 
@@ -312,6 +386,20 @@ private:
 
         //- The chemistry model as an ODE system
         static const ODESystem& systemOf(const basicChemistryModel& model);
+
+        //- The changes of composition of the reactions of the chemistry
+        //  model, if it is the one of OpenFOAM for this thermo: for every
+        //  reaction, the mass of every species it makes per unit of its
+        //  progress
+        template<class ReactionThermo, class ThermoType>
+        bool readReactions
+        (
+            const basicChemistryModel& model,
+            List<scalarField>& directions
+        ) const;
+
+        //- Build the basis of the changes of composition of the mechanism
+        void setReactionBasis();
 
         //- Read a stream: its temperature and its composition by species
         void readStream
@@ -386,6 +474,19 @@ public:
         {
             return temperature_;
         }
+
+        //- The model brings back the nodes the moments give outside the
+        //  compositions the reactions allow
+        virtual bool projects() const
+        {
+            return true;
+        }
+
+        //- Project a composition with negative mass fractions onto the
+        //  boundary of the compositions the reactions allow: the smallest
+        //  change along the reactions that leaves none negative. Returns
+        //  whether the composition was changed
+        bool project(scalarField& Y) const;
 
         //- The temperature of every environment
         const PtrList<volScalarField>& T() const

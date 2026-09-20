@@ -183,6 +183,14 @@ public:
         //- Whether the model changes the compositions
         virtual bool reacts() const = 0;
 
+        //- Whether the model brings back itself a node whose compositions
+        //  the moments give outside their bounds, so that the inversion
+        //  is not to clip them
+        virtual bool projects() const
+        {
+            return false;
+        }
+
         //- Advance the compositions of every environment of every cell
         //  over the time step of the case, and rebuild the moments from
         //  the nodes

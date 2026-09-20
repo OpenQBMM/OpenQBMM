@@ -57,6 +57,11 @@ Description
       conditional means, more and more as mixing draws the nodes together:
       a hundred times and more by the end of the test, which the tolerance
       on the nodes allows for.
+    The model brings back a composition the moments give outside what the
+    reactions allow along the reactions: with A = B and equal molecular
+    weights, a negative A is given back by B and a negative B by A, their
+    sum unchanged, and a composition that is allowed is left alone.
+
     In every case the mass fractions of every node stay within [0, 1] and
     sum to one, the species fields of the thermo hold the mean composition,
     and the temperature field of every environment holds the temperature
@@ -71,6 +76,8 @@ Description
 #include "turbulentFluidThermoModel.H"
 #include "hexCellFvMesh.H"
 #include "mixingModel.H"
+#include "conditionalMixing.H"
+#include "chemistry.H"
 #include "quadratureApproximations.H"
 #include "IFstream.H"
 
@@ -169,6 +176,56 @@ int main(int argc, char *argv[])
     (
         mixingModel::New("mixing", mixingProperties, phi)
     );
+
+    // The projection of a composition along the reactions
+    {
+        const auto& chemistryModel =
+            refCast<const mixingSubModels::reactionModels::chemistry>
+            (
+                refCast
+                <
+                    const PDFTransportModels::mixingModels::conditionalMixing
+                >(mixing()).reaction()
+            );
+
+        Info<< nl << "Projection along A = B" << nl;
+
+        scalarField Y(2);
+        Y[A] = -0.01;
+        Y[B] = 1.01;
+
+        const bool projected = chemistryModel.project(Y);
+
+        check
+        (
+            "a negative A is given back by B",
+            (projected ? 0 : 1) + mag(Y[A]) + mag(Y[B] - 1),
+            1e-14
+        );
+
+        Y[A] = 1.02;
+        Y[B] = -0.02;
+        chemistryModel.project(Y);
+
+        check
+        (
+            "a negative B is given back by A",
+            mag(Y[A] - 1) + mag(Y[B]),
+            1e-14
+        );
+
+        Y[A] = 0.3;
+        Y[B] = 0.7;
+
+        const bool changed = chemistryModel.project(Y);
+
+        check
+        (
+            "a composition the reactions allow is left alone",
+            (changed ? 1 : 0) + mag(Y[A] - 0.3) + mag(Y[B] - 0.7),
+            0
+        );
+    }
 
     const label celli = 0;
 

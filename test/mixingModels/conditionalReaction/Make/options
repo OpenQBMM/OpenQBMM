@@ -19,9 +19,14 @@ LIB_THERMO_TOOLS :=
 EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/transportModels \
+    -I$(LIB_SRC)/thermophysicalModels/thermophysicalProperties/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/thermophysicalFunctions/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/reactionThermo/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/chemistryModel/lnInclude \
+    -I$(LIB_SRC)/ODE/lnInclude \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
@@ -36,6 +41,9 @@ EXE_INC = \
     -I$(QBMM_SRC)/quadratureMethods/moments \
     -I$(QBMM_SRC)/quadratureMethods/fieldMomentInversion/lnInclude \
     -I$(QBMM_SRC)/quadratureMethods/quadratureApproximations/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/momentAdvection/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/PDFTransportModels/lnInclude \
+    -I$(QBMM_SRC)/quadratureMethods/realizableOdeSolver \
     -I$(QBMM_SRC)/quadratureMethods/mixingModels/lnInclude 
 
 EXE_LIBS = \

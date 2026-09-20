@@ -30,6 +30,8 @@ License
 #include "rhoReactionThermo.H"
 #include "rhoThermo.H"
 #include "BasicChemistryModel.H"
+#include "StandardChemistryModel.H"
+#include "thermoPhysicsTypes.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -172,6 +174,147 @@ Foam::mixingSubModels::reactionModels::chemistry::systemOf
     }
 
     return *systemPtr;
+}
+
+
+template<class ReactionThermo, class ThermoType>
+bool Foam::mixingSubModels::reactionModels::chemistry::readReactions
+(
+    const basicChemistryModel& model,
+    List<scalarField>& directions
+) const
+{
+    typedef StandardChemistryModel<ReactionThermo, ThermoType> modelType;
+
+    const modelType* modelPtr = dynamic_cast<const modelType*>(&model);
+
+    if (!modelPtr)
+    {
+        return false;
+    }
+
+    const PtrList<Reaction<ThermoType>>& reactions = modelPtr->reactions();
+
+    directions.setSize(reactions.size());
+
+    forAll(reactions, ri)
+    {
+        scalarField& direction = directions[ri];
+        direction = scalarField(composition_.species().size(), Zero);
+
+        for (const auto& reactant : reactions[ri].lhs())
+        {
+            direction[reactant.index] -=
+                reactant.stoichCoeff*composition_.W(reactant.index);
+        }
+
+        for (const auto& product : reactions[ri].rhs())
+        {
+            direction[product.index] +=
+                product.stoichCoeff*composition_.W(product.index);
+        }
+    }
+
+    return true;
+}
+
+
+void Foam::mixingSubModels::reactionModels::chemistry::setReactionBasis()
+{
+    const label nSpecie = composition_.species().size();
+
+    // The chemistry model of OpenFOAM is a template on the thermo of the
+    // species: its reactions are reached through the thermos OpenFOAM
+    // builds it for
+    List<scalarField> directions;
+    bool found = false;
+
+    #define readReactionsFor(ThermoType)                                       \
+        found =                                                                \
+            found                                                              \
+         || readReactions<psiReactionThermo, ThermoType>                       \
+            (                                                                  \
+                chemistry_(),                                                  \
+                directions                                                     \
+            )                                                                  \
+         || readReactions<rhoReactionThermo, ThermoType>                       \
+            (                                                                  \
+                chemistry_(),                                                  \
+                directions                                                     \
+            );
+
+    readReactionsFor(constGasHThermoPhysics)
+    readReactionsFor(gasHThermoPhysics)
+    readReactionsFor(PengRobinsonGasHThermoPhysics)
+    readReactionsFor(constIncompressibleGasHThermoPhysics)
+    readReactionsFor(incompressibleGasHThermoPhysics)
+    readReactionsFor(icoPoly8HThermoPhysics)
+    readReactionsFor(constFluidHThermoPhysics)
+    readReactionsFor(constAdiabaticFluidHThermoPhysics)
+    readReactionsFor(constHThermoPhysics)
+    readReactionsFor(constGasEThermoPhysics)
+    readReactionsFor(gasEThermoPhysics)
+    readReactionsFor(PengRobinsonGasEThermoPhysics)
+    readReactionsFor(constIncompressibleGasEThermoPhysics)
+    readReactionsFor(incompressibleGasEThermoPhysics)
+    readReactionsFor(icoPoly8EThermoPhysics)
+    readReactionsFor(constFluidEThermoPhysics)
+    readReactionsFor(constAdiabaticFluidEThermoPhysics)
+    readReactionsFor(constEThermoPhysics)
+
+    #undef readReactionsFor
+
+    if (!found)
+    {
+        FatalErrorInFunction
+            << "The reactions of the chemistry model " << chemistry_->type()
+            << " could not be reached: it is not the chemistry model of "
+            << "OpenFOAM for one of the thermos OpenFOAM builds it for, "
+            << "and the thermo of the case is " << thermo_.thermoName()
+            << nl << exit(FatalError);
+    }
+
+    // An orthonormal basis of what the reactions span, by Gram-Schmidt: a
+    // reaction that is a combination of those before it adds nothing
+    reactionBasis_.clear();
+
+    forAll(directions, ri)
+    {
+        scalarField v(directions[ri]);
+        const scalar size = Foam::sqrt(sumSqr(v));
+
+        if (size <= 0)
+        {
+            continue;
+        }
+
+        // Twice, for the orthogonality to hold to round-off
+        for (label pass = 0; pass < 2; pass++)
+        {
+            forAll(reactionBasis_, bi)
+            {
+                v -= sumProd(v, reactionBasis_[bi])*reactionBasis_[bi];
+            }
+        }
+
+        const scalar rest = Foam::sqrt(sumSqr(v));
+
+        if (rest > 1e-10*size)
+        {
+            reactionBasis_.append(scalarField(v/rest));
+        }
+    }
+
+    speciesMobility_ = scalarField(nSpecie, Zero);
+
+    forAll(reactionBasis_, bi)
+    {
+        speciesMobility_ += sqr(reactionBasis_[bi]);
+    }
+
+    Info<< "    " << directions.size() << " reactions change the "
+        << "composition in " << reactionBasis_.size()
+        << " independent ways" << endl;
 }
 
 
@@ -362,6 +505,7 @@ Foam::mixingSubModels::reactionModels::chemistry::chemistry
     Y0_(),
     T1_(0),
     Y1_(),
+    unusableTolerance_(dict.getOrDefault<scalar>("unusableTolerance", 1e-3)),
     Treact_(chemistry_->getOrDefault<scalar>("Treact", 0)),
     deltaTChemIni_(chemistry_->get<scalar>("initialChemicalTimeStep")),
     deltaTChemMax_
@@ -375,7 +519,12 @@ Foam::mixingSubModels::reactionModels::chemistry::chemistry
     ),
     T_(quadrature.nodes().size()),
     cTp_(system_.nEqns(), Zero),
-    Y_(nCompositions, Zero)
+    Y_(nCompositions, Zero),
+    debugNegative_(0),
+    debugWorstNegative_(0),
+    debugSum_(0),
+    reactionBasis_(),
+    speciesMobility_()
 {
     const label nSpecie = composition_.species().size();
 
@@ -431,6 +580,8 @@ Foam::mixingSubModels::reactionModels::chemistry::chemistry
 
     Info<< "    " << nSpecie << " species react in every environment, "
         << "temperature " << temperatureClosureNames[temperature_] << endl;
+
+    setReactionBasis();
 }
 
 
@@ -441,6 +592,79 @@ Foam::mixingSubModels::reactionModels::chemistry::~chemistry()
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+bool Foam::mixingSubModels::reactionModels::chemistry::project
+(
+    scalarField& Y
+) const
+{
+    if (min(Y) >= 0)
+    {
+        return false;
+    }
+
+    // The smallest change z in the basis of the reactions that leaves no
+    // species negative: min |z|^2 with Y_j + sum_k B_kj z_k >= 0 for every
+    // species j. Hildreth's method: every constraint in turn gives its
+    // multiplier the change that satisfies it, never below zero, and z is
+    // the combination of the constraints by their multipliers.
+    const label nBasis = reactionBasis_.size();
+
+    scalarField z(nBasis, Zero);
+    scalarField multiplier(Y.size(), Zero);
+
+    const scalar tolerance = 1e-15;
+
+    for (label iter = 0; iter < 10000; iter++)
+    {
+        scalar worst = 0;
+
+        forAll(Y, j)
+        {
+            if (speciesMobility_[j] <= SMALL)
+            {
+                continue;
+            }
+
+            scalar Yj = Y[j];
+
+            for (label k = 0; k < nBasis; k++)
+            {
+                Yj += reactionBasis_[k][j]*z[k];
+            }
+
+            const scalar newMultiplier =
+                max(scalar(0), multiplier[j] - Yj/speciesMobility_[j]);
+
+            const scalar change = newMultiplier - multiplier[j];
+
+            if (change != 0)
+            {
+                for (label k = 0; k < nBasis; k++)
+                {
+                    z[k] += change*reactionBasis_[k][j];
+                }
+
+                multiplier[j] = newMultiplier;
+            }
+
+            worst = max(worst, mag(change)*speciesMobility_[j]);
+        }
+
+        if (worst < tolerance)
+        {
+            break;
+        }
+    }
+
+    for (label k = 0; k < nBasis; k++)
+    {
+        Y += z[k]*reactionBasis_[k];
+    }
+
+    return true;
+}
+
 
 bool Foam::mixingSubModels::reactionModels::chemistry::reacts() const
 {
@@ -493,9 +717,21 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
             << exit(FatalError);
     }
 
+    label nProjected = 0;
+    label nMeaned = 0;
+    label nEnvironments = 0;
+
     scalarField meanT(T);
     scalarField meanV(T.size(), Zero);
     scalarList meanY(nSpecie, Zero);
+
+    // The orders of the moments that are the means: of the distribution,
+    // of every species and of the enthalpy
+    const label nDimensions = 1 + nSpecie + (enthalpyCarried ? 1 : 0);
+    const labelList zeroOrder(nDimensions, 0);
+
+    // The compositions of the nodes of a cell, projected
+    List<scalarField> nodeY(nNodes, scalarField(nSpecie, Zero));
 
     forAll(T, celli)
     {
@@ -505,6 +741,98 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
         scalar wT = 0;
         scalar wV = 0;
         meanY = Zero;
+
+        // The compositions the moments give the nodes, brought back along
+        // the reactions where they are outside what these allow. What is
+        // left outside after that is not a progress of the reactions: a
+        // species no reaction touches below zero, or mass fractions that
+        // do not sum to one. The moments do not give such nodes: the solve
+        // for the conditional means does, where mixing has drawn the nodes
+        // of the cell together and it has become ill-conditioned.
+        bool usable = true;
+
+        forAll(nodes, nodei)
+        {
+            const volVelocityNode& node = nodes[nodei];
+
+            if (node.weight()[celli] <= SMALL)
+            {
+                continue;
+            }
+
+            scalarField& Y = nodeY[nodei];
+
+            for (label j = 0; j < nSpecie; j++)
+            {
+                Y[j] = node.abscissae()[1 + j][celli];
+            }
+
+            const scalarField Yraw(Y);
+
+            if (project(Y))
+            {
+                nProjected++;
+            }
+
+            if
+            (
+                min(Y) < -unusableTolerance_
+             || mag(sum(Y) - 1) > unusableTolerance_
+            )
+            {
+                usable = false;
+
+                if (debug > 1)
+                {
+                    Info<< "chemistry: cell " << celli << " node " << nodei
+                        << " w " << node.weight()[celli]
+                        << " xi " << node.abscissae()[0][celli]
+                        << " raw " << Yraw << " sum " << sum(Yraw)
+                        << " projected " << Y << endl;
+                }
+            }
+        }
+
+        // Every node of such a cell takes the mean composition of the
+        // cell, and its mean enthalpy: the means are the moments, which
+        // are kept, the mass fractions sum to one, and what is given up
+        // is a conditional structure the nodes no longer resolve
+        if (!usable)
+        {
+            nMeaned++;
+
+            const scalar m0 = quadrature.moments()(zeroOrder)[celli];
+
+            scalarField Ymean(nSpecie, Zero);
+
+            for (label j = 0; j < nSpecie; j++)
+            {
+                labelList order(zeroOrder);
+                order[1 + j] = 1;
+                Ymean[j] = quadrature.moments()(order)[celli]/m0;
+            }
+
+            project(Ymean);
+
+            scalar hMean = 0;
+
+            if (enthalpyCarried)
+            {
+                labelList order(zeroOrder);
+                order[1 + nSpecie] = 1;
+                hMean = quadrature.moments()(order)[celli]/m0;
+            }
+
+            forAll(nodes, nodei)
+            {
+                nodeY[nodei] = Ymean;
+
+                if (enthalpyCarried)
+                {
+                    nodes[nodei].abscissae()[1 + nSpecie][celli] = hMean;
+                }
+            }
+        }
 
         forAll(nodes, nodei)
         {
@@ -518,16 +846,30 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
                 continue;
             }
 
+            nEnvironments++;
+
             const scalar xi = node.abscissae()[0][celli];
 
-            // The composition of the environment, within its bounds and
-            // summing to one
+            Y_ = nodeY[nodei];
+
+            // What is left below zero is round-off
             scalar YSum = 0;
 
             for (label j = 0; j < nSpecie; j++)
             {
-                Y_[j] = min(max(node.abscissae()[1 + j][celli], 0), 1);
+                if (debug)
+                {
+                    debugNegative_ += w*max(-Y_[j], scalar(0));
+                    debugWorstNegative_ = max(debugWorstNegative_, -Y_[j]);
+                }
+
+                Y_[j] = max(Y_[j], scalar(0));
                 YSum += Y_[j];
+            }
+
+            if (debug)
+            {
+                debugSum_ += w*mag(YSum - 1);
             }
 
             if (YSum <= 0)
@@ -589,10 +931,15 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
                 for (label j = 0; j < nSpecie; j++)
                 {
                     Y_[j] = cTp_[j]*composition_.W(j)/mass;
-                    node.abscissae()[1 + j][celli] = Y_[j];
                 }
 
                 Ti = cTp_[nSpecie];
+            }
+
+            // The node takes the composition, projected and reacted
+            for (label j = 0; j < nSpecie; j++)
+            {
+                node.abscissae()[1 + j][celli] = Y_[j];
             }
 
             T_[nodei][celli] = Ti;
@@ -619,6 +966,39 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
             meanT[celli] = wT/wSum;
             meanV[celli] = wV/wSum;
         }
+    }
+
+    reduce(nProjected, sumOp<label>());
+    reduce(nEnvironments, sumOp<label>());
+
+    if (debug)
+    {
+        Info<< "chemistry: after the projection, weighted negative mass "
+            << debugNegative_ << " (worst value " << debugWorstNegative_
+            << "), weighted |sum Y - 1| " << debugSum_ << endl;
+
+        debugNegative_ = 0;
+        debugWorstNegative_ = 0;
+        debugSum_ = 0;
+    }
+
+    if (nProjected > 0)
+    {
+        Info<< "    " << nProjected << " of " << nEnvironments
+            << " environments were outside the compositions the reactions "
+            << "allow, and were projected onto them along the reactions"
+            << endl;
+    }
+
+    reduce(nMeaned, sumOp<label>());
+
+    if (nMeaned > 0)
+    {
+        Info<< "    In " << nMeaned << " of "
+            << returnReduce(mesh_.nCells(), sumOp<label>())
+            << " cells the conditional means were not compositions even "
+            << "so, and the nodes took the mean composition of the cell"
+            << endl;
     }
 
     forAll(quadrature.moments(), mi)

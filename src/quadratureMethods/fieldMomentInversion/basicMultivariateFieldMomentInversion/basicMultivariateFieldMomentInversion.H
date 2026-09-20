@@ -175,6 +175,13 @@ public:
                 const bool fatalErrorOnFailedRealizabilityTest = true
             );
 
+        //- Whether the inversion keeps a conditioned value within its
+        //  support
+        virtual void clipToSupports(const bool clip)
+        {
+            momentInverter_->clipToSupports(clip);
+        }
+
         //- Return the smallest accepted value for m0
         scalar smallM0() const;
 

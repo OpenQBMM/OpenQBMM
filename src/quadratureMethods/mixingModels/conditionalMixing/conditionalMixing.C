@@ -209,6 +209,13 @@ Foam::PDFTransportModels::mixingModels::conditionalMixing::conditionalMixing
         )
     )
 {
+    // A reaction brings a node back along its stoichiometry, which keeps
+    // what the node is made of; the inversion would clip it, which does not
+    if (reactionModel_->projects())
+    {
+        quadrature_.momentFieldInverter().clipToSupports(false);
+    }
+
     const label nDimensions = quadrature().momentOrders()[0].size();
     const label nCompositions = reactionModel_->nCompositions();
 
