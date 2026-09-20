@@ -24,6 +24,7 @@ wmakeStatus momentInversions/multivariate/TensorProductMomentInversion
 wmakeStatus momentAdvection
 wmakeStatus momentAdvection/univariate
 wmakeStatus momentAdvection/velocity
+wmakeStatus momentAdvection/fluidVelocity
 
 wmakeStatus populationBalanceModel
 wmakeStatus populationBalanceSubModels

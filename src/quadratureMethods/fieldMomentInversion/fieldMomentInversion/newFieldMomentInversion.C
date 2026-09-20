@@ -216,6 +216,34 @@ bool Foam::fieldMomentInversion::buildMomentSet
 
     const word type(inversionDict.lookup("type"));
 
+    // Conditional means: the moments of the primary coordinate and the
+    // first-order moments of every coordinate conditioned on it, the
+    // scalars of the model and the velocities of the case
+    if (type == "conditionalMeans")
+    {
+        const label nMoments =
+            inversionDict.lookupOrDefault<label>("nMoments", -1);
+
+        const label nScalars =
+            inversionDict.lookupOrDefault<label>("nScalars", -1);
+
+        if (nMoments < 0 || nScalars < 0)
+        {
+            return false;
+        }
+
+        multivariateMomentInversions::conditionalMeans::momentOrdersAndNodes
+        (
+            nMoments,
+            nScalars,
+            inversionDict.lookupOrDefault<label>("nVelocityDimensions", 0),
+            momentOrders,
+            nodeIndexes
+        );
+
+        return true;
+    }
+
     const label nVelocityDimensions =
         inversionDict.lookupOrDefault<label>("nVelocityDimensions", -1);
 

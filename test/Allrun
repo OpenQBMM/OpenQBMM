@@ -154,6 +154,12 @@ runTest ./momentAdvection/velocity/cases/symmetry \
 runTest ./momentAdvection/velocity/cases/outflow \
     Test-VelocityAdvection
 
+# A quadrature of conditional means carried by the velocity of the fluid: on
+# a periodic line the moments are conserved, a Courant number of one is a
+# shift, and the answer does not know left from right
+runTest ./momentAdvection/fluidVelocity/case \
+    Test-FluidVelocityAdvection
+
 
 # Field level. These were built by test/Allwmake but never run, so nothing
 # above the moment inversions was exercised at all.

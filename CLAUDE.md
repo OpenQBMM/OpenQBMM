@@ -133,7 +133,8 @@ The core abstraction chain, roughly bottom-up:
   inversion algorithms directly.
 - **`momentAdvection`** — spatial transport of moments in a realizable way (`univariate`:
   firstOrderKinetic, zeta, none; `velocity`: kinetic-based schemes with their own `fvQuadraturePatch`
-  boundary handling).
+  boundary handling, plus `firstOrderFluidVelocity`, first-order upwind for a quadrature whose nodes all
+  move with the fluid, its flux named by `phi` in the advection dictionary).
 - **`PDFTransportModels`** — abstract base tying advection + source terms together
   (`univariatePDFTransportModel`, `velocityPDFTransportModel`).
 - **`populationBalanceModels`** / **`mixingModels`** — the concrete physics on top of PDF transport,
