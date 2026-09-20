@@ -62,6 +62,7 @@ SourceFiles
 #ifndef realizableOdeSolver_H
 #define realizableOdeSolver_H
 
+#include "supportType.H"
 #include "quadratureApproximation.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -135,6 +136,7 @@ protected:
             const labelListList& momentOrders,
             const labelList& scaleMoments,
             const label zerothMoment,
+            const List<supportType>& supports,
             const scalarList& cellMoments,
             scalarList& coordinateScales,
             scalarList& momentScales

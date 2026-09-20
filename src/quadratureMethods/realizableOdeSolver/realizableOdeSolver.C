@@ -79,6 +79,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::updateMomentScales
     const labelListList& momentOrders,
     const labelList& scaleMoments,
     const label zerothMoment,
+    const List<supportType>& supports,
     const scalarList& cellMoments,
     scalarList& coordinateScales,
     scalarList& momentScales
@@ -92,9 +93,25 @@ void Foam::realizableOdeSolver<momentType, nodeType>::updateMomentScales
     // and the magnitude of its mean where the set stops at the first.
     // Zero marks a coordinate the moments say nothing about, and one the
     // population has no extent in.
+    //
+    // A coordinate on [0, 1] has a scale of its own, the width of its
+    // support: one. A mass fraction the population does not hold has a
+    // mean of zero, and measured against it a moment of 1e-16, which is
+    // what the round-off of its neighbours leaves, was asked for a part in
+    // ten thousand of itself, which no step can give.
     forAll(coordinateScales, dimi)
     {
         const label mi = scaleMoments[dimi];
+
+        if
+        (
+            dimi < supports.size()
+         && supports[dimi] == supportType::ZeroOne
+        )
+        {
+            coordinateScales[dimi] = 1;
+            continue;
+        }
 
         coordinateScales[dimi] = 0;
 
@@ -273,6 +290,7 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
             momentOrders,
             scaleMoments,
             zerothMoment,
+            moments.supports(),
             oldMoments,
             coordinateScales,
             momentScales
