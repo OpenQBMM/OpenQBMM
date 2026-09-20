@@ -43,9 +43,17 @@ import matplotlib.pyplot as plt                               # noqa: E402
 from . import validation                                      # noqa: E402
 
 
-# --color-accent, and --color-text, --color-neutral-600, --color-accent-800
-# and --color-neutral-400 of the site
-computedColor = '#5980a6'
+# What a case computes is drawn in colour and what it is compared with in
+# black and greys. The first computed curve of a figure takes --color-accent
+# of the site, and the ones after it a rust, a green and a plum chosen to
+# stay apart from it and from each other: every pair is at least 11.8 apart
+# in OKLab (x100) under simulated protanopia and deuteranopia, 20 with full
+# colour vision, and every colour has a contrast of at least 3.2 on white.
+# A figure with more computed curves than colours starts again from the
+# first, and tells them apart by the style of their lines. The references
+# take --color-text, --color-neutral-600, --color-accent-800 and
+# --color-neutral-400 of the site.
+computedColors = ['#5980a6', '#d8714c', '#23690d', '#883170']
 
 referenceColors = ['#1d1f20', '#7a7a7d', '#2c455d', '#b7b7ba']
 
@@ -101,6 +109,7 @@ def draw(figure, base, outputDir, formats):
         fig, ax = plt.subplots()
 
         nReference = 0
+        nComputed = 0
 
         for curve in figure.curves:
             try:
@@ -119,7 +128,8 @@ def draw(figure, base, outputDir, formats):
             ys = [float('nan') if y is None else y for _, y in points]
 
             if curve.computed:
-                color = computedColor
+                color = computedColors[nComputed % len(computedColors)]
+                nComputed += 1
             else:
                 color = referenceColors[nReference % len(referenceColors)]
                 nReference += 1
