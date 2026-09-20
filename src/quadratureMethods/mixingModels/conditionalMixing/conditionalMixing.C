@@ -26,6 +26,10 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "conditionalMixing.H"
+#include "basicThermo.H"
+#include "basicSpecieMixture.H"
+#include "psiReactionThermo.H"
+#include "rhoReactionThermo.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -68,24 +72,72 @@ static UPtrList<const volScalarField> momentFieldsOf
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+Foam::label
+Foam::PDFTransportModels::mixingModels::conditionalMixing::nCompositions
+(
+    const dictionary& dict,
+    const fvMesh& mesh
+)
+{
+    label nCompositions = -1;
+
+    if (dict.readIfPresent("nCompositions", nCompositions))
+    {
+        if (nCompositions < 0)
+        {
+            FatalIOErrorInFunction(dict)
+                << "The number of compositions conditioned on the mixture "
+                << "fraction cannot be negative." << nl
+                << exit(FatalIOError);
+        }
+
+        return nCompositions;
+    }
+
+    // Without nCompositions the compositions are the species of the thermo
+    const basicThermo* thermoPtr =
+        mesh.cfindObject<basicThermo>(basicThermo::dictName);
+
+    if (thermoPtr)
+    {
+        if (isA<psiReactionThermo>(*thermoPtr))
+        {
+            return
+                refCast<const psiReactionThermo>(*thermoPtr)
+               .composition().species().size();
+        }
+        else if (isA<rhoReactionThermo>(*thermoPtr))
+        {
+            return
+                refCast<const rhoReactionThermo>(*thermoPtr)
+               .composition().species().size();
+        }
+    }
+
+    FatalIOErrorInFunction(dict)
+        << "The number of compositions conditioned on the mixture fraction "
+        << "is nCompositions, or the number of species of a thermo with "
+        << "species, which the case does not have." << nl
+        << exit(FatalIOError);
+
+    return nCompositions;
+}
+
+
 Foam::List<Foam::supportType>
 Foam::PDFTransportModels::mixingModels::conditionalMixing::supports
 (
-    const dictionary& dict
+    const dictionary& dict,
+    const fvMesh& mesh
 )
 {
-    const label nCompositions(dict.get<label>("nCompositions"));
-
-    if (nCompositions < 0)
-    {
-        FatalIOErrorInFunction(dict)
-            << "The number of compositions conditioned on the mixture "
-            << "fraction cannot be negative." << nl
-            << exit(FatalIOError);
-    }
-
     // The mixture fraction and every composition are mass fractions
-    return List<supportType>(1 + nCompositions, supportType::ZeroOne);
+    return
+        List<supportType>
+        (
+            1 + nCompositions(dict, mesh),
+            supportType::ZeroOne
+        );
 }
 
 
@@ -96,7 +148,13 @@ Foam::PDFTransportModels::mixingModels::conditionalMixing::conditionalMixing
     const surfaceScalarField& phi
 )
 :
-    velocityPDFTransportModel(name, dict, phi.mesh(), supports(dict)),
+    velocityPDFTransportModel
+    (
+        name,
+        dict,
+        phi.mesh(),
+        supports(dict, phi.mesh())
+    ),
     mixingModel(name, dict, phi),
     odeType(phi.mesh(), dict),
     name_(name),
@@ -117,16 +175,26 @@ Foam::PDFTransportModels::mixingModels::conditionalMixing::conditionalMixing
         (
             dict.subDict("diffusionModel")
         )
+    ),
+    reactionModel_
+    (
+        Foam::mixingSubModels::reactionModel::New
+        (
+            dict.subOrEmptyDict("reaction"),
+            phi.mesh(),
+            nCompositions(dict, phi.mesh())
+        )
     )
 {
     const label nDimensions = quadrature().momentOrders()[0].size();
+    const label nCompositions = reactionModel_->nCompositions();
 
-    if (nDimensions != 1 + dict.get<label>("nCompositions"))
+    if (nDimensions != 1 + nCompositions)
     {
         FatalIOErrorInFunction(dict)
             << "The quadrature of " << name_ << " carries " << nDimensions
             << " dimensions, and the model mixes a mixture fraction with "
-            << dict.get<label>("nCompositions") << " compositions." << nl
+            << nCompositions << " compositions." << nl
             << "    Give nScalars of the inversion the number of "
             << "compositions." << nl
             << exit(FatalIOError);
@@ -204,6 +272,11 @@ Foam::PDFTransportModels::mixingModels::conditionalMixing::realizableCo()
 void Foam::PDFTransportModels::mixingModels::conditionalMixing::solve()
 {
     velocityPDFTransportModel::solve();
+
+    if (reactionModel_->reacts())
+    {
+        reactionModel_->react(quadrature_);
+    }
 }
 
 // ************************************************************************* //

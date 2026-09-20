@@ -27,13 +27,16 @@ Class
     Foam::PDFTransportModels::mixingModels::conditionalMixing
 
 Description
-    Mixing of a mixture fraction and of the compositions conditioned on it.
+    Mixing and reaction of a mixture fraction and of the compositions
+    conditioned on it.
 
     The distribution carries the moments of the mixture fraction and, for
     every composition, its mean at each node of the mixture fraction: the
     quadrature of conditional means. Both are on [0, 1], which the model
-    gives the quadrature as the supports of its dimensions, and the number
-    of compositions is the one the model is asked for, nCompositions.
+    gives the quadrature as the supports of its dimensions. The number of
+    compositions is nCompositions when the dictionary gives it, and
+    otherwise the number of species of the thermo of the case, which is
+    what the chemistry reaction model needs it to be.
 
     The moments are carried by the velocity of the fluid, since a node of
     the mixture fraction is a state of the fluid and not of anything moving
@@ -42,9 +45,27 @@ Description
     quadrature to compute it; IEM is written for the moments of any number
     of coordinates, which is what a case selects here.
 
-    What the compositions react to is not here: the source of a reaction
-    is a model of its own, and the moments carry only what mixing does to
-    them.
+    The reaction is a model of its own, selected in the reaction
+    sub-dictionary and none without it, and it acts on the nodes rather
+    than on the moments: once the moments have been transported and
+    mixed, and the quadrature updated, every node is an environment whose
+    compositions the reaction model advances over the time step, after
+    which the moments are rebuilt from the nodes. The rebuild is exact,
+    since a reaction moves neither the weights nor the mixture fraction,
+    so the step is the moment equations of the reaction integrated
+    node by node, split from the mixing as the mixing is split from
+    transport.
+
+    \verbatim
+    conditionalMixingCoeffs
+    {
+        nCompositions   5;              // or the species of the thermo
+        mixingKernel    { mixingKernel IEM; Cphi 2; }
+        diffusionModel  { mixingDiffusionModel none; }
+        reaction        { reactionModel chemistry; ... }
+        odeCoeffs       { ... }         // of the realizable ODE solver
+    }
+    \endverbatim
 
 SourceFiles
     conditionalMixing.C
@@ -58,6 +79,7 @@ SourceFiles
 #include "mixingModel.H"
 #include "mixingKernel.H"
 #include "mixingDiffusionModel.H"
+#include "reactionModel.H"
 #include "realizableOdeSolver.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -94,6 +116,9 @@ class conditionalMixing
 
         //- Diffusion model
         autoPtr<Foam::mixingSubModels::mixingDiffusionModel> diffusionModel_;
+
+        //- Reaction model
+        autoPtr<Foam::mixingSubModels::reactionModel> reactionModel_;
 
 
     // Private member functions
@@ -152,14 +177,33 @@ public:
 
     // Member Functions
 
+        //- The number of compositions conditioned on the mixture fraction:
+        //  nCompositions of the dictionary, or the species of the thermo
+        //  of the case when the dictionary does not give it
+        static label nCompositions
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
+
         //- The supports of the dimensions of the distribution: the mixture
         //  fraction and every composition on [0, 1]
-        static List<supportType> supports(const dictionary& dict);
+        static List<supportType> supports
+        (
+            const dictionary& dict,
+            const fvMesh& mesh
+        );
+
+        //- The reaction model
+        const Foam::mixingSubModels::reactionModel& reaction() const
+        {
+            return reactionModel_();
+        }
 
         //- Return the maximum Courant number ensuring moment realizability
         scalar realizableCo();
 
-        //- Solve mixing model
+        //- Transport and mix the moments, then react the nodes
         void solve();
 };
 

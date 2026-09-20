@@ -32,6 +32,7 @@ wmakeStatus sizeVelocityNucleation
 wmakeStatus realizableOdeSolver
 wmakeStatus mixingKernels
 wmakeStatus mixingModels/conditionalMixing
+wmakeStatus mixingModels/conditionalReaction
 wmakeStatus univariateQuadratureApproximation
 wmakeStatus univariateMomentAdvection/setMoments1D
 wmakeStatus univariateMomentAdvection/setMoments2D

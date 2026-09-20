@@ -1,0 +1,37 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      reactions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+species
+(
+    A
+    B
+);
+
+// A = B at a constant rate: 0.1 per second whatever the temperature, so
+// that every moment <xi^k Y_A> decays at exactly that rate
+reactions
+{
+    AtoB
+    {
+        type            irreversibleArrheniusReaction;
+        reaction        "A = B";
+        A               0.1;
+        beta            0;
+        Ta              0;
+    }
+}
+
+// ************************************************************************* //

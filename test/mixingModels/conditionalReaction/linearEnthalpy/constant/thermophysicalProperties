@@ -1,0 +1,36 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The species A and B, the same gas apart from the heat of formation of A:
+// the reaction A = B is thermally neutral in mass and exothermic
+thermoType
+{
+    type            hePsiThermo;
+    mixture         reactingMixture;
+    transport       const;
+    thermo          hConst;
+    energy          sensibleEnthalpy;
+    equationOfState perfectGas;
+    specie          specie;
+}
+
+inertSpecie             B;
+
+chemistryReader         foamChemistryReader;
+foamChemistryFile       "<constant>/reactions";
+foamChemistryThermoFile "<constant>/thermo";
+
+// ************************************************************************* //

@@ -218,6 +218,20 @@ runTest ./mixingKernels/IEMkOmega \
 runTest ./mixingModels/conditionalMixing/case \
     Test-ConditionalMixing
 
+# The chemistry of OpenFOAM solved in every environment of the mixture
+# fraction: A = B at a constant rate, so every moment <xi^k Y_A> decays at
+# that rate, the mass fractions sum to one, and, with the enthalpy linear in
+# the mixture fraction, the temperature of the cell is the mean of those of
+# the environments; with IEM on, the mean still decays at the rate
+runTest ./mixingModels/conditionalReaction/isothermal \
+    Test-ConditionalReaction
+
+runTest ./mixingModels/conditionalReaction/linearEnthalpy \
+    Test-ConditionalReaction
+
+runTest ./mixingModels/conditionalReaction/mixing \
+    Test-ConditionalReaction
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

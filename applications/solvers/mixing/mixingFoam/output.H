@@ -1,9 +1,18 @@
     runTime.write();
 
-    volScalarField moment0
+    // The zero-order moment of the distribution, whatever the number of
+    // its dimensions
+    const wordList moment0Names
     (
-        mesh.lookupObject<volScalarField>("moment.0.mixing")
+        mesh.sortedNames<volScalarField>
+        (
+            wordRe("moment\\.0(_0)*\\.mixing", wordRe::REGEX)
+        )
     );
 
-    Info<< "moment.0 = " << moment0[0] << endl;
+    if (moment0Names.size())
+    {
+        Info<< moment0Names[0] << " = "
+            << mesh.lookupObject<volScalarField>(moment0Names[0])[0] << endl;
+    }
 

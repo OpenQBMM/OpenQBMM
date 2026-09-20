@@ -13,6 +13,11 @@ mixingSubModels/mixingKernels/noMixingKernel/noMixingKernel.C
 mixingSubModels/mixingKernels/IEM/IEM.C
 mixingSubModels/mixingKernels/FokkerPlanck/FokkerPlanck.C
 
+mixingSubModels/reactionModels/reactionModel/reactionModel.C
+mixingSubModels/reactionModels/reactionModel/newReactionModel.C
+mixingSubModels/reactionModels/noReaction/noReaction.C
+mixingSubModels/reactionModels/chemistry/chemistry.C
+
 noMixing/noMixing.C
 turbulentMixing/turbulentMixing.C
 conditionalMixing/conditionalMixing.C

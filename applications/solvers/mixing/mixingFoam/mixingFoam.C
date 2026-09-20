@@ -80,7 +80,11 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         turbulence->validate();
-        mixing->solve(); 
+        mixing->solve();
+
+        // The mixing model may have written the mean state of the
+        // environments to the thermo
+        thermo.correct();
 
         #include "output.H"
 
