@@ -48,8 +48,9 @@ Description
     - with isothermal environments, the temperature of the cell does not
       change.
     In every case the mass fractions of every node stay within [0, 1] and
-    sum to one, and the species fields of the thermo hold the mean
-    composition.
+    sum to one, the species fields of the thermo hold the mean composition,
+    and the temperature field of every environment holds the temperature
+    the closure gives it.
 
 \*---------------------------------------------------------------------------*/
 
@@ -300,6 +301,7 @@ int main(int argc, char *argv[])
     scalar worstBound = 0;
     scalar worstMeanY = 0;
     scalar worstT = 0;
+    scalar worstNodeT = 0;
     scalar Tfinal = Tinitial;
 
     for (label stepi = 0; stepi < nSteps; stepi++)
@@ -385,6 +387,15 @@ int main(int argc, char *argv[])
                 T = temperatureOf(Y, h0 + xi*(h1 - h0), Tinitial);
             }
 
+            // The temperature field of the environment
+            const volScalarField& Tnode =
+                mesh.lookupObject<volScalarField>
+                (
+                    IOobject::groupName("T", nodes[nodei].name())
+                );
+
+            worstNodeT = max(worstNodeT, mag(Tnode[celli] - T)/T);
+
             wSum += w;
             wT += w*T;
             meanY += w*Y;
@@ -446,6 +457,7 @@ int main(int argc, char *argv[])
     );
     check("every mass fraction stays within [0, 1]", worstBound, 0);
     check("the thermo holds the mean composition", worstMeanY, 1e-12);
+    check("every environment's field holds its temperature", worstNodeT, 1e-10);
 
     if (linearEnthalpy)
     {

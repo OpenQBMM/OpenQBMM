@@ -62,7 +62,9 @@ Description
     The temperature of an environment is a closure of the model,
     selected by temperature:
     - isothermal: every environment is at the temperature of the cell,
-      which the model leaves as the case gives it;
+      which the model leaves as the case gives it, and stays at it while
+      it reacts: the temperature equation of the chemistry model is
+      switched off, so that the heat of reaction changes nothing;
     - linearEnthalpy: the enthalpy of an environment is linear in the
       mixture fraction between the enthalpies of the streams at xi = 0 and
       xi = 1, which is what mixing alone gives when nothing else changes
@@ -74,6 +76,16 @@ Description
     A closure carrying the enthalpy of every environment as a coordinate
     of the distribution, mixed with the compositions and untouched by
     reaction, is not here yet.
+
+    The temperature of every environment is kept in a field named after
+    the node, T.node0.mixing for the first node of the distribution
+    mixing, beside the weight and the abscissae of the node, which hold
+    its mixture fraction and its compositions: weight.node0.mixing,
+    abscissa0.node0.mixing for the mixture fraction, abscissa1.node0.mixing
+    for the first composition. None of them is written with the time
+    directories, but all are registered, so the probes function object
+    samples them by name, and the writeObjects function object writes
+    them when a case wants them on disk.
 
     Once the environments of a cell have reacted, the moments are rebuilt
     from the nodes, exactly, and the mean state of the cell is written to
@@ -110,6 +122,9 @@ Description
 
     The mass fractions of a stream are given by species name, those not
     given are zero, and they must sum to one.
+
+    With the debug switch chemistry on, the state of every environment is
+    printed before and after it reacts.
 
 SourceFiles
     chemistry.C
@@ -159,6 +174,56 @@ public:
 
 private:
 
+    // Private classes
+
+        //- The ODE system of the chemistry model with its temperature
+        //  held: the state of an environment that reacts at the
+        //  temperature it is given
+        class isothermalSystem
+        :
+            public ODESystem
+        {
+            //- The system of the chemistry model
+            const ODESystem& system_;
+
+            //- Index of the temperature in the state
+            const label TIndex_;
+
+        public:
+
+            //- Construct from the system and the index of its temperature
+            isothermalSystem(const ODESystem& system, const label TIndex)
+            :
+                system_(system),
+                TIndex_(TIndex)
+            {}
+
+            //- Number of equations
+            virtual label nEqns() const
+            {
+                return system_.nEqns();
+            }
+
+            //- The derivatives of the system, none for the temperature
+            virtual void derivatives
+            (
+                const scalar x,
+                const scalarField& y,
+                scalarField& dydx
+            ) const;
+
+            //- The Jacobian of the system, the temperature depending on
+            //  nothing
+            virtual void jacobian
+            (
+                const scalar x,
+                const scalarField& y,
+                scalarField& dfdx,
+                scalarSquareMatrix& dfdy
+            ) const;
+        };
+
+
     // Private data
 
         //- The thermo of the case, which owns the species
@@ -174,11 +239,16 @@ private:
         //  environment: its concentrations, temperature and pressure
         const ODESystem& system_;
 
-        //- The ODE solver of odeCoeffs, integrating that system
-        autoPtr<ODESolver> odeSolver_;
-
         //- The temperature closure
         const temperatureClosure temperature_;
+
+        //- That system with its temperature held, for isothermal
+        //  environments
+        autoPtr<isothermalSystem> isothermalSystem_;
+
+        //- The ODE solver of odeCoeffs, integrating the system the closure
+        //  calls for
+        autoPtr<ODESolver> odeSolver_;
 
         //- Temperature of the stream at xi = 0
         scalar T0_;
@@ -202,8 +272,11 @@ private:
         const scalar deltaTChemMax_;
 
         //- Estimate of the chemical time step of every environment of
-        //  every cell, sized on first use
+        //  every cell
         List<scalarField> subDeltaT_;
+
+        //- The temperature of every environment
+        PtrList<volScalarField> T_;
 
         //- The state of an environment: concentrations, temperature and
         //  pressure
@@ -278,7 +351,7 @@ public:
         chemistry
         (
             const dictionary& dict,
-            const fvMesh& mesh,
+            const velocityQuadratureApproximation& quadrature,
             const label nCompositions
         );
 
@@ -293,6 +366,12 @@ public:
         temperatureClosure temperature() const
         {
             return temperature_;
+        }
+
+        //- The temperature of every environment
+        const PtrList<volScalarField>& T() const
+        {
+            return T_;
         }
 
         //- Whether the chemistry of the case is on

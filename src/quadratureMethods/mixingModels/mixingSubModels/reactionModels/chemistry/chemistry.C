@@ -29,6 +29,7 @@ License
 #include "psiReactionThermo.H"
 #include "rhoReactionThermo.H"
 #include "BasicChemistryModel.H"
+#include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -60,6 +61,40 @@ Foam::mixingSubModels::reactionModels::chemistry::temperatureClosureNames
     { temperatureClosure::isothermal, "isothermal" },
     { temperatureClosure::linearEnthalpy, "linearEnthalpy" },
 });
+
+
+// * * * * * * * * * * * * * * isothermalSystem  * * * * * * * * * * * * * * //
+
+void Foam::mixingSubModels::reactionModels::chemistry::isothermalSystem
+::derivatives
+(
+    const scalar x,
+    const scalarField& y,
+    scalarField& dydx
+) const
+{
+    system_.derivatives(x, y, dydx);
+    dydx[TIndex_] = 0;
+}
+
+
+void Foam::mixingSubModels::reactionModels::chemistry::isothermalSystem
+::jacobian
+(
+    const scalar x,
+    const scalarField& y,
+    scalarField& dfdx,
+    scalarSquareMatrix& dfdy
+) const
+{
+    system_.jacobian(x, y, dfdx, dfdy);
+    dfdx[TIndex_] = 0;
+
+    for (label j = 0; j < dfdy.n(); j++)
+    {
+        dfdy(TIndex_, j) = 0;
+    }
+}
 
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
@@ -289,20 +324,32 @@ Foam::scalar Foam::mixingSubModels::reactionModels::chemistry::nodeTemperature
 Foam::mixingSubModels::reactionModels::chemistry::chemistry
 (
     const dictionary& dict,
-    const fvMesh& mesh,
+    const velocityQuadratureApproximation& quadrature,
     const label nCompositions
 )
 :
-    reactionModel(dict, mesh, nCompositions),
-    thermo_(mesh.lookupObjectRef<basicThermo>(basicThermo::dictName)),
+    reactionModel(dict, quadrature, nCompositions),
+    thermo_(mesh_.lookupObjectRef<basicThermo>(basicThermo::dictName)),
     composition_(compositionOf(thermo_)),
     chemistry_(newChemistry(thermo_)),
     system_(systemOf(chemistry_())),
+    temperature_(temperatureClosureNames.get("temperature", dict)),
+    isothermalSystem_
+    (
+        temperature_ == temperatureClosure::isothermal
+      ? new isothermalSystem(system_, system_.nEqns() - 2)
+      : nullptr
+    ),
     odeSolver_
     (
-        ODESolver::New(system_, chemistry_->subDict("odeCoeffs"))
+        ODESolver::New
+        (
+            temperature_ == temperatureClosure::isothermal
+          ? static_cast<const ODESystem&>(isothermalSystem_())
+          : system_,
+            chemistry_->subDict("odeCoeffs")
+        )
     ),
-    temperature_(temperatureClosureNames.get("temperature", dict)),
     T0_(0),
     Y0_(),
     T1_(0),
@@ -313,11 +360,37 @@ Foam::mixingSubModels::reactionModels::chemistry::chemistry
     (
         chemistry_->getOrDefault<scalar>("maxChemicalTimeStep", GREAT)
     ),
-    subDeltaT_(),
+    subDeltaT_
+    (
+        quadrature.nodes().size(),
+        scalarField(mesh_.nCells(), deltaTChemIni_)
+    ),
+    T_(quadrature.nodes().size()),
     cTp_(system_.nEqns(), Zero),
     Y_(nCompositions, Zero)
 {
     const label nSpecie = composition_.species().size();
+
+    forAll(T_, nodei)
+    {
+        T_.set
+        (
+            nodei,
+            new volScalarField
+            (
+                IOobject
+                (
+                    IOobject::groupName("T", quadrature.nodes()[nodei].name()),
+                    mesh_.time().timeName(),
+                    mesh_,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                thermo_.T(),
+                zeroGradientFvPatchScalarField::typeName
+            )
+        );
+    }
 
     if (nSpecie != nCompositions)
     {
@@ -399,12 +472,10 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
 
     if (subDeltaT_.size() != nNodes)
     {
-        subDeltaT_ =
-            List<scalarField>
-            (
-                nNodes,
-                scalarField(mesh_.nCells(), deltaTChemIni_)
-            );
+        FatalErrorInFunction
+            << "The quadrature has " << nNodes << " nodes, and the model "
+            << "was built for " << subDeltaT_.size() << "." << nl
+            << exit(FatalError);
     }
 
     scalarField meanT(T);
@@ -426,6 +497,7 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
             // A node carrying nothing carries no composition to react
             if (w <= SMALL)
             {
+                T_[nodei][celli] = T[celli];
                 continue;
             }
 
@@ -443,6 +515,7 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
 
             if (YSum <= 0)
             {
+                T_[nodei][celli] = T[celli];
                 continue;
             }
 
@@ -463,7 +536,22 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
                 cTp_[nSpecie + 1] = pi;
 
                 scalar& subDeltaT = subDeltaT_[nodei][celli];
+
+                if (debug)
+                {
+                    Info<< "chemistry: cell " << celli << " node " << nodei
+                        << " w " << w << " xi " << xi << " Y " << Y_
+                        << " T " << Ti << " rho " << rhoi
+                        << " c " << cTp_ << " subDeltaT " << subDeltaT
+                        << endl;
+                }
+
                 odeSolver_->solve(0, deltaT, cTp_, subDeltaT);
+
+                if (debug)
+                {
+                    Info<< "chemistry: reacted to " << cTp_ << endl;
+                }
                 subDeltaT = min(subDeltaT, deltaTChemMax_);
 
                 // Back to mass fractions, normalised by the mass the
@@ -484,6 +572,8 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
 
                 Ti = cTp_[nSpecie];
             }
+
+            T_[nodei][celli] = Ti;
 
             wSum += w;
             wT += w*Ti;
@@ -517,6 +607,11 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
     for (label j = 0; j < nSpecie; j++)
     {
         composition_.Y(j).correctBoundaryConditions();
+    }
+
+    forAll(T_, nodei)
+    {
+        T_[nodei].correctBoundaryConditions();
     }
 
     if (temperature_ == temperatureClosure::linearEnthalpy)

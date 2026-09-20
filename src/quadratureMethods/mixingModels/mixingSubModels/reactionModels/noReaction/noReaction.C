@@ -54,11 +54,11 @@ namespace reactionModels
 Foam::mixingSubModels::reactionModels::noReaction::noReaction
 (
     const dictionary& dict,
-    const fvMesh& mesh,
+    const velocityQuadratureApproximation& quadrature,
     const label nCompositions
 )
 :
-    reactionModel(dict, mesh, nCompositions)
+    reactionModel(dict, quadrature, nCompositions)
 {}
 
 

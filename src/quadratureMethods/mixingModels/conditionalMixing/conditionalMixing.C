@@ -181,7 +181,7 @@ Foam::PDFTransportModels::mixingModels::conditionalMixing::conditionalMixing
         Foam::mixingSubModels::reactionModel::New
         (
             dict.subOrEmptyDict("reaction"),
-            phi.mesh(),
+            quadrature_,
             nCompositions(dict, phi.mesh())
         )
     )

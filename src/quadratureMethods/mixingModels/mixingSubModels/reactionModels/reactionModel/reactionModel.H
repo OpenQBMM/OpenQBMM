@@ -116,6 +116,9 @@ protected:
         //- Mesh
         const fvMesh& mesh_;
 
+        //- The quadrature whose nodes are the environments
+        const velocityQuadratureApproximation& quadrature_;
+
         //- Number of compositions conditioned on the mixture fraction
         const label nCompositions_;
 
@@ -133,21 +136,22 @@ public:
         dictionary,
         (
             const dictionary& dict,
-            const fvMesh& mesh,
+            const velocityQuadratureApproximation& quadrature,
             const label nCompositions
         ),
-        (dict, mesh, nCompositions)
+        (dict, quadrature, nCompositions)
     );
 
 
     // Constructors
 
-        //- Construct from the dictionary of the reaction, the mesh and the
-        //  number of compositions the quadrature carries
+        //- Construct from the dictionary of the reaction, the quadrature
+        //  whose nodes are the environments and the number of compositions
+        //  it carries
         reactionModel
         (
             const dictionary& dict,
-            const fvMesh& mesh,
+            const velocityQuadratureApproximation& quadrature,
             const label nCompositions
         );
 
@@ -159,7 +163,7 @@ public:
         static autoPtr<reactionModel> New
         (
             const dictionary& dict,
-            const fvMesh& mesh,
+            const velocityQuadratureApproximation& quadrature,
             const label nCompositions
         );
 

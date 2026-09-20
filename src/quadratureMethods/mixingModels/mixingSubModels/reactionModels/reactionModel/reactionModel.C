@@ -44,12 +44,13 @@ namespace mixingSubModels
 Foam::mixingSubModels::reactionModel::reactionModel
 (
     const dictionary& dict,
-    const fvMesh& mesh,
+    const velocityQuadratureApproximation& quadrature,
     const label nCompositions
 )
 :
     dict_(dict),
-    mesh_(mesh),
+    mesh_(quadrature.moments()[0].mesh()),
+    quadrature_(quadrature),
     nCompositions_(nCompositions)
 {}
 

@@ -33,7 +33,7 @@ Foam::autoPtr<Foam::mixingSubModels::reactionModel>
 Foam::mixingSubModels::reactionModel::New
 (
     const dictionary& dict,
-    const fvMesh& mesh,
+    const velocityQuadratureApproximation& quadrature,
     const label nCompositions
 )
 {
@@ -54,7 +54,7 @@ Foam::mixingSubModels::reactionModel::New
         ) << exit(FatalIOError);
     }
 
-    return autoPtr<reactionModel>(ctorPtr(dict, mesh, nCompositions));
+    return autoPtr<reactionModel>(ctorPtr(dict, quadrature, nCompositions));
 }
 
 
