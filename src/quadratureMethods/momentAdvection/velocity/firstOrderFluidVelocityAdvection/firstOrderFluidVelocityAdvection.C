@@ -58,6 +58,7 @@ Foam::velocityAdvection::firstOrderFluidVelocity::firstOrderFluidVelocity
 :
     velocityMomentAdvection(dict, quadrature, supports),
     phiName_(dict.lookupOrDefault<word>("phi", "phi")),
+    rhoName_(dict.lookupOrDefault<word>("rho", "rho")),
     mesh_(quadrature.moments()(0).mesh())
 {}
 
@@ -87,6 +88,12 @@ Foam::velocityAdvection::firstOrderFluidVelocity::phi() const
 }
 
 
+bool Foam::velocityAdvection::firstOrderFluidVelocity::densityWeighted() const
+{
+    return phi().dimensions() == dimMass/dimTime;
+}
+
+
 Foam::scalar
 Foam::velocityAdvection::firstOrderFluidVelocity::realizableCo() const
 {
@@ -102,6 +109,18 @@ Foam::scalar Foam::velocityAdvection::firstOrderFluidVelocity::CoNum() const
     (
         fvc::surfaceSum(mag(phiFluid))().primitiveField()
     );
+
+    // The volume of fluid through the faces of a cell over its volume, or
+    // the mass through them over its mass
+    if (densityWeighted())
+    {
+        const volScalarField& rho =
+            mesh_.lookupObject<volScalarField>(rhoName_);
+
+        return
+            0.5*gMax(sumPhi/(rho.primitiveField()*mesh_.V().field()))
+           *mesh_.time().deltaTValue();
+    }
 
     return
         0.5*gMax(sumPhi/mesh_.V().field())
@@ -128,6 +147,13 @@ void Foam::velocityAdvection::firstOrderFluidVelocity::update
 
     forAll(divMoments_, momenti)
     {
+        // The divergence takes the dimensions of the flux: of a volume, or
+        // of a mass
+        divMoments_[momenti].dimensions().reset
+        (
+            moments_[momenti].dimensions()*phiFluid.dimensions()/dimVolume
+        );
+
         divMoments_[momenti] =
             fvc::surfaceIntegrate(faceValues.flux(moments_[momenti]));
     }

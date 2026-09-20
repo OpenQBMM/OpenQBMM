@@ -43,6 +43,22 @@ Description
     The flux is the one of the fluid, named by phi in the dictionary of the
     advection, phi unless another name is given.
 
+    Where that flux is a mass flux, which it is in a solver of variable
+    density, the distribution is mass-weighted: its weights are fractions
+    of the mass of the fluid, and what is conserved is rho m,
+
+        d (rho m) / d t + div(rho U m) = 0.
+
+    The scheme then gives div(rho U m), upwind as before, and a transport
+    model balances it with the rate of change of rho m. With the density of
+    a cell obeying the same discrete continuity equation with the same
+    flux, which is what a solver obtains by solving it before the moments,
+    the new moments of a cell are again a convex combination of those of
+    the cell and of the cells upwind of it, up to a Courant number of one
+    taken with the mass flux over the mass of the cell, and the moment of
+    order zero of a distribution that integrates to one stays one. The
+    density is named by rho, rho unless another name is given.
+
     firstOrderKinetic is the scheme for a distribution whose nodes have
     velocities of their own, which it splits the flux of a face by; this one
     is the same reconstruction where they share the velocity of the fluid,
@@ -81,6 +97,10 @@ class firstOrderFluidVelocity
         //- Name of the flux of the fluid that carries the distribution
         const word phiName_;
 
+        //- Name of the density of the fluid, read where the flux is a
+        //  mass flux
+        const word rhoName_;
+
         //- The mesh, to find the flux on
         const fvMesh& mesh_;
 
@@ -113,6 +133,9 @@ public:
 
 
     // Member Functions
+
+        //- Whether the flux of the fluid is a mass flux
+        virtual bool densityWeighted() const;
 
         //- The largest Courant number the moments stay realizable at: the
         //  moments of a cell are a convex combination of those it is

@@ -168,6 +168,15 @@ public:
         //- Return the advection term for the moment transport equation
         inline const PtrList<volScalarField>& divMoments() const;
 
+        //- Whether the divergences are those of the moments of a
+        //  mass-weighted distribution, div(rho U m), which a transport
+        //  model then balances with the rate of change of rho m; only a
+        //  scheme carried by a mass flux says so
+        virtual bool densityWeighted() const
+        {
+            return false;
+        }
+
         //- Return the maximum Courant number ensuring moment realizability
         virtual scalar realizableCo() const = 0;
 

@@ -133,4 +133,19 @@ turbViscosity(const volScalarField& moment) const
     }
 }
 
+
+Foam::tmp<Foam::fvScalarMatrix>
+Foam::mixingSubModels::mixingDiffusionModels::turbulentDiffusion
+::momentDiff
+(
+    const volScalarField& rho,
+    const volScalarField& moment
+) const
+{
+    volScalarField gamma(rho*(turbViscosity(moment)/Sc_ + gammaLam_));
+
+    return fvm::laplacian(gamma, moment);
+}
+
+
 // ************************************************************************* //

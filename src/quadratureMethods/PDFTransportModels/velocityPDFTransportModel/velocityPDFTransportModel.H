@@ -71,7 +71,21 @@ protected:
         //- Moment advection
         autoPtr<velocityMomentAdvection> momentAdvection_;
 
+        //- Name of the density of the fluid, read where the advection is
+        //  that of a mass-weighted distribution
+        const word rhoName_;
+
     // Protected member functions
+
+        //- Whether the distribution is mass-weighted, which it is where
+        //  its advection is carried by a mass flux: the moments then obey
+        //  d (rho m)/d t + div(rho U m) = sources, and the implicit source
+        //  of a moment has to be the one of rho m
+        bool densityWeighted() const;
+
+        //- The density of the fluid, of a mass-weighted distribution
+        const volScalarField& rho() const;
+
 
         //- Update implicit collison source terms
         virtual void updateImplicitMomentSource() = 0;

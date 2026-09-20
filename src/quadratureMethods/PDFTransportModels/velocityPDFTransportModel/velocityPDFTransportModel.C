@@ -50,7 +50,8 @@ Foam::PDFTransportModels::velocityPDFTransportModel::velocityPDFTransportModel
             quadrature_,
             quadrature_.moments().supports()
         )
-    )
+    ),
+    rhoName_(dict.getOrDefault<word>("rho", "rho"))
 {
     checkRealizableTransport(quadrature_.moments());
 }
@@ -62,6 +63,33 @@ Foam::PDFTransportModels::velocityPDFTransportModel::~velocityPDFTransportModel(
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+bool Foam::PDFTransportModels::velocityPDFTransportModel::densityWeighted()
+const
+{
+    return momentAdvection_().densityWeighted();
+}
+
+
+const Foam::volScalarField&
+Foam::PDFTransportModels::velocityPDFTransportModel::rho() const
+{
+    const fvMesh& mesh = quadrature_.moments()[0].mesh();
+
+    if (!mesh.foundObject<volScalarField>(rhoName_))
+    {
+        FatalErrorInFunction
+            << "The moments are carried by a mass flux, and the density "
+            << rhoName_ << " of the fluid is not in the registry of the "
+            << "mesh." << nl
+            << "    Name the density with rho in the dictionary of the "
+            << "model." << nl
+            << exit(FatalError);
+    }
+
+    return mesh.lookupObject<volScalarField>(rhoName_);
+}
+
+
 void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
 {
     momentAdvection_().update();
@@ -72,9 +100,11 @@ void Foam::PDFTransportModels::velocityPDFTransportModel::solve()
     forAll(quadrature_.moments(), momenti)
     {
         volVelocityMoment& m = quadrature_.moments()[momenti];
+        // The moments of a mass-weighted distribution are conserved with
+        // the density of the fluid
         fvScalarMatrix momentEqn
         (
-            fvm::ddt(m)
+            (densityWeighted() ? fvm::ddt(rho(), m) : fvm::ddt(m))
           + momentAdvection_().divMoments()[momenti]
          ==
             implicitMomentSource(m)

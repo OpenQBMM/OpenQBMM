@@ -45,6 +45,21 @@ Description
     - the answer does not know left from right: the mirror image of the
       profile, transported the other way, is the mirror image of the result.
 
+    Where the flux is a mass flux the distribution is mass-weighted, and
+    what is conserved is rho m. A steady mass flux through a density that
+    varies along the line, which satisfies continuity as it stands, carries
+    the same profile:
+
+    - the scheme says the distribution is mass-weighted, and its Courant
+      number is the one taken with the mass of the cells;
+    - the mass of every moment, the sum of rho m over the line, is
+      conserved;
+    - moments that are the same in every cell stay so, since the density
+      obeys continuity with the flux that carries them: a distribution
+      that integrates to one keeps doing so;
+    - the moment sets stay realizable and the conditional means bounded,
+      at a Courant number of one in the lightest cell.
+
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
@@ -397,6 +412,195 @@ int main(int argc, char *argv[])
     }
 
     Info<< nl;
+
+    // A steady mass flux through a density that varies along the line
+    {
+        const scalar Co = 1.0;
+        const label nSteps = 3*nCells;
+
+        Info<< nl << "Mass flux through a varying density, Courant number "
+            << Co << " in the lightest cell, " << nSteps << " steps" << nl;
+
+        volScalarField rho
+        (
+            IOobject("rho", runTime.timeName(), mesh),
+            mesh,
+            dimensionedScalar("rho", dimDensity, 1.0),
+            moments[0].boundaryField().types()
+        );
+
+        forAll(rho, celli)
+        {
+            const scalar x = mesh.C()[celli].x() - bounds.min().x();
+
+            rho[celli] =
+                1.0
+              + 0.5*Foam::sin
+                (
+                    constant::mathematical::twoPi*x
+                   /(bounds.max().x() - bounds.min().x())
+                );
+        }
+
+        rho.correctBoundaryConditions();
+
+        const scalar F0 = 1.0;
+        const vector along(1, 0, 0);
+
+        surfaceScalarField phi
+        (
+            IOobject("phi", runTime.timeName(), mesh),
+            mesh,
+            dimensionedScalar("phi", dimMass/dimTime, Zero)
+        );
+
+        phi.primitiveFieldRef() = F0*(mesh.Sf().primitiveField() & along);
+
+        forAll(phi.boundaryField(), patchi)
+        {
+            phi.boundaryFieldRef()[patchi] =
+                F0*(mesh.Sf().boundaryField()[patchi] & along);
+        }
+
+        const scalar deltaT = Co*min(rho.primitiveField())*dx/F0;
+        runTime.setDeltaT(deltaT);
+
+        setMoments(moments, momentOrders, false);
+        quadrature.updateQuadrature();
+
+        autoPtr<velocityMomentAdvection> advection
+        (
+            velocityMomentAdvection::New(schemeDict, quadrature, supports)
+        );
+
+        check
+        (
+            "a mass flux makes the distribution mass-weighted",
+            advection->densityWeighted()
+        );
+
+        check
+        (
+            "the Courant number is taken with the mass of the cells",
+            mag(advection->CoNum() - Co) < 1e-12,
+            "(" + Foam::name(advection->CoNum()) + ")"
+        );
+
+        auto massOf = [&](const label mi)
+        {
+            return
+                gSum
+                (
+                    rho.primitiveField()
+                   *moments[mi].primitiveField()
+                   *mesh.V().field()
+                );
+        };
+
+        scalarField initial(nMoments);
+
+        forAll(initial, mi)
+        {
+            initial[mi] = massOf(mi);
+        }
+
+        scalar worstConservation = 0;
+        bool realizable = true;
+        bool bounded = true;
+
+        for (label stepi = 0; stepi < nSteps; stepi++)
+        {
+            advection->update();
+
+            forAll(moments, mi)
+            {
+                moments[mi].primitiveFieldRef() -=
+                    deltaT*advection->divMoments()[mi].primitiveField()
+                   /rho.primitiveField();
+
+                moments[mi].correctBoundaryConditions();
+            }
+
+            realizable =
+                realizable && realizableEverywhere(moments, momentOrders);
+
+            quadrature.updateQuadrature();
+
+            forAll(quadrature.nodes(), nodei)
+            {
+                const volVelocityNode& node = quadrature.nodes()[nodei];
+
+                forAll(node.abscissae()[1], celli)
+                {
+                    const scalar y = node.abscissae()[1][celli];
+
+                    bounded = bounded && y >= 0 && y <= 1;
+                }
+            }
+
+            forAll(initial, mi)
+            {
+                worstConservation =
+                    max
+                    (
+                        worstConservation,
+                        mag(massOf(mi) - initial[mi])
+                       /max(mag(initial[mi]), SMALL)
+                    );
+            }
+
+        }
+
+        // The same moments in every cell, those of the first one
+        scalar worstUniform = 0;
+
+        forAll(moments, mi)
+        {
+            moments[mi].primitiveFieldRef() = moments[mi][0];
+            moments[mi].correctBoundaryConditions();
+        }
+
+        const scalarField uniform(totalMoments(moments)/gSum(mesh.V().field()));
+
+        for (label stepi = 0; stepi < nCells; stepi++)
+        {
+            advection->update();
+
+            forAll(moments, mi)
+            {
+                moments[mi].primitiveFieldRef() -=
+                    deltaT*advection->divMoments()[mi].primitiveField()
+                   /rho.primitiveField();
+
+                moments[mi].correctBoundaryConditions();
+
+                worstUniform =
+                    max
+                    (
+                        worstUniform,
+                        gMax(mag(moments[mi].primitiveField() - uniform[mi]))
+                       /max(mag(uniform[mi]), SMALL)
+                    );
+            }
+        }
+
+        check
+        (
+            "the mass of every moment is conserved",
+            worstConservation < 1e-12,
+            "(" + Foam::name(worstConservation) + ")"
+        );
+
+        check
+        (
+            "moments that are the same in every cell stay so",
+            worstUniform < 1e-12,
+            "(" + Foam::name(worstUniform) + ")"
+        );
+
+        check("every cell stays realizable", realizable);
+        check("every conditional mean stays within [0, 1]", bounded);
+    }
 
     if (nFailed > 0)
     {

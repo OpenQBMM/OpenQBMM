@@ -83,6 +83,13 @@ public:
             const volScalarField& moment
         ) const;
 
+        //- The diffusion of a moment of a mass-weighted distribution
+        virtual tmp<fvScalarMatrix> momentDiff
+        (
+            const volScalarField& rho,
+            const volScalarField& moment
+        ) const;
+
 };
 
 

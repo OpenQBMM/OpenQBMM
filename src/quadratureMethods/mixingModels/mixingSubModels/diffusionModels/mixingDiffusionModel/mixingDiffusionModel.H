@@ -113,6 +113,14 @@ public:
             const volScalarField& moment
         ) const = 0;
 
+        //- The diffusion of a moment of a mass-weighted distribution,
+        //  div(rho Gamma grad m), for the transport of rho m
+        virtual tmp<fvScalarMatrix> momentDiff
+        (
+            const volScalarField& rho,
+            const volScalarField& moment
+        ) const = 0;
+
 
     // Member Operators
 

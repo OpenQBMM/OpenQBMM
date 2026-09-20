@@ -246,6 +246,11 @@ Foam::tmp<Foam::fvScalarMatrix>
 Foam::PDFTransportModels::mixingModels::conditionalMixing
 ::implicitMomentSource(const volVelocityMoment& moment)
 {
+    if (densityWeighted())
+    {
+        return diffusionModel_->momentDiff(rho(), moment);
+    }
+
     return diffusionModel_->momentDiff(moment);
 }
 

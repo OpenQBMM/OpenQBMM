@@ -101,4 +101,35 @@ Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
     return fvm::Sp(noDiff, moment);
 }
 
+
+Foam::tmp<Foam::fvScalarMatrix>
+Foam::mixingSubModels::mixingDiffusionModels::noDiffusion
+::momentDiff
+(
+    const volScalarField& rho,
+    const volScalarField& moment
+) const
+{
+    tmp<volScalarField> noDiff
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "noDiff",
+                moment.mesh().time().timeName(),
+                moment.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            moment.mesh(),
+            dimensionedScalar("zero", dimDensity/dimTime, Zero)
+        )
+    );
+
+    return fvm::Sp(noDiff, moment);
+}
+
+
 // ************************************************************************* //

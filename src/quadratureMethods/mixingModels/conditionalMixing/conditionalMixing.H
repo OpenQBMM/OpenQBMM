@@ -56,6 +56,19 @@ Description
     quadrature to compute it; IEM is written for the moments of any number
     of coordinates, which is what a case selects here.
 
+    Where the flux that carries the moments is a mass flux, as it is in a
+    solver of variable density, the distribution is mass-weighted: the
+    weight of a node is the fraction of the mass of the fluid in its
+    environment, the moments obey d (rho m)/d t + div(rho U m) = div(rho
+    Gamma grad m) + rho S, and the means they give are mass-weighted
+    means, which is what mass fractions and an enthalpy per unit mass
+    average to. The mean density of the fluid is then the one whose
+    specific volume is the mean of those of the environments, 1/rho =
+    sum_i w_i/rho_i. The density is named by rho in the dictionary of the
+    model, rho unless another name is given, and has to obey continuity
+    with that flux when the moments are solved, which a solver obtains by
+    solving its continuity equation first.
+
     The reaction is a model of its own, selected in the reaction
     sub-dictionary and none without it, and it acts on the nodes rather
     than on the moments: once the moments have been transported and

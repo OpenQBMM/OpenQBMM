@@ -85,4 +85,19 @@ Foam::mixingSubModels::mixingDiffusionModels::molecularDiffusion
     return fvm::laplacian(gammaLam_, moment);
 }
 
+
+Foam::tmp<Foam::fvScalarMatrix>
+Foam::mixingSubModels::mixingDiffusionModels::molecularDiffusion
+::momentDiff
+(
+    const volScalarField& rho,
+    const volScalarField& moment
+) const
+{
+    volScalarField gamma(rho*gammaLam_);
+
+    return fvm::laplacian(gamma, moment);
+}
+
+
 // ************************************************************************* //
