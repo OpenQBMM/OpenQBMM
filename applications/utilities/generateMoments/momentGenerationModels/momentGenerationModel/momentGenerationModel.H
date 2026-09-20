@@ -42,6 +42,7 @@ SourceFiles
 #define momentGeneration_H
 
 #include "fvMesh.H"
+#include "volFields.H"
 #include "dictionary.H"
 #include "mappedLists.H"
 #include "mappedPtrList.H"
@@ -200,6 +201,15 @@ public:
             const dictionary& dict,
             const labelList& cells
         ) = 0;
+
+        //- Write the fields a model derives from the moments it generated,
+        //  once they are set over the internal field, the patches and the
+        //  regions; none by default
+        virtual void writeDerivedFields
+        (
+            const mappedPtrList<volScalarField>& moments
+        ) const
+        {}
 };
 
 

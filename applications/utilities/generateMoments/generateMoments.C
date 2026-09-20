@@ -34,9 +34,15 @@ Description
     consucted using inputs from generateMomentsDict. 
     Different methods can be used to specify the moment definition.
 
+    With -singleCell the moments are generated on the mesh of one cell the
+    single-cell solvers, mixingFoam among them, build for themselves, so
+    that such a case needs no mesh of its own: its one patch is boundary,
+    of type empty.
+
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "hexCellFvMesh.H"
 #include "fieldMomentInversion.H"
 #include "momentGenerationModel.H"
 #include "mappedPtrList.H"
@@ -52,9 +58,47 @@ int main(int argc, char *argv[])
         "Utility to generate moments to initialize QBMM solvers."
     );
 
+    argList::addBoolOption
+    (
+        "singleCell",
+        "Generate the moments on the mesh of one cell of the single-cell "
+        "solvers"
+    );
+
     #include "setRootCase.H"
     #include "createTime.H"
-    #include "createMesh.H"
+
+    autoPtr<fvMesh> meshPtr;
+
+    if (args.found("singleCell"))
+    {
+        Info<< "Constructing single cell mesh" << nl << endl;
+
+        meshPtr.reset
+        (
+            new simplifiedMeshes::hexCellFvMesh(runTime)
+        );
+    }
+    else
+    {
+        Info<< "Create mesh for time = " << runTime.timeName() << nl << endl;
+
+        meshPtr.reset
+        (
+            new fvMesh
+            (
+                IOobject
+                (
+                    polyMesh::defaultRegion,
+                    runTime.timeName(),
+                    runTime,
+                    IOobject::MUST_READ
+                )
+            )
+        );
+    }
+
+    fvMesh& mesh = meshPtr();
 
     Info<< "Reading initial conditions and creating moments" << nl << endl;
 
@@ -288,6 +332,8 @@ int main(int argc, char *argv[])
         {
             moments[mi].write();
         }
+
+        momentGenerator().writeDerivedFields(moments);
     }
 
     Info<< nl << "End\n" << endl;

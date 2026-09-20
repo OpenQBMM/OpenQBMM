@@ -9,24 +9,34 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    location    "0";
-    object      moment.0_1_0_0_0_0.mixing;
+    class       dictionary;
+    location    "constant";
+    object      streams;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// Moment 0 of the mixture fraction with the mass fraction of O2,
-// which is linear in the mixture fraction between air and fuel
-
-dimensions      [0 0 0 0 0 0 0];
-
-internalField   uniform 0.2097;
-
-boundaryField
+// The two streams the cell holds a mixture of: hot air at a mixture
+// fraction of zero and cold methane at one. The reaction model takes the
+// enthalpy of an environment from them, and generateMoments the moments of
+// the compositions, so both dictionaries include this file.
+xi0
 {
-    boundary
+    T       1200;
+
+    Y
     {
-        type            empty;
+        O2      0.233;
+        N2      0.767;
+    }
+}
+
+xi1
+{
+    T       300;
+
+    Y
+    {
+        CH4     1;
     }
 }
 

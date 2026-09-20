@@ -232,6 +232,13 @@ runTest ./mixingModels/conditionalReaction/linearEnthalpy \
 runTest ./mixingModels/conditionalReaction/mixing \
     Test-ConditionalReaction
 
+# The moments generateMoments gives a mixture fraction and the compositions
+# conditioned on it where two streams have only mixed: those of a beta
+# distribution, of one value and of given nodes, the compositions linear in
+# the mixture fraction between the streams
+runTest ./momentGeneration/mixtureFractionStreams/case \
+    Test-MixtureFractionStreams
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

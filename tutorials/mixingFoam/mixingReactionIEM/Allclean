@@ -7,4 +7,7 @@ cleanCase
 rm -rf postProcessing
 rm -rf validation/figures
 
+# What generateMoments writes: the moments, and the mean mass fractions
+rm -f 0/moment.* 0/O2 0/H2O 0/CH4 0/CO2 0/N2
+
 # ----------------------------------------------------------------- end-of-file

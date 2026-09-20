@@ -1,33 +1,30 @@
 /*--------------------------------*- C++ -*----------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
      \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    location    "0";
-    object      moment.2_0_0_0_0_0.mixing;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// Moment 2 of the mixture fraction: a beta distribution of mean 0.1
-// and variance 0.04, mostly hot air with a tail of fuel
-
-dimensions      [0 0 0 0 0 0 0];
-
-internalField   uniform 0.05;
-
-boundaryField
+solvers
 {
-    boundary
+     "moment.*"
     {
-        type            empty;
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-10;
+        relTol          0;
     }
 }
+
 
 // ************************************************************************* //

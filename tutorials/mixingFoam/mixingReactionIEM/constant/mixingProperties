@@ -43,8 +43,7 @@ conditionalMixingCoeffs
 
         streams
         {
-            xi0 { T 1200; Y { O2 0.233; N2 0.767; } }
-            xi1 { T 300;  Y { CH4 1; } }
+            #include "<constant>/streams"
         }
     }
 

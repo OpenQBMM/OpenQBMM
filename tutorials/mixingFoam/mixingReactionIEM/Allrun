@@ -5,6 +5,10 @@ cd ${0%/*} || exit 1    # Run from this directory
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 . ../../../AllrunFunctions
 
+# The moments of the mixture fraction and of the species, and the mean mass
+# fractions the thermo starts from, on the one cell of the solver
+runStep generateMoments -singleCell
+
 runStep mixingFoam
 
 plotCase

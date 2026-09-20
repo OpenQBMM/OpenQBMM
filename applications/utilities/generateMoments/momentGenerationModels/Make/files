@@ -7,5 +7,6 @@ alphaAndDiameter/alphaAndDiameter.C
 alphaAndDiameterVelocity/alphaAndDiameterVelocity.C
 velocity/velocity.C
 gaussianMoments/gaussianMoments.C
+mixtureFractionStreams/mixtureFractionStreams.C
 
 LIB = $(FOAM_MODULE_LIBBIN)/libmomentGenerationModels
