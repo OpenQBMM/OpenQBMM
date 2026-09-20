@@ -30,6 +30,34 @@ License
 
 #include "quadratureNode.H"
 
+// * * * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * //
+
+template<class scalarType, class vectorType>
+Foam::word Foam::quadratureNode<scalarType, vectorType>::nodeName
+(
+    const labelList& indexes,
+    const labelList& nNodes
+)
+{
+    label nNamed = indexes.size();
+
+    if (nNodes.size() == indexes.size())
+    {
+        while (nNamed > 1 && nNodes[nNamed - 1] <= 1)
+        {
+            nNamed--;
+        }
+    }
+
+    return
+        "node"
+      + mappedList<scalar>::listToWord
+        (
+            labelList(SubList<label>(indexes, nNamed))
+        );
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 template<class scalarType, class vectorType>
 Foam::quadratureNode<scalarType, vectorType>::quadratureNode

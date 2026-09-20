@@ -132,6 +132,18 @@ public:
         //- Return clone
         autoPtr<quadratureNode<scalarType, vectorType>> clone() const;
 
+        //- The name of a node from its indexes: node followed by the index
+        //  in every dimension up to the last one that has more than one
+        //  node, joined by underscores, so that a dimension carrying one
+        //  node adds nothing to the names of the nodes after it; node0
+        //  when every dimension carries one node. Without the number of
+        //  nodes of the dimensions, every index is named.
+        static word nodeName
+        (
+            const labelList& indexes,
+            const labelList& nNodes
+        );
+
         //- Return a pointer to a new quadrature node created on freestore
         //  from Istream
         class iNew
@@ -141,6 +153,7 @@ public:
             const dimensionSet& weightDimensions_;
             const PtrList<dimensionSet>& abscissaeDimensions_;
             const wordList& boundaryTypes_;
+            const labelList nNodes_;
 
         public:
 
@@ -150,14 +163,16 @@ public:
                 const fvMesh& mesh,
                 const dimensionSet& weightDimensions,
                 const PtrList<dimensionSet>& abscissaeDimensions,
-                const wordList& boundaryTypes
+                const wordList& boundaryTypes,
+                const labelList& nNodes = labelList()
             )
             :
                 distributionName_(distributionName),
                 mesh_(mesh),
                 weightDimensions_(weightDimensions),
                 abscissaeDimensions_(abscissaeDimensions),
-                boundaryTypes_(boundaryTypes)
+                boundaryTypes_(boundaryTypes),
+                nNodes_(nNodes)
             {}
 
             autoPtr<quadratureNode<scalarType, vectorType>>
@@ -175,7 +190,7 @@ public:
                 (
                     new quadratureNode<scalarType, vectorType>
                     (
-                        "node" + mappedList<scalar>::listToWord(ent),
+                        nodeName(ent, nNodes_),
                         distributionName_,
                         mesh_,
                         weightDimensions_,

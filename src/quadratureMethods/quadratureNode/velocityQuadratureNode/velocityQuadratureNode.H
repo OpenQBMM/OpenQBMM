@@ -111,6 +111,7 @@ public:
             const dimensionSet& weightDimensions_;
             const PtrList<dimensionSet>& abscissaeDimensions_;
             const wordList& boundaryTypes_;
+            const labelList nNodes_;
 
         public:
 
@@ -120,14 +121,16 @@ public:
                 const fvMesh& mesh,
                 const dimensionSet& weightDimensions,
                 const PtrList<dimensionSet>& abscissaeDimensions,
-                const wordList& boundaryTypes
+                const wordList& boundaryTypes,
+                const labelList& nNodes = labelList()
             )
             :
                 distributionName_(distributionName),
                 mesh_(mesh),
                 weightDimensions_(weightDimensions),
                 abscissaeDimensions_(abscissaeDimensions),
-                boundaryTypes_(boundaryTypes)
+                boundaryTypes_(boundaryTypes),
+                nNodes_(nNodes)
             {}
 
             autoPtr<velocityQuadratureNode<scalarType, vectorType>>
@@ -145,7 +148,11 @@ public:
                 (
                     new velocityQuadratureNode<scalarType, vectorType>
                     (
-                        "node" + mappedList<scalar>::listToWord(ent),
+                        quadratureNode<scalarType, vectorType>::nodeName
+                        (
+                            ent,
+                            nNodes_
+                        ),
                         distributionName_,
                         mesh_,
                         weightDimensions_,

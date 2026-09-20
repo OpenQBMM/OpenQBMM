@@ -181,7 +181,8 @@ quadratureApproximation
         mesh_,
         moments_[0].dimensions(),
         abscissaeDimensions,
-        nodeBoundaryTypes
+        nodeBoundaryTypes,
+        nNodes_
     );
 
     forAll(nodeIndexes_, nodei)
@@ -309,7 +310,8 @@ quadratureApproximation
         mesh_,
         moments_[0].dimensions(),
         abscissaeDimensions,
-        nodeBoundaryTypes
+        nodeBoundaryTypes,
+        nNodes_
     );
 
     forAll(nodeIndexes_, nodei)
