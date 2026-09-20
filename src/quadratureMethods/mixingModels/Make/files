@@ -15,5 +15,6 @@ mixingSubModels/mixingKernels/FokkerPlanck/FokkerPlanck.C
 
 noMixing/noMixing.C
 turbulentMixing/turbulentMixing.C
+conditionalMixing/conditionalMixing.C
 
 LIB = $(FOAM_MODULE_LIBBIN)/libmixing

@@ -212,6 +212,12 @@ runTest ./mixingKernels/FokkerPlanckC3 \
 runTest ./mixingKernels/IEMkOmega \
     Test-MixingKernels
 
+# The same mixing of a mixture fraction and of a composition conditioned on
+# it: the means are conserved and the variance and the covariance decay at
+# Cphi epsilon/k
+runTest ./mixingModels/conditionalMixing/case \
+    Test-ConditionalMixing
+
 if [ "$nFail" -gt 0 ]
 then
     echo "$nFail test(s) failed:$failed"

@@ -1,0 +1,40 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fieldMomentInversion    basicMultivariateFieldMomentInversion;
+
+// Three nodes of the mixture fraction, each carrying the mean of one
+// composition. The supports of both are the model's, so they are not here.
+basicMultivariateMomentInversion
+{
+    type                conditionalMeans;
+    nMoments            6;
+    nScalars            1;
+    nVelocityDimensions 0;
+
+    basicQuadrature
+    {
+        univariateMomentInversion   Gauss;
+    }
+}
+
+momentAdvection
+{
+    velocityMomentAdvection firstOrderFluidVelocity;
+}
+
+// ************************************************************************* //

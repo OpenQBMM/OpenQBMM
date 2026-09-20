@@ -139,7 +139,9 @@ The core abstraction chain, roughly bottom-up:
   (`univariatePDFTransportModel`, `velocityPDFTransportModel`).
 - **`populationBalanceModels`** / **`mixingModels`** — the concrete physics on top of PDF transport,
   selected at run time (`univariate`, `velocity`, `sizeVelocity`, `mixingPopulationBalance`, `none`;
-  and `turbulentMixing`, `noMixing`). Their source terms come from run-time-selectable sub-models under
+  and `turbulentMixing`, `conditionalMixing` — a mixture fraction with the compositions
+  conditioned on it, both on [0,1], carried by the fluid and mixed by the same kernels —,
+  `noMixing`). Their source terms come from run-time-selectable sub-models under
   `populationBalanceSubModels/` (aggregation & coalescence kernels, breakup kernels, daughter
   distributions, growth, nucleation, diffusion, collision, environment mixing) and `mixingSubModels/`.
 - **`realizableOdeSolver`** — adaptive ODE integration of the moment source terms that preserves

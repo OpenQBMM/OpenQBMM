@@ -1,0 +1,177 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2026 Alberto Passalacqua
+-------------------------------------------------------------------------------
+License
+    This file is derivative work of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Class
+    Foam::PDFTransportModels::mixingModels::conditionalMixing
+
+Description
+    Mixing of a mixture fraction and of the compositions conditioned on it.
+
+    The distribution carries the moments of the mixture fraction and, for
+    every composition, its mean at each node of the mixture fraction: the
+    quadrature of conditional means. Both are on [0, 1], which the model
+    gives the quadrature as the supports of its dimensions, and the number
+    of compositions is the one the model is asked for, nCompositions.
+
+    The moments are carried by the velocity of the fluid, since a node of
+    the mixture fraction is a state of the fluid and not of anything moving
+    through it, and mixed by the kernel of the case. The mixing of every
+    moment is closed in the moments themselves, so the model needs no
+    quadrature to compute it; IEM is written for the moments of any number
+    of coordinates, which is what a case selects here.
+
+    What the compositions react to is not here: the source of a reaction
+    is a model of its own, and the moments carry only what mixing does to
+    them.
+
+SourceFiles
+    conditionalMixing.C
+
+\*---------------------------------------------------------------------------*/
+
+#ifndef conditionalMixing_H
+#define conditionalMixing_H
+
+#include "velocityPDFTransportModel.H"
+#include "mixingModel.H"
+#include "mixingKernel.H"
+#include "mixingDiffusionModel.H"
+#include "realizableOdeSolver.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace PDFTransportModels
+{
+namespace mixingModels
+{
+
+/*---------------------------------------------------------------------------*\
+                      Class conditionalMixing Declaration
+\*---------------------------------------------------------------------------*/
+
+class conditionalMixing
+:
+    public velocityPDFTransportModel,
+    public mixingModel,
+    private realizableOdeSolver<volVelocityMoment, volVelocityNode>
+{
+    typedef realizableOdeSolver<volVelocityMoment, volVelocityNode> odeType;
+
+    // Private data
+
+        //- Name of the distribution
+        const word name_;
+
+        //- The moment fields of the quadrature, as the kernels read them
+        UPtrList<const volScalarField> momentFields_;
+
+        //- Mixing kernel
+        autoPtr<Foam::mixingSubModels::mixingKernel> mixingKernel_;
+
+        //- Diffusion model
+        autoPtr<Foam::mixingSubModels::mixingDiffusionModel> diffusionModel_;
+
+
+    // Private member functions
+
+        //- Update implicit source terms
+        virtual void updateImplicitMomentSource();
+
+        //- Calculate implicit source terms
+        virtual tmp<fvScalarMatrix> implicitMomentSource
+        (
+            const volVelocityMoment& moment
+        );
+
+        //- Calculate explicit source terms with realizable ODE solver
+        virtual void explicitMomentSource();
+
+        //- Are moments updated due to sources
+        virtual bool solveMomentSources() const;
+
+        //- Is the realizable ode solver used to solve sources
+        virtual bool solveMomentOde() const;
+
+        //- Update explicit source terms
+        virtual void updateCellMomentSource(const label celli);
+
+        //- Calculate source term for moment equation in the specified cell
+        virtual scalar cellMomentSource
+        (
+            const labelList& momentOrder,
+            const label celli,
+            const velocityQuadratureApproximation& quadrature,
+            const label environment
+        );
+
+
+public:
+
+    //- Runtime type information
+    TypeName("conditionalMixing");
+
+
+    // Constructors
+
+        //- Construct from components
+        conditionalMixing
+        (
+            const word& name,
+            const dictionary& dict,
+            const surfaceScalarField& phi
+        );
+
+
+    //- Destructor
+    virtual ~conditionalMixing();
+
+
+    // Member Functions
+
+        //- The supports of the dimensions of the distribution: the mixture
+        //  fraction and every composition on [0, 1]
+        static List<supportType> supports(const dictionary& dict);
+
+        //- Return the maximum Courant number ensuring moment realizability
+        scalar realizableCo();
+
+        //- Solve mixing model
+        void solve();
+};
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace mixingModels
+} // End namespace PDFTransportModels
+} // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// ************************************************************************* //

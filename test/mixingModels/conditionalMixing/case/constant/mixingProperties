@@ -1,0 +1,50 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenQBMM - www.openqbmm.org
+   \\    /   O peration     |
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      mixingProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+mixingModel conditionalMixing;
+
+conditionalMixingCoeffs
+{
+    // One composition conditioned on the mixture fraction
+    nCompositions   1;
+
+    diffusionModel
+    {
+        mixingDiffusionModel  none;
+    }
+
+    mixing on;
+
+    mixingKernel
+    {
+        mixingKernel  IEM;
+        Cphi          Cphi    [ 0 0 0 0 0 0 0 ] 2.0;
+    }
+
+    odeCoeffs
+    {
+        solveOde   on;
+        ATol       1.0e-12;
+        RTol       1.0e-9;
+        fac        0.9;
+        facMin     0.5;
+        facMax     2.0;
+        minLocalDt 1.0e-8;
+    }
+}
+
+// ************************************************************************* //
