@@ -1,0 +1,63 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      mixingProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+mixingModel conditionalMixing;
+
+conditionalMixingCoeffs
+{
+    // The compositions are the species of the thermo, in the order of its
+    // species list
+
+    diffusionModel
+    {
+        mixingDiffusionModel  none;
+    }
+
+    mixingKernel
+    {
+        mixingKernel  IEM;
+        Cphi          Cphi    [ 0 0 0 0 0 0 0 ] 2.0;
+    }
+
+    // The chemistry of the case solved in every environment, at the
+    // temperature at which its composition has the enthalpy linear in the
+    // mixture fraction between hot air and cold methane
+    reaction
+    {
+        reactionModel   chemistry;
+        temperature     linearEnthalpy;
+
+        streams
+        {
+            xi0 { T 1200; Y { O2 0.233; N2 0.767; } }
+            xi1 { T 300;  Y { CH4 1; } }
+        }
+    }
+
+    odeCoeffs
+    {
+        solveOde   on;
+        ATol       1.0e-10;
+        RTol       1.0e-6;
+        fac        0.9;
+        facMin     0.5;
+        facMax     2.0;
+        minLocalDt 1.0e-8;
+    }
+}
+
+// ************************************************************************* //

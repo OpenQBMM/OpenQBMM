@@ -85,6 +85,7 @@ int main(int argc, char *argv[])
         // The mixing model may have written the mean state of the
         // environments to the thermo
         thermo.correct();
+        rho = thermo.rho();
 
         #include "output.H"
 

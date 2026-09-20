@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The mean temperature of the environments, which the mixing model
+// rewrites at every step from the enthalpy of every environment
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 1110;
+
+boundaryField
+{
+    boundary
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      moment.0_0_0_1_0_0.mixing;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Moment 0 of the mixture fraction with the mass fraction of CH4,
+// which is linear in the mixture fraction between air and fuel
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.1;
+
+boundaryField
+{
+    boundary
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

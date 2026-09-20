@@ -16,3 +16,5 @@
             << mesh.lookupObject<volScalarField>(moment0Names[0])[0] << endl;
     }
 
+    Info<< "T = " << thermo.T()[0] << endl;
+

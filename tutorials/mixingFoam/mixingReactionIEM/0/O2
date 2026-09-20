@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      O2;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The mean mass fraction of O2, which the mixing model rewrites at every
+// step from the environments
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.2097;
+
+boundaryField
+{
+    boundary
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //
