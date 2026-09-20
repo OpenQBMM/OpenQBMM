@@ -326,10 +326,8 @@ int main(int argc, char *argv[])
     for (label stepi = 0; stepi < nSteps; stepi++)
     {
         runTime++;
+        // The model gives the thermo the mean state and corrects it
         mixing->solve();
-
-        // What the solver does once the model has run
-        thermo.correct();
 
         const scalar t = runTime.value();
         const scalar decay = Foam::exp(-k*t);

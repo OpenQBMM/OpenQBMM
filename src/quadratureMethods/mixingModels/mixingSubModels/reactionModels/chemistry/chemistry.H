@@ -94,16 +94,23 @@ Description
     them when a case wants them on disk.
 
     Once the environments of a cell have reacted, the moments are rebuilt
-    from the nodes, exactly, and the mean state of the cell is written to
-    the thermo, so that the properties of the fluid follow the quadrature:
+    from the nodes, exactly, and the mean state of the cell is given to the
+    thermo, so that the properties of the fluid follow the quadrature:
     the mass fraction fields of the species receive the mean composition,
     the mean over the environments weighted by the nodes, and, unless the
     environments are isothermal, the energy field receives the enthalpy of
     the mean temperature, the mean of the temperatures of the
-    environments. The solver updates the thermo after the mixing model has
-    been solved.
-    The mean density of a variable-density flow, the mean over the
-    environments of their densities, is not written here.
+    environments. The model then corrects the thermo, and, where the
+    thermo holds its density, which a rho-based one does, sets it to the
+    mean density of the environments: the weights are fractions of the
+    mass of the fluid, so it is the specific volumes that average, 1/rho =
+    sum_i w_i/rho_i. That density is what the pressure equation of a
+    solver of variable density reads, so the flow expands with the
+    environments and not with the mean state, whose density is not theirs.
+    With the chemistry switched off in chemistryProperties the environments
+    do not react, and the mean state is given to the thermo all the same:
+    the mixing of streams of different temperature and composition changes
+    the density with no reaction at all.
 
     The cost is that of one cell of a reacting solver for every
     environment, so a cell costs n times what it costs reactingFoam with

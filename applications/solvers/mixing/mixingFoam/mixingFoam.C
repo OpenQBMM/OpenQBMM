@@ -82,9 +82,8 @@ int main(int argc, char *argv[])
         turbulence->validate();
         mixing->solve();
 
-        // The mixing model may have written the mean state of the
-        // environments to the thermo
-        thermo.correct();
+        // The mixing model may have given the thermo the mean state of the
+        // environments, and corrected it
         rho = thermo.rho();
 
         #include "output.H"

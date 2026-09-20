@@ -28,6 +28,7 @@ License
 #include "chemistry.H"
 #include "psiReactionThermo.H"
 #include "rhoReactionThermo.H"
+#include "rhoThermo.H"
 #include "BasicChemistryModel.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
@@ -443,7 +444,9 @@ Foam::mixingSubModels::reactionModels::chemistry::~chemistry()
 
 bool Foam::mixingSubModels::reactionModels::chemistry::reacts() const
 {
-    return chemistry_->chemistry();
+    // The environments give the thermo its state even where the chemistry
+    // is switched off
+    return true;
 }
 
 
@@ -452,10 +455,7 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
     velocityQuadratureApproximation& quadrature
 )
 {
-    if (!reacts())
-    {
-        return;
-    }
+    const bool chemistryOn = chemistry_->chemistry();
 
     const label nSpecie = nCompositions_;
     const scalar deltaT = mesh_.time().deltaTValue();
@@ -494,6 +494,7 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
     }
 
     scalarField meanT(T);
+    scalarField meanV(T.size(), Zero);
     scalarList meanY(nSpecie, Zero);
 
     forAll(T, celli)
@@ -502,6 +503,7 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
 
         scalar wSum = 0;
         scalar wT = 0;
+        scalar wV = 0;
         meanY = Zero;
 
         forAll(nodes, nodei)
@@ -543,7 +545,7 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
 
             scalar Ti = nodeTemperature(xi, Y_, hi, T[celli], pi);
 
-            if (Ti > Treact_)
+            if (chemistryOn && Ti > Treact_)
             {
                 const scalar rhoi = density(Y_, pi, Ti);
 
@@ -597,6 +599,7 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
 
             wSum += w;
             wT += w*Ti;
+            wV += w/density(Y_, pi, Ti);
 
             for (label j = 0; j < nSpecie; j++)
             {
@@ -614,6 +617,7 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
             }
 
             meanT[celli] = wT/wSum;
+            meanV[celli] = wV/wSum;
         }
     }
 
@@ -638,6 +642,25 @@ void Foam::mixingSubModels::reactionModels::chemistry::react
     {
         thermo_.he().primitiveFieldRef() =
             thermo_.he(p, meanT, identity(mesh_.nCells()));
+    }
+
+    thermo_.correct();
+
+    // A thermo that holds its density takes the one of the environments,
+    // whose specific volumes are what average over the mass of the fluid
+    if (isA<rhoThermo>(thermo_))
+    {
+        volScalarField& rho = refCast<rhoThermo>(thermo_).rho();
+
+        forAll(meanV, celli)
+        {
+            if (meanV[celli] > 0)
+            {
+                rho[celli] = 1/meanV[celli];
+            }
+        }
+
+        rho.correctBoundaryConditions();
     }
 }
 
