@@ -82,11 +82,44 @@ Foam::multivariateMomentInversions::conditionalMeans::conditionalMeans
     nPrimaryMoments_(calcNPrimaryMoments(momentOrders, primaryIndex_)),
     primaryInverter_
     (
-        univariateMomentInversion::New(dict.subDict("basicQuadrature"))
+        univariateMomentInversion::New
+        (
+            dict.subDict("basicQuadrature"),
+            nodeIndexes.size()
+        )
+    ),
+    nAdditionalQuadraturePoints_
+    (
+        primaryInverter_().nAdditionalQuadraturePoints(nPrimaryMoments_)
     ),
     nClipped_(0),
     clipToSupports_(true)
 {
+    // Every node carries a conditional mean, found from as many moments
+    // <x^k phi> as there are nodes. The moments of a scalar that is linear
+    // in the primary coordinate, which is what an inert scalar and the
+    // mixing of two streams give, involve the moments of the primary
+    // coordinate up to the order of the number of nodes. Beyond the ones
+    // that are transported they are what the closure of the primary
+    // inversion says, not what the distribution has, and the conditional
+    // solve amplifies the difference.
+    if (nodeIndexes.size() > max(nPrimaryMoments_ - 1, label(1)))
+    {
+        WarningInFunction
+            << "The primary coordinate has " << nodeIndexes.size()
+            << " nodes and " << nPrimaryMoments_ << " moments." << nl
+            << "    The conditional means of a scalar linear in the primary "
+            << "coordinate are exact" << nl
+            << "    with up to " << max(nPrimaryMoments_ - 1, label(1))
+            << " nodes: with N regular nodes, up to N - 1 additional ones."
+            << nl
+            << "    Beyond that they depend on moments of the primary "
+            << "coordinate that are" << nl
+            << "    not transported, which the closure of the quadrature "
+            << "supplies." << nl
+            << endl;
+    }
+
     // The abscissae hold the dimensions that are not velocities, in their
     // order: the primary one first, since it is the first of them, and the
     // conditioned scalars after it
@@ -174,11 +207,26 @@ Foam::multivariateMomentInversions::conditionalMeans::calcNPrimaryMoments
     const label primaryIndex
 )
 {
+    // Only the pure moments count: with more nodes than half of them, as
+    // a generalized quadrature has, the conditional moments reach higher
+    // powers of the primary coordinate than the pure ones do
     label maxOrder = 0;
 
     forAll(momentOrders, mi)
     {
-        maxOrder = max(maxOrder, momentOrders[mi][primaryIndex]);
+        const labelList& order = momentOrders[mi];
+
+        bool pure = true;
+
+        forAll(order, dimi)
+        {
+            pure = pure && (dimi == primaryIndex || order[dimi] == 0);
+        }
+
+        if (pure)
+        {
+            maxOrder = max(maxOrder, order[primaryIndex]);
+        }
     }
 
     return maxOrder + 1;
@@ -189,6 +237,7 @@ void
 Foam::multivariateMomentInversions::conditionalMeans::momentOrdersAndNodes
 (
     const label nPrimaryMoments,
+    const label nNodes,
     const label nScalars,
     const label nVelocityDimensions,
     labelListList& momentOrders,
@@ -196,7 +245,6 @@ Foam::multivariateMomentInversions::conditionalMeans::momentOrdersAndNodes
 )
 {
     const label nDims = 1 + nScalars + nVelocityDimensions;
-    const label nNodes = nPrimaryMoments/2;
 
     momentOrders.clear();
     nodeIndexes.clear();
@@ -244,7 +292,8 @@ bool Foam::multivariateMomentInversions::conditionalMeans::invert
         supports[primaryIndex_],
         primaryInverter_().smallM0(),
         primaryInverter_().smallZeta(),
-        Zero
+        Zero,
+        nAdditionalQuadraturePoints_
     );
 
     forAll(primaryMoments, mi)

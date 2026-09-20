@@ -117,7 +117,9 @@ The core abstraction chain, roughly bottom-up:
   - `univariate/extended`: EQMOM kernels — beta, gamma, lognormal.
   - `multivariate`: CHyQMOM, CHyQMOM+, sizeCHyQMOM, TensorProduct, conditionalMeans (also
     selected as `monoKinetic`: a primary coordinate with the means of velocities or scalars
-    conditioned on it, supports taken from the moment set, scalars clipped to theirs),
+    conditioned on it, supports taken from the moment set, scalars clipped to theirs; as many
+    nodes, and first-order moments of each conditioned coordinate, as the univariate rule of
+    its `basicQuadrature` builds, GQMOM included, with a warning beyond 2N - 1 nodes),
     conditional.
   These operate on plain `momentSet`s — no mesh, no fields. This is what the unit tests exercise.
 - **`fieldMomentInversion`** — applies a `momentInversion` cell-by-cell over an `fvMesh`

@@ -216,6 +216,23 @@ bool Foam::fieldMomentInversion::buildMomentSet
 
     const word type(inversionDict.lookup("type"));
 
+    // The nodes of the primary coordinate of a conditional-means
+    // quadrature: the ones the univariate inversion it names builds, and
+    // the ones of a Gauss quadrature where it names none
+    auto primaryNodes = [](const dictionary& d, const label nMoments)
+    {
+        if (!d.found("basicQuadrature"))
+        {
+            return label(nMoments/2);
+        }
+
+        return univariateMomentInversion::nQuadratureNodes
+        (
+            d.subDict("basicQuadrature"),
+            nMoments
+        );
+    };
+
     // Conditional means: the moments of the primary coordinate and the
     // first-order moments of every coordinate conditioned on it, the
     // scalars of the model and the velocities of the case
@@ -235,6 +252,7 @@ bool Foam::fieldMomentInversion::buildMomentSet
         multivariateMomentInversions::conditionalMeans::momentOrdersAndNodes
         (
             nMoments,
+            primaryNodes(inversionDict, nMoments),
             nScalars,
             inversionDict.lookupOrDefault<label>("nVelocityDimensions", 0),
             momentOrders,
@@ -268,6 +286,7 @@ bool Foam::fieldMomentInversion::buildMomentSet
         multivariateMomentInversions::conditionalMeans::momentOrdersAndNodes
         (
             nSizeMoments,
+            primaryNodes(inversionDict, nSizeMoments),
             0,
             nVelocityDimensions,
             momentOrders,

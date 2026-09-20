@@ -31,12 +31,48 @@ Description
     coordinates conditioned on it, each carried by its mean at every node
     of the primary coordinate.
 
-    The moments of the primary coordinate, m_k = <x^k> for k < 2n, are
-    inverted to n nodes with a univariate inversion, and the conditional
-    mean of every other coordinate phi at each node is found from the n
-    moments <x^k phi>, k < n, through the shared conditional Vandermonde
-    solve. Nothing of the conditioned coordinates beyond their means is
-    carried: the distribution is a delta in them at every node.
+    The moments of the primary coordinate, m_k = <x^k> for k < 2N, are
+    inverted to n nodes with the univariate inversion of the basicQuadrature
+    sub-dictionary, and the conditional mean of every other coordinate phi
+    at each node is found from the n moments <x^k phi>, k < n, through the
+    shared conditional Vandermonde solve. Nothing of the conditioned
+    coordinates beyond their means is carried: the distribution is a delta
+    in them at every node.
+
+    The number of nodes is the one of the univariate inversion: n = N for a
+    Gauss quadrature, N + 1 and N + 2 for Gauss-Radau and Gauss-Lobatto,
+    and N plus the additional nodes of the case for the generalized
+    quadrature (GQMOM), whose nodes are treated as the ones of a Gauss
+    quadrature are. Every node is an environment with its conditional
+    means, so what a quadrature with more nodes changes is the number of
+    environments, and with it the number of moments <x^k phi> carried for
+    every conditioned coordinate.
+
+    The conditional means are exact for a coordinate that is linear in the
+    primary one, as an inert scalar and the composition of two streams that
+    only mix are, as long as n <= 2N - 1: the moments <x^k phi>, k < n, of
+    such a coordinate involve the moments of the primary one up to m_n,
+    which the n nodes reproduce if they are among the 2N transported ones.
+    With more nodes they involve moments that only the closure of the
+    quadrature supplies, the solve amplifies the difference between those
+    and the ones of the distribution, and a warning is given.
+
+    \verbatim
+    basicMultivariateMomentInversion
+    {
+        type                conditionalMeans;
+        nMoments            6;      // of the primary coordinate
+        nScalars            4;
+        nVelocityDimensions 0;
+
+        basicQuadrature
+        {
+            univariateMomentInversion   GQMOM;
+            nAdditionalQuadraturePoints 2;
+            ...
+        }
+    }
+    \endverbatim
 
     The primary coordinate is the first dimension of the distribution that
     is not a velocity. A conditioned coordinate is a velocity, stored with
@@ -119,6 +155,11 @@ class conditionalMeans
         //- Univariate inversion of the primary coordinate
         autoPtr<univariateMomentInversion> primaryInverter_;
 
+        //- Number of nodes the inversion of the primary coordinate builds
+        //  beyond the ones of a Gauss quadrature, for which the primary
+        //  moment set reserves room
+        const label nAdditionalQuadraturePoints_;
+
         //- Number of conditioned values clipped to their support in the
         //  last inversion
         label nClipped_;
@@ -171,15 +212,16 @@ public:
     // Static Member Functions
 
         //- The moment orders and node indexes of a distribution with
-        //  nPrimaryMoments moments of its primary coordinate, conditioned
-        //  on which are nScalars scalars and then nVelocityDimensions
-        //  velocity components, in this order of dimensions: the pure
-        //  moments of the primary coordinate, then the first-order moment
-        //  of each conditioned coordinate times the powers of the primary
-        //  coordinate below the number of its nodes.
+        //  nPrimaryMoments moments of its primary coordinate, inverted to
+        //  nNodes nodes, conditioned on which are nScalars scalars and
+        //  then nVelocityDimensions velocity components, in this order of
+        //  dimensions: the pure moments of the primary coordinate, then
+        //  the first-order moment of each conditioned coordinate times the
+        //  powers of the primary coordinate below the number of its nodes.
         static void momentOrdersAndNodes
         (
             const label nPrimaryMoments,
+            const label nNodes,
             const label nScalars,
             const label nVelocityDimensions,
             labelListList& momentOrders,

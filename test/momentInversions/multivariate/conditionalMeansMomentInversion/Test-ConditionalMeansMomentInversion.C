@@ -84,14 +84,18 @@ bool near(const scalar a, const scalar b, const scalar tol = 1e-10)
 }
 
 
-dictionary inversionDict(const word& type = "conditionalMeans")
+dictionary inversionDict
+(
+    const word& type = "conditionalMeans",
+    const string& quadrature = "univariateMomentInversion Gauss;"
+)
 {
     return dictionary
     (
         IStringStream
         (
             "type " + type + ";"
-            "basicQuadrature { univariateMomentInversion Gauss; }"
+            "basicQuadrature { " + quadrature + " }"
         )()
     );
 }
@@ -168,6 +172,7 @@ void recover
     multivariateMomentInversions::conditionalMeans::momentOrdersAndNodes
     (
         2*dist.ws.size(),
+        dist.ws.size(),
         nScalars,
         nVelocities,
         orders,
@@ -235,6 +240,176 @@ void recover
         "(" + Foam::name(inverter.nClipped()) + ", expected "
       + Foam::name(expectedClipped) + ")"
     );
+}
+
+
+//- The moments of order zero to nMoments - 1 of a mixture of beta
+//  distributions of parameters as and bs and weights ws
+scalarList betaMoments
+(
+    const scalarList& ws,
+    const scalarList& as,
+    const scalarList& bs,
+    const label nMoments
+)
+{
+    scalarList m(nMoments, Zero);
+
+    forAll(ws, i)
+    {
+        scalar mk = 1;
+
+        forAll(m, k)
+        {
+            m[k] += ws[i]*mk;
+            mk *= (as[i] + k)/(as[i] + bs[i] + k);
+        }
+    }
+
+    return m;
+}
+
+
+//- A mixture fraction distributed as a mixture of beta distributions,
+//  inverted with nRegular regular nodes and nAdditional additional ones
+//  of the generalized quadrature, with an inert scalar and a scalar
+//  linear in the mixture fraction conditioned on it. Every node is an
+//  environment: it has to carry the value of the two scalars at its
+//  mixture fraction, which it does exactly as long as the moments the
+//  scalars involve are transported, nRegular + nAdditional <= 2 nRegular
+//  - 1, and the quadrature has to reproduce the moments it was given.
+void generalized
+(
+    const word& name,
+    const scalarList& ws,
+    const scalarList& as,
+    const scalarList& bs,
+    const label nRegular,
+    const label nAdditional,
+    const bool exact
+)
+{
+    Info<< nl << name << nl;
+
+    const scalar inert = 0.37;
+    const scalar c0 = 0.1;
+    const scalar c1 = 0.8;
+
+    const label nPrimary = 2*nRegular;
+    const label nNodes = nRegular + nAdditional;
+
+    labelListList orders;
+    labelListList nodes;
+
+    multivariateMomentInversions::conditionalMeans::momentOrdersAndNodes
+    (
+        nPrimary, nNodes, 2, 0, orders, nodes
+    );
+
+    check
+    (
+        "as many conditional moments of a scalar as nodes",
+        orders.size() == nPrimary + 2*nNodes && nodes.size() == nNodes
+    );
+
+    // The moments of the distribution itself, as the transport of a
+    // scalar gives them: the ones beyond the transported moments of the
+    // mixture fraction are not the ones of the quadrature
+    const scalarList m(betaMoments(ws, as, bs, max(nPrimary, nNodes + 1)));
+
+    const List<supportType> supports
+    (
+        {supportType::ZeroOne, supportType::ZeroOne, supportType::ZeroOne}
+    );
+
+    multivariateMomentSet moments(orders.size(), orders, supports, SMALL, 0);
+
+    forAll(orders, mi)
+    {
+        const label k = orders[mi][0];
+
+        moments(orders[mi]) =
+            orders[mi][1] == 1 ? inert*m[k]
+          : orders[mi][2] == 1 ? c0*m[k] + c1*m[k + 1]
+          : m[k];
+    }
+
+    multivariateMomentInversions::conditionalMeans inverter
+    (
+        inversionDict
+        (
+            "conditionalMeans",
+            "univariateMomentInversion GQMOM; nAdditionalQuadraturePoints "
+          + Foam::name(nAdditional) + ";"
+        ),
+        orders,
+        nodes,
+        labelList({-1})
+    );
+
+    inverter.clipToSupports(false);
+
+    check("the inversion succeeds", inverter.invert(moments));
+
+    const mappedScalarList& weights = inverter.weights();
+    const mappedList<scalarList>& abscissae = inverter.abscissae();
+
+    bool nodesOk = true;
+    scalar inertError = 0;
+    scalar linearError = 0;
+
+    forAll(nodes, nodei)
+    {
+        const scalar xi = abscissae[nodei][0];
+
+        nodesOk = nodesOk && weights[nodei] > 0 && xi > 0 && xi < 1;
+
+        inertError = max(inertError, mag(abscissae[nodei][1] - inert));
+
+        linearError =
+            max(linearError, mag(abscissae[nodei][2] - c0 - c1*xi));
+    }
+
+    check
+    (
+        Foam::name(nNodes) + " nodes inside (0, 1) with positive weights",
+        nodesOk
+    );
+
+    // The moments the quadrature was built from
+    scalar momentError = 0;
+
+    forAll(orders, mi)
+    {
+        scalar mq = 0;
+
+        forAll(nodes, nodei)
+        {
+            mq +=
+                weights[nodei]
+               *pow(abscissae[nodei][0], orders[mi][0])
+               *pow(abscissae[nodei][1], orders[mi][1])
+               *pow(abscissae[nodei][2], orders[mi][2]);
+        }
+
+        momentError = max(momentError, mag(mq - moments(orders[mi])));
+    }
+
+    check
+    (
+        "the moments are those of the nodes",
+        momentError < 1e-10,
+        "(largest difference " + Foam::name(momentError) + ")"
+    );
+
+    Info<< "        inert scalar: largest difference " << inertError
+        << ", linear scalar: " << linearError << nl;
+
+    if (exact)
+    {
+        check("the inert scalar at every node", inertError < 1e-9);
+        check("the linear scalar at every node", linearError < 1e-9);
+    }
 }
 
 
@@ -360,6 +535,37 @@ int main(int argc, char *argv[])
         );
     }
 
+    // The generalized quadrature on the mixture fraction: the additional
+    // nodes are environments as the regular ones are
+    generalized
+    (
+        "Beta-GQMOM, 3 + 2 nodes, a beta distribution",
+        scalarList({1.0}), scalarList({2.0}), scalarList({5.0}), 3, 2, true
+    );
+
+    generalized
+    (
+        "Beta-GQMOM, 3 + 2 nodes, two beta distributions",
+        scalarList({0.5, 0.5}), scalarList({2.0, 6.0}),
+        scalarList({5.0, 2.0}), 3, 2, true
+    );
+
+    generalized
+    (
+        "Beta-GQMOM, 2 + 1 nodes, two beta distributions",
+        scalarList({0.3, 0.7}), scalarList({2.0, 6.0}),
+        scalarList({5.0, 2.0}), 2, 1, true
+    );
+
+    // More nodes than the transported moments of the mixture fraction
+    // support: a warning, and scalars that are no longer exact
+    generalized
+    (
+        "Beta-GQMOM, 3 + 5 nodes, two beta distributions (a warning)",
+        scalarList({0.5, 0.5}), scalarList({2.0, 6.0}),
+        scalarList({5.0, 2.0}), 3, 5, false
+    );
+
     // Both names select the same inversion
     {
         Info<< nl << "Selection by name" << nl;
@@ -369,7 +575,7 @@ int main(int argc, char *argv[])
 
         multivariateMomentInversions::conditionalMeans::momentOrdersAndNodes
         (
-            4, 0, 1, orders, nodes
+            4, 2, 0, 1, orders, nodes
         );
 
         forAll(wordList({"conditionalMeans", "monoKinetic"}), i)
