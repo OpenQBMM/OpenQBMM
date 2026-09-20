@@ -357,6 +357,10 @@ def main(argv):
 
     env = dict(os.environ, QBMM_PYTHON=sys.executable)
 
+    # A case run from its copy cannot find the sources above it, which the
+    # cases with coded function objects compile against
+    env.setdefault('OPENQBMM_SRC', os.path.join(top, 'src'))
+
     jobs = []
 
     # The long cases first, so that the short ones fill the cores around them
