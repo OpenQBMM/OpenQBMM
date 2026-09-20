@@ -1,0 +1,152 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "validation";
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Two pure streams in one cell, mixed by IEM far more slowly than they react,
+// which has an exact solution: two environments that relax to the mean
+// mixture fraction, each holding what the complete reaction of the streams
+// mixed at its mixture fraction gives. It holds only if the inversion keeps
+// the two streams apart: given them as one node at their mean, which is what
+// a Gauss rule makes of two nodes at the ends of [0, 1], the cell would hold
+// all its product, 0.06, from the first step.
+figures
+{
+    product
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "Mean mass fraction of the product, $\langle Y_P\rangle$";
+        xRange      (0 10);
+
+        curves
+        {
+            exact
+            {
+                file        "analyticalData/twoEnvironments.dat";
+                y           "c4";
+                label       "Two environments, exact";
+            }
+            OpenQBMM
+            {
+                file        "../postProcessing/probes/0/P";
+                label       "OpenQBMM";
+                style       points;
+                every       50;
+
+                compare
+                {
+                    exact       1e-4;
+                }
+            }
+        }
+    }
+
+    reactants
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "Mean mass fraction of the reactants";
+        xRange      (0 10);
+
+        curves
+        {
+            exactA
+            {
+                file        "analyticalData/twoEnvironments.dat";
+                y           "c5";
+                label       "$\langle Y_A\rangle$, exact";
+            }
+            exactB
+            {
+                file        "analyticalData/twoEnvironments.dat";
+                y           "c6";
+                label       "$\langle Y_B\rangle$, exact";
+            }
+            A
+            {
+                file        "../postProcessing/probes/0/A";
+                label       "$\langle Y_A\rangle$";
+                style       points;
+                every       50;
+
+                compare
+                {
+                    exactA      1e-4;
+                }
+            }
+            B
+            {
+                file        "../postProcessing/probes/0/B";
+                label       "$\langle Y_B\rangle$";
+                style       points;
+                every       50;
+
+                compare
+                {
+                    exactB      1e-4;
+                }
+            }
+        }
+    }
+
+    environmentMixtureFraction
+    {
+        xLabel      "Time, $t$ [s]";
+        yLabel      "Mixture fraction of the environment, $\xi_i$";
+        xRange      (0 10);
+        yRange      (0 1);
+
+        curves
+        {
+            exact0
+            {
+                file        "analyticalData/twoEnvironments.dat";
+                y           "c2";
+                label       "Environment 0, exact";
+            }
+            exact1
+            {
+                file        "analyticalData/twoEnvironments.dat";
+                y           "c3";
+                label       "Environment 1, exact";
+            }
+            node0
+            {
+                file        "../postProcessing/probes/0/abscissa0.node0.mixing";
+                label       "Environment 0";
+                style       points;
+                every       50;
+
+                compare
+                {
+                    exact0      1e-4;
+                }
+            }
+            node1
+            {
+                file        "../postProcessing/probes/0/abscissa0.node1.mixing";
+                label       "Environment 1";
+                style       points;
+                every       50;
+
+                compare
+                {
+                    exact1      1e-4;
+                }
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

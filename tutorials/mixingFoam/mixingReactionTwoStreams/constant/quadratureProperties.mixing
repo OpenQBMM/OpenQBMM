@@ -1,0 +1,43 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      quadratureProperties.mixing;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fieldMomentInversion    basicMultivariateFieldMomentInversion;
+
+// Up to three nodes of the mixture fraction, each carrying the mass fractions
+// of the four species of the thermo. The cell holds two environments, which
+// is what the inversion finds: the two pure streams at first, a moment set on
+// the boundary of the moment space whose only measure has its nodes at zero
+// and one, and two interior nodes as they mix.
+basicMultivariateMomentInversion
+{
+    type                conditionalMeans;
+    nMoments            6;
+    nScalars            4;
+    nVelocityDimensions 0;
+
+    basicQuadrature
+    {
+        univariateMomentInversion   Gauss;
+    }
+}
+
+momentAdvection
+{
+    velocityMomentAdvection firstOrderFluidVelocity;
+}
+
+// ************************************************************************* //

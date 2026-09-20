@@ -1,0 +1,36 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Two reactants, their product and an inert gas that carries them
+thermoType
+{
+    type            hePsiThermo;
+    mixture         reactingMixture;
+    transport       const;
+    thermo          hConst;
+    energy          sensibleEnthalpy;
+    equationOfState perfectGas;
+    specie          specie;
+}
+
+inertSpecie             I;
+
+chemistryReader         foamChemistryReader;
+foamChemistryFile       "<constant>/reactions";
+foamChemistryThermoFile "<constant>/thermo";
+
+// ************************************************************************* //
