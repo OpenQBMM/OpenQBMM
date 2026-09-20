@@ -48,6 +48,8 @@ SourceFiles
 #include "fvMatrices.H"
 #include "fvm.H"
 #include "momentFieldSets.H"
+#include "mappedListKey.H"
+#include "UPtrList.H"
 #include "turbulentTransportModel.H"
 #include "turbulentFluidThermoModel.H"
 #include "runTimeSelectionTables.H"
@@ -92,8 +94,12 @@ protected:
         //- Time step k_ and epsilon_ were taken at
         mutable label turbulenceTimeIndex_;
 
-        //- Reference to moments
-        const volScalarMomentFieldSet& moments_;
+        //- The moment fields the kernel reads, of a distribution of any
+        //  number of dimensions, and the index from the orders of a moment
+        //  to its field. A model of one dimension writes the orders of its
+        //  moments as lists of one.
+        const UPtrList<const volScalarField>& moments_;
+        const mappedListKey momentIndex_;
 
 
     // Protected Member Functions
@@ -106,6 +112,17 @@ protected:
 
         //- Take k and epsilon from the turbulence model, once per time step
         void updateTurbulence() const;
+
+        //- The moment of the given orders in a cell
+        scalar moment(const labelList& momentOrder, const label celli) const;
+
+        //- The same moment with the order of one dimension lowered by one
+        scalar momentBelow
+        (
+            const labelList& momentOrder,
+            const label dimi,
+            const label celli
+        ) const;
 
 public:
 
@@ -121,9 +138,10 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const volScalarMomentFieldSet& moments
+            const labelListList& momentOrders,
+            const UPtrList<const volScalarField>& moments
         ),
-        (dict, mesh, moments)
+        (dict, mesh, momentOrders, moments)
     );
 
 
@@ -134,7 +152,8 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const volScalarMomentFieldSet& moments
+            const labelListList& momentOrders,
+            const UPtrList<const volScalarField>& moments
         );
 
         //- Disallow default bitwise copy construct
@@ -147,7 +166,8 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const volScalarMomentFieldSet& moments
+            const labelListList& momentOrders,
+            const UPtrList<const volScalarField>& moments
         );
 
 
@@ -160,7 +180,7 @@ public:
         //- Cell-based mixing kernel
         virtual scalar mixingSource
         (
-            const label& momentOrder,
+            const labelList& momentOrder,
             const label celli,
             const label environment = 0
         ) const = 0;

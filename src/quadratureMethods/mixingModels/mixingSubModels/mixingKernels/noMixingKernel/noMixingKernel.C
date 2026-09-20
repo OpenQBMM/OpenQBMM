@@ -60,10 +60,11 @@ Foam::mixingSubModels::mixingKernels::noMixingKernel::noMixingKernel
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const volScalarMomentFieldSet& moments
+    const labelListList& momentOrders,
+    const UPtrList<const volScalarField>& moments
 )
 :
-    mixingKernel(dict, mesh, moments)
+    mixingKernel(dict, mesh, momentOrders, moments)
 {}
 
 
@@ -79,7 +80,7 @@ Foam::mixingSubModels::mixingKernels::noMixingKernel
 Foam::scalar
 Foam::mixingSubModels::mixingKernels::noMixingKernel::mixingSource
 (
-    const label& momentOrder,
+    const labelList& momentOrder,
     const label celli,
     const label environment
 ) const

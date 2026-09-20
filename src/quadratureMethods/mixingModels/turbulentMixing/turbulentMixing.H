@@ -74,6 +74,12 @@ class turbulentMixing
         const word name_;
 
         //- Aggregation kernel model
+        //- The moment fields of the quadrature, as the kernels read them:
+        //  a distribution of any number of dimensions gives its moments
+        //  the same way, and the orders of this one are lists of one
+        UPtrList<const volScalarField> momentFields_;
+
+        //- Mixing kernel
         autoPtr<Foam::mixingSubModels::mixingKernel> mixingKernel_;
 
         //- Diffusion model

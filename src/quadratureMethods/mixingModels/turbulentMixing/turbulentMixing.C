@@ -53,6 +53,28 @@ namespace mixingModels
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+namespace Foam
+{
+
+//- The moment fields of a set, as the mixing kernels read them
+static UPtrList<const volScalarField> momentFieldsOf
+(
+    const volScalarMomentFieldSet& moments
+)
+{
+    UPtrList<const volScalarField> fields(moments.size());
+
+    forAll(fields, momenti)
+    {
+        fields.set(momenti, &moments[momenti]);
+    }
+
+    return fields;
+}
+
+} // End namespace Foam
+
+
 Foam::PDFTransportModels::mixingModels::turbulentMixing::turbulentMixing
 (
     const word& name,
@@ -64,13 +86,15 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing::turbulentMixing
     mixingModel(name, dict, phi),
     odeType(phi.mesh(), dict),
     name_(name),
+    momentFields_(momentFieldsOf((*this).quadrature().moments())),
     mixingKernel_
     (
         Foam::mixingSubModels::mixingKernel::New
         (
             dict.subDict("mixingKernel"),
             phi.mesh(),
-            (*this).quadrature().moments()
+            (*this).quadrature().momentOrders(),
+            momentFields_
         )
     ),
     diffusionModel_
@@ -155,7 +179,7 @@ Foam::PDFTransportModels::mixingModels::turbulentMixing
     source +=
         mixingKernel_->mixingSource
         (
-            momentOrder[0],
+            momentOrder,
             celli,
             0
         );

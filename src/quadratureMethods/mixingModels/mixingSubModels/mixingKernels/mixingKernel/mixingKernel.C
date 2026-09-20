@@ -48,7 +48,8 @@ Foam::mixingSubModels::mixingKernel::mixingKernel
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const volScalarMomentFieldSet& moments
+    const labelListList& momentOrders,
+    const UPtrList<const volScalarField>& moments
 )
 :
     dict_(dict),
@@ -83,8 +84,53 @@ Foam::mixingSubModels::mixingKernel::mixingKernel
     k_(),
     epsilon_(),
     turbulenceTimeIndex_(-1),
-    moments_(moments)
-{}
+    moments_(moments),
+    momentIndex_(momentOrders)
+{
+    if (moments_.size() != momentOrders.size())
+    {
+        FatalErrorInFunction
+            << "The moments given to the kernel are not the ones its orders "
+            << "name." << nl
+            << "    Moments: " << moments_.size()
+            << ", orders: " << momentOrders.size() << nl
+            << exit(FatalError);
+    }
+}
+
+
+Foam::scalar Foam::mixingSubModels::mixingKernel::moment
+(
+    const labelList& momentOrder,
+    const label celli
+) const
+{
+    const label momenti = momentIndex_.find(momentOrder);
+
+    if (momenti < 0)
+    {
+        FatalErrorInFunction
+            << "The distribution carries no moment of orders "
+            << momentOrder << "." << nl
+            << exit(FatalError);
+    }
+
+    return moments_[momenti][celli];
+}
+
+
+Foam::scalar Foam::mixingSubModels::mixingKernel::momentBelow
+(
+    const labelList& momentOrder,
+    const label dimi,
+    const label celli
+) const
+{
+    labelList lower(momentOrder);
+    lower[dimi]--;
+
+    return moment(lower, celli);
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

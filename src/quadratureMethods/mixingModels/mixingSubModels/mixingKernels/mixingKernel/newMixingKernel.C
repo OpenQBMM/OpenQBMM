@@ -37,7 +37,8 @@ Foam::mixingSubModels::mixingKernel::New
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const volScalarMomentFieldSet& moments
+    const labelListList& momentOrders,
+    const UPtrList<const volScalarField>& moments
 )
 {
     word mixingKernelType(dict.lookup("mixingKernel"));
@@ -60,7 +61,7 @@ Foam::mixingSubModels::mixingKernel::New
         Info<< dictionaryConstructorTablePtr_->sortedToc() << abort(FatalError);
     }
 
-    return autoPtr<mixingKernel>(cstrIter()(dict, mesh, moments));
+    return autoPtr<mixingKernel>(cstrIter()(dict, mesh, momentOrders, moments));
 }
 
 

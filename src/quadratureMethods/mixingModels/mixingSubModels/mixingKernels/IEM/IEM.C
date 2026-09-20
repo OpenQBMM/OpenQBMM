@@ -60,10 +60,11 @@ Foam::mixingSubModels::mixingKernels::IEM::IEM
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const volScalarMomentFieldSet& moments
+    const labelListList& momentOrders,
+    const UPtrList<const volScalarField>& moments
 )
 :
-    mixingKernel(dict, mesh, moments)
+    mixingKernel(dict, mesh, momentOrders, moments)
 {}
 
 
@@ -78,27 +79,50 @@ Foam::mixingSubModels::mixingKernels::IEM::~IEM()
 Foam::scalar
 Foam::mixingSubModels::mixingKernels::IEM::mixingSource
 (
-    const label& momentOrder,
+    const labelList& momentOrder,
     const label celli,
     const label environment
 ) const
 {
-    if (momentOrder == 0)
+    // Every value relaxes to its mean at the rate Cphi/2 epsilon/k, so the
+    // variance decays at Cphi epsilon/k. The half was missing, which with
+    // the usual Cphi = 2 mixed twice as fast as the model does.
+    //
+    // The moment of orders k of any number of coordinates then has the
+    // source -w sum_i k_i (m(k) - <phi_i> m(k - e_i)), in which every term
+    // is a moment the distribution carries: the mixing of a mixture
+    // fraction and of the compositions conditioned on it is closed in its
+    // moments, and needs no quadrature.
+    const scalar m0 = moment(labelList(momentOrder.size(), 0), celli);
+
+    if (m0 <= 0)
     {
         return 0.0;
     }
 
-    // Each value relaxes to the mean at the rate Cphi/2 epsilon/k, so the
-    // variance decays at Cphi epsilon/k. The half was missing, which with
-    // the usual Cphi = 2 mixed twice as fast as the model does.
-    scalar source =
-        momentOrder*0.5*Cphi_.value()*epsilon()[celli]/k()[celli]
-       *(
-            (moments_(momentOrder - 1)[celli]*moments_(1)[celli])
-          - moments_(momentOrder)[celli]
-        );
+    const scalar omega = 0.5*Cphi_.value()*epsilon()[celli]/k()[celli];
+    const scalar m = moment(momentOrder, celli);
 
-    return source;
+    scalar source = 0;
+
+    forAll(momentOrder, dimi)
+    {
+        if (momentOrder[dimi] == 0)
+        {
+            continue;
+        }
+
+        labelList firstOrder(momentOrder.size(), 0);
+        firstOrder[dimi] = 1;
+
+        const scalar mean = moment(firstOrder, celli)/m0;
+
+        source +=
+            momentOrder[dimi]
+           *(mean*momentBelow(momentOrder, dimi, celli) - m);
+    }
+
+    return omega*source;
 }
 
 // ************************************************************************* //

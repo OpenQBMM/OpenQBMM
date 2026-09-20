@@ -72,7 +72,8 @@ public:
         (
             const dictionary& dict,
             const fvMesh& mesh,
-            const volScalarMomentFieldSet& moments
+            const labelListList& momentOrders,
+            const UPtrList<const volScalarField>& moments
         );
 
 
@@ -85,7 +86,7 @@ public:
         //- Cell-based mixing kernel
         virtual scalar mixingSource
         (
-            const label& momentOrder,
+            const labelList& momentOrder,
             const label celli,
             const label environment = 0
         ) const;

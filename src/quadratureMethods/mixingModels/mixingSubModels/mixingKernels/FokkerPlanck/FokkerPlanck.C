@@ -61,10 +61,11 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck
 (
     const dictionary& dict,
     const fvMesh& mesh,
-    const volScalarMomentFieldSet& moments
+    const labelListList& momentOrders,
+    const UPtrList<const volScalarField>& moments
 )
 :
-    mixingKernel(dict, mesh, moments)
+    mixingKernel(dict, mesh, momentOrders, moments)
 {}
 
 
@@ -79,12 +80,27 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::~FokkerPlanck()
 Foam::scalar
 Foam::mixingSubModels::mixingKernels::FokkerPlanck::mixingSource
 (
-    const label& momentOrder,
+    const labelList& momentOrder,
     const label celli,
     const label environment
 ) const
 {
-    if (momentOrder == 0)
+    forAll(momentOrder, dimi)
+    {
+        if (dimi > 0 && momentOrder[dimi] != 0)
+        {
+            FatalErrorInFunction
+                << "The Fokker-Planck kernel is written for the moments of "
+                << "one coordinate, and the moment of orders "
+                << momentOrder << " is of several." << nl
+                << "    Mix the coordinates conditioned on it with IEM."
+                << nl << exit(FatalError);
+        }
+    }
+
+    const label order = momentOrder[0];
+
+    if (order == 0)
     {
         return 0.0;
     }
@@ -96,18 +112,17 @@ Foam::mixingSubModels::mixingKernels::FokkerPlanck::mixingSource
     // decay (2 + Cmixing) Cphi epsilon/k.
     const scalar omega = Cphi_.value()*epsilon()[celli]/k()[celli];
 
+    const scalar m1 = moment(labelList(1, 1), celli);
+    const scalar m2 = moment(labelList(1, 2), celli);
+    const scalar mk = moment(labelList(1, order), celli);
+    const scalar mkBelow = moment(labelList(1, order - 1), celli);
+
     return
-        omega*momentOrder
+        omega*order
        *(
-            0.5*(Cmixing_.value() + 1.0)
-           *(
-                moments_(momentOrder - 1)[celli]*moments_(1)[celli]
-              - moments_(momentOrder)[celli]
-            )
-          + (momentOrder - 1)*Cmixing_.value()
-           *(moments_(2)[celli] - sqr(moments_(1)[celli]))
-           *(moments_(momentOrder - 1)[celli] - moments_(momentOrder)[celli])
-           /max(2.0*(moments_(1)[celli] - moments_(2)[celli]), SMALL)
+            0.5*(Cmixing_.value() + 1.0)*(mkBelow*m1 - mk)
+          + (order - 1)*Cmixing_.value()*(m2 - sqr(m1))*(mkBelow - mk)
+           /max(2.0*(m1 - m2), SMALL)
         );
 }
 
