@@ -65,6 +65,13 @@ Description
     nothing to choose there: a cell that holds a pure stream, a mixture
     fraction of zero or of one, beside anything else is such a set.
 
+    A canonical moment is taken to be at an end within boundaryTolerance,
+    1e-12 by default: what the round-off of the zeta_k leaves of a p_N that
+    is exactly zero or one. An inversion sets it from the boundaryTolerance
+    entry of its dictionary. A larger value treats as pure a stream that is
+    almost so, and moves to the end of the interval a node that the moments
+    put within about that distance of it.
+
 SourceFiles
     univariateMomentSet.C
     univariateMomentSetRealizability.C
@@ -149,6 +156,10 @@ private:
 
         //- Outcome of the realizability check
         realizabilityStatus status_;
+
+        //- On [0, 1], how close to an end of the interval a canonical
+        //  moment is taken to be at it
+        scalar boundaryTolerance_;
 
 
      // Private member functions
@@ -301,12 +312,18 @@ public:
         );
 
         //- How close to an end of [0, 1] a canonical moment is taken to be
-        //  at it: smallZeta, and no less than what the round-off of the
-        //  zeta_k leaves
+        //  at it: the tolerance of the set, 1e-12 unless the inversion
+        //  that reads the set was given another, which is what the
+        //  round-off of the zeta_k leaves, and no less than smallZeta
         inline scalar boundaryTolerance() const
         {
-            return max(smallZeta_, scalar(1e-12));
+            return max(smallZeta_, boundaryTolerance_);
         }
+
+        //- Set that tolerance. The realizability check is made again if
+        //  the tolerance changed, since where the set meets the boundary of
+        //  the moment space depends on it.
+        void boundaryTolerance(const scalar tolerance);
 
         //- Build the list of moment orders of a univariate moment set
         static labelListList makeUnivariateMomentOrders(const label nMoments);

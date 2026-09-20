@@ -58,7 +58,8 @@ Foam::univariateMomentSet::univariateMomentSet
     zeta_(),
     canonicalMoments_(),
     zRecurrence_(),
-    status_()
+    status_(),
+    boundaryTolerance_(1e-12)
 {
     if (nAdditionalQuadraturePoints < 0)
     {
@@ -108,7 +109,8 @@ Foam::univariateMomentSet::univariateMomentSet
     zeta_(),
     canonicalMoments_(),
     zRecurrence_(),
-    status_()
+    status_(),
+    boundaryTolerance_(1e-12)
 {
     if (nAdditionalQuadraturePoints < 0)
     {
@@ -198,6 +200,28 @@ void Foam::univariateMomentSet::resetStatus()
     beta_ = 0.0;
     zeta_ = 0.0;
     canonicalMoments_ = 0.0;
+}
+
+
+void Foam::univariateMomentSet::boundaryTolerance(const scalar tolerance)
+{
+    if (tolerance < 0 || tolerance >= 0.5)
+    {
+        FatalErrorInFunction
+            << "The tolerance on a canonical moment at an end of [0, 1] "
+            << "must be in [0, 0.5)." << nl
+            << "    Tolerance: " << tolerance << nl
+            << exit(FatalError);
+    }
+
+    if (tolerance != boundaryTolerance_)
+    {
+        boundaryTolerance_ = tolerance;
+
+        // Where the set meets the boundary of the moment space is part of
+        // the outcome of the realizability check
+        resetStatus();
+    }
 }
 
 

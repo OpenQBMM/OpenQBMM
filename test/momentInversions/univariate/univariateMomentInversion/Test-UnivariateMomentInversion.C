@@ -905,6 +905,107 @@ void testBoundaryOfTheUnitInterval(dictionary& dict, const string& name)
 }
 
 
+//- Two streams that are almost pure, a mixture fraction of 1e-6 and of
+//  1 - 1e-6, have a second canonical moment within 4e-6 of one. With the
+//  default boundaryTolerance they are not on the boundary of the moment
+//  space at that order, and come back where they are. With a
+//  boundaryTolerance of 1e-4 they are taken as pure: nodes at zero and at
+//  one, with the weights that keep the moments of order zero and one.
+void testBoundaryTolerance()
+{
+    Info<< "\nTesting the boundaryTolerance entry on [0, 1]\n" << endl;
+
+    const scalar eps = 1e-6;
+    const scalarList streamWeights({0.7, 0.3});
+    const scalarList streamAbscissae({eps, 1 - eps});
+
+    scalarList inputMoments(6, Zero);
+
+    forAll(inputMoments, mi)
+    {
+        forAll(streamWeights, nodei)
+        {
+            inputMoments[mi] +=
+                streamWeights[nodei]*pow(streamAbscissae[nodei], mi);
+        }
+    }
+
+    for (const scalar tolerance : {scalar(-1), scalar(1e-4)})
+    {
+        const bool named = tolerance > 0;
+
+        dictionary dict
+        (
+            IStringStream
+            (
+                "univariateMomentInversion Gauss;"
+              + string
+                (
+                    named
+                  ? " boundaryTolerance " + Foam::name(tolerance) + ";"
+                  : ""
+                )
+            )()
+        );
+
+        autoPtr<univariateMomentInversion> inversion
+        (
+            univariateMomentInversion::New(dict)
+        );
+
+        univariateMomentSet m
+        (
+            inputMoments, supportType::ZeroOne, SMALL, SMALL
+        );
+
+        inversion().invert(m);
+
+        const scalarList& weights(inversion().weights());
+        const scalarList& abscissae(inversion().abscissae());
+
+        Info<< "  boundaryTolerance " << inversion().boundaryTolerance()
+            << ": weights " << weights << ", abscissae " << abscissae
+            << endl;
+
+        bool ok = (inversion().nNodes() == 2);
+
+        if (ok && named)
+        {
+            // Pure streams, with the mass and the mean of the moments
+            ok =
+                mag(abscissae[0]) < 1e-14
+             && mag(abscissae[1] - 1) < 1e-14
+             && mag(weights[0] + weights[1] - inputMoments[0]) < 1e-14
+             && mag(weights[1] - inputMoments[1]) < 1e-14;
+        }
+        else if (ok)
+        {
+            // The streams where they are. The inversion of two nodes this
+            // close to the ends of the interval keeps about nine digits.
+            ok =
+                mag(abscissae[0] - eps) < 1e-9
+             && mag(abscissae[1] - (1 - eps)) < 1e-9
+             && mag(weights[0] - 0.7) < 1e-9
+             && mag(weights[1] - 0.3) < 1e-9;
+        }
+
+        if (!ok)
+        {
+            FatalErrorInFunction
+                << "The quadrature of two almost pure streams is not the "
+                << "one the boundaryTolerance asks for." << nl
+                << "    boundaryTolerance: "
+                << inversion().boundaryTolerance() << nl
+                << "    Weights: " << weights << nl
+                << "    Abscissae: " << abscissae << nl
+                << exit(FatalError);
+        }
+    }
+
+    Info<< endl;
+}
+
+
 int main(int argc, char *argv[])
 {
     Info<< setprecision(16);
@@ -1318,6 +1419,8 @@ int main(int argc, char *argv[])
 
     testLobattoRefusesAnEmptyInterval(quadraturePropertiesLobatto);
     testScaleInvariance(quadraturePropertiesGQMOM, "GQMOM", 5);
+
+    testBoundaryTolerance();
 
     testBoundaryOfTheUnitInterval(quadraturePropertiesGauss, "Gauss");
     testBoundaryOfTheUnitInterval(quadraturePropertiesRadau, "Gauss-Radau");

@@ -33,6 +33,27 @@ Description
     Abstract class for univariate quadrature on a moment set. The quadrature
     approach is selected at runtime.
 
+    Every inversion reads from its dictionary
+
+    \table
+        Property          | Description                          | Default
+        smallM0           | Smallest zero-order moment inverted  | SMALL
+        smallZeta         | Smallest accepted zeta_k             | 0
+        boundaryTolerance | On [0, 1], how close to zero or to \
+                            one a canonical moment is taken to \
+                            be at it                             | 1e-12
+    \endtable
+
+    A moment set on [0, 1] with a canonical moment at an end is on the
+    boundary of the moment space, where its measure is unique, and is given
+    that measure whatever quadrature was asked for (see invertOnBoundary).
+    The default of boundaryTolerance is what round-off leaves of a canonical
+    moment that is exactly zero or one, as the one of two pure streams is.
+    A larger value also treats as pure a stream that is almost so: a node
+    the moments put within about that distance of an end of the interval is
+    moved to the end. The moments of order zero and one are kept in either
+    case.
+
 SourceFiles
     univariateMomentInversion.C
     univariateMomentInversionI.H
@@ -65,6 +86,11 @@ class univariateMomentInversion
 
         //- Smallest accepted value for zeta_k
         scalar smallZeta_;
+
+        //- On [0, 1], how close to an end of the interval a canonical
+        //  moment is taken to be at it, so that the moment set is on the
+        //  boundary of the moment space
+        scalar boundaryTolerance_;
 
 
 protected:
@@ -245,6 +271,13 @@ public:
 
         //- Return the smallest accepted value for zeta_k
         inline scalar smallZeta() const;
+
+        //- Return how close to an end of [0, 1] a canonical moment is
+        //  taken to be at it
+        scalar boundaryTolerance() const
+        {
+            return boundaryTolerance_;
+        }
 
     // Member Operators
 

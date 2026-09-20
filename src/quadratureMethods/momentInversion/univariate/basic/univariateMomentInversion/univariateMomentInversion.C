@@ -49,6 +49,10 @@ Foam::univariateMomentInversion::univariateMomentInversion
 :
     smallM0_(dict.lookupOrDefault<scalar>("smallM0", SMALL)),
     smallZeta_(dict.lookupOrDefault<scalar>("smallZeta", 0.0)),
+    boundaryTolerance_
+    (
+        dict.lookupOrDefault<scalar>("boundaryTolerance", 1e-12)
+    ),
     nInvertibleMoments_(),
     nNodes_(nMaxNodes),
     abscissae_(),
@@ -62,6 +66,14 @@ Foam::univariateMomentInversion::univariateMomentInversion
         FatalErrorInFunction
             << "The value of smallZeta must be positive or null."
             << exit(FatalError);
+    }
+
+    if (boundaryTolerance_ < 0 || boundaryTolerance_ >= 0.5)
+    {
+        FatalIOErrorInFunction(dict)
+            << "The value of boundaryTolerance must be in [0, 0.5)." << nl
+            << "    boundaryTolerance: " << boundaryTolerance_ << nl
+            << exit(FatalIOError);
     }
 
     if (smallZeta_ > 0)
@@ -209,6 +221,10 @@ bool Foam::univariateMomentInversion::invertOnBoundary
     {
         return false;
     }
+
+    // The tolerance is the one of this inversion, which the moment set,
+    // built by whoever owns it, does not know
+    moments.boundaryTolerance(boundaryTolerance_);
 
     const label N = moments.boundaryOrder(false);
 
