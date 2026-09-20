@@ -1,0 +1,14 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+cleanCase
+rm -rf postProcessing
+rm -rf validation/figures
+rm -f validation/residenceTime.dat
+
+# What generateMoments writes: the moments, and the mean mass fractions
+rm -f 0/moment.* 0/O2 0/H2O 0/CH4 0/CO2 0/N2
+
+# ----------------------------------------------------------------- end-of-file

@@ -1,0 +1,30 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  RAS;
+
+// The turbulence is not solved: k and epsilon stay what the case gives them,
+// so that the fluid mixes at the rate of the single-cell case all along the
+// pipe
+RAS
+{
+    RASModel        kEpsilon;
+    turbulence      off;
+    printCoeffs     on;
+}
+
+// ************************************************************************* //

@@ -1,0 +1,158 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "validation";
+    object      validationDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// A steady pipe is the history of a cell that moves with the fluid: what the
+// fluid is after a time t in the single cell of mixingReactionIEM is what it
+// is where it has spent that time in the pipe. The time is taken from the
+// mass of the cells over the mass flow, so the comparison holds only if the
+// moments are carried by the mass flux and the density is the one of the
+// environments, as the gas expands to more than twice its velocity. What is
+// left between the two is the first order of the scheme in space.
+figures
+{
+    temperature
+    {
+        xLabel      "Residence time, $t$ [s]";
+        yLabel      "Mean temperature, $T$ [K]";
+        xRange      (0 5.5);
+
+        curves
+        {
+            singleCell
+            {
+                file        "referenceData/singleCell_mean.dat";
+                label       "Single cell";
+            }
+            OpenQBMM
+            {
+                file        "residenceTime.dat";
+                label       "Pipe (OpenQBMM)";
+                style       points;
+                every       4;
+
+                compare
+                {
+                    singleCell  1e-2;
+                }
+            }
+        }
+    }
+
+    environmentTemperature
+    {
+        xLabel      "Residence time, $t$ [s]";
+        yLabel      "Temperature of the environment, $T_i$ [K]";
+        xRange      (0 5.5);
+
+        curves
+        {
+            singleCell0
+            {
+                file        "referenceData/singleCell_environment0.dat";
+                label       "Environment 0, single cell";
+            }
+            singleCell1
+            {
+                file        "referenceData/singleCell_environment1.dat";
+                label       "Environment 1, single cell";
+            }
+            singleCell2
+            {
+                file        "referenceData/singleCell_environment2.dat";
+                label       "Environment 2, single cell";
+            }
+            node0
+            {
+                file        "residenceTime.dat";
+                label       "Environment 0";
+                y           "c3";
+                style       points;
+                every       4;
+
+                compare
+                {
+                    singleCell0 1e-2;
+                }
+            }
+            node1
+            {
+                file        "residenceTime.dat";
+                label       "Environment 1";
+                y           "c4";
+                style       points;
+                every       4;
+
+                compare
+                {
+                    singleCell1 1e-2;
+                }
+            }
+            node2
+            {
+                file        "residenceTime.dat";
+                label       "Environment 2";
+                y           "c5";
+                style       points;
+                every       4;
+
+                compare
+                {
+                    singleCell2 2e-2;
+                }
+            }
+        }
+    }
+
+    velocity
+    {
+        xLabel      "Position along the pipe, $x$ [m]";
+        yLabel      "Velocity, $U$ [m/s]";
+        xRange      (0 6);
+
+        curves
+        {
+            OpenQBMM
+            {
+                file        "residenceTime.dat";
+                label       "Mass flow over density (OpenQBMM)";
+                x           "c6";
+                y           "c7";
+                computed    yes;
+            }
+        }
+    }
+
+    density
+    {
+        xLabel      "Position along the pipe, $x$ [m]";
+        yLabel      "Mean density of the environments, $\rho$ [kg/m$^3$]";
+        xRange      (0 6);
+
+        curves
+        {
+            OpenQBMM
+            {
+                file        "../postProcessing/sampleDict/*/Centerline_*.xy";
+                label       "OpenQBMM";
+                y           "c6";
+                computed    yes;
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

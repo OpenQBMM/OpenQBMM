@@ -1,0 +1,49 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../../AllrunFunctions
+
+runStep blockMesh
+
+# The moments of the mixture fraction, of the species and of the enthalpy, in
+# the pipe and at its inlet, and the mean mass fractions the thermo starts from
+runStep generateMoments
+
+runStep mixingReactingFoam
+
+runStep postProcess -func sampleDict -latestTime
+
+# The time the fluid of a cell has spent in the pipe: the mass of the cells
+# upstream of its centre over the mass flow, which is what makes the steady
+# pipe the history of the single cell of mixingReactionIEM. The columns of the
+# set are x, T, the temperatures of the three environments, rho and U. The
+# velocity written is the one of the mass flow, which is what carries the
+# moments: the velocity of the solver at the centre of a cell is rebuilt from
+# the fluxes of its faces, and departs from it in the first and the last cell.
+massFlow=$(awk '!/^#/ {m = -$2} END {print m}' \
+    postProcessing/inletMassFlow/0/surfaceFieldValue.dat)
+
+awk -v massFlow="$massFlow" -v area=0.01 '
+    {
+        x[NR] = $1; T[NR] = $2; T0[NR] = $3; T1[NR] = $4; T2[NR] = $5
+        rho[NR] = $6
+    }
+    END {
+        dx = x[2] - x[1]
+        t = 0
+
+        for (i = 1; i <= NR; i++)
+        {
+            dt = rho[i]*dx*area/massFlow
+            print t + dt/2, T[i], T0[i], T1[i], T2[i], x[i], \
+                massFlow/(rho[i]*area)
+            t += dt
+        }
+    }' postProcessing/sampleDict/*/Centerline_*.xy \
+    > validation/residenceTime.dat
+
+plotCase
+
+# ----------------------------------------------------------------- end-of-file

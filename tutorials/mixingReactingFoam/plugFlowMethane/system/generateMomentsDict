@@ -1,0 +1,78 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      generateMomentsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases
+(
+    mixing
+);
+
+boundaries
+{
+    inlet
+    {
+        type    fixedValue;
+        value   uniform 0;
+    }
+
+    outlet
+    {
+        type    zeroGradient;
+    }
+
+    sides
+    {
+        type    empty;
+    }
+}
+
+// The moments of a mixture fraction and of the mass fractions of the
+// species conditioned on it, where the two streams have only mixed: the
+// mass fractions are linear in the mixture fraction between the streams.
+// The species are those of the chemistry file of the case, and their mean
+// mass fractions are written for the thermo. The last coordinate of the
+// distribution is the enthalpy, linear in the mixture fraction as well,
+// between the enthalpies of the streams at their temperatures.
+mixing
+{
+    type                mixtureFractionStreams;
+    weightDimension     [0 0 0 0 0 0 0];
+    abscissaDimension   [0 0 0 0 0 0 0];
+
+    streams
+    {
+        #include "<constant>/streams"
+    }
+
+    // Mostly hot air, with a tail of fuel: a beta distribution of mean 0.1
+    // and variance 0.04
+    internal
+    {
+        distribution    beta;
+        mean            0.1;
+        variance        0.04;
+    }
+
+    // The fluid enters as the single cell starts
+    inlet
+    {
+        distribution    beta;
+        mean            0.1;
+        variance        0.04;
+    }
+}
+
+// ************************************************************************* //

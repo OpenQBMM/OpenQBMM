@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | OpenQBMM - www.openqbmm.org
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      sampleDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+type sets;
+libs ("libsampling.so");
+
+setFormat raw;
+interpolationScheme cell;
+
+// A raw set writes its fields in the order of their names
+fields
+(
+    T
+    T.node0.mixing
+    T.node1.mixing
+    T.node2.mixing
+    U
+    rho
+);
+
+sets
+(
+    Centerline
+    {
+        type        cellCentre;
+        axis        x;
+    }
+);
+
+// ************************************************************************* //
