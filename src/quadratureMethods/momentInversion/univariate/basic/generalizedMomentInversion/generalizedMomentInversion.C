@@ -60,7 +60,8 @@ Foam::generalizedMomentInversion::generalizedMomentInversion
     (
         dict.lookupOrDefault<word>("ndfTypeRPlus", "gamma")
     ),
-    nMaxNodes_(nMaxNodes)
+    nMaxNodes_(nMaxNodes),
+    nRealizableMoments_(0)
 {
 
     if ((ndfTypeRPlus_ != "gamma" && ndfTypeRPlus_ != "lognormal"))
@@ -180,6 +181,8 @@ void Foam::generalizedMomentInversion::calcNQuadratureNodes
     // moments.
     label nRealizableMoments = moments.nRealizableMoments();
 
+    nRealizableMoments_ = nRealizableMoments;
+
     nRegularQuadratureNodes_
         = (nRealizableMoments % 2 != 0)
         ? label((nRealizableMoments - 1)/2.0)
@@ -262,6 +265,8 @@ void Foam::generalizedMomentInversion::correctRecurrenceR
         return; // Use Gauss if no additional nodes are possible
     }
 
+    // The a_i the moments determine are as many as the regular nodes, and
+    // the ones beyond them are their mean
     scalar an = 0;
 
     for (label i = 0; i < nRegularQuadratureNodes_; i++)
@@ -274,20 +279,25 @@ void Foam::generalizedMomentInversion::correctRecurrenceR
     for (label i = nRegularQuadratureNodes_; i < nNodes_; i++)
     {
         alpha[i] = an;
-
-        beta[i-1] = beta[nRegularQuadratureNodes_ - 1]*pow(scalar(i - 1)
-                   /scalar(nRegularQuadratureNodes_ - 1), nu_);
     }
 
-    beta[nNodes_ - 1] = beta[nRegularQuadratureNodes_ - 1]
-                       *pow(scalar(nNodes_ - 1)
-                       /scalar(nRegularQuadratureNodes_ - 1), nu_);
+    // The last b_i the moments determine: b_(n-1) for 2n moments and b_n
+    // for 2n + 1, which the moment of order 2n gives. The ones beyond it
+    // follow the power law of the Hermite polynomials from it, so that the
+    // moment of order 2n is kept where it is known.
+    const label lastB = (nRealizableMoments_ - 1)/2;
+
+    for (label i = lastB + 1; i < nNodes_; i++)
+    {
+        beta[i] = beta[lastB]*pow(scalar(i)/scalar(lastB), nu_);
+    }
 
     #ifdef FULLDEBUG
         Info << "Corrected alpha: " << alpha << endl;
         Info << "Corrected beta: " << beta << endl;
     #endif
 }
+
 
 void Foam::generalizedMomentInversion::correctRecurrenceRPlus
 (
@@ -307,6 +317,21 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
     // accessing moments.zetas() directly.
     scalarList& zetas(moments.zetas());
 
+    // The zeta_k are stored from zeta_1, so zeta_j is in zetas[j - 1]. The
+    // realizable moments determine zeta_1 ... zeta_nKnown. The chain of the
+    // odd orders, zeta_(2k-1), and the one of the even orders, zeta_(2k),
+    // each continue from the last value the moments determine, with the
+    // ratio the model distribution gives between the index k of the value
+    // sought and the one of that value.
+    const label nKnown = nRealizableMoments_ - 1;
+
+    // Index k of the last known zeta_(2k-1) and zeta_(2k)
+    const label kOdd = (nKnown + 1)/2;
+    const label kEven = nKnown/2;
+
+    const scalar lastOdd = zetas[2*kOdd - 2];
+    const scalar lastEven = zetas[2*kEven - 1];
+
     if (ndfTypeRPlus_ == "gamma")
     {
         // The moments are read through the const accessor, so that the
@@ -317,27 +342,16 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
         const scalar alphaCoeff =
             m1sqr/(moments.moment(0)*moments.moment(2) - m1sqr) - 1.0;
 
-        for
-        (
-            label i = nRegularQuadratureNodes_;
-            i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0;
-            i++
-        )
+        // Generalized Laguerre polynomials:
+        //     zeta_(2k-1) = (k + alpha)/beta, zeta_(2k) = k/beta
+        for (label j = nKnown + 1; j <= 2*nMaxNodes_ - 1; j++)
         {
-            zetas[2*i - 1] =
-                (i + alphaCoeff)*zetas[2*nRegularQuadratureNodes_ - 3]
-               /(nRegularQuadratureNodes_ - 1 + alphaCoeff);
+            const label k = (j + 1)/2;
 
-            zetas[2*i] =
-                (i + 1)*zetas[2*nRegularQuadratureNodes_ - 2]
-               /(nRegularQuadratureNodes_);
-
-            #ifdef FULLDEBUG
-                Info << "zetas[2*i-1] = " << zetas[2*i - 1] << endl;
-                Info << "2i-1 = " << 2*i - 1 << endl;
-                Info << "zetas[2*i] = " << zetas[2*i] << endl;
-                Info << "2i = " << 2*i << endl;
-            #endif
+            zetas[j - 1] =
+                (j % 2 == 1)
+              ? lastOdd*(k + alphaCoeff)/(kOdd + alphaCoeff)
+              : lastEven*scalar(k)/scalar(kEven);
         }
     }
     else if (ndfTypeRPlus_ == "lognormal")
@@ -348,33 +362,25 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
                 moments.moment(0)*moments.moment(2)/sqr(moments.moment(1))
             );
 
-        for
-        (
-            label i = nRegularQuadratureNodes_;
-            i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0;
-            i++
-        )
+        // Stieltjes-Wigert polynomials:
+        //     zeta_(2k-1) = exp(mu) eta^(4k-3),
+        //     zeta_(2k) = exp(mu) eta^(2k-1) (eta^(2k) - 1)
+        for (label j = nKnown + 1; j <= 2*nMaxNodes_ - 1; j++)
         {
-            zetas[2*i - 1] =
-                pow(eta, 2*(i + 1 - nRegularQuadratureNodes_))
-               *(
-                    (pow(eta, 2*(i+1)) - 1.0)
-                   /(pow(eta, 2*nRegularQuadratureNodes_) - 1.0)
-                )
-               *zetas[2*nRegularQuadratureNodes_ - 3];
+            const label k = (j + 1)/2;
 
-            zetas[2*i] =
-                pow(eta, 4*(i + 1 - nRegularQuadratureNodes_))
-               *zetas[2*nRegularQuadratureNodes_ - 2];
-
-            #ifdef FULLDEBUG
-                Info << "zetas[2*i-1] = " << zetas[2*i - 1] << endl;
-                Info << "2i-1 = " << 2*i - 1 << endl;
-                Info << "zetas[2*i] = " << zetas[2*i] << endl;
-                Info << "2i = " << 2*i << endl;
-            #endif
+            zetas[j - 1] =
+                (j % 2 == 1)
+              ? lastOdd*pow(eta, scalar(4*(k - kOdd)))
+              : lastEven*pow(eta, scalar(2*(k - kEven)))
+               *(pow(eta, scalar(2*k)) - 1.0)
+               /(pow(eta, scalar(2*kEven)) - 1.0);
         }
     }
+
+    #ifdef FULLDEBUG
+        Info << "Extended zetas: " << zetas << endl;
+    #endif
 
     // The zeta chain is the primary representation of the recurrence
     // relationship for measures with support over R+ and [0, 1]: recover
@@ -386,6 +392,7 @@ void Foam::generalizedMomentInversion::correctRecurrenceRPlus
         Info << "Corrected beta: " << beta << endl;
     #endif
 }
+
 
 void Foam::generalizedMomentInversion::correctRecurrence01
 (
@@ -404,74 +411,59 @@ void Foam::generalizedMomentInversion::correctRecurrence01
     scalarList& zetas(moments.zetas());
     scalarList& canonicalMoments(moments.canonicalMoments());
 
-    // We do not store p0, so canonicalMoments[0] = p1
-    scalar p1 = canonicalMoments[0];
-    scalar p2 = canonicalMoments[1];
+    // We do not store p0, so p_j is in canonicalMoments[j - 1], as zeta_j
+    // is in zetas[j - 1]
+    const scalar p1 = canonicalMoments[0];
+    const scalar p2 = canonicalMoments[1];
 
-    scalar alphaCoeff = (1.0 - p1 - 2*p2 + p1*p2)/p2;
-    scalar betaCoeff = (p1 - p2 - p1*p2)/p2;
+    const scalar alphaCoeff = (1.0 - p1 - 2*p2 + p1*p2)/p2;
+    const scalar betaCoeff = (p1 - p2 - p1*p2)/p2;
 
-    scalar pJ2n_1 = (betaCoeff + nRegularQuadratureNodes_)
-        /(2.0*nRegularQuadratureNodes_ + alphaCoeff + betaCoeff);
-
-    scalar pJ2n = nRegularQuadratureNodes_
-        /(2.0*nRegularQuadratureNodes_ + 1.0 + alphaCoeff + betaCoeff);
-
-    for
-    (
-        label i = nRegularQuadratureNodes_;
-        i < nMaxNodes_ && nAdditionalQuadratureNodes_ > 0;
-        i++
-    )
+    // Canonical moments of the Jacobi polynomials:
+    //     p_(2k-1) = (beta + k)/(2k + alpha + beta),
+    //     p_(2k) = k/(2k + 1 + alpha + beta)
+    auto pJ = [&](const label j)
     {
-        scalar pJ2i_1 = (betaCoeff + i)/(2.0*i + alphaCoeff + betaCoeff);
-        scalar pJ2i = i/(2.0*i + 1.0 + alphaCoeff + betaCoeff);
+        const label k = (j + 1)/2;
 
-        if (canonicalMoments[2*nRegularQuadratureNodes_ - 3] <= pJ2n_1
-         || pJ2n_1 >= pJ2i_1)
-        {
-            canonicalMoments[2*i - 1] =
-                canonicalMoments[2*nRegularQuadratureNodes_ - 3]
-               *pJ2i_1/pJ2n_1;
-        }
-        else
-        {
-            canonicalMoments[2*i - 1] =
-                (canonicalMoments[2*nRegularQuadratureNodes_ - 3]
-               *(1.0 - pJ2i_1) + pJ2i_1 - pJ2n_1)/(1.0 - pJ2n_1);
-        }
+        return
+            (j % 2 == 1)
+          ? (betaCoeff + k)/(2.0*k + alphaCoeff + betaCoeff)
+          : scalar(k)/(2.0*k + 1.0 + alphaCoeff + betaCoeff);
+    };
 
-        if (canonicalMoments[2*nRegularQuadratureNodes_ - 2] <= pJ2n
-         || pJ2n >= pJ2i)
-        {
-            canonicalMoments[2*i] =
-                canonicalMoments[2*nRegularQuadratureNodes_ - 2]
-               *pJ2i/pJ2n;
-        }
-        else
-        {
-            canonicalMoments[2*i] =
-                (canonicalMoments[2*nRegularQuadratureNodes_ - 2]
-               *(1.0 - pJ2i) + pJ2i - pJ2n)/(1.0 - pJ2n);
-        }
+    // The realizable moments determine p_1 ... p_nKnown. The chain of the
+    // odd orders and the one of the even orders each continue from the last
+    // value the moments determine.
+    const label nKnown = nRealizableMoments_ - 1;
 
-        zetas[2*i - 1] =
-            canonicalMoments[2*i - 1]
-           *(1.0 - canonicalMoments[2*i - 2]);
+    const label jOdd = (nKnown % 2 == 1) ? nKnown : nKnown - 1;
+    const label jEven = (nKnown % 2 == 0) ? nKnown : nKnown - 1;
 
-        zetas[2*i] =
-            canonicalMoments[2*i]
-           *(1.0 - canonicalMoments[2*i - 1]);
+    for (label j = nKnown + 1; j <= 2*nMaxNodes_ - 1; j++)
+    {
+        const label jLast = (j % 2 == 1) ? jOdd : jEven;
 
-        #ifdef FULLDEBUG
-            Info << "canonicalMoments[2*i-1] = " << canonicalMoments[2*i - 1] << endl;
-            Info << "zetas[2*i-1] = " << zetas[2*i - 1] << endl;
-            Info << "2i-1 = " << 2*i - 1 << endl;
-            Info << "canonicalMoments[2*i] = " << canonicalMoments[2*i] << endl;
-            Info << "zetas[2*i] = " << zetas[2*i] << endl;
-            Info << "2i = " << 2*i << endl;
-        #endif
+        const scalar pLast = canonicalMoments[jLast - 1];
+        const scalar pJLast = pJ(jLast);
+        const scalar pJj = pJ(j);
+
+        // The value sought scales with the one of the Jacobi polynomials
+        // from zero where the last known one is below its own, and from one
+        // where it is above, so that it stays inside (0, 1)
+        canonicalMoments[j - 1] =
+            (pLast <= pJLast || pJLast >= pJj)
+          ? pLast*pJj/pJLast
+          : (pLast*(1.0 - pJj) + pJj - pJLast)/(1.0 - pJLast);
+
+        zetas[j - 1] =
+            canonicalMoments[j - 1]*(1.0 - canonicalMoments[j - 2]);
     }
+
+    #ifdef FULLDEBUG
+        Info << "Extended canonical moments: " << canonicalMoments << endl;
+        Info << "Extended zetas: " << zetas << endl;
+    #endif
 
     // The zeta chain is the primary representation of the recurrence
     // relationship for measures with support over R+ and [0, 1]: recover

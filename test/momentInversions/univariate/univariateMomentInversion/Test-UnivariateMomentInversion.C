@@ -53,12 +53,11 @@ void compareQuadrature
     scalarList& expectedWeights,
     scalarList& computedWeights,
     scalarList& expectedAbscissae,
-    scalarList& computedAbscissae
+    scalarList& computedAbscissae,
+    const scalar tolerance = 1.0e-14
 )
 {
     Info<< "\n" << endl;
-
-    const scalar tolerance = 1.0e-14;
 
     Info<< "Comparing quadrature weights and abscissae with tolerance "
         << tolerance << "\n" << endl;
@@ -168,7 +167,8 @@ void testQuadrature
     scalarList& expectedWeights,
     scalarList& expectedAbscissae,
     string quadratureName,
-    label nMaxNodes = 0
+    label nMaxNodes = 0,
+    const scalar tolerance = 1.0e-14
 )
 {
     showInputMoments(m, quadratureName);
@@ -187,7 +187,14 @@ void testQuadrature
     Info << "Abscissae: " << abscissae << endl;
     Info << "Zetas: " << m.zetas() << endl;
 
-    compareQuadrature(expectedWeights, weights, expectedAbscissae, abscissae);
+    compareQuadrature
+    (
+        expectedWeights,
+        weights,
+        expectedAbscissae,
+        abscissae,
+        tolerance
+    );
 
     m.update(weights, abscissae);
 
@@ -285,11 +292,12 @@ void testOddMomentCountGQMOM(dictionary& dict)
 
     Info<< "OK" << endl;
 
-    // The additional nodes leave the moments the regular quadrature
-    // determines untouched. An odd number of moments determines
-    // (nMoments - 1)/2 regular nodes, which preserve the moments of order
-    // lower than nMoments - 1.
-    const label nRegularNodes = (nMoments - 1)/2;
+    // The additional nodes leave every moment the quadrature is given
+    // untouched. An odd number of moments determines (nMoments - 1)/2
+    // regular nodes, which preserve the moments of order lower than
+    // nMoments - 1, and the last moment determines the coefficient the
+    // closure of the recurrence relationship starts from, so that it is
+    // preserved too.
     const scalarList& weights(inversion().weights());
     const scalarList& abscissae(inversion().abscissae());
 
@@ -298,7 +306,7 @@ void testOddMomentCountGQMOM(dictionary& dict)
     Info<< "\nVerifying moment conservation with tolerance " << tolerance
         << "\n" << endl;
 
-    for (label mi = 0; mi < 2*nRegularNodes; mi++)
+    for (label mi = 0; mi < nMoments; mi++)
     {
         scalar momentFromQuadrature = 0.0;
 
@@ -324,6 +332,168 @@ void testOddMomentCountGQMOM(dictionary& dict)
                 << "    Moment from quadrature: " << momentFromQuadrature << nl
                 << "    Expected: " << inputMoments[mi] << nl
                 << exit(FatalError);
+        }
+    }
+
+    Info<< endl;
+}
+
+
+//- The generalized quadrature continues the recurrence relationship of the
+//  moments with the one of the polynomials of a model distribution, so that
+//  given the moments of that distribution it has to return its quadrature:
+//  the moments it was given, and the ones of higher order the additional
+//  nodes reach, up to 2 nNodes - 1. This holds whether it is given 2n moments,
+//  as a case with the moments of n regular nodes does, or 2n + 1, which is
+//  the case the method is written for, and for any number of additional
+//  nodes.
+void testModelDistributionsGQMOM()
+{
+    Info<< "\nTesting that GQMOM reproduces its model distributions\n"
+        << endl;
+
+    struct Model
+    {
+        word name;
+        supportType support;
+        string entries;
+        scalarList moments;
+    };
+
+    const label nExact = 14;
+
+    List<Model> models(4);
+
+    // Gaussian of mean 0.3 and standard deviation 1.2
+    models[0] = {"Gaussian", supportType::R, "nu 1;", scalarList(nExact)};
+    models[0].moments[0] = 1;
+    models[0].moments[1] = 0.3;
+
+    // Gamma of shape 3 and scale 0.5, lognormal of mu = 0 and sigma = 0.3,
+    // beta(2, 5)
+    models[1] =
+        {"gamma", supportType::RPlus, "ndfTypeRPlus gamma;", scalarList(nExact)};
+    models[2] =
+    {
+        "lognormal", supportType::RPlus, "ndfTypeRPlus lognormal;",
+        scalarList(nExact)
+    };
+    models[3] = {"beta", supportType::ZeroOne, "", scalarList(nExact)};
+
+    models[1].moments[0] = 1;
+    models[3].moments[0] = 1;
+
+    for (label k = 0; k < nExact; k++)
+    {
+        if (k > 1)
+        {
+            models[0].moments[k] =
+                0.3*models[0].moments[k - 1]
+              + (k - 1)*sqr(1.2)*models[0].moments[k - 2];
+        }
+
+        if (k > 0)
+        {
+            models[1].moments[k] = models[1].moments[k - 1]*(3.0 + k - 1)*0.5;
+
+            models[3].moments[k] =
+                models[3].moments[k - 1]*(2.0 + k - 1)/(7.0 + k - 1);
+        }
+
+        models[2].moments[k] = Foam::exp(0.5*sqr(0.3*k));
+    }
+
+    for (const Model& model : models)
+    {
+        for (const label nMoments : {6, 7})
+        {
+            for (const label nAdditional : {1, 3})
+            {
+                const label nNodes = nMoments/2 + nAdditional;
+
+                dictionary dict
+                (
+                    IStringStream
+                    (
+                        "univariateMomentInversion GQMOM; " + model.entries
+                    )()
+                );
+
+                autoPtr<univariateMomentInversion> inversion
+                (
+                    univariateMomentInversion::New(dict, nNodes)
+                );
+
+                scalarList inputMoments(nMoments);
+
+                forAll(inputMoments, mi)
+                {
+                    inputMoments[mi] = model.moments[mi];
+                }
+
+                univariateMomentSet m
+                (
+                    inputMoments,
+                    model.support,
+                    SMALL,
+                    SMALL,
+                    inversion().nAdditionalQuadraturePoints(nMoments)
+                );
+
+                inversion().invert(m);
+
+                const scalarList& weights(inversion().weights());
+                const scalarList& abscissae(inversion().abscissae());
+
+                if (inversion().nNodes() != nNodes)
+                {
+                    FatalErrorInFunction
+                        << "GQMOM did not extend the quadrature of the "
+                        << model.name << " distribution." << nl
+                        << "    Number of quadrature nodes: "
+                        << inversion().nNodes() << ", expected " << nNodes
+                        << nl << exit(FatalError);
+                }
+
+                scalar largest = 0;
+
+                for (label mi = 0; mi < 2*nNodes; mi++)
+                {
+                    scalar momentFromQuadrature = 0.0;
+
+                    forAll(weights, nodei)
+                    {
+                        momentFromQuadrature +=
+                            weights[nodei]*pow(abscissae[nodei], mi);
+                    }
+
+                    // The first moment of the Gaussian is compared on the
+                    // scale of its standard deviation
+                    const scalar difference =
+                        mag(momentFromQuadrature - model.moments[mi])
+                       /max(mag(model.moments[mi]), scalar(1e-3));
+
+                    largest = max(largest, difference);
+                }
+
+                Info<< "  " << model.name << ", " << nMoments
+                    << " moments, " << nNodes << " nodes: moments up to "
+                    << "order " << 2*nNodes - 1
+                    << " within " << largest << endl;
+
+                if (largest > 1e-9)
+                {
+                    FatalErrorInFunction
+                        << "GQMOM does not reproduce the " << model.name
+                        << " distribution it continues the recurrence "
+                        << "relationship with." << nl
+                        << "    Number of moments: " << nMoments << nl
+                        << "    Number of nodes: " << nNodes << nl
+                        << "    Largest relative difference of a moment: "
+                        << largest << nl
+                        << exit(FatalError);
+                }
+            }
         }
     }
 
@@ -965,7 +1135,10 @@ int main(int argc, char *argv[])
     );
 
 
-    // Test 6 - GQMOM on R+
+    // Test 6 - GQMOM on R+, ten moments of the uniform distribution on
+    // [0, 1] continued with the gamma closure. There is no distribution to
+    // compare with here: the values are those of the library, which an
+    // independent implementation of the closure reproduces within 1e-13
     scalarList inputMoments6(10);
 
     for (label mi = 1; mi < inputMoments6.size() + 1; mi++)
@@ -980,29 +1153,29 @@ int main(int argc, char *argv[])
 
     scalarList expectedWeightsTest6(10, 0);
 
-    expectedWeightsTest6[0] = 0.04676927763440855;
-    expectedWeightsTest6[1] = 0.09238395831062521;
-    expectedWeightsTest6[2] = 0.1338541470311804;
-    expectedWeightsTest6[3] = 0.1656978021914576;
-    expectedWeightsTest6[4] = 0.1735468576392944;
-    expectedWeightsTest6[5] = 0.1798430425746221;
-    expectedWeightsTest6[6] = 0.1249034785658432;
-    expectedWeightsTest6[7] = 0.08286244866468077;
-    expectedWeightsTest6[8] = 0.0001389703139075481;
-    expectedWeightsTest6[9] = 1.707398051215797e-08;
+    expectedWeightsTest6[0] = 0.03574921508537977;
+    expectedWeightsTest6[1] = 0.09764650480516522;
+    expectedWeightsTest6[2] = 0.1335134824107895;
+    expectedWeightsTest6[3] = 0.1711684758894725;
+    expectedWeightsTest6[4] = 0.1739860954488611;
+    expectedWeightsTest6[5] = 0.1846183515715966;
+    expectedWeightsTest6[6] = 0.1258528258568286;
+    expectedWeightsTest6[7] = 0.07737017771086979;
+    expectedWeightsTest6[8] = 9.485835768519413e-05;
+    expectedWeightsTest6[9] = 1.286335127130966e-08;
 
     scalarList expectedAbscissaeTest6(10, 0);
 
-    expectedAbscissaeTest6[0] = 0.0183308690766393;
-    expectedAbscissaeTest6[1] = 0.09048528273499766;
-    expectedAbscissaeTest6[2] = 0.2014909335053396;
-    expectedAbscissaeTest6[3] = 0.3557178385194207 ;
-    expectedAbscissaeTest6[4] = 0.5232653238609548;
-    expectedAbscissaeTest6[5] = 0.7048225199412453;
-    expectedAbscissaeTest6[6] = 0.8588367392334761;
-    expectedAbscissaeTest6[7] = 0.9639042866192365;
-    expectedAbscissaeTest6[8] = 1.148144194761292 ;
-    expectedAbscissaeTest6[9] = 1.523890900642449;
+    expectedAbscissaeTest6[0] = 0.01173191370526111;
+    expectedAbscissaeTest6[1] = 0.08158521262637455;
+    expectedAbscissaeTest6[2] = 0.19579690748922;
+    expectedAbscissaeTest6[3] = 0.3519887349879595;
+    expectedAbscissaeTest6[4] = 0.5232910050784757;
+    expectedAbscissaeTest6[5] = 0.7063902877127978;
+    expectedAbscissaeTest6[6] = 0.8652881472160519;
+    expectedAbscissaeTest6[7] = 0.9662037783685198;
+    expectedAbscissaeTest6[8] = 1.168841180426465;
+    expectedAbscissaeTest6[9] = 1.557454260967021;
 
     testQuadrature
     (
@@ -1014,7 +1187,13 @@ int main(int argc, char *argv[])
         10
     );
 
-    // Test 7 - GQMOM on [0, 1]
+    // Test 7 - GQMOM on [0, 1], ten moments of half a beta(3, 2)
+    // distribution. The beta closure continues the canonical moments of a
+    // beta distribution with its own, so the ten nodes have to be the
+    // Gauss-Jacobi quadrature of the distribution, which is what the
+    // expected values are: the roots of its orthogonal polynomial of degree
+    // ten and their weights, found in 50-digit arithmetic. The quadrature
+    // goes through the ten moments, whose round-off allows 1e-10.
     scalarList inputMoments7(10);
 
     inputMoments7[0] = 1.0/2.0;
@@ -1035,29 +1214,29 @@ int main(int argc, char *argv[])
 
     scalarList expectedWeightsTest7(10, 0);
 
-    expectedWeightsTest7[0] = 0.001943873229307942;
-    expectedWeightsTest7[1] = 0.007902072129949747;
-    expectedWeightsTest7[2] = 0.02732546156051659;
-    expectedWeightsTest7[3] = 0.05761179944540628;
-    expectedWeightsTest7[4] = 0.09028841825500214;
-    expectedWeightsTest7[5] = 0.10986807966067;
-    expectedWeightsTest7[6] = 0.09845777421751999;
-    expectedWeightsTest7[7] = 0.06927178902222311;
-    expectedWeightsTest7[8] = 0.02951883479525387;
-    expectedWeightsTest7[9] = 0.007811897684150718;
+    expectedWeightsTest7[0] = 0.00068702139102659208;
+    expectedWeightsTest7[1] = 0.0064586770258096169;
+    expectedWeightsTest7[2] = 0.024345252568145796;
+    expectedWeightsTest7[3] = 0.056039175927690692;
+    expectedWeightsTest7[4] = 0.09124606902902116;
+    expectedWeightsTest7[5] = 0.11138498147045331;
+    expectedWeightsTest7[6] = 0.10302860406764124;
+    expectedWeightsTest7[7] = 0.069784170667645445;
+    expectedWeightsTest7[8] = 0.030879685378606001;
+    expectedWeightsTest7[9] = 0.0061463624739601487;
 
     scalarList expectedAbscissaeTest7(10, 0);
 
-    expectedAbscissaeTest7[0] = 0.06964594081013871;
-    expectedAbscissaeTest7[1] = 0.14017230848925;
-    expectedAbscissaeTest7[2] = 0.2355328726617618;
-    expectedAbscissaeTest7[3] = 0.3490332042621505;
-    expectedAbscissaeTest7[4] = 0.4750293831698755;
-    expectedAbscissaeTest7[5] = 0.6015400657359764;
-    expectedAbscissaeTest7[6] = 0.723885477138646;
-    expectedAbscissaeTest7[7] = 0.8284968176504827;
-    expectedAbscissaeTest7[8] = 0.9147863479347316;
-    expectedAbscissaeTest7[9] = 0.9684906429192973;
+    expectedAbscissaeTest7[0] = 0.045250819584869484;
+    expectedAbscissaeTest7[1] = 0.11844557799902641;
+    expectedAbscissaeTest7[2] = 0.21738337124495932;
+    expectedAbscissaeTest7[3] = 0.33538225149794593;
+    expectedAbscissaeTest7[4] = 0.46441332586337908;
+    expectedAbscissaeTest7[5] = 0.59568735822134655;
+    expectedAbscissaeTest7[6] = 0.72025977492520121;
+    expectedAbscissaeTest7[7] = 0.82964157493925428;
+    expectedAbscissaeTest7[8] = 0.91637761443392429;
+    expectedAbscissaeTest7[9] = 0.97454963563791952;
 
     testQuadrature
     (
@@ -1066,9 +1245,14 @@ int main(int argc, char *argv[])
         expectedWeightsTest7,
         expectedAbscissaeTest7,
         "GQMOM",
-        10
+        10,
+        1e-10
     );
 
+    // Test 8 - GQMOM on R+, the six moments case 8 of the aggregation and
+    // breakup validation starts from, continued with the gamma closure to
+    // ten nodes. As in test 6, the values are those of the library, which
+    // an independent implementation of the closure reproduces within 1e-13
     scalarList inputMoments8(6);
 
     inputMoments8[0] = 1.0;
@@ -1085,29 +1269,29 @@ int main(int argc, char *argv[])
 
     scalarList expectedWeightsTest8(10, 0);
 
-    expectedWeightsTest8[0] = 0.001528021029486816;
-    expectedWeightsTest8[1] = 0.001386763449248363;
-    expectedWeightsTest8[2] = 0.001866128388630542;
-    expectedWeightsTest8[3] = 0.003630846785146271;
-    expectedWeightsTest8[4] = 0.01421509421173688;
-    expectedWeightsTest8[5] = 0.6853246975604294;
-    expectedWeightsTest8[6] = 0.02431175018572058;
-    expectedWeightsTest8[7] = 0.2675675885682817;
-    expectedWeightsTest8[8] = 0.0001691025284614494;
-    expectedWeightsTest8[9] = 7.292857634940761e-09;
+    expectedWeightsTest8[0] = 0.0001145883267614276;
+    expectedWeightsTest8[1] = 0.0005787834611732504;
+    expectedWeightsTest8[2] = 0.001257810942851072;
+    expectedWeightsTest8[3] = 0.002468605049123289;
+    expectedWeightsTest8[4] = 0.006133629917009222;
+    expectedWeightsTest8[5] = 0.04525029932978637;
+    expectedWeightsTest8[6] = 0.6772160600741152;
+    expectedWeightsTest8[7] = 0.01487128917248305;
+    expectedWeightsTest8[8] = 0.2521057336899993;
+    expectedWeightsTest8[9] = 3.200036698790736e-06;
 
     scalarList expectedAbscissaeTest8(10, 0);
 
-    expectedAbscissaeTest8[0] = 0.1840361378198212;
-    expectedAbscissaeTest8[1] = 0.3716851294787171;
-    expectedAbscissaeTest8[2] = 0.541482301270592;
-    expectedAbscissaeTest8[3] = 0.7215189555042092;
-    expectedAbscissaeTest8[4] = 0.9225265146913547;
-    expectedAbscissaeTest8[5] = 1.064838394996712;
-    expectedAbscissaeTest8[6] = 1.153156632425781;
-    expectedAbscissaeTest8[7] = 1.324616410466969;
-    expectedAbscissaeTest8[8] = 1.41694749651431;
-    expectedAbscissaeTest8[9] = 1.763388388042151;
+    expectedAbscissaeTest8[0] = 0.01622663939565731;
+    expectedAbscissaeTest8[1] = 0.120727017195681;
+    expectedAbscissaeTest8[2] = 0.2806738802943011;
+    expectedAbscissaeTest8[3] = 0.4914640938694472;
+    expectedAbscissaeTest8[4] = 0.7300805681269149;
+    expectedAbscissaeTest8[5] = 0.971389438417085;
+    expectedAbscissaeTest8[6] = 1.072903445254138;
+    expectedAbscissaeTest8[7] = 1.231311738714221;
+    expectedAbscissaeTest8[8] = 1.328905703996068;
+    expectedAbscissaeTest8[9] = 1.534061102207788;
 
     testQuadrature
     (
@@ -1120,6 +1304,7 @@ int main(int argc, char *argv[])
     );
 
     testOddMomentCountGQMOM(quadraturePropertiesGQMOM);
+    testModelDistributionsGQMOM();
 
     testDegenerateVarianceGQMOM(quadraturePropertiesGQMOM, "gamma");
     testDegenerateVarianceGQMOM(quadraturePropertiesGQMOM, "lognormal");
