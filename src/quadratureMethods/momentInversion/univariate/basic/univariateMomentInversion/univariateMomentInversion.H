@@ -113,6 +113,24 @@ protected:
         );
 
 
+        //- The measure of a moment set on the boundary of the moment space
+        //  of [0, 1], which is the only one with those moments, so that no
+        //  rule has anything to choose: returns false for a set in the
+        //  interior, or on another support.
+        //
+        //  The zeta_k of such a measure stop: with the first canonical
+        //  moment at an end being p_N, zeta_N is zero where p_N is zero,
+        //  and zeta_(N+1) is where p_N is one, zeta_N being then 1 -
+        //  p_(N-1). The Jacobi matrix the zeta_k give, alpha_j = zeta_2j +
+        //  zeta_(2j+1) and beta_j = zeta_(2j-1) zeta_2j, stops with them,
+        //  and its eigenvalues are the nodes: those of a Gauss rule, or a
+        //  node at zero, at one or at both with the interior ones,
+        //  whichever the moments say. Two pure streams, m_k = m_1 for every
+        //  k, have p_2 = 1 and come back as nodes at zero and one of
+        //  weights 1 - m_1 and m_1; a Gauss rule gives them one node at
+        //  the mean, which is the two streams mixed.
+        bool invertOnBoundary(univariateMomentSet& moments);
+
         //- Calculate weights and abscissae
         void calcQuadrature(const univariateMomentSet& moments);
 

@@ -55,6 +55,16 @@ Description
       - [0, 1]: the canonical moments derived from the zeta_k are required to
         belong to [0, 1]
 
+    On [0, 1] the canonical moments p_k also say where the moment set stops
+    being in the interior of the moment space. The first p_N at an end of
+    [0, 1] puts the set on the boundary of the moment space, where the
+    measure is the only one with those moments: the lower principal
+    representation of m_1 ... m_(N-1) where p_N is zero, and the upper one
+    where it is one. A p_N beyond an end, which no measure has, is taken at
+    that end. The order N and the end are kept for the inversion, which has
+    nothing to choose there: a cell that holds a pure stream, a mixture
+    fraction of zero or of one, beside anything else is such a set.
+
 SourceFiles
     univariateMomentSet.C
     univariateMomentSetRealizability.C
@@ -102,6 +112,13 @@ public:
             //- Bool to indicate if the moment set is on the boundary of the
             //  moment space
             bool onMomentSpaceBoundary = false;
+
+            //- On [0, 1], the order of the first canonical moment at an end
+            //  of the interval, zero where none is
+            label boundaryOrder = 0;
+
+            //- On [0, 1], whether that canonical moment is at one
+            bool boundaryAtOne = false;
 
             //- Bool to indicate the realizability check was performed
             bool checked = false;
@@ -267,6 +284,29 @@ public:
         (
             bool fatalErrorOnFailedRealizabilityTest = true
         );
+
+        //- On [0, 1], the order of the first canonical moment at an end of
+        //  the interval, within boundaryTolerance, or beyond it: zero for
+        //  a moment set in the interior of the moment space
+        inline label boundaryOrder
+        (
+            bool fatalErrorOnFailedRealizabilityTest = true
+        );
+
+        //- On [0, 1], whether that canonical moment is at one, so that the
+        //  measure is an upper principal representation
+        inline bool boundaryAtOne
+        (
+            bool fatalErrorOnFailedRealizabilityTest = true
+        );
+
+        //- How close to an end of [0, 1] a canonical moment is taken to be
+        //  at it: smallZeta, and no less than what the round-off of the
+        //  zeta_k leaves
+        inline scalar boundaryTolerance() const
+        {
+            return max(smallZeta_, scalar(1e-12));
+        }
 
         //- Build the list of moment orders of a univariate moment set
         static labelListList makeUnivariateMomentOrders(const label nMoments);

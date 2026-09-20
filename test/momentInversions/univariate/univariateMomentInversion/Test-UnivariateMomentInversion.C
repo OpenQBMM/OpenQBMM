@@ -675,6 +675,66 @@ void testLobattoRefusesAnEmptyInterval(dictionary& dict)
 }
 
 
+// A moment set on the boundary of the moment space of [0, 1] has one measure,
+// so every rule has to return it. A mixture fraction is such a set wherever
+// a cell holds a pure stream, at zero or at one, beside anything else: two
+// pure streams have m_k = m_1 for every k, and a Gauss rule used to give
+// them one node at their mean, which is the two streams mixed, a Gauss-Radau
+// rule invented fluid at zero where the pure stream was at one, and a
+// Gauss-Lobatto rule stopped. The atoms are given, six moments are taken
+// from them, and the inversion has to give the atoms back: those at both
+// ends, at one end with interior ones, and interior ones only, which no
+// boundary is involved in.
+void testBoundaryOfTheUnitInterval(dictionary& dict, const string& name)
+{
+    Info<< "\nTesting " << name << " on the boundary of the moment space "
+        << "of [0, 1]\n" << endl;
+
+    const List<Tuple2<scalarList, scalarList>> measures
+    ({
+        {scalarList({0.7, 0.3}), scalarList({0, 1})},
+        {scalarList({0.7, 0.3}), scalarList({0, 0.6})},
+        {scalarList({0.7, 0.3}), scalarList({0.4, 1})},
+        {scalarList({0.5, 0.3, 0.2}), scalarList({0, 0.5, 1})},
+        {scalarList({0.5, 0.3, 0.2}), scalarList({0, 0.3, 0.8})},
+        {scalarList({0.5, 0.3, 0.2}), scalarList({0.3, 0.8, 1})},
+        {scalarList({0.7, 0.3}), scalarList({0.2, 0.7})}
+    });
+
+    for (const auto& measure : measures)
+    {
+        scalarList expectedWeights(measure.first());
+        scalarList expectedAbscissae(measure.second());
+
+        scalarList inputMoments(6, Zero);
+
+        forAll(inputMoments, mi)
+        {
+            forAll(expectedWeights, nodei)
+            {
+                inputMoments[mi] +=
+                    expectedWeights[nodei]*pow(expectedAbscissae[nodei], mi);
+            }
+        }
+
+        univariateMomentSet m
+        (
+            inputMoments, supportType::ZeroOne, SMALL, SMALL
+        );
+
+        testQuadrature
+        (
+            m,
+            dict,
+            expectedWeights,
+            expectedAbscissae,
+            name + ", atoms at " + Foam::name(expectedAbscissae[0]) + " ... "
+          + Foam::name(expectedAbscissae.last())
+        );
+    }
+}
+
+
 int main(int argc, char *argv[])
 {
     Info<< setprecision(16);
@@ -1073,6 +1133,13 @@ int main(int argc, char *argv[])
 
     testLobattoRefusesAnEmptyInterval(quadraturePropertiesLobatto);
     testScaleInvariance(quadraturePropertiesGQMOM, "GQMOM", 5);
+
+    testBoundaryOfTheUnitInterval(quadraturePropertiesGauss, "Gauss");
+    testBoundaryOfTheUnitInterval(quadraturePropertiesRadau, "Gauss-Radau");
+    testBoundaryOfTheUnitInterval
+    (
+        quadraturePropertiesLobatto, "Gauss-Lobatto"
+    );
 
     Info<< "\nEnd\n" << endl;
 

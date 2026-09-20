@@ -181,6 +181,11 @@ void Foam::univariateMomentInversion::invert
         return;
     }
 
+    if (invertOnBoundary(moments))
+    {
+        return;
+    }
+
     calcNQuadratureNodes(moments);
 
     if (nInvertibleMoments_ == 2)
@@ -194,6 +199,79 @@ void Foam::univariateMomentInversion::invert
     correctedRecurrence(moments);
     calcQuadrature(moments);
 }
+
+bool Foam::univariateMomentInversion::invertOnBoundary
+(
+    univariateMomentSet& moments
+)
+{
+    if (moments.support() != supportType::ZeroOne)
+    {
+        return false;
+    }
+
+    const label N = moments.boundaryOrder(false);
+
+    if (N < 2)
+    {
+        // In the interior of the moment space, or all of the measure at
+        // one, which the mean gives
+        return false;
+    }
+
+    // The zeta_k of the measure, zeta[k] being zeta_k with zeta_0 = 0, up
+    // to the first that is zero
+    const scalarList& setZeta = moments.zetas();
+    const bool atOne = moments.boundaryAtOne(false);
+    const label nZeta = atOne ? N : N - 1;
+
+    scalarList zeta(nZeta + 2, Zero);
+
+    for (label k = 1; k <= nZeta; k++)
+    {
+        zeta[k] = setZeta[k - 1];
+    }
+
+    if (atOne)
+    {
+        // zeta_N = p_N (1 - p_(N-1)) with p_N at one
+        zeta[N] = 1.0 - moments.canonicalMoments()[N - 2];
+    }
+
+    // The first zeta that is zero is zeta_M
+    const label M = nZeta + 1;
+
+    nNodes_ = (M + 1)/2;
+    nInvertibleMoments_ = N;
+
+    weights_.setSize(nNodes_);
+    abscissae_.setSize(nNodes_);
+    alpha_.setSize(nNodes_);
+    beta_.setSize(nNodes_);
+
+    auto zetaAt = [&zeta](const label k)
+    {
+        return k < zeta.size() ? zeta[k] : scalar(0);
+    };
+
+    for (label j = 0; j < nNodes_; j++)
+    {
+        alpha_[j] = zetaAt(2*j) + zetaAt(2*j + 1);
+        beta_[j] = j > 0 ? zetaAt(2*j - 1)*zetaAt(2*j) : scalar(1);
+    }
+
+    calcQuadrature(moments);
+
+    // The ends of the interval are nodes to round-off
+    forAll(abscissae_, nodei)
+    {
+        abscissae_[nodei] = min(max(abscissae_[nodei], scalar(0)), scalar(1));
+        weights_[nodei] = max(weights_[nodei], scalar(0));
+    }
+
+    return true;
+}
+
 
 void Foam::univariateMomentInversion::calcQuadrature
 (

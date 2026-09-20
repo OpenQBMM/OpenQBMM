@@ -219,6 +219,34 @@ bool Foam::univariateMomentSet::isOnMomentSpaceBoundary
 }
 
 
+Foam::label Foam::univariateMomentSet::boundaryOrder
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
+{
+    if (!status_.checked)
+    {
+        checkRealizability(fatalErrorOnFailedRealizabilityTest);
+    }
+
+    return status_.boundaryOrder;
+}
+
+
+bool Foam::univariateMomentSet::boundaryAtOne
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
+{
+    if (!status_.checked)
+    {
+        checkRealizability(fatalErrorOnFailedRealizabilityTest);
+    }
+
+    return status_.boundaryAtOne;
+}
+
+
 Foam::label Foam::univariateMomentSet::nRealizableMoments
 (
     bool fatalErrorOnFailedRealizabilityTest

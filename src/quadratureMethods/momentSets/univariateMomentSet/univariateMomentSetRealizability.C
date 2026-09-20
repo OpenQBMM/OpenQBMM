@@ -44,6 +44,16 @@ void Foam::univariateMomentSet::checkCanonicalMoments
 {
     canonicalMoments_[0] = zeta[0];
 
+    // Where the set reaches the boundary of the moment space, and at which
+    // end, for the inversion: the canonical moment of order zetai + 1
+    const scalar tolerance = boundaryTolerance();
+
+    if (canonicalMoments_[0] >= 1.0 - tolerance)
+    {
+        status_.boundaryOrder = 1;
+        status_.boundaryAtOne = true;
+    }
+
     if (mag(canonicalMoments_[0] - 1.0) <= smallZeta_)
     {
         status_.nRealizableMoments = 2;
@@ -56,6 +66,20 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     {
         canonicalMoments_[zetai]
             = zeta[zetai]/(1.0 - canonicalMoments_[zetai - 1]);
+
+        if (status_.boundaryOrder == 0)
+        {
+            if (canonicalMoments_[zetai] <= tolerance)
+            {
+                status_.boundaryOrder = zetai + 1;
+                status_.boundaryAtOne = false;
+            }
+            else if (canonicalMoments_[zetai] >= 1.0 - tolerance)
+            {
+                status_.boundaryOrder = zetai + 1;
+                status_.boundaryAtOne = true;
+            }
+        }
 
         if
         (
