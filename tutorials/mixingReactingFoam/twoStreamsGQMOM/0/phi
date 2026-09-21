@@ -17,6 +17,8 @@ FoamFile
 
 dimensions      [ 1 0 -1 0 0 0 0 ];
 
+oriented        oriented;
+
 internalField   nonuniform List<scalar> 
 5870
 (
