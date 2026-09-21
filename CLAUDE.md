@@ -78,7 +78,7 @@ scripts run their cases with `runCase` and end with `reportCases`.
   against a summary of the fields of its last time (min/max/mean/rms per field, from
   `bin/qbmmFieldSummary`), relative to the span, at tolerance 1e-8 unless
   `regression/tolerance` says otherwise. `qbmmRegression record <case>` re-records; that is a
-  decision to take case by case, never done silently. 59 cases carry baselines.
+  decision to take case by case, never done silently. 60 cases carry baselines.
 - **Reference data.** A validation case declares its figures and its comparisons with reference
   data in one OpenFOAM-style dictionary, `validation/validationDict` (format in
   `bin/python/qbmm/validation.py`): each curve once, in its figure, and a computed curve names in

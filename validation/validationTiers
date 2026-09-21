@@ -37,6 +37,8 @@ long
 
     // 25 min to 2 h each
     "validation/oneWayCoupledVdfTransportFoam/spray1D/*"
+    // Five minutes: ten thousand steps, its time step being held to 1e-3 s
+    "tutorials/pbeTransportFoam/mixingPopulationBalance"
 );
 
 // Cases no tier runs, which are run by hand
