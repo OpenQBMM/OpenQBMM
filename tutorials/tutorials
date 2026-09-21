@@ -30,10 +30,6 @@
     Tutorials for multiphase solver for the transport of a velocity distribution
     function for dilute disperse phases.
 
-* mixingPopulationBalance
-    Tutorials demonstrating the simultaneous solution of a mixing and PBE 
-    problem.
-
 * mixingReactingFoam
     Tutorials for the transient solver of a flow whose composition and
     temperature are those of a mixing model, with the flow solved or frozen.
@@ -44,7 +40,8 @@
 
 * pbeTransportFoam
     Tutorials for the solver for population balance equations on steady velocity
-    field.
+    field, mixingPopulationBalance among them, which solves the mixing of two
+    streams and the population balance of what they carry together.
 
 * polydisperseBubblyFoam
     Tutorials for the solver for gas-liquid systems with population balance

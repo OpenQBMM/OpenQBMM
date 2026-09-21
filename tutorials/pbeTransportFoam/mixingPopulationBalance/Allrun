@@ -1,0 +1,20 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+. ../../../AllrunFunctions
+
+# The mixing of two streams and the population balance of what they carry,
+# solved together by the mixingPbe model on the velocity field the case
+# starts from. The case records no baseline: it shows how the model is set
+# up, and takes about five minutes.
+
+# Get application directory
+application=`getApplication`
+
+runStep blockMesh
+
+runStep $application
+
+# ----------------------------------------------------------------- end-of-file
