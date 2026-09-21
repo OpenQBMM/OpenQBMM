@@ -31,6 +31,7 @@ wmakeStatus populationBalanceSubModels
 wmakeStatus sizeVelocityNucleation
 wmakeStatus realizableOdeSolver
 wmakeStatus mixingKernels
+wmakeStatus mixingPopulationBalance
 wmakeStatus mixingModels/conditionalMixing
 wmakeStatus mixingModels/conditionalReaction
 wmakeStatus momentGeneration/mixtureFractionStreams

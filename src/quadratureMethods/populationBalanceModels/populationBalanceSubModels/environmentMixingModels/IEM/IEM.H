@@ -30,7 +30,27 @@ Class
     Foam::populationBalanceSubModels::environmentMixingModel::IEM
 
 Description
-    Interaction by exchange with the mean mixing model.
+    Interaction by exchange with the mean mixing model, for the moments of
+    a population weighted by the mixture fraction, <xi m>, in a population
+    balance of the environments of a mixture fraction.
+
+    The mixture fraction of an environment and the population it holds are
+    drawn to their means at the same rate, Cphi/2 epsilon/k, which gives
+    the source of <xi m>:
+
+    \f[
+        \frac{d \langle \xi m \rangle}{dt} =
+        C_\phi \frac{\varepsilon}{k}
+        \left(
+            \langle \xi \rangle \langle m \rangle
+          - \langle \xi m \rangle
+        \right)
+    \f]
+
+    that is, the covariance of the population and the mixture fraction
+    decays at the rate of the variance of the mixture fraction, and a
+    population that is the mixture fraction itself keeps <xi m> at the
+    second moment of it.
 
     References
     \verbatim

@@ -30,8 +30,36 @@ Class
     Foam::populationBalanceModels::mixingPopulationBalance
 
 Description
-    Solve a coupled mixing-population balance problem accounting for multiple
-    environments.
+    Population balance of a fluid that is mixing, in the two environments
+    of a mixture fraction: the two nodes of the quadrature of a
+    turbulentMixing model, of weights p_1, p_2 and mixture fractions xi_1,
+    xi_2, each of which holds a population of its own, m_1 and m_2.
+
+    Two sets of moments of the population are transported, the mean ones
+    and the ones weighted by the mixture fraction (the quadratures named
+    MeanMoments and MeanMomentsVariance),
+
+    \f[
+        \langle m \rangle = p_1 m_1 + p_2 m_2, \quad
+        \langle \xi m \rangle = p_1 \xi_1 m_1 + p_2 \xi_2 m_2
+    \f]
+
+    the second with the source of the environmentMixingModel. At every step
+    the populations of the environments are found from the two, changed by
+    the sources of the population balance in each environment, with the
+    realizable ODE solver, and put together again. This is done with the
+    environments of the time the step starts from, which is the time of the
+    moments: the mixing model is advanced after it.
+
+    The environments are told apart where the variance of the mixture
+    fraction, p_1 p_2 (xi_1 - xi_2)^2, is above minMixtureFractionVariance
+    (1e-4) and each holds more than minEnvironmentWeight (1e-6) of the
+    fluid. Elsewhere the fluid of the cell is mixed to what the thresholds
+    resolve, both environments hold the mean moments, and <xi m> becomes
+    <xi><m>: the covariance of such a cell is given up, so that the
+    thresholds are to be small against the variances of interest. A cell
+    where <xi m>/<m> lies outside the two mixture fractions, which would
+    give an environment a negative population, is taken as mixed as well.
 
 SourceFiles
     mixingPopulationBalance.C

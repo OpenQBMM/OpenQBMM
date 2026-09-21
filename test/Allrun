@@ -212,6 +212,14 @@ runTest ./mixingKernels/FokkerPlanckC3 \
 runTest ./mixingKernels/IEMkOmega \
     Test-MixingKernels
 
+# The population balance of two environments of a mixture fraction, on a
+# population that only mixes: its mean moments are constant, and the ones
+# weighted by the mixture fraction follow its second moment, which holds
+# only if the environments are told apart and mixed at the rate of the
+# mixture fraction
+runTest ./mixingPopulationBalance/case \
+    Test-MixingPopulationBalance
+
 # The same mixing of a mixture fraction and of a composition conditioned on
 # it: the means are conserved and the variance and the covariance decay at
 # Cphi epsilon/k

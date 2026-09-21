@@ -258,45 +258,80 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
     // Difference between abscissae of the mixture fraction
     volScalarField xiDiff(xi1_ - xi2_);
 
-    // Compute moments in the environment
+    // The moments of the two environments are those that give back the
+    // mean moments and the ones weighted by the mixture fraction,
+    //
+    //     p1 m1 + p2 m2 = <m>,  p1 xi1 m1 + p2 xi2 m2 = <xi m>,
+    //
+    // which takes the two environments to be apart: the solution divides
+    // by p1, by p2 and by xi1 - xi2, with its sign. They are apart where
+    // the variance of the mixture fraction, p1 p2 (xi1 - xi2)^2, is above
+    // minMixtureFractionVariance, and each of them holds more than
+    // minEnvironmentWeight of the fluid. Elsewhere the fluid of the cell is
+    // mixed, to what those thresholds resolve, and both environments hold
+    // the mean moments.
+    //
+    // The test used to be on xi1 - xi2 itself, which is negative wherever
+    // the environments are apart, the nodes of the mixture fraction coming
+    // in ascending order: no cell was ever split, and the model was one
+    // of a single environment. An environment below minEnvironmentWeight
+    // used to be given null moments where the other was split from it,
+    // which would have taken what it held out of the mean.
+    //
+    // The solution is a population only where <xi m>/<m> lies between the
+    // two mixture fractions, for every moment: outside, one environment
+    // comes out negative, which transport, solving the two sets of moments
+    // apart from the mixture fraction, can leave a cell with. Such a cell
+    // is taken as mixed too: a negative environment used to be inverted to
+    // nothing, and what it held, with its sign, went out of the mean. Which
+    // cells hold two environments can be found from the fields of a time:
+    // the two sets of moments and those of the mixture fraction say it.
     forAll(xiDiff, celli)
     {
-        // Null or very SMALL variance of the mixture fraction
-        // Moments in the two environments are identical
-        if (xiDiff[celli] > minMixtureFractionVariance_)
+        bool apart =
+            xiVariance[celli] > minMixtureFractionVariance_
+         && p1_[celli] > minEnvironmentWeight_
+         && p2_[celli] > minEnvironmentWeight_;
+
+        if (apart)
         {
             forAll(mEnvOne_, mi)
             {
-                if (p1_[celli] > minEnvironmentWeight_)
-                {
-                    mEnvOne_[mi][celli]
-                        =
-                        (
-                            meanMomentsVariance_[mi][celli]
-                           - meanMoments_[mi][celli]*xi2_[celli]
-                        )/(p1_[celli]*xiDiff[celli]);
-                }
-                else
-                {
-                    mEnvOne_[mi][celli] = 0;
-                }
+                mEnvOne_[mi][celli] =
+                    (
+                        meanMomentsVariance_[mi][celli]
+                      - meanMoments_[mi][celli]*xi2_[celli]
+                    )/(p1_[celli]*xiDiff[celli]);
 
-                if (p2_[celli] > minEnvironmentWeight_)
+                mEnvTwo_[mi][celli] =
+                    (
+                        meanMoments_[mi][celli]*xi1_[celli]
+                      - meanMomentsVariance_[mi][celli]
+                    )/(p2_[celli]*xiDiff[celli]);
+
+                // Round-off of a population that is all in one environment
+                // is not a negative one
+                const scalar small =
+                    1e-12*mag(meanMoments_[mi][celli])
+                   /min(p1_[celli], p2_[celli]);
+
+                if
+                (
+                    mEnvOne_[mi][celli] < -small
+                 || mEnvTwo_[mi][celli] < -small
+                )
                 {
-                    mEnvTwo_[mi][celli]
-                        =
-                        (
-                            meanMoments_[mi][celli]*xi1_[celli]
-                          - meanMomentsVariance_[mi][celli]
-                        )/(p2_[celli]*xiDiff[celli]);
+                    apart = false;
                 }
                 else
                 {
-                    mEnvTwo_[mi][celli] = 0;
+                    mEnvOne_[mi][celli] = max(mEnvOne_[mi][celli], scalar(0));
+                    mEnvTwo_[mi][celli] = max(mEnvTwo_[mi][celli], scalar(0));
                 }
             }
         }
-        else
+
+        if (!apart)
         {
             forAll(mEnvOne_, mi)
             {
@@ -407,12 +442,36 @@ Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
 ::solve()
 {
+    // The old-time moments exist before the sources overwrite the current
+    // ones, so that the time derivative below is the one over the step
+    forAll(meanMoments_, mi)
+    {
+        meanMoments_[mi].oldTime();
+        meanMomentsVariance_[mi].oldTime();
+    }
+
+    // The population is shared out between the environments, changed by
+    // its sources in each and put together again with the environments of
+    // one time, the one the step starts from, which is also the time of the
+    // moments shared out. The mixing model used to be solved first: the
+    // moments weighted by the mixture fraction were then those of the old
+    // environments and the mixture fractions those of the new, and a
+    // population held by one stream alone, <xi m>/<m> being its mixture
+    // fraction, fell outside the new ones by what the stream had mixed in
+    // the step, which gave the other environment a negative population.
+    Info << "Solving population balance" << endl;
+
+    calcEnvironmentMoments();
+
+    odeType::solve(envOneQuadrature_, 1);
+    odeType::solve(envTwoQuadrature_, 2);
+
+    calcMixedMoments();
+
     // Solve mixingModel
     Info << "Solving mixing model" << endl;
 
     mixingModel_().solve();
-
-    Info << "Solving population balance" << endl;
 
     // Update PBE advection
     meanMomentsAdvection_().update();
@@ -473,17 +532,8 @@ void Foam::PDFTransportModels::populationBalanceModels::mixingPopulationBalance
         );
     }
 
-    // Update moment environments to apply ODE solver
-    calcEnvironmentMoments();
-
-    // Solve source terms
-    odeType::solve(envOneQuadrature_, 1);
-    odeType::solve(envTwoQuadrature_, 2);
-
-    // Update mixed moments
-    calcMixedMoments();
-
-    // Finish solving for moments
+    // Finish solving for moments: what the sources changed enters as the
+    // time derivative of the moments they overwrote
     forAll (meanMomentEqns, mEqni)
     {
         const volScalarMoment& meanM
