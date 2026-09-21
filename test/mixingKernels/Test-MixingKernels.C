@@ -44,6 +44,18 @@ Description
     values of Cmixing and have to decay at the same rate as the third, which
     runs the interaction by exchange with the mean.
 
+    The interaction by exchange with the mean does more than that: it
+    draws every fluid element to the mean at Cphi/2 epsilon/k, so that the
+    central moment of order j decays at j times that rate, and every moment
+    of the mixture fraction is known in closed form from the initial ones.
+    This is asked of the moments of order three and four, which is what
+    holds the integration of the source to its order: the source of a
+    moment is closed in the moment below it, and the moments of order zero
+    to two, of which the first has no source, do not see whether the stages
+    of the integration evaluate the sources of all the moments at one
+    state. The Fokker-Planck kernel gives the higher moments another
+    evolution, and is not asked for it.
+
     The population starts as almost all of it in the two pure streams, with
     one of its nodes at a mixture fraction of zero. That node used to be
     given no weight, as a size that has been driven to nothing is, which
@@ -161,6 +173,48 @@ int main(int argc, char *argv[])
     const scalar mean0 = m1[celli]/m0[celli];
     const scalar variance0 = m2[celli]/m0[celli] - sqr(mean0);
 
+    // The higher moments, for the kernel they are known in closed form for
+    const bool isIEM = (kernelDict.get<word>("mixingKernel") == "IEM");
+    const label nHigher = 5;
+
+    UPtrList<const volScalarField> m(nHigher);
+
+    for (label k = 0; k < nHigher; k++)
+    {
+        m.set
+        (
+            k,
+            &mesh.lookupObject<volScalarField>
+            (
+                "moment." + Foam::name(k) + ".mixing"
+            )
+        );
+    }
+
+    auto binomial = [](const label n, const label j)
+    {
+        scalar b = 1;
+
+        for (label i = 1; i <= j; i++)
+        {
+            b *= scalar(n - j + i)/scalar(i);
+        }
+
+        return b;
+    };
+
+    // Central moments of the initial distribution
+    scalarList central0(nHigher, Zero);
+
+    for (label k = 0; k < nHigher; k++)
+    {
+        for (label j = 0; j <= k; j++)
+        {
+            central0[k] +=
+                binomial(k, j)*m[j][celli]/m0[celli]*pow(-mean0, k - j);
+        }
+    }
+
     Info<< "\nMixing kernel " << kernelDict.get<word>("mixingKernel")
         << ", Cphi " << Cphi << ", epsilon/k " << epsilonByK << nl
         << "Mean " << mean0 << ", variance " << variance0 << nl << endl;
@@ -180,6 +234,7 @@ int main(int argc, char *argv[])
     scalar worstM0 = 0;
     scalar worstMean = 0;
     scalar worstDecay = 0;
+    scalar worstHigher = 0;
 
     for (label stepi = 0; stepi < nSteps; stepi++)
     {
@@ -202,6 +257,31 @@ int main(int argc, char *argv[])
             << ", variance " << variance
             << " (expected " << expected
             << ", error " << errorDecay << ")" << endl;
+
+        if (isIEM)
+        {
+            // Every element is at mean + (xi(0) - mean) exp(-omega t)
+            const scalar omega = 0.5*Cphi*epsilonByK;
+
+            for (label k = 3; k < nHigher; k++)
+            {
+                scalar exact = 0;
+
+                for (label j = 0; j <= k; j++)
+                {
+                    exact +=
+                        binomial(k, j)*central0[j]*Foam::exp(-j*omega*t)
+                       *pow(mean0, k - j);
+                }
+
+                worstHigher =
+                    max
+                    (
+                        worstHigher,
+                        mag(m[k][celli]/m0[celli] - exact)/exact
+                    );
+            }
+        }
 
         worstM0 = max(worstM0, errorM0);
         worstMean = max(worstMean, errorMean);
@@ -249,10 +329,27 @@ int main(int argc, char *argv[])
             << worstDecay << ")" << endl;
     }
 
+    if (isIEM)
+    {
+        if (!(worstHigher <= decayTolerance))
+        {
+            Info<< "FAILED: the moments of order three and four are not "
+                << "those of elements drawn to the mean, largest relative "
+                << "error " << worstHigher << endl;
+            nFailed++;
+        }
+        else
+        {
+            Info<< "OK: the moments of order three and four are those of "
+                << "elements drawn to the mean (" << worstHigher << ")"
+                << endl;
+        }
+    }
+
     if (nFailed > 0)
     {
         FatalErrorInFunction
-            << nFailed << " of 3 checks failed." << nl
+            << nFailed << " of " << (isIEM ? 4 : 3) << " checks failed." << nl
             << exit(FatalError);
     }
 

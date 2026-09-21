@@ -46,6 +46,14 @@ Description
     realizable moment set or cannot meet the tolerances ends the run rather
     than shrinking its step without end.
 
+    Every stage evaluates the sources of all the moments at one state, and
+    advances the moments only once it has them all. This matters to a source
+    that is closed in the moments and reads them, as the mixing kernels are
+    (IEM: the source of m_k is k omega (<x> m_(k-1) - m_k)), which would
+    otherwise find part of the moments already advanced; a source that reads
+    the nodes of the quadrature, as the population balance kernels do, sees
+    the state the nodes were last updated to, between the stages.
+
     Reference:
     \verbatim
         "Solution of population balance equations in applications with 

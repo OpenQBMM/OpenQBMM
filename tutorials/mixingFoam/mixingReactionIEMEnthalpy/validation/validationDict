@@ -17,8 +17,9 @@ FoamFile
 
 // The temperatures are held against those of mixingReactionIEM, where the
 // enthalpy of an environment is linear in its mixture fraction and not
-// transported: the two cases differ by what the solver of the moment
-// equations lets through, most at the ignition of the smallest environment.
+// transported: the enthalpy moments of the two streams stay linear in the
+// mixture fraction under mixing, so the two cases are the same to the
+// tolerances of the solvers.
 // The mean state of the cell over time, the temperature and the mass
 // fractions of the species, and the state of every environment, its
 // temperature and its mixture fraction, as the environments mix and react
@@ -56,7 +57,7 @@ figures
 
                 compare
                 {
-                    linear0     1e-4;
+                    linear0     1e-8;
                 }
             }
             node1
@@ -68,7 +69,7 @@ figures
 
                 compare
                 {
-                    linear1     5e-4;
+                    linear1     1e-8;
                 }
             }
             node2
@@ -80,7 +81,7 @@ figures
 
                 compare
                 {
-                    linear2     1e-3;
+                    linear2     1e-8;
                 }
             }
             mean
@@ -145,7 +146,7 @@ figures
 
                 compare
                 {
-                    linear      1e-4;
+                    linear      1e-8;
                 }
             }
         }

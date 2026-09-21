@@ -193,19 +193,26 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
         {
             updateCellMomentSource(celli);
 
+            // The sources of all the moments are those of the state at the
+            // start of the step: a source that reads the moments, as the
+            // mixing kernels do, must not find some of them advanced
+            scalarList cellSources(nMoments, Zero);
+
             forAll(moments, mi)
             {
-                const labelList& order = momentOrders[mi];
-
-                moments[mi][celli] +=
-                    globalDt
-                   *cellMomentSource
+                cellSources[mi] =
+                    cellMomentSource
                     (
-                        order,
+                        momentOrders[mi],
                         celli,
                         quadrature,
                         enviroment
                     );
+            }
+
+            forAll(moments, mi)
+            {
+                moments[mi][celli] += globalDt*cellSources[mi];
             }
 
             quadrature.updateLocalQuadrature(celli, true);
@@ -338,8 +345,6 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                             enviroment
                         );
 
-                    moments[mi][celli] = oldMoments[mi] + k1[mi];
-
                     // A source is null when it moves no moment by more than
                     // a vanishing part of the tolerance of that moment. It
                     // used to be null below SMALL, an absolute number: a
@@ -362,6 +367,24 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                 // Nothing acts on the cell, so it stays where it is for the
                 // whole of the step. The moments are put back rather than
                 // left with the negligible k1, and the quadrature with them.
+                // The moments are advanced once the slopes of all of them
+                // are known. They used to be advanced one by one in the
+                // loop that evaluates the slopes, so that a source that
+                // reads the moments, as the mixing kernels do, which are
+                // closed in them, found the moments before its own at the
+                // new state and the ones after at the old: the slope of
+                // the third moment of IEM used the second one already
+                // advanced. The stages were then of no state at all, the
+                // scheme was first order in those moments, and the error
+                // estimate, which saw it, shrank the step to no avail. A
+                // source that reads the nodes, as the population balance
+                // kernels do, was not affected, since the nodes are
+                // updated between the stages only.
+                forAll(k1, mi)
+                {
+                    moments[mi][celli] = oldMoments[mi] + k1[mi];
+                }
+
                 if (nullSource)
                 {
                     forAll(oldMoments, mi)
@@ -397,6 +420,10 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                             enviroment
                         );
 
+                }
+
+                forAll(k2, mi)
+                {
                     moments[mi][celli] = oldMoments[mi] + (k1[mi] + k2[mi])/4.0;
                 }
 
@@ -421,10 +448,13 @@ void Foam::realizableOdeSolver<momentType, nodeType>::solve
                             enviroment
                         );
 
+                    diff23[mi] = (2.0*k3[mi] - k1[mi] - k2[mi])/3.0;
+                }
+
+                forAll(k3, mi)
+                {
                     moments[mi][celli] =
                         oldMoments[mi] + (k1[mi] + k2[mi] + 4.0*k3[mi])/6.0;
-
-                    diff23[mi] = (2.0*k3[mi] - k1[mi] - k2[mi])/3.0;
                 }
 
                 realizableUpdate3 =
