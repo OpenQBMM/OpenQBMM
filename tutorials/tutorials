@@ -34,8 +34,9 @@
     Tutorials demonstrating the simultaneous solution of a mixing and PBE 
     problem.
 
-* mixingTransportFoam
-    Tutorials for mixing model on steady velocity field.
+* mixingReactingFoam
+    Tutorials for the transient solver of a flow whose composition and
+    temperature are those of a mixing model, with the flow solved or frozen.
 
 * pbeFoam
     Tutorials for the single-cell solver pbeFoam to demonstrate kernel functions

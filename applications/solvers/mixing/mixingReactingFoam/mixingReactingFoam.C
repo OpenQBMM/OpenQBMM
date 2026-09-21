@@ -59,8 +59,9 @@ Description
 
     With frozenFlow on in the PIMPLE dictionary the flow is not solved: the
     velocity, the fluxes, the density and the turbulence stay what the case
-    starts from, and only the mixing model advances, which is what
-    mixingTransportFoam does.
+    starts from, and only the mixing model advances over them, which is what
+    a mixing model on a velocity field solved beforehand, or given, asks
+    for: the twoStreams tutorials are of that kind.
 
 \*---------------------------------------------------------------------------*/
 

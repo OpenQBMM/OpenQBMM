@@ -11,44 +11,40 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      controlDict;
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     mixingTransportFoam;
+solvers
+{
+    "moment.*"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-10;
+        relTol          0;
+    }
+}
 
-startFrom       startTime;
+PIMPLE
+{
+    //  The flow is not solved: the velocity, the fluxes and the density
+    //  stay the ones the case starts from, and only the mixing model
+    //  advances over them
+    frozenFlow          yes;
 
-startTime       0;
+    nOuterCorrectors    1;
+    nNonOrthogonalCorrectors 0;
+    nCorrectors         1;
+    pRefCell            0;
+    pRefValue           1.0e5;
+}
 
-stopAt          endTime;
-
-endTime         10;
-
-deltaT          1;
-
-writeControl    adjustableRunTime;
-
-writeInterval   1;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  12;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-adjustTimeStep  yes;
-
-maxCo           0.4;
-
-maxDeltaT       1;
-
+relaxationFactors
+{
+    equations
+    {
+        "moment.*"      1;
+    }
+}
 // ************************************************************************* //

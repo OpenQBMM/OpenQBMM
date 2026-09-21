@@ -11,35 +11,44 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSolution;
+    object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
-{
-    "moment.*"
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-10;
-        relTol          0;
-    }
-}
+application     mixingReactingFoam;
 
-PIMPLE
-{
-    nOuterCorrectors    1;
-    nNonOrthogonalCorrectors 0;
-    nCorrectors         1;
-    pRefCell            0;
-    pRefValue           1.0e5;
-}
+startFrom       startTime;
 
-relaxationFactors
-{
-    equations
-    {
-        "moment.*"      1;
-    }
-}
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          1;
+
+writeControl    adjustableRunTime;
+
+writeInterval   1;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           0.4;
+
+maxDeltaT       1;
+
 // ************************************************************************* //

@@ -199,7 +199,7 @@ dictionary.
 ## Applications
 
 `applications/solvers` is grouped by physics: `populationBalance` (pbeFoam, pbeTransportFoam,
-buoyantPbePimpleFoam), `mixing` (mixingFoam, mixingTransportFoam), `compressible`
+buoyantPbePimpleFoam), `mixing` (mixingFoam, mixingReactingFoam), `compressible`
 (explicitRhoFoam + compressiblePbeTransportFoam, sharing a `ButcherTable` library),
 `velocityDistributionTransport` (vdfTransportFoam, diluteVdfTransportFoam,
 oneWayCoupledVdfTransportFoam + their own phaseModel/interfacial/turbulence libraries), and
