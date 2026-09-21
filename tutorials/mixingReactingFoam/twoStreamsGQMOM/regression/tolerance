@@ -1,0 +1,5 @@
+// The limiter of the zeta scheme decides on a realizability test, which
+// round-off can settle either way in a cell on the boundary of the moment
+// space, as in twoStreamsQMOM: a perturbation of one part in 1e13 of the
+// diffusivity moves the moments of this case by 5e-7 to 2e-6 of their span.
+1.0e-4
