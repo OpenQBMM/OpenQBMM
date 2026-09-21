@@ -30,6 +30,11 @@
     Tutorials for multiphase solver for the transport of a velocity distribution
     function for dilute disperse phases.
 
+* mixingFoam
+    Tutorials for the single-cell solver mixingFoam, which mixes and reacts the
+    environments of a mixture fraction in homogeneous turbulence: the mesh is
+    made on the fly and nothing is transported.
+
 * mixingReactingFoam
     Tutorials for the transient solver of a flow whose composition and
     temperature are those of a mixing model, with the flow solved or frozen.
