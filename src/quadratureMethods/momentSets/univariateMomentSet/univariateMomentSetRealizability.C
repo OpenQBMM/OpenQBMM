@@ -48,6 +48,17 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     // end, for the inversion: the canonical moment of order zetai + 1
     const scalar tolerance = boundaryTolerance();
 
+    // How far beyond the moment space the set is, is said in the moments
+    // and not in the canonical ones: given the moments below it, m_N/m_0
+    // has an interval it can lie in, of width p_1 q_1 ... p_(N-1) q_(N-1)
+    // with q_k = 1 - p_k, and p_N is where in that interval it is. A p_N
+    // beyond an end by e is then a moment beyond its interval by e times
+    // that width. The canonical moment alone would not do: in a cell that
+    // holds one stream and 1e-34 of the other, it is the ratio of two
+    // numbers of that size, which transport leaves anywhere, while the
+    // moments are out by nothing.
+    scalar width = 1;
+
     if (canonicalMoments_[0] >= 1.0 - tolerance)
     {
         status_.boundaryOrder = 1;
@@ -69,6 +80,9 @@ void Foam::univariateMomentSet::checkCanonicalMoments
         canonicalMoments_[zetai]
             = zeta[zetai]/(1.0 - canonicalMoments_[zetai - 1]);
 
+        width *=
+            canonicalMoments_[zetai - 1]*(1.0 - canonicalMoments_[zetai - 1]);
+
         if (status_.boundaryOrder == 0)
         {
             if (canonicalMoments_[zetai] <= tolerance)
@@ -77,7 +91,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
                 status_.boundaryAtOne = false;
 
                 status_.boundaryExcess =
-                    max(-canonicalMoments_[zetai], scalar(0));
+                    width*max(-canonicalMoments_[zetai], scalar(0));
 
                 status_.boundaryBeyond = (status_.boundaryExcess > tolerance);
             }
@@ -87,7 +101,7 @@ void Foam::univariateMomentSet::checkCanonicalMoments
                 status_.boundaryAtOne = true;
 
                 status_.boundaryExcess =
-                    max(canonicalMoments_[zetai] - 1.0, scalar(0));
+                    width*max(canonicalMoments_[zetai] - 1.0, scalar(0));
 
                 status_.boundaryBeyond = (status_.boundaryExcess > tolerance);
             }

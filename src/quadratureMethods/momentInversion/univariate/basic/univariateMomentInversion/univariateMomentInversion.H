@@ -57,8 +57,10 @@ Description
     A canonical moment beyond that band, below zero or above one, belongs to
     no measure: the moments of that order and above are then replaced by
     those of the measure of the ones below it, which is the most the
-    inversion can return. Whether the last set inverted was such a set is
-    kept in boundaryBeyond, for a caller that inverts a field to count.
+    inversion can return. Whether the last set inverted was such a set,
+    its moment of that order being outside the interval the ones below it
+    allow by more than boundaryTolerance, is kept in boundaryBeyond, and by
+    how much in boundaryExcess, for a caller that inverts a field to count.
 
 SourceFiles
     univariateMomentInversion.C
@@ -98,11 +100,11 @@ class univariateMomentInversion
         //  boundary of the moment space
         scalar boundaryTolerance_;
 
-        //- Whether the moment set of the last inversion had a canonical
-        //  moment beyond an end of [0, 1]
+        //- Whether the moment set of the last inversion had a moment
+        //  beyond the interval the ones below it allow on [0, 1]
         bool boundaryBeyond_;
 
-        //- How far beyond that end it lay
+        //- How far beyond that interval it lay
         scalar boundaryExcess_;
 
 
@@ -292,18 +294,18 @@ public:
             return boundaryTolerance_;
         }
 
-        //- Whether the last moment set inverted had a canonical moment
-        //  beyond an end of [0, 1], and so was the moment set of no
-        //  measure. What was returned is the measure of the moments below
-        //  that one. A caller that inverts a field counts these and
-        //  reports them.
+        //- Whether the last moment set inverted had, on [0, 1], a moment
+        //  beyond the interval the ones below it allow, and so was the
+        //  moment set of no measure. What was returned is the measure of
+        //  the moments below that one. A caller that inverts a field
+        //  counts these and reports them.
         bool boundaryBeyond() const
         {
             return boundaryBeyond_;
         }
 
-        //- How far beyond an end of [0, 1] the canonical moment of the last
-        //  moment set lay: what the report of a field says, so that the
+        //- How far beyond that interval the moment, over the one of order
+        //  zero, lay: what the report of a field says, so that the
         //  round-off the moments carry out of their own equations is told
         //  apart from a moment set that is wrong
         scalar boundaryExcess() const

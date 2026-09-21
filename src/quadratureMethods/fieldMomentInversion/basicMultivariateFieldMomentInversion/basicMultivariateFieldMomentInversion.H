@@ -43,16 +43,12 @@ Description
 
     The cells that could not be inverted, those where a conditioned value
     was clipped to its support, and those whose moments are those of no
-    distribution, are counted and reported at each inversion of the mesh.
-    The last of these are inverted as far as their moments go, and the
-    report says by how far beyond an end of [0, 1] the canonical moment of
-    the conditioning coordinate lies: the round-off the moments carry out of
-    their own equations, which transport solved for each moment on its own
-    leaves where a gradient is steep, or more. A canonical moment is
-    divided by one minus the one below it, so the distance it is reported
-    beyond an end grows with how close to an end that one is: it says which
-    moment sets are worth looking at, not how far the moments are from a
-    distribution.
+    distribution, are counted over all the processors and reported at each
+    inversion of the mesh. The last of these are inverted as far as their
+    moments go, and the report says by how far a moment of the conditioning
+    coordinate, over the one of order zero, lies outside the interval the
+    moments below it allow: the round-off the moments carry out of their
+    own equations, or more.
 
 SourceFiles
     basicMultivariateFieldMomentInversion.C

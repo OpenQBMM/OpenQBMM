@@ -1132,6 +1132,52 @@ void testBeyondTheUnitInterval()
         }
     }
 
+    // A cell of one stream with a trace of the other, as transport leaves
+    // ahead of a front: these are the moments of such a cell of the
+    // twoStreams tutorial. The third canonical moment is the ratio of two
+    // numbers of 1e-34 and comes out at -0.07, beyond its end, while the
+    // third moment is outside what the ones below it allow by 1e-35. The
+    // inversion treats the set as on the boundary, as it must, and the set
+    // is not counted among the ones beyond the moment space.
+    {
+        const scalarList traceMoments
+        ({
+            0.9999999997136946,
+            4.655222689886193e-34,
+            3.741793105503321e-34,
+            2.953627231788662e-34
+        });
+
+        // With the smallZeta of a case, which is zero: a larger one
+        // settles the set at its first zeta_k
+        univariateMomentSet m
+        (
+            traceMoments, supportType::ZeroOne, SMALL, 0
+        );
+
+        Info<< "  a trace of a second stream: canonical moments "
+            << m.canonicalMoments() << ", moment of order "
+            << m.boundaryOrder() << " outside its interval by "
+            << m.boundaryExcess() << endl;
+
+        if
+        (
+            m.boundaryOrder() != 3
+         || m.canonicalMoments()[2] > -1e-3
+         || m.boundaryBeyond()
+         || m.boundaryExcess() > 1e-30
+        )
+        {
+            FatalErrorInFunction
+                << "A trace of a second stream is taken for a moment set "
+                << "beyond the moment space." << nl
+                << "    Canonical moments: " << m.canonicalMoments() << nl
+                << "    Beyond: " << m.boundaryBeyond() << ", by "
+                << m.boundaryExcess() << nl
+                << exit(FatalError);
+        }
+    }
+
     Info<< endl;
 }
 

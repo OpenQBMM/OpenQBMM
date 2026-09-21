@@ -204,24 +204,42 @@ void Foam::basicMultivariateFieldMomentInversion::invert
         }
     }
 
+    // A warning is written by the master alone, so the counts are those of
+    // the whole mesh and not of the part of it the master holds. The first
+    // cell is said where there is one mesh, its index meaning nothing
+    // across processors.
+    const bool oneMesh = !Pstream::parRun();
+    const label nCells = returnReduce(m0.size(), sumOp<label>());
+
+    reduce(nBeyondCells, sumOp<label>());
+    reduce(worstExcess, maxOp<scalar>());
+    reduce(nClippedCells, sumOp<label>());
+    reduce(nFailedCells, sumOp<label>());
+
     if (nBeyondCells > 0)
     {
         WarningInFunction
-            << "In " << nBeyondCells << " of the " << m0.size() << " cells "
+            << "In " << nBeyondCells << " of the " << nCells << " cells "
             << "of the mesh the moments of the conditioning coordinate are "
             << "those of no distribution," << nl
             << "    and the quadrature of those cells reproduces only the "
             << "moments below the one that is not." << nl
-            << "    A canonical moment of that coordinate is beyond its "
-            << "end of [0, 1] by " << worstExcess << " at the worst." << nl
-            << "    First of them: cell " << firstBeyondCell << nl
-            << endl;
+            << "    A moment of that coordinate, over the one of order "
+            << "zero, is outside the interval the ones below it allow" << nl
+            << "    by " << worstExcess << " at the worst." << nl;
+
+        if (oneMesh)
+        {
+            Info<< "    First of them: cell " << firstBeyondCell << nl;
+        }
+
+        Info<< endl;
     }
 
     if (nClippedCells > 0)
     {
         WarningInFunction
-            << "In " << nClippedCells << " of the " << m0.size() << " cells "
+            << "In " << nClippedCells << " of the " << nCells << " cells "
             << "of the mesh a conditioned value fell outside its support "
             << "and was clipped to it." << nl
             << endl;
@@ -230,12 +248,17 @@ void Foam::basicMultivariateFieldMomentInversion::invert
     if (nFailedCells > 0)
     {
         WarningInFunction
-            << "The moments of " << nFailedCells << " of the " << m0.size()
+            << "The moments of " << nFailedCells << " of the " << nCells
             << " cells of the mesh could not be inverted, and the "
-            << "quadrature of those cells was set to zero." << nl
-            << "    First of them: cell " << firstFailedCell
-            << ", of zero-order moment " << m0[firstFailedCell] << nl
-            << endl;
+            << "quadrature of those cells was set to zero." << nl;
+
+        if (oneMesh)
+        {
+            Info<< "    First of them: cell " << firstFailedCell
+                << ", of zero-order moment " << m0[firstFailedCell] << nl;
+        }
+
+        Info<< endl;
     }
 
     invertBoundaryMoments(moments, nodes);

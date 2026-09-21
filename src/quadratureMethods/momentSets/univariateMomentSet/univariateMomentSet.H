@@ -77,12 +77,17 @@ Description
     source term produced, and what comes back is the measure of the moments
     below it, with m_N and the moments above replaced. That the set was
     unrealizable and not merely on the boundary is kept in boundaryBeyond,
-    and how far beyond its end p_N lies in boundaryExcess, so that a sweep
-    over a mesh can count the cells and report by how much: the round-off
-    the moments carry out of their own equations, or more. A canonical
-    moment is divided by one minus the one below it, p_N = zeta_N/(1 -
-    p_(N-1)), so that distance grows with how close to an end p_(N-1) is,
-    and orders the moment sets rather than measuring them.
+    and by how much in boundaryExcess, so that a sweep over a mesh can
+    count the cells and report them. The excess is that of the moment:
+    given the moments below it, m_N/m_0 has an interval it can lie in, of
+    width p_1 q_1 ... p_(N-1) q_(N-1) with q_k = 1 - p_k, in which p_N is
+    its position, so a p_N beyond an end by e is a moment beyond its
+    interval by e times that width, and the set is beyond the moment space
+    where that exceeds boundaryTolerance. The canonical moment alone would
+    not do: a cell of one stream with 1e-34 of the other, which transport
+    leaves ahead of any front, has canonical moments that are ratios of
+    numbers of that size and lie anywhere, and moments that are out by
+    nothing.
 
 SourceFiles
     univariateMomentSet.C
@@ -139,13 +144,13 @@ public:
             //- On [0, 1], whether that canonical moment is at one
             bool boundaryAtOne = false;
 
-            //- On [0, 1], whether that canonical moment lies beyond the end
-            //  by more than the tolerance, so that no measure has the
-            //  moments of that order and above
+            //- On [0, 1], whether the moment of that order lies beyond
+            //  the interval the moments below it allow by more than the
+            //  tolerance, so that no measure has it
             bool boundaryBeyond = false;
 
-            //- On [0, 1], how far beyond its end that canonical moment
-            //  lies, null where it is inside the interval
+            //- On [0, 1], how far beyond that interval m_N/m_0 lies, null
+            //  where it is inside
             scalar boundaryExcess = 0;
 
             //- Bool to indicate the realizability check was performed
@@ -332,17 +337,18 @@ public:
             bool fatalErrorOnFailedRealizabilityTest = true
         );
 
-        //- On [0, 1], whether that canonical moment lies beyond its end by
-        //  more than boundaryTolerance: the moments of that order and above
-        //  are those of no measure, and the inversion returns the measure of
-        //  the ones below it
+        //- On [0, 1], whether the moment of that order lies beyond the
+        //  interval the moments below it allow by more than
+        //  boundaryTolerance: the moments of that order and above are those
+        //  of no measure, and the inversion returns the measure of the ones
+        //  below it
         inline bool boundaryBeyond
         (
             bool fatalErrorOnFailedRealizabilityTest = true
         );
 
-        //- On [0, 1], how far beyond its end that canonical moment lies,
-        //  which says whether the moment set misses the moment space by the
+        //- On [0, 1], how far beyond that interval m_N/m_0 lies, which
+        //  says whether the moment set misses the moment space by the
         //  round-off of the moments or by more
         inline scalar boundaryExcess
         (

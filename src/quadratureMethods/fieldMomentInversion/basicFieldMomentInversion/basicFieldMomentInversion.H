@@ -34,12 +34,12 @@ Description
     quadrature the basicMomentInversion dictionary selects.
 
     A cell whose moments are those of no distribution is inverted as far as
-    they go, which on [0, 1] is the measure of the moments below the
-    canonical moment that lies beyond an end of the interval. Those cells
-    are counted at each inversion of the mesh and reported with the worst
-    the moment space was missed by: the round-off the moments carry out of
-    their own equations, which transport solved for each moment on its own
-    leaves where a gradient is steep, or more.
+    they go, which on [0, 1] is the measure of the moments below the one
+    that lies outside the interval they allow. Those cells are counted at
+    each inversion of the mesh, over all its processors, and reported with
+    the worst distance of a moment, over the one of order zero, from that
+    interval: the round-off the moments carry out of their own equations,
+    or more.
 
 SourceFiles
     basicFieldMomentInversion.C

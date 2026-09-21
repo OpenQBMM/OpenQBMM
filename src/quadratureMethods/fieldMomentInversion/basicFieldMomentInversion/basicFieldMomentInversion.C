@@ -209,19 +209,35 @@ void Foam::basicFieldMomentInversion::invert
         }
     }
 
+    // A warning is written by the master alone, so the count is that of
+    // the whole mesh and not of the part of it the master holds. The first
+    // cell is said where there is one mesh, its index meaning nothing
+    // across processors.
+    const label nBeyondLocal = nBeyondCells;
+
+    reduce(nBeyondCells, sumOp<label>());
+    reduce(worstExcess, maxOp<scalar>());
+
     if (nBeyondCells > 0)
     {
         WarningInFunction
-            << "In " << nBeyondCells << " of the " << m0.size() << " cells "
+            << "In " << nBeyondCells << " of the "
+            << returnReduce(m0.size(), sumOp<label>()) << " cells "
             << "of the mesh the moments are those of no distribution," << nl
             << "    and the quadrature of those cells reproduces only the "
             << "moments below the one that is not." << nl
-            << "    A canonical moment is beyond its end of [0, 1] by "
-            << worstExcess << " at the worst, against the tolerance "
-            << momentInverter_().boundaryTolerance() << "." << nl
-            << "    First of them: cell " << firstBeyondCell
-            << ", of zero-order moment " << m0[firstBeyondCell] << nl
-            << endl;
+            << "    A moment, over the one of order zero, is outside the "
+            << "interval the ones below it allow by " << worstExcess << nl
+            << "    at the worst, against the tolerance "
+            << momentInverter_().boundaryTolerance() << "." << nl;
+
+        if (!Pstream::parRun() && nBeyondLocal > 0)
+        {
+            Info<< "    First of them: cell " << firstBeyondCell
+                << ", of zero-order moment " << m0[firstBeyondCell] << nl;
+        }
+
+        Info<< endl;
     }
 
     invertBoundaryMoments(moments, nodes);

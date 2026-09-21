@@ -85,9 +85,9 @@ Description
     inverted, and tested for realizability, on theirs. A primary moment set
     that no distribution has, which transport and the source terms can
     produce, is inverted as far as it goes: on [0, 1] the nodes are those
-    of the moments below the canonical moment that lies beyond an end of
-    the interval, and beyondMomentSpace says so, for the caller that
-    inverts a field to count the cells and report them. A conditioned scalar
+    of the moments below the one that lies outside the interval they allow,
+    and beyondMomentSpace says so, for the caller that inverts a field to
+    count the cells and report them. A conditioned scalar
     on the positive reals or on [0, 1] is clipped to it when the solve
     gives a mean just outside, which transport error can do; how many
     values were clipped in the last inversion is kept, so that a caller can
@@ -259,11 +259,11 @@ public:
         }
 
         //- Whether the moments of the primary coordinate of the last
-        //  inversion were those of no distribution: on [0, 1], a canonical
-        //  moment beyond an end of the interval. The nodes are then those
-        //  of the moments below it, and the conditional means are taken on
-        //  them, so the moment that was beyond and those above it are not
-        //  reproduced.
+        //  inversion were those of no distribution: on [0, 1], a moment
+        //  outside the interval the ones below it allow. The nodes are
+        //  then those of the moments below it, and the conditional means
+        //  are taken on them, so the moment that was beyond and those above
+        //  it are not reproduced.
         virtual bool beyondMomentSpace() const
         {
             return primaryBeyondMomentSpace_;
