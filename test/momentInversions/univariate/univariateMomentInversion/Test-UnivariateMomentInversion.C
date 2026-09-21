@@ -372,7 +372,10 @@ void testModelDistributionsGQMOM()
     // Gamma of shape 3 and scale 0.5, lognormal of mu = 0 and sigma = 0.3,
     // beta(2, 5)
     models[1] =
-        {"gamma", supportType::RPlus, "ndfTypeRPlus gamma;", scalarList(nExact)};
+    {
+        "gamma", supportType::RPlus, "ndfTypeRPlus gamma;",
+        scalarList(nExact)
+    };
     models[2] =
     {
         "lognormal", supportType::RPlus, "ndfTypeRPlus lognormal;",
@@ -1006,6 +1009,133 @@ void testBoundaryTolerance()
 }
 
 
+//- Moments on [0, 1] that no measure has: a canonical moment beyond an end
+//  of the interval, which transport or a source term gives a cell that is
+//  filling or emptying. The inversion returns what it can of them, the
+//  measure of the moments below the one that is beyond, and says that it
+//  did, so that a sweep over a mesh can count the cells.
+//
+//  Two pure streams, of weights 0.7 at zero and 0.3 at one, have m_k = 0.3
+//  for every k above zero and p_2 = 1: the upper end, and on it. Raising
+//  m_2 above m_1 asks for more spread than an interval of unit length has,
+//  and takes p_2 beyond one; lowering m_2 below the square of m_1 asks for
+//  a negative variance, and takes p_2 below zero.
+void testBeyondTheUnitInterval()
+{
+    Info<< "\nTesting moments beyond the moment space of [0, 1]\n" << endl;
+
+    const scalar m1 = 0.3;
+
+    struct Set
+    {
+        string name;
+        scalar m2;
+        bool beyond;
+        bool atOne;
+        label nNodes;
+    };
+
+    const List<Set> sets
+    ({
+        {"two pure streams", m1, false, true, 2},
+        {"a variance above the interval", m1*(1.0 + 1e-6), true, true, 2},
+        {"a negative variance", sqr(m1)*(1.0 - 1e-6), true, false, 1}
+    });
+
+    for (const Set& set : sets)
+    {
+        scalarList inputMoments(6, m1);
+        inputMoments[0] = 1;
+        inputMoments[2] = set.m2;
+
+        dictionary dict
+        (
+            IStringStream("univariateMomentInversion Gauss;")()
+        );
+
+        autoPtr<univariateMomentInversion> inversion
+        (
+            univariateMomentInversion::New(dict)
+        );
+
+        univariateMomentSet m
+        (
+            inputMoments, supportType::ZeroOne, SMALL, SMALL
+        );
+
+        inversion().invert(m);
+
+        const scalarList& weights(inversion().weights());
+        const scalarList& abscissae(inversion().abscissae());
+
+        Info<< "  " << set.name.c_str() << ": beyond the moment space "
+            << inversion().boundaryBeyond() << ", canonical moment of order "
+            << m.boundaryOrder() << " at "
+            << (m.boundaryAtOne() ? "one" : "zero") << nl
+            << "    weights " << weights << ", abscissae " << abscissae
+            << endl;
+
+        // The moment set and the inversion say the same thing
+        if
+        (
+            m.boundaryBeyond() != set.beyond
+         || inversion().boundaryBeyond() != set.beyond
+         || m.boundaryOrder() != 2
+         || m.boundaryAtOne() != set.atOne
+        )
+        {
+            FatalErrorInFunction
+                << "The moment set is not classified as it should be." << nl
+                << "    Moments: " << inputMoments << nl
+                << "    Beyond the moment space: " << m.boundaryBeyond()
+                << ", expected " << set.beyond << nl
+                << "    Order of the canonical moment at an end: "
+                << m.boundaryOrder() << ", expected 2" << nl
+                << "    At one: " << m.boundaryAtOne() << ", expected "
+                << set.atOne << nl
+                << exit(FatalError);
+        }
+
+        // The quadrature is the measure of the moments below the one that
+        // no measure has: the moments of order zero and one, here, which it
+        // keeps, while the second is taken to the end of the interval
+        if (weights.size() != set.nNodes)
+        {
+            FatalErrorInFunction
+                << "The measure of the moments below the one that is beyond "
+                << "the moment space does not have the nodes it should." << nl
+                << "    Number of nodes: " << weights.size()
+                << ", expected " << set.nNodes << nl
+                << exit(FatalError);
+        }
+
+        for (label mi = 0; mi < 2; mi++)
+        {
+            scalar momentFromQuadrature = 0;
+
+            forAll(weights, nodei)
+            {
+                momentFromQuadrature +=
+                    weights[nodei]*pow(abscissae[nodei], mi);
+            }
+
+            if (mag(momentFromQuadrature - inputMoments[mi]) > 1e-14)
+            {
+                FatalErrorInFunction
+                    << "The quadrature does not reproduce the moments below "
+                    << "the one that is beyond the moment space." << nl
+                    << "    Moment order: " << mi << nl
+                    << "    Moment from quadrature: " << momentFromQuadrature
+                    << ", expected " << inputMoments[mi] << nl
+                    << exit(FatalError);
+            }
+        }
+    }
+
+    Info<< endl;
+}
+
+
 int main(int argc, char *argv[])
 {
     Info<< setprecision(16);
@@ -1421,6 +1551,8 @@ int main(int argc, char *argv[])
     testScaleInvariance(quadraturePropertiesGQMOM, "GQMOM", 5);
 
     testBoundaryTolerance();
+
+    testBeyondTheUnitInterval();
 
     testBoundaryOfTheUnitInterval(quadraturePropertiesGauss, "Gauss");
     testBoundaryOfTheUnitInterval(quadraturePropertiesRadau, "Gauss-Radau");

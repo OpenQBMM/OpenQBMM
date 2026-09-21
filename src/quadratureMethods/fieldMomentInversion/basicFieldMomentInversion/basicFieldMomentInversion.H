@@ -30,8 +30,16 @@ Class
     Foam::basicFieldMomentInversion
 
 Description
-    Invert moment a volUnivariateMomentFieldSet using basic quadrature
-    inversion.
+    Invert the moments of a univariate distribution cell by cell with the
+    quadrature the basicMomentInversion dictionary selects.
+
+    A cell whose moments are those of no distribution is inverted as far as
+    they go, which on [0, 1] is the measure of the moments below the
+    canonical moment that lies beyond an end of the interval. Those cells
+    are counted at each inversion of the mesh and reported with the worst
+    the moment space was missed by: the round-off the moments carry out of
+    their own equations, which transport solved for each moment on its own
+    leaves where a gradient is steep, or more.
 
 SourceFiles
     basicFieldMomentInversion.C

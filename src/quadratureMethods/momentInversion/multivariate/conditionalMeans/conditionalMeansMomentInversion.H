@@ -82,7 +82,12 @@ Description
 
     The support of every coordinate comes from the moment set, which takes
     it from the model the quadrature belongs to. The primary moments are
-    inverted, and tested for realizability, on theirs. A conditioned scalar
+    inverted, and tested for realizability, on theirs. A primary moment set
+    that no distribution has, which transport and the source terms can
+    produce, is inverted as far as it goes: on [0, 1] the nodes are those
+    of the moments below the canonical moment that lies beyond an end of
+    the interval, and beyondMomentSpace says so, for the caller that
+    inverts a field to count the cells and report them. A conditioned scalar
     on the positive reals or on [0, 1] is clipped to it when the solve
     gives a mean just outside, which transport error can do; how many
     values were clipped in the last inversion is kept, so that a caller can
@@ -163,6 +168,12 @@ class conditionalMeans
         //- Number of conditioned values clipped to their support in the
         //  last inversion
         label nClipped_;
+
+        //- Whether the moments of the primary coordinate of the last
+        //  inversion were those of no distribution, and by how much they
+        //  missed the moment space
+        bool primaryBeyondMomentSpace_;
+        scalar primaryMomentSpaceExcess_;
 
         //- Whether a conditioned scalar is kept within its support
         bool clipToSupports_;
@@ -245,6 +256,24 @@ public:
         virtual label nClipped() const
         {
             return nClipped_;
+        }
+
+        //- Whether the moments of the primary coordinate of the last
+        //  inversion were those of no distribution: on [0, 1], a canonical
+        //  moment beyond an end of the interval. The nodes are then those
+        //  of the moments below it, and the conditional means are taken on
+        //  them, so the moment that was beyond and those above it are not
+        //  reproduced.
+        virtual bool beyondMomentSpace() const
+        {
+            return primaryBeyondMomentSpace_;
+        }
+
+        //- By how much the moments of the primary coordinate missed the
+        //  moment space
+        virtual scalar momentSpaceExcess() const
+        {
+            return primaryMomentSpaceExcess_;
         }
 
         //- Return the smallest accepted value for m0

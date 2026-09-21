@@ -185,6 +185,20 @@ public:
             return 0;
         }
 
+        //- Whether the last inversion was given moments that belong to no
+        //  distribution, beyond what a tolerance covers, and returned what
+        //  it could of them. Only an inversion that can tell says so.
+        virtual bool beyondMomentSpace() const
+        {
+            return false;
+        }
+
+        //- By how much those moments missed the moment space
+        virtual scalar momentSpaceExcess() const
+        {
+            return 0;
+        }
+
         //- Return the smallest accepted value for m0
         virtual scalar smallM0() const = 0;
 

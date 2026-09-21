@@ -93,6 +93,8 @@ Foam::multivariateMomentInversions::conditionalMeans::conditionalMeans
         primaryInverter_().nAdditionalQuadraturePoints(nPrimaryMoments_)
     ),
     nClipped_(0),
+    primaryBeyondMomentSpace_(false),
+    primaryMomentSpaceExcess_(0),
     clipToSupports_(true)
 {
     // Every node carries a conditional mean, found from as many moments
@@ -283,6 +285,8 @@ bool Foam::multivariateMomentInversions::conditionalMeans::invert
 {
     reset();
     nClipped_ = 0;
+    primaryBeyondMomentSpace_ = false;
+    primaryMomentSpaceExcess_ = 0;
 
     const List<supportType>& supports = moments.supports();
 
@@ -310,6 +314,12 @@ bool Foam::multivariateMomentInversions::conditionalMeans::invert
     }
 
     primaryInverter_->invert(primaryMoments);
+
+    // Moments of the primary coordinate that no distribution has are
+    // inverted as far as they go, and reported through this object
+    primaryBeyondMomentSpace_ = primaryInverter_->boundaryBeyond();
+    primaryMomentSpaceExcess_ = primaryInverter_->boundaryExcess();
+
     const scalarList& primaryWeights(primaryInverter_->weights());
     const scalarList& primaryAbscissae(primaryInverter_->abscissae());
 

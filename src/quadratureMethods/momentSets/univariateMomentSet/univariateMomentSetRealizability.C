@@ -52,6 +52,8 @@ void Foam::univariateMomentSet::checkCanonicalMoments
     {
         status_.boundaryOrder = 1;
         status_.boundaryAtOne = true;
+        status_.boundaryExcess = max(canonicalMoments_[0] - 1.0, scalar(0));
+        status_.boundaryBeyond = (status_.boundaryExcess > tolerance);
     }
 
     if (mag(canonicalMoments_[0] - 1.0) <= smallZeta_)
@@ -73,11 +75,21 @@ void Foam::univariateMomentSet::checkCanonicalMoments
             {
                 status_.boundaryOrder = zetai + 1;
                 status_.boundaryAtOne = false;
+
+                status_.boundaryExcess =
+                    max(-canonicalMoments_[zetai], scalar(0));
+
+                status_.boundaryBeyond = (status_.boundaryExcess > tolerance);
             }
             else if (canonicalMoments_[zetai] >= 1.0 - tolerance)
             {
                 status_.boundaryOrder = zetai + 1;
                 status_.boundaryAtOne = true;
+
+                status_.boundaryExcess =
+                    max(canonicalMoments_[zetai] - 1.0, scalar(0));
+
+                status_.boundaryBeyond = (status_.boundaryExcess > tolerance);
             }
         }
 

@@ -183,9 +183,45 @@ void Foam::basicFieldMomentInversion::invert
 
     checkSmallM0(m0);
 
+    label nBeyondCells = 0;
+    label firstBeyondCell = -1;
+    scalar worstExcess = 0;
+
     forAll(m0, celli)
     {
         invertLocalMoments(moments, nodes, celli);
+
+        // Moments that no distribution has are inverted as far as they go,
+        // which is the measure of the ones below the first that is not:
+        // the cells are counted and reported, rather than passed over in
+        // silence or made fatal, since transport and the source terms
+        // produce them in a cell that is emptying or filling
+        if (momentInverter_().boundaryBeyond())
+        {
+            if (nBeyondCells == 0)
+            {
+                firstBeyondCell = celli;
+            }
+
+            nBeyondCells++;
+
+            worstExcess = max(worstExcess, momentInverter_().boundaryExcess());
+        }
+    }
+
+    if (nBeyondCells > 0)
+    {
+        WarningInFunction
+            << "In " << nBeyondCells << " of the " << m0.size() << " cells "
+            << "of the mesh the moments are those of no distribution," << nl
+            << "    and the quadrature of those cells reproduces only the "
+            << "moments below the one that is not." << nl
+            << "    A canonical moment is beyond its end of [0, 1] by "
+            << worstExcess << " at the worst, against the tolerance "
+            << momentInverter_().boundaryTolerance() << "." << nl
+            << "    First of them: cell " << firstBeyondCell
+            << ", of zero-order moment " << m0[firstBeyondCell] << nl
+            << endl;
     }
 
     invertBoundaryMoments(moments, nodes);

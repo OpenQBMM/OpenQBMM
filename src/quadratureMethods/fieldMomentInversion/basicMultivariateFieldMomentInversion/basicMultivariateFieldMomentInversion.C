@@ -167,6 +167,9 @@ void Foam::basicMultivariateFieldMomentInversion::invert
     label nFailedCells = 0;
     label firstFailedCell = -1;
     label nClippedCells = 0;
+    label nBeyondCells = 0;
+    label firstBeyondCell = -1;
+    scalar worstExcess = 0;
 
     forAll(m0, celli)
     {
@@ -179,10 +182,40 @@ void Foam::basicMultivariateFieldMomentInversion::invert
 
             nFailedCells++;
         }
-        else if (momentInverter_().nClipped() > 0)
+        else
         {
-            nClippedCells++;
+            if (momentInverter_().nClipped() > 0)
+            {
+                nClippedCells++;
+            }
+
+            if (momentInverter_().beyondMomentSpace())
+            {
+                if (nBeyondCells == 0)
+                {
+                    firstBeyondCell = celli;
+                }
+
+                nBeyondCells++;
+
+                worstExcess =
+                    max(worstExcess, momentInverter_().momentSpaceExcess());
+            }
         }
+    }
+
+    if (nBeyondCells > 0)
+    {
+        WarningInFunction
+            << "In " << nBeyondCells << " of the " << m0.size() << " cells "
+            << "of the mesh the moments of the conditioning coordinate are "
+            << "those of no distribution," << nl
+            << "    and the quadrature of those cells reproduces only the "
+            << "moments below the one that is not." << nl
+            << "    A canonical moment of that coordinate is beyond its "
+            << "end of [0, 1] by " << worstExcess << " at the worst." << nl
+            << "    First of them: cell " << firstBeyondCell << nl
+            << endl;
     }
 
     if (nClippedCells > 0)

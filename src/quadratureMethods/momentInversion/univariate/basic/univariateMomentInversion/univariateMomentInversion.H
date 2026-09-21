@@ -54,6 +54,12 @@ Description
     moved to the end. The moments of order zero and one are kept in either
     case.
 
+    A canonical moment beyond that band, below zero or above one, belongs to
+    no measure: the moments of that order and above are then replaced by
+    those of the measure of the ones below it, which is the most the
+    inversion can return. Whether the last set inverted was such a set is
+    kept in boundaryBeyond, for a caller that inverts a field to count.
+
 SourceFiles
     univariateMomentInversion.C
     univariateMomentInversionI.H
@@ -91,6 +97,13 @@ class univariateMomentInversion
         //  moment is taken to be at it, so that the moment set is on the
         //  boundary of the moment space
         scalar boundaryTolerance_;
+
+        //- Whether the moment set of the last inversion had a canonical
+        //  moment beyond an end of [0, 1]
+        bool boundaryBeyond_;
+
+        //- How far beyond that end it lay
+        scalar boundaryExcess_;
 
 
 protected:
@@ -277,6 +290,25 @@ public:
         scalar boundaryTolerance() const
         {
             return boundaryTolerance_;
+        }
+
+        //- Whether the last moment set inverted had a canonical moment
+        //  beyond an end of [0, 1], and so was the moment set of no
+        //  measure. What was returned is the measure of the moments below
+        //  that one. A caller that inverts a field counts these and
+        //  reports them.
+        bool boundaryBeyond() const
+        {
+            return boundaryBeyond_;
+        }
+
+        //- How far beyond an end of [0, 1] the canonical moment of the last
+        //  moment set lay: what the report of a field says, so that the
+        //  round-off the moments carry out of their own equations is told
+        //  apart from a moment set that is wrong
+        scalar boundaryExcess() const
+        {
+            return boundaryExcess_;
         }
 
     // Member Operators

@@ -247,6 +247,34 @@ bool Foam::univariateMomentSet::boundaryAtOne
 }
 
 
+bool Foam::univariateMomentSet::boundaryBeyond
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
+{
+    if (!status_.checked)
+    {
+        checkRealizability(fatalErrorOnFailedRealizabilityTest);
+    }
+
+    return status_.boundaryBeyond;
+}
+
+
+Foam::scalar Foam::univariateMomentSet::boundaryExcess
+(
+    bool fatalErrorOnFailedRealizabilityTest
+)
+{
+    if (!status_.checked)
+    {
+        checkRealizability(fatalErrorOnFailedRealizabilityTest);
+    }
+
+    return status_.boundaryExcess;
+}
+
+
 Foam::label Foam::univariateMomentSet::nRealizableMoments
 (
     bool fatalErrorOnFailedRealizabilityTest

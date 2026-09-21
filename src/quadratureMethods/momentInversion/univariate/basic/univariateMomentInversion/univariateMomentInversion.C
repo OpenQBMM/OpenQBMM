@@ -53,6 +53,8 @@ Foam::univariateMomentInversion::univariateMomentInversion
     (
         dict.lookupOrDefault<scalar>("boundaryTolerance", 1e-12)
     ),
+    boundaryBeyond_(false),
+    boundaryExcess_(0),
     nInvertibleMoments_(),
     nNodes_(nMaxNodes),
     abscissae_(),
@@ -172,6 +174,9 @@ void Foam::univariateMomentInversion::invert
     // recomputed by calcNQuadratureNodes below
     const scalar m0 = moments.moment(0);
 
+    boundaryBeyond_ = false;
+    boundaryExcess_ = 0;
+
     if (moments.isDegenerate())
     {
         nNodes_ = 1;
@@ -227,6 +232,12 @@ bool Foam::univariateMomentInversion::invertOnBoundary
     moments.boundaryTolerance(boundaryTolerance_);
 
     const label N = moments.boundaryOrder(false);
+
+    // Whether the moments of order N and above are those of no measure.
+    // This is kept for a set on the boundary at any order, the ones below
+    // two included, which are inverted by the ordinary path below.
+    boundaryBeyond_ = moments.boundaryBeyond(false);
+    boundaryExcess_ = moments.boundaryExcess(false);
 
     if (N < 2)
     {
