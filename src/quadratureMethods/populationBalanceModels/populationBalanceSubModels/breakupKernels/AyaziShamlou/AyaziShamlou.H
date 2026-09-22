@@ -32,6 +32,19 @@ Class
 Description
     Breakup kernel for liquid-solid systems.
 
+    The rate is \f$\sqrt{\epsilon/15\nu}\exp(-\sigma/\tau)\f$: an aggregate
+    breaks when the stress of the turbulence around it, \f$\tau = \mu
+    \sqrt{\epsilon/\nu}\f$, reaches the strength \f$\sigma\f$ that the van
+    der Waals force between its primary particles gives it. The strength
+    grows as the aggregate shrinks, through the volume fraction of solid
+    within it, \f$(x/d_p)^{d_f - 3}\f$ for a fractal dimension \f$d_f\f$.
+
+    That power is negative, so an aggregate of no size, which a node that
+    carries nothing has, would divide by zero, and so would the strength
+    over the stress of a fluid at rest. Neither breaks anything, and both
+    return a rate of zero rather than ending the run on the floating point
+    trapping of OpenFOAM.
+
     Reference
     \verbatim
         "Growth-independent breakage frequency of protein precipitates in

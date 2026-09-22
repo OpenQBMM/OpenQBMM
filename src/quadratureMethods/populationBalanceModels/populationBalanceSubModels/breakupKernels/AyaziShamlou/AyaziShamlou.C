@@ -139,6 +139,16 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
     const label environment
 ) const
 {
+    // An aggregate that is not there does not break. Its volume fraction
+    // below is a power of the size divided by the primary size, negative
+    // for the fractal dimension of an aggregate, so a size of zero divides
+    // by zero, which the floating point trapping of OpenFOAM ends the run
+    // on rather than carrying an infinity into the exponential.
+    if (abscissa <= 0)
+    {
+        return 0;
+    }
+
     // Interparticle force
     scalar F = A_.value()*primarySize_.value()/(12.0*sqr(H0_.value()));
 
@@ -157,7 +167,15 @@ Foam::populationBalanceSubModels::breakupKernels::AyaziShamlou::Kb
 
     scalar epsilonByNu = epsilon()[celli]*rho_[celli]/mu_[celli];
 
+    // The stress of the turbulence the aggregate sits in, which breaks it
+    // when it is of the order of the strength. A fluid at rest breaks
+    // nothing, and dividing the strength by its stress would end the run.
     scalar tau = mu_[celli]*sqrt(epsilonByNu);
+
+    if (tau <= 0)
+    {
+        return 0;
+    }
 
     return sqrt(epsilonByNu/15.0)*exp(-sigma/tau);
 }
